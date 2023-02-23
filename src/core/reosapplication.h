@@ -22,6 +22,7 @@ email                : vcloarec at gmail dot com
 
 class REOSCORE_EXPORT ReosApplication: public QApplication
 {
+    Q_OBJECT
   public:
     ReosApplication( int &argc, char **argv, int flag = ApplicationFlags );
     bool notify( QObject *receiver, QEvent *event ) override;

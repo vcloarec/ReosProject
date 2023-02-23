@@ -95,6 +95,7 @@ class ReosGmshEngine : public ReosModule
 
 class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
 {
+    Q_OBJECT
   public:
     ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
                                   ReosMeshResolutionController *resolutionControler,

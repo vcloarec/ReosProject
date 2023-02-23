@@ -80,6 +80,7 @@ class REOSCORE_EXPORT ReosRunoffModel : public ReosDataObject
  */
 class REOSCORE_EXPORT ReosRunoffModelsGroup : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosRunoffModelsGroup( QObject *parent = nullptr );
 
@@ -297,6 +298,7 @@ class REOSCORE_EXPORT ReosRunoffModelModel : public QAbstractItemModel
  */
 class REOSCORE_EXPORT ReosRunoffModelRegistery : public ReosModule
 {
+    Q_OBJECT
   public:
     //! Intantiate the singleton
     static void instantiate( ReosModule *parent = nullptr );

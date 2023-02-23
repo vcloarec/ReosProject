@@ -30,6 +30,7 @@ class ReosHydrograph;
 //! Class that reprsents a transfer function, that is a tranformation from runoff to hydrograph
 class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
 {
+    Q_OBJECT
   public:
     ReosTransferFunction( ReosWatershed *watershed = nullptr );
     virtual ~ReosTransferFunction() = default;
@@ -93,6 +94,7 @@ class REOSCORE_EXPORT ReosTransferFunctionFactory
 //! List model class that is used to display transfer function list
 class ReosTransferFunctionFactoriesModel : public QAbstractListModel
 {
+    Q_OBJECT
   public:
     ReosTransferFunctionFactoriesModel( std::vector<std::unique_ptr<ReosTransferFunctionFactory>> &factories, QObject *parent );
 
@@ -111,6 +113,7 @@ class ReosTransferFunctionFactoriesModel : public QAbstractListModel
 //! Singleton class used to store and to acces to transfer function factory
 class REOSCORE_EXPORT ReosTransferFunctionFactories : public ReosModule
 {
+    Q_OBJECT
   public:
     static void instantiate( ReosModule *parent );
     static bool isInstantiate();

@@ -121,6 +121,7 @@ class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTim
 
 class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, public ReosDssProviderBase
 {
+    Q_OBJECT
   public:
     QString key() const override;
     QStringList fileSuffixes() const override;

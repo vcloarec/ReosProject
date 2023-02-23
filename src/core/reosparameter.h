@@ -74,6 +74,7 @@ class REOSCORE_EXPORT ReosParameter : public QObject
 
 class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterDouble( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterDouble( const QString &name, QObject *parent = nullptr );
@@ -99,6 +100,7 @@ class REOSCORE_EXPORT ReosParameterDouble: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterInteger: public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterInteger( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterInteger( const QString &name, QObject *parent = nullptr );
@@ -121,6 +123,7 @@ class REOSCORE_EXPORT ReosParameterInteger: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterString: public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterString( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterString( const QString &name, QObject *parent = nullptr );
@@ -140,6 +143,7 @@ class REOSCORE_EXPORT ReosParameterString: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterLongString: public ReosParameterString
 {
+    Q_OBJECT
   public:
     explicit ReosParameterLongString( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterLongString( const QString &name, QObject *parent = nullptr );
@@ -154,6 +158,7 @@ class REOSCORE_EXPORT ReosParameterLongString: public ReosParameterString
 
 class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterArea( const QString &name, bool derivable,  QObject *parent = nullptr );
     explicit ReosParameterArea( const QString &name,  QObject *parent = nullptr );
@@ -176,6 +181,7 @@ class REOSCORE_EXPORT ReosParameterArea: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterSlope( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterSlope( const QString &name, QObject *parent = nullptr );
@@ -199,6 +205,7 @@ class REOSCORE_EXPORT ReosParameterSlope: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterDuration( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterDuration( const QString &name, QObject *parent = nullptr );
@@ -221,6 +228,7 @@ class REOSCORE_EXPORT ReosParameterDuration: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
 {
+    Q_OBJECT
   public:
     //explicit ReosParameterDateTime( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterDateTime( const QString &name, QObject *parent = nullptr );
@@ -243,6 +251,7 @@ class REOSCORE_EXPORT ReosParameterDateTime: public ReosParameter
 
 class REOSCORE_EXPORT ReosParameterBoolean : public ReosParameter
 {
+    Q_OBJECT
   public:
     explicit ReosParameterBoolean( const QString &name, bool derivable, QObject *parent = nullptr );
     explicit ReosParameterBoolean( const QString &name, QObject *parent = nullptr );

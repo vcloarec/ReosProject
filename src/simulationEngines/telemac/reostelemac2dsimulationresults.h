@@ -36,6 +36,7 @@ struct CacheDataset
 
 class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
 {
+    Q_OBJECT
   public:
     ReosTelemac2DSimulationResults( const ReosTelemac2DSimulation *simulation, const ReosMesh *mesh, const QString &fileName, QObject *parent = nullptr );
     ~ReosTelemac2DSimulationResults();
