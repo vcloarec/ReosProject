@@ -22,7 +22,7 @@ endmacro(ADD_TRANSLATION_FILES)
 ## make sure the output directory exists
 file(MAKE_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/i18n)
 
-set(TS_FILES reos_fr.ts reos_es.ts reos_it.ts reos_ne.ts reos_pt.ts reos_zh_TW.ts)
+set(TS_FILES reos_en.ts reos_fr.ts reos_es.ts reos_it.ts reos_ne.ts reos_pt.ts reos_zh_TW.ts)
 
 ADD_TRANSLATION_FILES (QM_FILES ${TS_FILES})
 
