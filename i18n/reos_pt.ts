@@ -85,22 +85,22 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="129"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="130"/>
         <source>Read DEM for segment %1/%2</source>
         <translation>Leia DEM para o segmento %1/%2</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="145"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="146"/>
         <source>Project segment %1/%2</source>
         <translation>Segmento de projeto %1/%2</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="204"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="205"/>
         <source>Extract DEM from layer</source>
         <translation>Extrair DEM da camada</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="285"/>
+        <location filename="../src/core/GIS/private/reosdigitalelevationmodel_p.cpp" line="286"/>
         <source>Calculate average elevation from grid</source>
         <translation>Calcular elevação média da grade</translation>
     </message>
@@ -421,32 +421,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1671"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1724"/>
         <source>Invalid face</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1675"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1728"/>
         <source>Too many vertices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1679"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1732"/>
         <source>Flat face</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1683"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1736"/>
         <source>Unique shared vertex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1687"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1740"/>
         <source>Invalid vertex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1691"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1744"/>
         <source>Manifold face</source>
         <translation type="unfinished"></translation>
     </message>
@@ -570,12 +570,12 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="963"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="965"/>
         <source>Unable to open exiting DSS file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="965"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="967"/>
         <source>Unable to create DSS file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1696,42 +1696,42 @@ choose a new name:</source>
 <context>
     <name>ReosGisEngine</name>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="214"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="215"/>
         <source>Vector layer loaded: %1</source>
         <translation>Camada Vetorial carregada: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="219"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="220"/>
         <source>Vector layer not loaded: %1</source>
         <translation>Camada Vetorial não carregada: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="233"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="234"/>
         <source>Raster layer loaded: %1</source>
         <translation>Camada Raster carregada: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="240"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="241"/>
         <source>Raster layer not loaded: %1</source>
         <translation>Camada Raster não carregada: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="252"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="253"/>
         <source>Mesh layer loaded: %1</source>
         <translation>Camada de malha carregada: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="257"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="258"/>
         <source>Mesh layer not loaded: %1</source>
         <translation>Camada de malha não carregada: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="284"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="285"/>
         <source>Could not find MDAL</source>
         <translation>Não foi possível encontrar MDAL</translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="360"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="361"/>
         <source>This layer doesn&apos;t have a valid or known coordinates system, and calculation on DEM will be done considering its coordinate system is the same as the project.
 The project&apos;s coordinates system is a geographic reference system (latitude/longitude) and the extent of this layer suggests that it is actually a projected coordinates system.
 If so, the result of area or distance calculation will be incorrect.
@@ -1739,7 +1739,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/reosgisengine.cpp" line="1096"/>
+        <location filename="../src/core/GIS/reosgisengine.cpp" line="1097"/>
         <source>Unable to add a mesh layer to the QGIS project file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2233,41 +2233,41 @@ Do you want to continue ?</source>
 <context>
     <name>ReosHecRasSimulationProcess</name>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1019"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1020"/>
         <source>None version of HEC-RAS found, please verify that HEC-RAS is installed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1028"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1029"/>
         <source>Controller of HEC-RAS found is not valid.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1032"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1033"/>
         <source>Start HEC-RAS model calculation with %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1037"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1038"/>
         <source>HEC-RAS project file &quot;%1&quot; not found.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1043"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1044"/>
         <source>UNable to open HEC-RAS project file &quot;%1&quot;.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1051"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1052"/>
         <source>Plan &quot;%1&quot; not found.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1057"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1058"/>
         <source>Unable to set plan &quot;%1&quot; as current plan.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
@@ -2926,17 +2926,17 @@ Do you want to proceed?</source>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="88"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="407"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="414"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="426"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="435"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="446"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="421"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="433"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="442"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="453"/>
         <source>Run Simulation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="89"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="471"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="478"/>
         <source>Export Simulation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2971,95 +2971,100 @@ Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="129"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="98"/>
+        <source>Dynamic Vector Traces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="130"/>
         <source>Simulation Engine Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="129"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="130"/>
         <source>No simulation selected in the modele settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="156"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="157"/>
         <source>Scalar results settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="167"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="168"/>
         <source>Vector results settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="209"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="216"/>
         <source>Time</source>
         <translation type="unfinished">Tempo</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="212"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="219"/>
         <source>Flow rate (%1)</source>
         <translation type="unfinished">Taxa de fluxo (%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="219"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="226"/>
         <source>Input hydrographs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="220"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="227"/>
         <source>Output hydrographs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="326"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="333"/>
         <source>No existing results</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="407"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="414"/>
         <source>Results exist for this modele and this hydraulic scheme.
 Do you want to overwrite this results?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="414"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="421"/>
         <source>No simulation selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="426"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="446"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="433"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="453"/>
         <source>Simulation did not start for following reason:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="435"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="442"/>
         <source>Something get wrong during simulation preparation.
 Please, check the model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="471"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="478"/>
         <source>Simulation can&apos;t be exported for following reason:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="509"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="572"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="516"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="581"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="744"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="757"/>
         <source>m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="753"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="766"/>
         <source>No value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3881,12 +3886,12 @@ Please, check the model.</source>
         <translation>Salvar projeto atual?</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="352"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="364"/>
         <source>Closing current project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="352"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="364"/>
         <source>The current project has been modified, do you want to save it?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4084,7 +4089,7 @@ Please, check the model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="407"/>
+        <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="406"/>
         <source>Boundary condition name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4156,22 +4161,22 @@ Please, check the model.</source>
 <context>
     <name>ReosMeshFrame_p</name>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="897"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="943"/>
         <source>MDAL is not found. Unable to export the mesh. Verify your installation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="914"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="960"/>
         <source>Unable to create a new mesh file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="939"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="985"/>
         <source>No results present.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="962"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1008"/>
         <source>Unable to add result &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4195,12 +4200,12 @@ Please, check the model.</source>
 <context>
     <name>ReosMeshQualityChecker_p</name>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1453"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1506"/>
         <source>Check faces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1607"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1660"/>
         <source>Check vertices</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4269,7 +4274,7 @@ Do you want to proceed?</source>
 <context>
     <name>ReosMeshTerrainColorShaderSettings_p</name>
     <message>
-        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="2055"/>
+        <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="2109"/>
         <source>Terrain elevation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4346,63 +4351,12 @@ Do you want to proceed?</source>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>...</source>
-        <translation type="unfinished">...</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Color</source>
+        <source>Static Vector Rendering</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="87"/>
-        <source>Traces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Maximum tail length</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Dynamic Traces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Frame per seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Maximum trace speed (px/s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Tails persistence (0 - 1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Tail factor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Particules life time (s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Particules count</source>
+        <source>Symbology type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4442,6 +4396,11 @@ Do you want to proceed?</source>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Stream line</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4457,56 +4416,112 @@ Do you want to proceed?</source>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Symbology type</source>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="88"/>
+        <source>Traces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="85"/>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Maximum tail length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Particules count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Dynamic Traces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Frame per seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Tail factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Tails persistence (0 - 1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Maximum trace speed (px/s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Particules life time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Coloring</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="86"/>
         <source>Arrows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="86"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="87"/>
         <source>Stream lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="89"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="90"/>
         <source>Unique color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="90"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="91"/>
         <source>Color ramp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="92"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="93"/>
         <source>On Mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="93"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="94"/>
         <source>Randomly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="202"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="204"/>
         <source>Millimeters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="203"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="205"/>
         <source>Points</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="204"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="206"/>
         <source>Pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="205"/>
+        <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="207"/>
         <source>Meters at Scale</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4514,7 +4529,7 @@ Do you want to proceed?</source>
 <context>
     <name>ReosMeshWireframeSettingsWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="770"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="783"/>
         <source>Enable mesh wireFrame</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4806,42 +4821,42 @@ escolha um novo nome:</translation>
 <context>
     <name>ReosPolylineStructureVectorLayer</name>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="868"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="869"/>
         <source>Move structure vertex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1023"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1024"/>
         <source>Remove line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1547"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1548"/>
         <source>Add hole</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1577"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1578"/>
         <source>Move hole</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1584"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1585"/>
         <source>Remove hole</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1837"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1838"/>
         <source>Add boundary condition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1854"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1855"/>
         <source>Remove boundary condition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1866"/>
+        <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1867"/>
         <source>Rename class</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5281,8 +5296,8 @@ If not, another station will be created</source>
 <context>
     <name>ReosRoughnessStructure</name>
     <message>
-        <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1455"/>
-        <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1463"/>
+        <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1461"/>
+        <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1469"/>
         <source>Default roughness</source>
         <translation type="unfinished"></translation>
     </message>
