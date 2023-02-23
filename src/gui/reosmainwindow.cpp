@@ -261,9 +261,21 @@ void ReosMainWindow::newProject()
 
 void ReosMainWindow::languageSelection()
 {
+  QLocale localeLanguage;
+  QLocale localeGlobal;
+
   ReosSettings settings;
-  ReosLanguageSelectionWidget dial( settings.value( QStringLiteral( "Locale-language" ) ).toLocale(),
-                                    settings.value( QStringLiteral( "Locale-global" ) ).toLocale() );
+  if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
+    localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
+  else
+    localeLanguage = QLocale::system();
+
+  if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
+    localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
+  else
+    localeGlobal = QLocale::system();
+
+  ReosLanguageSelectionWidget dial( localeLanguage, localeGlobal );
 
   if ( dial.exec() )
   {

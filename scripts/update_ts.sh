@@ -128,7 +128,7 @@ if [ $action = push ]; then
 	cp i18n/reos_en.ts /tmp/reos_en.ts-downloaded
 	perl scripts/ts_clear.pl  # reset English translations
 elif [ $action = pull ]; then
-	rm -f i18n/qgis_*.ts
+	rm -f i18n/reos_*.ts
 
 	echo Pulling new translations...
 	if [ "$#" -gt 0 ]; then
