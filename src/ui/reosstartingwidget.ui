@@ -16,6 +16,9 @@
     <verstretch>150</verstretch>
    </sizepolicy>
   </property>
+  <property name="windowTitle">
+   <string notr="true"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="imageBan">

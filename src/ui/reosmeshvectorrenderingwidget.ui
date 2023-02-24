@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -419,15 +419,15 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ReosColorButton</class>
+   <extends>QToolButton</extends>
+   <header>reoscolorbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>ReosParameterDoubleWidget</class>
    <extends>QWidget</extends>
    <header>reosparameterwidget.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ReosColorButton</class>
-   <extends>QToolButton</extends>
-   <header>reoscolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

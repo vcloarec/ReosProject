@@ -11,7 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
+  </property>
+  <property name="toolTip">
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -182,7 +185,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -232,7 +235,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -303,7 +306,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -350,7 +353,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -421,7 +424,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -495,7 +498,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -542,7 +545,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -592,7 +595,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../images/images.qrc">
+                  <iconset resource="../../../images/images.qrc">
                    <normaloff>:/images/mapOnMeshElement.svg</normaloff>:/images/mapOnMeshElement.svg</iconset>
                  </property>
                  <property name="autoRaise">
@@ -629,6 +632,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ReosColorButton</class>
+   <extends>QToolButton</extends>
+   <header>reoscolorbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>ReosParameterDoubleWidget</class>
    <extends>QWidget</extends>
    <header>reosparameterwidget.h</header>
@@ -647,11 +655,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ReosColorButton</class>
-   <extends>QToolButton</extends>
-   <header>reoscolorbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>ReosParameterIntegerWidget</class>
    <extends>QWidget</extends>
    <header>reosparameterwidget.h</header>
@@ -659,7 +662,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../images/images.qrc"/>
+  <include location="../../../images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
