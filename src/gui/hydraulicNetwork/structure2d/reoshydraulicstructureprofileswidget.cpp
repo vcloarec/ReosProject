@@ -23,6 +23,7 @@
 #include "reoshydraulicstructure2d.h"
 #include "reosformwidget.h"
 #include "reosstyleregistery.h"
+#include "reossettings.h"
 
 ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( ReosHydraulicStructure2D *structure, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )

@@ -35,6 +35,7 @@
 #include "reostimeseriesgroup.h"
 #include "reosstyleregistery.h"
 #include "reoshydraulicstructure2d.h"
+#include "reossettings.h"
 
 
 ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunctionPropertiesWidget( ReosHydrographJunction *junctionNode, const ReosGuiContext &context )
