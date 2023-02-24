@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -44,7 +44,7 @@
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>8</hour>
+         <hour>12</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2000</year>

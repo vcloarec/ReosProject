@@ -4,29 +4,9 @@
 <context>
     <name>CoordinatesWidget</name>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="63"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="1023"/>
         <source>X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="104"/>
-        <source>X: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="114"/>
-        <source>Y Left: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="115"/>
-        <source>Y Right: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="119"/>
-        <source>Y: </source>
-        <translation type="unfinished"></translation>
+        <translation>X:</translation>
     </message>
 </context>
 <context>
@@ -401,249 +381,259 @@
         <translation>&lt;b&gt;End date&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="238"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="239"/>
         <source>Runoff hydrograph calculation</source>
         <translation>Runoff hydrograph calculation</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="239"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="240"/>
         <source>Gauged hydrograph</source>
         <translation>Gauged hydrograph</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="241"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="242"/>
         <source>Gauged Hydrograph</source>
         <translation>Gauged Hydrograph</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="367"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="368"/>
         <source>Hydrograph to inject</source>
         <translation>Hydrograph to inject</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1724"/>
         <source>Invalid face</source>
-        <translation type="unfinished"></translation>
+        <translation>Invalid face</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1728"/>
         <source>Too many vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>Too many vertices</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1732"/>
         <source>Flat face</source>
-        <translation type="unfinished"></translation>
+        <translation>Flat face</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1736"/>
         <source>Unique shared vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Unique shared vertex</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1740"/>
         <source>Invalid vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Invalid vertex</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1744"/>
         <source>Manifold face</source>
-        <translation type="unfinished"></translation>
+        <translation>Manifold face</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.h" line="319"/>
         <source>Dummy</source>
-        <translation type="unfinished"></translation>
+        <translation>Dummy</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosgriddedrainitem.h" line="125"/>
         <source>Gridded precipitation</source>
-        <translation type="unfinished"></translation>
+        <translation>Gridded precipitation</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprecipitationwidget.cpp" line="166"/>
         <source>GRIB2 format</source>
-        <translation type="unfinished"></translation>
+        <translation>GRIB2 format</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssfile.cpp" line="292"/>
         <source>DSS file &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS file &quot;%1&quot; is not valid.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssfile.cpp" line="499"/>
         <source>Invalid time interval for DSS format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Invalid time interval for DSS format.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssfile.cpp" line="528"/>
         <source>Error when storing the data on file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Error when storing the data on file.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssgriddedrainfallselector.cpp" line="118"/>
         <source>DSS format</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS format</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovider.cpp" line="214"/>
         <source>DSS file not opened or not valid, Unable to write on file.</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS file not opened or not valid, Unable to write on file.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovider.cpp" line="261"/>
         <source>The DSS path is invalid &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>The DSS path is invalid &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovider.cpp" line="269"/>
         <source>Unable to create or open file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to create or open file &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovider.cpp" line="281"/>
         <source>Data type no supported by DSS provider.</source>
-        <translation type="unfinished"></translation>
+        <translation>Data type no supported by DSS provider.</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolygonstructure_p.cpp" line="198"/>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>default</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolygonstructure_p.cpp" line="202"/>
         <source>Apply %1 to this polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Apply %1 to this polygon</translation>
     </message>
     <message>
         <location filename="../src/gui/mesh/reosmeshgeneratorgui.cpp" line="35"/>
         <source>Gmsh algoritm</source>
-        <translation type="unfinished"></translation>
+        <translation>Gmsh algoritm</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="272"/>
         <source>Color ramp</source>
-        <translation type="unfinished"></translation>
+        <translation>Color ramp</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfalldataform.cpp" line="293"/>
         <source>Show Extent on Main Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Show Extent on Main Map</translation>
     </message>
     <message>
         <location filename="../src/lekan/main.cpp" line="47"/>
         <source>Lekan Crashes</source>
-        <translation type="unfinished"></translation>
+        <translation>Lekan Crashes</translation>
     </message>
     <message>
         <location filename="../src/lekan/main.cpp" line="49"/>
         <source>Lekan just crahes....&lt;br&gt;Hopping you don&apos;t loose your work...&lt;br&gt;&lt;br&gt;If you are not too angry, and if you manage to reproduce this crash,&lt;br&gt;you are cordially invited to report it (see &lt;a href = &quot;https://www.reos.site/en/how-to-support/&quot;&gt; here &lt;/a&gt; how to).&lt;br&gt;&lt;br&gt;By this, you participate to improve this software and also your future uses.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lekan just crahes....&lt;br&gt;Hopping you don&apos;t loose your work...&lt;br&gt;&lt;br&gt;If you are not too angry, and if you manage to reproduce this crash,&lt;br&gt;you are cordially invited to report it (see &lt;a href = &quot;https://www.reos.site/en/how-to-support/&quot;&gt; here &lt;/a&gt; how to).&lt;br&gt;&lt;br&gt;By this, you participate to improve this software and also your future uses.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="238"/>
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="261"/>
         <source>Unable to load the vrt file corresponding to the terrain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to load the vrt file corresponding to the terrain.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="875"/>
         <source>scheme &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>scheme &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="875"/>
         <source>this project</source>
-        <translation type="unfinished"></translation>
+        <translation>this project</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="882"/>
         <source>Boundary condition &quot;%1&quot;, modified in %2, is not present in the plan &quot;%3&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Boundary condition &quot;%1&quot;, modified in %2, is not present in the plan &quot;%3&quot;</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="890"/>
         <source>Boundary condition &quot;%1&quot;, not present in the plan &quot;%2&quot;, is linked to %n element(s) in project:</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Boundary condition &quot;%1&quot;, not present in the plan &quot;%2&quot;, is linked to %n element(s) in project:</numerusform>
+            <numerusform>Boundary condition &quot;%1&quot;, not present in the plan &quot;%2&quot;, is linked to %n element(s) in project:</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="193"/>
         <source>HECRAS Simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>HECRAS Simulation</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="965"/>
         <source>Unable to open exiting DSS file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to open exiting DSS file &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="967"/>
         <source>Unable to create DSS file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to create DSS file &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.h" line="153"/>
         <source>HEC-RAS Simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>HEC-RAS Simulation</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.h" line="210"/>
         <source>TELEMAC 2D Simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>TELEMAC 2D Simulation</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="1064"/>
+        <source>X: </source>
+        <translation>X: </translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="1074"/>
+        <source>Y Left: </source>
+        <translation>Y Left: </translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="1075"/>
+        <source>Y Right: </source>
+        <translation>Y Right: </translation>
+    </message>
+    <message>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="1079"/>
+        <source>Y: </source>
+        <translation>Y: </translation>
     </message>
 </context>
 <context>
     <name>Reos3DTerrainSettingsWidget</name>
     <message>
         <location filename="../src/ui/3D/reos3dterrainsettingswidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/3D/reos3dterrainsettingswidget.ui"/>
         <source>Show terrain wireframe</source>
-        <translation type="unfinished"></translation>
+        <translation>Show terrain wireframe</translation>
     </message>
     <message>
         <location filename="../src/ui/3D/reos3dterrainsettingswidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/3D/reos3dterrainsettingswidget.ui"/>
         <source>Smooth terrain</source>
-        <translation type="unfinished"></translation>
+        <translation>Smooth terrain</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/3D/reos3dterrainsettingswidget.cpp" line="27"/>
         <source>Use unique color</source>
-        <translation type="unfinished"></translation>
+        <translation>Use unique color</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/3D/reos3dterrainsettingswidget.cpp" line="28"/>
         <source>Use terrain color ramp</source>
-        <translation type="unfinished"></translation>
+        <translation>Use terrain color ramp</translation>
     </message>
 </context>
 <context>
     <name>Reos3dView</name>
     <message>
-        <location filename="../src/ui/3D/reos3dview.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/gui/GIS/3D/reos3dview.cpp" line="49"/>
         <source>Zoom to Full Extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom to Full Extent</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/3D/reos3dview.cpp" line="53"/>
         <source>3D View</source>
-        <translation type="unfinished"></translation>
+        <translation>3D View</translation>
     </message>
 </context>
 <context>
@@ -701,12 +691,12 @@
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Solver</source>
-        <translation type="unfinished"></translation>
+        <translation>Solver</translation>
     </message>
     <message>
         <location filename="../src/ui/reosaboutwidget.ui"/>
         <source>Financial Contribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Financial Contribution</translation>
     </message>
 </context>
 <context>
@@ -714,7 +704,7 @@
     <message>
         <location filename="../src/core/reosapplication.cpp" line="37"/>
         <source>Error:</source>
-        <translation type="unfinished"></translation>
+        <translation>Error:</translation>
     </message>
     <message>
         <location filename="../src/core/reosapplication.cpp" line="42"/>
@@ -724,7 +714,7 @@
     <message>
         <location filename="../src/core/reosapplication.cpp" line="42"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unknown error</translation>
     </message>
 </context>
 <context>
@@ -917,11 +907,6 @@
 <context>
     <name>ReosDelftFewsWidget</name>
     <message>
-        <location filename="../src/dataProviders/delft-FEWS/reosdelftfewswidget.ui"/>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
         <location filename="../src/ui/dataProviders/reosdelftfewswidget.ui"/>
         <source>File</source>
         <translation>File</translation>
@@ -1102,18 +1087,13 @@ Adjust new watershed?</translation>
     <name>ReosDssGriddedRainfallSelector</name>
     <message>
         <location filename="../src/ui/dataProviders/reosdssgriddedrainfallselector.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/dataProviders/reosdssgriddedrainfallselector.ui"/>
         <source>DSS Grid</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS Grid</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssgriddedrainfallselector.ui"/>
         <source>DSS pathes with grid data</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS pathes with grid data</translation>
     </message>
 </context>
 <context>
@@ -1121,89 +1101,79 @@ Adjust new watershed?</translation>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovider.cpp" line="585"/>
         <source>Unable to open the dss file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to open the dss file &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovider.cpp" line="619"/>
         <source>Unable to find grid data in the dss file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to find grid data in the dss file &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
     <name>ReosDssProviderUriWidget</name>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <location filename="../src/dataProviders/hec-dss/reosdssprovideruriwidget.cpp" line="105"/>
         <source>DSS File</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS File</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part A</source>
-        <translation type="unfinished"></translation>
+        <translation>Part A</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part B</source>
-        <translation type="unfinished"></translation>
+        <translation>Part B</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part C</source>
-        <translation type="unfinished"></translation>
+        <translation>Part C</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Pathname</source>
-        <translation type="unfinished"></translation>
+        <translation>Pathname</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part D</source>
-        <translation type="unfinished"></translation>
+        <translation>Part D</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part E</source>
-        <translation type="unfinished"></translation>
+        <translation>Part E</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part F</source>
-        <translation type="unfinished"></translation>
+        <translation>Part F</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/hec-dss/reosdssprovideruriwidget.cpp" line="107"/>
         <source>DSS file (*.dss)</source>
-        <translation type="unfinished"></translation>
+        <translation>DSS file (*.dss)</translation>
     </message>
 </context>
 <context>
     <name>ReosDssWidget</name>
     <message>
         <location filename="../src/ui/dataProviders/reosdsswidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/dataProviders/reosdsswidget.ui"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdsswidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
 </context>
 <context>
@@ -1254,13 +1224,13 @@ Adjust new watershed?</translation>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="53"/>
         <source>Back to Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Back to Previous Page</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="63"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="179"/>
         <source>Generate Mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>Generate Mesh</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="180"/>
@@ -1268,12 +1238,15 @@ Adjust new watershed?</translation>
 anymore and will be removed.
 
 Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>If you generate a new mesh, existing results will not be compatible
+anymore and will be removed.
+
+Do you want to continue?</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="222"/>
         <source>Model Structure Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Model Structure Modified</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="223"/>
@@ -1281,151 +1254,139 @@ Do you want to continue?</source>
  existing results will not be compatible anymore and will be removed.
 
 Do you want to keep the mesh modification and remove results?</source>
-        <translation type="unfinished"></translation>
+        <translation>As the frame of the mesh has been modified, if you keep these changes,
+ existing results will not be compatible anymore and will be removed.
+
+Do you want to keep the mesh modification and remove results?</translation>
     </message>
 </context>
 <context>
     <name>ReosEditMeshElementWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Mesh Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh Quality</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Auto update</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto update</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Update Quality Check</source>
-        <translation type="unfinished"></translation>
+        <translation>Update Quality Check</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Inner Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Inner Angle</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Vertices connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertices connection</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Maximum Slope</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum Slope</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoseditmeshelementwidget.ui"/>
         <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <translation>Area</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoseditmeshelementwidget.cpp" line="35"/>
         <source>Edit Mesh Elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Mesh Elements</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoseditmeshelementwidget.cpp" line="37"/>
         <source>Display topography</source>
-        <translation type="unfinished"></translation>
+        <translation>Display topography</translation>
     </message>
 </context>
 <context>
     <name>ReosEditPolylineStructureWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reoseditpolylinestructurewidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoseditpolylinestructurewidget.ui"/>
         <source>Boundary Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Boundary Conditions</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reoseditpolylinestructurewidget.cpp" line="32"/>
         <source>Edit Structure Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Structure Line</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reoseditpolylinestructurewidget.cpp" line="35"/>
         <source>Remove Selected boundary</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove Selected boundary</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reoseditpolylinestructurewidget.cpp" line="36"/>
         <source>Zoom on Selected Boundary</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom on Selected Boundary</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reoseditpolylinestructurewidget.cpp" line="37"/>
         <source>Rename Selected Boundary</source>
-        <translation type="unfinished"></translation>
+        <translation>Rename Selected Boundary</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reoseditpolylinestructurewidget.cpp" line="117"/>
         <source>Rename Boundary condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Rename Boundary condition</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reoseditpolylinestructurewidget.cpp" line="118"/>
         <source>New boundary condition name</source>
-        <translation type="unfinished"></translation>
+        <translation>New boundary condition name</translation>
     </message>
 </context>
 <context>
     <name>ReosEditStructure2DWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Structure</source>
-        <translation type="unfinished"></translation>
+        <translation>Structure</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Mesh Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh Resolution</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Topography</source>
-        <translation type="unfinished"></translation>
+        <translation>Topography</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Edit elements / Mesh quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit elements / Mesh quality</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Roughness</source>
-        <translation type="unfinished"></translation>
+        <translation>Roughness</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Simulation Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation Configuration</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosedithydraulicstructure2dwidget.ui"/>
         <source>Time Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Time Window</translation>
     </message>
 </context>
 <context>
@@ -1533,7 +1494,7 @@ Do you want to keep the mesh modification and remove results?</source>
 <context>
     <name>ReosFormBaseJunctionNodeWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="300"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="301"/>
         <source>Gauged Hydrographs Manager</source>
         <translation>Gauged Hydrographs Manager</translation>
     </message>
@@ -1541,55 +1502,55 @@ Do you want to keep the mesh modification and remove results?</source>
 <context>
     <name>ReosFormJunctionBoundaryConditionWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="434"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="435"/>
         <source>Boundary type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="436"/>
-        <source>Water Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Boundary type</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="437"/>
+        <source>Water Level</source>
+        <translation>Water Level</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="438"/>
         <source>Flow rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Flow rate</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="439"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="440"/>
         <source>Defined externally</source>
-        <translation type="unfinished"></translation>
+        <translation>Defined externally</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="457"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="458"/>
         <source>Water level series</source>
-        <translation type="unfinished"></translation>
+        <translation>Water level series</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="471"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="472"/>
         <source>Water Level Series Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Water Level Series Manager</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="488"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="489"/>
         <source>Water Level Series</source>
-        <translation type="unfinished"></translation>
+        <translation>Water Level Series</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="488"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="489"/>
         <source>meter</source>
-        <translation type="unfinished"></translation>
+        <translation>meter</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="497"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="498"/>
         <source>Hydrograph</source>
-        <translation type="unfinished">Hydrograph</translation>
+        <translation>Hydrograph</translation>
     </message>
 </context>
 <context>
     <name>ReosFormJunctionNodeWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="358"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="359"/>
         <source>Inject gauged hydrograph</source>
         <translation>Inject gauged hydrograph</translation>
     </message>
@@ -1597,7 +1558,7 @@ Do you want to keep the mesh modification and remove results?</source>
 <context>
     <name>ReosFormWatershedNodeWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="233"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="234"/>
         <source>Hydrograph origin</source>
         <translation>Hydrograph origin</translation>
     </message>
@@ -1750,7 +1711,7 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/core/GIS/reosgisengine.cpp" line="1097"/>
         <source>Unable to add a mesh layer to the QGIS project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to add a mesh layer to the QGIS project file</translation>
     </message>
 </context>
 <context>
@@ -1845,75 +1806,70 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="69"/>
         <source>MeshAdapt</source>
-        <translation type="unfinished"></translation>
+        <translation>MeshAdapt</translation>
     </message>
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="72"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatic</translation>
     </message>
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="75"/>
         <source>Initial mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>Initial mesh</translation>
     </message>
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="78"/>
         <source>Delaunay</source>
-        <translation type="unfinished"></translation>
+        <translation>Delaunay</translation>
     </message>
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="81"/>
         <source>Frontal Delaunay</source>
-        <translation type="unfinished"></translation>
+        <translation>Frontal Delaunay</translation>
     </message>
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="84"/>
         <source>BAMG</source>
-        <translation type="unfinished"></translation>
+        <translation>BAMG</translation>
     </message>
 </context>
 <context>
     <name>ReosGmshResolutionControllerWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reosgmshresolutioncontroller.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reosgmshresolutioncontroller.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp" line="34"/>
         <source>Edit Resolution Polygons</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Resolution Polygons</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp" line="114"/>
         <source>Element size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Element size:</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp" line="117"/>
         <source>New resolution class</source>
-        <translation type="unfinished"></translation>
+        <translation>New resolution class</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp" line="118"/>
         <source>Enter a value for this new resolution class</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter a value for this new resolution class</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp" line="126"/>
         <source>Add New Size Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Add New Size Class</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosgmshresolutioncontrollerwidget.cpp" line="126"/>
         <source>This size value already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>This size value already exists.</translation>
     </message>
 </context>
 <context>
@@ -1921,28 +1877,28 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/dataProviders/grib/reosgribprovider.cpp" line="99"/>
         <source>No Grib2 source found in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>No Grib2 source found in &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprovider.cpp" line="113"/>
         <location filename="../src/dataProviders/grib/reosgribprovider.cpp" line="136"/>
         <source>No data found in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>No data found in &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprovider.cpp" line="382"/>
         <source>Folder &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Folder &quot;%1&quot; does not exist.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprovider.cpp" line="391"/>
         <source>File &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>File &quot;%1&quot; does not exist.</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprovider.cpp" line="398"/>
         <source>Unknow source &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unknow source &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -1950,188 +1906,178 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/ui/reosgribprecipitationwidget.ui"/>
         <source>Available variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Available variables</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgribprecipitationwidget.ui"/>
         <source>Source value type</source>
-        <translation type="unfinished"></translation>
+        <translation>Source value type</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgribprecipitationwidget.ui"/>
         <source>Grib2 File</source>
-        <translation type="unfinished"></translation>
+        <translation>Grib2 File</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprecipitationwidget.cpp" line="42"/>
         <source>Intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Intensity</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprecipitationwidget.cpp" line="43"/>
         <source>Height during time step</source>
-        <translation type="unfinished"></translation>
+        <translation>Height during time step</translation>
     </message>
     <message>
         <location filename="../src/dataProviders/grib/reosgribprecipitationwidget.cpp" line="44"/>
         <source>Cumulative height from start</source>
-        <translation type="unfinished"></translation>
+        <translation>Cumulative height from start</translation>
     </message>
 </context>
 <context>
     <name>ReosGriddedRainfallExportOptionsWidget</name>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Spatial Extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Spatial Extent</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>South</source>
-        <translation type="unfinished"></translation>
+        <translation>South</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>North</source>
-        <translation type="unfinished"></translation>
+        <translation>North</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>East</source>
-        <translation type="unfinished"></translation>
+        <translation>East</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>West</source>
-        <translation type="unfinished"></translation>
+        <translation>West</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Coordinate system</source>
-        <translation type="unfinished"></translation>
+        <translation>Coordinate system</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Top left origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Top left origin</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Top right origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Top right origin</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Bottom left origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bottom left origin</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Bottom right origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bottom right origin</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Back to Rainfall Extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Back to Rainfall Extent</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>If checked, the grid is aligned as origin of pixel coordinate is at (0,0) (DSS for HEC-RAS)</source>
-        <translation type="unfinished"></translation>
+        <translation>If checked, the grid is aligned as origin of pixel coordinate is at (0,0) (DSS for HEC-RAS)</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Use (0,0) origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Use (0,0) origin</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Adjust the extent considering the resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Adjust the extent considering the resolution</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolution</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontal</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertical</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Adjust the resolution considering the extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Adjust the resolution considering the extent</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>Temporal Extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporal Extent</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>From</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallexportoptionswidget.ui"/>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>To</translation>
     </message>
 </context>
 <context>
     <name>ReosGriddedRainfallSelectorWidget</name>
     <message>
         <location filename="../src/ui/reosgriddedrainfallselectorwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosgriddedrainfallselectorwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallselectorwidget.ui"/>
         <source>Gridded precipitation name</source>
-        <translation type="unfinished"></translation>
+        <translation>Gridded precipitation name</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallselectorwidget.ui"/>
         <source>File or folder</source>
-        <translation type="unfinished"></translation>
+        <translation>File or folder</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallselectorwidget.ui"/>
         <source>Color Ramp</source>
-        <translation type="unfinished"></translation>
+        <translation>Color Ramp</translation>
     </message>
     <message>
         <location filename="../src/ui/reosgriddedrainfallselectorwidget.ui"/>
         <source>Show Extent on Main Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Show Extent on Main Map</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosgriddedrainfallselectorwidget.cpp" line="166"/>
         <source>Unable to find a gridded precipitation with this file path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to find a gridded precipitation with this file path.</translation>
     </message>
 </context>
 <context>
@@ -2139,104 +2085,95 @@ To fix this, set an appropriate map coordinate system in the layer properties or
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.h" line="67"/>
         <source>HECRAS</source>
-        <translation type="unfinished"></translation>
+        <translation>HECRAS</translation>
     </message>
 </context>
 <context>
     <name>ReosHecRasSimulationEditWidget</name>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Output interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Output interval</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Detailed output interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Detailed output interval</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Mapping output interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapping output interval</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Plan</source>
-        <translation type="unfinished"></translation>
+        <translation>Plan</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Computation interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Computation interval</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Geometry title</source>
-        <translation type="unfinished"></translation>
+        <translation>Geometry title</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationeditwidget.ui"/>
         <source>Min. input interval from Lekan</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. input interval from Lekan</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulationeditwidget.cpp" line="68"/>
         <source>The selected HEC-RAS plan is incompatible with the state of the hydraulic network for the following reason(s):</source>
-        <translation type="unfinished"></translation>
+        <translation>The selected HEC-RAS plan is incompatible with the state of the hydraulic network for the following reason(s):</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulationeditwidget.cpp" line="71"/>
         <source>If you continue, some elements of the network could be altered or removed definitively.
 Do you want to continue ?</source>
-        <translation type="unfinished"></translation>
+        <translation>If you continue, some elements of the network could be altered or removed definitively.
+Do you want to continue ?</translation>
     </message>
 </context>
 <context>
     <name>ReosHecRasSimulationImportWidget</name>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationimport.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/simulationEngine/reoshecrassimulationimport.ui"/>
         <source>Create hydraulic schemes with plans</source>
-        <translation type="unfinished"></translation>
+        <translation>Create hydraulic schemes with plans</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationimport.ui"/>
         <source>Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>Project File</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationimport.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrassimulationimport.ui"/>
         <source>Remove current hydaulic scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove current hydaulic scheme</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulationimportwidget.cpp" line="43"/>
         <source>Choose HEC-RAS project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Choose HEC-RAS project file</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulationimportwidget.cpp" line="45"/>
         <source>HEC-RAS project file *.prj</source>
-        <translation type="unfinished"></translation>
+        <translation>HEC-RAS project file *.prj</translation>
     </message>
 </context>
 <context>
@@ -2244,60 +2181,60 @@ Do you want to continue ?</source>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1020"/>
         <source>None version of HEC-RAS found, please verify that HEC-RAS is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>None version of HEC-RAS found, please verify that HEC-RAS is installed.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1029"/>
         <source>Controller of HEC-RAS found is not valid.
 Calculation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Controller of HEC-RAS found is not valid.
+Calculation cancelled.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1033"/>
         <source>Start HEC-RAS model calculation with %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Start HEC-RAS model calculation with %1.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1038"/>
         <source>HEC-RAS project file &quot;%1&quot; not found.
 Calculation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>HEC-RAS project file &quot;%1&quot; not found.
+Calculation cancelled.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1044"/>
         <source>UNable to open HEC-RAS project file &quot;%1&quot;.
 Calculation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>UNable to open HEC-RAS project file &quot;%1&quot;.
+Calculation cancelled.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1052"/>
         <source>Plan &quot;%1&quot; not found.
 Calculation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plan &quot;%1&quot; not found.
+Calculation cancelled.</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1058"/>
         <source>Unable to set plan &quot;%1&quot; as current plan.
 Calculation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to set plan &quot;%1&quot; as current plan.
+Calculation cancelled.</translation>
     </message>
 </context>
 <context>
     <name>ReosHecrasConfigurationEngineDialog</name>
     <message>
         <location filename="../src/ui/simulationEngine/reoshecrasengineconfigurationdialog.h.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/simulationEngine/reoshecrasengineconfigurationdialog.h.ui"/>
         <source>HEC-RAS version</source>
-        <translation type="unfinished"></translation>
+        <translation>HEC-RAS version</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulationeditwidget.cpp" line="133"/>
         <source>No version found</source>
-        <translation type="unfinished"></translation>
+        <translation>No version found</translation>
     </message>
 </context>
 <context>
@@ -2426,38 +2363,33 @@ Calculation cancelled.</source>
     <name>ReosHydraulic2DSimulationWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulic2dsimulationwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoshydraulic2dsimulationwidget.ui"/>
         <source>Current simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Current simulation</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulic2dsimulationwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.cpp" line="69"/>
         <source>Simulation name</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation name</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.cpp" line="70"/>
         <source>Simulation %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation %1</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.cpp" line="95"/>
         <source>Remove simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove simulation</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulic2dsimulationwidget.cpp" line="96"/>
         <source>Do you want to remove the simulation &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Do you want to remove the simulation &quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -2502,27 +2434,27 @@ Calculation cancelled.</source>
         <translation>Tables</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="48"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="49"/>
         <source>Time</source>
         <translation>Time</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="52"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="53"/>
         <source>Flow rate (%1)</source>
         <translation>Flow rate (%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="60"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="61"/>
         <source>Calc. Hydrographs</source>
         <translation>Calc. Hydrographs</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="66"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="67"/>
         <source>Gauged Hydrographs</source>
         <translation>Gauged Hydrographs</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="155"/>
+        <location filename="../src/gui/hydraulicNetwork/reoshydraulichydrographjunctionpropertieswidget.cpp" line="156"/>
         <source>none</source>
         <translation>none</translation>
     </message>
@@ -2558,7 +2490,7 @@ Calculation cancelled.</source>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="183"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicnetwork.cpp" line="301"/>
         <source>Scheme 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Scheme 1</translation>
     </message>
 </context>
 <context>
@@ -2625,12 +2557,12 @@ Calculation cancelled.</source>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="56"/>
         <source>Structure 2D</source>
-        <translation type="unfinished"></translation>
+        <translation>Structure 2D</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="58"/>
         <source>Import Structure 2D</source>
-        <translation type="unfinished"></translation>
+        <translation>Import Structure 2D</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="59"/>
@@ -2640,40 +2572,43 @@ Calculation cancelled.</source>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="60"/>
         <source>Zoom to Network Extent</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom to Network Extent</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="340"/>
         <source>New Hydraulic Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>New Hydraulic Scheme</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="363"/>
         <source>Remove Hydraulic Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove Hydraulic Scheme</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="364"/>
         <source>Do you want to remove the hydraulic scheme: 
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Do you want to remove the hydraulic scheme: 
+
+%1</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="392"/>
         <source>New scheme name</source>
-        <translation type="unfinished"></translation>
+        <translation>New scheme name</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="410"/>
         <source>The new selected scheme is incompatible with the state of the hydraulic network for the following reason(s):</source>
-        <translation type="unfinished"></translation>
+        <translation>The new selected scheme is incompatible with the state of the hydraulic network for the following reason(s):</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="413"/>
         <source>If you continue, some elements of the network could be altered or removed definitively.
 Do you want to continue ?</source>
-        <translation type="unfinished"></translation>
+        <translation>If you continue, some elements of the network could be altered or removed definitively.
+Do you want to continue ?</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/reoshydraulicnetworkwidget.cpp" line="308"/>
@@ -2695,27 +2630,27 @@ Do you want to proceed?</translation>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>Hydraulic Elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydraulic Elements</translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>Hydraulic Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydraulic Scheme</translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>Add New Hydraulic Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Add New Hydraulic Scheme</translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/reoshydraulicnetworkwidget.ui"/>
         <source>Meteorologic model</source>
-        <translation type="unfinished"></translation>
+        <translation>Meteorologic model</translation>
     </message>
 </context>
 <context>
@@ -2724,7 +2659,7 @@ Do you want to proceed?</translation>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicscheme.cpp" line="25"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicscheme.cpp" line="31"/>
         <source>Scheme name</source>
-        <translation type="unfinished"></translation>
+        <translation>Scheme name</translation>
     </message>
 </context>
 <context>
@@ -2732,48 +2667,38 @@ Do you want to proceed?</translation>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicscheme.cpp" line="224"/>
         <source>Scheme 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Scheme 1</translation>
     </message>
 </context>
 <context>
     <name>ReosHydraulicSchemeWidget</name>
     <message>
         <location filename="../src/ui/reoshydraulicschemewidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reoshydraulicschemewidget.ui"/>
         <source>Meteorological Model</source>
-        <translation type="unfinished">Meteorological Model</translation>
+        <translation>Meteorological Model</translation>
     </message>
 </context>
 <context>
     <name>ReosHydraulicSimulationConsole</name>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicsimulationconsole.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoshydraulicsimulationconsole.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicsimulationconsole.ui"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicsimulationconsole.cpp" line="64"/>
         <source>Cancel simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel simulation</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicsimulationconsole.cpp" line="64"/>
         <source>Do you want to cancel this simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Do you want to cancel this simulation</translation>
     </message>
 </context>
 <context>
@@ -2781,22 +2706,22 @@ Do you want to proceed?</translation>
     <message>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp" line="78"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>None</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp" line="80"/>
         <source>Water level</source>
-        <translation type="unfinished"></translation>
+        <translation>Water level</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp" line="83"/>
         <source>Water depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Water depth</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulationresults.cpp" line="86"/>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocity</translation>
     </message>
 </context>
 <context>
@@ -2804,127 +2729,122 @@ Do you want to proceed?</translation>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="301"/>
         <source>Unable to export the mesh frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to export the mesh frame.</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="356"/>
         <source>Unable to create a QGIS project to location &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to create a QGIS project to location &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="373"/>
         <source>Hydraulic scheme &quot;%1&quot; of hydraulic structure &quot;%2&quot; successfully exported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydraulic scheme &quot;%1&quot; of hydraulic structure &quot;%2&quot; successfully exported.</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="727"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="757"/>
         <source>The mesh need to be regenerated</source>
-        <translation type="unfinished"></translation>
+        <translation>The mesh need to be regenerated</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="733"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="763"/>
         <source>Current simulation not defined</source>
-        <translation type="unfinished"></translation>
+        <translation>Current simulation not defined</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="739"/>
         <source>Project must be saved at least one time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Project must be saved at least one time.</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="771"/>
         <source>A simulation with the current hydraulic scheme is currently running.</source>
-        <translation type="unfinished"></translation>
+        <translation>A simulation with the current hydraulic scheme is currently running.</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="978"/>
         <source>Terrain elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain elevation</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.h" line="70"/>
         <source>Hydraulic structure 2D</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydraulic structure 2D</translation>
     </message>
 </context>
 <context>
     <name>ReosHydraulicStructure2DProperties</name>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>End time</source>
-        <translation type="unfinished"></translation>
+        <translation>End time</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Start time</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Value under cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Value under cursor</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Variable displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Variable displayed</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Time step count</source>
-        <translation type="unfinished"></translation>
+        <translation>Time step count</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Calculation Information</source>
-        <translation type="unfinished">Calculation Information</translation>
+        <translation>Calculation Information</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>--</source>
-        <translation type="unfinished"></translation>
+        <translation>--</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Last run</source>
-        <translation type="unfinished"></translation>
+        <translation>Last run</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Engine</source>
-        <translation type="unfinished"></translation>
+        <translation>Engine</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Progress</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Plots</source>
-        <translation type="unfinished">Plots</translation>
+        <translation>Plots</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dproperties.ui"/>
         <source>Tables</source>
-        <translation type="unfinished">Tables</translation>
+        <translation>Tables</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="87"/>
         <source>Edit Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Model</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="88"/>
@@ -2934,104 +2854,105 @@ Do you want to proceed?</translation>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="442"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="453"/>
         <source>Run Simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Run Simulation</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="89"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="478"/>
         <source>Export Simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Export Simulation</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="90"/>
         <source>Engine Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Engine Settings</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="91"/>
         <source>3D View</source>
-        <translation type="unfinished"></translation>
+        <translation>3D View</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="92"/>
         <source>Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profiles</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="93"/>
         <source>Export as Mesh to QGIS Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Export as Mesh to QGIS Project</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="96"/>
         <source>Color Ramp</source>
-        <translation type="unfinished"></translation>
+        <translation>Color Ramp</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="97"/>
         <source>Vector Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Vector Settings</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="98"/>
         <source>Dynamic Vector Traces</source>
-        <translation type="unfinished"></translation>
+        <translation>Dynamic Vector Traces</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="130"/>
         <source>Simulation Engine Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation Engine Settings</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="130"/>
         <source>No simulation selected in the modele settings</source>
-        <translation type="unfinished"></translation>
+        <translation>No simulation selected in the modele settings</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="157"/>
         <source>Scalar results settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Scalar results settings</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="168"/>
         <source>Vector results settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Vector results settings</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="216"/>
         <source>Time</source>
-        <translation type="unfinished">Time</translation>
+        <translation>Time</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="219"/>
         <source>Flow rate (%1)</source>
-        <translation type="unfinished">Flow rate (%1)</translation>
+        <translation>Flow rate (%1)</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="226"/>
         <source>Input hydrographs</source>
-        <translation type="unfinished"></translation>
+        <translation>Input hydrographs</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="227"/>
         <source>Output hydrographs</source>
-        <translation type="unfinished"></translation>
+        <translation>Output hydrographs</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="333"/>
         <source>No existing results</source>
-        <translation type="unfinished"></translation>
+        <translation>No existing results</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="414"/>
         <source>Results exist for this modele and this hydraulic scheme.
 Do you want to overwrite this results?</source>
-        <translation type="unfinished"></translation>
+        <translation>Results exist for this modele and this hydraulic scheme.
+Do you want to overwrite this results?</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="421"/>
         <source>No simulation selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>No simulation selected.</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="433"/>
@@ -3039,36 +2960,41 @@ Do you want to overwrite this results?</source>
         <source>Simulation did not start for following reason:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation did not start for following reason:
+
+%1</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="442"/>
         <source>Something get wrong during simulation preparation.
 Please, check the model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Something get wrong during simulation preparation.
+Please, check the model.</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="478"/>
         <source>Simulation can&apos;t be exported for following reason:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation can&apos;t be exported for following reason:
+
+%1</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="516"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="581"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>None</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="757"/>
         <source>m</source>
-        <translation type="unfinished"></translation>
+        <translation>m</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="766"/>
         <source>No value</source>
-        <translation type="unfinished"></translation>
+        <translation>No value</translation>
     </message>
 </context>
 <context>
@@ -3076,136 +3002,131 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp" line="63"/>
         <source>Constant level</source>
-        <translation type="unfinished"></translation>
+        <translation>Constant level</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp" line="64"/>
         <source>Constant level value</source>
-        <translation type="unfinished"></translation>
+        <translation>Constant level value</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp" line="236"/>
         <source>Input flow from</source>
-        <translation type="unfinished"></translation>
+        <translation>Input flow from</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructureboundarycondition.cpp" line="239"/>
         <source>Output flow at</source>
-        <translation type="unfinished"></translation>
+        <translation>Output flow at</translation>
     </message>
 </context>
 <context>
     <name>ReosHydraulicStructureProfilesWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureprofileswidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoshydraulicstructureprofileswidget.ui"/>
         <source>Current profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Current profile</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureprofileswidget.ui"/>
         <source>Detach</source>
-        <translation type="unfinished"></translation>
+        <translation>Detach</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="33"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="34"/>
         <source>Add a New Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Add a New Profile</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="35"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="36"/>
         <source>Select a Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a Profile</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="37"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="38"/>
         <source>Edit Current Profile on Map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="39"/>
-        <source>Remove Current Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Current Profile on Map</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="40"/>
-        <source>Rename Current Profile</source>
-        <translation type="unfinished"></translation>
+        <source>Remove Current Profile</source>
+        <translation>Remove Current Profile</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="41"/>
+        <source>Rename Current Profile</source>
+        <translation>Rename Current Profile</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="42"/>
         <source>Display Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Display Velocity</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="89"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="90"/>
         <source>Terrain</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="93"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="94"/>
         <source>Water Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Water Level</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="97"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="111"/>
-        <source>Velocity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="98"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="112"/>
-        <source>Elevation</source>
-        <translation type="unfinished">Elevation</translation>
+        <source>Velocity</source>
+        <translation>Velocity</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="113"/>
+        <source>Elevation</source>
+        <translation>Elevation</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="114"/>
         <source>Distance</source>
-        <translation type="unfinished">Distance</translation>
+        <translation>Distance</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="179"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="180"/>
         <source>Reattach profile window to properties window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Reattach profile window to properties window.</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="184"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="185"/>
         <source>Detache profile window from properties window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Detache profile window from properties window.</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="207"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="208"/>
         <source>Profile name</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile name</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="209"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="210"/>
         <source>Profile %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="212"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="213"/>
         <source>Enter a name for the profile</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="239"/>
-        <source>Remove Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter a name for the profile</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="240"/>
-        <source>Do yo want to remove the current profile &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <source>Remove Profile</source>
+        <translation>Remove Profile</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="261"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="241"/>
+        <source>Do yo want to remove the current profile &quot;%1&quot;?</source>
+        <translation>Do yo want to remove the current profile &quot;%1&quot;?</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureprofileswidget.cpp" line="262"/>
         <source>Profile name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile name:</translation>
     </message>
 </context>
 <context>
@@ -3213,80 +3134,80 @@ Please, check the model.</source>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>Export to QGIS Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Export to QGIS Project</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>--</source>
-        <translation type="unfinished"></translation>
+        <translation>--</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>Simulation Engine</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation Engine</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>End TIme</source>
-        <translation type="unfinished"></translation>
+        <translation>End TIme</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>Last Run</source>
-        <translation type="unfinished"></translation>
+        <translation>Last Run</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Start Time</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>Time step count</source>
-        <translation type="unfinished"></translation>
+        <translation>Time step count</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>QGIS Project file</source>
-        <translation type="unfinished"></translation>
+        <translation>QGIS Project file</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructureresultexport.ui"/>
         <source>Add layer(s) of current project in the new project</source>
-        <translation type="unfinished"></translation>
+        <translation>Add layer(s) of current project in the new project</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="53"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="57"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="61"/>
         <source>Export Results to QGIS Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Export Results to QGIS Project</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="90"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="100"/>
         <source>No result</source>
-        <translation type="unfinished"></translation>
+        <translation>No result</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="98"/>
         <source>No simulation defined</source>
-        <translation type="unfinished"></translation>
+        <translation>No simulation defined</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="111"/>
         <source>QGIS project file</source>
-        <translation type="unfinished"></translation>
+        <translation>QGIS project file</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructureresultexport.cpp" line="113"/>
         <source>QGIS Project File (*.qgz)</source>
-        <translation type="unfinished"></translation>
+        <translation>QGIS Project File (*.qgz)</translation>
     </message>
 </context>
 <context>
@@ -3317,7 +3238,7 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/hydrograph/reoshydrographsource.cpp" line="476"/>
         <source>Output of </source>
-        <translation type="unfinished"></translation>
+        <translation>Output of </translation>
     </message>
 </context>
 <context>
@@ -3394,22 +3315,22 @@ Please, check the model.</source>
         <translation>Plots</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="34"/>
+        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="35"/>
         <source>Time</source>
         <translation>Time</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="38"/>
+        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="39"/>
         <source>Flow rate (%1)</source>
         <translation>Flow rate (%1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="43"/>
+        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="44"/>
         <source>Hydrographs</source>
         <translation>Hydrographs</translation>
     </message>
     <message>
-        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="123"/>
+        <location filename="../src/gui/hydrograph/reoshydrographroutingpropertieswidget.cpp" line="124"/>
         <source>none</source>
         <translation>none</translation>
     </message>
@@ -3532,12 +3453,12 @@ Please, check the model.</source>
     <message>
         <location filename="../src/ui/structure2d/reosimporthydraulicstructuredialog.ui"/>
         <source>Import hydraulic structure 2D</source>
-        <translation type="unfinished"></translation>
+        <translation>Import hydraulic structure 2D</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosimporthydraulicstructuredialog.ui"/>
         <source>Import from</source>
-        <translation type="unfinished"></translation>
+        <translation>Import from</translation>
     </message>
 </context>
 <context>
@@ -3677,28 +3598,23 @@ Please, check the model.</source>
     <name>ReosLightWidget</name>
     <message>
         <location filename="../src/ui/3D/reoslightwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/3D/reoslightwidget.ui"/>
         <source>Azimuth</source>
-        <translation type="unfinished"></translation>
+        <translation>Azimuth</translation>
     </message>
     <message>
         <location filename="../src/ui/3D/reoslightwidget.ui"/>
         <source>°</source>
-        <translation type="unfinished"></translation>
+        <translation>°</translation>
     </message>
     <message>
         <location filename="../src/ui/3D/reoslightwidget.ui"/>
         <source>Altitude</source>
-        <translation type="unfinished">Altitude</translation>
+        <translation>Altitude</translation>
     </message>
     <message>
         <location filename="../src/ui/3D/reoslightwidget.ui"/>
         <source>Light Intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Light Intensity</translation>
     </message>
 </context>
 <context>
@@ -3908,7 +3824,7 @@ Please, check the model.</source>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="419"/>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="420"/>
@@ -3934,22 +3850,22 @@ Please, check the model.</source>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="426"/>
         <source>Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Snapping</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="427"/>
         <source>Enable/Disable Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Enable/Disable Legend</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="517"/>
         <source>Temporal Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporal Controller</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmap.cpp" line="806"/>
         <source>Open Street Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Open Street Map</translation>
     </message>
 </context>
 <context>
@@ -3965,74 +3881,74 @@ Please, check the model.</source>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="39"/>
         <source>Edit Element</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Element</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="43"/>
         <source>Select element by polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Select element by polygon</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="47"/>
         <source>Remove vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove vertices</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="52"/>
         <source>Change Z value</source>
-        <translation type="unfinished"></translation>
+        <translation>Change Z value</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="753"/>
         <source>Start Editing Elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Start Editing Elements</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1068"/>
         <source>Change Z value of selected vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Change Z value of selected vertex</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1072"/>
         <source>Remove selected vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove selected vertex</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1077"/>
         <source>Selected vertex can&apos;t be removed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Selected vertex can&apos;t be removed</numerusform>
+            <numerusform>Selected vertex can&apos;t be removed</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1084"/>
         <source>Change Z value of %n selected vertices</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Change Z value of %n selected vertices</numerusform>
+            <numerusform>Change Z value of %n selected vertices</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1088"/>
         <source>Remove %n selected vertices</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Remove %n selected vertices</numerusform>
+            <numerusform>Remove %n selected vertices</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1093"/>
         <source>Some selected vertices can&apos;t be removed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Some selected vertices can&apos;t be removed</numerusform>
+            <numerusform>Some selected vertices can&apos;t be removed</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1099"/>
         <source>None vertices selected</source>
-        <translation type="unfinished"></translation>
+        <translation>None vertices selected</translation>
     </message>
 </context>
 <context>
@@ -4053,47 +3969,47 @@ Please, check the model.</source>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="31"/>
         <source>Add Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Add Lines</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="32"/>
         <source>Add Hole</source>
-        <translation type="unfinished"></translation>
+        <translation>Add Hole</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="33"/>
         <source>Move Vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Move Vertex</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="34"/>
         <source>Add Boundary Condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Add Boundary Condition</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="35"/>
         <source>Insert Vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Insert Vertex</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="36"/>
         <source>Remove Vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove Vertex</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="37"/>
         <source>Remove Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove Line</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="38"/>
         <source>Remove Hole</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove Hole</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp" line="406"/>
         <source>Boundary condition name</source>
-        <translation type="unfinished"></translation>
+        <translation>Boundary condition name</translation>
     </message>
 </context>
 <context>
@@ -4102,49 +4018,49 @@ Please, check the model.</source>
         <location filename="../src/core/GIS/reosmesh.cpp" line="36"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="143"/>
         <source>Minimum angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum angle</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="38"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="149"/>
         <source>Maximum angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum angle</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="40"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="155"/>
         <source>Maximum count</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum count</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="42"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="161"/>
         <source>Maximum count from boundary</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum count from boundary</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="44"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="167"/>
         <source>Maximum slope</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum slope</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="46"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="173"/>
         <source>Minimum area</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum area</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="48"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="179"/>
         <source>Maximum area</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum area</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="50"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="185"/>
         <source>Maximum area change</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum area change</translation>
     </message>
 </context>
 <context>
@@ -4152,12 +4068,12 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/GIS/private/reosmeshdataprovider_p.cpp" line="264"/>
         <source>MDAL not found, verify your installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>MDAL not found, verify your installation.</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmeshdataprovider_p.cpp" line="337"/>
         <source>Apply topography on Mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>Apply topography on Mesh</translation>
     </message>
 </context>
 <context>
@@ -4165,22 +4081,22 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="943"/>
         <source>MDAL is not found. Unable to export the mesh. Verify your installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>MDAL is not found. Unable to export the mesh. Verify your installation.</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="960"/>
         <source>Unable to create a new mesh file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to create a new mesh file.</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="985"/>
         <source>No results present.</source>
-        <translation type="unfinished"></translation>
+        <translation>No results present.</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1008"/>
         <source>Unable to add result &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to add result &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -4188,7 +4104,7 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/mesh/reosmeshgenerator.cpp" line="44"/>
         <source>Auto update mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto update mesh</translation>
     </message>
 </context>
 <context>
@@ -4196,7 +4112,7 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/mesh/reosgmshgenerator.cpp" line="124"/>
         <source>Mesh generation in progress.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh generation in progress.</translation>
     </message>
 </context>
 <context>
@@ -4204,12 +4120,12 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1506"/>
         <source>Check faces</source>
-        <translation type="unfinished"></translation>
+        <translation>Check faces</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="1660"/>
         <source>Check vertices</source>
-        <translation type="unfinished"></translation>
+        <translation>Check vertices</translation>
     </message>
 </context>
 <context>
@@ -4218,50 +4134,45 @@ Please, check the model.</source>
         <location filename="../src/core/mesh/reosmeshgenerator.cpp" line="90"/>
         <location filename="../src/core/mesh/reosmeshgenerator.cpp" line="101"/>
         <source>Default element size</source>
-        <translation type="unfinished"></translation>
+        <translation>Default element size</translation>
     </message>
 </context>
 <context>
     <name>ReosMeshScalarRenderingWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reosmeshscalarrenderingwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reosmeshscalarrenderingwidget.ui"/>
         <source>Back to Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Back to Previous Page</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshscalarrenderingwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshscalarrenderingwidget.ui"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacity</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshscalarrenderingwidget.ui"/>
         <source> %</source>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="32"/>
         <source>Minimum</source>
-        <translation type="unfinished">Minimum</translation>
+        <translation>Minimum</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="33"/>
         <source>Maximum</source>
-        <translation type="unfinished">Maximum</translation>
+        <translation>Maximum</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="80"/>
         <source>Calculate Minimum and Maximum</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculate Minimum and Maximum</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="81"/>
@@ -4270,7 +4181,11 @@ To obtain minimum and maximum, it is necessary to calculate them from source.
 Depending of the data, this operation could take some time.
 
 Do you want to proceed?</source>
-        <translation type="unfinished"></translation>
+        <translation>Data source does not provide minimum and maximum values.
+To obtain minimum and maximum, it is necessary to calculate them from source.
+Depending of the data, this operation could take some time.
+
+Do you want to proceed?</translation>
     </message>
 </context>
 <context>
@@ -4278,254 +4193,244 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/core/GIS/private/reosmesh_p.cpp" line="2109"/>
         <source>Terrain elevation</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain elevation</translation>
     </message>
 </context>
 <context>
     <name>ReosMeshTopographyWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>Terrain Styling</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain Styling</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>Mesh Z value under cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh Z value under cursor</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>--</source>
-        <translation type="unfinished"></translation>
+        <translation>--</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>Add Topography Layer to The Collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Add Topography Layer to The Collection</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>Available DEM</source>
-        <translation type="unfinished"></translation>
+        <translation>Available DEM</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reosmeshtopographywidget.ui"/>
         <source>Apply topographies</source>
-        <translation type="unfinished"></translation>
+        <translation>Apply topographies</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp" line="81"/>
         <source>Add a Topography to the Collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Add a Topography to the Collection</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp" line="82"/>
         <source>The topography collection already contains this topography.</source>
-        <translation type="unfinished"></translation>
+        <translation>The topography collection already contains this topography.</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp" line="98"/>
         <source>No value</source>
-        <translation type="unfinished"></translation>
+        <translation>No value</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosmeshtopographywidget.cpp" line="111"/>
         <source>Remove selected topography</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove selected topography</translation>
     </message>
 </context>
 <context>
     <name>ReosMeshVectorRenderingWidget</name>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Static Vector Rendering</source>
-        <translation type="unfinished"></translation>
+        <translation>Static Vector Rendering</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Symbology type</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbology type</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Arrow Shape</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrow Shape</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Maximum length</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum length</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Minimum length</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimum length</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Head width / lenght</source>
-        <translation type="unfinished"></translation>
+        <translation>Head width / lenght</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Shaft</source>
-        <translation type="unfinished"></translation>
+        <translation>Shaft</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Head</source>
-        <translation type="unfinished"></translation>
+        <translation>Head</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source> %</source>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Width</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Stream line</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream line</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Seeding method</source>
-        <translation type="unfinished"></translation>
+        <translation>Seeding method</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Density</source>
-        <translation type="unfinished"></translation>
+        <translation>Density</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="88"/>
         <source>Traces</source>
-        <translation type="unfinished"></translation>
+        <translation>Traces</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Maximum tail length</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum tail length</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Particules count</source>
-        <translation type="unfinished"></translation>
+        <translation>Particules count</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Dynamic Traces</source>
-        <translation type="unfinished"></translation>
+        <translation>Dynamic Traces</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Frame per seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame per seconds</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Tail factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Tail factor</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Tails persistence (0 - 1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tails persistence (0 - 1)</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Maximum trace speed (px/s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximum trace speed (px/s)</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Particules life time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Particules life time (s)</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Coloring</source>
-        <translation type="unfinished"></translation>
+        <translation>Coloring</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode</translation>
     </message>
     <message>
         <location filename="../src/ui/reosmeshvectorrenderingwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="86"/>
         <source>Arrows</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrows</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="87"/>
         <source>Stream lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream lines</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="90"/>
         <source>Unique color</source>
-        <translation type="unfinished"></translation>
+        <translation>Unique color</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="91"/>
         <source>Color ramp</source>
-        <translation type="unfinished"></translation>
+        <translation>Color ramp</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="93"/>
         <source>On Mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>On Mesh</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="94"/>
         <source>Randomly</source>
-        <translation type="unfinished"></translation>
+        <translation>Randomly</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="204"/>
         <source>Millimeters</source>
-        <translation type="unfinished"></translation>
+        <translation>Millimeters</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="205"/>
         <source>Points</source>
-        <translation type="unfinished"></translation>
+        <translation>Points</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="206"/>
         <source>Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixels</translation>
     </message>
     <message>
         <location filename="../src/gui/GIS/reosmeshvectorrenderingwidget.cpp" line="207"/>
         <source>Meters at Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Meters at Scale</translation>
     </message>
 </context>
 <context>
@@ -4533,7 +4438,7 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="783"/>
         <source>Enable mesh wireFrame</source>
-        <translation type="unfinished"></translation>
+        <translation>Enable mesh wireFrame</translation>
     </message>
 </context>
 <context>
@@ -4542,11 +4447,6 @@ Do you want to proceed?</source>
         <location filename="../src/ui/reosmessagebox.ui"/>
         <source>Messages</source>
         <translation>Messages</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/reosmessagebox.ui"/>
-        <source>Form</source>
-        <translation>Form</translation>
     </message>
     <message>
         <location filename="../src/gui/reosmessagebox.cpp" line="41"/>
@@ -4587,7 +4487,7 @@ Do you want to proceed?</source>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="46"/>
         <source>Display Gridded Precipitation on Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Display Gridded Precipitation on Map</translation>
     </message>
     <message>
         <location filename="../src/gui/watershed/reosmeteorologicmodelwidget.cpp" line="83"/>
@@ -4674,7 +4574,7 @@ choose a new name:</translation>
     <message>
         <location filename="../src/ui/reosmeteorologicmodelwidget.ui"/>
         <source>Drop it on watershed or 2D structure</source>
-        <translation type="unfinished"></translation>
+        <translation>Drop it on watershed or 2D structure</translation>
     </message>
 </context>
 <context>
@@ -4682,7 +4582,7 @@ choose a new name:</translation>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="639"/>
         <source>Model 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Model 1</translation>
     </message>
 </context>
 <context>
@@ -4690,25 +4590,20 @@ choose a new name:</translation>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="749"/>
         <source>Hydraulic Structure</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydraulic Structure</translation>
     </message>
     <message>
         <location filename="../src/core/watershed/reosmeteorologicmodel.cpp" line="751"/>
         <source>Associated rainfall</source>
-        <translation type="unfinished">Associated rainfall</translation>
+        <translation>Associated rainfall</translation>
     </message>
 </context>
 <context>
     <name>ReosNetworkCompatibilityDialog</name>
     <message>
         <location filename="../src/ui/reosnetworkcompatibilitydialog.ui"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosnetworkcompatibilitydialog.ui"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
 </context>
 <context>
@@ -4756,7 +4651,7 @@ choose a new name:</translation>
 <context>
     <name>ReosPlotLegendController</name>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="967"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="876"/>
         <source>Legend</source>
         <translation>Legend</translation>
     </message>
@@ -4764,32 +4659,32 @@ choose a new name:</translation>
 <context>
     <name>ReosPlotWidget</name>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="144"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="53"/>
         <source>Save as Image</source>
         <translation>Save as Image</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="145"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="54"/>
         <source>Copy as Image</source>
         <translation>Copy as Image</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="146"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="55"/>
         <source>Time Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Time Line</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="147"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="56"/>
         <source>Display Coordinates on Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Display Coordinates on Cursor</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="224"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="133"/>
         <source>X linear scale</source>
         <translation>X linear scale</translation>
     </message>
     <message>
-        <location filename="../src/gui/chart/reosplotwidget.cpp" line="225"/>
+        <location filename="../src/gui/chart/reosplotwidget.cpp" line="134"/>
         <source>X logarithmic scale</source>
         <translation>X logarithmic scale</translation>
     </message>
@@ -4799,7 +4694,7 @@ choose a new name:</translation>
     <message>
         <location filename="../src/gui/GIS/reosmaptooleditgeometrystructure.cpp" line="138"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Default</translation>
     </message>
 </context>
 <context>
@@ -4807,17 +4702,17 @@ choose a new name:</translation>
     <message>
         <location filename="../src/core/GIS/private/reospolygonstructure_p.cpp" line="169"/>
         <source>Add resolution polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Add resolution polygon</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolygonstructure_p.cpp" line="349"/>
         <source>Add class</source>
-        <translation type="unfinished"></translation>
+        <translation>Add class</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolygonstructure_p.cpp" line="363"/>
         <source>Remove class</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove class</translation>
     </message>
 </context>
 <context>
@@ -4825,42 +4720,42 @@ choose a new name:</translation>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="869"/>
         <source>Move structure vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Move structure vertex</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1024"/>
         <source>Remove line</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove line</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1548"/>
         <source>Add hole</source>
-        <translation type="unfinished"></translation>
+        <translation>Add hole</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1578"/>
         <source>Move hole</source>
-        <translation type="unfinished"></translation>
+        <translation>Move hole</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1585"/>
         <source>Remove hole</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove hole</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1838"/>
         <source>Add boundary condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Add boundary condition</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1855"/>
         <source>Remove boundary condition</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove boundary condition</translation>
     </message>
     <message>
         <location filename="../src/core/GIS/private/reospolylinesstructure_p.cpp" line="1867"/>
         <source>Rename class</source>
-        <translation type="unfinished"></translation>
+        <translation>Rename class</translation>
     </message>
 </context>
 <context>
@@ -5055,12 +4950,12 @@ choose a new name:</translation>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="93"/>
         <source>Add Gridded Precipitation</source>
-        <translation type="unfinished"></translation>
+        <translation>Add Gridded Precipitation</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="94"/>
         <source>Export Gridded Precipitation</source>
-        <translation type="unfinished"></translation>
+        <translation>Export Gridded Precipitation</translation>
     </message>
     <message>
         <location filename="../src/gui/rainfall/reosrainfallmanager.cpp" line="229"/>
@@ -5302,50 +5197,45 @@ If not, another station will be created</translation>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1461"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1469"/>
         <source>Default roughness</source>
-        <translation type="unfinished"></translation>
+        <translation>Default roughness</translation>
     </message>
 </context>
 <context>
     <name>ReosRoughnessWidget</name>
     <message>
         <location filename="../src/ui/reosroughnesswidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosroughnesswidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosroughnesswidget.cpp" line="34"/>
         <source>Edit Roughness Polygons</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit Roughness Polygons</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosroughnesswidget.cpp" line="109"/>
         <source>Manning coefficient:</source>
-        <translation type="unfinished"></translation>
+        <translation>Manning coefficient:</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosroughnesswidget.cpp" line="113"/>
         <source>New roughness class</source>
-        <translation type="unfinished"></translation>
+        <translation>New roughness class</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosroughnesswidget.cpp" line="114"/>
         <source>Enter a value for this new roughness class</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter a value for this new roughness class</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosroughnesswidget.cpp" line="122"/>
         <source>Add New Roughness</source>
-        <translation type="unfinished"></translation>
+        <translation>Add New Roughness</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosroughnesswidget.cpp" line="122"/>
         <source>This roughness value already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>This roughness value already exists.</translation>
     </message>
 </context>
 <context>
@@ -5717,12 +5607,12 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/ui/reossavegriddedrainfallasdialog.ui"/>
         <source>Save Gridded Precipitation As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Save Gridded Precipitation As...</translation>
     </message>
     <message>
         <location filename="../src/ui/reossavegriddedrainfallasdialog.ui"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format</translation>
     </message>
 </context>
 <context>
@@ -5730,22 +5620,22 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="53"/>
         <source>mm</source>
-        <translation type="unfinished">mm</translation>
+        <translation>mm</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="54"/>
         <source>Height per time step</source>
-        <translation type="unfinished">Height per time step</translation>
+        <translation>Height per time step</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="55"/>
         <source>Total height</source>
-        <translation type="unfinished">Total height</translation>
+        <translation>Total height</translation>
     </message>
     <message>
         <location filename="../src/core/rainfall/reosseriesrainfall.cpp" line="56"/>
         <source>Rainfall intensity</source>
-        <translation type="unfinished">Rainfall intensity</translation>
+        <translation>Rainfall intensity</translation>
     </message>
 </context>
 <context>
@@ -5753,18 +5643,18 @@ is applied on the rainfall</translation>
     <message numerus="yes">
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.cpp" line="220"/>
         <source>Get boundary conditions</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Get boundary conditions</numerusform>
+            <numerusform>Get boundary conditions</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.cpp" line="260"/>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.cpp" line="287"/>
         <source>Wait for %n boundary condition</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Wait for %n boundary condition</numerusform>
+            <numerusform>Wait for %n boundary condition</numerusform>
         </translation>
     </message>
 </context>
@@ -5805,13 +5695,8 @@ is applied on the rainfall</translation>
     <name>ReosSpeedWidget</name>
     <message>
         <location filename="../src/ui/reosspeedwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reosspeedwidget.ui"/>
         <source>Speed factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Speed factor</translation>
     </message>
 </context>
 <context>
@@ -5837,7 +5722,7 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosstructure2dtoolbar.cpp" line="17"/>
         <source>Structure 2D</source>
-        <translation type="unfinished"></translation>
+        <translation>Structure 2D</translation>
     </message>
 </context>
 <context>
@@ -5845,12 +5730,12 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="257"/>
         <source>Vertices count</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertices count</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="260"/>
         <source>Faces count</source>
-        <translation type="unfinished"></translation>
+        <translation>Faces count</translation>
     </message>
 </context>
 <context>
@@ -5859,13 +5744,13 @@ is applied on the rainfall</translation>
         <location filename="../src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp" line="134"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp" line="143"/>
         <source>First water level value</source>
-        <translation type="unfinished"></translation>
+        <translation>First water level value</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp" line="136"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp" line="144"/>
         <source>Second water level value</source>
-        <translation type="unfinished"></translation>
+        <translation>Second water level value</translation>
     </message>
 </context>
 <context>
@@ -5874,7 +5759,7 @@ is applied on the rainfall</translation>
         <location filename="../src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp" line="57"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp" line="64"/>
         <source>Initial water level</source>
-        <translation type="unfinished"></translation>
+        <translation>Initial water level</translation>
     </message>
 </context>
 <context>
@@ -5882,12 +5767,12 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="229"/>
         <source>From hydraulic scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>From hydraulic scheme</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="237"/>
         <source>Time step</source>
-        <translation type="unfinished">Time step</translation>
+        <translation>Time step</translation>
     </message>
 </context>
 <context>
@@ -5895,17 +5780,17 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="278"/>
         <source>Draw intepolation line</source>
-        <translation type="unfinished"></translation>
+        <translation>Draw intepolation line</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="361"/>
         <source>Value under cursor: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Value under cursor: %1</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="365"/>
         <source>No interpolation line</source>
-        <translation type="unfinished"></translation>
+        <translation>No interpolation line</translation>
     </message>
 </context>
 <context>
@@ -5914,19 +5799,19 @@ is applied on the rainfall</translation>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="46"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="62"/>
         <source>Time step</source>
-        <translation type="unfinished">Time step</translation>
+        <translation>Time step</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="49"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="63"/>
         <source>Output period for 2D result</source>
-        <translation type="unfinished"></translation>
+        <translation>Output period for 2D result</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="52"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="64"/>
         <source>Output period for hydrograph</source>
-        <translation type="unfinished"></translation>
+        <translation>Output period for hydrograph</translation>
     </message>
 </context>
 <context>
@@ -5934,39 +5819,41 @@ is applied on the rainfall</translation>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1429"/>
         <source>Start simulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Start simulation</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1438"/>
         <source>Simulation process failed to start</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation process failed to start</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1441"/>
         <source>Simulation process crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation process crashed</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1444"/>
         <source>Simulation process does not finished for an unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation process does not finished for an unknown error</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1452"/>
         <source>Simulation canceled by user</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation canceled by user</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1458"/>
         <source>Simulation process exit with error code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulation process exit with error code %1</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1464"/>
         <source>Telemac simulation can&apos;t start in folder &quot;%1&quot;.
 Error: %2
 Check the settings of the Telemac engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Telemac simulation can&apos;t start in folder &quot;%1&quot;.
+Error: %2
+Check the settings of the Telemac engine.</translation>
     </message>
 </context>
 <context>
@@ -5975,12 +5862,12 @@ Check the settings of the Telemac engine.</source>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulationresults.cpp" line="330"/>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulationresults.cpp" line="333"/>
         <source>m</source>
-        <translation type="unfinished"></translation>
+        <translation>m</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemac2dsimulationresults.cpp" line="336"/>
         <source> m/s</source>
-        <translation type="unfinished"></translation>
+        <translation> m/s</translation>
     </message>
 </context>
 <context>
@@ -5988,164 +5875,154 @@ Check the settings of the Telemac engine.</source>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>TELEMAC Engine Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>TELEMAC Engine Settings</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>TELEMAC 2D Python script</source>
-        <translation type="unfinished"></translation>
+        <translation>TELEMAC 2D Python script</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>Configuration name</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuration name</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>Configuration file</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuration file</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>If void, the first configuration in the configuraton file will be considered</source>
-        <translation type="unfinished"></translation>
+        <translation>If void, the first configuration in the configuraton file will be considered</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>CPU Usage Count</source>
-        <translation type="unfinished"></translation>
+        <translation>CPU Usage Count</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="166"/>
         <source>Python path</source>
-        <translation type="unfinished"></translation>
+        <translation>Python path</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>Configuration file can have a name as systel.***.cfg</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuration file can have a name as systel.***.cfg</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
         <source>Additional pathes</source>
-        <translation type="unfinished"></translation>
+        <translation>Additional pathes</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="151"/>
         <source>TELEMAC 2D Python Script</source>
-        <translation type="unfinished"></translation>
+        <translation>TELEMAC 2D Python Script</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="158"/>
         <source>TELEMAC Configuration File</source>
-        <translation type="unfinished"></translation>
+        <translation>TELEMAC Configuration File</translation>
     </message>
 </context>
 <context>
     <name>ReosTelemacSimulationEditWidget</name>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
         <source>Time</source>
-        <translation type="unfinished">Time</translation>
+        <translation>Time</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
         <source>Initial Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Initial Conditions</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
         <source>Intital condition type</source>
-        <translation type="unfinished"></translation>
+        <translation>Intital condition type</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
         <source>Numerical options</source>
-        <translation type="unfinished"></translation>
+        <translation>Numerical options</translation>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
         <source>Equation</source>
-        <translation type="unfinished"></translation>
+        <translation>Equation</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="46"/>
         <source>Constant water level, no velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Constant water level, no velocity</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="48"/>
         <source>From other hydraulic scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>From other hydraulic scheme</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="50"/>
         <source>Interpolation line</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolation line</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="60"/>
         <source>Finite Element</source>
-        <translation type="unfinished"></translation>
+        <translation>Finite Element</translation>
     </message>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="61"/>
         <source>Finite Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Finite Volume</translation>
     </message>
 </context>
 <context>
     <name>ReosTemporalControllerWidget</name>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>dd/MM/yyyy HH:mm:ss</source>
-        <translation type="unfinished"></translation>
+        <translation>dd/MM/yyyy HH:mm:ss</translation>
     </message>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>Previous map time step</source>
-        <translation type="unfinished"></translation>
+        <translation>Previous map time step</translation>
     </message>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>Play backward</source>
-        <translation type="unfinished"></translation>
+        <translation>Play backward</translation>
     </message>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Pause</translation>
     </message>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>Play forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Play forward</translation>
     </message>
     <message>
         <location filename="../src/ui/reostemporalcontrollerwidget.ui"/>
         <source>Next map time step</source>
-        <translation type="unfinished"></translation>
+        <translation>Next map time step</translation>
     </message>
 </context>
 <context>
@@ -6330,17 +6207,17 @@ Check the settings of the Telemac engine.</source>
     <message>
         <location filename="../src/ui/reosvariabletimestepseriesgroupwidget.ui"/>
         <source>Gauged Hydrographs</source>
-        <translation type="unfinished">Gauged Hydrographs</translation>
+        <translation>Gauged Hydrographs</translation>
     </message>
     <message>
         <location filename="../src/ui/reosvariabletimestepseriesgroupwidget.ui"/>
         <source>Back</source>
-        <translation type="unfinished">Back</translation>
+        <translation>Back</translation>
     </message>
     <message>
         <location filename="../src/ui/reosvariabletimestepseriesgroupwidget.ui"/>
         <source>--</source>
-        <translation type="unfinished"></translation>
+        <translation>--</translation>
     </message>
 </context>
 <context>
@@ -6348,22 +6225,22 @@ Check the settings of the Telemac engine.</source>
     <message>
         <location filename="../src/core/hydraulicNetwork/reostimewindowsettings.cpp" line="20"/>
         <source>Use external time windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Use external time windows</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reostimewindowsettings.cpp" line="21"/>
         <source>Defined automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Defined automatically</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reostimewindowsettings.cpp" line="24"/>
         <source>User start time</source>
-        <translation type="unfinished"></translation>
+        <translation>User start time</translation>
     </message>
     <message>
         <location filename="../src/core/hydraulicNetwork/reostimewindowsettings.cpp" line="25"/>
         <source>User end time</source>
-        <translation type="unfinished"></translation>
+        <translation>User end time</translation>
     </message>
 </context>
 <context>
@@ -6372,7 +6249,7 @@ Check the settings of the Telemac engine.</source>
         <location filename="../src/core/GIS/reostopographycollection.cpp" line="117"/>
         <location filename="../src/core/GIS/reostopographycollection.cpp" line="137"/>
         <source>Auto apply topographies</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto apply topographies</translation>
     </message>
 </context>
 <context>
@@ -6477,76 +6354,77 @@ Check the settings of the Telemac engine.</source>
 <context>
     <name>ReosVariableTimeStepSeriesEditingWidget</name>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="262"/>
-        <source>Use constant time step for new entry</source>
-        <translation type="unfinished">Use constant time step for new entry</translation>
-    </message>
-    <message>
         <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="263"/>
-        <source>Constant time step</source>
-        <translation type="unfinished">Constant time step</translation>
+        <source>Use constant time step for new entry</source>
+        <translation>Use constant time step for new entry</translation>
     </message>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="304"/>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="264"/>
+        <source>Constant time step</source>
+        <translation>Constant time step</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="305"/>
         <source>Time step unit</source>
-        <translation type="unfinished">Time step unit</translation>
+        <translation>Time step unit</translation>
     </message>
 </context>
 <context>
     <name>ReosVariableTimeStepTimeSeriesGroupWidget</name>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="42"/>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="43"/>
         <source>Current %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Current %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="52"/>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="120"/>
-        <source>Add %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="54"/>
-        <source>Delete %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="56"/>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="171"/>
-        <source>Rename %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="53"/>
         <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="121"/>
-        <source>Add a new %1, choose a name:</source>
-        <translation type="unfinished"></translation>
+        <source>Add %1</source>
+        <translation>Add %1</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="55"/>
+        <source>Delete %1</source>
+        <translation>Delete %1</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="57"/>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="172"/>
+        <source>Rename %1</source>
+        <translation>Rename %1</translation>
     </message>
     <message>
         <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="122"/>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="173"/>
-        <source>%1 name</source>
-        <translation type="unfinished"></translation>
+        <source>Add a new %1, choose a name:</source>
+        <translation>Add a new %1, choose a name:</translation>
     </message>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="149"/>
-        <source>Remove %1</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="123"/>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="174"/>
+        <source>%1 name</source>
+        <translation>%1 name</translation>
     </message>
     <message>
         <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="150"/>
-        <source>Do you want to remove the %1 &apos;%2&apos;?</source>
-        <translation type="unfinished"></translation>
+        <source>Remove %1</source>
+        <translation>Remove %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="172"/>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="151"/>
+        <source>Do you want to remove the %1 &apos;%2&apos;?</source>
+        <translation>Do you want to remove the %1 &apos;%2&apos;?</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="173"/>
         <source>Rename %1 &apos;%2&apos;,
 choose a new name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rename %1 &apos;%2&apos;,
+choose a new name:</translation>
     </message>
     <message>
-        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="231"/>
+        <location filename="../src/gui/data/reosvariabletimesteptimeseriesgroupwidget.cpp" line="232"/>
         <source>No Hydrograph</source>
-        <translation type="unfinished">No Hydrograph</translation>
+        <translation>No Hydrograph</translation>
     </message>
 </context>
 <context>
@@ -6577,14 +6455,6 @@ choose a new name:</source>
         <location filename="../src/gui/reosversionmessagebox.cpp" line="111"/>
         <source>Unable to check new version.</source>
         <translation>Unable to check new version.</translation>
-    </message>
-</context>
-<context>
-    <name>ReosVerticalExaggerationWidget</name>
-    <message>
-        <location filename="../src/ui/3D/reosverticalexaggerationwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
     </message>
 </context>
 <context>
@@ -6916,87 +6786,82 @@ It is not possible to have hydraulic watershed node for both downstream watershe
     <message>
         <location filename="../src/ui/structure2d/reoszvaluemodificationwidget.ui"/>
         <source>Z Value Modification</source>
-        <translation type="unfinished"></translation>
+        <translation>Z Value Modification</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoszvaluemodificationwidget.cpp" line="42"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Value</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoszvaluemodificationwidget.cpp" line="47"/>
         <source>New Value</source>
-        <translation type="unfinished"></translation>
+        <translation>New Value</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoszvaluemodificationwidget.cpp" line="48"/>
         <source>Apply vertical offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Apply vertical offset</translation>
     </message>
 </context>
 <context>
     <name>Reoshydraulicstructure2dTimeWindowWidget</name>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>Typically, used time window configured in original imported file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Typically, used time window configured in original imported file.</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>Used Externally Defined Time Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Used Externally Defined Time Window</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>Defined Automaticaly</source>
-        <translation type="unfinished"></translation>
+        <translation>Defined Automaticaly</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>Start offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Start offset</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>End offset</source>
-        <translation type="unfinished"></translation>
+        <translation>End offset</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>Combine method</source>
-        <translation type="unfinished"></translation>
+        <translation>Combine method</translation>
     </message>
     <message>
         <location filename="../src/ui/structure2d/reoshydraulicstructure2dtimewindowwidget.ui"/>
         <source>The time window is defined by combining the time extents of the inflow bounday conditions. Duration offsets can be applyed to start and to end to adjust the final time window. </source>
-        <translation type="unfinished"></translation>
+        <translation>The time window is defined by combining the time extents of the inflow bounday conditions. Duration offsets can be applyed to start and to end to adjust the final time window. </translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp" line="33"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp" line="36"/>
         <source>From beginning</source>
-        <translation type="unfinished"></translation>
+        <translation>From beginning</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp" line="34"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp" line="37"/>
         <source>From end</source>
-        <translation type="unfinished"></translation>
+        <translation>From end</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp" line="39"/>
         <source>Intersection</source>
-        <translation type="unfinished"></translation>
+        <translation>Intersection</translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dtimewindowwidget.cpp" line="40"/>
         <source>Union</source>
-        <translation type="unfinished"></translation>
+        <translation>Union</translation>
     </message>
 </context>
 </TS>

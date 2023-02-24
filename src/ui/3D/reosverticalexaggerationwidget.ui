@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -43,15 +43,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ReosSliderElastic</class>
-   <extends>QSlider</extends>
-   <header>reosverticalexaggerationwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>ReosParameterDoubleWidget</class>
    <extends>QWidget</extends>
    <header>reosparameterwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosSliderElastic</class>
+   <extends>QSlider</extends>
+   <header>reosverticalexaggerationwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

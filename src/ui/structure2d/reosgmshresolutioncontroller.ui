@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -103,7 +103,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../images/images.qrc">
+        <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/add.svg</normaloff>:/images/add.svg</iconset>
        </property>
        <property name="iconSize">
@@ -120,7 +120,7 @@
      <item>
       <widget class="QToolButton" name="mToolButtonRemoveClass">
        <property name="icon">
-        <iconset resource="../../images/images.qrc">
+        <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/remove.svg</normaloff>:/images/remove.svg</iconset>
        </property>
        <property name="iconSize">
@@ -176,7 +176,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../images/images.qrc"/>
+  <include location="../../../images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
