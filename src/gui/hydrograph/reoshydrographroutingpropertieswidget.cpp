@@ -23,6 +23,7 @@
 #include "reosplotitemlist.h"
 #include "reosapplication.h"
 #include "reosguicontext.h"
+#include "reossettings.h"
 
 ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, const ReosGuiContext &guiContext )
   :  ReosHydraulicElementWidget( guiContext.parent() )

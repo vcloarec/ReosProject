@@ -27,10 +27,10 @@
 
 #include "reosmodule.h"
 #include "reosgui.h"
-#include "reossettings.h"
 
 class QComboBox;
 class QSpinBox;
+class QLabel;
 
 class QwtPlotMagnifier;
 class QwtPlotPanner;
@@ -38,6 +38,7 @@ class QwtPlotZoomer;
 class QwtPlotPicker;
 class QwtPlotItem;
 class QwtPlotCurve;
+class QwtPlot;
 class ReosPlotCurve_p;
 class ReosPlotPolygons_p;
 
@@ -54,7 +55,7 @@ class ReosPlotLegendController : public QToolButton
 {
     Q_OBJECT
   public:
-    ReosPlotLegendController( ReosPlotWidget *plotWidget );
+    explicit ReosPlotLegendController( ReosPlotWidget *plotWidget );
     void setLegendEnabled( bool b );
 
     void setCurrentAlignment( Qt::Alignment alignment );
@@ -279,7 +280,30 @@ class REOSGUI_EXPORT ReosPlotItemFactories: public ReosModule
     static ReosPlotItemFactories *sInstance;
     using Factory = std::unique_ptr<ReosDataPlotItemFactory>;
     std::vector<Factory> mFactories;
+};
 
+class CoordinatesWidget: public QWidget
+{
+    Q_OBJECT
+  public:
+    explicit CoordinatesWidget( QwtPlot *plot );
+
+    void enableYRight( bool b );
+
+    bool eventFilter( QObject *obj, QEvent *event );
+
+    void updatePosition( const QPoint &pos );
+
+    void setXType( const ReosPlotWidget::AxeType &xType );
+
+  private:
+    QLabel *mLabelX = nullptr;
+    QLabel *mLabelYLeft = nullptr;
+    QLabel *mLabelYRight = nullptr;
+    QwtPlot *mPlot = nullptr;
+
+    ReosPlotWidget::AxeType mXType = ReosPlotWidget::AxeType::normal;
+    bool mIsRightYEnabled = false;
 };
 
 

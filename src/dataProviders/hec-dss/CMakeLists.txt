@@ -101,7 +101,6 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${HEC_DSS_INCLUDE}
-    ${REOS_HEC_DSS_HEADERS}
     )
 
 INSTALL(TARGETS reosHecDss

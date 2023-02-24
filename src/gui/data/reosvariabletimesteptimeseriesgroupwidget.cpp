@@ -27,6 +27,7 @@
 #include "reosdataprovidergui.h"
 #include "reostableview.h"
 #include "reosformwidget.h"
+#include "reossettings.h"
 
 ReosVariableTimeStepTimeSeriesGroupWidget::ReosVariableTimeStepTimeSeriesGroupWidget( const ReosGuiContext &guiContext, const QString genericName, const QString &unitString, int currentIndex )
   : ReosStackedPageWidget( guiContext.parent() )

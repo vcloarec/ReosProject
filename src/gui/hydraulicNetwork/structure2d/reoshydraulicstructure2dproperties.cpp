@@ -33,9 +33,9 @@
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reosplotitemlist.h"
 #include "reoshydraulic2dsimulationwidget.h"
-#include "reoshydraulicschemewidget.h"
 #include "reoshydraulicstructureresultexport.h"
 #include "reoshydraulicstructureprofileswidget.h"
+#include "reossettings.h"
 
 
 class DatasetSettingsWidgetAction : public QWidgetAction
