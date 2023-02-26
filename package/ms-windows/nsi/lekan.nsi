@@ -5,7 +5,7 @@
 
 Unicode True
 
-!define LEKAN_VERSION "$%LEKAN_EXPERIMENTAL_VERSION%"
+!define LEKAN_VERSION "$%LEKAN_VERSION%"
 !define PACKAGE_SOURCE "$%NSI_DESTINATION%"
 !define PATH_TO_FILES "$%REOS_INSTALL%"
 
@@ -21,11 +21,11 @@ Unicode True
   SetCompressor /SOLID lzma
 
   ;Name and file
-  Name "Lekan exp"
+  Name "Lekan"
   OutFile "${PACKAGE_SOURCE}\Lekan-${LEKAN_VERSION}-install-win64.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES64\ReosProject-exp"
+  InstallDir "$PROGRAMFILES64\ReosProject"
   
   ;Get installation folder from registry if available
   ;InstallDirRegKey HKCU "Software\Modern UI Test" ""
@@ -49,7 +49,7 @@ FunctionEnd
 
 !define MUI_FINISHPAGE_SHOWREADME ""
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "Créer un raccourci sur le bureau"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Create shortcut on the desktop"
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION finishpageaction 
 
 ;--------------------------------
@@ -83,13 +83,13 @@ Section "Install" SecInstall
   File /r "${PATH_TO_FILES}\*.*"
 
   ;Store installation folder
-  WriteRegStr HKLM "Lekan exp 2" "" $INSTDIR
+  WriteRegStr HKLM "Lekan 2" "" $INSTDIR
   
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lekan2" \
-                 "DisplayName" "Lekan exp 2"
+                 "DisplayName" "Lekan 2"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lekan2" \
                  "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
   
@@ -97,7 +97,7 @@ Section "Install" SecInstall
 !insertmacro MUI_STARTMENU_WRITE_BEGIN 0 ;This macro sets $SMDir and skips to MUI_STARTMENU_WRITE_END if the "Don't create shortcuts" checkbox is checked... 
 CreateDirectory "$SMPROGRAMS\$SMDir"
 SetOutPath "$INSTDIR\bin"
-CreateShortCut "$SMPROGRAMS\$SMDir\Lekan exp.lnk" "$INSTDIR\bin\Lekan.exe"
+CreateShortCut "$SMPROGRAMS\$SMDir\Lekan.lnk" "$INSTDIR\bin\Lekan.exe"
 !insertmacro MUI_STARTMENU_WRITE_END
 
 SectionEnd
@@ -116,7 +116,7 @@ Section "Uninstall"
   
   RMDir "$INSTDIR"
     
-  Delete "$SMPROGRAMS\$SMDir\Lekan exp.lnk"
+  Delete "$SMPROGRAMS\$SMDir\Lekan.lnk"
   RMDir "$SMPROGRAMS\$SMDir"
 
   DeleteRegKey /ifempty HKCU "Lekan"

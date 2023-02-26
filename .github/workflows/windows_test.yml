@@ -136,7 +136,7 @@ jobs:
     - name: Create installer
       uses: joncloud/makensis-action@v3.7
       with:
-          script-file: ${{github.workspace}}/package/ms-windows/nsi/lekan.nsi
+          script-file: ${{github.workspace}}/package/ms-windows/nsi/lekan_exp.nsi
           arguments: "/V4"
           
     - name: Check installer
