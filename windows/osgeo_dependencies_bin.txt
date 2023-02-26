@@ -7,7 +7,6 @@ concrt140.dll
 exiv2.dll
 freetype.dll
 freexl.dll
-gdal305.dll
 geos.dll
 geos_c.dll
 geotiff.dll
