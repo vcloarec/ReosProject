@@ -19,6 +19,8 @@ ReosHecRasSimulationImportWidget::ReosHecRasSimulationImportWidget( QWidget *par
   {
     ui->mCheckBoxRemoveScheme->setEnabled( checked );
   } );
+
+  ui->mCheckBoxRemoveScheme->setEnabled( ui->mCheckBoxCreateScheme->isChecked() );
   onFileNameChanged();
 }
 
@@ -28,7 +30,7 @@ ReosHydraulicStructure2D *ReosHecRasSimulationImportWidget::importStructure2D( c
   std::unique_ptr<ReosHecRasStructureImporter> importer( source.createImporter() );
   ReosHecRasStructureImporter::CreationOptions options;
   options.createSchemeWithPlan = ui->mCheckBoxCreateScheme->isChecked();
-  options.removePreviousScheme = ui->mCheckBoxRemoveScheme->isChecked();
+  options.removePreviousScheme = ui->mCheckBoxRemoveScheme->isChecked() && options.createSchemeWithPlan;
   importer->setCreationOption( options );
 
   return ReosHydraulicStructure2D::create( importer.get(), context );
@@ -60,7 +62,7 @@ void ReosHecRasSimulationImportWidget::onFileNameChanged()
   mIsValid = project.isValid();
   emit isValidated( mIsValid );
   ui->mCheckBoxCreateScheme->setEnabled( mIsValid );
-  ui->mCheckBoxRemoveScheme->setEnabled( mIsValid );
+  ui->mCheckBoxRemoveScheme->setEnabled( mIsValid && ui->mCheckBoxCreateScheme->isChecked() );
 }
 
 bool ReosHecRasSimulationImportWidget::isValid() const
