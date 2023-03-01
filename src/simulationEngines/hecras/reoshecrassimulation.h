@@ -24,6 +24,7 @@
 class ReosDssPath;
 class ReosHecRasController;
 class ReosHecRasStructureImporterSource;
+class ReosDssWatcherControler;
 
 class ReosHecRasSimulationProcess: public ReosSimulationProcess
 {
@@ -37,10 +38,16 @@ class ReosHecRasSimulationProcess: public ReosSimulationProcess
 
     void start();
 
+  private slots:
+    void receiveFlow( const QString &path, const QDateTime &firstTime, const QList<double> &values, qint64 timeStep );
+
   private:
     QString mControllerVersion;
     ReosHecRasProject mProject;
     ReosHecRasPlan mPlan;
+    QMap<QString, QString> mBoundariesPathToBoundaryId;
+    QMap<QString, QDateTime> mLastTimeReceived;
+    ReosDssWatcherControler *mWatcher = nullptr;
 };
 
 class ReosHecRasSimulation : public ReosHydraulicSimulation

@@ -450,24 +450,16 @@ QMap<QString, ReosHydrograph *> ReosHecRasSimulationResults::outputHydrographs()
 
   QMap<QString, ReosHydrograph *> ret;
 
-  ReosDssPath path;
-  path.setGroup( QStringLiteral( "BCLINE" ) );
-  path.setVersion( plan.shortIdentifier() );
-  path.setParameter( QStringLiteral( "FLOW" ) );
-  path.setTimeInterval( plan.outputInterval() );
-
   for ( int i = 0; i < flow.boundariesCount(); ++i )
   {
     const ReosHecRasFlow::BoundaryFlow &hbc = flow.boundary( i );
-    const QString location = hbc.area() + QStringLiteral( ": " ) + hbc.boundaryConditionLine();
-    path.setLocation( location );
+    const ReosDssPath path = hbc.buildDssFlowRatePath( plan );
 
     ReosHydrograph *hyd = new ReosHydrograph( const_cast<ReosHecRasSimulationResults *>( this ),
         QStringLiteral( "dss" ),
         ReosDssUtils::uri( dssFile, path, ReosTimeWindow( plan.startTime(), plan.endTime() ) ) );
 
     ret.insert( hbc.id(), hyd );
-
   }
   return ret;
 }

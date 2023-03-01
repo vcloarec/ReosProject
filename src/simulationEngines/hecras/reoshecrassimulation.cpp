@@ -15,6 +15,7 @@
  ***************************************************************************/
 
 #include "reoshecrassimulation.h"
+#include "reosdsswatcher.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoscore.h"
 #include "reosdssfile.h"
@@ -28,6 +29,7 @@
 #include "reosdssprovider.h"
 
 #include <QFileInfo>
+#include <QEventLoop>
 
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
@@ -989,15 +991,16 @@ void ReosHecRasSimulation::accordCurrentPlan()
     mProject->setCurrentPlan( mCurrentPlan );
 }
 
-ReosHecRasSimulationProcess::ReosHecRasSimulationProcess( const ReosHecRasProject &hecRasProject,
-    const QString &planId,
-    const ReosCalculationContext &context,
-    const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
+ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
+  const ReosHecRasProject &hecRasProject,
+  const QString &planId,
+  const ReosCalculationContext &context,
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
   : ReosSimulationProcess( context, boundaries )
   , mProject( hecRasProject )
   , mPlan( hecRasProject.plan( planId ) )
 {
-  QStringList availableVersions = ReosHecRasController::availableVersion();
+  const QStringList availableVersions = ReosHecRasController::availableVersion();
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "/engine/hecras/version" ) ) )
   {
@@ -1008,6 +1011,17 @@ ReosHecRasSimulationProcess::ReosHecRasSimulationProcess( const ReosHecRasProjec
 
   if ( mControllerVersion.isEmpty() && !availableVersions.isEmpty() )
     mControllerVersion = availableVersions.last();
+
+  mWatcher = new ReosDssWatcherControler( mProject.fileName(), this );
+
+  for ( const ReosHydraulicStructureBoundaryCondition *bc : boundaries )
+  {
+    ReosHecRasBoundaryConditionId bcId( bc->boundaryConditionId() );
+    ReosDssPath dssPath = bcId.dssFlowPath( mPlan );
+    mBoundariesPathToBoundaryId.insert( dssPath.string(), bc->boundaryConditionId() );
+    mWatcher->addPathToWatch( dssPath );
+  }
+
 }
 
 void ReosHecRasSimulationProcess::start()
@@ -1022,16 +1036,6 @@ void ReosHecRasSimulationProcess::start()
     return;
   }
 
-  std::unique_ptr<ReosHecRasController> controller( new ReosHecRasController( mControllerVersion ) );
-
-  if ( !controller->isValid() )
-  {
-    emit sendInformation( tr( "Controller of HEC-RAS found is not valid.\nCalculation cancelled." ) );
-    return;
-  }
-
-  emit sendInformation( tr( "Start HEC-RAS model calculation with %1." ).arg( controller->version() ) );
-
   QFileInfo fileProjectInfo( mProject.fileName() );
   if ( !fileProjectInfo.exists() )
   {
@@ -1039,36 +1043,36 @@ void ReosHecRasSimulationProcess::start()
     return;
   }
 
-  if ( !controller->openHecrasProject( mProject.fileName() ) )
-  {
-    emit sendInformation( tr( "UNable to open HEC-RAS project file \"%1\".\nCalculation cancelled." ).arg( mProject.fileName() ) );
+  QEventLoop loop;
+  QThread thread;
+  std::unique_ptr<ReosHecRasController> controller( new ReosHecRasController( mControllerVersion ) );
+  controller->setCurrentPlan( mPlan.title() );
+  controller->moveToThread( &thread );
+  connect( &thread, &QThread::started, controller.get(), &ReosHecRasController::startComputation );
+  connect( &thread, &QThread::finished, &loop, &QEventLoop::quit );
+  thread.start();
+
+  mWatcher->startWatching();
+
+  if ( thread.isRunning() )
+    loop.exec();
+
+  mIsSuccessful = controller->isSuccessful();
+
+}
+
+void ReosHecRasSimulationProcess::receiveFlow( const QString &path, const QDateTime &firstTime, const QList<double> &values, qint64 timeStep )
+{
+  const QString bcId = mBoundariesPathToBoundaryId.value( path );
+  if ( bcId.isEmpty() )
     return;
-  }
 
-  QStringList plans = controller->planNames();
+  QList<QDateTime> times;
+  times.reserve( values.count() );
+  for ( int i = 0; i < values.count(); ++i )
+    times.append( firstTime.addMSecs( timeStep * i ) );
 
-  if ( !plans.contains( mPlan.title() ) )
-  {
-    emit sendInformation( tr( "Plan \"%1\" not found.\nCalculation cancelled." ).arg( mPlan.title() ) );
-    return;
-  }
-
-  if ( !controller->setCurrentPlan( mPlan.title() ) )
-  {
-    emit sendInformation( tr( "Unable to set plan \"%1\" as current plan.\nCalculation cancelled." ).arg( mPlan.title() ) );
-    return;
-  }
-
-  controller->showComputationWindow();
-
-  const QStringList returnedMessages = controller->computeCurrentPlan();
-
-  for ( const QString &mes : returnedMessages )
-  {
-    emit sendInformation( mes );
-  }
-
-  mIsSuccessful = !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral( "Computations Completed" );
+  onReceiveFlowValuesFromBoundary( bcId, times, values );
 }
 
 ReosHecRasStructureImporterSource::ReosHecRasStructureImporterSource( const QString &file, const ReosHydraulicNetworkContext &context )

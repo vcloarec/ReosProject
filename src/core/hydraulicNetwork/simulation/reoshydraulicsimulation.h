@@ -106,10 +106,14 @@ class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
     ReosTimeWindow timeWindow() const;
 
   signals:
-    void sendBoundaryFlow( QDateTime time, QStringList boundaryIds, QList<double> values );
+    void sendBoundariesFlow( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values );
 
-  private slots:
-    void onReceiveFlow( QDateTime time, QStringList boundaryIds, QList<double> values );
+  protected slots:
+    //! Receives flows from runing simumation for n boundaryIds, with one value per boundary
+    void onReceiveFlowValueFromBoundaries( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values );
+
+    //! Receives flow from runing simumation for one boundaryId, with several values
+    void onReceiveFlowValuesFromBoundary(const QString &boundaryId, const QList<QDateTime> &times, const QList<double> &values );
 
   private:
     QMap<QString, ReosHydrograph *> mOutputHydrographs;

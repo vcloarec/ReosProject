@@ -24,9 +24,12 @@
 
 #include <QPolygon>
 #include <QMap>
+#include <QObject>
 
-class ReosHecRasController
+
+class ReosHecRasController : public QObject
 {
+    Q_OBJECT
   public:
     //! Constructor with \a version of HecRas, \see availableVersion()
     explicit ReosHecRasController( const QString &version );
@@ -38,26 +41,56 @@ class ReosHecRasController
     //! Returns whether the controller is valid
     bool isValid() const;
 
+    //! Sets the current plan
+    void setCurrentPlan( const QString &currentPlan );
+
+    //! Sets the current project file name
+    void setProjectFileName( const QString &newProjectFileName );
+
+    bool isSuccessful() const;
+
+public slots:
+    void startComputation();
+
+  signals:
+    void sendInformation( const QString &info );
+
+  private:
+
+    QString mVersion;
+    QString mProjectFileName;
+    QString mCurrentPlan;
+    bool mIsValid = false;
+    bool mIsSuccessful = false;
+#ifdef _WIN32
+    IDispatch *mDispatch = nullptr;
+    QMap<QString, DISPID> mFunctionNames;
+#endif
+
+    bool exitRas() const;
+
+    bool setCurrentPlanPrivate( const QString &planName );
+
+    //! Initializes the controller before using it. ONce initialized, the controller must be used in the thread where is has been initializd.
+    void initialize();
+
+    //! Returns the domain of the flow area with \a areaName
+    QPolygonF flow2DAreasDomain( const QString &areaName ) const;
+
+    //! Returns the flow 2D area names of the currently opened project
+    QStringList flowAreas2D() const;
+
+    //! Returns the plan names of the currently opened project
+    QStringList planNames() const;
+
     //! Returns the user-friendly string of the controller version of this instance
     QString version() const;
 
     //! Opens a project with path \a projFileName
     bool openHecrasProject( const QString &projFileName );
 
-    //! Returns the plan names of the currently opened project
-    QStringList planNames() const;
-
-    //! Set the current plan
-    bool setCurrentPlan( const QString &planName );
-
     //! Starts computation of the current plan
     QStringList computeCurrentPlan();
-
-    //! Returns the flow 2D area names of the currently opened project
-    QStringList flowAreas2D() const;
-
-    //! Returns the domain of the flow area with \a areaName
-    QPolygonF flow2DAreasDomain( const QString &areaName ) const;
 
     bool showRas() const;
 
@@ -65,15 +98,8 @@ class ReosHecRasController
 
     bool hideComputationWindow() const;
 
-  private:
-    QString mVersion;
-    bool mIsValid = false;
-#ifdef _WIN32
-    IDispatch *mDispatch = nullptr;
-    QMap<QString, DISPID> mFunctionNames;
-#endif
+    friend class ReosHecrasTesting;
 
-    bool exitRas() const;
 };
 
 
