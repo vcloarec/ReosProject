@@ -18,6 +18,7 @@ class ReosHecRasSimulation;
 class ReosMesh;
 class ReosHydraulicStructure2D;
 class ReosHydraulicScheme;
+class ReosHecRasPlan;
 struct ReosHydraulicNetworkElementCompatibilty;
 
 class ReosHecRasBoundaryConditionId
@@ -30,6 +31,8 @@ class ReosHecRasBoundaryConditionId
 
     const QString &name() const;
     const QString &location() const;
+
+    ReosDssPath dssFlowPath( const ReosHecRasPlan &plan ) const;
 
   private:
     QString mLocation;
@@ -53,6 +56,8 @@ class ReosHecRasGeometry
         QString area() const;
         QString name() const;
         QString id() const;
+
+        ReosHecRasBoundaryConditionId bcId() const;
 
         QPointF middlePosition;
 
@@ -187,8 +192,9 @@ class ReosHecRasFlow
         bool isDss = false;
         QString dssFile;
         QString dssPath;
-
         QString id() const;
+
+        ReosDssPath buildDssFlowRatePath( const ReosHecRasPlan &plan ) const;
 
       private:
         ReosHecRasBoundaryConditionId mId;
@@ -211,23 +217,13 @@ class ReosHecRasFlow
      */
     bool applyBoudaryFlow( const QList<BoundaryFlow> &flows );
 
-    void activeGriddedPrecipitation( const QString &dssFilePath, const ReosDssPath &dssPath )
-    {
-      mGriddedPrecipitationActivated = true;
-      mGriddedPrecipitationFile = dssFilePath;
-      mGriddedPrecipitationPath = dssPath;
-    }
+    void activeGriddedPrecipitation( const QString &dssFilePath, const ReosDssPath &dssPath );
 
-    void deactivateGriddedPrecipitation()
-    {
-      mGriddedPrecipitationActivated = false;
-      mGriddedPrecipitationFile.clear();
-      mGriddedPrecipitationPath = ReosDssPath();
-    }
+    void deactivateGriddedPrecipitation();
 
     bool isValid() const;
 
-private:
+  private:
     QString mFileName;
     bool mIsValid = false;
     QString mTitle;
@@ -292,7 +288,7 @@ class ReosHecRasProject
 
     bool isValid() const;
 
-private:
+  private:
     QString mFileName;
     bool mIsValid = false;
     QMap<QString, ReosHecRasPlan> mPlans;

@@ -1077,6 +1077,20 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
   return true;
 }
 
+void ReosHecRasFlow::activeGriddedPrecipitation( const QString &dssFilePath, const ReosDssPath &dssPath )
+{
+  mGriddedPrecipitationActivated = true;
+  mGriddedPrecipitationFile = dssFilePath;
+  mGriddedPrecipitationPath = dssPath;
+}
+
+void ReosHecRasFlow::deactivateGriddedPrecipitation()
+{
+  mGriddedPrecipitationActivated = false;
+  mGriddedPrecipitationFile.clear();
+  mGriddedPrecipitationPath = ReosDssPath();
+}
+
 bool ReosHecRasFlow::isValid() const
 {
   return mIsValid;
@@ -1315,6 +1329,18 @@ const QString &ReosHecRasBoundaryConditionId::location() const
   return mLocation;
 }
 
+ReosDssPath ReosHecRasBoundaryConditionId::dssFlowPath( const ReosHecRasPlan &plan ) const
+{
+  ReosDssPath path;
+  path.setGroup( QStringLiteral( "BCLINE" ) );
+  path.setVersion( plan.shortIdentifier() );
+  path.setParameter( QStringLiteral( "FLOW" ) );
+  path.setTimeInterval( plan.outputInterval() );
+  path.setLocation( location() + QStringLiteral( ": " ) + name() );
+
+  return path;
+}
+
 const QString &ReosHecRasBoundaryConditionId::name() const
 {
   return mName;
@@ -1344,6 +1370,20 @@ QString ReosHecRasFlow::BoundaryFlow::id() const
   return mId.id();
 }
 
+ReosDssPath ReosHecRasFlow::BoundaryFlow::buildDssFlowRatePath( const ReosHecRasPlan &plan ) const
+{
+  ReosDssPath path;
+  path.setGroup( QStringLiteral( "BCLINE" ) );
+  path.setVersion( plan.shortIdentifier() );
+  path.setParameter( QStringLiteral( "FLOW" ) );
+  path.setTimeInterval( plan.outputInterval() );
+
+  const QString location = area() + QStringLiteral( ": " ) + boundaryConditionLine();
+  path.setLocation( location );
+
+  return path;
+}
+
 ReosHecRasGeometry::BoundaryCondition::BoundaryCondition( const QString &area, const QString &name )
   : mId( area, name )
 {}
@@ -1361,4 +1401,9 @@ QString ReosHecRasGeometry::BoundaryCondition::name() const
 QString ReosHecRasGeometry::BoundaryCondition::id() const
 {
   return mId.id();
+}
+
+ReosHecRasBoundaryConditionId ReosHecRasGeometry::BoundaryCondition::bcId() const
+{
+  return mId;
 }

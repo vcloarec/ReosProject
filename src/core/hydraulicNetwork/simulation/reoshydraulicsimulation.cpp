@@ -255,15 +255,13 @@ void ReosSimulationPreparationProcess::start()
     }
   }
 
-  QEventLoop *eventLoop = new QEventLoop;
-  connect( this, &ReosSimulationPreparationProcess::allBoundariesUpdated, eventLoop, &QEventLoop::quit );
+  QEventLoop eventLoop;
+  connect( this, &ReosSimulationPreparationProcess::allBoundariesUpdated, &eventLoop, &QEventLoop::quit );
   emit sendInformation( tr( "Wait for %n boundary condition", nullptr, mWaitedBoundaryId.count() ) );
   setCurrentProgression( mBoundaryCount - mWaitedBoundaryId.count() );
 
   if ( !mWaitedBoundaryId.isEmpty() )
-    eventLoop->exec();
-
-  eventLoop->deleteLater();
+    eventLoop.exec();
 
   mContext.setTimeWindow( mStructure->timeWindow() );
 
@@ -321,10 +319,10 @@ ReosSimulationProcess::ReosSimulationProcess(
   }
 
   qRegisterMetaType< QList<double> >( "QList<double>" );
-  connect( this, &ReosSimulationProcess::sendBoundaryFlow, this, &ReosSimulationProcess::onReceiveFlow );
+  connect( this, &ReosSimulationProcess::sendBoundariesFlow, this, &ReosSimulationProcess::onReceiveFlowValueFromBoundaries );
 }
 
-void ReosSimulationProcess::onReceiveFlow( QDateTime time, QStringList boundaryIds, QList<double> values )
+void ReosSimulationProcess::onReceiveFlowValueFromBoundaries( const QDateTime &time, const QStringList &boundaryIds, const QList<double> &values )
 {
   for ( int i = 0; i < boundaryIds.count(); ++i )
   {
@@ -334,6 +332,20 @@ void ReosSimulationProcess::onReceiveFlow( QDateTime time, QStringList boundaryI
       hyd->setValue( time, values.at( i ) );
   }
 }
+
+void ReosSimulationProcess::onReceiveFlowValuesFromBoundary( const QString &boundaryId, const QList<QDateTime> &times, const QList<double> &values )
+{
+  if ( times.count() != values.count() )
+    return;
+
+  ReosHydrograph *hyd = mOutputHydrographs.value( boundaryId );
+  if ( !hyd )
+    return;
+
+  for ( int i = 0; i < times.count(); ++i )
+    hyd->setValue( times.at( i ), values.at( i ) );
+}
+
 
 QMap<QString, ReosHydrograph *> ReosSimulationProcess::outputHydrographs() const
 {

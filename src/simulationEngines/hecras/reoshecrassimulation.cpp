@@ -15,6 +15,7 @@
  ***************************************************************************/
 
 #include "reoshecrassimulation.h"
+#include "reosdsswatcher.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoscore.h"
 #include "reosdssfile.h"
@@ -990,15 +991,16 @@ void ReosHecRasSimulation::accordCurrentPlan()
     mProject->setCurrentPlan( mCurrentPlan );
 }
 
-ReosHecRasSimulationProcess::ReosHecRasSimulationProcess( const ReosHecRasProject &hecRasProject,
-    const QString &planId,
-    const ReosCalculationContext &context,
-    const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
+ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
+  const ReosHecRasProject &hecRasProject,
+  const QString &planId,
+  const ReosCalculationContext &context,
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
   : ReosSimulationProcess( context, boundaries )
   , mProject( hecRasProject )
   , mPlan( hecRasProject.plan( planId ) )
 {
-  QStringList availableVersions = ReosHecRasController::availableVersion();
+  const QStringList availableVersions = ReosHecRasController::availableVersion();
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "/engine/hecras/version" ) ) )
   {
@@ -1009,6 +1011,17 @@ ReosHecRasSimulationProcess::ReosHecRasSimulationProcess( const ReosHecRasProjec
 
   if ( mControllerVersion.isEmpty() && !availableVersions.isEmpty() )
     mControllerVersion = availableVersions.last();
+
+  mWatcher = new ReosDssWatcherControler( mProject.fileName(), this );
+
+  for ( const ReosHydraulicStructureBoundaryCondition *bc : boundaries )
+  {
+    ReosHecRasBoundaryConditionId bcId( bc->boundaryConditionId() );
+    ReosDssPath dssPath = bcId.dssFlowPath( mPlan );
+    mBoundariesPathToBoundaryId.insert( dssPath.string(), bc->boundaryConditionId() );
+    mWatcher->addPathToWatch( dssPath );
+  }
+
 }
 
 void ReosHecRasSimulationProcess::start()
@@ -1030,24 +1043,36 @@ void ReosHecRasSimulationProcess::start()
     return;
   }
 
+  QEventLoop loop;
   QThread thread;
   std::unique_ptr<ReosHecRasController> controller( new ReosHecRasController( mControllerVersion ) );
   controller->setCurrentPlan( mPlan.title() );
-
   controller->moveToThread( &thread );
-
   connect( &thread, &QThread::started, controller.get(), &ReosHecRasController::startComputation );
-
-  QEventLoop loop;
   connect( &thread, &QThread::finished, &loop, &QEventLoop::quit );
-
   thread.start();
+
+  mWatcher->startWatching();
 
   if ( thread.isRunning() )
     loop.exec();
 
   mIsSuccessful = controller->isSuccessful();
 
+}
+
+void ReosHecRasSimulationProcess::receiveFlow( const QString &path, const QDateTime &firstTime, const QList<double> &values, qint64 timeStep )
+{
+  const QString bcId = mBoundariesPathToBoundaryId.value( path );
+  if ( bcId.isEmpty() )
+    return;
+
+  QList<QDateTime> times;
+  times.reserve( values.count() );
+  for ( int i = 0; i < values.count(); ++i )
+    times.append( firstTime.addMSecs( timeStep * i ) );
+
+  onReceiveFlowValuesFromBoundary( bcId, times, values );
 }
 
 ReosHecRasStructureImporterSource::ReosHecRasStructureImporterSource( const QString &file, const ReosHydraulicNetworkContext &context )

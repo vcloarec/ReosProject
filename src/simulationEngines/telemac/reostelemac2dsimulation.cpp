@@ -1556,6 +1556,7 @@ void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressi
       {
         case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
         case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+        case ReosHydraulicStructureBoundaryCondition::Type:: DefinedExternally:
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           value = -value;
@@ -1564,7 +1565,7 @@ void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressi
       flows.append( value );
     }
 
-    emit sendBoundaryFlow( mStartTime.addMSecs( qint64( time * 1000 ) ), ids, flows );
+    emit sendBoundariesFlow( mStartTime.addMSecs( qint64( time * 1000 ) ), ids, flows );
 
     setCurrentProgression( int( time * 100.0 / mTotalTime ) );
     emit sendInformation( timeString );

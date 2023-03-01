@@ -11,8 +11,9 @@ class ReosDssWatcher : public QObject
 {
     Q_OBJECT
   public:
-    ReosDssWatcher( const QString &filePath )
+    explicit ReosDssWatcher( const QString &filePath, const QList<ReosDssPath> &pathes )
       : mFilePath( filePath )
+      , mPathes( pathes )
     {
       connect( &mTimer, &QTimer::timeout, this, &ReosDssWatcher::watch );
     }
@@ -28,23 +29,24 @@ class ReosDssWatcher : public QObject
     void setTimeWatchingTimeWindow( const ReosTimeWindow &newTimeWatchingTimeWindow );
 
   signals:
-    void sendValues( QString path, QList<double> values, qint64 timeStepMillisec );
+    void sendValues( const QString &path, const QDateTime &firstTime, const QList<double> &values, qint64 timeStepMillisec );
 
   private slots:
     void watch()
     {
-
+      for ( const ReosDssPath &path : std::as_const( mPathes ) )
+        watchForTimeSerie( path );
     }
 
   private:
     QString mFilePath;
     std::unique_ptr<ReosDssFile> mFile;
     ReosTimeWindow mTimeWatchingTimeWindow;
-    QList<ReosDssPath> mPaths;
+    QList<ReosDssPath> mPathes;
     QTimer mTimer;
     int mWatchInterval = 500;
 
-    QHash<QString, QDateTime> mLastObtainedTime;
+    mutable QHash<QString, QDateTime> mLastObtainedTime;
 
     void watchForTimeSerie( const ReosDssPath &path )
     {
@@ -60,13 +62,17 @@ class ReosDssWatcher : public QObject
         if ( !lastTimeRecorded.isValid() || lastTimeValue > lastTimeRecorded )
         {
           int timeStepCount;
+          QDateTime firstTimeToSend;
+
           if ( lastTimeRecorded.isValid() )
           {
             timeStepCount = values.count();
+            firstTimeToSend = startTime;
           }
           else
           {
-            timeStepCount = lastTimeRecorded.msecsTo( lastTimeValue ) / timeStep.valueMilliSecond();
+            timeStepCount = static_cast<int>( lastTimeRecorded.msecsTo( lastTimeValue ) / timeStep.valueMilliSecond() );
+            firstTimeToSend = lastTimeRecorded.addMSecs( timeStep.valueMilliSecond() );
           }
 
           mLastObtainedTime.insert( path.string(), lastTimeValue );
@@ -74,11 +80,9 @@ class ReosDssWatcher : public QObject
           QList<double> valuesToSend;
           valuesToSend.reserve( timeStepCount );
           for ( int i = values.count() - timeStepCount; i < values.count(); ++i )
-          {
             valuesToSend.append( values.at( i ) );
-          }
 
-          emit sendValues( path.string(), valuesToSend, timeStep.valueMilliSecond() );
+          emit sendValues( path.string(), firstTimeToSend, valuesToSend, timeStep.valueMilliSecond() );
         }
       }
     }
@@ -89,11 +93,10 @@ class ReosDssWatcherControler : public QObject
 {
     Q_OBJECT
   public:
-    ReosDssWatcherControler( const QString &dssFilePath )
-      : mFilePath( dssFilePath )
-    {
-
-    }
+    explicit ReosDssWatcherControler( const QString &dssFilePath, QObject *parent )
+      : QObject( parent )
+      , mFilePath( dssFilePath )
+    {}
 
     ~ReosDssWatcherControler()
     {
@@ -102,22 +105,28 @@ class ReosDssWatcherControler : public QObject
       mWatcher->deleteLater();
     }
 
+    void addPathToWatch( const ReosDssPath &path )
+    {
+      mPathes.append( path );
+    }
+
+  public slots:
     void startWatching()
     {
-      mWatcher = new ReosDssWatcher( mFilePath );
-      QObject::connect( &mThread, &QThread::started, mWatcher, &ReosDssWatcher::startWatch );
+      mWatcher = new ReosDssWatcher( mFilePath, mPathes );
+      connect( mWatcher, &ReosDssWatcher::sendValues, this, &ReosDssWatcherControler::sendValues );
+      connect( &mThread, &QThread::started, mWatcher, &ReosDssWatcher::startWatch );
       mWatcher->moveToThread( &mThread );
+      mThread.start();
     }
 
-  private slots:
-    void receiveFlowValues( QString &path, QList<double> values, qint64 timeStepMillisec )
-    {
-
-    }
+  signals:
+    void sendValues( const QString &path, const QDateTime &firstime, const QList<double> &values, qint64 timeStepMillisec );
 
   private:
     QThread mThread;
     QString mFilePath;
+    QList<ReosDssPath> mPathes;
     ReosDssWatcher *mWatcher = nullptr;
 };
 
