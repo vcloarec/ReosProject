@@ -136,15 +136,14 @@ QStringList ReosHecRasController::availableVersion()
   return ret;
 }
 
-ReosHecRasController::ReosHecRasController( const QString &version )
-  : mVersion( version )
+void ReosHecRasController::initialize()
 {
 #ifdef _WIN32
   if ( !SUCCEEDED( CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED ) ) )
     return;
 
   CLSID ClassID;
-  QString controllerName = version + QStringLiteral( ".HECRASController" );
+  QString controllerName = mVersion + QStringLiteral( ".HECRASController" );
 
   std::wstring controllerString = qStringToWideString( controllerName );
 
@@ -195,6 +194,10 @@ ReosHecRasController::ReosHecRasController( const QString &version )
   mIsValid = mFunctionNames.contains( QStringLiteral( "HECRASVersion" ) );
 #endif
 }
+
+ReosHecRasController::ReosHecRasController( const QString &version )
+  : mVersion( version )
+{}
 
 ReosHecRasController::~ReosHecRasController()
 {
@@ -340,7 +343,12 @@ QStringList ReosHecRasController::planNames() const
   return ret;
 }
 
-bool ReosHecRasController::setCurrentPlan( const QString &planName )
+void ReosHecRasController::setCurrentPlan( const QString &currentPlan )
+{
+  mCurrentPlan = currentPlan;
+}
+
+bool ReosHecRasController::setCurrentPlanPrivate( const QString &planName )
 {
   bool ok = false;
 #ifdef _WIN32
@@ -376,6 +384,8 @@ bool ReosHecRasController::setCurrentPlan( const QString &planName )
 
 QStringList ReosHecRasController::computeCurrentPlan()
 {
+  setCurrentPlanPrivate( mCurrentPlan );
+
   QStringList ret;
 #ifdef _WIN32
   DISPID id = mFunctionNames.value( QStringLiteral( "Compute_CurrentPlan" ) );
@@ -670,4 +680,56 @@ bool ReosHecRasController::hideComputationWindow() const
   else
 #endif
     return false;
+}
+
+void ReosHecRasController::setProjectFileName( const QString &newProjectFileName )
+{
+  mProjectFileName = newProjectFileName;
+}
+
+void ReosHecRasController::startComputation()
+{
+  initialize();
+
+  if ( !isValid() )
+  {
+    emit sendInformation( tr( "Controller of HEC-RAS found is not valid.\nCalculation cancelled." ) );
+    return;
+  }
+
+  if ( !openHecrasProject( mProjectFileName ) )
+  {
+    emit sendInformation( tr( "UNable to open HEC-RAS project file \"%1\".\nCalculation cancelled." ).arg( mProjectFileName ) );
+    return;
+  }
+
+  QStringList plans = planNames();
+
+  if ( !plans.contains( mCurrentPlan ) )
+  {
+    emit sendInformation( tr( "Plan \"%1\" not found.\nCalculation cancelled." ).arg( mCurrentPlan ) );
+    return;
+  }
+
+  if ( !setCurrentPlanPrivate( mCurrentPlan ) )
+  {
+    emit sendInformation( tr( "Unable to set plan \"%1\" as current plan.\nCalculation cancelled." ).arg( mCurrentPlan ) );
+    return;
+  }
+
+  showComputationWindow();
+
+  const QStringList returnedMessages = computeCurrentPlan();
+
+  for ( const QString &mes : returnedMessages )
+  {
+    emit sendInformation( mes );
+  }
+
+  mIsSuccessful = !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral( "Computations Completed" );
+}
+
+bool ReosHecRasController::isSuccessful() const
+{
+  return mIsSuccessful;
 }

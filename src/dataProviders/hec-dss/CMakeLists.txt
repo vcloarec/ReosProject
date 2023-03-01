@@ -4,11 +4,13 @@
 SET(REOS_HEC_DSS_SOURCES
     reosdssutils.cpp
     reosdssfile.cpp
+    reosdsswatcher.cpp
 )
 
 SET(REOS_HEC_DSS_HEADERS
     reosdssutils.h
     reosdssfile.h
+    reosdsswatcher.h
 )
 
 SET(REOS_PROVIDER_HEC_DSS_SOURCES

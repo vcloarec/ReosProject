@@ -917,6 +917,7 @@ void ReosHecrasTesting::importAndLaunchStructure()
   if ( !versions.isEmpty() )
   {
     ReosHecRasController controller( versions.last() );
+    controller.initialize();
 
     QVERIFY( controller.isValid() );
 
@@ -928,8 +929,8 @@ void ReosHecrasTesting::importAndLaunchStructure()
     QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_test" ) );
     QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_test_2" ) );
 
-    QVERIFY( controller.setCurrentPlan( plans.at( 1 ) ) );
-    QVERIFY( controller.setCurrentPlan( plans.at( 0 ) ) );
+    QVERIFY( controller.setCurrentPlanPrivate( plans.at( 1 ) ) );
+    QVERIFY( controller.setCurrentPlanPrivate( plans.at( 0 ) ) );
 
     QVERIFY( !controller.computeCurrentPlan().isEmpty() );
   }

@@ -28,6 +28,7 @@
 #include "reosdssprovider.h"
 
 #include <QFileInfo>
+#include <QEventLoop>
 
 REOSEXTERN ReosSimulationEngineFactory *engineSimulationFactory()
 {
@@ -1022,16 +1023,6 @@ void ReosHecRasSimulationProcess::start()
     return;
   }
 
-  std::unique_ptr<ReosHecRasController> controller( new ReosHecRasController( mControllerVersion ) );
-
-  if ( !controller->isValid() )
-  {
-    emit sendInformation( tr( "Controller of HEC-RAS found is not valid.\nCalculation cancelled." ) );
-    return;
-  }
-
-  emit sendInformation( tr( "Start HEC-RAS model calculation with %1." ).arg( controller->version() ) );
-
   QFileInfo fileProjectInfo( mProject.fileName() );
   if ( !fileProjectInfo.exists() )
   {
@@ -1039,36 +1030,24 @@ void ReosHecRasSimulationProcess::start()
     return;
   }
 
-  if ( !controller->openHecrasProject( mProject.fileName() ) )
-  {
-    emit sendInformation( tr( "UNable to open HEC-RAS project file \"%1\".\nCalculation cancelled." ).arg( mProject.fileName() ) );
-    return;
-  }
+  QThread thread;
+  std::unique_ptr<ReosHecRasController> controller( new ReosHecRasController( mControllerVersion ) );
+  controller->setCurrentPlan( mPlan.title() );
 
-  QStringList plans = controller->planNames();
+  controller->moveToThread( &thread );
 
-  if ( !plans.contains( mPlan.title() ) )
-  {
-    emit sendInformation( tr( "Plan \"%1\" not found.\nCalculation cancelled." ).arg( mPlan.title() ) );
-    return;
-  }
+  connect( &thread, &QThread::started, controller.get(), &ReosHecRasController::startComputation );
 
-  if ( !controller->setCurrentPlan( mPlan.title() ) )
-  {
-    emit sendInformation( tr( "Unable to set plan \"%1\" as current plan.\nCalculation cancelled." ).arg( mPlan.title() ) );
-    return;
-  }
+  QEventLoop loop;
+  connect( &thread, &QThread::finished, &loop, &QEventLoop::quit );
 
-  controller->showComputationWindow();
+  thread.start();
 
-  const QStringList returnedMessages = controller->computeCurrentPlan();
+  if ( thread.isRunning() )
+    loop.exec();
 
-  for ( const QString &mes : returnedMessages )
-  {
-    emit sendInformation( mes );
-  }
+  mIsSuccessful = controller->isSuccessful();
 
-  mIsSuccessful = !returnedMessages.isEmpty() && returnedMessages.last() == QStringLiteral( "Computations Completed" );
 }
 
 ReosHecRasStructureImporterSource::ReosHecRasStructureImporterSource( const QString &file, const ReosHydraulicNetworkContext &context )
