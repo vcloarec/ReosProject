@@ -155,8 +155,8 @@ void ReosHecrasTesting::getControllerPlans()
   QCOMPARE( plans.at( 0 ), QStringLiteral( "plan_test" ) );
   QCOMPARE( plans.at( 1 ), QStringLiteral( "plan_test_2" ) );
 
-  QVERIFY( controller.setCurrentPlan( plans.at( 1 ) ) );
-  QVERIFY( controller.setCurrentPlan( plans.at( 0 ) ) );
+  QVERIFY( controller.setCurrentPlanPrivate( plans.at( 1 ) ) );
+  QVERIFY( controller.setCurrentPlanPrivate( plans.at( 0 ) ) );
 
   QVERIFY( !controller.computeCurrentPlan().isEmpty() );
 }
@@ -495,7 +495,9 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
                                      QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
 
     ReosRasterMemory<double> frame2( 30, 30 );
-    frame2.reserveMemory();
+    frame2.reserveMemory
+
+    ();
     frame2.fill( 0 );
     for ( int i = 5; i < 25; ++i )
       for ( int j = 5; j < 25; j++ )
