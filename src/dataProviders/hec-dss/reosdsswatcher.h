@@ -89,7 +89,7 @@ class ReosDssWatcher : public QObject
 
 };
 
-class ReosDssWatcherControler : public QObject
+class REOSDSS_EXPORT ReosDssWatcherControler : public QObject
 {
     Q_OBJECT
   public:
