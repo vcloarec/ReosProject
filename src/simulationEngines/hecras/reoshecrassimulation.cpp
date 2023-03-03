@@ -464,10 +464,13 @@ void ReosHecRasSimulation::saveSimulationResult( const ReosHydraulicStructure2D 
   // for HEC-RAS everything is already save, so nothing to do
 }
 
-ReosHydraulicSimulationResults *ReosHecRasSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent ) const
+ReosHydraulicSimulationResults *ReosHecRasSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId, QObject *parent ) const
 {
-  if ( hasResult( hydraulicStructure, shemeId ) )
-    return new ReosHecRasSimulationResults( this, hydraulicStructure->mesh(), parent );
+  if ( hasResult( hydraulicStructure, schemeId ) )
+  {
+    ReosHydraulicScheme *scheme = hydraulicStructure->network()->scheme( schemeId );
+    return new ReosHecRasSimulationResults( this, hydraulicStructure->mesh(), scheme, parent );
+  }
   else
     return nullptr;
 }

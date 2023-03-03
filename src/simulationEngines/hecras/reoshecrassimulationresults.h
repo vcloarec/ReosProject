@@ -36,7 +36,7 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
 {
     Q_OBJECT
   public:
-    ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, QObject *parent );
+    ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, ReosHydraulicScheme *scheme, QObject *parent );
     ~ReosHecRasSimulationResults();
 
     // ReosMeshDatasetSource interface
@@ -62,6 +62,7 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
   private:
     const ReosHecRasProject mProject;
     const QString mPlanId;
+    ReosDuration mOutputHydrographInterval;
 
     //****** members that are the same for Telemac (factorization possible)
     MDAL_MeshH mMeshH;

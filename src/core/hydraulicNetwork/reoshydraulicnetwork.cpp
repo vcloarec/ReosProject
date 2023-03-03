@@ -441,6 +441,11 @@ ReosHydraulicScheme *ReosHydraulicNetwork::currentScheme() const
   return mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
 }
 
+ReosHydraulicScheme *ReosHydraulicNetwork::scheme( const QString &schemeId ) const
+{
+  return mHydraulicSchemeCollection->scheme( schemeId );
+}
+
 void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
 {
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
