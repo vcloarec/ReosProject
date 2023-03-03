@@ -225,6 +225,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosHydraulicScheme *currentScheme() const;
 
+    ReosHydraulicScheme *scheme( const QString &schemeId ) const;
+
     void setCurrentScheme( int newSchemeIndex );
 
     ReosDuration currentTimeStep() const;

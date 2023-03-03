@@ -35,13 +35,14 @@ static void minMax_( QPair<double, double> &minMax, double value )
 }
 
 
-ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, QObject *parent = nullptr )
+ReosHecRasSimulationResults::ReosHecRasSimulationResults( const ReosHecRasSimulation *simulation, ReosMesh *mesh, ReosHydraulicScheme *scheme, QObject *parent = nullptr )
   : ReosHydraulicSimulationResults( simulation, parent )
   , mProject( *simulation->project() )
   , mPlanId( simulation->currentPlan() )
 {
   const ReosHecRasPlan &plan = mProject.plan( mPlanId );
   QString fileName = mProject.directory().filePath( plan.fileName() + QStringLiteral( ".hdf" ) );
+  mOutputHydrographInterval = simulation->outputInterval( scheme );
 
   QByteArray curi = fileName.toUtf8();
   mMeshH = MDAL_LoadMesh( curi.constData() );
@@ -454,7 +455,7 @@ QMap<QString, ReosHydrograph *> ReosHecRasSimulationResults::outputHydrographs()
   path.setGroup( QStringLiteral( "BCLINE" ) );
   path.setVersion( plan.shortIdentifier() );
   path.setParameter( QStringLiteral( "FLOW" ) );
-  path.setTimeInterval( plan.outputInterval() );
+  path.setTimeInterval( mOutputHydrographInterval );
 
   for ( int i = 0; i < flow.boundariesCount(); ++i )
   {
