@@ -70,9 +70,13 @@ int main( int argc, char *argv[] )
 
 #ifdef _MSC_VER
   qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
-  QString gdalData = QCoreApplication::applicationDirPath();
-  gdalData.append( "\\..\\share\\gdal" );
-  qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
+  if (qgetenv("GDAL_DATA").isEmpty())
+  {
+    QString gdalData = QCoreApplication::applicationDirPath();
+    gdalData.append( "\\..\\share\\gdal" );
+    qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
+  }
+
 #endif
 
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
