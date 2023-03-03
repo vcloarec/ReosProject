@@ -1273,6 +1273,7 @@ void ReosHecrasTesting::importCreatingScheme()
 
     scheme = network->hydraulicSchemeCollection()->scheme( 1 );
     QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test" ) );
+    QVERIFY( scheme->meteoModel() );
     network->setCurrentScheme( 1 );
 
     //we use dynamic cast because there are some issue with qobject_cast, maybe due to crossing dynamic library
@@ -1282,6 +1283,7 @@ void ReosHecrasTesting::importCreatingScheme()
 
     scheme = network->hydraulicSchemeCollection()->scheme( 2 );
     QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test_2" ) );
+    QVERIFY( scheme->meteoModel() );
     network->setCurrentScheme( 2 );
 
     QCOMPARE( simulation->currentPlan(), QStringLiteral( "p02" ) );
