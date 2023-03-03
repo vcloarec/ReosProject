@@ -427,6 +427,9 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
     mStructure2D->removeResults( mCalculationContext );
     mStructure2D->updateResults( mCalculationContext.schemeId() );
 
+    ReosHydraulicScheme *scheme = mStructure2D->network()->scheme( mCalculationContext.schemeId() );
+    mStructure2D->currentSimulation()->saveConfiguration( scheme );
+
     std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, error ) );
     if ( !preparationProcess )
     {
