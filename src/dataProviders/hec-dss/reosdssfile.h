@@ -148,6 +148,8 @@ class REOSDSS_EXPORT ReosDssFile
 
     RecordInfo recordInformation( const ReosDssPath &path ) const;
 
+    void removeDataset(const ReosDssPath& path);
+
   private:
     std::unique_ptr<std::array<long long, 250>> mIfltab;
     QString mFileName;
@@ -157,7 +159,6 @@ class REOSDSS_EXPORT ReosDssFile
 
     static QString getEPart( const ReosDuration &interval, bool findClosest = false );
     ReosDssPath firstFullPath( const ReosDssPath &path, bool considerInterval ) const;
-    void removeDataset( const ReosDssPath &path );
     bool writeConstantIntervalSeriesPrivate(
       const ReosDssPath &path,
       const QDateTime &startTime,
