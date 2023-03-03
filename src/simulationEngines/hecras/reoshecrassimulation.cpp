@@ -198,7 +198,10 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
        parent->network() &&
        parent->network()->hydraulicSchemeCollection() )
   {
-    ReosHydraulicSchemeCollection *schemeCollection = parent->network()->hydraulicSchemeCollection();
+
+    const ReosHydraulicNetworkContext context = parent->network()->context();
+    ReosHydraulicSchemeCollection *schemeCollection = context.network()->hydraulicSchemeCollection();
+
     int previousSchemeCount = schemeCollection->schemeCount();
 
     const QStringList planIds = mProject->planIds();
@@ -210,8 +213,9 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
       {
         std::unique_ptr<ReosHydraulicScheme> sch( new ReosHydraulicScheme( schemeCollection ) );
         sch->schemeName()->setValue( planTitle );
-        scheme = sch.release();
-        schemeCollection->addScheme( scheme );
+        sch->setMeteoModel( context.watershedModule()->meteoModelsCollection()->meteorologicModel( 0 ) );
+        scheme = sch.get();
+        schemeCollection->addScheme( sch.release() );
       }
       else if ( mCreationOption.removePreviousScheme )
       {
@@ -378,57 +382,60 @@ void ReosHecRasSimulation::prepareInput(
     }
   }
 
+  bool griddedPrecipitationActive = false;
 
-  ReosGriddedRainfall *griddedPrecipitation = calculationContext.meteorologicModel()->associatedRainfall( hydraulicStructure );
-  bool griddedPrecipitationActive = griddedPrecipitation != nullptr && griddedPrecipitation->gridCount() > 0;
-  if ( griddedPrecipitationActive )
+  if ( calculationContext.meteorologicModel() )
   {
-    QString gridPrecipDssFile;
-    ReosDssPath gridPrecipDssPath;
-    QDateTime rainStartFirst, rainEndFirst;
-    if ( griddedPrecipitation->dataProvider()->key().contains( ReosDssUtils::dssProviderKey() ) )
+    ReosGriddedRainfall *griddedPrecipitation = calculationContext.meteorologicModel()->associatedRainfall( hydraulicStructure );
+    griddedPrecipitationActive = griddedPrecipitation != nullptr && griddedPrecipitation->gridCount() > 0;
+    if ( griddedPrecipitationActive )
     {
-      // The gridded rainfall is a dss one, so we just use its uri
-      const QString uri = griddedPrecipitation->dataProvider()->dataSource();
-      gridPrecipDssFile = ReosDssUtils::dssFileFromUri( uri );
-      gridPrecipDssPath = ReosDssUtils::dssPathFromUri( uri );
-      rainStartFirst = griddedPrecipitation->startTime( 0 );
-      rainEndFirst = griddedPrecipitation->endTime( 0 );
-    }
-    else
-    {
-      // The gridded rainfall is not a DSS, we nned to write a DSS one temporarly
-      gridPrecipDssFile = mProject->directory().filePath( QStringLiteral( "gridded_precip_%1.dss" ).arg( mCurrentPlan ) );
-      ReosDssFile file( gridPrecipDssFile, true );
-      gridPrecipDssPath.setGroup( mProject->projectName() );
-      gridPrecipDssPath.setLocation( hydraulicStructure->elementName()->value() );
-      gridPrecipDssPath.setParameter( QStringLiteral( "PRECIP" ) );
-      if ( file.isValid() )
+      QString gridPrecipDssFile;
+      ReosDssPath gridPrecipDssPath;
+      QDateTime rainStartFirst, rainEndFirst;
+      if ( griddedPrecipitation->dataProvider()->key().contains( ReosDssUtils::dssProviderKey() ) )
       {
-        ReosMapExtent extent = hydraulicStructure->extent();
-        file.writeGriddedData( griddedPrecipitation, gridPrecipDssPath, extent, -1, calculationContext.timeWindow() );
+        // The gridded rainfall is a dss one, so we just use its uri
+        const QString uri = griddedPrecipitation->dataProvider()->dataSource();
+        gridPrecipDssFile = ReosDssUtils::dssFileFromUri( uri );
+        gridPrecipDssPath = ReosDssUtils::dssPathFromUri( uri );
+        rainStartFirst = griddedPrecipitation->startTime( 0 );
+        rainEndFirst = griddedPrecipitation->endTime( 0 );
       }
-
-      for ( int i = 0; i < griddedPrecipitation->gridCount(); ++i )
+      else
       {
-        if ( griddedPrecipitation->endTime( i ) > calculationContext.timeWindow().start() )
+        // The gridded rainfall is not a DSS, we nned to write a DSS one temporarly
+        gridPrecipDssFile = mProject->directory().filePath( QStringLiteral( "gridded_precip_%1.dss" ).arg( mCurrentPlan ) );
+        ReosDssFile file( gridPrecipDssFile, true );
+        gridPrecipDssPath.setGroup( mProject->projectName() );
+        gridPrecipDssPath.setLocation( hydraulicStructure->elementName()->value() );
+        gridPrecipDssPath.setParameter( QStringLiteral( "PRECIP" ) );
+        if ( file.isValid() )
         {
-          rainStartFirst = griddedPrecipitation->startTime( i );
-          rainEndFirst = griddedPrecipitation->endTime( i );
-          break;
+          ReosMapExtent extent = hydraulicStructure->extent();
+          file.writeGriddedData( griddedPrecipitation, gridPrecipDssPath, extent, -1, calculationContext.timeWindow() );
+        }
+
+        for ( int i = 0; i < griddedPrecipitation->gridCount(); ++i )
+        {
+          if ( griddedPrecipitation->endTime( i ) > calculationContext.timeWindow().start() )
+          {
+            rainStartFirst = griddedPrecipitation->startTime( i );
+            rainEndFirst = griddedPrecipitation->endTime( i );
+            break;
+          }
         }
       }
+
+      gridPrecipDssPath.setStartDate( ReosDssUtils::dateToHecRasDate( rainStartFirst.date() ) + ':' + rainStartFirst.time().toString( "HHmm" ) );
+      gridPrecipDssPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( rainEndFirst.date() ) + ':' + rainEndFirst.time().toString( "HHmm" ) );
+
+      flow.activeGriddedPrecipitation( gridPrecipDssFile, gridPrecipDssPath );
     }
-
-    gridPrecipDssPath.setStartDate( ReosDssUtils::dateToHecRasDate( rainStartFirst.date() ) + ':' + rainStartFirst.time().toString( "HHmm" ) );
-    gridPrecipDssPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( rainEndFirst.date() ) + ':' + rainEndFirst.time().toString( "HHmm" ) );
-
-    flow.activeGriddedPrecipitation( gridPrecipDssFile, gridPrecipDssPath );
   }
-  else
-  {
+
+  if ( !griddedPrecipitationActive )
     flow.deactivateGriddedPrecipitation();
-  }
 
   if ( !boundaryToModify.isEmpty() || griddedPrecipitationActive )
     flow.applyBoudaryFlow( boundaryToModify );
