@@ -1362,3 +1362,18 @@ QString ReosHecRasGeometry::BoundaryCondition::id() const
 {
   return mId.id();
 }
+
+
+ReosDssPath ReosHecRasFlow::BoundaryFlow::buildDssFlowRatePath(const ReosHecRasPlan& plan) const
+{
+    ReosDssPath path;
+    path.setGroup(QStringLiteral("BCLINE"));
+    path.setVersion(plan.shortIdentifier());
+    path.setParameter(QStringLiteral("FLOW"));
+    path.setTimeInterval(plan.outputInterval());
+
+    const QString location = area() + QStringLiteral(": ") + boundaryConditionLine();
+    path.setLocation(location);
+
+    return path;
+}

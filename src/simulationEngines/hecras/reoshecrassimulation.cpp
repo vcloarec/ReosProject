@@ -324,19 +324,17 @@ void ReosHecRasSimulation::prepareInput(
   const QList<ReosHydraulicStructureBoundaryCondition *> bcs = hydraulicStructure->boundaryConditions();
 
   QList<ReosHecRasFlow::BoundaryFlow> boundaryToModify;
-  QString dssFilePath = mProject->directory().filePath( QStringLiteral( "input_%1.dss" ).arg( mCurrentPlan ) );
+  QString dssInputFilePath = mProject->directory().filePath( QStringLiteral( "input_%1.dss" ).arg( mCurrentPlan ) );
 
   ReosTimeWindow tw = hydraulicStructure->timeWindow();
   const QDateTime startTime = tw.start();
   const QDateTime endTime = tw.end();
 
+  ReosDssFile ouputDssFile(mProject->dssResultFile(mCurrentPlan));
   currentPlan.changeSimulationTimeInFile( startTime, endTime, this );
 
   for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
   {
-    if ( bc->conditionType() != ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally &&
-         bc->conditionType() != ReosHydraulicStructureBoundaryCondition::Type::NotDefined )
-    {
       const QString &bcId = bc->boundaryConditionId();
       int hbcCount = flow.boundariesCount();
       for ( int i = 0; i < hbcCount; ++i )
@@ -344,6 +342,9 @@ void ReosHecRasSimulation::prepareInput(
         ReosHecRasFlow::BoundaryFlow hbc = flow.boundary( i );
         if ( bcId == hbc.id() )
         {
+          if (ouputDssFile.isValid())
+              ouputDssFile.removeDataset(hbc.buildDssFlowRatePath(currentPlan));
+
           ReosDssPath path;
           path.setGroup( hbc.area() );
           path.setLocation( hbc.boundaryConditionLine() );
@@ -352,6 +353,7 @@ void ReosHecRasSimulation::prepareInput(
           {
             case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
             case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+                continue;
               break;
             case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
             {
@@ -363,7 +365,7 @@ void ReosHecRasSimulation::prepareInput(
               path.setVersion( QStringLiteral( "INST-VAL" ) );
 
               QString error;
-              writeDssConstantTimeSeries( constant.get(), dssFilePath, path, error );
+              writeDssConstantTimeSeries( constant.get(), dssInputFilePath, path, error );
               hbc.type = ReosHecRasFlow::Type::FlowHydrograph;
             }
             break;
@@ -375,11 +377,10 @@ void ReosHecRasSimulation::prepareInput(
 
           hbc.dssPath = path.string();
           hbc.isDss = true;
-          hbc.dssFile = dssFilePath;
+          hbc.dssFile = dssInputFilePath;
           boundaryToModify.append( hbc );
         }
       }
-    }
   }
 
   bool griddedPrecipitationActive = false;

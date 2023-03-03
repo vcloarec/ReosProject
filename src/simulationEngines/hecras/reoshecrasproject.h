@@ -190,6 +190,8 @@ class ReosHecRasFlow
 
         QString id() const;
 
+        ReosDssPath buildDssFlowRatePath(const ReosHecRasPlan& plan) const;
+
       private:
         ReosHecRasBoundaryConditionId mId;
     };
