@@ -90,6 +90,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     Q_OBJECT
   public:
     explicit ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget = nullptr );
+    explicit ReosMap( QGraphicsView *canvas, ReosGisEngine *gisEngine );
     ~ReosMap();
 
     QWidget *mapCanvas() const;
@@ -165,10 +166,9 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     QAction *mActionNeutral = nullptr;
     ReosMapToolSelectMapItem *mDefaultMapTool = nullptr;
 
+    QAction *mActionPan = nullptr;
     QAction *mActionZoom = nullptr;
     ReosMapToolDrawExtent *mZoomMapTool = nullptr;
-
-    QAction *mActionPan = nullptr;
     QAction *mActionZoomIn = nullptr;
     QAction *mActionZoomOut = nullptr;
     QAction *mActionPreviousZoom = nullptr;
@@ -187,6 +187,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
     bool mNeedOtherRefresh = false;
 
     void prepareExtraRenderedObject();
+
+    void initConstuctor();
 };
 
 

@@ -441,11 +441,11 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     auto bridge = new QgsLayerTreeMapCanvasBridge( layerTreeModel->rootGroup(), canvas, this );
     bridge->setAutoSetupOnFirstLayer( true );
 
-    //Thses two following connections seem weird, but that is for avoiding that the QgsProjectInstance call the lambda while this is destroyed
+    //Theses two following connections seem weird, but that is for avoiding that the QgsProjectInstance call the lambda while this is destroyed
     //connect( QgsProject::instance(), &QgsProject::readProject, this, &ReosMap::readProject );
 
     //connect( this, &ReosMap::readProject, [this, bridge]( const QDomDocument & doc )
-    connect( QgsProject::instance(), &QgsProject::readProject, [this, bridge]( const QDomDocument & doc )
+    connect( QgsProject::instance(), &QgsProject::readProject, this, [this, bridge]( const QDomDocument & doc )
     {
       bool autoSetupOnFirstLayer = bridge->autoSetupOnFirstLayer();
       bridge->setAutoSetupOnFirstLayer( false );
@@ -459,6 +459,32 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
     } );
   }
 
+  initConstuctor();
+}
+
+ReosMap::ReosMap( QGraphicsView *canvas, ReosGisEngine *gisEngine ):
+  ReosModule( gisEngine )
+  , mEngine( gisEngine )
+  , mCanvas( canvas )
+  , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
+  , mDefaultMapTool( new ReosMapToolSelectMapItem( this ) )
+  , mActionPan( new QAction( QIcon( QStringLiteral( ":/images/pan.svg" ) ), tr( "Pan" ), this ) )
+  , mActionZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
+  , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
+  , mActionZoomIn( new QAction( QIcon( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
+  , mActionZoomOut( new QAction( QIcon( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ), this ) )
+  , mActionPreviousZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
+  , mActionNextZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomNext.svg" ) ), tr( "Next Zoom" ), this ) )
+  , mEnableSnappingAction( new QAction( tr( "Snapping" ), this ) )
+  , mActionEnableLegend( new QAction( QIcon( QStringLiteral( ":/images/plotLegend.svg" ) ), tr( "Enable/Disable Legend" ), this ) )
+  , mExtraRenderedObjectHandler( mCanvas )
+{
+  initConstuctor();
+}
+
+void ReosMap::initConstuctor()
+{
+  QgsMapCanvas *canvas = dynamic_cast<QgsMapCanvas *>( mCanvas.data() );
   connect( canvas, &QgsMapCanvas::xyCoordinates, this, [this]( const QgsPointXY & p )
   {
     emit cursorMoved( p.toQPointF() );
@@ -511,9 +537,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
       canvas->setMapTool( panMapTool );
   } );
 
-  emit crsChanged( mapCrs() );
-
-  //*** handle temporal controller
+//*** handle temporal controller
   mTemporalDockWidget = new QDockWidget( tr( "Temporal Controller" ), canvas );
   ReosTemporalControllerWidget *temporalControlerWidget = new ReosTemporalControllerWidget( mTemporalDockWidget );
 
@@ -542,7 +566,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   mExtraRenderedObjectHandler.init();
 
   mDefaultMapTool->setCursor( Qt::ArrowCursor );
-  //mDefaultMapTool->setSearchUnderPoint( true );
+//mDefaultMapTool->setSearchUnderPoint( true );
   mDefaultMapTool->setSearchItemWhenMoving( true );
   connect( mDefaultMapTool, &ReosMapToolSelectMapItem::found, this, &ReosMap::mapItemFound );
   connect( mDefaultMapTool, &ReosMapToolSelectMapItem::foundDoubleClick, this, &ReosMap::mapItemFoundDoubleClick );
@@ -560,7 +584,10 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   } );
   ReosSettings settings;
   mActionEnableLegend->setChecked( settings.value( QStringLiteral( "MainMap/EnableLegend" ), true ).toBool() );
-  connect( canvas, &ReosQgsMapCanvas::resized, this, &ReosMap::resizeLegend );
+
+  ReosQgsMapCanvas *reosCanvas = dynamic_cast<ReosQgsMapCanvas *>( mCanvas.data() );
+  if ( reosCanvas )
+    connect( reosCanvas, &ReosQgsMapCanvas::resized, this, &ReosMap::resizeLegend );
 
   connect( &mExtraRenderedObjectHandler, &ReosRendererObjectHandler::requestCanvasRefesh, this, &ReosMap::refreshCanvas );
 }
@@ -851,6 +878,7 @@ void ReosMap::prepareExtraRenderedObject()
   for ( ReosRenderedObject *obj : std::as_const( mExtraRenderedObjects ) )
     mExtraRenderedObjectHandler.startRender( obj );
 }
+
 
 void ReosMap::drawExtraRendering( QPainter *painter )
 {

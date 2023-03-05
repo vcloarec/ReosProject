@@ -119,6 +119,7 @@ ADD_SUBDIRECTORY(src/gui)
 ADD_SUBDIRECTORY(src/lekan)
 ADD_SUBDIRECTORY(src/dataProviders)
 ADD_SUBDIRECTORY(src/simulationEngines)
+ADD_SUBDIRECTORY(src/qgisPlugin)
 ADD_SUBDIRECTORY(i18n)
 
 # testing

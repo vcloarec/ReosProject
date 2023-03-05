@@ -120,6 +120,7 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
 class ReosComephoresProviderFactory: public ReosDataProviderFactory
 {
   public:
+
     ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
 };

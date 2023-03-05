@@ -115,17 +115,22 @@ QPolygonF ReosCoordinateSystemTransformer::transformToCoordinates( const QString
 ReosCoordinateSystemTransformer::ReosCoordinateSystemTransformer()
 {}
 
-ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
+ReosGisEngine::ReosGisEngine( QObject *parent, bool initialize ): ReosModule( parent )
 {
-  initGisEngine();
+  if ( initialize )
+    initGisEngine();
 
-  mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeReorder );
-  mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeRename );
-  mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeChangeVisibility );
-  mLayerTreeModel->setFlag( QgsLayerTreeModel::ShowLegendAsTree );
-  mLayerTreeModel->setFlag( QgsLayerTreeModel::UseEmbeddedWidgets );
-  mLayerTreeModel->setFlag( QgsLayerTreeModel::UseTextFormatting );
-  mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
+  if ( mLayerTreeModel )
+  {
+    mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeReorder );
+    mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeRename );
+    mLayerTreeModel->setFlag( QgsLayerTreeModel::AllowNodeChangeVisibility );
+    mLayerTreeModel->setFlag( QgsLayerTreeModel::ShowLegendAsTree );
+    mLayerTreeModel->setFlag( QgsLayerTreeModel::UseEmbeddedWidgets );
+    mLayerTreeModel->setFlag( QgsLayerTreeModel::UseTextFormatting );
+    mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
+  }
+
 
   connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::onLayerRemoved );
   connect( QgsProject::instance(), &QgsProject::crsChanged, this, [this]
@@ -410,7 +415,15 @@ ReosDigitalElevationModel *ReosGisEngine::getRasterDigitalElevationModel( const 
 
 ReosDigitalElevationModel *ReosGisEngine::getTopDigitalElevationModel() const
 {
-  QgsLayerTreeNode *rootNode = mLayerTreeModel->rootGroup();
+  QgsLayerTreeNode *rootNode = nullptr;
+  if ( mLayerTreeModel )
+    rootNode = mLayerTreeModel->rootGroup();
+  else
+    rootNode = QgsProject::instance()->layerTreeRoot();
+
+  if ( !rootNode )
+    return nullptr;
+
   QList<QgsMapLayer *> layersOrder;
   allLayersOrder( rootNode, layersOrder );
 
@@ -446,11 +459,19 @@ ReosDigitalElevationModel *ReosGisEngine::getDigitalElevationModel( const QStrin
 
 QMap<QString, QString> ReosGisEngine::digitalElevationModelRasterList() const
 {
-  QgsLayerTreeNode *rootNode = mLayerTreeModel->rootGroup();
+  QMap<QString, QString> demList;
+  QgsLayerTreeNode *rootNode = nullptr;
+  if ( mLayerTreeModel )
+    rootNode = mLayerTreeModel->rootGroup();
+  else
+    rootNode = QgsProject::instance()->layerTreeRoot();
+
+  if ( !rootNode )
+    return demList;
+
   QList<QgsMapLayer *> layersOrder;
   allLayersOrder( rootNode, layersOrder );
 
-  QMap<QString, QString> demList;
   for ( QgsMapLayer *layer : layersOrder )
   {
     if ( mAsDEMRegisteredLayer.contains( layer->id() ) )

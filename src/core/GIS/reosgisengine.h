@@ -78,7 +78,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     };
 
     //! Constructor
-    ReosGisEngine( QObject *parent = nullptr );
+    ReosGisEngine( QObject *parent = nullptr, bool initialize = true );
     ~ReosGisEngine();
 
     void initGisEngine();
@@ -279,8 +279,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     void onLayerRemoved( const QString &layerId );
 
   private:
-    QAbstractItemModel *mAbstractLayerTreeModel;
-    ReosDigitalElevationModelProvider *mDemProvider;
+    QAbstractItemModel *mAbstractLayerTreeModel = nullptr;
+    ReosDigitalElevationModelProvider *mDemProvider = nullptr;
     QStringList mAsDEMRegisteredLayer;
 
     void defaultstyleRasterLayer( QgsRasterLayer *layer );
