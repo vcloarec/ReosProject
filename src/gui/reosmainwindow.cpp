@@ -47,6 +47,7 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   mGroupActionInterrogation( new QActionGroup( this ) ),
   mActionNewProject( new QAction( QIcon( QStringLiteral( ":/images/mActionNew.svg" ) ), tr( "New Project" ), this ) ),
   mActionOpenFile( new QAction( QIcon( QStringLiteral( ":/images/open.svg" ) ), tr( "Open file" ), this ) ),
+  mMenuRecentProjects( new QMenu( tr( "Open Recent" ), this ) ),
   mActionSaveFile( new QAction( QIcon( QStringLiteral( ":/images/save.svg" ) ), tr( "Save" ), this ) ),
   mActionSaveFileAs( new QAction( QIcon( QStringLiteral( ":/images/saveAs.svg" ) ), tr( "Save as ..." ), this ) ),
   mActionLanguageSelection( new QAction( tr( "Select language" ), this ) ),
@@ -91,12 +92,15 @@ void ReosMainWindow::init()
   mGroupActionFile->addAction( mActionSaveFile );
   mGroupActionFile->addAction( mActionSaveFileAs );
 
-
   mToolBarFile = addToolBar( tr( "File" ) );
   mToolBarFile->addActions( mGroupActionFile->actions() );
   mToolBarFile->setObjectName( QStringLiteral( "toolBarFile" ) );
   mMenuFile = menuBar()->addMenu( tr( "File" ) );
-  mMenuFile->addActions( mGroupActionFile->actions() );
+  mMenuFile->addAction( mActionNewProject );
+  mMenuFile->addAction( mActionOpenFile );
+  mMenuFile->addMenu( mMenuRecentProjects );
+  mMenuFile->addAction( mActionSaveFile );
+  mMenuFile->addAction( mActionSaveFileAs );
 
   const QList<QMenu *> &sm = specificMenus();
   for ( QMenu *menu : sm )
@@ -185,8 +189,14 @@ bool ReosMainWindow::openFile()
   if ( fileName.isEmpty() )
     return false;
 
-  mCurrentProjectFileInfo = QFileInfo( fileName );
-  rootModule()->setProjectFileName( fileName );
+  return openFileWithPath( fileName );
+}
+
+bool ReosMainWindow::openFileWithPath( const QString &filePath )
+{
+  ReosSettings settings;
+  mCurrentProjectFileInfo = QFileInfo( filePath );
+  rootModule()->setProjectFileName( filePath );
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool result = openProject();
@@ -310,6 +320,22 @@ QString ReosMainWindow::currentProjectPath() const
   return mCurrentProjectFileInfo.path();
 }
 
+void ReosMainWindow::setRecentProjects( const QStringList &recentProjects )
+{
+  mMenuRecentProjects->clear();
+  for ( const QString &filePath : recentProjects )
+  {
+    QFileInfo fileInfo( filePath );
+    QString text = fileInfo.completeBaseName() + QStringLiteral( " (%1)" ).arg( QDir::toNativeSeparators( fileInfo.filePath() ) );
+    QAction *action = mMenuRecentProjects->addAction( text, this, [this, filePath]
+    {
+      openFileWithPath( filePath );
+    } );
+
+    action->setEnabled( fileInfo.exists() );
+  }
+}
+
 QString ReosMainWindow::currentProjectBaseName() const
 {
   return mCurrentProjectFileInfo.baseName();
@@ -407,4 +433,55 @@ QString ReosMainWindow::projectFileSuffix() const
 void ReosMainWindow::newUndoCommand( QUndoCommand *command )
 {
   mUndoStack->push( command );
+}
+
+ReosRecentProjectModel::ReosRecentProjectModel( QObject *parent ): QAbstractListModel( parent )
+{}
+
+int ReosRecentProjectModel::rowCount( const QModelIndex & ) const
+{
+  return mPathes.count();
+}
+
+QVariant ReosRecentProjectModel::data( const QModelIndex &index, int role ) const
+{
+  if ( !index.isValid() )
+    return QVariant();
+
+  if ( index.row() < 0 || index.row() >= mPathes.count() )
+    return QVariant();
+
+  QFileInfo fileInfo( mPathes.at( index.row() ) );
+
+  switch ( role )
+  {
+    case Qt::DisplayRole:
+      return fileInfo.completeBaseName() + QStringLiteral( " (%1)" ).arg( QDir::toNativeSeparators( fileInfo.filePath() ) );
+      break;
+    case Qt::ForegroundRole:
+      if ( fileInfo.exists() )
+        return QColor( Qt::black );
+      else
+        return QColor( Qt::gray );
+      break;
+    default:
+      break;
+  }
+
+  return QVariant();
+}
+
+void ReosRecentProjectModel::setPathes( const QStringList &newPathes )
+{
+  beginResetModel();
+  mPathes = newPathes;
+  endResetModel();
+}
+
+const QString ReosRecentProjectModel::path( const QModelIndex &index )
+{
+  if ( index.row() < 0 || index.row() >= mPathes.count() )
+    return QString();
+
+  return mPathes.at( index.row() );
 }

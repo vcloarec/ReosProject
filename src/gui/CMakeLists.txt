@@ -16,6 +16,7 @@ SET(REOS_GUI_SOURCES
     reosguicontext.cpp
     reoscolorbutton.cpp
     reosspeedwidget.cpp
+    reosoverridecursor.cpp
 
     GIS/reosdigitalelevationmodelcombobox.cpp
     GIS/reosmap.cpp
@@ -132,6 +133,7 @@ SET(REOS_GUI_HEADERS
     reosguicontext.h
     reoscolorbutton.h
     reosspeedwidget.h
+    reosoverridecursor.h
 
     GIS/reosdigitalelevationmodelcombobox.h
     GIS/reosmap.h

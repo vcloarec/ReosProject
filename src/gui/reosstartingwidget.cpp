@@ -16,14 +16,20 @@ email                : vcloarec at gmail dot com
 #include "reosstartingwidget.h"
 #include "ui_reosstartingwidget.h"
 
-ReosStartingWidget::ReosStartingWidget( ReosMainWindow *parent ) :
-  QDialog( parent ),
-  ui( new Ui::ReosStartingWidget ),
-  mMainWindow( parent )
+ReosStartingWidget::ReosStartingWidget( const QStringList &recentProjects, ReosMainWindow *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosStartingWidget )
+  , mMainWindow( parent )
+  , mRecentProjectModel( new ReosRecentProjectModel( this ) )
 {
   ui->setupUi( this );
+  mRecentProjectModel->setPathes( recentProjects );
+  ui->mRecentProjectView->setModel( mRecentProjectModel );
+
   connect( ui->mPushButtonNewProject, SIGNAL( clicked() ), this, SLOT( onNewProject() ) );
   connect( ui->mPushButtonOpenProject, SIGNAL( clicked() ), this, SLOT( onOpenProject() ) );
+
+  connect( ui->mRecentProjectView, &QAbstractItemView::doubleClicked, this, &ReosStartingWidget::onRecentViewDoubleClicked );
 
   if ( parent )
     setWindowTitle( parent->windowTitle() );
@@ -47,5 +53,19 @@ void ReosStartingWidget::onNewProject()
 void ReosStartingWidget::onOpenProject()
 {
   mMainWindow->openFile();
+  accept();
+}
+
+void ReosStartingWidget::onRecentViewDoubleClicked( const QModelIndex &index )
+{
+  const QString path = mRecentProjectModel->path( index );
+  if ( path.isEmpty() )
+    return;
+
+  QFileInfo fileInfo( path );
+  if ( !fileInfo.exists() )
+    return;
+
+  mMainWindow->openFileWithPath( path );
   accept();
 }

@@ -32,7 +32,7 @@ class REOSGUI_EXPORT ReosStartingWidget : public QDialog
 {
     Q_OBJECT
   public:
-    explicit ReosStartingWidget( ReosMainWindow *parent = nullptr );
+    explicit ReosStartingWidget( const QStringList &recentProjects, ReosMainWindow *parent = nullptr );
     ~ReosStartingWidget();
 
     void setBan( const QPixmap &image );
@@ -40,10 +40,13 @@ class REOSGUI_EXPORT ReosStartingWidget : public QDialog
   private:
     Ui::ReosStartingWidget *ui;
     ReosMainWindow *mMainWindow = nullptr;
+    ReosRecentProjectModel *mRecentProjectModel = nullptr;
 
   private slots:
     void onNewProject();
     void onOpenProject();
+
+    void onRecentViewDoubleClicked( const QModelIndex &index );
 };
 
 #endif // DEMARRAGE_H
