@@ -16,8 +16,9 @@
 #ifndef REOSOVERRIDECURSOR_H
 #define REOSOVERRIDECURSOR_H
 
+#include "reosgui.h"
 
-class ReosOverrideCursor
+class REOSGUI_EXPORT ReosOverrideCursor
 {
   public:
     ReosOverrideCursor();
