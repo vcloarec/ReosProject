@@ -20,6 +20,7 @@ email                : vcloarec at gmail dot com
 #include <QActionGroup>
 #include <QDir>
 #include <QUndoStack>
+#include <QAbstractListModel>
 
 #include <QVBoxLayout>
 #include <QPixmap>
@@ -42,6 +43,9 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
   public:
     explicit ReosMainWindow( QWidget *parent = nullptr );
     bool openFile();
+    bool openFileWithPath( const QString &filePath );
+
+    void setRecentProjects( const QStringList &recentProjects );
 
   public slots:
     void newProject();
@@ -116,6 +120,7 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     QAction *mActionNewProject = nullptr;
     QAction *mActionOpenFile = nullptr;
+    QMenu *mMenuRecentProjects = nullptr;
     QAction *mActionSaveFile = nullptr;
     QAction *mActionSaveFileAs = nullptr;
 
@@ -134,6 +139,24 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     QString mDocumentationUrl;
     QString mHowToSupportUrl;
     QString mFinancialContribution;
+};
+
+
+class ReosRecentProjectModel : public QAbstractListModel
+{
+    Q_OBJECT
+  public:
+    ReosRecentProjectModel( QObject *parent = nullptr );
+
+    int rowCount( const QModelIndex & ) const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
+
+    void setPathes( const QStringList &newPathes );
+
+    const QString path( const QModelIndex &index );
+
+  private:
+    QStringList mPathes;
 };
 
 #endif // REOSMAINWINDOW_H

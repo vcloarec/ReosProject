@@ -40,6 +40,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoshydraulicnetwork.h"
 #include "reoshydraulicnetworkwidget.h"
 #include "reosstructure2dtoolbar.h"
+#include "reosoverridecursor.h"
 
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
 
@@ -134,6 +135,7 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
 bool LekanMainWindow::openProject()
 {
+  ReosOverrideCursor overrideCursor;
   QString filePath = currentProjectFilePath();
   QString path = currentProjectPath();
   QString baseName = currentProjectBaseName();
@@ -152,13 +154,13 @@ bool LekanMainWindow::openProject()
 
   //*** read header
   qint32 magicNumber;
-  qint32 serialisationVersion;
   QByteArray bytesVersion;
   stream >> magicNumber;
 
   if ( magicNumber == PROJECT_FILE_MAGIC_NUMBER )
   {
     // since Lekan 2.2
+    qint32 serialisationVersion;
     stream >> serialisationVersion;
     stream >> bytesVersion;
     QDataStream::Version v = static_cast<QDataStream::Version>( serialisationVersion );
@@ -190,6 +192,8 @@ bool LekanMainWindow::openProject()
 
   mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ), encodeContext );
   mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
+
+  storeProjectPath( filePath );
 
   return true;
 }
@@ -248,7 +252,6 @@ bool LekanMainWindow::saveProject()
 
   stream << lekanProject.bytes();
 
-
   return true;
 }
 
@@ -302,6 +305,34 @@ QFileInfo LekanMainWindow::gisFileInfo() const
   gisFileName.append( QStringLiteral( ".qgz" ) );
   QDir dir( currentProjectPath() );
   return QFileInfo( dir, gisFileName );
+}
+
+void LekanMainWindow::storeProjectPath( const QString &path )
+{
+  ReosSettings settings;
+  QStringList pathes;
+  if ( settings.contains( QStringLiteral( "/recent-lekan-project" ) ) )
+    pathes = settings.value( QStringLiteral( "/recent-lekan-project" ) ).value<QStringList>();
+
+  int presentIndex = pathes.indexOf( path );
+  if ( presentIndex >= 0 )
+    pathes.removeOne( path );
+
+  pathes.prepend( path );
+  if ( pathes.count() > 20 )
+    pathes.takeLast();
+  settings.setValue( QStringLiteral( "/recent-lekan-project" ), pathes );
+
+  setRecentProjects( pathes );
+}
+
+QStringList LekanMainWindow::recentProjectPathes() const
+{
+  ReosSettings settings;
+  if ( settings.contains( QStringLiteral( "/recent-lekan-project" ) ) )
+    return settings.value( QStringLiteral( "/recent-lekan-project" ) ).value<QStringList>();
+
+  return QStringList();
 }
 
 QList<QMenu *> LekanMainWindow::specificMenus()

@@ -49,6 +49,8 @@ class LekanMainWindow : public ReosMainWindow
     explicit LekanMainWindow( QWidget *parent = nullptr );
     bool openProject() override;
 
+    QStringList recentProjectPathes() const;
+
   private slots:
 
     void onMapTimeStepChanged();
@@ -62,6 +64,8 @@ class LekanMainWindow : public ReosMainWindow
     QString projectFileSuffix() const override;
 
     QFileInfo gisFileInfo() const;
+
+    void storeProjectPath( const QString &path );
 
     ReosGisEngine *mGisEngine = nullptr;
     ReosMap *mMap = nullptr;
