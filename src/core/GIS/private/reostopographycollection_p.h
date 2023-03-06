@@ -36,7 +36,7 @@ class ReosTopographyCollection_p : public ReosTopographyCollection
   private:
 
 
-    mutable std::vector<std::unique_ptr<ReosDigitalElevationModelRaster>> mDem;
+    mutable std::vector<std::unique_ptr<ReosDigitalElevationModelRaster>> mDems;
     mutable QVector<QgsCoordinateTransform> mTransforms;
 
 };
