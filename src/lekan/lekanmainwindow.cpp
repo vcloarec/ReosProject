@@ -252,6 +252,7 @@ bool LekanMainWindow::saveProject()
 
   stream << lekanProject.bytes();
 
+  storeProjectPath( filePath );
   return true;
 }
 

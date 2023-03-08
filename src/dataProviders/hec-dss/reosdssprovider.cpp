@@ -728,7 +728,7 @@ bool ReosDssProviderGriddedRainfall::write( ReosGriddedRainfall *rainfall, const
     return false;
 
   double resolution = std::min( destination.yCellSize(), destination.xCellSize() );
-  return file.writeGriddedData( rainfall, path, destination, resolution );
+  return file.writeGriddedData( rainfall, path, destination, resolution, timeWindow );
 }
 
 

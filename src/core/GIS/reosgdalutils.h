@@ -37,6 +37,7 @@ class REOSCORE_EXPORT ReosGdalDataset
     bool isValid() const;
 
     ReosRasterMemory<double> values( int band );
+    ReosRasterMemory<int> valuesInt( int band );
 
   private:
     GDALDatasetH mHDataset = nullptr;

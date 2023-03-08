@@ -1126,7 +1126,7 @@ void ReosTimeSerieVariableTimeStep::copyFrom( const ReosTimeSerieVariableTimeSte
   variableTimeStepDataProvider()->copy( other->variableTimeStepDataProvider() );
 }
 
-bool ReosTimeSerieVariableTimeStep::operator==( ReosTimeSerieVariableTimeStep &other ) const
+bool ReosTimeSerieVariableTimeStep::operator==( const ReosTimeSerieVariableTimeStep &other ) const
 {
   if ( other.valueCount() != valueCount() )
     return false;
@@ -1237,9 +1237,10 @@ ReosTimeSerieVariableTimeStep *ReosTimeSerieVariableTimeStep::decode( const Reos
   return ret.release();
 }
 
-ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject *parent ): ReosTimeSerieModel( parent )
+ReosTimeSerieVariableTimeStepModel::ReosTimeSerieVariableTimeStepModel( QObject *parent )
+  : ReosTimeSerieModel( parent )
+  , mFixedTimeStep( 5, ReosDuration::minute )
 {
-  mFixedTimeStep = ReosDuration( 5, ReosDuration::minute );
 }
 
 int ReosTimeSerieVariableTimeStepModel::rowCount( const QModelIndex & ) const
@@ -1425,6 +1426,40 @@ void ReosTimeSerieVariableTimeStepModel::setValues( const QModelIndex &fromIndex
   setValuesPrivate( fromIndex, data, true );
 }
 
+static bool isStringDatetime( const QString str )
+{
+  // try with loval format
+  QDateTime time = QLocale().toDateTime( str, QLocale::ShortFormat );
+  if ( time.isValid() )
+    return true;
+
+  time = QDateTime::fromString( str, Qt::ISODate );
+
+  return time.isValid();
+}
+
+static QDateTime stringToDateTime( const QString &stringDateTime )
+{
+  QDateTime time = QLocale().toDateTime( stringDateTime, QLocale::ShortFormat );
+  if ( time.isValid() )
+  {
+    time.setTimeSpec( Qt::UTC );
+    return time;
+  }
+
+  time = QDateTime::fromString( stringDateTime, Qt::ISODate );
+  if ( time.isValid() )
+  {
+    if ( time.timeSpec() != Qt::UTC )
+      time.setTimeSpec( Qt::UTC );
+
+    return time;
+  }
+
+  return QDateTime();
+}
+
+
 void ReosTimeSerieVariableTimeStepModel::setValuesPrivate( const QModelIndex &fromIndex, const QList<QVariantList> &values, bool checkValidity )
 {
   if ( checkValidity && !checkListValuesValidity( fromIndex, values, false ) )
@@ -1441,7 +1476,7 @@ void ReosTimeSerieVariableTimeStepModel::setValuesPrivate( const QModelIndex &fr
   bool absoluteTime = false;
 
   if ( !values.empty() && !values.at( 0 ).empty() )
-    absoluteTime =  QLocale().toDateTime( values.at( 0 ).at( 0 ).toString(), QLocale::ShortFormat ).isValid();
+    absoluteTime =  isStringDatetime( values.at( 0 ).at( 0 ).toString() );
 
   int startRow = fromIndex.row();
   int endRow = startRow + values.count() - 1;
@@ -1464,8 +1499,7 @@ void ReosTimeSerieVariableTimeStepModel::setValuesPrivate( const QModelIndex &fr
     {
       if ( absoluteTime )
       {
-        QDateTime time = QLocale().toDateTime( varRow.at( 0 ).toString(), QLocale::ShortFormat );
-        time.setTimeSpec( Qt::UTC );
+        QDateTime time = stringToDateTime( varRow.at( 0 ).toString() );
         relativeTime = ReosDuration( mData->referenceTime().msecsTo( time ), ReosDuration::millisecond );
       }
       else
@@ -1664,12 +1698,7 @@ bool ReosTimeSerieVariableTimeStepModel::checkListValuesValidity( const QModelIn
   if ( colCount != 1 && colCount != 2 )
     return false;
 
-  bool absoluteTime = false;
-  if ( colCount == 2 )
-  {
-    QDateTime time = QLocale().toDateTime( data.at( 0 ).at( 0 ).toString(), QLocale::ShortFormat );
-    absoluteTime = time.isValid();
-  }
+  bool absoluteTime = isStringDatetime( data.at( 0 ).at( 0 ).toString() );
 
   ReosDuration prevRelativeTime;
 
@@ -1688,8 +1717,9 @@ bool ReosTimeSerieVariableTimeStepModel::checkListValuesValidity( const QModelIn
     {
       if ( absoluteTime )
       {
-        const QDateTime time = QLocale().toDateTime( varList.at( 0 ).toString(), QLocale::ShortFormat );
+        QDateTime time = stringToDateTime( varList.at( 0 ).toString() );
         ok = time.isValid();
+
         if ( insert )
         {
           if ( mData->valueCount() > 0 && index.row() > 0 )

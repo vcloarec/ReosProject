@@ -31,7 +31,7 @@ class ReosComephoreFilesReader
     virtual ReosComephoreFilesReader *clone() const = 0;
     virtual int frameCount() const = 0;
     virtual QDateTime time( int i ) const = 0;
-    virtual QVector<double> data( int index ) const = 0;
+    virtual QVector<int> data( int index, bool &readLine ) const = 0;
     virtual ReosRasterExtent extent() const = 0;
     virtual bool getDirectMinMax( double &min, double &max ) const = 0;
 };
@@ -47,7 +47,7 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
 
     int frameCount() const override;
     QDateTime time( int i ) const override;
-    QVector<double> data( int index ) const override;
+    QVector<int> data( int index, bool &readLine ) const override;
     ReosRasterExtent extent() const override;
     bool getDirectMinMax( double &min, double &max ) const override;
 
@@ -68,15 +68,18 @@ class ReosComephoreNetCdfFilesReader : public ReosComephoreFilesReader
     ReosComephoreFilesReader *clone() const override;
     int frameCount() const override;
     QDateTime time( int i ) const override;
-    QVector<double> data( int index ) const override;
+    QVector<int> data( int index, bool &readLine ) const override;
     ReosRasterExtent extent() const override;
     bool getDirectMinMax( double &min, double &max ) const override;
 
     static bool canReadFile( const QString &uri );
 
   private:
-    ReosNetCdfFile mFile;
+    mutable std::unique_ptr<ReosNetCdfFile> mFile;
     QString mFileName;
+    ReosRasterExtent mExtent;
+    int mFrameCount = 0;
+    QList<QDateTime> mTimes;
 };
 
 class ReosComephoreProvider : public ReosGriddedRainfallProvider

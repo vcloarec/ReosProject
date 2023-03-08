@@ -173,11 +173,48 @@ QString ReosNetCdfFile::globalStringAttributeValue( const QString &attribureName
   int res  = nc_inq_attlen( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), &len );
   if ( res != NC_NOERR )
     return QString();
-  char retStr[len];
-  res = nc_get_att_text( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), retStr );
-
+  std::vector<char> retStr( len + 1 );
+  res = nc_get_att_text( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), retStr.data() );
+  retStr[len] = '\0';
   if ( res != NC_NOERR )
     return QString();
 
-  return QString( reinterpret_cast<char *>( retStr ) );
+  return QString( reinterpret_cast<char *>( retStr.data() ) );
+}
+
+QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int size )
+{
+  int varId = mVarNameToVarId.value( variableName );
+  QVector<qint64> ret( size );
+  int res = nc_get_var_longlong( mNcId, varId, ret.data() );
+  if ( res != NC_NOERR )
+    return QVector<qint64> ();
+
+  return ret;
+}
+
+QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &count )
+{
+  Q_ASSERT( starts.count() == count.count() );
+  int varId = mVarNameToVarId.value( variableName );
+
+  std::vector<size_t> startp( static_cast<size_t>( starts.count() ) );
+  for ( int i = 0; i < starts.count(); ++i )
+    startp[static_cast<size_t>( i )] = static_cast<size_t>( starts.at( i ) );
+  std::vector<size_t> countp( static_cast<size_t>( count.count() ) );
+  int totalSize = 1;
+  for ( int i = 0; i < count.count(); ++i )
+  {
+    countp[static_cast<size_t>( i )] = static_cast<size_t>( count.at( i ) );
+    totalSize *= count.at( i );
+  }
+
+  QVector<int> ret;
+  ret.resize( totalSize );
+  int res = nc_get_vara_int( mNcId, varId, startp.data(), countp.data(), ret.data() );
+
+  if ( res == NC_NOERR )
+    return ret;
+
+  return QVector<int>();
 }

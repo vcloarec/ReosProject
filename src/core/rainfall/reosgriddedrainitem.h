@@ -45,7 +45,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Returns the count of grids (e.g. time steps)
     int gridCount() const;
 
-    //! Returns the start time related to the grif with \a index
+    //! Returns the start time related to the grid with \a index
     const QDateTime startTime( int index ) const;
 
     //! Returns the end time related to the grif with \a index

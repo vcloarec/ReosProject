@@ -23,6 +23,7 @@
 #include "reosguicontext.h"
 #include "reosdataprovidergui.h"
 #include "reossettings.h"
+#include "reosoverridecursor.h"
 
 
 ReosSaveGriddedRainfallAsDialog::ReosSaveGriddedRainfallAsDialog( ReosGriddedRainfall *rainfall, const ReosGuiContext &context ) :
@@ -64,7 +65,10 @@ void ReosSaveGriddedRainfallAsDialog::saveAs( ReosGriddedRainfall *rainfall ) co
   ReosGriddedRainfallProvider *grProv = qobject_cast<ReosGriddedRainfallProvider * >( provider.get() );
 
   if ( mUriWidget )
+  {
+    ReosOverrideCursor overrideCursor;
     grProv->write( rainfall, mUriWidget->uri(), ui->mOptionWidget->rasterExtent(), ui->mOptionWidget->timeWindow() );
+  }
 }
 
 void ReosSaveGriddedRainfallAsDialog::keyPressEvent( QKeyEvent *evt )

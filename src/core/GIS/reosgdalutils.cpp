@@ -135,3 +135,29 @@ ReosRasterMemory<double> ReosGdalDataset::values( int band )
 
   return ret;
 }
+
+ReosRasterMemory<int> ReosGdalDataset::valuesInt( int band )
+{
+  if ( !mHDataset )
+    return ReosRasterMemory<int>();
+
+  GDALRasterBandH hBand = GDALGetRasterBand( mHDataset, band );
+
+  if ( !hBand )
+    return ReosRasterMemory<int>();
+
+  int xCount = GDALGetRasterXSize( mHDataset );
+  int yCount = GDALGetRasterYSize( mHDataset );
+
+  ReosRasterMemory<int> ret( yCount, xCount );
+
+  if ( !ret.reserveMemory() )
+    return ReosRasterMemory<int>();
+
+  CPLErr err = GDALRasterIO( hBand, GF_Read, 0, 0, xCount, yCount, ret.data(), xCount, yCount, GDT_Int32, 0, 0 );
+
+  if ( err != CE_None )
+    return ReosRasterMemory<int>();
+
+  return ret;
+}
