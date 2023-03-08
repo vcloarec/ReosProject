@@ -17,6 +17,7 @@
 
 #include "reosgriddedrainitem.h"
 #include "reosgdalutils.h"
+#include "reosgisengine.h"
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
@@ -110,17 +111,28 @@ const QVector<double> ReosComephoreProvider::data( int index ) const
 
   if ( mFileReader )
   {
-    QVector<double> rawValues = mFileReader->data( index );
+    bool readLine = true;
+    const QVector<int> rawValues = mFileReader->data( index, readLine );
     std::unique_ptr<QVector<double>> values = std::make_unique<QVector<double>>();
     values->resize( rawValues.count() );
 
-    for ( int i = 0; i < rawValues.count(); ++i )
-    {
-      if ( rawValues.at( i ) == 65535 || rawValues.at( i ) == 0 )
-        ( *values )[i] = std::numeric_limits<double>::quiet_NaN();
-      else
-        ( *values )[i] = rawValues.at( i ) / 10.0;
-    }
+    int xCount = mExtent.xCellCount();
+    int yCount = mExtent.yCellCount();
+
+    Q_ASSERT( xCount * yCount == rawValues.count() );
+
+    for ( int xi = 0; xi < xCount; ++xi )
+      for ( int yi = 0; yi < yCount; ++yi )
+      {
+        int retIndex = xi + yi * xCount;
+        int rawIndex = readLine ? retIndex : yi + xi * yCount;
+
+        int rawValue = rawValues.at( rawIndex );
+        if ( rawValue == 65535 || rawValues.at( rawIndex ) == 0 )
+          ( *values )[retIndex] = std::numeric_limits<double>::quiet_NaN();
+        else
+          ( *values )[retIndex] = rawValue / 10.0;
+      }
 
     QVector<double> ret = *values;
     mCache.insert( index, values.release(), rawValues.size() );
@@ -269,13 +281,14 @@ QDateTime ReosComephoreTiffFilesReader::time( int i ) const
   return mTimes.at( i );
 }
 
-QVector<double> ReosComephoreTiffFilesReader::data( int index ) const
+QVector<int> ReosComephoreTiffFilesReader::data( int index, bool &readLine ) const
 {
   const QDateTime &time = mTimes.at( index );
-  QString fileName = mFilesNames.value( time );
+  const QString fileName = mFilesNames.value( time );
   ReosGdalDataset dataset( fileName );
 
-  ReosRasterMemory<double> values = dataset.values( 1 );
+  const ReosRasterMemory<int> values = dataset.valuesInt( 1 );
+  readLine = true;
 
   return values.values();
 }
@@ -338,10 +351,36 @@ QString ReosComephoresProviderFactory::key() const
 }
 
 ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &filePath )
-  : mFile( filePath, false )
-  , mFileName( filePath )
+  :  mFileName( filePath )
 {
+  mFile.reset( new ReosNetCdfFile( mFileName ) );
+  if ( mFile->isValid() )
+  {
+    const QString proj4Crs = mFile->globalStringAttributeValue( QStringLiteral( "crs_proj4_string" ) );
+    const QString crs = ReosGisEngine::crsFromProj( proj4Crs );
+    int xCount = mFile->dimensionLength( QStringLiteral( "X" ) );
+    int yCount = mFile->dimensionLength( QStringLiteral( "Y" ) );
 
+    double nw_latitude = mFile->globalDoubleAttributeValue( QStringLiteral( "nw_corner_latitude" ) );
+    double nw_longitude = mFile->globalDoubleAttributeValue( QStringLiteral( "nw_corner_longitude" ) );
+    const QString crsWGS84 = ReosGisEngine::crsFromEPSG( 4326 );
+    const ReosSpatialPosition nw_position( nw_longitude, nw_latitude, crsWGS84 );
+    const QPointF projectedOrigin = ReosGisEngine::transformToCoordinates( nw_position, crs );
+    double xResolution = mFile->globalDoubleAttributeValue( QStringLiteral( "x_resolution_in_m" ) );
+    double yResolution = mFile->globalDoubleAttributeValue( QStringLiteral( "y_resolution_in_m" ) );
+
+    mExtent = ReosRasterExtent( projectedOrigin.x(), projectedOrigin.y(), xCount, yCount, xResolution, -yResolution );
+    mExtent.setCrs( crs );
+
+    mFrameCount = mFile->dimensionLength( QStringLiteral( "time" ) );
+    const QVector<qint64> intTime = mFile->getInt64Array( QStringLiteral( "time" ), mFrameCount );
+    mTimes.reserve( mFrameCount );
+    const QDateTime oriTime( QDate( 1949, 12, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
+    for ( int i = 0; i < mFrameCount; ++i )
+      mTimes.append( oriTime.addSecs( 3600 * intTime.at( i ) ) );
+  }
+
+  mFile.reset();
 }
 
 ReosComephoreFilesReader *ReosComephoreNetCdfFilesReader::clone() const
@@ -351,22 +390,38 @@ ReosComephoreFilesReader *ReosComephoreNetCdfFilesReader::clone() const
 
 int ReosComephoreNetCdfFilesReader::frameCount() const
 {
-  return 0;
+  return mFrameCount;
 }
 
 QDateTime ReosComephoreNetCdfFilesReader::time( int i ) const
 {
-  return QDateTime();
+  if ( i < 0 || i >= mTimes.count() )
+    return QDateTime();
+  return mTimes.at( i );
 }
 
-QVector<double> ReosComephoreNetCdfFilesReader::data( int index ) const
+QVector<int> ReosComephoreNetCdfFilesReader::data( int index, bool &readLine ) const
 {
-  return QVector<double>();
+  if ( !mFile )
+    mFile.reset( new ReosNetCdfFile( mFileName ) );
+
+  const QVector<int> starts( {index, 0, 0} );
+  int xCount = mExtent.xCellCount();
+  int yCount = mExtent.yCellCount();
+  const QVector<int> counts( {1, xCount, yCount} );
+
+  if ( mFile->isValid() )
+  {
+    readLine = false;
+    return mFile->getIntArray( QStringLiteral( "RR" ), starts, counts );
+  }
+
+  return QVector<int>();
 }
 
 ReosRasterExtent ReosComephoreNetCdfFilesReader::extent() const
 {
-  return ReosRasterExtent();
+  return mExtent;
 }
 
 bool ReosComephoreNetCdfFilesReader::getDirectMinMax( double &min, double &max ) const
@@ -380,7 +435,12 @@ bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
   if ( !file.isValid() )
     return false;
 
-  return file.hasVariable( QStringLiteral( "RR" ) ) &&
-         file.hasVariable( QStringLiteral( "QUALIF" ) ) &&
-         file.hasVariable( QStringLiteral( "ERR" ) );
+  if ( !( file.hasVariable( QStringLiteral( "RR" ) ) &&
+          file.hasVariable( QStringLiteral( "QUALIF" ) ) &&
+          file.hasVariable( QStringLiteral( "ERR" ) ) ) )
+    return false;
+
+  const QStringList dimensionNames = file.variableDimensionNames( QStringLiteral( "RR" ) );
+
+  return dimensionNames.contains( QStringLiteral( "X" ) ) && dimensionNames.contains( QStringLiteral( "Y" ) );
 }

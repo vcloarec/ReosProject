@@ -325,7 +325,7 @@ void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection
   if ( !topoCollection )
     return;
 
-  int processStep = mMesh.vertexCount() / 100;
+  int processStep = std::max( 1, mMesh.vertexCount() / 100 );
 
   if ( process )
   {

@@ -37,6 +37,10 @@ class ReosNetCdfFile
     double globalDoubleAttributeValue( const QString &attribureName ) const;
     QString globalStringAttributeValue( const QString &attribureName ) const;
 
+    QVector<qint64> getInt64Array( const QString &variableName, int size );
+
+    QVector<int> getIntArray(const QString &variableName, const QVector<int> &starts, const QVector<int> &count );
+
   private:
     bool mIsValid = false;
     int mNcId = -1;

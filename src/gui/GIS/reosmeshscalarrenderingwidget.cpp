@@ -24,6 +24,7 @@
 
 #include "reosstyleregistery.h"
 #include "reosrenderersettings.h"
+#include "reosoverridecursor.h"
 
 ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSettings *settings, const ReosGuiContext &guiContext )
   : ReosStackedPageWidget( guiContext.parent() )
@@ -84,7 +85,7 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSet
                                        "Do you want to proceed?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes )
              == QMessageBox::No )
           return;
-
+        ReosOverrideCursor overrideCursor;
         mSettings->calculateSourceMinMax( min, max );
       }
     }

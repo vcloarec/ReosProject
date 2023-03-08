@@ -294,7 +294,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     void copyFrom(const ReosTimeSerieVariableTimeStep *other );
 
-    bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
+    bool operator==(const ReosTimeSerieVariableTimeStep &other ) const;
 
     QAbstractItemModel *model();
 

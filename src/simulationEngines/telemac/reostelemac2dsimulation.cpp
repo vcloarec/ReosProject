@@ -430,7 +430,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   const QVector<ReosSimulationData::BoundaryVertices> &boundSegments =  simulationData.boundaryVertices;
   // constraint for TElEMAC:
   // - Start from the vertices with X+Y is minimum
-  // - counter clockwise
+  // - counterclockwise
 
   ReosMesh *rmesh = hydraulicStructure->mesh();
 

@@ -50,7 +50,10 @@ int ReosTimeSeriesVariableTimeStepReadOnlyModel::rowCount( const QModelIndex & )
     return mTimeStepCount;
   }
 
-  return mTimeSeries.at( 0 )->valueCount();
+  if ( mTimeSeries.at( 0 ) )
+    return mTimeSeries.at( 0 )->valueCount();
+
+  return 0;
 }
 
 int ReosTimeSeriesVariableTimeStepReadOnlyModel::columnCount( const QModelIndex & ) const
