@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSMODULE_H
 #define REOSMODULE_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QUndoCommand>
 #include <QActionGroup>

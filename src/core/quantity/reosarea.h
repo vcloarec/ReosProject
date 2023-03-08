@@ -13,6 +13,8 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
+#define SIP_NO_FILE
+
 #ifndef REOSAREA_H
 #define REOSAREA_H
 

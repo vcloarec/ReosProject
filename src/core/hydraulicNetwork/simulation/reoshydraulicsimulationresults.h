@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICSIMULATIONRESULTS_H
 #define REOSHYDRAULICSIMULATIONRESULTS_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QVector>
 #include <QDateTime>

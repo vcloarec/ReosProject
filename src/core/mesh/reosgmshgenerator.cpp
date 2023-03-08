@@ -18,6 +18,7 @@
 #include <gmsh.h>
 
 #include "reospolylinesstructure.h"
+#include "reosparameter.h"
 
 ReosGmshEngine *ReosGmshEngine::sInstance = nullptr;
 

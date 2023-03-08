@@ -16,6 +16,8 @@
 #ifndef REOSTOPOGRAPHYCOLLECTION_P_H
 #define REOSTOPOGRAPHYCOLLECTION_P_H
 
+#define SIP_NO_FILE
+
 #include "reostopographycollection.h"
 #include "reosdigitalelevationmodel_p.h"
 #include "qgscoordinatetransform.h"

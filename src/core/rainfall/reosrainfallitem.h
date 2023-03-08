@@ -16,6 +16,8 @@
 #ifndef REOSRAINFALLITEM_H
 #define REOSRAINFALLITEM_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QIcon>
 #include <QUuid>
@@ -288,7 +290,7 @@ class REOSCORE_EXPORT ReosRainfallAlternatingBlockItem: public ReosRainfallSerie
     Q_OBJECT
   public:
     ReosRainfallAlternatingBlockItem( const QString &name, const QString &description );
-    ReosRainfallAlternatingBlockItem(const ReosEncodedElement &element , const ReosEncodeContext &context);
+    ReosRainfallAlternatingBlockItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override;
     ReosAlternatingBlockRainfall *data() const override {return mData;}
@@ -310,7 +312,7 @@ class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallSerieRa
     Q_OBJECT
   public:
     ReosRainfallDoubleTriangleItem( const QString &name, const QString &description );
-    ReosRainfallDoubleTriangleItem(const ReosEncodedElement &element , const ReosEncodeContext &context);
+    ReosRainfallDoubleTriangleItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override;
     ReosDoubleTriangleRainfall *data() const override {return mData;}

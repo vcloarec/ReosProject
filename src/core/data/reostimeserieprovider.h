@@ -16,6 +16,8 @@
 #ifndef REOSTIMESERIEPROVIDER_H
 #define REOSTIMESERIEPROVIDER_H
 
+#define SIP_NO_FILE
+
 #include <memory>
 #include <QVector>
 #include <QDateTime>

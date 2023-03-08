@@ -13,6 +13,8 @@ email                :   vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#define SIP_NO_FILE
+
 #ifndef REOSDURATION_H
 #define REOSDURATION_H
 

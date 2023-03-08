@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICSIMULATION_H
 #define REOSHYDRAULICSIMULATION_H
 
+#define SIP_NO_FILE
+
 #include "reosdataobject.h"
 
 #include "reosprocess.h"

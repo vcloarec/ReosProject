@@ -16,9 +16,12 @@ email                : vcloarec at gmail dot com
 #ifndef REOSAPPLICATION_H
 #define REOSAPPLICATION_H
 
+#define SIP_NO_FILE
+
 #include <QApplication>
 
 #include "reoscore.h"
+
 
 class REOSCORE_EXPORT ReosApplication: public QApplication
 {

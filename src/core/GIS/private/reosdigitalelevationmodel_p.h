@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSDIGITALELEVATIONMODEL_P_H
 #define REOSDIGITALELEVATIONMODEL_P_H
 
+#define SIP_NO_FILE
+
 #include <math.h>
 #include <qgsrasterlayer.h>
 #include <qgscoordinatetransformcontext.h>

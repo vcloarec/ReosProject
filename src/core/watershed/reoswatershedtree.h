@@ -13,6 +13,8 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#define SIP_NO_FILE
+
 #ifndef REOSWATERSHEDTREE_H
 #define REOSWATERSHEDTREE_H
 
@@ -82,8 +84,8 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     //! Removes all the watersheds of the tree
     void clearWatersheds();
 
-    ReosEncodedElement encode(const ReosEncodeContext &context) const;
-    void decode(const ReosEncodedElement &elem , const ReosEncodeContext &context);
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
+    void decode( const ReosEncodedElement &elem, const ReosEncodeContext &context );
 
 
   signals:

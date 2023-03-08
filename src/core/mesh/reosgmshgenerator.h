@@ -16,6 +16,8 @@
 #ifndef REOSGMSHGENERATOR_H
 #define REOSGMSHGENERATOR_H
 
+#define SIP_NO_FILE
+
 #include <memory>
 #include <functional>
 
@@ -24,7 +26,6 @@
 
 #include "reosmodule.h"
 #include "reosmeshgenerator.h"
-#include "reosparameter.h"
 #include "reospolylinesstructure.h"
 #include "reospolygonstructure.h"
 

@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICSTRUCTURE2D_H
 #define REOSHYDRAULICSTRUCTURE2D_H
 
+#define SIP_NO_FILE
+
 #include "reoscore.h"
 
 #include "reoshydraulicnetwork.h"

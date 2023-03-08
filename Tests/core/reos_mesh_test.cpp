@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include "reospolylinesstructure.h"
 #include "reosgmshgenerator.h"
 #include "reos_testutils.h"
+#include "reosparameter.h"
 
 class ReosMeshTest: public QObject
 {

@@ -16,6 +16,8 @@
 #ifndef REOSGEOMETRYSTRUCTURE_H
 #define REOSGEOMETRYSTRUCTURE_H
 
+#define SIP_NO_FILE
+
 #include "reosdataobject.h"
 
 class ReosMapExtent;

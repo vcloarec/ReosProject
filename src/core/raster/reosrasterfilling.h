@@ -16,6 +16,8 @@ email                : vcloarec@gmail.com
 #ifndef REOSRASTERFILLING_H
 #define REOSRASTERFILLING_H
 
+#define SIP_NO_FILE
+
 #include <set>
 #include <mutex>
 #include <deque>

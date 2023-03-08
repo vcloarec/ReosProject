@@ -16,6 +16,8 @@
 #ifndef REOSGDALUTILS_H
 #define REOSGDALUTILS_H
 
+#define SIP_NO_FILE
+
 #include <QString>
 #include <gdal.h>
 

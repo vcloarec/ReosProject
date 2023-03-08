@@ -16,6 +16,8 @@
 #ifndef REOSREMOTEINFORMATION_H
 #define REOSREMOTEINFORMATION_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QVariantMap>
 

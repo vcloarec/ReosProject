@@ -16,6 +16,8 @@
 #ifndef REOSMESHRENDERER_P_H
 #define REOSMESHRENDERER_P_H
 
+#define SIP_NO_FILE
+
 #include "reosrenderersettings_p.h"
 #include "qgsmeshtracerenderer.h"
 #include "qgsmeshlayerutils.h"

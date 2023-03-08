@@ -16,6 +16,8 @@
 #ifndef REOSTIMEWINDOWSETTINGS_H
 #define REOSTIMEWINDOWSETTINGS_H
 
+#define SIP_NO_FILE
+
 #include "reosdataobject.h"
 #include "reosparameter.h"
 

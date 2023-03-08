@@ -16,6 +16,8 @@
 #ifndef REOSIDFCURVES_H
 #define REOSIDFCURVES_H
 
+#define SIP_NO_FILE
+
 #include <map>
 #include <memory>
 

@@ -16,6 +16,8 @@
 #ifndef REOS3DMAPSETTINGS_H
 #define REOS3DMAPSETTINGS_H
 
+#define SIP_NO_FILE
+
 #include <QVector3D>
 #include <QColor>
 #include "reoscore.h"

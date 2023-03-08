@@ -16,6 +16,8 @@
 #ifndef REOSPOLYLINESSTRUCTURE_P_H
 #define REOSPOLYLINESSTRUCTURE_P_H
 
+#define SIP_NO_FILE
+
 #include <QCache>
 
 #include <qgsvectorlayer.h>
@@ -124,7 +126,7 @@ class ReosPolylineStructureVectorLayer: public ReosPolylinesStructure, private R
     QPolygonF boundary( const QString &destinationCrs = QString() ) const override;
     QString boundaryClassId( int i ) const override;
 
-    void reset(const Data &data, const QString &crs ) override;
+    void reset( const Data &data, const QString &crs ) override;
 
     QgsVectorLayer *data() override {return mVectorLayer.get();}
 

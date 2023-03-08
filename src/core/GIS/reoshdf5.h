@@ -16,10 +16,11 @@
 #ifndef REOSHDF5_H
 #define REOSHDF5_H
 
+#define SIP_NO_FILE
+
 #include "reoscore.h"
 #include <QString>
 #include "hdf5.h"
-
 
 class REOSCORE_EXPORT ReosHdf5Attribute
 {

@@ -16,6 +16,8 @@
 #ifndef REOSRUNOFFMODEL_H
 #define REOSRUNOFFMODEL_H
 
+#define SIP_NO_FILE
+
 #include <QPointer>
 #include <QAbstractItemModel>
 

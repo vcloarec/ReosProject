@@ -12,10 +12,10 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
-
 #ifndef REOSGISENGINE_H
 #define REOSGISENGINE_H
+
+#define SIP_NO_FILE
 
 #include <cmath>
 #include <QAbstractItemModel>

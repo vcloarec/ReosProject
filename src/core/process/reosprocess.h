@@ -12,9 +12,10 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
 #ifndef REOSPROCESS_H
 #define REOSPROCESS_H
+
+#define SIP_NO_FILE
 
 #include <memory>
 #include <QString>

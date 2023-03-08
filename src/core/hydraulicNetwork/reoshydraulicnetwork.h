@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICNETWORK_H
 #define REOSHYDRAULICNETWORK_H
 
+#define SIP_NO_FILE
+
 #include<memory>
 #include <QPointer>
 #include <QHash>

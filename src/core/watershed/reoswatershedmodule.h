@@ -1,6 +1,8 @@
 #ifndef REOSWATERSHEDMODULE_H
 #define REOSWATERSHEDMODULE_H
 
+#define SIP_NO_FILE
+
 #include "reosmodule.h"
 #include "reoswatershedtree.h"
 
@@ -23,7 +25,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     //! Removes all the watersheds
     void reset();
 
-    void decode(const ReosEncodedElement &element , const ReosEncodeContext &context);
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
 
   signals:

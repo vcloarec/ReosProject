@@ -16,6 +16,8 @@
 #ifndef REOSMESHGENERATOR_H
 #define REOSMESHGENERATOR_H
 
+#define SIP_NO_FILE
+
 #include <memory>
 
 #include <QObject>

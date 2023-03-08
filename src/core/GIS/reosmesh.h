@@ -16,6 +16,8 @@
 #ifndef REOSMESH_H
 #define REOSMESH_H
 
+#define SIP_NO_FILE
+
 #include <QPointF>
 #include <QVector>
 #include <QPointer>

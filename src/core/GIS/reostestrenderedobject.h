@@ -16,6 +16,8 @@
 #ifndef REOSTESTRENDEREDOBJECT_H
 #define REOSTESTRENDEREDOBJECT_H
 
+#define SIP_NO_FILE
+
 #include <QImage>
 
 #include "reoscore.h"

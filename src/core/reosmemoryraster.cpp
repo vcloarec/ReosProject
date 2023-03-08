@@ -53,9 +53,6 @@ ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) co
   if ( retMapExtent == ReosMapExtent() )
     return ReosRasterExtent();
 
-  QRectF rect( QPointF( xMapMin(), yMapMin() ), QPointF( xMapMax(), yMapMax() ) );
-  QRectF rectOther( QPointF( other.xMapMin(), other.yMapMin() ), QPointF( other.xMapMax(), other.yMapMax() ) );
-
   if ( retMapExtent == QRectF() )
   {
     return ReosRasterExtent();

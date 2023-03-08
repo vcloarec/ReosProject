@@ -16,6 +16,8 @@
 #ifndef REOSSERIESRAINFALL_H
 #define REOSSERIESRAINFALL_H
 
+#define SIP_NO_FILE
+
 #include "reoscore.h"
 #include "reostimeserie.h"
 #include "reosprocess.h"

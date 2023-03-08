@@ -16,6 +16,8 @@
 #ifndef REOSSTRUCTUREIMPORTER_H
 #define REOSSTRUCTUREIMPORTER_H
 
+#define SIP_NO_FILE
+
 #include "reoscore.h"
 #include "reoshydraulicstructure2d.h"
 

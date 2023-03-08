@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICELEMENTMODEL_H
 #define REOSHYDRAULICELEMENTMODEL_H
 
+#define SIP_NO_FILE
+
 #include <QAbstractListModel>
 
 #include "reoscore.h"

@@ -15,6 +15,8 @@ email                : vcloarec@gmail.com
 #ifndef REOSRASTERCOMPRESSED_H
 #define REOSRASTERCOMPRESSED_H
 
+#define SIP_NO_FILE
+
 #include <QByteArray>
 #include "reosmemoryraster.h"
 

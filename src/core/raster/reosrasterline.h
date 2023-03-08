@@ -16,6 +16,8 @@ email                : vcloarec@gmail.com
 #ifndef REOSRASTERLINE_H
 #define REOSRASTERLINE_H
 
+#define SIP_NO_FILE
+
 #include "reosmemoryraster.h"
 
 class REOSCORE_EXPORT ReosRasterLine

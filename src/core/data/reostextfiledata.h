@@ -16,6 +16,8 @@
 #ifndef REOSTEXTFILEDATA_H
 #define REOSTEXTFILEDATA_H
 
+#define SIP_NO_FILE
+
 #include <QFile>
 #include <QAbstractTableModel>
 #include <QTextStream>

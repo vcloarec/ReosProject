@@ -16,6 +16,8 @@
 #ifndef REOSDATAPROVIDER_H
 #define REOSDATAPROVIDER_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <map>
 #include <memory>

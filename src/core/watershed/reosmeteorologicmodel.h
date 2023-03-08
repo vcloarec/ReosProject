@@ -16,6 +16,8 @@
 #ifndef REOSMETEOROLOGICMODEL_H
 #define REOSMETEOROLOGICMODEL_H
 
+#define SIP_NO_FILE
+
 #include <QPointer>
 #include <QIdentityProxyModel>
 #include <QMimeData>

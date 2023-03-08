@@ -16,6 +16,8 @@
 #ifndef REOSPOLYGONSTRUCTURE_P_H
 #define REOSPOLYGONSTRUCTURE_P_H
 
+#define SIP_NO_FILE
+
 #include <QVariantMap>
 
 #include "reospolygonstructure.h"
