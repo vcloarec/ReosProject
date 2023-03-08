@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSSETTINGS_H
 #define REOSSETTINGS_H
 
+#define SIP_NO_FILE
+
 #include <QSettings>
 
 #include "reoscore.h"

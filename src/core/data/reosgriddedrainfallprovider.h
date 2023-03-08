@@ -16,6 +16,8 @@
 #ifndef REOSGRIDDEDRAINFALLPROVIDER_H
 #define REOSGRIDDEDRAINFALLPROVIDER_H
 
+#define SIP_NO_FILE
+
 #include "reosmodule.h"
 #include "reosdataprovider.h"
 #include "reosmemoryraster.h"

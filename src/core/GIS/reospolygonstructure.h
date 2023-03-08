@@ -16,6 +16,8 @@
 #ifndef REOSPOLYGONSTRUCTURE_H
 #define REOSPOLYGONSTRUCTURE_H
 
+#define SIP_NO_FILE
+
 #include <memory>
 
 #include "reosgeometrystructure.h"

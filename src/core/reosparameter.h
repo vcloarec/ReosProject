@@ -16,6 +16,8 @@
 #ifndef REOSPARAMETER_H
 #define REOSPARAMETER_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QDateTime>
 

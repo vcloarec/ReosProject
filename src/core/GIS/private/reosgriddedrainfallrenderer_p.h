@@ -16,6 +16,8 @@
 #ifndef REOSGRIDDEDRAINFALLRENDERER_P_H
 #define REOSGRIDDEDRAINFALLRENDERER_P_H
 
+#define SIP_NO_FILE
+
 #include <qgsrasterdataprovider.h>
 #include <qgsprovidermetadata.h>
 

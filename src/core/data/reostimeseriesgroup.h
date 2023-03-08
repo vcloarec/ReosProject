@@ -16,6 +16,8 @@
 #ifndef REOSTIMESERIESGROUP_H
 #define REOSTIMESERIESGROUP_H
 
+#define SIP_NO_FILE
+
 #include "reosdataobject.h"
 #include "reosencodedelement.h"
 
@@ -37,7 +39,7 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObjec
     QStringList seriesNames() const;
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
-    void decode(const ReosEncodedElement &element , const ReosEncodeContext &context);
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
   signals:
     void serieChanged();

@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSVERSION_H
 #define REOSVERSION_H
 
+#define SIP_NO_FILE
+
 #include <QString>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>

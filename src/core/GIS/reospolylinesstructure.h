@@ -16,6 +16,8 @@
 #ifndef REOSPOLYLINESSTRUCTURES_H
 #define REOSPOLYLINESSTRUCTURES_H
 
+#define SIP_NO_FILE
+
 #include <QPolygonF>
 #include <QObject>
 

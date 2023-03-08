@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#define SIP_NO_FILE
+
 class ReosException
 {
   public:

@@ -16,6 +16,8 @@
 #ifndef REOSRENDERERSETTINGS_H
 #define REOSRENDERERSETTINGS_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 
 #include "reoscore.h"

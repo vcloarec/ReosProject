@@ -16,6 +16,8 @@ email                : vcloarec@gmail.com
 #ifndef HDRASTERWATERSHED_H
 #define HDRASTERWATERSHED_H
 
+#define SIP_NO_FILE
+
 #include <queue>
 #include <thread>
 #include <algorithm>

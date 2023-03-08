@@ -16,6 +16,8 @@ email                : vcloarec@gmail.com
 #ifndef HDRASTERTOOLS_H
 #define HDRASTERTOOLS_H
 
+#define SIP_NO_FILE
+
 #include <QPoint>
 #include <QPolygon>
 #include <QMutex>

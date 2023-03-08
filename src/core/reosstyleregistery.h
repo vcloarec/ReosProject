@@ -16,6 +16,8 @@
 #ifndef REOSSTYLEREGISTERY_H
 #define REOSSTYLEREGISTERY_H
 
+#define SIP_NO_FILE
+
 #include "reosmodule.h"
 
 class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
@@ -57,7 +59,7 @@ class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
       return QColor( 255, 0, 0, alpha );
     }
 
-    QSize toolBarIconSize(QWidget* widget = nullptr, double ratio=1) const;
+    QSize toolBarIconSize( QWidget *widget = nullptr, double ratio = 1 ) const;
 
 
   private:

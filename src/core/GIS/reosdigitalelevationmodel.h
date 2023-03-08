@@ -12,9 +12,10 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
 #ifndef REOSDIGITALELEVATIONMODEL_H
 #define REOSDIGITALELEVATIONMODEL_H
+
+#define SIP_NO_FILE
 
 #include <QString>
 

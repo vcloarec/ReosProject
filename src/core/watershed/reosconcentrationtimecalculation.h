@@ -16,6 +16,8 @@
 #ifndef REOSCONCENTRATIONTIMECALCULATION_H
 #define REOSCONCENTRATIONTIMECALCULATION_H
 
+#define SIP_NO_FILE
+
 #include <map>
 #include <memory>
 

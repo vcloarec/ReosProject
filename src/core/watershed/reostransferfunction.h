@@ -16,6 +16,8 @@
 #ifndef REOSTRANSFERFUNCTION_H
 #define REOSTRANSFERFUNCTION_H
 
+#define SIP_NO_FILE
+
 #include "reostimeserie.h"
 #include "reosmodule.h"
 #include "reosencodedelement.h"

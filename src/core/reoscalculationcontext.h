@@ -16,6 +16,8 @@
 #ifndef REOSCALCULATIONCONTEXT_H
 #define REOSCALCULATIONCONTEXT_H
 
+#define SIP_NO_FILE
+
 #include <QPointer>
 
 #include "reoscore.h"

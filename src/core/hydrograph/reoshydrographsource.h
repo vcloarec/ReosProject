@@ -16,6 +16,8 @@
 #ifndef REOSHYDROGRAPHSOURCE_H
 #define REOSHYDROGRAPHSOURCE_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QPointer>
 

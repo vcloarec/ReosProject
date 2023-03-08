@@ -1,6 +1,8 @@
 #ifndef REOSCORE_EXPORT_H
 #define REOSCORE_EXPORT_H
 
+#define SIP_NO_FILE
+
 #  if defined _WIN32 || defined __CYGWIN__
 #    ifdef reosCore_EXPORTS
 #      ifdef __GNUC__

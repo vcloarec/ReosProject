@@ -13,6 +13,8 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
+#define SIP_NO_FILE
+
 #ifndef REOSWATERSHED_H
 #define REOSWATERSHED_H
 
@@ -214,8 +216,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
 
-    ReosEncodedElement encode(const ReosEncodeContext &context) const;
-    static ReosWatershed *decode(const ReosEncodedElement &element , const ReosEncodeContext &context);
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
+    static ReosWatershed *decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     bool operator==( const ReosWatershed &other ) const;
 

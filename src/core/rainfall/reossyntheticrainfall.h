@@ -16,6 +16,8 @@
 #ifndef REOSSYNTHETICRAINFALL_H
 #define REOSSYNTHETICRAINFALL_H
 
+#define SIP_NO_FILE
+
 #include <QPointer>
 
 #include "reosseriesrainfall.h"

@@ -16,6 +16,8 @@
 #ifndef REOSRENDERERSETTINGS_P_H
 #define REOSRENDERERSETTINGS_P_H
 
+#define SIP_NO_FILE
+
 #include <qgsmapsettings.h>
 #include <qgsrasterlayer.h>
 

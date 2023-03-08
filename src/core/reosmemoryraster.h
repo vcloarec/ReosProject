@@ -16,6 +16,8 @@ email                : vcloarec@gmail.com
 #ifndef REOSMEMORYRASTER_H
 #define REOSMEMORYRASTER_H
 
+#define SIP_NO_FILE
+
 #include <array>
 
 #include <QPoint>
@@ -542,8 +544,6 @@ class RasterNeighborCirculator
     // 0 ..7 : cyclePositon
     // i=-1,0,+1 j=-1,0,+1 : relative position
 };
-
-
 
 class REOSCORE_EXPORT ReosRasterTestingCell
 {

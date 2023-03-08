@@ -16,6 +16,8 @@ email                : vcloarec@gmail.com
 #ifndef REOSENCODEDELEMENT_H
 #define REOSENCODEDELEMENT_H
 
+#define SIP_NO_FILE
+
 #include <QByteArray>
 #include <QMap>
 #include <QString>

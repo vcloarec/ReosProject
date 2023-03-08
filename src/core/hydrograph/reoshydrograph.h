@@ -16,6 +16,8 @@
 #ifndef REOSHYDROGRAPH_H
 #define REOSHYDROGRAPH_H
 
+#define SIP_NO_FILE
+
 #include <QColor>
 #include <QMutex>
 #include <QSet>

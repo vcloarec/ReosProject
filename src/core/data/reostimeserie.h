@@ -16,6 +16,8 @@
 #ifndef REOSTIMESERIE_H
 #define REOSTIMESERIE_H
 
+#define SIP_NO_FILE
+
 #include <memory>
 
 #include <QColor>
@@ -292,7 +294,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the color used to render the time serie
     void setColor( const QColor &color );
 
-    void copyFrom(const ReosTimeSerieVariableTimeStep *other );
+    void copyFrom( const ReosTimeSerieVariableTimeStep *other );
 
     bool operator==(const ReosTimeSerieVariableTimeStep &other ) const;
 

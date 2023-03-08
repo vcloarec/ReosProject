@@ -1,6 +1,8 @@
 #ifndef REOSHYDRAULICSTRUCTUREPROFILE_H
 #define REOSHYDRAULICSTRUCTUREPROFILE_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QPolygonF>
 #include <QMap>

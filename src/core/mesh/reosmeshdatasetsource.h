@@ -16,6 +16,8 @@
 #ifndef REOSMESHDATASETSOURCE_H
 #define REOSMESHDATASETSOURCE_H
 
+#define SIP_NO_FILE
+
 #include <QString>
 #include <QObject>
 

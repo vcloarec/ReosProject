@@ -16,6 +16,8 @@
 #ifndef REOSDATAOBJECT_H
 #define REOSDATAOBJECT_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 
 #include "reoscore.h"

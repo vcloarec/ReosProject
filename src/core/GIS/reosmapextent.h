@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSMAPEXTENT_H
 #define REOSMAPEXTENT_H
 
+#define SIP_NO_FILE
+
 #include <QRectF>
 #include <QString>
 #include <QPolygon>

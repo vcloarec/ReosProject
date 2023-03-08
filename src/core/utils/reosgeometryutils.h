@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSGEOMETRYUTILS_H
 #define REOSGEOMETRYUTILS_H
 
+#define SIP_NO_FILE
+
 #include <math.h>
 
 #include <QPolygonF>

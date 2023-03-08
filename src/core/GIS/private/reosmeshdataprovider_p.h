@@ -16,6 +16,8 @@
 #ifndef REOSMESHDATAPROVIDER_P_H
 #define REOSMESHDATAPROVIDER_P_H
 
+#define SIP_NO_FILE
+
 #include <qgsmeshdataprovider.h>
 #include <qgsmeshdataset.h>
 #include <qgsprovidersublayerdetails.h>

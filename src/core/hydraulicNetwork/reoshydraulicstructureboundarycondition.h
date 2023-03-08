@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICSTRUCTUREBOUNDARYCONDITION_H
 #define REOSHYDRAULICSTRUCTUREBOUNDARYCONDITION_H
 
+#define SIP_NO_FILE
+
 #include "reoscore.h"
 #include "reoshydrographsource.h"
 #include "reoshydraulicnetwork.h"

@@ -16,6 +16,8 @@
 #ifndef REOSRAINFALLREGISTERY_H
 #define REOSRAINFALLREGISTERY_H
 
+#define SIP_NO_FILE
+
 #include <memory>
 #include <QString>
 

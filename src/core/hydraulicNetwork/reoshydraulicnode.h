@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICNODE_H
 #define REOSHYDRAULICNODE_H
 
+#define SIP_NO_FILE
+
 #include <QObject>
 #include <QPointer>
 

@@ -16,6 +16,8 @@
 #ifndef REOSHYDRAULICSCHEME_H
 #define REOSHYDRAULICSCHEME_H
 
+#define SIP_NO_FILE
+
 #include <QAbstractListModel>
 #include <QPointer>
 

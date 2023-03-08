@@ -16,6 +16,8 @@
 #ifndef REOSEXPORTTOVECTORFILE_H
 #define REOSEXPORTTOVECTORFILE_H
 
+#define SIP_NO_FILE
+
 #include <QStringList>
 #include <QVariant>
 #include <memory>
@@ -59,7 +61,7 @@ class REOSCORE_EXPORT ReosExportToVectorFile
     GeometryType mType;
     QList<Field> mFields;
 
-	void addFeature(QgsAbstractGeometry *ageom, const QVariantMap &attributes);
+    void addFeature( QgsAbstractGeometry *ageom, const QVariantMap &attributes );
 };
 
 #endif // REOSEXPORTTOVECTORFILE_H

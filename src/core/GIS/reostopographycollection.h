@@ -16,6 +16,8 @@
 #ifndef REOSTOPOGRAPHYCOLLECTION_H
 #define REOSTOPOGRAPHYCOLLECTION_H
 
+#define SIP_NO_FILE
+
 #include <QAbstractListModel>
 #include <QPointer>
 

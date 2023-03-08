@@ -16,6 +16,8 @@
 #ifndef REOSHYDROGRAPHTRANSFER_H
 #define REOSHYDROGRAPHTRANSFER_H
 
+#define SIP_NO_FILE
+
 #include <QPointer>
 #include <QPointF>
 

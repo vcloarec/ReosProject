@@ -16,6 +16,8 @@
 #ifndef REOSMESH_P_H
 #define REOSMESH_P_H
 
+#define SIP_NO_FILE
+
 #include <qgsmeshlayer.h>
 #include <qgsrendercontext.h>
 #include <qgsmesheditor.h>

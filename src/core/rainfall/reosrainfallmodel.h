@@ -25,6 +25,8 @@
 #include "reosrainfallitem.h"
 #include "reosmapextent.h"
 
+#define SIP_NO_FILE
+
 class ReosEncodedElement;
 class ReosRainfallItem;
 class ReosRootItem;
