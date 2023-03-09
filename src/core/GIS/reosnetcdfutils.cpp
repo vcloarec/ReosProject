@@ -20,6 +20,7 @@
 #include <QVector>
 
 #ifdef _MSC_VER
+#include <windows.h>
 #define UNICODE
 #include <locale>
 #include <codecvt>
@@ -37,14 +38,14 @@ static std::string utf8ToWin32Recode( const std::string &utf8String )
 
   // do the conversion to wide char
   std::wstring wstr;
-  wstr.resize( MDAL::toSizeT( wlen ) + 1 );
+  wstr.resize( static_cast<size_t>( wlen ) + 1 );
   wstr.data()[wlen] = 0;
   MultiByteToWideChar( CP_UTF8, 0, utf8String.c_str(), -1, wstr.data(), wstr.size() );
 
   int len = WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr );
 
   std::string ret;
-  ret.resize( MDAL::toSizeT( len ) + 1 );
+  ret.resize(static_cast<size_t>(len ) + 1 );
 
   WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), -1, ret.data(), ret.size(), nullptr, nullptr );
 
@@ -61,11 +62,6 @@ static std::string systemFileName( const QString &utf8FileName )
   ret = utf8FileName.toStdString();
 #endif
   return ret;
-}
-
-ReosNetCdfUtils::ReosNetCdfUtils()
-{
-
 }
 
 ReosNetCdfFile::ReosNetCdfFile( const QString &fileName, bool write )
