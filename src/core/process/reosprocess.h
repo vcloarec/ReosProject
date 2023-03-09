@@ -69,6 +69,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
   public slots:
     //! Start the process on another thread
     void startOnOtherThread();
+    void processOnThisThread();
 
   signals:
     void sendInformation( const QString & ) const;
