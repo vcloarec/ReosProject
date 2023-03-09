@@ -1014,7 +1014,10 @@ void ReosHydraulicStructure2D::initConnection()
     connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollection, [this]
     {
       if ( mTopographyCollection->autoApply()->value() )
-        mMesh->applyTopographyOnVertices( mTopographyCollection );
+      {
+        std::unique_ptr<ReosProcess> process( mMesh->applyTopographyOnVertices( mTopographyCollection ) );
+        process->processOnThisThread();
+      }
     } );
   }
 

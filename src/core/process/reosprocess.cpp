@@ -79,6 +79,12 @@ void ReosProcess::startOnOtherThread()
   watcher->setFuture( future );
 }
 
+void ReosProcess::processOnThisThread()
+{
+  start();
+  finish();
+}
+
 bool ReosProcess::finish()
 {
   if ( !mIsFinished )
