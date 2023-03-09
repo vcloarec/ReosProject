@@ -33,21 +33,21 @@ ReosMesh *ReosMesh::createMeshFrameFromFile( const QString &dataPath, const QStr
 ReosMesh::ReosMesh( QObject *parent )
   : ReosRenderedObject( parent )
 {
-  mQualityMeshParameters.minimumAngle = new ReosParameterDouble( tr( "Minimum angle" ), false, this );
+  mQualityMeshParameters.minimumAngle = new ReosParameterDouble( tr( "Min. angle" ), false, this );
   mQualityMeshParameters.minimumAngle->setValue( 5 );
-  mQualityMeshParameters.maximumAngle = new ReosParameterDouble( tr( "Maximum angle" ), false, this );
+  mQualityMeshParameters.maximumAngle = new ReosParameterDouble( tr( "Max. angle" ), false, this );
   mQualityMeshParameters.maximumAngle->setValue( 150 );
-  mQualityMeshParameters.connectionCount = new ReosParameterInteger( tr( "Maximum count" ), false, this );
+  mQualityMeshParameters.connectionCount = new ReosParameterInteger( tr( "Max. count" ), false, this );
   mQualityMeshParameters.connectionCount->setValue( 8 );
-  mQualityMeshParameters.connectionCountBoundary = new ReosParameterInteger( tr( "Maximum count from boundary" ), false, this );
+  mQualityMeshParameters.connectionCountBoundary = new ReosParameterInteger( tr( "Max.count boundary" ), false, this );
   mQualityMeshParameters.connectionCountBoundary->setValue( 4 );
-  mQualityMeshParameters.maximumSlope = new ReosParameterSlope( tr( "Maximum slope" ), false, this );
+  mQualityMeshParameters.maximumSlope = new ReosParameterSlope( tr( "Max. slope" ), false, this );
   mQualityMeshParameters.maximumSlope->setValue( 0.1 );
-  mQualityMeshParameters.minimumArea = new ReosParameterArea( tr( "Minimum area" ), false, this );
+  mQualityMeshParameters.minimumArea = new ReosParameterArea( tr( "Min. area" ), false, this );
   mQualityMeshParameters.minimumArea->setValue( ReosArea( 0.1, ReosArea::m2 ) );
-  mQualityMeshParameters.maximumArea = new ReosParameterArea( tr( "Maximum area" ), false, this );
+  mQualityMeshParameters.maximumArea = new ReosParameterArea( tr( "Max. area" ), false, this );
   mQualityMeshParameters.maximumArea->setValue( ReosArea( 100000, ReosArea::m2 ) );
-  mQualityMeshParameters.maximumAreaChange = new ReosParameterDouble( tr( "Maximum area change" ), false, this );
+  mQualityMeshParameters.maximumAreaChange = new ReosParameterDouble( tr( "Max. area change" ), false, this );
   mQualityMeshParameters.maximumAreaChange->setValue( 2 );
 }
 
@@ -140,49 +140,49 @@ void ReosMesh::QualityMeshParameters::decode( const ReosEncodedElement &element,
   if ( element.hasEncodedData( QStringLiteral( "minimum-angle" ) ) )
   {
     minimumAngle->deleteLater();
-    minimumAngle = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "minimum-angle" ) ), false, tr( "Minimum angle" ), parent );
+    minimumAngle = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "minimum-angle" ) ), false, tr( "Min. angle" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "maximum-angle" ) ) )
   {
     maximumAngle->deleteLater();
-    maximumAngle = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "maximum-angle" ) ), false, tr( "Maximum angle" ), parent );
+    maximumAngle = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "maximum-angle" ) ), false, tr( "Max. angle" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "connection-count" ) ) )
   {
     connectionCount->deleteLater();
-    connectionCount = ReosParameterInteger::decode( element.getEncodedData( QStringLiteral( "connection-count" ) ), false, tr( "Maximum count" ), parent );
+    connectionCount = ReosParameterInteger::decode( element.getEncodedData( QStringLiteral( "connection-count" ) ), false, tr( "Max. count" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "connection-boundary-count" ) ) )
   {
     connectionCountBoundary->deleteLater();
-    connectionCountBoundary = ReosParameterInteger::decode( element.getEncodedData( QStringLiteral( "connection-boundary-count" ) ), false, tr( "Maximum count from boundary" ), parent );
+    connectionCountBoundary = ReosParameterInteger::decode( element.getEncodedData( QStringLiteral( "connection-boundary-count" ) ), false, tr( "Max. count boundary" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "maximum-slope" ) ) )
   {
     maximumSlope->deleteLater();
-    maximumSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "maximum-slope" ) ), false, tr( "Maximum slope" ), parent );
+    maximumSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "maximum-slope" ) ), false, tr( "Max. slope" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "minimum-area" ) ) )
   {
     minimumArea->deleteLater();
-    minimumArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "minimum-area" ) ), false, tr( "Minimum area" ), parent );
+    minimumArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "minimum-area" ) ), false, tr( "Min. area" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "maximum-area" ) ) )
   {
     maximumArea->deleteLater();
-    maximumArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "maximum-area" ) ), false, tr( "Maximum area" ), parent );
+    maximumArea = ReosParameterArea::decode( element.getEncodedData( QStringLiteral( "maximum-area" ) ), false, tr( "Max. area" ), parent );
   }
 
   if ( element.hasEncodedData( QStringLiteral( "maximum-area-change" ) ) )
   {
     maximumAreaChange->deleteLater();
-    maximumAreaChange = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "maximum-area-change" ) ), false, tr( "Maximum area change" ), parent );
+    maximumAreaChange = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "maximum-area-change" ) ), false, tr( "Max. area change" ), parent );
   }
 }
 

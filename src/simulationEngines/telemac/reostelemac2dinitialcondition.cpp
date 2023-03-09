@@ -45,7 +45,7 @@ void ReosTelemac2DInitialConstantWaterLevel::saveConfiguration( ReosHydraulicSch
 void ReosTelemac2DInitialConstantWaterLevel::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
   ReosEncodedElement elem = scheme->restoreElementConfig( id() );
-  double iwl = 0;
+  double iwl = 0.0;
   elem.getData( QStringLiteral( "initial-water-level" ), iwl );
 
   mInitialWaterLevel->setValue( iwl );
