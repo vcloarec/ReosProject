@@ -18,8 +18,9 @@
 
 #include <QString>
 #include<QMap>
+#include "reoscore.h"
 
-class ReosNetCdfFile
+class REOSCORE_EXPORT ReosNetCdfFile
 {
   public:
     explicit ReosNetCdfFile( const QString &fileName, bool write = false );
@@ -49,12 +50,6 @@ class ReosNetCdfFile
     int mGlobalAttCOunt = -1;
     int mUnlimitDimId = -1;
     QMap<QString, int> mVarNameToVarId;
-};
-
-class ReosNetCdfUtils
-{
-  public:
-    ReosNetCdfUtils();
 };
 
 #endif // REOSNETCDFUTILS_H

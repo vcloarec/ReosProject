@@ -89,8 +89,6 @@ ENDIF(ENABLE_HEC_DSS)
 SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
 SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
 
-#SET(NETCDF_INCLUDE_DIR CACHE PATH "Path to netCDF headers")
-#SET(NETCDF_LIBRARY PATH "Path to netCDF library")
 FIND_PACKAGE(NetCDF REQUIRED)
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
