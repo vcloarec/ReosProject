@@ -301,13 +301,14 @@ void ReosTelemac2DSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) c
   element.addData( QStringLiteral( "output-period-2D" ), mOutputPeriodResult2D->value() );
   element.addData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->value() );
   element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
-  setVolumeFiniteEquationForScheme( mVFScheme, scheme );
   element.addData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
 
   for ( ReosTelemac2DInitialCondition *ic : mInitialConditions )
     ic->saveConfiguration( scheme );
 
   scheme->saveElementConfig( id(), element );
+
+  setVolumeFiniteEquationForScheme( mVFScheme, scheme );
 }
 
 void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme )
