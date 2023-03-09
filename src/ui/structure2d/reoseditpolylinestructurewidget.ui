@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>572</width>
+    <width>419</width>
     <height>432</height>
    </rect>
   </property>
@@ -169,7 +169,14 @@
       </layout>
      </item>
      <item row="1" column="1">
-      <widget class="QListView" name="mBoundaryListView"/>
+      <widget class="QListView" name="mBoundaryListView">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

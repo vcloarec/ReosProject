@@ -37,6 +37,16 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
       FiniteElement
     };
 
+    enum class VolumeFiniteScheme
+    {
+      Roe,
+      Kinetic,
+      Zokagoa,
+      Tchamen,
+      HLLC,
+      WAF
+    };
+
     struct TelemacBoundaryCondition
     {
       int rank = -1;
@@ -71,6 +81,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     ReosEncodedElement encode() const override;
 
+    //***** Configuration parameters
     ReosParameterDuration *timeStep() const;
     ReosParameterInteger *outputPeriodResult2D() const;
     ReosParameterInteger *outputPeriodResultHydrograph() const;
@@ -80,6 +91,10 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     Equation equation() const;
     void setEquation( const Equation &equation );
+
+    VolumeFiniteScheme volumeFiniteScheme( ReosHydraulicScheme *scheme = nullptr ) const;
+    void setVolumeFiniteEquation( VolumeFiniteScheme VFscheme, ReosHydraulicScheme *hydraulicScheme = nullptr );
+    //***********
 
     QString engineName() const override;
 
@@ -91,7 +106,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosParameterDuration *mTimeStep = nullptr;
     ReosParameterInteger *mOutputPeriodResult2D = nullptr;
     ReosParameterInteger *mOutputPeriodResultHyd = nullptr;
-    Equation mEquation = Equation::FiniteElement;
+    Equation mEquation = Equation::FiniteVolume;
+    VolumeFiniteScheme mVFScheme = VolumeFiniteScheme::HLLC;
     int mCurrentInitialCondition = 0;
     //*********
     QList<ReosTelemac2DInitialCondition *> mInitialConditions;
@@ -156,6 +172,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     void init();
     void initInitialCondition();
+
+    void setVolumeFiniteEquationForScheme( VolumeFiniteScheme VFscheme, ReosHydraulicScheme *hydraulicScheme ) const;
 };
 
 typedef ReosTelemac2DSimulation::TelemacBoundaryCondition BoundaryCondition;

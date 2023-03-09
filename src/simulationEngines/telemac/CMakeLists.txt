@@ -15,9 +15,12 @@ SET(REOS_TELEMAC_HEADERS
     reostelemac2dinitialcondition.h
 )
 
+SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/engines/TELEMAC/telemac-images.qrc)
+
 ADD_LIBRARY(telemac_engine MODULE
     ${REOS_TELEMAC_SOURCES}
     ${REOS_TELEMAC_HEADERS}
+    ${LOGO_RCCS}
 )
 
 TARGET_LINK_LIBRARIES(telemac_engine

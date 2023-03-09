@@ -59,10 +59,32 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
 
   ui->mEquationCombo->addItem( tr( "Finite Element" ), int( ReosTelemac2DSimulation::Equation::FiniteElement ) );
   ui->mEquationCombo->addItem( tr( "Finite Volume" ), int( ReosTelemac2DSimulation::Equation::FiniteVolume ) );
+
   ui->mEquationCombo->setCurrentIndex( ui->mEquationCombo->findData( static_cast<int>( simulation->equation() ) ) );
+
+  ui->mVolumeFiniteGroupBox->setVisible( simulation->equation() == ReosTelemac2DSimulation::Equation::FiniteVolume );
+  ui->mVFSchemeComboBox->addItem( tr( "Roe" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::Roe ) );
+  ui->mVFSchemeComboBox->addItem( tr( "Kinetic" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::Kinetic ) );
+  ui->mVFSchemeComboBox->addItem( tr( "Zokagoa" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::Zokagoa ) );
+  ui->mVFSchemeComboBox->addItem( tr( "Tchamen" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::Tchamen ) );
+  ui->mVFSchemeComboBox->addItem( tr( "HLLC" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::HLLC ) );
+  ui->mVFSchemeComboBox->addItem( tr( "WAF" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::WAF ) );
+
+  ui->mVFSchemeComboBox->setCurrentIndex( ui->mVFSchemeComboBox->findData( static_cast<int>( simulation->volumeFiniteScheme() ) ) );
+
   connect( ui->mEquationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation]
   {
-    simulation->setEquation( static_cast<ReosTelemac2DSimulation::Equation>( ui->mEquationCombo->currentData().toInt() ) );
+    ReosTelemac2DSimulation::Equation eq =
+    static_cast<ReosTelemac2DSimulation::Equation>( ui->mEquationCombo->currentData().toInt() );
+    simulation->setEquation( eq );
+    ui->mVolumeFiniteGroupBox->setVisible( eq == ReosTelemac2DSimulation::Equation::FiniteVolume );
+  } );
+
+
+  connect( ui->mVFSchemeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation]
+  {
+    simulation->setVolumeFiniteEquation(
+      static_cast<ReosTelemac2DSimulation::VolumeFiniteScheme>( ui->mVFSchemeComboBox->currentData().toInt() ) );
   } );
 }
 

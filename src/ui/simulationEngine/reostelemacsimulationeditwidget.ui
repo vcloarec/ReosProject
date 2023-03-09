@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>351</width>
-    <height>273</height>
+    <width>295</width>
+    <height>342</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,8 +42,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>351</width>
-        <height>273</height>
+        <width>295</width>
+        <height>342</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -59,6 +59,16 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="../../../images/engines/TELEMAC/telemac-images.qrc">:/telemac-images/openTELEMAC_250.png</pixmap>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="label_3">
          <property name="font">
@@ -156,6 +166,25 @@
         </layout>
        </item>
        <item>
+        <widget class="QGroupBox" name="mVolumeFiniteGroupBox">
+         <property name="title">
+          <string>Volume Finite Option</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Scheme</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="mVFSchemeComboBox"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -188,6 +217,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../images/engines/TELEMAC/telemac-images.qrc"/>
+ </resources>
  <connections/>
 </ui>

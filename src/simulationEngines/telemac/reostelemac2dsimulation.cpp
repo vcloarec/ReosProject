@@ -43,15 +43,6 @@
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
 {
-  mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
-  mTimeStep->setValue( ReosDuration( 30, ReosDuration::second ) );
-
-  mOutputPeriodResult2D = new ReosParameterInteger( tr( "Output period for 2D result" ), false, this );
-  mOutputPeriodResult2D->setValue( 5 );
-
-  mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
-  mOutputPeriodResultHyd->setValue( 1 );
-
   init();
 }
 
@@ -59,12 +50,6 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
   : ReosHydraulicSimulation( parent )
 {
   ReosDataObject::decode( element );
-  mTimeStep = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "time-step" ) ), false, tr( "Time step" ), this );
-  mOutputPeriodResult2D = ReosParameterInteger::decode( element.getEncodedData( "output-period-2D" ), false, tr( "Output period for 2D result" ), this );
-  mOutputPeriodResultHyd = ReosParameterInteger::decode( element.getEncodedData( "output-period-hydrograph" ), false, tr( "Output period for hydrograph" ), this );
-  int equation = 0;
-  element.getData( QStringLiteral( "equation" ), equation );
-  mEquation = static_cast<ReosTelemac2DSimulation::Equation>( equation );
 
   const QList<ReosEncodedElement> encodedInitialConditions = element.getListEncodedData( QStringLiteral( "initial-conditions" ) );
   for ( const ReosEncodedElement &elem : encodedInitialConditions )
@@ -78,7 +63,6 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
     if ( elem.description() == QStringLiteral( "telemac-2d-initial-condition-water-level-interpolation" ) )
       mInitialConditions.append( new ReosTelemac2DInitialConditionFromInterpolation( elem, this ) );
   }
-
   init();
 }
 
@@ -86,11 +70,6 @@ ReosEncodedElement ReosTelemac2DSimulation::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "telemac-2d-simulation" ) );
   element.addData( QStringLiteral( "key" ), key() );
-
-  element.addEncodedData( QStringLiteral( "time-step" ), mTimeStep->encode() );
-  element.addEncodedData( QStringLiteral( "output-period-2D" ), mOutputPeriodResult2D->encode() );
-  element.addEncodedData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->encode() );
-  element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
 
   QList<ReosEncodedElement> encodedInitialConditions;
   for ( ReosTelemac2DInitialCondition *ic : mInitialConditions )
@@ -216,6 +195,32 @@ void ReosTelemac2DSimulation::setEquation( const Equation &equation )
   mEquation = equation;
 }
 
+ReosTelemac2DSimulation::VolumeFiniteScheme ReosTelemac2DSimulation::volumeFiniteScheme( ReosHydraulicScheme *scheme ) const
+{
+  if ( !scheme )
+    return mVFScheme;
+
+  const ReosEncodedElement element = scheme->restoreElementConfig( id() );
+  int VFSCheme = 1;
+  if ( element.getData( QStringLiteral( "volume-finite-scheme" ), VFSCheme ) )
+    return static_cast<VolumeFiniteScheme>( VFSCheme );
+  else
+    return mVFScheme;
+}
+
+void ReosTelemac2DSimulation::setVolumeFiniteEquation( VolumeFiniteScheme VFscheme, ReosHydraulicScheme *hydraulicScheme )
+{
+  if ( !hydraulicScheme )
+  {
+    mVFScheme = VFscheme;
+    emit dataChanged();
+  }
+  else
+  {
+    setVolumeFiniteEquationForScheme( VFscheme, hydraulicScheme );
+  }
+}
+
 bool ReosTelemac2DSimulation::hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
 {
   const QDir dir = simulationDir( hydraulicStructure, shemeId );
@@ -296,6 +301,7 @@ void ReosTelemac2DSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) c
   element.addData( QStringLiteral( "output-period-2D" ), mOutputPeriodResult2D->value() );
   element.addData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->value() );
   element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
+  setVolumeFiniteEquationForScheme( mVFScheme, scheme );
   element.addData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
 
   for ( ReosTelemac2DInitialCondition *ic : mInitialConditions )
@@ -324,6 +330,8 @@ void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme 
   int equation = 0;
   if ( element.getData( QStringLiteral( "equation" ), equation ) )
     mEquation = static_cast<Equation>( equation );
+
+  mVFScheme = volumeFiniteScheme( scheme );
 
   element.getData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
 
@@ -1274,10 +1282,35 @@ void ReosTelemac2DSimulation::createSteeringFile(
   switch ( mEquation )
   {
     case ReosTelemac2DSimulation::Equation::FiniteVolume:
+    {
       stream << QStringLiteral( "EQUATIONS: 'SAINT-VENANT FV'\n" );
       stream << QStringLiteral( "DESIRED COURANT NUMBER : 0.9\n" );
       stream << QStringLiteral( "VARIABLE TIME-STEP : YES\n" );
-      break;
+      QString vfScheme( '5' );
+      switch ( mVFScheme )
+      {
+        case VolumeFiniteScheme::Roe:
+          vfScheme = QString( '0' );
+          break;
+        case VolumeFiniteScheme::Kinetic:
+          vfScheme =  QString( '1' );
+          break;
+        case VolumeFiniteScheme::Zokagoa:
+          vfScheme =  QString( '3' );
+          break;
+        case VolumeFiniteScheme::Tchamen:
+          vfScheme =  QString( '4' );
+          break;
+        case VolumeFiniteScheme::HLLC:
+          vfScheme =  QString( '5' );
+          break;
+        case VolumeFiniteScheme::WAF:
+          vfScheme =  QString( '6' );
+          break;
+      }
+      stream << QStringLiteral( "FINITE VOLUME SCHEME: %1\n" ).arg( vfScheme );
+    }
+    break;
     case ReosTelemac2DSimulation::Equation::FiniteElement:
       stream << QStringLiteral( "EQUATIONS: 'SAINT-VENANT FE'\n" );
       stream << QStringLiteral( "SCHEME FOR ADVECTION OF VELOCITIES : 1\n" );
@@ -1304,10 +1337,20 @@ void ReosTelemac2DSimulation::createSteeringFile(
 
 void ReosTelemac2DSimulation::init()
 {
-  initInitialCondition();
+  mTimeStep = new ReosParameterDuration( tr( "Time step" ), false, this );
+  mTimeStep->setValue( ReosDuration( 30, ReosDuration::second ) );
+
+  mOutputPeriodResult2D = new ReosParameterInteger( tr( "Output period for 2D result" ), false, this );
+  mOutputPeriodResult2D->setValue( 5 );
+
+  mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
+  mOutputPeriodResultHyd->setValue( 1 );
+
   connect( mTimeStep, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
   connect( mOutputPeriodResult2D, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
   connect( mOutputPeriodResultHyd, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
+
+  initInitialCondition();
 }
 
 void ReosTelemac2DSimulation::initInitialCondition()
@@ -1344,6 +1387,13 @@ void ReosTelemac2DSimulation::initInitialCondition()
       }
     }
   }
+}
+
+void ReosTelemac2DSimulation::setVolumeFiniteEquationForScheme( VolumeFiniteScheme VFscheme, ReosHydraulicScheme *hydraulicScheme ) const
+{
+  ReosEncodedElement element = hydraulicScheme->restoreElementConfig( id() );
+  element.addData( QStringLiteral( "volume-finite-scheme" ), static_cast<int>( VFscheme ) );
+  hydraulicScheme->saveElementConfig( id(), element );
 }
 
 

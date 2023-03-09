@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/telemac-images">
+        <file>openTELEMAC_hr.png</file>
+        <file>openTELEMAC_250.png</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>
