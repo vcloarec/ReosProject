@@ -20,6 +20,14 @@
 #include <QVector>
 
 #ifdef _MSC_VER
+#define UNICODE
+#include <locale>
+#include <codecvt>
+#include <stringapiset.h>
+#endif
+
+
+#ifdef _MSC_VER
 static std::string utf8ToWin32Recode( const std::string &utf8String )
 {
   //from GDAL: ./port/cpl_recode_stub.cpp, CPLWin32Recode()
