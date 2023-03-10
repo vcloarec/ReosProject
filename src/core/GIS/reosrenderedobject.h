@@ -16,19 +16,21 @@
 #ifndef REOSRENDEREDOBJECT_H
 #define REOSRENDEREDOBJECT_H
 
-#define SIP_NO_FILE
-
 #include <QImage>
 #include <QPointer>
 
 #include "reosdataobject.h"
 #include "reosprocess.h"
 
+#define SIP_NO_FILE
+
 class QPainter;
 class ReosRenderedObject;
 class ReosRendererSettings;
 class ReosColorShaderSettings;
 class ReosMapExtent;
+
+#ifndef SIP_RUN
 
 class ReosRendererObjectMapTimeStamp
 {
@@ -77,6 +79,7 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     std::unique_ptr<ReosRendererObjectMapTimeStamp> mMapTimeStamp;
 
 };
+#endif //SIP_RUN
 
 /**
  * Base classe of data object rendered on the map (for example mesh)
@@ -93,31 +96,31 @@ class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
      * Creates usable renderer settings from a pointer to external renderer settings (pointer to
      * an instance of QgsMapSettings with QGIS core library).
      */
-    static std::unique_ptr<ReosRendererSettings> createRenderSettings( const void *settings );
+    static std::unique_ptr<ReosRendererSettings> createRenderSettings( const void *settings ) SIP_SKIP;
 
     /**
      * Creates an instance of a map time stamp that is used to recognize identical time step rendering for the specific rendered object
      * The caller takes ownership of the instance.
      */
-    virtual ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const = 0;
+    virtual ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const  SIP_SKIP = 0;
 
     /**
      * Creates an instance of an onject renderer, caller take ownership of the new instance.
      */
-    virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) = 0;
+    virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings )  SIP_SKIP = 0;
 
     //! Returns all the color shader settings handled by this object
-    virtual QList<ReosColorShaderSettings *> colorShaderSettings() const = 0;
+    virtual QList<ReosColorShaderSettings *> colorShaderSettings() const  SIP_SKIP = 0;
 
     //! Returns the extent of the rendered object
-    virtual ReosMapExtent extent() const = 0;
+    virtual ReosMapExtent extent() const  SIP_SKIP = 0;
 
     //! Updates internal cache
-    virtual void updateInternalCache( ReosObjectRenderer *renderer ) {}
+    virtual void updateInternalCache( ReosObjectRenderer *renderer ) SIP_SKIP {}
 
   signals:
-    void renderingFinished();
-    void repaintRequested();
+    void renderingFinished() SIP_SKIP;
+    void repaintRequested() SIP_SKIP;
 };
 
 #endif // REOSRENDEREDOBJECT_H

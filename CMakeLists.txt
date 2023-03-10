@@ -20,6 +20,8 @@ ADD_DEFINITIONS(-DMAJ_VER_LEKAN="${CPACK_PACKAGE_VERSION_MAJOR}")
 ADD_DEFINITIONS(-DMIN_VER_LEKAN="${CPACK_PACKAGE_VERSION_MINOR}")
 ADD_DEFINITIONS(-DPAT_VER_LEKAN="${CPACK_PACKAGE_VERSION_PATCH}")
 
+set(COMPLETE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
+
 PROJECT(Reos)
 
 set (LEKAN_APP_NAME "lekan")
@@ -51,7 +53,6 @@ SET(QGIS_CORE_LIB CACHE FILEPATH "Path to QGIS core lib")
 SET(QGIS_GUI_LIB CACHE FILEPATH "Path to QGIS gui lib")
 SET(QGIS_ANALYSIS_LIB CACHE FILEPATH "Path to QGIS analysis lib")
 SET(QGIS_3D_LIB CACHE FILEPATH "Path to QGIS 3D lib")
-SET(QGIS_3D_EXTRA_HEADER CACHE PATH "Path to QGIS 3D EXTRA HEADER lib")
 SET(QGIS_APP_LIB CACHE FILEPATH "Path to QGIS app lib")
 SET(QGIS_APP_INCLUDE CACHE PATH "Path to QGIS app header files (in source)")
 SET(QGIS_LIBS ${QGIS_CORE_LIB} ${QGIS_GUI_LIB} ${QGIS_ANALYSIS_LIB} ${QGIS_3D_LIB})
@@ -89,9 +90,19 @@ ENDIF(ENABLE_HEC_DSS)
 SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
 SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
 
+
+set(QT_MIN_VERSION 5.14.0)
+set(QT_VERSION_BASE "Qt5")
+set(QT_VERSION_BASE_LOWER "qt5")
+set(HAS_KDE_QT5_PDF_TRANSFORM_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the PDF brush transform fix")
+set(HAS_KDE_QT5_SMALL_CAPS_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont::SmallCaps fix")
+set(HAS_KDE_QT5_FONT_STRETCH_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont stretch fix")
+
 FIND_PACKAGE(NetCDF REQUIRED)
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
+
+get_target_property(QMAKE_EXECUTABLE ${QT_VERSION_BASE}::qmake LOCATION)
 
 # Password helper
 find_package(QtKeychain REQUIRED)
@@ -112,6 +123,63 @@ SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
 
 
 
+#############################################################
+# Python
+
+SET(WITH_BINDINGS TRUE CACHE BOOL "Enable python binding.")
+
+set(MIN_PYTHON_VERSION "3.7")
+set(Python_FIND_FRAMEWORK "LAST")
+
+if (WITH_BINDINGS)
+  find_package(Python ${MIN_PYTHON_VERSION} REQUIRED COMPONENTS Interpreter Development)
+else()
+  find_package(Python ${MIN_PYTHON_VERSION} REQUIRED COMPONENTS Interpreter)
+endif()
+
+message("-- Found Python executable: ${Python_EXECUTABLE} (version ${Python_VERSION})")
+message("-- Python library: ${Python_LIBRARIES}")
+message("-- Python site-packages: ${Python_SITEARCH}")
+
+if (WITH_BINDINGS)
+  set(PYTHON_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/python)
+  set (REOS_PYTHON_OUTPUT_DIRECTORY ${PYTHON_OUTPUT_DIRECTORY}/reos)
+
+  # python support: check for interpreter, sip, pyqt5
+  find_package(SIP REQUIRED)
+  if(BUILD_WITH_QT6)
+    find_package(PyQt6 REQUIRED)
+    set(PYQT_FOUND ${PYQT6_FOUND})
+    set(PYQT_SIP_FLAGS ${PYQT6_SIP_FLAGS})
+    set(PYQT_SIP_DIR ${PYQT6_SIP_DIR})
+    set(PYQT_SIP_IMPORT ${PYQT6_SIP_IMPORT})
+    set(PYQT_VERSION_STR ${PYQT6_VERSION_STR})
+    set(PYQT_MOD_DIR ${PYQT6_MOD_DIR})
+  else()
+    find_package(PyQt5 REQUIRED)
+    set(PYQT_FOUND ${PYQT5_FOUND})
+    set(PYQT_SIP_FLAGS ${PYQT5_SIP_FLAGS})
+    set(PYQT_SIP_DIR ${PYQT5_SIP_DIR})
+    set(PYQT_SIP_IMPORT ${PYQT5_SIP_IMPORT})
+    set(PYQT_VERSION_STR ${PYQT5_VERSION_STR})
+    set(PYQT_MOD_DIR ${PYQT5_MOD_DIR})
+  endif()
+  separate_arguments(PYQT_SIP_FLAGS) # convert space separated values to a list
+
+  #find_package(Qsci REQUIRED)
+  include(PythonMacros)
+  include(PyQtMacros)
+  include(SIPMacros)
+
+  set(SIP_INCLUDES ${PYQT_SIP_DIR} ${CMAKE_SOURCE_DIR}/python)
+  set(SIP_CONCAT_PARTS 10)
+
+  set(Python_SITEARCH ${CMAKE_INSTALL_PREFIX}/python)
+
+  include_directories(SYSTEM ${QT_INCLUDE_DIR})
+
+endif()
+
 ADD_SUBDIRECTORY(images)
 ADD_SUBDIRECTORY(src/core)
 ADD_SUBDIRECTORY(src/ui)
@@ -120,6 +188,7 @@ ADD_SUBDIRECTORY(src/lekan)
 ADD_SUBDIRECTORY(src/dataProviders)
 ADD_SUBDIRECTORY(src/simulationEngines)
 ADD_SUBDIRECTORY(i18n)
+ADD_SUBDIRECTORY(python)
 
 # testing
 IF (ENABLE_TESTS)

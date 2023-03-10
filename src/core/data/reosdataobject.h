@@ -16,15 +16,13 @@
 #ifndef REOSDATAOBJECT_H
 #define REOSDATAOBJECT_H
 
-#define SIP_NO_FILE
-
 #include <QObject>
 
 #include "reoscore.h"
 
 class ReosEncodedElement;
 
-//! Abstract class uses to be an interface for data
+//! Base class uses to be an interface for data
 class REOSCORE_EXPORT ReosDataObject: public QObject
 {
     Q_OBJECT
@@ -35,35 +33,35 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     virtual QString type() const {return staticType();}
 
     //! Returns the name of the data object
-    QString name() const;
+    QString name() const SIP_SKIP;
 
     QString id() const;
 
-    void encode( ReosEncodedElement &element ) const;
-    void decode( const ReosEncodedElement &element );
+    void encode( ReosEncodedElement &element ) const SIP_SKIP;
+    void decode( const ReosEncodedElement &element ) SIP_SKIP;
 
     //! Static method that return the type of this class
-    static QString staticType() {return QStringLiteral( "data" );}
+    static QString staticType() SIP_SKIP {return QStringLiteral( "data" );}
 
   public slots:
     //! Sets the name of the data object
-    void setName( const QString &name );
-    virtual void updateData() const {}; //TODO to set pure virtual
+    void setName( const QString &name ) SIP_SKIP;
+    virtual void updateData() const  SIP_SKIP {}; //TODO to set pure virtual
 
   signals:
-    void dataChanged() const;
-    void dataReset() const;
-    void nameChanged( const QString &name ) const;
-    void isSetObsolete() const;
-    void settingsChanged();
+    void dataChanged() const SIP_SKIP;
+    void dataReset() const SIP_SKIP;
+    void nameChanged( QString &name ) const SIP_SKIP;
+    void isSetObsolete() const SIP_SKIP;
+    void settingsChanged() const SIP_SKIP;
 
   protected:
-    void registerUpstreamData( ReosDataObject *data );
-    void deregisterUpstreamData( ReosDataObject *data );
-    void setActualized() const;
+    void registerUpstreamData( ReosDataObject *data ) SIP_SKIP;
+    void deregisterUpstreamData( ReosDataObject *data ) SIP_SKIP;
+    void setActualized() const SIP_SKIP;
 
     //! Return true whether the data need to be calculated or updated
-    bool isObsolete() const;
+    bool isObsolete() const SIP_SKIP;
 
   protected slots:
     void setObsolete();
