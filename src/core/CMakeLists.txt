@@ -197,7 +197,7 @@ SET(REOS_CORE_HEADERS
     network/reosnetworkaccessmanager.h
 )
 
-SET(REOS_CORE_HEADERS_PRIVATE
+SET(REOS_CORE_HDRS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
     GIS/private/reospolylinesstructure_p.h
     GIS/private/reospolygonstructure_p.h
@@ -229,6 +229,7 @@ SET(REOS_CORE_LIBS ${REOS_CORE_LIBS} reosCore)
 ADD_LIBRARY(reosCore SHARED
     ${REOS_CORE_SOURCES}
     ${REOS_CORE_HEADERS}
+    ${REOS_CORE_HDRS_PRIVATE}
     ${IMAGE_RCCS}
     ${CREDITS_RCCS}
   )
@@ -277,7 +278,6 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${NETCDF_LIBRARY}
 )
 
-
 TARGET_INCLUDE_DIRECTORIES(reosCore SYSTEM PUBLIC
     ${QCA_INCLUDE_DIR}
     ${QTKEYCHAIN_INCLUDE_DIR})
@@ -304,10 +304,10 @@ IF(NETCDF_FOUND)
   TARGET_LINK_LIBRARIES(reosCore PUBLIC ${NETCDF_LIBRARY} )
   ADD_DEFINITIONS(${HDF5_DEFINITIONS})
 ENDIF(NETCDF_FOUND)
-
 TARGET_INCLUDE_DIRECTORIES(reosCore PRIVATE ${NETCDF_INCLUDE_DIR})
 
-INCLUDE_DIRECTORIES(
+
+TARGET_INCLUDE_DIRECTORIES( reosCore PUBLIC
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -325,10 +325,10 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/mesh
     ${CMAKE_SOURCE_DIR}/src/core/network
 
+INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}
     ${GMSH_INCLUDE_DIR}
 )
-
 
 include_directories(${CMAKE_SOURCE_DIR}/external/poly2tri)
 

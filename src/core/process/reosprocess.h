@@ -31,7 +31,7 @@ email                : vcloarec at gmail dot com
  * Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
  * Processes can be nested.
 */
-class REOSCORE_EXPORT ReosProcess : public QObject
+class REOSCORE_EXPORT ReosProcess : public QObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
@@ -87,8 +87,8 @@ class REOSCORE_EXPORT ReosProcess : public QObject
     void setSubProcess( ReosProcess *subProcess );
 
   private:
-    int mMaxProgression;
-    int mCurrentProgression;
+    int mMaxProgression = 0;
+    int mCurrentProgression = 0;
     bool mStop = false;
     QString mCurrentInformation;
     bool mIsFinished = false;

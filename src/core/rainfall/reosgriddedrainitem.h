@@ -21,6 +21,8 @@
 #include "reosrenderedobject.h"
 #include "reos_sip.h"
 
+#define SIP_NO_FILE
+
 class ReosRasterExtent;
 class ReosGriddedRainfallProvider;
 class ReosGriddedRainfallRendererFactory;
@@ -121,6 +123,8 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     void makeConnection();
 };
 
+#ifndef SIP_RUN
+
 class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
 {
     Q_OBJECT
@@ -147,7 +151,6 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
 
 };
 
-#ifndef SIP_RUN
 class ReosGriddedRainfallRendererFactory
 {
   public:
