@@ -681,8 +681,8 @@ void ReosRainfallTest::griddedRainfallOnSmallWatershed()
                        << QPointF( 268695, 6838518 );
 
   ReosWatershed watershed;
-  watershed.setDelineating( watershedDelineating );
   watershed.setGeographicalContext( mGisEngine );
+  watershed.setDelineating( watershedDelineating );
 
   QString filePath = testFile( QStringLiteral( "/grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) );
   QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
@@ -699,17 +699,17 @@ void ReosRainfallTest::griddedRainfallOnSmallWatershed()
 
   QCOMPARE( rainfallSeries.valueCount(), 6 );
   double val = rainfallSeries.valueAt( 0 );
-  QVERIFY( equal( val, 1.46555, 0.001 ) );
+  QVERIFY( equal( val, 1.474, 0.001 ) );
   val = rainfallSeries.valueAt( 1 );
-  QVERIFY( equal( val, 2.1354, 0.001 ) );
+  QVERIFY( equal( val, 2.120, 0.001 ) );
   val = rainfallSeries.valueAt( 2 );
-  QVERIFY( equal( val, 3.7026, 0.001 ) );
+  QVERIFY( equal( val, 3.7006, 0.001 ) );
   val = rainfallSeries.valueAt( 3 );
-  QVERIFY( equal( val, 1.3700, 0.001 ) );
+  QVERIFY( equal( val, 1.3899, 0.001 ) );
   val = rainfallSeries.valueAt( 4 );
-  QVERIFY( equal( val, 0.3918, 0.001 ) );
+  QVERIFY( equal( val, 0.4101, 0.001 ) );
   val = rainfallSeries.valueAt( 5 );
-  QVERIFY( equal( val, 0.6850, 0.001 ) );
+  QVERIFY( equal( val, 0.6549, 0.001 ) );
 }
 
 QTEST_MAIN( ReosRainfallTest )
