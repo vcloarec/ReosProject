@@ -13,8 +13,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
  *                                                                         *
  ***************************************************************************/
 
-#define SIP_NO_FILE
-
 #ifndef REOSAREA_H
 #define REOSAREA_H
 
@@ -38,7 +36,9 @@ class REOSCORE_EXPORT ReosArea
     ReosArea operator+( const ReosArea & ) const;
     ReosArea operator-( const ReosArea & ) const;
     ReosArea operator*( double k ) const;
+#ifndef SIP_RUN
     ReosArea operator*( int i ) const;
+#endif
     ReosArea operator/( double k ) const;
     bool operator>( const ReosArea & ) const;
     bool operator>=( const ReosArea & ) const;
@@ -65,8 +65,10 @@ class REOSCORE_EXPORT ReosArea
 
     static QString unitToString( ReosArea::Unit u );
 
+#ifndef SIP_RUN
     ReosEncodedElement encode() const;
     static ReosArea decode( const ReosEncodedElement &element );
+#endif
 
   private:
     double mValueM2 = 0;

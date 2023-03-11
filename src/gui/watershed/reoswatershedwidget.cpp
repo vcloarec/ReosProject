@@ -349,9 +349,9 @@ void ReosWatershedWidget::onCurrentWatershedChanges( const QItemSelection &selec
   if ( currentWatershed )
   {
     ui->mParameterNameWidget->setString( currentWatershed->watershedName() );
-    ui->mParameterAreaWidget->setArea( currentWatershed->area() );
-    ui->mParameterSlopeWidget->setSlope( currentWatershed->slope() );
-    ui->mParameterAverageElevationWidget->setDouble( currentWatershed->averageElevation() );
+    ui->mParameterAreaWidget->setArea( currentWatershed->areaParameter() );
+    ui->mParameterSlopeWidget->setSlope( currentWatershed->slopeParameter() );
+    ui->mParameterAverageElevationWidget->setDouble( currentWatershed->averageElevationParameter() );
   }
   else
   {

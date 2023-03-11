@@ -238,7 +238,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   ReosWatershedTree watershedTree( &gisEngine );
 
   ReosWatershed *watershed1 = watershedTree.addWatershed( new ReosWatershed() );
-  watershed1->area()->setValue( ReosArea( 10, ReosArea::km2 ) );
+  watershed1->areaParameter()->setValue( ReosArea( 10, ReosArea::km2 ) );
   watershed1->concentrationTime()->setValue( ReosDuration( 2, ReosDuration::hour ) );
   ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_1( "test_1" );
   runoffConstantCoefficientModel_1.coefficient()->setValue( 0.5 );
@@ -246,7 +246,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   watershed1->setCurrentTransferFunction( ReosTransferFunctionNashUnitHydrograph::staticType() );
 
   ReosWatershed *watershed2 = watershedTree.addWatershed( new ReosWatershed() );
-  watershed2->area()->setValue( ReosArea( 5, ReosArea::km2 ) );
+  watershed2->areaParameter()->setValue( ReosArea( 5, ReosArea::km2 ) );
   watershed2->concentrationTime()->setValue( ReosDuration( 1, ReosDuration::hour ) );
   ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_2( "test_2" );
   runoffConstantCoefficientModel_2.coefficient()->setValue( 0.3 );
@@ -254,7 +254,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   watershed2->setCurrentTransferFunction( ReosTransferFunctionNashUnitHydrograph::staticType() );
 
   ReosWatershed *watershed3 = watershedTree.addWatershed( new ReosWatershed() );
-  watershed3->area()->setValue( ReosArea( 1, ReosArea::km2 ) );
+  watershed3->areaParameter()->setValue( ReosArea( 1, ReosArea::km2 ) );
   watershed3->concentrationTime()->setValue( ReosDuration( 0.5, ReosDuration::hour ) );
   ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_3( "test_3" );
   runoffConstantCoefficientModel_2.coefficient()->setValue( 0.3 );

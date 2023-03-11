@@ -174,13 +174,13 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
     }
 
     if ( mProcess->calculateAverageElevation() && mCalculateAverageElevation )
-      mCurrentWatershed->averageElevation()->setDerivedValue( mProcess->averageElevation() );
+      mCurrentWatershed->averageElevationParameter()->setDerivedValue( mProcess->averageElevation() );
     else if ( mCalculateAverageElevation )
     {
       std::unique_ptr<ReosDigitalElevationModel> dem;
       dem.reset( mGisEngine->getDigitalElevationModel( mDEMLayerId ) );
       if ( dem )
-        mCurrentWatershed->averageElevation()->setDerivedValue( dem->averageElevationOnGrid( mProcess->rasterizedWatershed(), mProcess->outputRasterExtent() ) );
+        mCurrentWatershed->averageElevationParameter()->setDerivedValue( dem->averageElevationOnGrid( mProcess->rasterizedWatershed(), mProcess->outputRasterExtent() ) );
     }
 
     needAdjusting = mWatershedTree->isWatershedIntersectExisting( mCurrentWatershed.get() );

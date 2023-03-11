@@ -326,7 +326,7 @@ void ReosWatersehdTest::watershedDelineating()
   QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
   ReosWatershed *ws = watershedStore.allWatershedsFromUSToDS().at( 0 );
-  QVERIFY( equal( ws->averageElevation()->value(), 23.2079186831, 0.00000001 ) );
+  QVERIFY( equal( ws->averageElevationParameter()->value(), 23.2079186831, 0.00000001 ) );
 
   //! Attempt to delineate an upstream watershed
   downstreamLine.clear();
@@ -846,7 +846,7 @@ void ReosWatersehdTest::runoffConstantCoefficient()
   }
 
   ReosWatershed watershed;
-  watershed.area()->setValue( ReosArea( 5.2, ReosArea::km2 ) );
+  watershed.areaParameter()->setValue( ReosArea( 5.2, ReosArea::km2 ) );
   watershed.concentrationTime()->setValue( ReosDuration( 45, ReosDuration::minute ) );
 
   ReosTransferFunctionLinearReservoir *linearReservoir = new ReosTransferFunctionLinearReservoir( &watershed );
@@ -1166,7 +1166,7 @@ void ReosWatersehdTest::runoffhydrograph()
   ReosWatershedTree watershedTree( &gisEngine );
 
   ReosWatershed *watershed = watershedTree.addWatershed( new ReosWatershed() );
-  watershed->area()->setValue( ReosArea( 10, ReosArea::km2 ) );
+  watershed->areaParameter()->setValue( ReosArea( 10, ReosArea::km2 ) );
   watershed->concentrationTime()->setValue( ReosDuration( 2, ReosDuration::hour ) );
   ReosRunoffConstantCoefficientModel runoffConstantCoefficientModel_1( "test_1" );
   runoffConstantCoefficientModel_1.coefficient()->setValue( 0.5 );
@@ -1219,7 +1219,7 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( hydrograph->valueAt( 70 ), 1.6764100895121765 );
   QVERIFY( hydrograph->referenceTime().isValid() );
 
-  watershed->area()->setValue( ReosArea( 9, ReosArea::km2 ) );
+  watershed->areaParameter()->setValue( ReosArea( 9, ReosArea::km2 ) );
   QCOMPARE( runoffHydrographStore.updateCount, 1 ); //update will be launch when come back to the event loop
 
   timer.start( 1 );
