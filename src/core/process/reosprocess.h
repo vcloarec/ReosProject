@@ -15,8 +15,6 @@ email                : vcloarec at gmail dot com
 #ifndef REOSPROCESS_H
 #define REOSPROCESS_H
 
-#define SIP_NO_FILE
-
 #include <memory>
 #include <QString>
 #include <QObject>
@@ -26,6 +24,9 @@ email                : vcloarec at gmail dot com
 #include "reosmodule.h"
 
 #define MAX_THREAD 0u
+
+#define SIP_NO_FILE
+
 
 /**
  * Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
