@@ -16,8 +16,6 @@ email                : vcloarec@gmail.com
 #ifndef REOSMEMORYRASTER_H
 #define REOSMEMORYRASTER_H
 
-#define SIP_NO_FILE
-
 #include <array>
 
 #include <QPoint>
@@ -29,6 +27,8 @@ email                : vcloarec@gmail.com
 #include <ogr_spatialref.h>
 
 #include "reosmapextent.h"
+
+#define SIP_NO_FILE
 
 class ReosRasterCellPos;
 

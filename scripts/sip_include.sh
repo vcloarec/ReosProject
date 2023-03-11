@@ -56,7 +56,7 @@ for module in "${modules[@]}"; do
                   -e '/^\s*$/d'      `# remove blank lines`
     done | cat -n | sort -uk2 | sort -nk1 | cut -f2-  # remove duplicated lines without sorting
   )
-  echo ${headers}
+
   for header in ${headers}; do
     if [ ! -f src/${module}/$header ]; then
       # if no header, no sip file!
