@@ -33,6 +33,10 @@ ReosWatershed::ReosWatershed()
   init();
 }
 
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint )
+  : ReosWatershed( delineating, outletPoint, ReosWatershed::Manual )
+{}
+
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type ):
   mType( type )
   , mExtent( delineating )
@@ -40,6 +44,7 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   , mOutletPoint( outletPoint )
 {
   init();
+  calculateArea();
 }
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating,
@@ -879,10 +884,13 @@ void ReosWatershed::updateResidual()
 void ReosWatershed::calculateArea()
 {
   ReosGisEngine *engine = geographicalContext();
-
   if ( engine )
   {
     mArea->setDerivedValue( engine->polygonArea( mDelineating ) );
+  }
+  else
+  {
+    mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
   }
 }
 
@@ -1027,6 +1035,12 @@ void ReosWatershed::calculateAverageElevation()
 ReosParameterDouble *ReosWatershed::averageElevationParameter() const
 {
   return mAverageElevation;
+}
+
+ReosArea ReosWatershed::area() const
+{
+  mArea->updateIfNecessary();
+  return mArea->value();
 }
 
 ReosConcentrationTimeCalculation ReosWatershed::concentrationTimeCalculation() const

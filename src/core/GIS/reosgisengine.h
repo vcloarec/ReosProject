@@ -15,7 +15,6 @@ email                : vcloarec at gmail dot com
 #ifndef REOSGISENGINE_H
 #define REOSGISENGINE_H
 
-#define SIP_NO_FILE
 
 #include <cmath>
 #include <QAbstractItemModel>
@@ -33,12 +32,14 @@ class QgsRasterLayer;
 class ReosMapExtent;
 class ReosSpatialPosition;
 class ReosRasterExtent;
-
 class ReosCoordinateSystemTransformer_impl;
 
+
+#ifndef SIP_RUN
+
 /**
- * Class that is able to transform coordinates from other thread that the main thread.
- * Singleton ReosGisEngine live in the main thread and could not be allowed to be suded in other thread.
+ * Class that is able to transform coordinates from other thread than the main thread.
+ * Singleton ReosGisEngine live in the main thread and could not be allowed to be used in other thread.
  * Calling of ReosGisEngine::getCoordinateTransformer() creates a new instance of ReosCoordinateSystemTransformer
  * that can be used from another thread.
  * Default constructor of this class create a instance that can't be used ti transform coordinates (does nothing).
@@ -59,6 +60,7 @@ class REOSCORE_EXPORT ReosCoordinateSystemTransformer
     friend class ReosGisEngine;
 };
 
+#endif // #ifndef SIP_RUN
 
 /**
  * Reos module class that handles GIS layer
@@ -108,7 +110,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     int layersCount() const;
 
     //! Returns the model containing GIS layers tree
-    QAbstractItemModel *layerTreeModel();
+    QAbstractItemModel *layerTreeModel() SIP_SKIP;
 
     //! Returns vector layer file suffix filter
     QString vectorLayerFilters() const;
@@ -154,19 +156,19 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     bool isDigitalElevationModel( const QString &layerId ) const;
 
     //! Returns a pointer to a Digitial Elevation Model from a raster file wwith  \a uri
-    static ReosDigitalElevationModel *getRasterDigitalElevationModel( const QString &uri );
+    static ReosDigitalElevationModel *getRasterDigitalElevationModel( const QString &uri )  SIP_SKIP;
 
     //! Returns a pointer to a Digitial Elevation Model corresponding to the topest layer registered as DEM, caller take ownership
-    ReosDigitalElevationModel *getTopDigitalElevationModel() const;
+    ReosDigitalElevationModel *getTopDigitalElevationModel() const SIP_SKIP;
 
     //! Returns a pointer to a Digitial Elevation Model corresponding to \a layerId, caller take ownership. Returns nullptr if layer is not registered as DEM
-    ReosDigitalElevationModel *getDigitalElevationModel( const QString &layerId ) const;
+    ReosDigitalElevationModel *getDigitalElevationModel( const QString &layerId ) const SIP_SKIP;
 
     //! Returns the list of layer Ids that are registered as Digital Elevation Model with associated name
-    QMap<QString, QString> digitalElevationModelRasterList() const;
+    QMap<QString, QString> digitalElevationModelRasterList() const SIP_SKIP;
 
     //! Returns the list of layer Ids that are registered as Digital Elevation
-    QStringList digitalElevationModelIds() const;
+    QStringList digitalElevationModelIds() const SIP_SKIP;
 
     //! Returns area of \a polygon considering the coordinate reference system \a crs. If no crs is provided, the crs of the project is used
     ReosArea polygonArea( const QPolygonF &polygon, const QString &crs = QString() ) const;
@@ -178,10 +180,10 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     double convertLengthFromMeterToMapunit( double length );
 
     //! Returns encoded information about the GIS engine after saving GIS project int the \a path with the \a baseFileName
-    ReosEncodedElement encode( const QString &path, const QString &baseFileName );
+    ReosEncodedElement encode( const QString &path, const QString &baseFileName ) SIP_SKIP;
 
     //! Decode information about the GIS engine and load the GIS poject from the \a path with the \a baseFileName
-    bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString &baseFileName );
+    bool decode( const ReosEncodedElement &encodedElement, const QString &path, const QString &baseFileName ) SIP_SKIP;
 
     //! Clears the GIS project
     void clearProject();
@@ -189,16 +191,16 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     bool canBeRasterDem( const QString &uri ) const;
 
     //! Returns a coordinate transformer that can be used from other thread
-    ReosCoordinateSystemTransformer getCoordinateTransformer() const;
+    ReosCoordinateSystemTransformer getCoordinateTransformer() const SIP_SKIP;
 
     //! Transform the source map extent \a sourceExtent to a map extent with crs \a crs
-    static ReosMapExtent transformExtent( const ReosMapExtent &extent, const QString &crs );
+    static ReosMapExtent transformExtent( const ReosMapExtent &extent, const QString &crs ) SIP_SKIP;
 
     //! Transforms the map extent in the project coordinates system. It is supposed that \a extent contains the source CRS
-    ReosMapExtent transformToProjectExtent( const ReosMapExtent &extent ) const;
+    ReosMapExtent transformToProjectExtent( const ReosMapExtent &extent ) const SIP_SKIP;
 
     //! Transforms the \a extent in project coordinates in an extent in \a wktCrs, the returns extent contain the destination CRS reference
-    ReosMapExtent transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const;
+    ReosMapExtent transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const SIP_SKIP;
 
     //! Transforms the \a sourcePoint from \a sourceCRS to project CRS
     QPointF transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint ) const;
@@ -236,14 +238,14 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
         double resolX,
         double resolY,
         ReosRasterExtent &resultingExtent,
-        bool &success );
+        bool &success ) SIP_SKIP;
 
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;
 
-    ReosTimeWindow mapTimeWindow() const;
+    ReosTimeWindow mapTimeWindow() const SIP_SKIP;
 
-    void setMapTimeWindow( const ReosTimeWindow &timeWindow );
+    void setMapTimeWindow( const ReosTimeWindow &timeWindow ) SIP_SKIP;
 
     /**
      *  Creates new project file with the current project, returns true if succefull. if \a keepLayer is true,
@@ -257,7 +259,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
         const QMap<QString, ReosEncodedElement> &scalarSymbologies,
         const QMap<QString, ReosEncodedElement> &vectorSymbologies,
         const ReosDuration &timeStep,
-        ReosModule::Message &message );
+        ReosModule::Message &message ) SIP_SKIP;
 
     static QString gisEngineName();
     static QString gisEngineVersion();

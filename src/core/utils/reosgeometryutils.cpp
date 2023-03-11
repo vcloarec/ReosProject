@@ -215,6 +215,18 @@ double ReosGeometryUtils::length( const QPolygonF &polyline )
   return polyGeom.length();
 }
 
+double ReosGeometryUtils::area( const QPolygonF &polygon )
+{
+  if ( polygon.isEmpty() )
+    return 0;
+  QPolygonF closed = polygon;
+  closed.append( closed.first() );
+
+  QgsGeometry polyGeom = QgsGeometry::fromQPolygonF( closed );
+
+  return polyGeom.area();
+}
+
 static QVector<QPolygonF> sortMultiPolyline( const QgsGeometry &multiPolyline, const QgsGeometry &basePolyline, QVector<double> *distanceFromBegining )
 {
   if ( distanceFromBegining )

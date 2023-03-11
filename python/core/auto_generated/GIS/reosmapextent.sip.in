@@ -1,0 +1,170 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosmapextent.h                                         *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosSpatialPosition
+{
+%Docstring(signature="appended")
+*************************************************************************
+reosmapextent.h
+--------------------------------------
+  Date                 : 01-10-2020
+  Copyright            : (C) 2020 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reosmapextent.h"
+%End
+  public:
+    ReosSpatialPosition();
+    ReosSpatialPosition( const QPointF &position, const QString &crs = QString() );
+    ReosSpatialPosition( double x, double y, const QString &crs = QString() );
+
+    QPointF position() const;
+    QString crs() const;
+
+    bool isValid() const;
+
+
+};
+
+
+class ReosMapExtent
+{
+%Docstring(signature="appended")
+Class that represent a rectangular extent in a map
+%End
+
+%TypeHeaderCode
+#include "reosmapextent.h"
+%End
+  public:
+
+    ReosMapExtent();
+%Docstring
+Default constrcutor
+%End
+
+    ReosMapExtent( const QRectF &extent );
+%Docstring
+Constructor with a rectangel ``extent``, the crs is invalid (see :py:func:`~ReosMapExtent.setCrs`)
+%End
+
+    ReosMapExtent( double xMapMin, double yMapMin, double xMapMax, double yMapMax );
+%Docstring
+Constructor with the coordinates of the foor corners, the crs is invalid (see :py:func:`~ReosMapExtent.setCrs`)
+%End
+
+    ReosMapExtent( const QPolygonF &polygon, const QString &crs = QString() );
+%Docstring
+Construct an extent with the bounding box of the polygon, the crs is invalid (see :py:func:`~ReosMapExtent.setCrs`)
+%End
+
+    ReosMapExtent( const ReosSpatialPosition &pos1, const ReosSpatialPosition &pos2 );
+%Docstring
+Constructor with two spatial positions ``pos1`` and ``pos2``, the extent contains this two position and
+has the crs of ``pos1``
+%End
+
+    double width() const;
+%Docstring
+Returns the width of the extent
+%End
+
+    double height()const;
+%Docstring
+Returns the height of the extent
+%End
+
+    double xMapMin() const;
+%Docstring
+Returns the x min
+%End
+
+    double xMapMax() const;
+%Docstring
+Returns the x max
+%End
+
+    double yMapMin() const;
+%Docstring
+Returns the y min
+%End
+
+    double yMapMax() const;
+%Docstring
+Returns the y max
+%End
+
+    bool contains( const QPointF &point ) const;
+%Docstring
+Returns true if the extent contain the point
+%End
+
+    bool containsPartialy( const  QPolygonF &line ) const;
+%Docstring
+Return true if the extent cotains, even partially, the ``line``
+%End
+
+    void addPointToExtent( const QPointF &pt );
+%Docstring
+Extends the extent by adding a point
+%End
+    void extendWithExtent( const ReosMapExtent &other );
+
+    QString crs() const;
+%Docstring
+Returns the WKT coordinates system of this extent
+%End
+
+    void setCrs( const QString &crs );
+%Docstring
+Set the WKT coordinates system if this extent
+%End
+
+    QPolygonF toPolygon() const;
+%Docstring
+Returns a rectangular polygon corresponding to this extent
+%End
+
+    QRectF toRectF() const;
+%Docstring
+Returns a rectangle corresponding to this extent
+%End
+
+    bool isValid() const;
+%Docstring
+Return whether this extent is valid
+%End
+
+    bool operator==( const ReosMapExtent &other ) const;
+    bool operator!=( const ReosMapExtent &other ) const;
+
+    ReosMapExtent operator*( const ReosMapExtent &other ) const;
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosmapextent.h                                         *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

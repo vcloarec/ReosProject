@@ -366,8 +366,7 @@ void ReosDelineatingWatershedWidget::onManualValidateAsked()
   if ( mTemporaryManualOutletPoint.isEmpty() || mTemporaryManualWatershed.mapPolygon().isEmpty() )
     return;
   std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(),
-                                     mTemporaryManualOutletPoint.mapPoint(),
-                                     ReosWatershed::Manual ) );
+                                     mTemporaryManualOutletPoint.mapPoint() ) );
   bool needAdjusting = mModule->watershedTree()->isWatershedIntersectExisting( ws.get() );
   bool adjustIfNeeded = false;
   mTemporaryManualOutletPoint.resetPoint();
