@@ -119,7 +119,7 @@ ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation *ReosSeriesRainfall
     return nullptr;
   }
 
-  ReosArea watershedArea = mWatershed->area()->value();
+  ReosArea watershedArea = mWatershed->areaParameter()->value();
   ReosRasterExtent rainExtent = mGriddedRainfall->rasterExtent();
   QRectF cellRect( rainExtent.xMapOrigin(),
                    rainExtent.yMapOrigin(),

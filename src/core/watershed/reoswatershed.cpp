@@ -476,22 +476,22 @@ void ReosWatershed::setGeographicalContext( ReosGisEngine *gisEngine )
   mGisEngine = gisEngine;
 }
 
-ReosParameterArea *ReosWatershed::area() const
+ReosParameterArea *ReosWatershed::areaParameter() const
 {
   return mArea;
 }
 
-ReosParameterSlope *ReosWatershed::slope() const
+ReosParameterSlope *ReosWatershed::slopeParameter() const
 {
   return mSlope;
 }
 
-ReosParameterDouble *ReosWatershed::drop() const
+ReosParameterDouble *ReosWatershed::dropParameter() const
 {
   return mDrop;
 }
 
-ReosParameterDouble *ReosWatershed::longestPath() const
+ReosParameterDouble *ReosWatershed::longestPathParameter() const
 {
   return mLongestStreamPath;
 }
@@ -672,7 +672,7 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element, const R
   if ( ws->mSlope )
   {
     ws->mSlope->deleteLater();
-    ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws->slope()->name(), ws.get() );
+    ws->mSlope = ReosParameterSlope::decode( element.getEncodedData( QStringLiteral( "slope-parameter" ) ), true, ws->slopeParameter()->name(), ws.get() );
   }
 
   if ( ws->mLongestStreamPath )
@@ -954,12 +954,12 @@ void ReosWatershed::calculateConcentrationTime()
   ReosConcentrationTimeFormula::Parameters param;
   param.area = mArea->value();
   param.drop = mDrop->value();
-  param.length = longestPath()->value();
-  param.slope = slope()->value();
+  param.length = longestPathParameter()->value();
+  param.slope = slopeParameter()->value();
   if ( mProfile.isEmpty() )
-    param.relativeAverageElevation = averageElevation()->value();
+    param.relativeAverageElevation = averageElevationParameter()->value();
   else
-    param.relativeAverageElevation = averageElevation()->value() - mProfile.last().y();
+    param.relativeAverageElevation = averageElevationParameter()->value() - mProfile.last().y();
 
   if ( !mConcentrationTimeCalculation.alreadyCalculated() && mConcentrationTimeCalculation.activeFormulas().isEmpty() )
   {
@@ -1024,7 +1024,7 @@ void ReosWatershed::calculateAverageElevation()
   }
 }
 
-ReosParameterDouble *ReosWatershed::averageElevation() const
+ReosParameterDouble *ReosWatershed::averageElevationParameter() const
 {
   return mAverageElevation;
 }

@@ -13,8 +13,6 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#define SIP_NO_FILE
-
 #ifndef REOSWATERSHED_H
 #define REOSWATERSHED_H
 
@@ -56,6 +54,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     ReosWatershed( const QPolygonF &delineating,
                    const QPointF &outletPoint,
                    Type type );
+#ifndef SIP_RUN
 
     //! Constructor used with automatic delineating with direction data containded in the upstream watershed
     ReosWatershed( const QPolygonF &delineating,
@@ -206,11 +205,11 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
     void setGeographicalContext( ReosGisEngine *gisEngine );
 
-    ReosParameterArea *area() const;
-    ReosParameterSlope *slope() const;
-    ReosParameterDouble *drop() const;
-    ReosParameterDouble *longestPath() const;
-    ReosParameterDouble *averageElevation() const;
+    ReosParameterArea *areaParameter() const;
+    ReosParameterSlope *slopeParameter() const;
+    ReosParameterDouble *dropParameter() const;
+    ReosParameterDouble *longestPathParameter() const;
+    ReosParameterDouble *averageElevationParameter() const;
 
     ReosParameterDuration *concentrationTime() const;
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
@@ -242,6 +241,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
   public slots:
     void calculateArea();
+#endif //#ifndef SIP_RUN
 
   private slots:
     void calculateSlope();

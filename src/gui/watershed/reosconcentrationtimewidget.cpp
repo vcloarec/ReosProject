@@ -127,11 +127,11 @@ void ReosConcentrationTimeWidget::setCurrentWatershed( ReosWatershed *ws )
   }
   else
   {
-    mLengthParameterWidget->setDouble( ws->longestPath() );
-    mDropParameterWidget->setDouble( ws->drop() );
-    mSlopeParameterWidget->setSlope( ws->slope() );
-    mAreaParameterWidget->setArea( ws->area() );
-    mAverageElevationWidget->setDouble( ws->averageElevation() );
+    mLengthParameterWidget->setDouble( ws->longestPathParameter() );
+    mDropParameterWidget->setDouble( ws->dropParameter() );
+    mSlopeParameterWidget->setSlope( ws->slopeParameter() );
+    mAreaParameterWidget->setArea( ws->areaParameter() );
+    mAverageElevationWidget->setDouble( ws->averageElevationParameter() );
     ui->usedValue->setDuration( ws->concentrationTime() );
     setUsedMethod( mCurrentWatershed->concentrationTimeCalculation().usedMethod() );
     mFormulasModel->setActiveFormulas( mCurrentWatershed->concentrationTimeCalculation().activeFormulas() );

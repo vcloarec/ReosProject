@@ -1,0 +1,61 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershed.h                                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosWatershed: ReosDataObject
+{
+%Docstring(signature="appended")
+*************************************************************************
+reoswatershed.h
+--------------------------------------
+  Date                 : 10-2020
+  Copyright            : (C) 2020 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reoswatershed.h"
+%End
+  public:
+    enum Type
+    {
+      None,
+      Automatic,
+      Manual,
+      Residual
+    };
+
+    ReosWatershed();
+
+    ReosWatershed( const QPolygonF &delineating,
+                   const QPointF &outletPoint,
+                   Type type );
+%Docstring
+Constructor used with manual delineating
+%End
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershed.h                                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
