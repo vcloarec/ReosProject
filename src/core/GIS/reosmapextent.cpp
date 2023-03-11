@@ -194,7 +194,7 @@ void ReosMapExtent::addPointToExtent( const QPointF &pt )
     mYMax = pt.y();
 }
 
-void ReosMapExtent::expendWithExtent( const ReosMapExtent &other )
+void ReosMapExtent::extendWithExtent( const ReosMapExtent &other )
 {
   if ( mCrs.isEmpty() )
     mCrs = other.crs();

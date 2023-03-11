@@ -1,0 +1,267 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosgisengine.h                                         *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+
+class ReosGisEngine: ReosModule
+{
+%Docstring(signature="appended")
+Reos module class that handles GIS layer
+%End
+
+%TypeHeaderCode
+#include "reosgisengine.h"
+%End
+  public:
+    enum LayerType
+    {
+      NoLayer,
+      VectorLayer,
+      RasterLayer,
+      MeshLayer,
+      NotSupported
+    };
+
+    ReosGisEngine( QObject *parent = 0 );
+%Docstring
+Constructor
+%End
+    ~ReosGisEngine();
+
+    void initGisEngine();
+
+    QString addVectorLayer( const QString &uri, const QString &name = QString() );
+%Docstring
+Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
+%End
+
+    QString addRasterLayer( const QString &uri, const QString &name = QString(), bool *isDEM = 0 );
+%Docstring
+Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false.
+If the rasgter layer as to be registered as a DEM, ``isDem`` has to point to a bool with true value.
+%End
+
+    QString addMeshLayer( const QString &uri, const QString &name = QString() );
+%Docstring
+Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
+%End
+
+    LayerType layerType( const QString &layerId ) const;
+%Docstring
+Returns the layer type corresponding to the the layer Id
+%End
+
+    QString layerName( const QString &layerId ) const;
+%Docstring
+Returns the name of the layer with ``layerId``
+%End
+
+    bool hasValidLayer( const QString &layerId ) const;
+%Docstring
+Returns whether the layer exists and is valid
+%End
+
+    int layersCount() const;
+%Docstring
+Returns the count of layers in the project
+%End
+
+
+    QString vectorLayerFilters() const;
+%Docstring
+Returns vector layer file suffix filter
+%End
+    QString rasterLayerFilters() const;
+%Docstring
+Returns raster layer file suffix filter
+%End
+    QString meshLayerFilters() const;
+%Docstring
+Returns mesh layer file suffix filter
+%End
+
+    QString crs() const;
+%Docstring
+Returns the coordinate reference system of the GIS project
+%End
+
+    static QString crsFromEPSG( int epsgCode );
+%Docstring
+Returns a WKT string of the CRS defined by the EPSG code ``epsgCode``
+%End
+
+    static QString crsFromProj( const QString &projtring );
+%Docstring
+Returns a WKT string of the CRS defined by a Proj string ``epsgCode``
+%End
+
+    static QString crsWkt1( const QString &crs );
+%Docstring
+Return the WKT1 string of the crs defined by watherver WKT string ``crs``
+%End
+
+    static QString crsEsriWkt( const QString &crs );
+%Docstring
+Return the ESRI WKT string of the crs defined by watherver WKT string ``crs``
+%End
+
+    void setCrs( const QString &crsString );
+%Docstring
+Sets the coordinate reference system of the GIS project
+%End
+
+    static bool crsIsValid( const QString &crs );
+%Docstring
+Returns wheter the crs is recognized and valid
+%End
+
+    void loadQGISProject( const QString &fileName );
+%Docstring
+loads a QGIS project as GIS project
+%End
+
+    void saveQGISProject( const QString &fileName ) const;
+%Docstring
+Saves the GIS project as a QGIS project
+%End
+
+    bool registerLayerAsDigitalElevationModel( const QString &layerId );
+%Docstring
+Registers the layer with ``layerId`` unique as a Digital Elevation Model, returns true is sucessful
+%End
+
+    void unRegisterLayerAsDigitalElevationModel( const QString &layerId );
+%Docstring
+Unregisters the layer with ``layerId`` unique as a Digital Elevation Model, does nothing if no valid layer Id
+%End
+
+    bool isDigitalElevationModel( const QString &layerId ) const;
+%Docstring
+Returns whether the layrId is registered as a Digigtal Elevation Model
+%End
+
+
+
+
+
+
+    ReosArea polygonArea( const QPolygonF &polygon, const QString &crs = QString() ) const;
+%Docstring
+Returns area of ``polygon`` considering the coordinate reference system ``crs``. If no crs is provided, the crs of the project is used
+%End
+
+    static ReosArea polygonAreaWithCrs( const QPolygonF &polygon, const QString &crs );
+%Docstring
+Returns area of ``polygon`` considering the coordinate reference system ``crs``.
+%End
+
+    double convertLengthFromMeterToMapunit( double length );
+%Docstring
+Convert a length from meter to map unit considering the coordinate reference system of the project
+%End
+
+
+
+    void clearProject();
+%Docstring
+Clears the GIS project
+%End
+
+    bool canBeRasterDem( const QString &uri ) const;
+
+
+
+
+
+    QPointF transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint ) const;
+%Docstring
+Transforms the ``sourcePoint`` from ``sourceCRS`` to project CRS
+%End
+
+    QPointF transformToProjectCoordinates( const ReosSpatialPosition &position ) const;
+%Docstring
+Transforms the spatial position ``position`` to project CRS
+%End
+
+    QPolygonF transformToProjectCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon ) const;
+%Docstring
+Transforms the ``sourcePoint`` from ``sourceCRS`` to project CRS
+%End
+
+    static QPointF transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs );
+%Docstring
+Transforms the spatial position ``position`` to given ``crs``
+%End
+
+    static double distance( const QPointF &point1, const QPointF &point2, const QString &pointCrs );
+%Docstring
+Calculates and returns distance in meters between ``point1`` and ``point2`` that are in ``pointsCrs`` coordinates system
+%End
+
+    static double locateOnPolyline( const QPointF &point, const QPolygonF &polyline, const QString &crs );
+%Docstring
+Calculates and returns location of ``point`` from begining of ``polyline`` in meters, point and polyline are in ``crs`` coordinates system
+%End
+
+    static QPointF setPointOnPolyline( double distance, const QPolygonF &polyline, const QString &crs, int &segmentVertex );
+%Docstring
+Sets and returns a point on ``polyline`` with ``distance`` from beginning in meters with returned point and ``polyline`` in ``crs`` coordinates
+%End
+
+    static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
+%Docstring
+Transforms the ``sourcePolygon`` with crs ``sourceCrs``  to given ``crs``
+%End
+
+    static double factorUnitToMeter( const QString &crs );
+
+
+    QPair<QDateTime, QDateTime> temporalRange() const;
+%Docstring
+Returns the temporal range
+%End
+
+
+
+    static bool createProjectFile( const QString &projectFileName, bool keepLayer = false );
+%Docstring
+Creates new project file with the current project, returns true if succefull. if ``keepLayer`` is true,
+the layers currently prensent in the project will be added to the new project
+%End
+
+    static QString gisEngineName();
+    static QString gisEngineVersion();
+    static QString gisEngineLink();
+
+    static QString wktEPSGCrs( int code );
+
+  public slots:
+    void setTemporalRange( const QDateTime &startTime, const QDateTime &endTime );
+%Docstring
+Sets the temporal range
+%End
+
+  signals:
+    void crsChanged( const QString &wktCrs );
+    void layerRemoved( const QString &layerId );
+    void updated();
+    void temporalRangeChanged( const QDateTime &startTime, const QDateTime &endTime );
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosgisengine.h                                         *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

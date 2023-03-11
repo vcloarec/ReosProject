@@ -554,7 +554,7 @@ ReosMapExtent ReosHydraulicNetwork::networkExtent() const
 {
   ReosMapExtent extent;
   for ( const ReosHydraulicNetworkElement *elem : mElements )
-    extent.expendWithExtent( elem->extent() );
+    extent.extendWithExtent( elem->extent() );
 
   return extent;
 }

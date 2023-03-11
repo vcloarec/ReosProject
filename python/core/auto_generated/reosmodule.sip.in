@@ -1,7 +1,7 @@
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/watershed/reoswatershed.h                                   *
+ * src/core/reosmodule.h                                                *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
@@ -10,14 +10,14 @@
 
 
 
-class ReosWatershed: ReosDataObject
+class ReosModule : QObject
 {
 %Docstring(signature="appended")
 *************************************************************************
-reoswatershed.h
+reosmodule.h
 --------------------------------------
-  Date                 : 10-2020
-  Copyright            : (C) 2020 by Vincent Cloarec
+  Date                 : 18-11-2018
+  Copyright            : (C) 2018 by Vincent Cloarec
   email                : vcloarec at gmail dot com
   **************************************************************************
 
@@ -30,38 +30,38 @@ the Free Software Foundation; either version 2 of the License, or     *
 %End
 
 %TypeHeaderCode
-#include "reoswatershed.h"
+#include "reosmodule.h"
 %End
   public:
-    enum Type
+
+    enum MessageType
     {
-      None,
-      Automatic,
-      Manual,
-      Residual
+      Simple,
+      Order,
+      Warning,
+      Error
     };
 
-    ReosWatershed();
+    struct Message
+    {
+      void prefixMessage( const QString &prefix );
+      void addText( const QString &newText );
 
-    ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint );
-%Docstring
-Constructor of manual delineating watershed with ``delineating`` polygon and the ``outlet`` point.
-%End
+      MessageType type;
+      QString text;
+    };
 
-
-    ReosArea area() const;
-%Docstring
-Returns the area of the watershed
-%End
+    explicit ReosModule( QObject *parent = 0 );
+    virtual ~ReosModule();
 
 
 };
 
+
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/watershed/reoswatershed.h                                   *
+ * src/core/reosmodule.h                                                *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/

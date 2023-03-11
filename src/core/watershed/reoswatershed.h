@@ -50,10 +50,12 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
     ReosWatershed();
 
-    //! Constructor used with manual delineating
+    /**
+     * Constructor of manual delineating watershed with \a delineating polygon and the \a outlet point.
+     */
     ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint,
-                   Type type );
+                   const QPointF &outletPoint );
+
 #ifndef SIP_RUN
 
     //! Constructor used with automatic delineating with direction data containded in the upstream watershed
@@ -211,6 +213,13 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     ReosParameterDouble *longestPathParameter() const;
     ReosParameterDouble *averageElevationParameter() const;
 
+#endif //#ifndef SIP_RUN
+
+    //! Returns the area of the watershed
+    ReosArea area() const;
+
+#ifndef SIP_RUN
+
     ReosParameterDuration *concentrationTime() const;
     ReosConcentrationTimeCalculation concentrationTimeCalculation() const;
     void setConcentrationTimeCalculation( const ReosConcentrationTimeCalculation &concentrationTimeCalculation );
@@ -251,6 +260,10 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     void calculateAverageElevation();
 
   private:
+    ReosWatershed( const QPolygonF &delineating,
+                   const QPointF &outletPoint,
+                   Type type );
+
     Type mType = None;
 
     ReosParameterString *mName;

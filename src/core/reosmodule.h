@@ -16,8 +16,6 @@ email                : vcloarec at gmail dot com
 #ifndef REOSMODULE_H
 #define REOSMODULE_H
 
-#define SIP_NO_FILE
-
 #include <QObject>
 #include <QUndoCommand>
 #include <QActionGroup>
@@ -34,6 +32,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
 {
     Q_OBJECT
   public:
+
     enum MessageType
     {
       Simple,
@@ -53,6 +52,8 @@ class REOSCORE_EXPORT ReosModule : public QObject
 
     explicit ReosModule( QObject *parent = nullptr );
     virtual ~ReosModule();
+
+#ifndef SIP_RUN
 
     QList<QAction *> actions() const;
 
@@ -97,10 +98,13 @@ class REOSCORE_EXPORT ReosModule : public QObject
 
     void sendMessage( QString mes, MessageType type, bool messageBox = false ) const;
 
+#endif //#ifndef SIP_RUN
+
   private:
     QPointer<ReosModule> mReosParent;
     QList<ReosModule *> mReosChildren;
     QString mProjectFileName;
 };
+
 
 #endif // REOSMODULE_H
