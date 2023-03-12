@@ -482,7 +482,8 @@ QString ReosHydrographRoutingMethodFactories::htmlDescription( const QString &ty
   return QString();
 }
 
-ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( ReosModule *parent ): ReosModule( parent )
+ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( ReosModule *parent )
+  : ReosModule( QStringLiteral("hydrograph-routing-methods-factories"), parent )
 {
   addFactory( new ReosHydrographRoutingMethodDirectFactory );
   addFactory( new ReosHydrographRoutingMethodMuskingumFactory );

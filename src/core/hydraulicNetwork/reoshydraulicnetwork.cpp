@@ -168,7 +168,7 @@ ReosMapExtent ReosHydraulicNetworkElement::extent() const
 }
 
 ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule )
-  : ReosModule( parent )
+  : ReosModule( staticName(), parent )
   , mGisEngine( gisEngine )
   , mWatershedModule( watershedModule )
   , mHydraulicSchemeCollection( new ReosHydraulicSchemeCollection( this ) )

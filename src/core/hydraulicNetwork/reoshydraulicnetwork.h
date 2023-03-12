@@ -250,6 +250,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosHydraulicNetworkElementCompatibilty checkSchemeCompatibility( ReosHydraulicScheme *scheme ) const;
 
+    static QString staticName() {return QStringLiteral( "hydraulic-network" );}
+
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
     void elementWillBeRemoved( ReosHydraulicNetworkElement *elem );

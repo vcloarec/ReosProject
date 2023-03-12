@@ -115,7 +115,8 @@ QPolygonF ReosCoordinateSystemTransformer::transformToCoordinates( const QString
 ReosCoordinateSystemTransformer::ReosCoordinateSystemTransformer()
 {}
 
-ReosGisEngine::ReosGisEngine( QObject *parent ): ReosModule( parent )
+ReosGisEngine::ReosGisEngine( QObject *parent )
+  : ReosModule( staticName(), parent )
 {
   initGisEngine();
 

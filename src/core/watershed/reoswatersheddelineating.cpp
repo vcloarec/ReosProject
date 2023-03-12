@@ -20,7 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershedtree.h"
 
 ReosWatershedDelineating::ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedtree, ReosGisEngine *gisEngine ):
-  ReosModule( parent ),
+  ReosModule( ReosWatershedDelineating::staticName(), parent ),
   mWatershedTree( watershedtree ),
   mGisEngine( gisEngine )
 {}

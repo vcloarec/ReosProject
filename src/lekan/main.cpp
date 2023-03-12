@@ -68,55 +68,14 @@ int main( int argc, char *argv[] )
 
   ReosApplication a( argc, argv );
 
-#ifdef _MSC_VER
-  qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
-  if ( qgetenv( "GDAL_DATA" ).isEmpty() )
-  {
-    QString gdalData = QCoreApplication::applicationDirPath();
-    gdalData.append( "\\..\\share\\gdal" );
-    qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
-  }
-
-#endif
-
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
-
   QApplication::setStyle( QStyleFactory::create( "fusion" ) );
 
-  QSettings::setDefaultFormat( QSettings::IniFormat );
-
-  ReosSettings settings;
-  QLocale localeGlobal;
-  if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
-    localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
-  else
-    localeGlobal = QLocale::system();
-
-  QLocale::setDefault( localeGlobal );
-
-  QLocale localeLanguage;
-  if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
-    localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
-  else
-    localeLanguage = QLocale::system();
-
-  QTranslator ReosTranslator;
-  QTranslator QtTranslator;
-  QTranslator QgisTranslator;
-
-  QString i18nPath = ReosApplication::i18nPath();
-
-  if ( QtTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
-    a.installTranslator( &QtTranslator );
-  if ( QgisTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
-    a.installTranslator( &QgisTranslator );
-  if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
-    a.installTranslator( &ReosTranslator );
-
-  std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>();
+  std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>( a.coreModule() );
   new ReosVersionMessageBox( w.get(), ReosVersion::currentApplicationVersion() );
 
+  ReosSettings settings;
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
   {
     w->restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );

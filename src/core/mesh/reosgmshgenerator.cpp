@@ -325,6 +325,7 @@ void ReosGmshEngine::instantiate( QObject *parent )
     sInstance = new ReosGmshEngine( parent );
 }
 
-ReosGmshEngine::ReosGmshEngine( QObject *parent ): ReosModule( parent )
+ReosGmshEngine::ReosGmshEngine( QObject *parent )
+  : ReosModule( staticName(), parent )
 {
 }

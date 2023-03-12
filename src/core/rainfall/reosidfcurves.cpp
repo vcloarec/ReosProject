@@ -161,7 +161,7 @@ QStringList ReosIdfFormulaRegistery::formulasList() const
   return ret;
 }
 
-QPixmap ReosIdfFormulaRegistery::formulaImage( const QString name ) const
+QPixmap ReosIdfFormulaRegistery::formulaImage( const QString &name ) const
 {
   auto it = mFormulas.find( name );
   if ( it != mFormulas.end() )
@@ -170,7 +170,8 @@ QPixmap ReosIdfFormulaRegistery::formulaImage( const QString name ) const
     return QPixmap();
 }
 
-ReosIdfFormulaRegistery::ReosIdfFormulaRegistery( ReosModule *parent ): ReosModule( parent )
+ReosIdfFormulaRegistery::ReosIdfFormulaRegistery( ReosModule *parent )
+  : ReosModule( staticName(), parent )
 {
 
 }

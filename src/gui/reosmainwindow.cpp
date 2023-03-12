@@ -38,24 +38,24 @@ email                : vcloarec at gmail dot com
 #include "reosgmshgenerator.h"
 
 
-ReosMainWindow::ReosMainWindow( QWidget *parent ) :
-  QMainWindow( parent ),
-  mRootModule( new ReosModule ),
-  mGroupActionFile( new QActionGroup( this ) ),
-  mGroupActionEdit( new QActionGroup( this ) ),
-  mGroupActionOption( new QActionGroup( this ) ),
-  mGroupActionInterrogation( new QActionGroup( this ) ),
-  mActionNewProject( new QAction( QIcon( QStringLiteral( ":/images/mActionNew.svg" ) ), tr( "New Project" ), this ) ),
-  mActionOpenFile( new QAction( QIcon( QStringLiteral( ":/images/open.svg" ) ), tr( "Open file" ), this ) ),
-  mMenuRecentProjects( new QMenu( tr( "Open Recent" ), this ) ),
-  mActionSaveFile( new QAction( QIcon( QStringLiteral( ":/images/save.svg" ) ), tr( "Save" ), this ) ),
-  mActionSaveFileAs( new QAction( QIcon( QStringLiteral( ":/images/saveAs.svg" ) ), tr( "Save as ..." ), this ) ),
-  mActionLanguageSelection( new QAction( tr( "Select language" ), this ) ),
-  mActionAbout( new QAction( tr( "About ..." ), this ) ),
-  mActionNewVersionAvailable( new QAction( tr( "Check new version" ), this ) ),
-  mActionDocumentation( new QAction( tr( "Documentation" ), this ) ),
-  mActionHowToSupport( new QAction( tr( "How to help?" ), this ) ),
-  mUndoStack( new QUndoStack( this ) )
+ReosMainWindow::ReosMainWindow( ReosModule *rootModule, QWidget *parent )
+  : mRootModule( rootModule )
+  , mGuiRootModule( new ReosModule( QStringLiteral( "gui-root-module" ), rootModule ) )
+  , QMainWindow( parent )
+  , mGroupActionFile( new QActionGroup( this ) )
+  , mGroupActionEdit( new QActionGroup( this ) )
+  , mGroupActionOption( new QActionGroup( this ) )
+  , mGroupActionInterrogation( new QActionGroup( this ) )
+  , mActionNewProject( new QAction( QIcon( QStringLiteral( ":/images/mActionNew.svg" ) ), tr( "New Project" ), this ) )
+  , mActionOpenFile( new QAction( QIcon( QStringLiteral( ":/images/open.svg" ) ), tr( "Open file" ), this ) )
+  , mMenuRecentProjects( new QMenu( tr( "Open Recent" ), this ) )
+  , mActionSaveFile( new QAction( QIcon( QStringLiteral( ":/images/save.svg" ) ), tr( "Save" ), this ) )
+  , mActionSaveFileAs( new QAction( QIcon( QStringLiteral( ":/images/saveAs.svg" ) ), tr( "Save as ..." ), this ) )
+  , mActionLanguageSelection( new QAction( tr( "Select language" ), this ) )
+  , mActionAbout( new QAction( tr( "About ..." ), this ) )
+  , mActionNewVersionAvailable( new QAction( tr( "Check new version" ), this ) )
+  , mActionDocumentation( new QAction( tr( "Documentation" ), this ) )
+  , mActionHowToSupport( new QAction( tr( "How to help?" ), this ) )
 {
   setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   setDockNestingEnabled( true );
@@ -66,10 +66,15 @@ ReosMainWindow::ReosMainWindow( QWidget *parent ) :
   centralWidget->setLayout( centralLayout );
   centralLayout->setContentsMargins( 0, 0, 0, 0 );
 
-  connect( mRootModule.get(), &ReosModule::dirtied, this, [this]
+  connect( rootModule, &ReosModule::dirtied, this, [this]
   {
     mProjectIsDirty = true;
   } );
+}
+
+ReosMainWindow::~ReosMainWindow()
+{
+  delete mGuiRootModule;
 }
 
 void ReosMainWindow::init()
@@ -120,10 +125,6 @@ void ReosMainWindow::init()
   mMenuInterrogation = menuBar()->addMenu( tr( "?" ) );
   mMenuInterrogation->addActions( mGroupActionInterrogation->actions() );
 
-  //****************************************************************
-
-  connect( mRootModule.get(), &ReosModule::newCommandToUndoStack, this, &ReosMainWindow::newUndoCommand );
-
   connect( mActionNewProject, &QAction::triggered, this, &ReosMainWindow::newProject );
   connect( mActionOpenFile, &QAction::triggered, this, &ReosMainWindow::openFile );
   connect( mActionSaveFile, &QAction::triggered, this, &ReosMainWindow::save );
@@ -135,7 +136,7 @@ void ReosMainWindow::init()
   connect( mActionDocumentation, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mDocumentationUrl );} );
   connect( mActionHowToSupport, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mHowToSupportUrl );} );
 
-  connect( mRootModule.get(), &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
+  connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
 }
 
 void ReosMainWindow::onRemoteInformation( const QVariantMap &information )
@@ -196,7 +197,7 @@ bool ReosMainWindow::openFileWithPath( const QString &filePath )
 {
   ReosSettings settings;
   mCurrentProjectFileInfo = QFileInfo( filePath );
-  rootModule()->setProjectFileName( filePath );
+  mRootModule->setProjectFileName( filePath );
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool result = openProject();
@@ -204,7 +205,7 @@ bool ReosMainWindow::openFileWithPath( const QString &filePath )
   if ( !result )
   {
     mCurrentProjectFileInfo = QFileInfo();
-    rootModule()->setProjectFileName( QString() );
+    mRootModule->setProjectFileName( QString() );
   }
 
   mProjectIsDirty = false;
@@ -239,7 +240,7 @@ bool ReosMainWindow::saveAs()
     filePath.append( '.' + projectFileSuffix() );
     mCurrentProjectFileInfo = QFileInfo( filePath );
   }
-  rootModule()->setProjectFileName( filePath );
+  mRootModule->setProjectFileName( filePath );
   settings.setValue( QStringLiteral( "Path/Project" ), mCurrentProjectFileInfo.path() );
 
   bool saved = saveProject();
@@ -263,7 +264,7 @@ void ReosMainWindow::newProject()
   }
 
   mCurrentProjectFileInfo = QFileInfo();
-  rootModule()->setProjectFileName( QString() );
+  mRootModule->setProjectFileName( QString() );
   clearProject();
 
   mProjectIsDirty = false;
@@ -300,9 +301,9 @@ void ReosMainWindow::newVersionAvailable()
   new ReosVersionMessageBox( this, version(), false );
 }
 
-ReosModule *ReosMainWindow::rootModule() const
+ReosModule *ReosMainWindow::guiRootModule() const
 {
-  return mRootModule.get();
+  return mGuiRootModule;
 }
 
 QString ReosMainWindow::currentProjectFilePath() const
@@ -403,23 +404,6 @@ void ReosMainWindow::closeEvent( QCloseEvent *event )
   QMainWindow::closeEvent( event );
 }
 
-void ReosMainWindow::keyPressEvent( QKeyEvent *event )
-{
-  if ( event->matches( QKeySequence::Undo ) )
-  {
-    mUndoStack->undo();
-    event->accept();
-  }
-
-  if ( event->matches( ( QKeySequence::Redo ) ) )
-  {
-    mUndoStack->redo();
-    event->accept();
-  }
-
-  QWidget::keyPressEvent( event );
-}
-
 QString ReosMainWindow::projectFileFilter() const
 {
   return QString();
@@ -430,10 +414,6 @@ QString ReosMainWindow::projectFileSuffix() const
   return QString();
 }
 
-void ReosMainWindow::newUndoCommand( QUndoCommand *command )
-{
-  mUndoStack->push( command );
-}
 
 ReosRecentProjectModel::ReosRecentProjectModel( QObject *parent ): QAbstractListModel( parent )
 {}

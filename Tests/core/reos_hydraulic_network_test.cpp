@@ -53,7 +53,7 @@ class ReoHydraulicNetworkTest: public QObject
 
 void ReoHydraulicNetworkTest::initTestCase()
 {
-  mRootModule = new ReosModule( this );
+  mRootModule = new ReosModule( QStringLiteral( "root" ), this );
   mRootModule->setProjectFileName( "ooooo" );
   mGisEngine = new ReosGisEngine( this );
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );

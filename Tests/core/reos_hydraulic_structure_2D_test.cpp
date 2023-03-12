@@ -52,12 +52,12 @@ class ReoHydraulicStructure2DTest: public QObject
 
 void ReoHydraulicStructure2DTest::initTestCase()
 {
-  mRootModule = new ReosModule( this );
+  mRootModule = new ReosModule( QStringLiteral("root"), this );
   mGisEngine = new ReosGisEngine( this );
   mNetwork = new ReosHydraulicNetwork( mRootModule, mGisEngine, nullptr );
 
   mRainfallModel = ReosRainfallRegistery::instance()->rainfallModel();
-  mRainZone1 = mRainfallModel->addZone( "Zone 1", "", QModelIndex() );
+  mRainZone1 = mRainfallModel->addZone( QStringLiteral("Zone 1"), "", QModelIndex() );
 }
 
 void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()

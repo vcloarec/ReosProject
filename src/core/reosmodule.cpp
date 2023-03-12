@@ -19,14 +19,18 @@ email                : vcloarec at gmail dot com
 #include "reosmodule.h"
 #include "reosprocess.h"
 
-ReosModule::ReosModule( QObject *parent ):
-  QObject( parent ),  mGroupAction( new QActionGroup( this ) )
+ReosModule::ReosModule( const QString &moduleName, QObject *parent )
+  : QObject( parent )
+  , mReosParent( qobject_cast<ReosModule *>( parent ) )
 {
-  mReosParent = qobject_cast<ReosModule *>( parent );
-
   if ( mReosParent )
   {
-    mReosParent->mReosChildren.append( this );
+    if ( mReosParent->mReosChildren.contains( moduleName ) )
+    {
+      qDebug() << QStringLiteral( "This module already contains a child module with name %1" ).arg( moduleName );
+      return;
+    }
+    mReosParent->mReosChildren.insert( moduleName, this );
     connect( this, &ReosModule::dirtied, mReosParent, &ReosModule::dirtied );
   }
 }
@@ -34,25 +38,7 @@ ReosModule::ReosModule( QObject *parent ):
 ReosModule::~ReosModule()
 {
   if ( mReosParent )
-    mReosParent->mReosChildren.removeOne( this );
-}
-
-void ReosModule::newCommand( QUndoCommand *command )
-{
-  if ( mUndoStack )
-  {
-    mUndoStack->push( command );
-    return;
-  }
-
-  if ( mReosParent )
-  {
-    mReosParent->newCommand( command );
-  }
-  else
-  {
-    emit newCommandToUndoStack( command );
-  }
+    mReosParent->mReosChildren.remove( this->moduleName() );
 }
 
 void ReosModule::warning( QString message, bool inMessageBox ) const
@@ -134,6 +120,16 @@ QFileInfoList ReosModule::uselessFiles( bool clean ) const
 
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
 
+ReosModule *ReosModule::childModule( const QString &moduleName ) const
+{
+  return mReosChildren.value( moduleName, nullptr );
+}
+
+QStringList ReosModule::childModuleNames() const
+{
+  return mReosChildren.keys();
+}
+
 const QString ReosModule::projectFileName()
 {
   if ( mReosParent )
@@ -141,19 +137,6 @@ const QString ReosModule::projectFileName()
 
   return mProjectFileName;
 }
-
-void ReosModule::redo()
-{
-  if ( mUndoStack )
-    mUndoStack->redo();
-}
-
-void ReosModule::undo()
-{
-  if ( mUndoStack )
-    mUndoStack->undo();
-}
-
 
 void ReosModule::Message::prefixMessage( const QString &prefix )
 {

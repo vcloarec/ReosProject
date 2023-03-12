@@ -410,8 +410,8 @@ class ReosQgsMapCanvas : public QgsMapCanvas
     }
 };
 
-ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
-  ReosModule( gisEngine )
+ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
+  ReosModule( staticModuleName(), parentWidget )
   , mEngine( gisEngine )
   , mCanvas( new ReosQgsMapCanvas( parentWidget ) )
   , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )

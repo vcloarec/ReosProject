@@ -230,7 +230,8 @@ ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *d
   return nullptr;
 }
 
-ReosFormWidgetFactories::ReosFormWidgetFactories( ReosModule *parent ): ReosModule( parent )
+ReosFormWidgetFactories::ReosFormWidgetFactories( ReosModule *parent )
+  : ReosModule( QStringLiteral( "form-widget-factories" ), parent )
 {}
 
 ReosFormWidget *ReosFormWidgetDataFactory::createDataWidget( ReosDataObject *, const ReosGuiContext & )

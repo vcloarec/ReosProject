@@ -163,6 +163,8 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Clears all the data from the delineating tool
     void clear();
 
+    static QString staticName() {return QStringLiteral( "watershed-delineating" );}
+
   signals:
     void hasBeenReset();
 

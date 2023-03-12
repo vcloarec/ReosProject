@@ -28,6 +28,8 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
 
+    static QString staticName()  {return QStringLiteral( "watershed-module" );}
+
   signals:
     void hasBeenReset();
 

@@ -8,6 +8,7 @@ SET(REOS_CORE_SOURCES
   reosencodedelement.cpp
   reosmemoryraster.cpp
   reosmodule.cpp
+  reoscoremodule.cpp
   reossettings.cpp
   reosversion.cpp
   reosexception.cpp
@@ -110,6 +111,7 @@ SET(REOS_CORE_HEADERS
     reosencodedelement.h
     reosmemoryraster.h
     reosmodule.h
+    reoscoremodule.h
     reossettings.h
     reosversion.h
     reosexception.h

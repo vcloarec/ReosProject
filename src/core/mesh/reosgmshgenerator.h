@@ -84,6 +84,8 @@ class ReosGmshEngine : public ReosModule
 
     static void instantiate( QObject *parent );
 
+    static QString staticName() {return QStringLiteral( "gmsh-engine" );}
+
   signals:
     void startGenerate();
 

@@ -863,7 +863,8 @@ ReosPlotItem *ReosPlotItemFactories::buildPlotItem( ReosPlotWidget *plotWidget, 
   return nullptr;
 }
 
-ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent ): ReosModule( parent ) {}
+ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent )
+  : ReosModule( QStringLiteral("plot-item-factories"), parent ) {}
 
 void ReosDataPlotItemFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * ) {}
 

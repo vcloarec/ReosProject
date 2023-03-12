@@ -42,7 +42,7 @@ class ReosRainfallTest: public QObject
 
   private:
     ReosModule mRootModule;
-    ReosGisEngine *mGisEngine;
+    ReosGisEngine *mGisEngine = nullptr;
 
     QEventLoop loop;
     QTimer timer;

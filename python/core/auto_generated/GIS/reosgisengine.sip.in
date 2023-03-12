@@ -37,6 +37,8 @@ Constructor
 %End
     ~ReosGisEngine();
 
+    static QString staticName();
+
     void initGisEngine();
 
     QString addVectorLayer( const QString &uri, const QString &name = QString() );

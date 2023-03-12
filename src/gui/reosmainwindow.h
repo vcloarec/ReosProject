@@ -41,7 +41,8 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    explicit ReosMainWindow( QWidget *parent = nullptr );
+    explicit ReosMainWindow( ReosModule *rootModule, QWidget *parent = nullptr );
+    ~ReosMainWindow();
     bool openFile();
     bool openFileWithPath( const QString &filePath );
 
@@ -51,16 +52,15 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     void newProject();
 
   protected:
+
+    ReosModule *guiRootModule() const;
     void closeEvent( QCloseEvent *event ) override;
-    void keyPressEvent( QKeyEvent *event ) override;
 
     void init();
     void addActionsFile( const QList<QAction *> &actions );
     void addActionEdit( const QList<QAction *> &actions );
     void addActionOption( const QList<QAction *> &actions );
     void addActionInterrogation( const QList<QAction *> &actions );
-
-    ReosModule *rootModule() const;
 
     //! Returns the complete project file path, with path to the folder and file name
     QString currentProjectFilePath() const;
@@ -77,8 +77,6 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
     QVariantList mCriticalInfo;
 
   private slots:
-    void newUndoCommand( QUndoCommand *command );
-
     bool save();
     bool saveAs();
 
@@ -100,9 +98,10 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     virtual QList<QMenu *> specificMenus() {return QList<QMenu *>();}
 
-    std::unique_ptr<ReosModule> mRootModule;
     bool mProjectIsDirty = false;
 
+    ReosModule *mRootModule = nullptr;
+    ReosModule *mGuiRootModule = nullptr;
     ReosMessageBox *messageBox = nullptr;
 
     QDockWidget *mDockMessageBox = nullptr;
