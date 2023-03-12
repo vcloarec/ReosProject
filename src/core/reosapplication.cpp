@@ -17,11 +17,65 @@ email                : vcloarec at gmail dot com
 
 #include <QThread>
 #include <QMessageBox>
+#include <QTranslator>
 #include "reosmapextent.h"
+#include "reossettings.h"
+#include "reoscoremodule.h"
+#include "reoswatershedmodule.h"
 
-ReosApplication::ReosApplication( int &argc, char **argv, int flag ): QApplication( argc, argv, flag )
+ReosApplication::ReosApplication( int &argc, char **argv, int flag )
+  : QApplication( argc, argv, flag )
+  , mCoreModule( new ReosCoreModule( this ) )
 {
   qRegisterMetaType<ReosSpatialPosition>( "ReosSpatialPosition" );
+
+  ReosWatershedModule *wm = mCoreModule->module<ReosWatershedModule *>();
+
+#ifdef _MSC_VER
+  if ( qgetenv( "GDAL_DATA" ).isEmpty() )
+  {
+    QString gdalData = QCoreApplication::applicationDirPath();
+    gdalData.append( "\\..\\share\\gdal" );
+    qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
+  }
+
+#endif
+
+  QSettings::setDefaultFormat( QSettings::IniFormat );
+  ReosSettings settings;
+  QLocale localeGlobal;
+  if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
+    localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
+  else
+    localeGlobal = QLocale::system();
+
+  QLocale::setDefault( localeGlobal );
+
+  QLocale localeLanguage;
+  if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
+    localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
+  else
+    localeLanguage = QLocale::system();
+
+  QTranslator ReosTranslator;
+  QTranslator QtTranslator;
+  QTranslator QgisTranslator;
+
+  QString i18nPath = ReosApplication::i18nPath();
+
+  if ( QtTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
+    installTranslator( &QtTranslator );
+  if ( QgisTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
+    installTranslator( &QgisTranslator );
+  if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
+    installTranslator( &ReosTranslator );
+
+}
+
+ReosApplication::~ReosApplication()
+{
+  if ( mCoreModule )
+    delete mCoreModule;
 }
 
 bool ReosApplication::notify( QObject *receiver, QEvent *event )
@@ -146,4 +200,9 @@ QString ReosApplication::styleSheet()
   myStyle.append( QStringLiteral( "body { margin: 10px; }\n " ) );
 
   return myStyle;
+}
+
+ReosCoreModule *ReosApplication::coreModule() const
+{
+  return mCoreModule;
 }

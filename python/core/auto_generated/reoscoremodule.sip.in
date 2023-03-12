@@ -1,23 +1,22 @@
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/reosmodule.h                                                *
+ * src/core/reoscoremodule.h                                            *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
 
 
 
-
-
-class ReosModule : QObject
+class ReosCoreModule : ReosModule
 {
 %Docstring(signature="appended")
 *************************************************************************
-reosmodule.h
---------------------------------------
-  Date                 : 18-11-2018
-  Copyright            : (C) 2018 by Vincent Cloarec
+reoscoremodule.h - ReosCoreModule
+
+---------------------
+  begin                : 11.3.2023
+  copyright            : (C) 2023 by Vincent Cloarec
   email                : vcloarec at gmail dot com
   **************************************************************************
 
@@ -30,31 +29,19 @@ the Free Software Foundation; either version 2 of the License, or     *
 %End
 
 %TypeHeaderCode
-#include "reosmodule.h"
+#include "reoscoremodule.h"
 %End
   public:
 
-    enum MessageType
-    {
-      Simple,
-      Order,
-      Warning,
-      Error
-    };
+    ReosCoreModule( QObject *parent = 0 );
+%Docstring
+Constructor
+%End
 
-    struct Message
-    {
-      void prefixMessage( const QString &prefix );
-      void addText( const QString &newText );
-
-      MessageType type;
-      QString text;
-    };
-
-    ReosModule();
-    explicit ReosModule( const QString &moduleName, QObject *parent = 0 );
-    virtual ~ReosModule();
-
+    ReosGisEngine *gisEngine() const;
+%Docstring
+Returns a pointer to the GIS engine
+%End
 
 };
 
@@ -62,7 +49,7 @@ the Free Software Foundation; either version 2 of the License, or     *
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/reosmodule.h                                                *
+ * src/core/reoscoremodule.h                                            *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/

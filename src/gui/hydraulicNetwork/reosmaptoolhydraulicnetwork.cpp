@@ -23,7 +23,7 @@
 
 
 ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( ReosHydraulicNetwork *network, ReosMap *map )
-  : ReosMapTool( network, map ), ReosMapToolHydraulicElement( network )
+  : ReosMapTool( map, map ), ReosMapToolHydraulicElement( network )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawHydraulicNetworkLink_p( canvas );
@@ -158,7 +158,7 @@ bool ReosMapToolDrawHydrographRouting::isFinished() const
 }
 
 ReosMapToolMoveHydraulicNetworkElement::ReosMapToolMoveHydraulicNetworkElement( ReosHydraulicNetwork *network, ReosMap *map )
-  : ReosMapTool( network, map )
+  : ReosMapTool( map, map )
   , ReosMapToolHydraulicElement( network )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
@@ -185,7 +185,7 @@ ReosMapTool_p *ReosMapToolMoveHydraulicNetworkElement::tool_p() const
 
 
 ReosMapToolNewStructure2D::ReosMapToolNewStructure2D( ReosHydraulicNetwork *network, ReosMap *map )
-  : ReosMapToolDrawPolygon( network, map ), ReosMapToolHydraulicElement( network )
+  : ReosMapToolDrawPolygon( map, map ), ReosMapToolHydraulicElement( network )
 {
   setStrokeWidth( 2 );
   setColor( ReosStyleRegistery::instance()->blueReos() );

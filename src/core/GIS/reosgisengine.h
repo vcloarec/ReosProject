@@ -83,6 +83,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     ReosGisEngine( QObject *parent = nullptr );
     ~ReosGisEngine();
 
+    static QString staticName() {return QStringLiteral("gis-engine");}
+
     void initGisEngine();
 
     //! Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false

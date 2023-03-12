@@ -40,13 +40,14 @@ class ReosWatershedDockWidget;
 class ReosHydraulicNetworkDockWidget;
 class ReosWatershedWidget;
 class ReosHydraulicNetworkWidget;
+class ReosCoreModule;
 
 class LekanMainWindow : public ReosMainWindow
 {
     Q_OBJECT
 
   public:
-    explicit LekanMainWindow( QWidget *parent = nullptr );
+    explicit LekanMainWindow( ReosCoreModule *core, QWidget *parent = nullptr );
     bool openProject() override;
 
     QStringList recentProjectPathes() const;

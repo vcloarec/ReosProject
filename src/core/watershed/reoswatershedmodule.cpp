@@ -7,7 +7,7 @@
 #include "reostransferfunction.h"
 
 ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine ):
-  ReosModule( parent ),
+  ReosModule( ReosWatershedModule::staticName(), parent ),
   mWatershedTree( new ReosWatershedTree( gisEngine, this ) ),
   mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) ),
   mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection( this ) )

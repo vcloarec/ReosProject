@@ -41,13 +41,14 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoshydraulicnetworkwidget.h"
 #include "reosstructure2dtoolbar.h"
 #include "reosoverridecursor.h"
+#include "reoscoremodule.h"
 
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
 
 
-LekanMainWindow::LekanMainWindow( QWidget *parent )
-  : ReosMainWindow( parent )
-  , mGisEngine( new ReosGisEngine( rootModule() ) )
+LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
+  : ReosMainWindow( core, parent )
+  , mGisEngine( core->gisEngine() )
   , mMap( new ReosMap( mGisEngine, this ) )
   , mActionRainfallManager( new QAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ), this ) )
   , mActionRunoffManager( new QAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ), this ) )
@@ -69,13 +70,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
 
   setWindowIcon( QIcon( QStringLiteral( ":/images/lekan.svg" ) ) );
 
-  ReosStyleRegistery::instantiate( rootModule() );
-
-  ReosRainfallRegistery::instantiate( rootModule() );
-  ReosRunoffModelRegistery::instantiate( rootModule() );
-
-  ReosPlotItemFactories::instantiate( rootModule() );
-  ReosFormWidgetFactories::instantiate( rootModule() );
+  ReosPlotItemFactories::instantiate( guiRootModule() );
+  ReosFormWidgetFactories::instantiate( guiRootModule() );
 
   mRainFallManagerWidget = new ReosRainfallManager( mMap, ReosRainfallRegistery::instance()->rainfallModel(), this );
   mActionRainfallManager->setCheckable( true );
@@ -99,8 +95,8 @@ LekanMainWindow::LekanMainWindow( QWidget *parent )
   mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
 
-  mWatershedModule = new ReosWatershedModule( rootModule(), mGisEngine );
-  mHydraulicNetwork = new ReosHydraulicNetwork( rootModule(), mGisEngine, mWatershedModule );
+  mWatershedModule = core->watershedModule();
+  mHydraulicNetwork = core->hydraulicNetwork();
 
   mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );

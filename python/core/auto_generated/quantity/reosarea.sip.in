@@ -13,8 +13,20 @@
 class ReosArea
 {
 %Docstring(signature="appended")
-The ReosArea class reprensent a area value with convenient methods to convert to other
-or text with unit
+*************************************************************************
+reosarea.h
+--------------------------------------
+  Date                 : 18-11-2018
+  Copyright            : (C) 2018 by Vincent Cloarec
+  email                : vcloarec@gmail.com projetreos@gmail.com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
 %End
 
 %TypeHeaderCode

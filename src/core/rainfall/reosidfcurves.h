@@ -121,7 +121,9 @@ class REOSCORE_EXPORT ReosIdfFormulaRegistery: public ReosModule
     //! Returns the list of the names of formulas registered, those name are the key to retrieve the formula
     QStringList formulasList() const;
 
-    QPixmap formulaImage( const QString name ) const;
+    QPixmap formulaImage( const QString &name ) const;
+
+    static QString staticName() {return QStringLiteral( "idf-formula-registery" );}
 
   private:
     ReosIdfFormulaRegistery( ReosModule *parent = nullptr );

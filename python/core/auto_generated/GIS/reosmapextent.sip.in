@@ -136,7 +136,7 @@ Returns the WKT coordinates system of this extent
 
     void setCrs( const QString &crs );
 %Docstring
-Set the WKT coordinates system if this extent
+Sets the WKT coordinates system if this extent
 %End
 
     QPolygonF toPolygon() const;
@@ -151,7 +151,7 @@ Returns a rectangle corresponding to this extent
 
     bool isValid() const;
 %Docstring
-Return whether this extent is valid
+Returns whether this extent is valid
 %End
 
     bool operator==( const ReosMapExtent &other ) const;

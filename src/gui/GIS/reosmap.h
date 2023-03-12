@@ -133,6 +133,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     void deactivateCurrentTool();
 
+    static QString staticModuleName() {return QStringLiteral( "map" );}
+
   signals:
     //! emitted when the mouse cursor moves on the map cavans.
     void cursorMoved( const QPointF &point );

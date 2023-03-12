@@ -50,38 +50,36 @@ class REOSCORE_EXPORT ReosModule : public QObject
       QString text = QString();
     };
 
-    explicit ReosModule( QObject *parent = nullptr );
+    ReosModule() = default;
+    explicit ReosModule( const QString &moduleName, QObject *parent = nullptr );
     virtual ~ReosModule();
 
 #ifndef SIP_RUN
 
-    QList<QAction *> actions() const;
-
     const QString projectFileName();
-
     void setProjectFileName( const QString &projectFileName );
 
     virtual QFileInfoList uselessFiles( bool clean ) const;
 
+    QString moduleName() const {return mModuleName;}
+
+    ReosModule *childModule( const QString &moduleName ) const;
+    QStringList childModuleNames() const;
+
+    /**
+     * Returns a pointer to the child module of type T, nullptr is this module does not exist
+     */
+    template <typename T>
+    T module() const
+    {
+      return qobject_cast<T>( childModule( std::remove_pointer<T>::type::staticName() ) );
+    }
+
   signals:
-    void newCommandToUndoStack( QUndoCommand *command );
-    void activeUndoStack( QUndoStack *undoStack );
     void emitMessage( const Message &message, bool messageBox ) const;
     void dirtied();
 
   public slots:
-
-    void undo();
-    void redo();
-
-    ////////////////////////////////////////////
-    /// \brief newCommand
-    /// \param command
-    /// Handle QUndoCommand, by default : if undoStack is present (mUndoStack !=nullptr, push the command to the undoStack.
-    /// If not send to the parent the command if the parent is not null, if it is null, emit newCommandToUndoStack.
-    ///
-    virtual void newCommand( QUndoCommand *command );
-
     void warning( QString message, bool inMessageBox = false ) const;
     void error( QString message, bool inMessageBox = false ) const;
     void message( QString message, bool inMessageBox = false ) const;
@@ -93,17 +91,15 @@ class REOSCORE_EXPORT ReosModule : public QObject
     void onMessageReceived( const QString &message, const MessageType &type, bool inMessageBox = false );
 
   protected:
-    QActionGroup *mGroupAction = nullptr;
-    QUndoStack *mUndoStack = nullptr;
-
     void sendMessage( QString mes, MessageType type, bool messageBox = false ) const;
 
 #endif //#ifndef SIP_RUN
 
   private:
     QPointer<ReosModule> mReosParent;
-    QList<ReosModule *> mReosChildren;
+    QMap < QString, QPointer<ReosModule>> mReosChildren;
     QString mProjectFileName;
+    QString mModuleName;
 };
 
 

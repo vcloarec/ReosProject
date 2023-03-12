@@ -19,7 +19,7 @@
 
 ReosStyleRegistery *ReosStyleRegistery::sInstance = nullptr;
 
-ReosStyleRegistery::ReosStyleRegistery( ReosModule *parent ): ReosModule( parent )
+ReosStyleRegistery::ReosStyleRegistery( ReosModule *parent ): ReosModule( QStringLiteral("style-registery"), parent )
 {
   mColors << QColor( "#00c842" )
           << QColor( "#e48100" )
@@ -78,7 +78,7 @@ QColor ReosStyleRegistery::fillColor( int &index, int alpha ) const
 
 QSize ReosStyleRegistery::toolBarIconSize( QWidget *widget, double ratio ) const
 {
-    return QSize();
+  return QSize();
   //if ( !widget || !widget->screen() )
   //  return QSize();
 

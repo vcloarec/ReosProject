@@ -19,20 +19,28 @@ email                : vcloarec at gmail dot com
 #define SIP_NO_FILE
 
 #include <QApplication>
+#include <QPointer>
 
 #include "reoscore.h"
 
+class ReosCoreModule;
 
 class REOSCORE_EXPORT ReosApplication: public QApplication
 {
     Q_OBJECT
   public:
     ReosApplication( int &argc, char **argv, int flag = ApplicationFlags );
+    ~ReosApplication();
     bool notify( QObject *receiver, QEvent *event ) override;
 
     static QString i18nPath();
-
     static QString styleSheet();
+
+    ReosCoreModule *coreModule() const;
+
+  private:
+    QPointer<ReosCoreModule> mCoreModule;
 };
+
 
 #endif // REOSAPPLICATION_H

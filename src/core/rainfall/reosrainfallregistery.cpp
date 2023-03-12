@@ -21,7 +21,8 @@
 
 ReosRainfallRegistery *ReosRainfallRegistery::sRainfallRegistery = nullptr;
 
-ReosRainfallRegistery::ReosRainfallRegistery( ReosModule *parentModule ): ReosModule( parentModule )
+ReosRainfallRegistery::ReosRainfallRegistery( ReosModule *parentModule )
+  : ReosModule( QStringLiteral("rainfall-registery"), parentModule )
 {
   mRainfallModel = new ReosRainfallModel( this );
 

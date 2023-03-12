@@ -60,7 +60,7 @@ class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool, public ReosMapToo
     virtual bool isFinished() const {return false;}
 
   private:
-    ReosMapToolDrawHydraulicNetworkLink_p *d;
+    QPointer<ReosMapToolDrawHydraulicNetworkLink_p> d;
     ReosMapTool_p *tool_p() const;
 };
 
@@ -85,7 +85,7 @@ class ReosMapToolMoveHydraulicNetworkElement : public ReosMapTool, public ReosMa
     ~ReosMapToolMoveHydraulicNetworkElement();
 
   private:
-    ReosMapToolMoveHydraulicNetworkNode_p *d = nullptr;
+    QPointer<ReosMapToolMoveHydraulicNetworkNode_p> d;
     ReosMapTool_p *tool_p() const;
 };
 
@@ -98,7 +98,6 @@ class ReosMapToolNewStructure2D: public ReosMapToolDrawPolygon, public ReosMapTo
 
   private slots:
     void onDomainDrawn( const QPolygonF &polygon );
-
 };
 
 

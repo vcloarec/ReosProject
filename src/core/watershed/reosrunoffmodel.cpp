@@ -703,7 +703,7 @@ ReosRunoffModelCollection ReosRunoffModelRegistery::runoffModelCollection( const
 }
 
 ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
-  ReosModule( parent )
+  ReosModule( QStringLiteral( "runoff-model-registery" ), parent )
   , mModel( new ReosRunoffModelModel( this ) )
 {
   addModelCollection( QStringLiteral( "constant-coefficient" ),

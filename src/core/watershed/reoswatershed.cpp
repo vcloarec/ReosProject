@@ -44,7 +44,6 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   , mOutletPoint( outletPoint )
 {
   init();
-  calculateArea();
 }
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating,
@@ -885,13 +884,9 @@ void ReosWatershed::calculateArea()
 {
   ReosGisEngine *engine = geographicalContext();
   if ( engine )
-  {
     mArea->setDerivedValue( engine->polygonArea( mDelineating ) );
-  }
   else
-  {
     mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
-  }
 }
 
 void ReosWatershed::calculateSlope()

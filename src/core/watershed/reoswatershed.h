@@ -48,6 +48,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
       Residual
     };
 
+    //! Default constructor
     ReosWatershed();
 
     /**

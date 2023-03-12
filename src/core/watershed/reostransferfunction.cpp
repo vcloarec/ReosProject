@@ -405,7 +405,7 @@ QString ReosTransferFunctionFactories::variablesDescription( const QString &type
 }
 
 ReosTransferFunctionFactories::ReosTransferFunctionFactories( ReosModule *parent ):
-  ReosModule( parent ),
+  ReosModule( "transfer-function-factories", parent ),
   mModel( new ReosTransferFunctionFactoriesModel( mFactories, this ) )
 {}
 
