@@ -1,0 +1,57 @@
+# Reos GPL v2.0
+# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
+
+SET(REOS_PYTHON_SOURCES
+    reospython.cpp
+    )
+
+SET(REOS_PYTHON_HEADERS
+    reospython.h
+)
+
+SET(REOS_PYTHON_HEADERS_PRIVATE
+    )
+
+ADD_LIBRARY(reosPython SHARED
+    ${REOS_PYTHON_HEADERS}
+    ${REOS_PYTHON_SOURCES}
+  )
+
+TARGET_LINK_LIBRARIES(reosPython PRIVATE
+        ${Python_LIBRARIES}
+        reosCore
+)
+
+target_include_directories(reosPython SYSTEM PRIVATE
+  ${Python_INCLUDE_DIRS}
+)
+
+target_include_directories(reosPython PUBLIC
+)
+
+IF (MSVC)
+  add_compile_definitions(_USE_MATH_DEFINES)
+ENDIF (MSVC)
+
+set_target_properties(reosPython
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}$<0:>
+    LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}$<0:>
+    RUNTIME_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}$<0:>
+    )
+
+IF(WIN32)
+  INSTALL(TARGETS reosPython RUNTIME DESTINATION bin)
+ELSE(WIN32)
+  INSTALL(TARGETS reosPython LIBRARY DESTINATION lib)
+ENDIF(WIN32)
+
+INSTALL(TARGETS reosPython RUNTIME DESTINATION bin)
+INSTALL(TARGETS reosPython LIBRARY DESTINATION lib)
+
+INCLUDE_DIRECTORIES(
+
+)
+
+# INSTALL HEADER
+INSTALL(FILES ${REOS_PYTHON_HEADERS} DESTINATION include)

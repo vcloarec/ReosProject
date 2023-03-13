@@ -22,15 +22,13 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <QFileInfo>
 #include <QDir>
 
-#include "reosstyleregistery.h"
+
 #include "reossettings.h"
 #include "reosmodule.h"
 #include "reosmap.h"
 #include "reosgisengine.h"
 #include "reosgislayerswidget.h"
-#include "reosmaptool.h"
 #include "reoswatershedmodule.h"
-#include "reosdelineatingwatershedwidget.h"
 #include "reoswatershedwidget.h"
 #include "reosrainfallmanager.h"
 #include "reosrainfallmodel.h"
@@ -44,7 +42,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoscoremodule.h"
 
 #define PROJECT_FILE_MAGIC_NUMBER 19092014
-
 
 LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   : ReosMainWindow( core, parent )

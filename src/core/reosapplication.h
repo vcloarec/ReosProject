@@ -16,7 +16,6 @@ email                : vcloarec at gmail dot com
 #ifndef REOSAPPLICATION_H
 #define REOSAPPLICATION_H
 
-#define SIP_NO_FILE
 
 #include <QApplication>
 #include <QPointer>
@@ -27,16 +26,100 @@ class ReosCoreModule;
 
 class REOSCORE_EXPORT ReosApplication: public QApplication
 {
+
+#ifdef SIP_RUN
+    % TypeCode
+    // Convert a Python argv list to a conventional C argc count and argv array.
+    static char **qtgui_ArgvToC( PyObject *argvlist, int &argc )
+    {
+      char **argv;
+
+      argc = PyList_GET_SIZE( argvlist );
+
+      // Allocate space for two copies of the argument pointers, plus the
+      // terminating NULL.
+      if ( ( argv = ( char ** )sipMalloc( 2 * ( argc + 1 ) * sizeof( char * ) ) ) == NULL )
+        return NULL;
+
+      // Convert the list.
+      for ( int a = 0; a < argc; ++a )
+      {
+        char *arg;
+        // Get the argument and allocate memory for it.
+        if ( ( arg = PyBytes_AsString( PyList_GET_ITEM( argvlist, a ) ) ) == NULL ||
+             ( argv[a] = ( char * )sipMalloc( strlen( arg ) + 1 ) ) == NULL )
+          return NULL;
+        // Copy the argument and save a pointer to it.
+        strcpy( argv[a], arg );
+        argv[a + argc + 1] = argv[a];
+      }
+
+      argv[argc + argc + 1] = argv[argc] = NULL;
+
+      return argv;
+    }
+
+    // Remove arguments from the Python argv list that have been removed from the
+    // C argv array.
+    static void qtgui_UpdatePyArgv( PyObject *argvlist, int argc, char **argv )
+    {
+      for ( int a = 0, na = 0; a < argc; ++a )
+      {
+        // See if it was removed.
+        if ( argv[na] == argv[a + argc + 1] )
+          ++na;
+        else
+          PyList_SetSlice( argvlist, na, na + 1, NULL );
+      }
+    }
+    % End
+#endif
+
+
     Q_OBJECT
   public:
+#ifndef SIP_RUN
     ReosApplication( int &argc, char **argv, int flag = ApplicationFlags );
+#else
+
+    /**
+     * Constructor for ReosApplication.
+     *
+     * \param argv command line arguments
+     */
+    ReosApplication( SIP_PYLIST argv ) / PostHook = __pyQtQAppHook__ / [( int &argc, char **argv )];
+    % MethodCode
+    // The Python interface is a list of argument strings that is modified.
+
+    int argc;
+    char **argv;
+
+    // Convert the list.
+    if ( ( argv = qtgui_ArgvToC( a0, argc ) ) == NULL )
+      sipIsErr = 1;
+    else
+    {
+      // Create it now the arguments are right.
+      static int nargc = argc;
+
+      sipCpp = new sipReosApplication( nargc, argv );
+
+      // Now modify the original list.
+      qtgui_UpdatePyArgv( a0, argc, argv );
+    }
+    % End
+#endif
+
     ~ReosApplication();
     bool notify( QObject *receiver, QEvent *event ) override;
 
+    ReosCoreModule *coreModule() const;
+
+#ifndef SIP_RUN
     static QString i18nPath();
     static QString styleSheet();
+#endif // no SIP_RUN
 
-    ReosCoreModule *coreModule() const;
 
   private:
     QPointer<ReosCoreModule> mCoreModule;

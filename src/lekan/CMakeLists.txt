@@ -35,6 +35,7 @@ TARGET_LINK_LIBRARIES(lekan PUBLIC
         ${Qt5Concurrent_LIBRARIES}
         reosGui
         reosCore
+        reosPython
 )
 
 INCLUDE_DIRECTORIES(
@@ -59,6 +60,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork
+    ${CMAKE_SOURCE_DIR}/src/python
     )
 
 INSTALL(TARGETS ${LEKAN_APP_NAME} RUNTIME DESTINATION bin)
