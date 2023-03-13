@@ -1,0 +1,13 @@
+ADD_SUBDIRECTORY(core)
+ADD_SUBDIRECTORY(ui)
+ADD_SUBDIRECTORY(gui)
+
+if (WITH_BINDINGS)
+    ADD_SUBDIRECTORY(python)
+endif()
+
+ADD_SUBDIRECTORY(lekan)
+ADD_SUBDIRECTORY(dataProviders)
+ADD_SUBDIRECTORY(simulationEngines) 
+
+

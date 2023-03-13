@@ -1,4 +1,5 @@
 // Include auto-generated SIP files
+%Include auto_generated/reosapplication.sip
 %Include auto_generated/reosmodule.sip
 %Include auto_generated/reoscoremodule.sip
 %Include auto_generated/GIS/reosgisengine.sip

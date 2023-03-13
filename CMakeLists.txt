@@ -181,14 +181,12 @@ if (WITH_BINDINGS)
 endif()
 
 ADD_SUBDIRECTORY(images)
-ADD_SUBDIRECTORY(src/core)
-ADD_SUBDIRECTORY(src/ui)
-ADD_SUBDIRECTORY(src/gui)
-ADD_SUBDIRECTORY(src/lekan)
-ADD_SUBDIRECTORY(src/dataProviders)
-ADD_SUBDIRECTORY(src/simulationEngines)
+ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(i18n)
-ADD_SUBDIRECTORY(python)
+
+if (WITH_BINDINGS)
+    ADD_SUBDIRECTORY(python)
+endif()
 
 # testing
 IF (ENABLE_TESTS)
