@@ -29,8 +29,6 @@ ReosApplication::ReosApplication( int &argc, char **argv, int flag )
 {
   qRegisterMetaType<ReosSpatialPosition>( "ReosSpatialPosition" );
 
-  ReosWatershedModule *wm = mCoreModule->module<ReosWatershedModule *>();
-
 #ifdef _MSC_VER
   if ( qgetenv( "GDAL_DATA" ).isEmpty() )
   {
@@ -69,7 +67,6 @@ ReosApplication::ReosApplication( int &argc, char **argv, int flag )
     installTranslator( &QgisTranslator );
   if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
     installTranslator( &ReosTranslator );
-
 }
 
 ReosApplication::~ReosApplication()

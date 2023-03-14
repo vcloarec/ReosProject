@@ -136,6 +136,8 @@ ReosGisEngine::ReosGisEngine( QObject *parent )
   } );
 
   connect( QgsProject::instance(), &QgsProject::dirtySet, this, &ReosModule::dirtied );
+
+  setCrs( QStringLiteral( "EPSG:4326" ) );
 }
 
 ReosGisEngine::~ReosGisEngine()

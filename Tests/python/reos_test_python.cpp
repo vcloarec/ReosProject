@@ -22,7 +22,8 @@ class ReosPythonTesting: public QObject
     Q_OBJECT
   private slots:
     void initTestCase();
-    void cleanupTestCase();
+
+    void reosCoreModule();
   private:
 
     ReosPython python;
@@ -36,18 +37,33 @@ void ReosPythonTesting::initTestCase()
   QString version;
   bool success = python.runString( QStringLiteral( "import sys" ), errMsg );
   QVERIFY( success );
-  python.evalString( QStringLiteral( "sys.version" ), version );
+  QVERIFY( python.evalString( QStringLiteral( "sys.version" ), version ) );
   QVERIFY( !version.isEmpty() );
+
+  QVERIFY( QCoreApplication::instance() );
 
   success = python.runString( QStringLiteral( "from reos.core import *" ), errMsg );
   QVERIFY( success );
-
-  success = python.runString( QStringLiteral( "reos_app=ReosApplication([])" ), errMsg );
-  QVERIFY( success );
 }
 
-void ReosPythonTesting::cleanupTestCase()
+
+void ReosPythonTesting::reosCoreModule()
 {
+  QString errMsg;
+  QVERIFY( python.runString( QStringLiteral( "core_module=ReosCoreModule()" ), errMsg ) );
+
+  QVERIFY( python.runString( QStringLiteral( "gis_engine=core_module.gisEngine()" ), errMsg ) );
+
+  QVERIFY( python.runString( QStringLiteral( "crs=gis_engine.crs()" ), errMsg ) );
+
+  QString ret;
+  QVERIFY( python.evalString( QStringLiteral( "crs!=''" ), ret ) );
+  QCOMPARE( ret, QStringLiteral( "True" ) );
+
+  QVERIFY( python.evalString( QStringLiteral( "crs==ReosGisEngine.crsFromEPSG(4326)" ), ret ) );
+  QCOMPARE( ret, QStringLiteral( "True" ) );
+
+  QVERIFY( python.runString( QStringLiteral( "hydrograph = ReosHydrograph(None, 'hub-eau-hydrometry', 'J881301001')" ), errMsg ) );
 
 }
 

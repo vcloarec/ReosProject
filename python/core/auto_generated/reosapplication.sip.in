@@ -112,7 +112,9 @@ Constructor for ReosApplication.
 
 
     ReosCoreModule *coreModule() const;
-
+%Docstring
+Returns a pointer to the core module that contains all other modules
+%End
 
 
 };
