@@ -141,6 +141,7 @@ ReosEditHydraulicStructure2DWidget::~ReosEditHydraulicStructure2DWidget()
 void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 {
   mStructure2D->deactivateMeshScalar();
+  mStructure2D->deactivateMeshVector();
 
   ui->mStackedWidget->setCurrentIndex( row );
   switch ( row )

@@ -127,6 +127,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Deactivates any activated scalar dataset
     void deactivateMeshScalar();
 
+    //! Deactivates any activated vector dataset
+    void deactivateMeshVector();
+
     //! Returns the 3D map settings
     Reos3DMapSettings map3dSettings() const;
 
