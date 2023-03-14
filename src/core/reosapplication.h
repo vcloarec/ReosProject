@@ -113,13 +113,16 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
     ~ReosApplication();
     bool notify( QObject *receiver, QEvent *event ) override;
 
+    //! Returns a pointer to the core module that contains all other modules
     ReosCoreModule *coreModule() const;
 
 #ifndef SIP_RUN
-    static QString i18nPath();
-    static QString styleSheet();
-#endif // no SIP_RUN
 
+    static QString i18nPath();
+
+    static QString styleSheet();
+
+#endif // no SIP_RUN
 
   private:
     QPointer<ReosCoreModule> mCoreModule;
