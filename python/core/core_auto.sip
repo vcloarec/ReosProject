@@ -6,4 +6,7 @@
 %Include auto_generated/GIS/reosmapextent.sip
 %Include auto_generated/watershed/reoswatershed.sip
 %Include auto_generated/quantity/reosarea.sip
+%Include auto_generated/quantity/reosduration.sip
+%Include auto_generated/data/reostimeserie.sip
 %Include auto_generated/data/reosdataobject.sip
+%Include auto_generated/hydrograph/reoshydrograph.sip

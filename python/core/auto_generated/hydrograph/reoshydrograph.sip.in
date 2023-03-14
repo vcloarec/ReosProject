@@ -1,7 +1,7 @@
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/data/reosdataobject.h                                       *
+ * src/core/hydrograph/reoshydrograph.h                                 *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
@@ -9,44 +9,29 @@
 
 
 
-class ReosDataObject: QObject
+
+class ReosHydrograph : ReosTimeSerieVariableTimeStep
 {
 %Docstring(signature="appended")
-Base class uses to be an interface for data
+Class that represents a hydrograph
 %End
 
 %TypeHeaderCode
-#include "reosdataobject.h"
+#include "reoshydrograph.h"
 %End
   public:
-    ReosDataObject( QObject *parent = 0 );
+    ReosHydrograph( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     virtual QString type() const;
-%Docstring
-Returns the type
-%End
-
-
-    QString id() const;
-
-
-
-  public slots:
-  signals:
-    void dataChanged() const;
-    void dataReset() const;
-
-  protected:
-
-
-  protected slots:
-    void setObsolete();
+    static QString staticType();
 
 };
+
+
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/data/reosdataobject.h                                       *
+ * src/core/hydrograph/reoshydrograph.h                                 *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/

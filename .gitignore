@@ -1,2 +1,3 @@
 *.user
+.idea
 Tests/testData/tmp/*

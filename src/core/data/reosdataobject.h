@@ -49,8 +49,8 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     virtual void updateData() const  SIP_SKIP {}; //TODO to set pure virtual
 
   signals:
-    void dataChanged() const SIP_SKIP;
-    void dataReset() const SIP_SKIP;
+    void dataChanged() const;
+    void dataReset() const;
     void nameChanged( QString &name ) const SIP_SKIP;
     void isSetObsolete() const SIP_SKIP;
     void settingsChanged() const SIP_SKIP;
