@@ -168,7 +168,7 @@
        <item>
         <widget class="QGroupBox" name="mVolumeFiniteGroupBox">
          <property name="title">
-          <string>Volume Finite Option</string>
+          <string>Finite Volume Option</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
