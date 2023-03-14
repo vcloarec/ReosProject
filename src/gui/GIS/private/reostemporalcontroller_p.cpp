@@ -182,7 +182,12 @@ void ReosTemporalController_p::setSpeedFactor( double speedFactor )
 
 void ReosTemporalController_p::setTemporalExtent( const QDateTime &startTime, const QDateTime &endTime )
 {
-  mCurrentTime = startTime;
+  ReosTimeWindow tw( startTime, endTime );
+  if ( !tw.isIncluded( mCurrentTime ) || mCurrentTime < startTime )
+    mCurrentTime = startTime;
+  else if ( mCurrentTime > endTime )
+    mCurrentTime = endTime;
+
   mStartTime = startTime;
   mEndTime = endTime;
   const QgsDateTimeRange timerange( mCurrentTime, mCurrentTime.addMSecs( mTimeStep.valueMilliSecond() ) );
