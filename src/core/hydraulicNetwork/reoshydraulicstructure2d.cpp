@@ -1297,9 +1297,14 @@ void ReosHydraulicStructure2D::activateMeshTerrain()
 
 void ReosHydraulicStructure2D::deactivateMeshScalar()
 {
-  //mTerrainSymbology = mMesh->datasetScalarGroupSymbology( mMesh->verticesElevationDatasetId() ).bytes();
   if ( mMesh )
     mMesh->activateDataset( QString() );
+}
+
+void ReosHydraulicStructure2D::deactivateMeshVector()
+{
+  if ( mMesh )
+    mMesh->activateVectorDataset( QString() );
 }
 
 ReosHydraulicStructure2D::~ReosHydraulicStructure2D() = default;
