@@ -19,11 +19,19 @@
 
 #include "reospython.h"
 
+#include <QApplication>
 #include <QDebug>
 
 ReosPython::ReosPython()
 {
-
+  QString pythonPathEnv = qgetenv( "PYTHONPATH" );
+#ifdef _WIN32
+  pythonPathEnv += ';';
+#else
+  pythonPathEnv += ':';
+#endif
+  pythonPathEnv += QApplication::applicationDirPath() + QStringLiteral( "/python" );
+  qputenv( "PYTHONPATH", pythonPathEnv.toUtf8() );
 }
 
 ReosPython::~ReosPython()

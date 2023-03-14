@@ -16,8 +16,6 @@
 #ifndef REOSTIMESERIE_H
 #define REOSTIMESERIE_H
 
-#define SIP_NO_FILE
-
 #include <memory>
 
 #include <QColor>
@@ -32,7 +30,7 @@
 #include "reostimeserieprovider.h"
 
 //! Class that handle time serie data
-class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
+class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
@@ -40,8 +38,8 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     QString type() const override {return staticType();}
 
-    //! Returns a pointer to the refrence time parameter
-    ReosParameterDateTime *referenceTimeParameter() const {return mReferenceTimeParameter;}
+    //! Reload data from provider
+    void reload();
 
     //! Sets the reference time
     void setReferenceTime( const QDateTime &dateTime );
@@ -58,14 +56,17 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! returns the absolute time for the value at position \a i
     virtual QDateTime timeAt( int i ) const;
 
-    //! Returns the time extent of the serie
-    virtual QPair<QDateTime, QDateTime> timeExtent() const = 0;
-
     //! Returns the value at positon \a i
     virtual double valueAt( int i ) const;
 
     //! Sets the \a value at position \a i
     virtual void setValueAt( int i, double value );
+
+    //! Returns the time extent of the serie
+    virtual QPair<QDateTime, QDateTime> timeExtent() const = 0 SIP_SKIP;
+
+    //! Return the time window (the tile extent) of this time series
+    ReosTimeWindow timeWindow() const;
 
     //! Removes \a count values from position \a fromPos
     void removeValues( int fromPos, int count );
@@ -73,8 +74,11 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     //! Clears all values
     virtual  void clear();
 
-    //! Return the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
-    QPair<double, double> valueExent( bool withZero = false ) const;
+    //! Returns the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
+    QPair<double, double> valueExent( bool withZero = false ) const SIP_SKIP;
+
+    //! Returns the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
+    void valuesExtent( double &min SIP_OUT, double &max SIP_OUT, bool withZero ) const;
 
     //! Returns the text unit of values
     QString valueUnit() const;
@@ -83,7 +87,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     void setValueUnit( const QString &valueUnit );
 
     //! Returns a pointer to access directly to the data, can be used only  when need efficient calculation.
-    double *data();
+    double *data() SIP_SKIP;
 
     //! Returns the maximum of values of this time serie
     double maximum() const;
@@ -93,9 +97,13 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
 
     const QVector<double> &constData() const;
 
-    virtual ReosTimeSerieProvider *dataProvider() const;
+#ifndef SIP_RUN
 
+    virtual ReosTimeSerieProvider *dataProvider() const;
     static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
+
+    //! Returns a pointer to the reference time parameter
+    ReosParameterDateTime *referenceTimeParameter() const {return mReferenceTimeParameter;}
 
   protected slots:
     virtual void onDataProviderChanged();
@@ -111,6 +119,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     virtual QString formatKey( const QString &rawKey ) const = 0;
 
     std::unique_ptr<ReosTimeSerieProvider> mProvider;
+#endif // no SIP_RUN
 
   private:
     ReosParameterDateTime *mReferenceTimeParameter = nullptr;
@@ -122,6 +131,7 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject
     void updateStats();
 };
 
+#ifndef SIP_RUN
 /**
  *  Class that handle time serie data with constant time interval
  *
@@ -146,7 +156,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     double valueAt( int i ) const override;
     void setValueAt( int i, double value ) override;
 
-    void setValues( const QVector<double> vals );
+    void setValues( const QVector<double> &vals );
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "constant-interval" );}
@@ -196,6 +206,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Returns the color attributed to the current mode
     QColor currentValueModeColor() const;
 
+    //! Set the \a color used to display this time series following the \a ValueMode
     void setValueModeColor( ValueMode mode, const QColor &color );
 
     //! Returns a flag to make this instance using cumulative mode in addition to the current mode
@@ -244,6 +255,8 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
 
 class ReosTimeSerieVariableTimeStepModel;
 
+#endif //no SIP_RUN
+
 class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 {
     Q_OBJECT
@@ -262,7 +275,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the relative time \a relativeTime at postion \a i regardless of the value of \a relativeTime and of other time values
     void setAnyRelativeTimeAt( int i, const ReosDuration &relativeTime );
 
-    QPair<QDateTime, QDateTime> timeExtent() const override;
+    QPair<QDateTime, QDateTime> timeExtent() const override SIP_SKIP;
 
     //! Return the total durarion of the serie
     ReosDuration totalDuration() const;
@@ -298,6 +311,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     bool operator==(const ReosTimeSerieVariableTimeStep &other ) const;
 
+#ifndef SIP_RUN
     QAbstractItemModel *model();
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
@@ -321,6 +335,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     ReosTimeSerieVariableTimeStepProvider *variableTimeStepDataProvider() const;
 
+#endif //no SIP_RUN
   private:
     QString mUnitString;
     QColor mColor;
@@ -334,6 +349,8 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
      */
     int timeValueIndex( const ReosDuration &time, bool &exact ) const;
 };
+
+#ifndef SIP_RUN
 
 class REOSCORE_EXPORT ReosTimeSerieModel : public QAbstractTableModel
 {
@@ -429,5 +446,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
     void setValuesPrivate( const QModelIndex &fromIndex, const QList<QVariantList> &data, bool checkValidity );
     bool insertRowsPrivate( const QModelIndex &fromIndex, int count, bool followdBySetValueWithTime );
 };
+
+#endif //no SIP_RUN
 
 #endif // REOSTIMESERIE_H

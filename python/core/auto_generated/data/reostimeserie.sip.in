@@ -1,0 +1,207 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reostimeserie.h                                        *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+class ReosTimeSerie : ReosDataObject /Abstract/
+{
+%Docstring(signature="appended")
+Class that handle time serie data
+%End
+
+%TypeHeaderCode
+#include "reostimeserie.h"
+%End
+  public:
+    ReosTimeSerie( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual QString type() const;
+
+    void reload();
+%Docstring
+Reload data from provider
+%End
+
+    void setReferenceTime( const QDateTime &dateTime );
+%Docstring
+Sets the reference time
+%End
+
+    QDateTime referenceTime() const;
+%Docstring
+Returns the reference time
+%End
+
+    int valueCount() const;
+%Docstring
+Returns the count of value in the time serie
+%End
+
+    virtual ReosDuration relativeTimeAt( int i ) const = 0;
+%Docstring
+Returns the relative time frm the reference time for the value at position ``i``
+%End
+
+    virtual QDateTime timeAt( int i ) const;
+%Docstring
+returns the absolute time for the value at position ``i``
+%End
+
+    virtual double valueAt( int i ) const;
+%Docstring
+Returns the value at positon ``i``
+%End
+
+    virtual void setValueAt( int i, double value );
+%Docstring
+Sets the ``value`` at position ``i``
+%End
+
+
+    ReosTimeWindow timeWindow() const;
+%Docstring
+Return the time window (the tile extent) of this time series
+%End
+
+    void removeValues( int fromPos, int count );
+%Docstring
+Removes ``count`` values from position ``fromPos``
+%End
+
+    virtual  void clear();
+%Docstring
+Clears all values
+%End
+
+
+    void valuesExtent( double &min /Out/, double &max /Out/, bool withZero ) const;
+%Docstring
+Returns the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
+%End
+
+    QString valueUnit() const;
+%Docstring
+Returns the text unit of values
+%End
+
+    void setValueUnit( const QString &valueUnit );
+%Docstring
+Sets the text unit of values
+%End
+
+
+    double maximum() const;
+%Docstring
+Returns the maximum of values of this time serie
+%End
+
+    double minimum() const;
+%Docstring
+Returns the maximum of values of this time serie
+%End
+
+    const QVector<double> &constData() const;
+
+
+};
+
+
+class ReosTimeSerieVariableTimeStep: ReosTimeSerie
+{
+
+%TypeHeaderCode
+#include "reostimeserie.h"
+%End
+  public:
+    ReosTimeSerieVariableTimeStep( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual QString type() const;
+    static QString staticType();
+
+    virtual ReosDuration relativeTimeAt( int i ) const;
+
+%Docstring
+Returns the relative time at ``i``
+%End
+
+    bool setRelativeTimeAt( int i, const ReosDuration &relativeTime );
+%Docstring
+Sets the relative time ``relativeTime`` at postion ``i``. If the value is not compatible with previous or next values, do nothing and return false.
+%End
+
+    void setAnyRelativeTimeAt( int i, const ReosDuration &relativeTime );
+%Docstring
+Sets the relative time ``relativeTime`` at postion ``i`` regardless of the value of ``relativeTime`` and of other time values
+%End
+
+
+    ReosDuration totalDuration() const;
+%Docstring
+Return the total durarion of the serie
+%End
+
+    void setValue( const ReosDuration &relativeTime, double value );
+%Docstring
+Sets the value at ``relative`` time with ``value``, if the ``relative`` time is not present insert a new couple (time, value)
+%End
+
+    void setValue( const QDateTime &time, double value );
+%Docstring
+Sets the value at ``time`` with ``value``, if the ``time`` is not present insert a new couple (time, value)
+%End
+
+    double valueAtTime( const ReosDuration &relativeTime ) const;
+%Docstring
+Returns the value at relative time ``relative`` time, interpolate if relative time is between two time values, return 0 if before first one or after last one
+%End
+
+    double valueAtTime( const QDateTime &time ) const;
+%Docstring
+Returns the value at time ``time``, interpolate if time is between two time values, return 0 if before first one or after last one
+%End
+
+    void addOther( const ReosTimeSerieVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
+%Docstring
+Adds another instance to this the values of this ones, create new time steps if needed
+%End
+
+    QString unitString() const;
+%Docstring
+Returns the unit of the values as a string
+%End
+
+    void setUnitString( const QString &unitString );
+%Docstring
+Sets the unit of the values as a string
+%End
+
+    QColor color() const;
+%Docstring
+Returns the color used to render the time serie
+%End
+
+    void setColor( const QColor &color );
+%Docstring
+Sets the color used to render the time serie
+%End
+
+    void copyFrom( const ReosTimeSerieVariableTimeStep *other );
+
+    bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reostimeserie.h                                        *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

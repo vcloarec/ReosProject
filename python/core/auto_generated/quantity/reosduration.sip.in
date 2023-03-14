@@ -1,33 +1,38 @@
-/***************************************************************************
-                      reosduration.h
-                     --------------------------------------
-Date                 : 21-08-2018
-Copyright            : (C) 2018 by Vincent Cloarec
-email                :   vcloarec at gmail dot com
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/quantity/reosduration.h                                     *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
 
-#ifndef REOSDURATION_H
-#define REOSDURATION_H
 
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <math.h>
-#include <QDateTime>
 
-#include "reosencodedelement.h"
 
-class REOSCORE_EXPORT ReosTimeWindow
+class ReosTimeWindow
 {
+%Docstring(signature="appended")
+*************************************************************************
+reosduration.h
+--------------------------------------
+  Date                 : 21-08-2018
+  Copyright            : (C) 2018 by Vincent Cloarec
+  email                :   vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reosduration.h"
+%End
   public:
-    ReosTimeWindow() = default;
+    ReosTimeWindow();
     ReosTimeWindow( const QDateTime &startTime, const QDateTime &endTime );
     explicit ReosTimeWindow( const QPair< QDateTime, QDateTime> &timeExtent );
 
@@ -41,8 +46,10 @@ class REOSCORE_EXPORT ReosTimeWindow
 
     ReosTimeWindow intersection( const ReosTimeWindow &other ) const;
 
-    //! Return whether this time window intersect with \a other
     bool intersect( const ReosTimeWindow &other ) const;
+%Docstring
+Return whether this time window intersect with ``other``
+%End
 
     bool isValid() const;
 
@@ -50,13 +57,14 @@ class REOSCORE_EXPORT ReosTimeWindow
 
     bool operator==( const ReosTimeWindow &other );
 
-  private:
-    QDateTime mStart;
-    QDateTime mEnd;
 };
 
-class REOSCORE_EXPORT ReosDuration
+class ReosDuration
 {
+
+%TypeHeaderCode
+#include "reosduration.h"
+%End
   public:
 
     enum Unit {millisecond, second, minute, hour, day, week, month, year};
@@ -69,9 +77,6 @@ class REOSCORE_EXPORT ReosDuration
     ReosDuration operator+( const ReosDuration & ) const;
     ReosDuration operator-( const ReosDuration & ) const;
     ReosDuration operator*( double k ) const;
-#ifndef SIP_RUN
-    ReosDuration operator*( int i ) const;
-#endif // no SIP_RUN
     ReosDuration operator/( double k ) const;
     double operator/( const ReosDuration & ) const;
     bool operator>( const ReosDuration & ) const;
@@ -103,17 +108,15 @@ class REOSCORE_EXPORT ReosDuration
 
     unsigned numberOfFullyContainedIntervals( const ReosDuration &other ) const;
 
-#ifndef SIP_RUN
-    ReosEncodedElement encode() const;
-    static ReosDuration decode( const ReosEncodedElement &element );
-#endif //no SIP_RUN
 
     void setAdaptedUnit();
 
-  private:
-    Unit mUnit = second;
-    qint64 mValue = 0; //milliseconds
-
 };
 
-#endif //REOSDURATION_H
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/quantity/reosduration.h                                     *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

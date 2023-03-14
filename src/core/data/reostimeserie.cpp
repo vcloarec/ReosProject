@@ -357,7 +357,7 @@ void ReosTimeSerieConstantInterval::setValueAt( int i, double value )
   }
 }
 
-void ReosTimeSerieConstantInterval::setValues( const QVector<double> vals )
+void ReosTimeSerieConstantInterval::setValues( const QVector<double> &vals )
 {
   static_cast<ReosTimeSerieConstantTimeStepProvider *>( mProvider.get() )->setValues( vals );
 }
@@ -482,6 +482,12 @@ void ReosTimeSerie::setValueAt( int i, double value )
     mProvider->setValue( i, value );
     emit dataChanged();
   }
+}
+
+ReosTimeWindow ReosTimeSerie::timeWindow() const
+{
+  const QPair<QDateTime, QDateTime> te = timeExtent();
+  return ReosTimeWindow( te.first, te.second );
 }
 
 ReosEncodedElement ReosTimeSerieConstantInterval::encode( const ReosEncodeContext &context, const QString &descritpion ) const
@@ -733,6 +739,12 @@ ReosTimeSerie::ReosTimeSerie( QObject *parent, const QString &providerKey, const
   }
 }
 
+void ReosTimeSerie::reload()
+{
+  if ( mProvider )
+    mProvider->load();
+}
+
 void ReosTimeSerie::setReferenceTime( const QDateTime &dateTime )
 {
   dataProvider()->setReferenceTime( dateTime );
@@ -805,6 +817,33 @@ QPair<double, double> ReosTimeSerie::valueExent( bool withZero ) const
   }
 
   return QPair<double, double>( min, max );
+}
+
+void ReosTimeSerie::valuesExtent( double &min, double &max, bool withZero ) const
+{
+  updateData();
+  if ( mProvider->valueCount() == 0 )
+    return;
+
+  if ( withZero )
+  {
+    min = 0;
+    max = 0;
+  }
+  else
+  {
+    min = std::numeric_limits<double>::max();
+    max = -std::numeric_limits<double>::max();
+  }
+
+  for ( int i = 0; i < valueCount(); ++i )
+  {
+    double v = valueAt( i );
+    if ( v <= min )
+      min = v;
+    if ( v >= max )
+      max = v;
+  }
 }
 
 void ReosTimeSerie::baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const

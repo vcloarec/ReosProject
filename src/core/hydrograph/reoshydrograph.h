@@ -16,11 +16,10 @@
 #ifndef REOSHYDROGRAPH_H
 #define REOSHYDROGRAPH_H
 
-#define SIP_NO_FILE
-
 #include <QColor>
 #include <QMutex>
 #include <QSet>
+
 
 #include "reostimeserie.h"
 #include "reossyntheticrainfall.h"
@@ -38,22 +37,24 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     QString type() const override {return staticType();}
     static QString staticType() {return ReosTimeSerieVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
 
+#ifndef SIP_RUN
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
     static ReosHydrograph *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
-    bool hydrographIsObsolete() const ;
+    bool hydrographIsObsolete() const;
     void setHydrographObsolete();
 
     QString formatKey( const QString &rawKey ) const override;
 
   protected:
     ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
-
     void updateData() const override;
 
     friend class ReosHydrographGroup;
+#endif // no SIP_RUN
 };
 
+#ifndef SIP_RUN
 //! Process abstract class that handle the calculation of the hydrograph an onother thread
 class REOSCORE_EXPORT ReosHydrographCalculation : public ReosProcess
 {
@@ -228,5 +229,6 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
     friend class ReosWatersehdTest;
 
 };
+#endif // no SIP_RUN
 
 #endif // REOSHYDROGRAPH_H
