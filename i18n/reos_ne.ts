@@ -17,47 +17,47 @@
         <translation>लेकान</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="97"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="98"/>
         <source>GIS Layers</source>
         <translation>GIS लेयर</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="277"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="281"/>
         <source>Rainfall Data Changed</source>
         <translation>वर्षा को डाटा बदलिएको छ ।</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="277"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="281"/>
         <source>Rainfall data have changed, do you want to save?</source>
         <translation>वर्षा को डाटा बदलिएको छ । सेभ गर्ने ?</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="283"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="287"/>
         <source>Runoff Data Changed</source>
         <translation>अपवाह को डाटा बदलिएको छ ।</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="283"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="287"/>
         <source>Runoff data have changed, do you want to save?</source>
         <translation>अपवाह को डाटा बदलिएको छ । सेभ गर्ने ?</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="311"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="343"/>
         <source>Hydrology</source>
         <translation>जलविज्ञान</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="51"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="52"/>
         <source>Rainfall manager</source>
         <translation>वर्षा व्यवस्थापन</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="52"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="53"/>
         <source>Runoff manager</source>
         <translation>अपवाह व्यवस्थापन</translation>
     </message>
     <message>
-        <location filename="../src/lekan/lekanmainwindow.cpp" line="318"/>
+        <location filename="../src/lekan/lekanmainwindow.cpp" line="350"/>
         <source>Map</source>
         <translation>नक्सा&#xa0;</translation>
     </message>
@@ -555,12 +555,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="965"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="976"/>
         <source>Unable to open exiting DSS file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="967"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="978"/>
         <source>Unable to create DSS file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -570,7 +570,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.h" line="210"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.h" line="228"/>
         <source>TELEMAC 2D Simulation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -631,6 +631,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/ui/3D/reos3dview.ui"/>
         <location filename="../src/gui/GIS/3D/reos3dview.cpp" line="53"/>
         <source>3D View</source>
         <translation type="unfinished"></translation>
@@ -1139,11 +1140,6 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
-        <source>Pathname</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
         <source>Part D</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1162,18 +1158,10 @@ Adjust new watershed?</source>
         <source>DSS file (*.dss)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ReosDssWidget</name>
     <message>
-        <location filename="../src/ui/dataProviders/reosdsswidget.ui"/>
-        <source>TextLabel</source>
+        <location filename="../src/ui/dataProviders/reosdssprovideruriwidget.ui"/>
+        <source>Path</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/dataProviders/reosdsswidget.ui"/>
-        <source>...</source>
-        <translation type="unfinished">~~~</translation>
     </message>
 </context>
 <context>
@@ -1228,12 +1216,12 @@ Adjust new watershed?</source>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="63"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="179"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="180"/>
         <source>Generate Mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="180"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="181"/>
         <source>If you generate a new mesh, existing results will not be compatible
 anymore and will be removed.
 
@@ -1241,12 +1229,12 @@ Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="222"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="223"/>
         <source>Model Structure Modified</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="223"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="224"/>
         <source>As the frame of the mesh has been modified, if you keep these changes,
  existing results will not be compatible anymore and will be removed.
 
@@ -2159,12 +2147,12 @@ Do you want to continue ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulationimportwidget.cpp" line="43"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulationimportwidget.cpp" line="45"/>
         <source>Choose HEC-RAS project file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulationimportwidget.cpp" line="45"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulationimportwidget.cpp" line="47"/>
         <source>HEC-RAS project file *.prj</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2172,41 +2160,41 @@ Do you want to continue ?</source>
 <context>
     <name>ReosHecRasSimulationProcess</name>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1020"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1031"/>
         <source>None version of HEC-RAS found, please verify that HEC-RAS is installed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1029"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1040"/>
         <source>Controller of HEC-RAS found is not valid.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1033"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1044"/>
         <source>Start HEC-RAS model calculation with %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1038"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1049"/>
         <source>HEC-RAS project file &quot;%1&quot; not found.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1044"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1055"/>
         <source>UNable to open HEC-RAS project file &quot;%1&quot;.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1052"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1063"/>
         <source>Plan &quot;%1&quot; not found.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1058"/>
+        <location filename="../src/simulationEngines/hecras/reoshecrassimulation.cpp" line="1069"/>
         <source>Unable to set plan &quot;%1&quot; as current plan.
 Calculation cancelled.</source>
         <translation type="unfinished"></translation>
@@ -2222,6 +2210,11 @@ Calculation cancelled.</source>
     <message>
         <location filename="../src/simulationEngines/hecras/reoshecrassimulationeditwidget.cpp" line="133"/>
         <source>No version found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/simulationEngine/reoshecrasengineconfigurationdialog.h.ui"/>
+        <source>HEC-RAS General Settings</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2834,15 +2827,15 @@ Do you want to proceed?</source>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="88"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="414"/>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="421"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="433"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="442"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="453"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="436"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="445"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="456"/>
         <source>Run Simulation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="89"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="478"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="481"/>
         <source>Export Simulation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2938,39 +2931,39 @@ Do you want to overwrite this results?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="433"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="453"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="436"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="456"/>
         <source>Simulation did not start for following reason:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="442"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="445"/>
         <source>Something get wrong during simulation preparation.
 Please, check the model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="478"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="481"/>
         <source>Simulation can&apos;t be exported for following reason:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="516"/>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="581"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="519"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="584"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="757"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="760"/>
         <source>m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="766"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="769"/>
         <source>No value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3707,41 +3700,46 @@ Please, check the model.</source>
     </message>
     <message>
         <location filename="../src/gui/reosmainwindow.cpp" line="50"/>
+        <source>Open Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/reosmainwindow.cpp" line="51"/>
         <source>Save</source>
         <translation>सेभ गर्ने</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="51"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="52"/>
         <source>Save as ...</source>
         <translation>सेभ कता गर्ने</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="52"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="53"/>
         <source>Select language</source>
         <translation>भाषा छनाेेट</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="53"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="54"/>
         <source>About ...</source>
         <translation>यसको बारेमा</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="54"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="55"/>
         <source>Check new version</source>
         <translation>नया भर्जन चेक गर्नु</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="55"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="56"/>
         <source>Documentation</source>
         <translation>प्रलेखन</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="56"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="57"/>
         <source>How to help?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="78"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="79"/>
         <source>Message</source>
         <translation>संदेश</translation>
     </message>
@@ -3752,42 +3750,42 @@ Please, check the model.</source>
         <translation>फाईल</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="111"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="115"/>
         <source>Options</source>
         <translation>विकल्पहरू</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="116"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="120"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="183"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="187"/>
         <source>Open a project</source>
         <translation>प्रोजेक्ट खोल्नुहोस्</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="221"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="231"/>
         <source>Save project as</source>
         <translation>यस रूपमा प्रोजेक्ट सेभ&#xa0;गर्नुहोस्</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="246"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="256"/>
         <source>New project</source>
         <translation>नया प्रोजेक्ट</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="246"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="256"/>
         <source>Save current project?</source>
         <translation>यस रूपमा प्रोजेक्ट सेभ गर्ने ?</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="364"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="390"/>
         <source>Closing current project</source>
         <translation>प्रोजेक्ट बन्द गर्देे</translation>
     </message>
     <message>
-        <location filename="../src/gui/reosmainwindow.cpp" line="364"/>
+        <location filename="../src/gui/reosmainwindow.cpp" line="390"/>
         <source>The current project has been modified, do you want to save it?</source>
         <translation>प्रोजेक्ट को डाटा बदलिएको छ । सेभ गर्ने ?</translation>
     </message>
@@ -3995,49 +3993,53 @@ Please, check the model.</source>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="36"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="143"/>
-        <source>Minimum angle</source>
+        <source>Min. angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="38"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="149"/>
-        <source>Maximum angle</source>
+        <source>Max. angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="40"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="155"/>
-        <source>Maximum count</source>
+        <source>Max. count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="42"/>
-        <location filename="../src/core/GIS/reosmesh.cpp" line="161"/>
-        <source>Maximum count from boundary</source>
+        <source>Max.count boundary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="44"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="167"/>
-        <source>Maximum slope</source>
+        <source>Max. slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="46"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="173"/>
-        <source>Minimum area</source>
+        <source>Min. area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="48"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="179"/>
-        <source>Maximum area</source>
+        <source>Max. area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/GIS/reosmesh.cpp" line="50"/>
         <location filename="../src/core/GIS/reosmesh.cpp" line="185"/>
-        <source>Maximum area change</source>
+        <source>Max. area change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/GIS/reosmesh.cpp" line="161"/>
+        <source>Max. count boundary</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4138,22 +4140,22 @@ Please, check the model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="32"/>
+        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="33"/>
         <source>Minimum</source>
         <translation type="unfinished">न्यूनतम</translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="33"/>
+        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="34"/>
         <source>Maximum</source>
         <translation type="unfinished">अधिकतम</translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="80"/>
+        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="81"/>
         <source>Calculate Minimum and Maximum</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="81"/>
+        <location filename="../src/gui/GIS/reosmeshscalarrenderingwidget.cpp" line="82"/>
         <source>Data source does not provide minimum and maximum values.
 To obtain minimum and maximum, it is necessary to calculate them from source.
 Depending of the data, this operation could take some time.
@@ -4410,7 +4412,7 @@ Do you want to proceed?</source>
 <context>
     <name>ReosMeshWireframeSettingsWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="783"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reoshydraulicstructure2dproperties.cpp" line="786"/>
         <source>Enable mesh wireFrame</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4575,6 +4577,11 @@ choose a new name:</source>
     <message>
         <location filename="../src/ui/reosnetworkcompatibilitydialog.ui"/>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/reosnetworkcompatibilitydialog.ui"/>
+        <source>Network Compatibility</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5165,8 +5172,8 @@ If not, another station will be created</source>
 <context>
     <name>ReosRoughnessStructure</name>
     <message>
-        <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1461"/>
         <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1469"/>
+        <location filename="../src/core/hydraulicNetwork/reoshydraulicstructure2d.cpp" line="1477"/>
         <source>Default roughness</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5687,6 +5694,11 @@ is applied on the rainfall</source>
         <source>Open Project</source>
         <translation>प्रोजेक्ट खोल्नुहोस्</translation>
     </message>
+    <message>
+        <location filename="../src/ui/reosstartingwidget.ui"/>
+        <source>Recent Project</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ReosStructure2dToolBar</name>
@@ -5699,12 +5711,12 @@ is applied on the rainfall</source>
 <context>
     <name>ReosStructureInformationWidget</name>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="257"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="258"/>
         <source>Vertices count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="260"/>
+        <location filename="../src/gui/hydraulicNetwork/structure2d/reosedithydraulicstructure2dwidget.cpp" line="261"/>
         <source>Faces count</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5736,12 +5748,12 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTelemac2DInititalConditionFromOtherSimulationWidget</name>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="229"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="251"/>
         <source>From hydraulic scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="237"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="259"/>
         <source>Time step</source>
         <translation type="unfinished">समय चरण</translation>
     </message>
@@ -5749,17 +5761,17 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTelemac2DInititalConditionInterpolationWidget</name>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="278"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="300"/>
         <source>Draw intepolation line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="361"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="383"/>
         <source>Value under cursor: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="365"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="387"/>
         <source>No interpolation line</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5767,20 +5779,17 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTelemac2DSimulation</name>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="46"/>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="62"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1341"/>
         <source>Time step</source>
         <translation type="unfinished">समय चरण</translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="49"/>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="63"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1344"/>
         <source>Output period for 2D result</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="52"/>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="64"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1347"/>
         <source>Output period for hydrograph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5788,37 +5797,37 @@ is applied on the rainfall</source>
 <context>
     <name>ReosTelemac2DSimulationProcess</name>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1429"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1480"/>
         <source>Start simulation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1438"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1489"/>
         <source>Simulation process failed to start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1441"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1492"/>
         <source>Simulation process crashed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1444"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1495"/>
         <source>Simulation process does not finished for an unknown error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1452"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1503"/>
         <source>Simulation canceled by user</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1458"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1509"/>
         <source>Simulation process exit with error code %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1464"/>
+        <location filename="../src/simulationEngines/telemac/reostelemac2dsimulation.cpp" line="1515"/>
         <source>Telemac simulation can&apos;t start in folder &quot;%1&quot;.
 Error: %2
 Check the settings of the Telemac engine.</source>
@@ -5878,7 +5887,7 @@ Check the settings of the Telemac engine.</source>
     </message>
     <message>
         <location filename="../src/ui/simulationEngine/reostelemacengineconfigurationdialog.ui"/>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="166"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="188"/>
         <source>Python path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5893,12 +5902,12 @@ Check the settings of the Telemac engine.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="151"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="173"/>
         <source>TELEMAC 2D Python Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="158"/>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="180"/>
         <source>TELEMAC Configuration File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5953,6 +5962,46 @@ Check the settings of the Telemac engine.</source>
     <message>
         <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="61"/>
         <source>Finite Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="66"/>
+        <source>Roe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="67"/>
+        <source>Kinetic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="68"/>
+        <source>Zokagoa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="69"/>
+        <source>Tchamen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="70"/>
+        <source>HLLC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simulationEngines/telemac/reostelemacsimulationeditwidget.cpp" line="71"/>
+        <source>WAF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
+        <source>Volume Finite Option</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/simulationEngine/reostelemacsimulationeditwidget.ui"/>
+        <source>Scheme</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6132,12 +6181,12 @@ Check the settings of the Telemac engine.</source>
 <context>
     <name>ReosTimeSerieVariableTimeStepModel</name>
     <message>
-        <location filename="../src/core/data/reostimeserie.cpp" line="1412"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="1413"/>
         <source>Time</source>
         <translation type="unfinished">समय</translation>
     </message>
     <message>
-        <location filename="../src/core/data/reostimeserie.cpp" line="1414"/>
+        <location filename="../src/core/data/reostimeserie.cpp" line="1415"/>
         <source>Relative time</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6153,7 +6202,7 @@ Check the settings of the Telemac engine.</source>
 <context>
     <name>ReosTimeSeriesVariableTimeStepReadOnlyModel</name>
     <message>
-        <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="111"/>
+        <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="114"/>
         <source>Time</source>
         <translation type="unfinished">समय</translation>
     </message>
@@ -6161,12 +6210,12 @@ Check the settings of the Telemac engine.</source>
 <context>
     <name>ReosTimeSeriesVariableTimeStepReadOnlyTableView</name>
     <message>
-        <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="322"/>
+        <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="325"/>
         <source>Copy selected values</source>
         <translation type="unfinished">चयन गर्ने मान कपि गर्नुहोस</translation>
     </message>
     <message>
-        <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="327"/>
+        <location filename="../src/gui/data/reostimeseriesvariabletimestepreadonlymodel.cpp" line="330"/>
         <source>Copy selected values with headers</source>
         <translation type="unfinished">चयन गर्ने मान हेडर सहित कपि गर्नुहोस</translation>
     </message>
