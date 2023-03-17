@@ -47,7 +47,7 @@ ReosParameterWidget::ReosParameterWidget( const QString &defaultName, QWidget *p
 ReosParameterInLineWidget::ReosParameterInLineWidget( QWidget *parent, const QString &defaultName ):
   ReosParameterWidget( defaultName, parent )
 {
-  mLineEdit = new QLineEdit( this );
+  mLineEdit = new ReosLineEdit( this );
   layout()->addWidget( mLineEdit );
   mLineEdit->setAlignment( Qt::AlignRight );
 
@@ -824,7 +824,7 @@ void ReosParameterIntegerWidget::applyValue()
   if ( textHasChanged() && integerParameter() && value() != integerParameter()->value() )
   {
     bool ok = false;
-    double v = textValue().toInt( &ok );
+    int v = textValue().toInt( &ok );
     if ( ok )
       integerParameter()->setValue( v );
     else
@@ -851,4 +851,13 @@ QWidget *ReosParameterWidgetAction::createWidget( QWidget *parent )
     return nullptr;
 
   return ReosParameterWidget::createWidget( mParameter, parent );
+}
+
+ReosLineEdit::ReosLineEdit( QWidget *parent ) : QLineEdit( parent )
+{}
+
+void ReosLineEdit::focusOutEvent( QFocusEvent *event )
+{
+  emit focusOut();
+  QLineEdit::focusInEvent( event );
 }

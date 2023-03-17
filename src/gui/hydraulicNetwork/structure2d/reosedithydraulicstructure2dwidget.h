@@ -27,6 +27,7 @@ class QUndoStack;
 class ReosMapToolEditPolylineStructure;
 class ReosHydraulicStructure2D;
 class ReosEditMeshElementWidget;
+class ReosGmshResolutionControllerWidget;
 
 namespace Ui
 {
@@ -74,6 +75,7 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
     ReosMapPolylineStructure mMapStructureItem;
     ReosMapItem *mInitialMapStructureItem = nullptr;
     ReosEditMeshElementWidget *mEditElementWidget = nullptr;
+    ReosGmshResolutionControllerWidget *mResolutionWidget = nullptr;
     bool mIsWireFrameActiveBefore = false;
 };
 

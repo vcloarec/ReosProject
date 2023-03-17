@@ -82,9 +82,14 @@ ReosGmshResolutionControllerWidget::~ReosGmshResolutionControllerWidget()
   delete ui;
 }
 
-void ReosGmshResolutionControllerWidget::addToolBarActions( const QList<QAction *> actions )
+void ReosGmshResolutionControllerWidget::addToolBarActions( const QList<QAction *> &actions )
 {
   mToolBar->addActions( actions );
+}
+
+void ReosGmshResolutionControllerWidget::updateParameters()
+{
+  ui->mDefaultSizeParameterWidget->applyValue();
 }
 
 void ReosGmshResolutionControllerWidget::hideEvent( QHideEvent *e )
