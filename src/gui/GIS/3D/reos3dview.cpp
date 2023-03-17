@@ -30,6 +30,7 @@
 #include <qgstemporalcontroller.h>
 #include <qgsmeshlayer3drenderer.h>
 #include <qgsflatterraingenerator.h>
+#include <qgsdirectionallightsettings.h>
 
 #include "reosmesh.h"
 #include "reoslightwidget.h"
