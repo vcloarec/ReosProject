@@ -21,9 +21,9 @@
 #include <QComboBox>
 #include <QTextEdit>
 #include <QWidgetAction>
+#include <QLineEdit>
 
 class QLabel;
-class QLineEdit;
 class QComboBox;
 class QToolButton;
 class QDateTimeEdit;
@@ -33,6 +33,19 @@ class QCheckBox;
 
 #include "reosgui.h"
 #include "reosparameter.h"
+
+class ReosLineEdit : public QLineEdit
+{
+    Q_OBJECT
+  public:
+    ReosLineEdit( QWidget *parent = nullptr );
+
+  signals:
+    void focusOut();
+
+  protected:
+    void focusOutEvent( QFocusEvent *event );
+};
 
 class REOSGUI_EXPORT ReosParameterWidget : public QWidget
 {
@@ -89,7 +102,7 @@ class REOSGUI_EXPORT ReosParameterWidget : public QWidget
 class REOSGUI_EXPORT ReosParameterWidgetAction : public QWidgetAction
 {
   public:
-    ReosParameterWidgetAction( ReosParameter *parameter, QObject *parent = nullptr );
+    explicit ReosParameterWidgetAction( ReosParameter *parameter, QObject *parent = nullptr );
 
     QWidget *createWidget( QWidget *parent ) override;
 
@@ -110,8 +123,9 @@ class REOSGUI_EXPORT ReosParameterInLineWidget : public ReosParameterWidget
     double value() const;
     QString textValue() const;
     bool textHasChanged() const;
+
   private:
-    QLineEdit *mLineEdit = nullptr;
+    ReosLineEdit *mLineEdit = nullptr;
     mutable QString mCurrentText;
 };
 
@@ -123,8 +137,8 @@ class REOSGUI_EXPORT ReosParameterDoubleWidget : public ReosParameterInLineWidge
     explicit ReosParameterDoubleWidget( ReosParameterDouble *value, QWidget *parent = nullptr );
 
     void setDouble( ReosParameterDouble *value );
-    void updateValue();
-    void applyValue();
+    void updateValue() override;
+    void applyValue() override;
     static QString type() {return QStringLiteral( "double" );}
     ReosParameterDouble *doubleParameter();
 };
@@ -137,8 +151,8 @@ class REOSGUI_EXPORT ReosParameterIntegerWidget : public ReosParameterInLineWidg
     explicit ReosParameterIntegerWidget( ReosParameterInteger *value, QWidget *parent = nullptr );
 
     void setInteger( ReosParameterInteger *value );
-    void updateValue();
-    void applyValue();
+    void updateValue() override;
+    void applyValue() override;
     static QString type() {return QStringLiteral( "integer" );}
     ReosParameterInteger *integerParameter();
 };
@@ -151,8 +165,8 @@ class REOSGUI_EXPORT ReosParameterStringWidget : public ReosParameterInLineWidge
     explicit ReosParameterStringWidget( ReosParameterString *string, QWidget *parent = nullptr );
 
     void setString( ReosParameterString *string );
-    void updateValue();
-    void applyValue();
+    void updateValue() override;
+    void applyValue() override;
 
     static QString type() {return QStringLiteral( "string" );}
     ReosParameterString *stringParameter();
@@ -166,8 +180,8 @@ class REOSGUI_EXPORT ReosParameterAreaWidget: public ReosParameterInLineWidget
     explicit ReosParameterAreaWidget( ReosParameterArea *area, QWidget *parent = nullptr );
 
     void setArea( ReosParameterArea *area );
-    void updateValue();
-    void applyValue();
+    void updateValue() override;
+    void applyValue() override;
 
     static QString type() {return QStringLiteral( "area" );}
 
@@ -185,8 +199,8 @@ class REOSGUI_EXPORT ReosParameterSlopeWidget: public ReosParameterInLineWidget
     explicit ReosParameterSlopeWidget( ReosParameterSlope *slope, QWidget *parent = nullptr );
 
     void setSlope( ReosParameterSlope *slope );
-    void updateValue();
-    void applyValue();
+    void updateValue() override;
+    void applyValue() override;
 
     static QString type() {return QStringLiteral( "slope" );}
 
@@ -219,8 +233,8 @@ class REOSGUI_EXPORT ReosParameterDurationWidget: public ReosParameterInLineWidg
     explicit ReosParameterDurationWidget( ReosParameterDuration *duration, QWidget *parent = nullptr );
 
     void setDuration( ReosParameterDuration *duration );
-    void updateValue();
-    void applyValue();
+    void updateValue() override;
+    void applyValue() override;
 
     static QString type() {return QStringLiteral( "duration" );}
 
@@ -276,7 +290,7 @@ class REOSGUI_EXPORT ReosParameterTextEdit: public QTextEdit
 {
     Q_OBJECT
   public:
-    ReosParameterTextEdit( QWidget *parent );
+    explicit ReosParameterTextEdit( QWidget *parent );
 
   signals:
     void editingFinished();

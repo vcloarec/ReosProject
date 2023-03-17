@@ -40,7 +40,10 @@ class ReosGmshResolutionControllerWidget : public QWidget
     explicit ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext );
     ~ReosGmshResolutionControllerWidget();
 
-    void addToolBarActions( const QList<QAction *> actions );
+    void addToolBarActions(const QList<QAction *> &actions );
+
+  public slots:
+    void updateParameters();
 
   protected:
     void hideEvent( QHideEvent *e );

@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
   reosedithydraulicstructure2dwidget.cpp - ReosEditHydraulicStructure2DWidget
 
  ---------------------
@@ -62,7 +62,9 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     QList<QAction *> meshGenerationToolBarActions;
     QAction *actionGenerateMesh = new QAction( QPixmap( QStringLiteral( ":/images/generateMesh.svg" ) ), tr( "Generate Mesh" ), this );
     connect( actionGenerateMesh, &QAction::triggered, this, &ReosEditHydraulicStructure2DWidget::generateMesh );
+
     meshGenerationToolBarActions.append( actionGenerateMesh );
+
     if ( structure2D->meshGenerator() )
       meshGenerationToolBarActions.append( new ReosParameterWidgetAction( structure2D->meshGenerator()->autoUpdateParameter(), this ) );
 
@@ -75,10 +77,10 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     ui->pageMeshStructure->layout()->addWidget( structureWidget );
     connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition(); } );
 
-    ReosGmshResolutionControllerWidget *resolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
-    resolutionWidget->addToolBarActions( meshGenerationToolBarActions );
-    resolutionWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
-    ui->pageMeshResolution->layout()->addWidget( resolutionWidget );
+    mResolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
+    mResolutionWidget->addToolBarActions( meshGenerationToolBarActions );
+    mResolutionWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
+    ui->pageMeshResolution->layout()->addWidget( mResolutionWidget );
 
     ReosMeshTopographyStackedWidget *topographyWidget =
       new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
@@ -187,6 +189,8 @@ void ReosEditHydraulicStructure2DWidget::generateMesh()
       return;
     }
   }
+
+  mResolutionWidget->updateParameters();
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
   QApplication::restoreOverrideCursor();
