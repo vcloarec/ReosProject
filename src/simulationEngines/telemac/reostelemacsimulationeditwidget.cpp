@@ -69,8 +69,8 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
   ui->mVFSchemeComboBox->addItem( tr( "Tchamen" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::Tchamen ) );
   ui->mVFSchemeComboBox->addItem( tr( "HLLC" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::HLLC ) );
   ui->mVFSchemeComboBox->addItem( tr( "WAF" ), int( ReosTelemac2DSimulation::VolumeFiniteScheme::WAF ) );
-
   ui->mVFSchemeComboBox->setCurrentIndex( ui->mVFSchemeComboBox->findData( static_cast<int>( simulation->volumeFiniteScheme() ) ) );
+  ui->mVfCourantNumberParameter->setDouble( simulation->courantNumber() );
 
   connect( ui->mEquationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation]
   {
@@ -79,7 +79,6 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
     simulation->setEquation( eq );
     ui->mVolumeFiniteGroupBox->setVisible( eq == ReosTelemac2DSimulation::Equation::FiniteVolume );
   } );
-
 
   connect( ui->mVFSchemeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation]
   {
