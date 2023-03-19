@@ -94,6 +94,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     VolumeFiniteScheme volumeFiniteScheme( ReosHydraulicScheme *scheme = nullptr ) const;
     void setVolumeFiniteEquation( VolumeFiniteScheme VFscheme, ReosHydraulicScheme *hydraulicScheme = nullptr );
+    ReosParameterDouble *courantNumber() const;
     //***********
 
     QString engineName() const override;
@@ -108,6 +109,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosParameterInteger *mOutputPeriodResultHyd = nullptr;
     Equation mEquation = Equation::FiniteVolume;
     VolumeFiniteScheme mVFScheme = VolumeFiniteScheme::HLLC;
+    ReosParameterDouble *mVfCourantNumber = nullptr;
     int mCurrentInitialCondition = 0;
     //*********
     QList<ReosTelemac2DInitialCondition *> mInitialConditions;

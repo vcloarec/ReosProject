@@ -221,6 +221,11 @@ void ReosTelemac2DSimulation::setVolumeFiniteEquation( VolumeFiniteScheme VFsche
   }
 }
 
+ReosParameterDouble *ReosTelemac2DSimulation::courantNumber() const
+{
+  return mVfCourantNumber;
+}
+
 bool ReosTelemac2DSimulation::hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const
 {
   const QDir dir = simulationDir( hydraulicStructure, shemeId );
@@ -302,6 +307,7 @@ void ReosTelemac2DSimulation::saveConfiguration( ReosHydraulicScheme *scheme ) c
   element.addData( QStringLiteral( "output-period-hydrograph" ), mOutputPeriodResultHyd->value() );
   element.addData( QStringLiteral( "equation" ), static_cast<int>( mEquation ) );
   element.addData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
+  element.addData( QStringLiteral( "vf-courant-number" ), mVfCourantNumber->value() );
 
   for ( ReosTelemac2DInitialCondition *ic : mInitialConditions )
     ic->saveConfiguration( scheme );
@@ -335,6 +341,10 @@ void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme 
   mVFScheme = volumeFiniteScheme( scheme );
 
   element.getData( QStringLiteral( "initial-condition-index" ), mCurrentInitialCondition );
+
+  double vfCN = 0.9;
+  if ( element.getData( QStringLiteral( "vf-courant-number" ), vfCN ) )
+    mVfCourantNumber->setValue( vfCN );
 
   for ( ReosTelemac2DInitialCondition *ic : std::as_const( mInitialConditions ) )
     ic->restoreConfiguration( scheme );
@@ -1285,7 +1295,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DSimulation::Equation::FiniteVolume:
     {
       stream << QStringLiteral( "EQUATIONS: 'SAINT-VENANT FV'\n" );
-      stream << QStringLiteral( "DESIRED COURANT NUMBER : 0.9\n" );
+      stream << QStringLiteral( "DESIRED COURANT NUMBER : %1\n" ).arg( QString::number( mVfCourantNumber->value() ) );
       stream << QStringLiteral( "VARIABLE TIME-STEP : YES\n" );
       QString vfScheme( '5' );
       switch ( mVFScheme )
@@ -1347,9 +1357,13 @@ void ReosTelemac2DSimulation::init()
   mOutputPeriodResultHyd = new ReosParameterInteger( tr( "Output period for hydrograph" ), false, this );
   mOutputPeriodResultHyd->setValue( 1 );
 
+  mVfCourantNumber = new ReosParameterDouble( QString(), false, this );
+  mVfCourantNumber->setValue( 0.9 );
+
   connect( mTimeStep, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
   connect( mOutputPeriodResult2D, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
   connect( mOutputPeriodResultHyd, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::timeStepChanged );
+  connect( mVfCourantNumber, &ReosParameter::valueChanged, this, &ReosHydraulicSimulation::dataChanged );
 
   initInitialCondition();
 }
