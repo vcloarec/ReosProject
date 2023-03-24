@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fa">
+<TS version="2.1" language="el">
 <context>
     <name>CoordinatesWidget</name>
     <message>
@@ -545,6 +545,7 @@
         <location filename="../src/simulationEngines/hecras/reoshecrasproject.cpp" line="890"/>
         <source>Boundary condition &quot;%1&quot;, not present in the plan &quot;%2&quot;, is linked to %n element(s) in project:</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2325,6 +2326,7 @@ Calculation cancelled.</source>
         <source>%n station displayed</source>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3867,12 +3869,14 @@ Please, check the model.</source>
         <source>Selected vertex can&apos;t be removed</source>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1084"/>
         <source>Change Z value of %n selected vertices</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3881,12 +3885,14 @@ Please, check the model.</source>
         <source>Remove %n selected vertices</source>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp" line="1093"/>
         <source>Some selected vertices can&apos;t be removed</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -5561,6 +5567,7 @@ is applied on the rainfall</source>
         <source>Get boundary conditions</source>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -5568,6 +5575,7 @@ is applied on the rainfall</source>
         <location filename="../src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.cpp" line="287"/>
         <source>Wait for %n boundary condition</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -6081,12 +6089,14 @@ Check the settings of the Telemac engine.</source>
         <source>Delete %n selected rows</source>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="108"/>
         <source>Insert %n rows</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -6095,12 +6105,14 @@ Check the settings of the Telemac engine.</source>
         <source>Insert %n rows from clipboard</source>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gui/form/reostableview.cpp" line="129"/>
         <source>Paste %n rows from clipboard</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>

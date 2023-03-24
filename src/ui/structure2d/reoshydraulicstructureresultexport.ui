@@ -27,7 +27,7 @@
        <item row="5" column="1">
         <widget class="QLabel" name="mLaberEndTime">
          <property name="text">
-          <string>--</string>
+          <string notr="true">--</string>
          </property>
         </widget>
        </item>
@@ -47,7 +47,7 @@
        <item row="2" column="1">
         <widget class="QLabel" name="mLabelLastRun">
          <property name="text">
-          <string>--</string>
+          <string notr="true">--</string>
          </property>
         </widget>
        </item>
@@ -61,14 +61,14 @@
        <item row="4" column="1">
         <widget class="QLabel" name="mLabelStartTime">
          <property name="text">
-          <string>--</string>
+          <string notr="true">--</string>
          </property>
         </widget>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>End TIme</string>
+          <string>End Time</string>
          </property>
         </widget>
        </item>
@@ -102,7 +102,7 @@
        <item row="1" column="1">
         <widget class="QLabel" name="mLabelEngine">
          <property name="text">
-          <string>--</string>
+          <string notr="true">--</string>
          </property>
         </widget>
        </item>
@@ -123,7 +123,7 @@
        <item row="6" column="1">
         <widget class="QLabel" name="mTimeStepCount">
          <property name="text">
-          <string>--</string>
+          <string notr="true">--</string>
          </property>
         </widget>
        </item>
@@ -149,7 +149,7 @@
      <item>
       <widget class="QToolButton" name="mQGISFileButton">
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
       </widget>
      </item>
