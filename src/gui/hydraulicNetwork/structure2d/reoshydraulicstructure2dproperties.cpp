@@ -411,7 +411,7 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
   {
     if ( mStructure2D->hasResults( mCalculationContext.schemeId() ) )
     {
-      if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this modele and this hydraulic scheme.\nDo you want to overwrite this results?" ),
+      if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this model and this hydraulic scheme.\nDo you want to overwrite this results?" ),
                                  QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
         return;
     }

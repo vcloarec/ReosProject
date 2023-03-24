@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="mIntroLabel">
      <property name="text">
-      <string>TextLabel</string>
+      <string notr="true">TextLabel</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -37,7 +37,7 @@
    <item>
     <widget class="QLabel" name="mFinalLabel">
      <property name="text">
-      <string>TextLabel</string>
+      <string notr="true">TextLabel</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

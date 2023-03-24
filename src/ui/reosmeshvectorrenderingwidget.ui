@@ -395,14 +395,14 @@
         <item>
          <widget class="ReosColorButton" name="mUniqueColorButton">
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QToolButton" name="mColorRampToolButton">
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../images/images.qrc">
@@ -419,15 +419,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ReosColorButton</class>
-   <extends>QToolButton</extends>
-   <header>reoscolorbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>ReosParameterDoubleWidget</class>
    <extends>QWidget</extends>
    <header>reosparameterwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReosColorButton</class>
+   <extends>QToolButton</extends>
+   <header>reoscolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>
