@@ -1426,7 +1426,7 @@ void ReosTimeSerieVariableTimeStepModel::setValues( const QModelIndex &fromIndex
   setValuesPrivate( fromIndex, data, true );
 }
 
-static bool isStringDatetime( const QString str )
+static bool isStringDatetime( const QString &str )
 {
   // try with loval format
   QDateTime time = QLocale().toDateTime( str, QLocale::ShortFormat );
