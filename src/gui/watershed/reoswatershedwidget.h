@@ -63,6 +63,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void onWatershedDataChanged( const QModelIndex &index );
     void onModuleReset();
     void onExportToVectorLayer();
+    void onExportCurrentToVectorLayer();
     void onZoomToWatershed();
     void onAddRemoveNetwork();
 
@@ -100,6 +101,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosWatershedGaugedHydrographWidget *mGaugedHydrographWidget = nullptr;
 
     QAction *mActionExportToVectorLayer = nullptr;
+    QAction *mActionExportThisToVectorLayer = nullptr;
 
     QAction *mActionZoomToWatershed = nullptr;
 
