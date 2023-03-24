@@ -105,10 +105,11 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
 
   std::unique_ptr<ReosMenuPopulator> menuPopulator = std::make_unique<ReosMenuPopulator>();
   menuPopulator->addAction( mActionLongitudinalProfile );
-  menuPopulator->addAction( mActionRemoveWatershed );
   menuPopulator->addAction( mActionConcentrationTime );
   menuPopulator->addAction( mActionRunoffHydrograph );
   menuPopulator->addAction( mActionGaugedHydrograph );
+  menuPopulator->addAction( mActionRemoveWatershed );
+  menuPopulator->addAction( mActionExportThisToVectorLayer );
   mMapToolSelectWatershed->setContextMenuPopulator( menuPopulator.release() );
 
   connect( this, &ReosWatershedWidget::currentWatershedChanged, mLongitudinalProfileWidget, &ReosLongitudinalProfileWidget::setCurrentWatershed );
