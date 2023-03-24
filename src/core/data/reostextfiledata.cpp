@@ -268,7 +268,6 @@ QString ReosTextFileData::readLine( QTextStream &stream )
 {
   // We should always use mStream->readLine(), but it fails to detect \r
   // line endings.
-
   if ( mFirstEOLChar == '\r' )
   {
     QString line;

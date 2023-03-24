@@ -122,6 +122,10 @@ class ReosDelftFewsXMLProviderFactory: public ReosDataProviderFactory
   public:
     ReosTimeSerieProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
+    bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+
+  private:
+    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Spatial};
 };
 
 #endif // REOSDELFTFEWSXMLPROVIDER_H

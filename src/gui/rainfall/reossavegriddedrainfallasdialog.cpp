@@ -33,7 +33,7 @@ ReosSaveGriddedRainfallAsDialog::ReosSaveGriddedRainfallAsDialog( ReosGriddedRai
   ui->setupUi( this );
   ui->mOptionWidget->syncRainfall( rainfall );
 
-  QStringList providerKeys = ReosDataProviderRegistery::instance()->ableToWrite( ReosGriddedRainfall::staticType() );
+  QStringList providerKeys = ReosDataProviderRegistery::instance()->withCapabilities( ReosGriddedRainfall::staticType(), ReosDataProvider::CanWrite );
   std::sort( providerKeys.begin(), providerKeys.end() );
 
   for ( const QString &provKey : std::as_const( providerKeys ) )

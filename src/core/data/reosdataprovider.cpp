@@ -82,15 +82,12 @@ ReosDataProvider *ReosDataProviderRegistery::createCompatibleProvider( const QSt
   return nullptr;
 }
 
-QStringList ReosDataProviderRegistery::ableToWrite( const QString &dataType ) const
+QStringList ReosDataProviderRegistery::withCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities )
 {
   QStringList ret;
   for ( auto it = mFactories.cbegin(); it != mFactories.cend(); ++it )
-  {
-    std::unique_ptr<ReosDataProvider> provider( it->second->createProvider( dataType ) );
-    if ( provider && provider->canWrite() )
+    if ( it->second->hasCapabilities( dataType, capabilities ) )
       ret.append( it->first );
-  }
 
   return ret;
 }
@@ -174,3 +171,5 @@ ReosDataProviderFactory *ReosDataProviderRegistery::extractFactory( const QStrin
 }
 
 bool ReosDataProvider::canReadUri( const QString & ) const {return false;}
+
+bool ReosDataProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const {return false;}

@@ -77,7 +77,7 @@ ReosHydrograph *ReosHubEauWidget::createData( QObject *parent ) const
   if ( mCurrentStationId.isEmpty() )
     return nullptr;
 
-  std::unique_ptr<ReosHydrograph> hyd( mServer->createHydrograph( mCurrentStationId, mCurrentStationMeta, parent ) );
+  std::unique_ptr<ReosHydrograph> hyd( mServer->createHydrograph( mCurrentStationId, mCurrentHubEauStationMeta, parent ) );
   hyd->setName( hyd->name() + QStringLiteral( " - " ) + tr( "real time" ) );
   return hyd.release();
 }
@@ -85,6 +85,25 @@ ReosHydrograph *ReosHubEauWidget::createData( QObject *parent ) const
 ReosHydrograph *ReosHubEauWidget::selectedData() const
 {
   return mCurrentHydrograph;
+}
+
+QVariantMap ReosHubEauWidget::selectedMetadata() const
+{
+  /* provider-key: provider key
+  * station: if the data is associated with a station, the name of the station
+  * station-descritpion: a short text desciption of the station
+  * x-coord: x coordinate (or longitude)
+  * y-coord: y coordinate (or longitude)
+  * crs: wkt coordinate system
+  * descritpion: a short text desciption of the data*/
+  QVariantMap ret;
+
+  ret.insert( QStringLiteral( "station" ), mCurrentHubEauStationMeta.value( QStringLiteral( "libelle_station" ) ) );
+  ret.insert( QStringLiteral( "x-coord" ), mCurrentHubEauStationMeta.value( QStringLiteral( "longitude_station" ) ) );
+  ret.insert( QStringLiteral( "y-coord" ), mCurrentHubEauStationMeta.value( QStringLiteral( "latitude_station" ) ) );
+  ret.insert( QStringLiteral( "crs" ), ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  return ret;
 }
 
 void ReosHubEauWidget::onMapExtentChanged()
@@ -149,7 +168,7 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   }
 
   if ( mCurrentMarker )
-    formatMarker( mCurrentMarker, mCurrentStationMeta, false );
+    formatMarker( mCurrentMarker, mCurrentHubEauStationMeta, false );
 
   mCurrentHydrograph = nullptr;
   mCurrentMarker = static_cast<ReosHubEauStationMarker *>( item );
@@ -157,11 +176,12 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   {
     const ReosHubEauStation &station =  mStations.at( mCurrentMarker->stationIndex );
     mCurrentStationId = station.id;
-    mCurrentStationMeta = station.meta;
+    mCurrentHubEauStationMeta = station.meta;
+    mCurrentMetadata.clear();
 
-    formatMarker( mCurrentMarker, mCurrentStationMeta, true );
+    formatMarker( mCurrentMarker, mCurrentHubEauStationMeta, true );
 
-    mCurrentHydrograph = mServer->createHydrograph( mCurrentStationId, mCurrentStationMeta, this );
+    mCurrentHydrograph = mServer->createHydrograph( mCurrentStationId, mCurrentHubEauStationMeta, this );
     ui->mCurrentStateLabel->setText( "Loading hydrograph" );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosHubEauWidget::onHydrographUpdated );
     emit dataIsLoading();
@@ -170,12 +190,12 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   else
   {
     mCurrentStationId.clear();
-    mCurrentStationMeta.clear();
+    mCurrentHubEauStationMeta.clear();
     ui->mCurrentStateLabel->setText( "No station selected" );
     emit dataSelectionChanged( false );
   }
 
-  populateMeta( mCurrentStationMeta );
+  populateMeta( mCurrentHubEauStationMeta );
   mHydrographPlot->setTimeSerie( mCurrentHydrograph );
 }
 

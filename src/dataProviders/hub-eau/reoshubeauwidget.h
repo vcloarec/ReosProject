@@ -56,6 +56,7 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
 
     ReosHydrograph *createData( QObject *parent = nullptr ) const override;
     ReosHydrograph *selectedData() const override;
+    QVariantMap selectedMetadata() const override;
 
     //! Returns the station Id of the current station conformly to hub-eau specifiations
     QString currentStationId() const;
@@ -88,7 +89,8 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;
     ReosHubEauStationMarker *mCurrentMarker = nullptr;
     QString mCurrentStationId;
-    QVariantMap mCurrentStationMeta;
+    QVariantMap mCurrentHubEauStationMeta;
+    QVariantMap mCurrentMetadata;
 
     void populateMeta( const QVariantMap &meta );
 

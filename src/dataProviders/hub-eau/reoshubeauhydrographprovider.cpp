@@ -25,7 +25,7 @@ QString ReosHubEauHydrographProvider::key() const {return ReosHubEauHydrographPr
 
 QStringList ReosHubEauHydrographProvider::fileSuffixes() const
 {
-    return QStringList();
+  return QStringList();
 }
 
 QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
@@ -278,6 +278,10 @@ QString ReosHubEauHydrographProviderFactory::key() const
   return ReosHubEauHydrographProvider::staticKey();
 }
 
+bool ReosHubEauHydrographProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  return ( capabilities & mCapabilities ) == mCapabilities;
+}
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
