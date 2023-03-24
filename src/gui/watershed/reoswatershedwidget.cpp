@@ -44,6 +44,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   mActionGaugedHydrograph( new QAction( QIcon( QStringLiteral( ":/images/gaugedHydrograph.svg" ) ), tr( "Gauged hydrograph" ), this ) ),
   mGaugedHydrographWidget( new ReosWatershedGaugedHydrographWidget( guiContext ) ),
   mActionExportToVectorLayer( new QAction( QIcon( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export watershed geometry to vector layer" ), this ) ),
+  mActionExportThisToVectorLayer( new QAction( QIcon( QStringLiteral( ":/images/exportWatershed.svg" ) ), tr( "Export this watershed geometry to vector layer" ), this ) ),
   mActionZoomToWatershed( new QAction( QIcon( QStringLiteral( ":/images/zoomToWatershed.svg" ) ), tr( "Zoom to watershed" ), this ) ),
   mMapToolEditDelineating( new ReosMapToolEditMapPolygon( guiContext.map() ) ),
   mMapToolMoveOutletPoint( new ReosMapToolMoveMapItem( guiContext.map() ) )
@@ -151,6 +152,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   } );
 
   connect( mActionExportToVectorLayer, &QAction::triggered, this, &ReosWatershedWidget::onExportToVectorLayer );
+  connect( mActionExportThisToVectorLayer, &QAction::triggered, this, &ReosWatershedWidget::onExportCurrentToVectorLayer );
   connect( mActionZoomToWatershed, &QAction::triggered, this, &ReosWatershedWidget::onZoomToWatershed );
 
   connect( ui->mAddRemoveHydraulicNetworkButton, &QPushButton::clicked, this, &ReosWatershedWidget::onAddRemoveNetwork );
@@ -380,7 +382,7 @@ void ReosWatershedWidget::onTreeViewContextMenu( const QPoint &pos )
   contextMenu.addAction( mActionGaugedHydrograph );
   if ( ws->watershedType() != ReosWatershed::Residual )
     contextMenu.addAction( mActionRemoveWatershed );
-
+  contextMenu.addAction( mActionExportThisToVectorLayer );
   contextMenu.exec( ui->treeView->viewport()->mapToGlobal( pos ) );
 }
 
@@ -414,6 +416,17 @@ void ReosWatershedWidget::onModuleReset()
 void ReosWatershedWidget::onExportToVectorLayer()
 {
   ReosExportWatershedToVectorDialog *dial = new ReosExportWatershedToVectorDialog( mModelWatershed->allWatershedsFromUSToDS(), mMap->engine()->crs(), this );
+  dial->exec();
+
+  dial->deleteLater();
+}
+
+void ReosWatershedWidget::onExportCurrentToVectorLayer()
+{
+  QList<ReosWatershed *> watersheds;
+  watersheds << currentWatershed();
+
+  ReosExportWatershedToVectorDialog *dial = new ReosExportWatershedToVectorDialog( watersheds, mMap->engine()->crs(), this );
   dial->exec();
 
   dial->deleteLater();
