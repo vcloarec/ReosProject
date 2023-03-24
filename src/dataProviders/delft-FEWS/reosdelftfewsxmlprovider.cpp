@@ -171,14 +171,14 @@ QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXML
 
 QStringList ReosDelftFewsXMLHydrographProvider::fileSuffixes() const
 {
-    QStringList ret;
-    ret << QStringLiteral( "xml" );
-    return ret;
+  QStringList ret;
+  ret << QStringLiteral( "xml" );
+  return ret;
 }
 
 QString ReosDelftFewsXMLHydrographProvider::htmlDescription() const
 {
-    return htmlDescriptionFromMetada( metadata() );
+  return htmlDescriptionFromMetada( metadata() );
 }
 
 void ReosDelftFewsXMLHydrographProvider::load()
@@ -524,5 +524,10 @@ ReosTimeSerieProvider *ReosDelftFewsXMLProviderFactory::createProvider( const QS
 QString ReosDelftFewsXMLProviderFactory::key() const
 {
   return ReosDelftFewsXMLProviderInterface::staticKey();
+}
+
+bool ReosDelftFewsXMLProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  return ( capabilities & mCapabilities ) == mCapabilities;
 }
 

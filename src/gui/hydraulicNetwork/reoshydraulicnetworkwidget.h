@@ -38,6 +38,7 @@ class ReosWatershedModule;
 class ReosGeometryStructure;
 class ReosStructure2dToolBar;
 class ReosHydraulicElementModel;
+class ReosAddHydrographNodeFromWidget;
 
 class REOSGUI_EXPORT ReosHydraulicElementWidget : public QWidget
 {
@@ -92,7 +93,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     void onAddHydraulicScheme();
     void onRemoveHydraulicScheme();
     void onRenameHydraulicScheme();
-    void onCurrentSchemeChange(int index);
+    void onCurrentSchemeChange( int index );
     void onNetworkLoaded();
 
     void onModuleReset();
@@ -123,6 +124,9 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionAddHydrographJunction = nullptr;
     ReosMapToolDrawPoint *mMapToolAddHydrographJunction = nullptr;
+
+    QAction *mActionAddHydrofraphJunctionFrom = nullptr;
+    ReosAddHydrographNodeFromWidget *mAddHydrographFromWidget = nullptr;
 
     QAction *mActionAddHydrographRouting = nullptr;
     ReosMapToolDrawHydrographRouting *mMapToolAddHydrographRouting = nullptr;

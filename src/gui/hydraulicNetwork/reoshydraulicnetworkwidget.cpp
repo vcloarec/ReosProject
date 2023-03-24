@@ -33,6 +33,7 @@
 #include "reosimporthydraulicstructuredialog.h"
 #include "reoshydraulicelementmodel.h"
 #include "reosnetworkcompatibilitydialog.h"
+#include "reosaddhydrographnodefromwidget.h"
 
 
 ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
@@ -47,6 +48,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mMapToolSelectNetworkElement( new ReosMapToolSelectMapItem( context.map(), ReosHydraulicNetworkElement::staticType() ) )
   , mActionAddHydrographJunction( new QAction( QIcon( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add Junction" ), this ) )
   , mMapToolAddHydrographJunction( new ReosMapToolDrawPoint( mMap ) )
+  , mActionAddHydrofraphJunctionFrom( new QAction( QIcon( QStringLiteral( ":/images/addHydrographJunction.svg" ) ), tr( "Add Junction From..." ), this ) )
   , mActionAddHydrographRouting( new QAction( QIcon( QStringLiteral( ":/images/addHydrographRouting.svg" ) ), tr( "Add Link" ), this ) )
   , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
   , mActionHydraulicNetworkProperties( new QAction( QIcon( QStringLiteral( ":/images/hydraulicProperties.svg" ) ), tr( "Hydraulic Element Properties" ), this ) )
@@ -93,12 +95,28 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   mMapToolSelectNetworkElement->setSearchItemWhenMoving( true );
   mMapToolSelectNetworkElement->setCursor( Qt::ArrowCursor );
 
-  toolBar->addAction( mActionAddHydrographJunction );
   mActionAddHydrographJunction->setCheckable( true );
-  mMapToolAddHydrographJunction->setAction( mActionAddHydrographJunction );
 
-  toolBar->addAction( mActionAddHydrographRouting );
+  QStringList spatialHydrographProvider =
+    ReosDataProviderRegistery::instance()->withCapabilities( ReosHydrograph::staticType(), ReosDataProvider::Spatial );
+  if ( spatialHydrographProvider.isEmpty() )
+    toolBar->addAction( mActionAddHydrographJunction );
+  else
+  {
+    mActionAddHydrofraphJunctionFrom->setCheckable( true );
+    QToolButton *mHydrographJunctionButton = new QToolButton( toolBar );
+    mHydrographJunctionButton->setPopupMode( QToolButton::MenuButtonPopup );
+    mHydrographJunctionButton->addAction( mActionAddHydrographJunction );
+    mHydrographJunctionButton->setDefaultAction( mActionAddHydrographJunction );
+    mHydrographJunctionButton->addAction( mActionAddHydrofraphJunctionFrom );
+    toolBar->addWidget( mHydrographJunctionButton );
+    ReosAddHydrographNodeFromWidget *addFromWidget = new ReosAddHydrographNodeFromWidget( network, ReosGuiContext( mGuiContext, this ) );
+    addFromWidget->setAction( mActionAddHydrofraphJunctionFrom );
+  }
+
+  mMapToolAddHydrographJunction->setAction( mActionAddHydrographJunction );
   mActionAddHydrographRouting->setCheckable( true );
+  toolBar->addAction( mActionAddHydrographRouting );
   mMapToolAddHydrographRouting->setAction( mActionAddHydrographRouting );
   mMapToolAddHydrographRouting->addSearchingItemDescription( ReosHydrographNode::staticType() );
   mMapToolAddHydrographRouting->setSearchItemWhenMoving( true );

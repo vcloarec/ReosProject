@@ -27,6 +27,16 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
     Q_OBJECT
   public:
 
+    enum Capability
+    {
+      CanWrite = 1 << 0, //!< If the dataprovider support writting data
+      Spatial = 1 << 1, //!< Id data is related to a spatial position
+    };
+
+    Q_ENUM( Capability )
+    Q_DECLARE_FLAGS( Capabilities, Capability )
+    Q_FLAG( Capabilities )
+
     //! Returns the provider key
     virtual QString key() const = 0;
 
@@ -57,6 +67,10 @@ class REOSCORE_EXPORT ReosDataProviderFactory
 
     //! Returns the provider key corresponding to this factory
     virtual QString key() const = 0;
+
+    //! Returns whether the data provider has the \a capabilities with data type \a dataType
+    virtual bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const;
+
 };
 
 /**
@@ -79,7 +93,8 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
     //! Creates a provider that can read the data pointed by \a uri
     ReosDataProvider *createCompatibleProvider( const QString &uri, const QString &dataType ) const;
 
-    QStringList ableToWrite( const QString &dataType ) const;
+    //! Returns a list of data providers that have the \a capabilities with data type \a dataType
+    QStringList withCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities );
 
     QStringList fileSuffixes( const QString &key ) const;
 
