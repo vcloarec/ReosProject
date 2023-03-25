@@ -18,15 +18,20 @@ email                : vcloarec at gmail dot com
 #include <QThread>
 #include <QMessageBox>
 #include <QTranslator>
+#include <QStyleFactory>
 #include "reosmapextent.h"
 #include "reossettings.h"
 #include "reoscoremodule.h"
 #include "reoswatershedmodule.h"
 
+
 ReosApplication::ReosApplication( int &argc, char **argv, int flag )
   : QApplication( argc, argv, flag )
   , mCoreModule( new ReosCoreModule( this ) )
 {
+
+  QApplication::setStyle( QStyleFactory::create( "fusion" ) );
+
   qRegisterMetaType<ReosSpatialPosition>( "ReosSpatialPosition" );
 
 #ifdef _MSC_VER
