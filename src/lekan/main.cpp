@@ -70,30 +70,29 @@ int main( int argc, char *argv[] )
 
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
-  QApplication::setStyle( QStyleFactory::create( "fusion" ) );
 
-  std::unique_ptr<LekanMainWindow> w = std::make_unique<LekanMainWindow>( a.coreModule() );
-  new ReosVersionMessageBox( w.get(), ReosVersion::currentApplicationVersion() );
+  std::unique_ptr<LekanMainWindow> mainWindow = std::make_unique<LekanMainWindow>( a.coreModule() );
+  new ReosVersionMessageBox( mainWindow.get(), ReosVersion::currentApplicationVersion() );
 
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "Windows/MainWindow/geometry" ) ) )
   {
-    w->restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
-    w->showMaximized();
+    mainWindow->restoreGeometry( settings.value( QStringLiteral( "Windows/MainWindow/geometry" ) ).toByteArray() );
+    mainWindow->showMaximized();
   }
   else
   {
-    w->showMaximized();
+    mainWindow->showMaximized();
   }
   QStringList recentProjects;
   if ( settings.contains( QStringLiteral( "/recent-lekan-project" ) ) )
   {
     recentProjects = settings.value( QStringLiteral( "/recent-lekan-project" ) ).value<QStringList>();
-    w->setRecentProjects( recentProjects );
+    mainWindow->setRecentProjects( recentProjects );
   }
 
-  ReosStartingWidget *starting = new ReosStartingWidget( recentProjects, w.get() );
-  starting->move( w->screen()->geometry().center() - starting->rect().center() );
+  ReosStartingWidget *starting = new ReosStartingWidget( recentProjects, mainWindow.get() );
+  starting->move( mainWindow->screen()->geometry().center() - starting->rect().center() );
   starting->setBan( QPixmap( ":/images/lekan.svg" ) );
 
   QTimer::singleShot( 1, starting, [starting]

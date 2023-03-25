@@ -7,6 +7,7 @@ if (WITH_BINDINGS)
 endif()
 
 ADD_SUBDIRECTORY(lekan)
+ADD_SUBDIRECTORY(reosSystem)
 ADD_SUBDIRECTORY(dataProviders)
 ADD_SUBDIRECTORY(simulationEngines) 
 
