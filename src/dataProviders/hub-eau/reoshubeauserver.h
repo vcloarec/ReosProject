@@ -72,6 +72,7 @@ class ReosHubEauConnection: public QObject
     void launchRequest();
 
   private:
+    //TODO : rework the logic t use ReosNetworkAccessManager instead
     QNetworkAccessManager *mNetworkAccessManager = nullptr;
     QNetworkReply *mWaitedReply = nullptr;
     QString mBaseUri;

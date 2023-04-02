@@ -100,6 +100,8 @@ SET(REOS_CORE_SOURCES
   mesh/reosmeshgenerator.cpp
   mesh/reosgmshgenerator.cpp
   mesh/reosmeshdatasetsource.cpp
+
+  network/reosnetworkaccessmanager.cpp
 )
 
 SET(REOS_CORE_HEADERS
@@ -191,6 +193,8 @@ SET(REOS_CORE_HEADERS
     mesh/reosmeshgenerator.h
     mesh/reosgmshgenerator.h
     mesh/reosmeshdatasetsource.h
+
+    network/reosnetworkaccessmanager.h
 )
 
 SET(REOS_CORE_HEADERS_PRIVATE
