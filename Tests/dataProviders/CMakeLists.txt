@@ -4,9 +4,10 @@
 #########################################################################
 #########################################################################
 
-ADD_SUBDIRECTORY(grib)
-IF (COMEPHORE_TESTS_ENABLE)
-    ADD_SUBDIRECTORY(comephore)
-ENDIF(COMEPHORE_TESTS_ENABLE)
+add_subdirectory(grib)
+if (COMEPHORE_TESTS_ENABLE)
+    add_subdirectory(comephore)
+endif(COMEPHORE_TESTS_ENABLE)
 
 
+add_subdirectory(mf-api)

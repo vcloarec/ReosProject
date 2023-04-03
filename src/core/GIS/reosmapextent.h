@@ -55,8 +55,9 @@ class REOSCORE_EXPORT ReosMapExtent
     ReosMapExtent() = default;
     ReosMapExtent( const QRectF &extent );
     ReosMapExtent( double xMapMin, double yMapMin, double xMapMax, double yMapMax );
-    //! Construct an extent with the bounding box of the polygon
+    //! Constructs an extent with the bounding box of the polygon
     ReosMapExtent( const QPolygonF &polygon, const QString &crs = QString() );
+    //! Constructs an extent with two spatial position that is two opposite corners
     ReosMapExtent( const ReosSpatialPosition &pos1, const ReosSpatialPosition &pos2 );
 
     double width() const;

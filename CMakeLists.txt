@@ -110,11 +110,7 @@ ENDIF(WITH_QTWEBKIT)
 SET(QWT_LIB CACHE FILEPATH "Path to qwt LIB")
 SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
 
-SET(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, good files are necessary.")
-SET(COMEPHORE_TESTS_FILES_PATH CACHE PATH "Path to the Comephore test files.")
-IF (COMEPHORE_TESTS_ENABLE)
-    ADD_DEFINITIONS(-DCOMEPHORE_FILES_PATH="${COMEPHORE_TESTS_FILES_PATH}")
-ENDIF (COMEPHORE_TESTS_ENABLE)
+
 
 ADD_SUBDIRECTORY(images)
 ADD_SUBDIRECTORY(src/core)
@@ -127,9 +123,14 @@ ADD_SUBDIRECTORY(i18n)
 
 # testing
 IF (ENABLE_TESTS)
+
+  SET(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
+  set(METEOFRANCEAPI_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Meteo France, a file containing a API key is necessary")
+
   INCLUDE (CTest)
   ADD_DEFINITIONS(-DENABLE_TESTS)
   ENABLE_TESTING()
   ADD_SUBDIRECTORY(Tests)
+
 ENDIF(ENABLE_TESTS)
 
