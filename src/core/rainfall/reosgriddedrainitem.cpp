@@ -26,6 +26,7 @@ ReosGriddedRainfall::ReosGriddedRainfall( QObject *parent )
   : ReosRenderedObject( parent )
   , mProvider( new ReosGriddedRainfallMemoryProvider )
 {
+  connectProvider();
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
 }
 
@@ -34,8 +35,10 @@ ReosGriddedRainfall::ReosGriddedRainfall( const QString &dataSource, const QStri
   , mProvider( qobject_cast<ReosGriddedRainfallProvider*>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) )
 {
   if ( mProvider )
+  {
+    connectProvider();
     mProvider->setDataSource( dataSource );
-
+  }
   // renderer factory must be created after set the datasource because, the factory needs the extent of the provider on creation
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
 }
@@ -70,6 +73,16 @@ QString ReosGriddedRainfall::formatKey( const QString &rawKey ) const
     return rawKey;
 
   return rawKey + QStringLiteral( "::" ) + ReosGriddedRainfall::staticType();
+}
+
+void ReosGriddedRainfall::connectProvider()
+{
+  if ( mProvider )
+  {
+    connect( mProvider.get(), &ReosDataProvider::dataChanged, this, &ReosDataObject::dataChanged );
+    connect( mProvider.get(), &ReosDataProvider::dataReset, this, &ReosDataObject::dataReset );
+    connect( mProvider.get(), &ReosDataProvider::loadingFinished, this, &ReosGriddedRainfall::loadingFinished );
+  }
 }
 
 ReosEncodedElement ReosGriddedRainfall::encode( const ReosEncodeContext &context ) const
@@ -374,6 +387,7 @@ ReosEncodedElement ReosGriddedRainItem::encode( const ReosEncodeContext &context
 
   return element;
 }
+
 ReosGriddedRainfall *ReosGriddedRainfallRendererFactory::rainfall() const
 {
   return mRainfall;

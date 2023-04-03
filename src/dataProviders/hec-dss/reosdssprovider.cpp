@@ -456,6 +456,7 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
     return f1.startTime < f2.startTime;
   } );
 
+  emit dataReset();
 }
 
 bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const

@@ -62,6 +62,8 @@ void ReosComephoreProvider::setDataSource( const QString &dataSource )
     mIsValid = mFileReader->frameCount() > 0;
     mExtent = mFileReader->extent();
   }
+
+  emit dataReset();
 }
 
 QStringList ReosComephoreProvider::fileSuffixes() const

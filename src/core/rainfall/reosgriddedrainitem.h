@@ -103,6 +103,9 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Creates new instance from the encoded element
     static ReosGriddedRainfall *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
+  signals:
+    void loadingFinished();
+
   private:
     ReosGriddedRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent );
 
@@ -111,13 +114,16 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
 
     QString formatKey( const QString &rawKey ) const;
+    void connectProvider();
 };
 
 class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
+    //! Constructor of a gridded rain item with \a name, \a description and \a data that is a ReosGriddedRainfall, takes ownership of the rainfall
     ReosGriddedRainItem( const QString &name, const QString &description,  ReosGriddedRainfall *data );
+
     explicit ReosGriddedRainItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override {return ReosGriddedRainfall::staticType();}

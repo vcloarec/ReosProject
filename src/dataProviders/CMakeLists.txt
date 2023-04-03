@@ -8,3 +8,5 @@ add_subdirectory(comephore)
 if (ENABLE_HEC_DSS)
 	add_subdirectory(hec-dss)
 endif (ENABLE_HEC_DSS)
+
+add_subdirectory(meteofrance-api)

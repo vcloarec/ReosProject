@@ -54,6 +54,7 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
   signals:
     void dataChanged();
     void dataReset();
+    void loadingFinished();
 };
 
 class REOSCORE_EXPORT ReosDataProviderFactory

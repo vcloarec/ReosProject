@@ -4,6 +4,11 @@
 #########################################################################
 #########################################################################
 
+SET(COMEPHORE_TESTS_FILES_PATH CACHE PATH "Path to the Comephore test files.")
+IF (COMEPHORE_TESTS_ENABLE)
+    ADD_DEFINITIONS(-DCOMEPHORE_FILES_PATH="${COMEPHORE_TESTS_FILES_PATH}")
+ENDIF (COMEPHORE_TESTS_ENABLE)
+
 SET(REOS_COMEPHORE_SOURCES
      ${CMAKE_SOURCE_DIR}/src/dataProviders/comephore/reoscomephoreprovider.cpp
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.cpp
