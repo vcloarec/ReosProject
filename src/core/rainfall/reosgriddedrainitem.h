@@ -103,6 +103,9 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Creates new instance from the encoded element
     static ReosGriddedRainfall *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
+  public slots:
+    void updateData() const override;
+
   signals:
     void loadingFinished();
 

@@ -70,7 +70,7 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     virtual void stopRendering() = 0;
 
   private:
-    ReosRenderedObject *mObject = nullptr;
+    QPointer<ReosRenderedObject> mObject;
     QRectF mExtent;
     std::unique_ptr<ReosRendererObjectMapTimeStamp> mMapTimeStamp;
 

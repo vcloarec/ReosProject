@@ -41,12 +41,12 @@ void ReosMFApitest::meteoFranceApi()
 
   ReosMeteoFranceApiArome::Model model( {QStringLiteral( "FRANCE" ), QStringLiteral( "001" )} );
   QString error;
-  aromeService->connectToService( model, error );
+  aromeService->connectToServiceBlocking( model, error );
 
   QList<QDateTime> runs = aromeService->availableRuns();
   QVERIFY( !runs.isEmpty() );
 
-  ReosMeteoFranceApiArome::RunInfo runInfo = aromeService->runInfo( runs.at( runs.count() - 2 ) );
+  ReosMeteoFranceApiArome::RunInfo runInfo = aromeService->runInfoBlocking( runs.at( runs.count() - 2 ) );
   QString crs = ReosGisEngine::crsFromEPSG( 4326 );
   QVERIFY( runInfo.extent == ReosMapExtent( ReosSpatialPosition( {-12.0, 37.5}, crs ), ReosSpatialPosition( {16.0, 55.4}, crs ) ) );
   QCOMPARE( runInfo.frameCount, 51 );

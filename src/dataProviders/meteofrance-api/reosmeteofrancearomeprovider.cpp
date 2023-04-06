@@ -109,6 +109,49 @@ int ReosMeteoFranceAromeApiProvider::runIndexfromUri( const QString &uri )
   return part.at( 4 ).toInt();
 }
 
+void ReosMeteoFranceAromeApiProvider::onConnected( const QString &connectError )
+{
+  if ( !connectError.isEmpty() )
+    return;
+
+  int runIndex = runIndexfromUri( dataSource() );
+
+  QList<QDateTime> runs = mService->availableRuns();
+  if ( runs.count() <= runIndex || runIndex < 0 )
+    return;
+
+  mRun = runs.at( runs.count() - 1 - runIndex );
+
+  mRunInfo = ReosMeteoFranceApiArome::RunInfo();
+  QString error;
+  connect( mService.get(), &ReosMeteoFranceApiArome::runInfoReady, this, &ReosMeteoFranceAromeApiProvider::receiveRunInfo );
+  mService->requestRunInfo( mRun, error );
+}
+
+void ReosMeteoFranceAromeApiProvider::receiveRunInfo( const QByteArray &data, const QDateTime &run )
+{
+  if ( mRun != run )
+    return;
+
+  QString error;
+  mRunInfo = ReosMeteoFranceApiArome::decodeRunInfo( data, error );
+
+  mValues.clear();
+  mValues.reserve( mRunInfo.frameCount );
+
+  for ( int i = 0; i < mRunInfo.frameCount; ++i )
+    mValues.append( QVector<double>() );
+
+  connect( mService.get(), &ReosMeteoFranceApiArome::valuesReady, this, &ReosMeteoFranceAromeApiProvider::receiveData );
+
+  for ( int i = 0; i < mRunInfo.frameCount; ++i )
+    mService->requestFrame( mRequestedExtent, mRun, i );
+
+  mIsValid = true;
+
+  emit dataReset();
+}
+
 void ReosMeteoFranceAromeApiProvider::receiveData( const QByteArray &data, int frameIndex )
 {
   QTemporaryFile file( QDir::tempPath() + QStringLiteral( "/XXXXXX.grb2" ) );
@@ -142,36 +185,14 @@ void ReosMeteoFranceAromeApiProvider::loadFrame()
   mIsValid = false;
   mReceivedFrames.clear();
   mService.reset( new ReosMeteoFranceApiArome( apiKeyFileNamefromUri( dataSource() ) ) );
-  connect( mService.get(), &ReosMeteoFranceApiArome::valuesReady, this, &ReosMeteoFranceAromeApiProvider::receiveData );
   mModel.zone = zoneFromUri( dataSource() );
   mModel.resol = resolFromUri( dataSource() );
   mRequestedExtent = extentFromUri( dataSource() );
+  mExtent = mRequestedExtent;
 
   QString error;
+  connect( mService.get(), &ReosMeteoFranceApiArome::connected, this, &ReosMeteoFranceAromeApiProvider::onConnected );
   mService->connectToService( mModel, error );
-  if ( !error.isEmpty() )
-    return;
-
-  int runIndex = runIndexfromUri( dataSource() );
-
-  QList<QDateTime> runs = mService->availableRuns();
-  if ( runs.count() <= runIndex || runIndex < 0 )
-    return;
-
-  mRun = runs.at( runs.count() - 1 - runIndex );
-
-  mRunInfo = mService->runInfo( mRun );
-
-  mValues.clear();
-  mValues.reserve( mRunInfo.frameCount );
-
-  for ( int i = 0; i < mRunInfo.frameCount; ++i )
-    mValues.append( QVector<double>() );
-
-  mIsValid = true;
-
-  for ( int i = 0; i < mRunInfo.frameCount; ++i )
-    mService->requestFrame( mRequestedExtent, mRun, i );
 
   emit dataReset();
 }
@@ -209,6 +230,9 @@ ReosRasterExtent ReosMeteoFranceAromeApiProvider::extent() const {return mExtent
 
 const QVector<double> ReosMeteoFranceAromeApiProvider::data( int index ) const
 {
+  if ( index < 0 || index >= mValues.count() )
+    return QVector<double>();
+
   return mValues.at( index );
 }
 
@@ -270,4 +294,12 @@ ReosGriddedRainfallProvider *ReosMeteoFranceAromeApiProviderFactory::createProvi
 QString ReosMeteoFranceAromeApiProviderFactory::key() const
 {
   return AROME_KEY;
+}
+
+bool ReosMeteoFranceAromeApiProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  if ( dataType.contains( ReosGriddedRainfall::staticType() ) )
+    return ( mCapabilities & capabilities ) == capabilities;
+
+  return false;
 }

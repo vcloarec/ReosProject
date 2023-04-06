@@ -288,6 +288,21 @@ QString ReosDssProviderFactory::key() const
   return ReosDssProviderBase::staticKey();
 }
 
+bool ReosDssProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  ReosDataProvider::Capabilities cap;
+  if ( dataType.contains( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) )
+    cap = ReosDataProvider::File ;
+
+  if ( dataType.contains( ReosDssProviderTimeSerieVariableTimeStep::dataType() ) )
+    cap = ReosDataProvider::File ;
+
+  if ( dataType.contains( ReosDssProviderGriddedRainfall::dataType() ) )
+    cap = ReosDataProvider::Capabilities( ReosDataProvider::File | ReosDataProvider::CanWrite | ReosDataProvider::Spatial );
+
+  return ( cap & capabilities ) == capabilities;
+}
+
 QString ReosDssProviderTimeSerieVariableTimeStep::key() const
 {
   return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();
@@ -730,12 +745,6 @@ bool ReosDssProviderGriddedRainfall::write( ReosGriddedRainfall *rainfall, const
 
   double resolution = std::min( destination.yCellSize(), destination.xCellSize() );
   return file.writeGriddedData( rainfall, path, destination, resolution, timeWindow );
-}
-
-
-bool ReosDssProviderGriddedRainfall::canWrite() const
-{
-  return true;
 }
 
 QDateTime ReosDssProviderGriddedRainfall::dssStrToDateTime( const QString &str )

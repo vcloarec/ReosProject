@@ -36,6 +36,7 @@ ReosGriddedRainfallSelectorWidget::ReosGriddedRainfallSelectorWidget( const Reos
 
   connect( ui->mPathToolButton, &QToolButton::clicked, this, &ReosGriddedRainfallSelectorWidget::onPathButtonClicked );
   connect( ui->mPathLineEdit, &QLineEdit::textEdited, this, &ReosGriddedRainfallSelectorWidget::onPathChanged );
+  connect( ui->mFileRadioButton, &QRadioButton::toggled, this, &ReosGriddedRainfallSelectorWidget::onFileRemoteChanged );
 
   QObject::connect( ui->mToolButtonColorRamp, &QToolButton::clicked, this, [this]
   {
@@ -53,7 +54,17 @@ ReosGriddedRainfallSelectorWidget::ReosGriddedRainfallSelectorWidget( const Reos
     }
   } );
 
+  const QStringList remoteProviders = ReosDataProviderRegistery::instance()->withCapabilities( ReosGriddedRainfall::staticType(), ReosDataProvider::Net );
+
+  for ( const QString &remoteKey : remoteProviders )
+  {
+    const QString text = ReosDataProviderGuiRegistery::instance()->providerDisplayText( remoteKey );
+    ui->mRemoteCombobox->addItem( text, remoteKey );
+  }
+
   onPathChanged();
+  onFileRemoteChanged();
+  onRemoteSourceChanged();
 }
 
 ReosGriddedRainfallSelectorWidget::~ReosGriddedRainfallSelectorWidget()
@@ -140,8 +151,15 @@ void ReosGriddedRainfallSelectorWidget::onPathButtonClicked()
 
 void ReosGriddedRainfallSelectorWidget::onPathChanged()
 {
+  if ( !ui->mFileRadioButton->isChecked() )
+    return;
+
   ui->mNotificationButton->setVisible( false );
   mCurrentSourceIsValid = false;
+
+  ReosModule::Message message;
+  ui->mNotificationButton->setMessage( message );
+
   if ( mProviderSelectorWidget )
   {
     delete mProviderSelectorWidget;
@@ -150,9 +168,6 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
 
   std::unique_ptr<ReosDataProvider> provider(
     ReosDataProviderRegistery::instance()->createCompatibleProvider( ui->mPathLineEdit->text(), ReosGriddedRainfall::staticType() ) );
-
-  ReosModule::Message message;
-  ui->mNotificationButton->setMessage( message );
 
   mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( provider.release() ) );
 
@@ -166,7 +181,8 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
         message.text = tr( "Unable to find a gridded precipitation with this file path." );
       }
       ui->mNotificationButton->setMessage( message );
-      ui->mNotificationButton->show();
+      if ( message.type == ReosModule::Error )
+        ui->mNotificationButton->show();
     }
     updateRainfall();
     return;
@@ -236,6 +252,12 @@ void ReosGriddedRainfallSelectorWidget::updateRainfall()
   if ( mCurrentRainfall && colorSettings )
     mCurrentRainfall->setColorSetting( colorSettings.release() );
 
+  if ( mCurrentRainfall )
+  {
+    connect( mCurrentRainfall.get(), &ReosDataObject::dataReset, this, &ReosGriddedRainfallSelectorWidget::updateDataOnMap );
+    connect( mCurrentRainfall.get(), &ReosDataObject::dataChanged, mCurrentRainfall.get(), &ReosRenderedObject::repaintRequested );
+  }
+
   updateDataOnMap();
 }
 
@@ -261,9 +283,79 @@ void ReosGriddedRainfallSelectorWidget::updateDataOnMap()
   }
 }
 
+void ReosGriddedRainfallSelectorWidget::onFileRemoteChanged()
+{
+  bool fileSelected = ui->mFileRadioButton->isChecked();
+  ui->mFileLineEditLabel->setVisible( fileSelected );
+  ui->mPathToolButton->setVisible( fileSelected );
+  ui->mPathLineEdit->setVisible( fileSelected );
+  ui->mNotificationButton->setVisible( fileSelected );
+
+  ui->mRemoteSourceLabel->setVisible( !fileSelected );
+  ui->mRemoteCombobox->setVisible( !fileSelected );
+  ui->mRemoteNotificationButton->setVisible( !fileSelected );
+
+  if ( fileSelected )
+    onPathChanged();
+  else
+    onRemoteSourceChanged();
+}
+
+void ReosGriddedRainfallSelectorWidget::onRemoteSourceChanged()
+{
+  if ( !ui->mRemoteRadioButton->isChecked() )
+    return;
+
+  ReosModule::Message message;
+  ui->mRemoteNotificationButton->setMessage( message );
+
+  ui->mRemoteNotificationButton->setVisible( false );
+  mCurrentSourceIsValid = false;
+
+  if ( mProviderSelectorWidget )
+  {
+    delete mProviderSelectorWidget;
+    mProviderSelectorWidget = nullptr;
+  }
+
+  const QString currentKey = ui->mRemoteCombobox->currentData().toString();
+
+  mProviderSelectorWidget = qobject_cast<ReosGriddedRainDataProviderSelectorWidget *>(
+                              ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget(
+                                currentKey,
+                                ReosGriddedRainfall::staticType(),
+                                ui->mDataVizMap->map(),
+                                this ) );
+
+  if ( mProviderSelectorWidget )
+  {
+    mDetails = mProviderSelectorWidget->setSource( ui->mPathLineEdit->text(), message );
+
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged,
+             this, &ReosGriddedRainfallSelectorWidget::updateRainfall );
+
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged,
+             this, &ReosGriddedRainfallSelectorWidget::dataSelectionChanged );
+
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged, this, [this]
+    {
+      ui->mNameLineEdit->setText( giveName() );
+    } );
+
+    ui->mProviderLayout->addWidget( mProviderSelectorWidget );
+  }
+
+  ui->mNameLineEdit->setText( giveName() );
+}
+
 QString ReosGriddedRainfallSelectorWidget::giveName() const
 {
   QString name = mDetails.deducedName;
+
+  if ( name.isEmpty() && mProviderSelectorWidget )
+  {
+    name = mProviderSelectorWidget->dataName();
+  }
 
   if ( name.isEmpty() )
   {

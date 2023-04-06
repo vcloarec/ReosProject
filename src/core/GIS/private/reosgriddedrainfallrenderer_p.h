@@ -101,19 +101,19 @@ class ReosGriddedRainfallRasterProvider_p : public QgsRasterDataProvider
 
     // QgsDataProvider interface
     QgsCoordinateReferenceSystem crs() const  override {return mCrs;}
-    bool isValid() const {return true;}
-    QString name() const {return QString();}
-    QString description() const {return QString();}
+    bool isValid() const override {return true;}
+    QString name() const override {return QString();}
+    QString description() const override {return QString();}
 
     // QgsRasterDataProvider interface
-    QString htmlMetadata() {return QString();}
-    QString lastErrorTitle() {return QString();}
-    QString lastError() {return QString();}
-    Qgis::DataType sourceDataType( int bandNo ) const {return Qgis::DataType::Float64;}
+    QString htmlMetadata() override {return QString();}
+    QString lastErrorTitle() override {return QString();}
+    QString lastError() override {return QString();}
+    Qgis::DataType sourceDataType( int ) const override {return Qgis::DataType::Float64;}
 
     // QgsRasterInterface interface
     QgsRasterDataProvider *clone() const override;
-    Qgis::DataType dataType( int bandNo ) const override {return Qgis::DataType::Float64;}
+    Qgis::DataType dataType( int ) const  override {return Qgis::DataType::Float64;}
     QgsRectangle extent() const override;
     int xSize() const override;
     int ySize() const override;

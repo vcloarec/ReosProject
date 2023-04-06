@@ -4,11 +4,13 @@
 SET(REOS_MF_API_SOURCES
     reosmeteofranceapi.cpp
     reosmeteofrancearomeprovider.cpp
+    reosmeteofrancearomeapiwidget.cpp
 )
 
 SET(REOS_MF_API_HEADERS
  reosmeteofranceapi.h
  reosmeteofrancearomeprovider.h
+ reosmeteofrancearomeapiwidget.h
 )
 
 #SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/hub-eau/hub-eau-images.qrc)

@@ -297,6 +297,15 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
   buttonShowExtent->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
   buttonShowExtent->setAutoRaise( true );
 
+  QToolButton *reloadButton = new QToolButton( formWidget );
+  formWidget->addWidget( reloadButton );
+  reloadButton->setIcon( QIcon( QStringLiteral( ":/images/reload.svg" ) ) );
+  reloadButton->setText( QObject::tr( "Reload" ) );
+  reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+  reloadButton->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
+  reloadButton->setAutoRaise( true );
+  QObject::connect( reloadButton, &QToolButton::clicked, griddedRainFall, &ReosDataObject::updateData );
+
   return formWidget;
 }
 

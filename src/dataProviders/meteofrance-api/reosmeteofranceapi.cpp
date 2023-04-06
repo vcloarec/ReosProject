@@ -58,41 +58,72 @@ QList<ReosMeteoFranceApiArome::Model>  ReosMeteoFranceApiArome::sAvailableModels
 
 bool ReosMeteoFranceApiArome::hasKey() const
 {
-    return !mKeyApi.isEmpty();
+  return !mKeyApi.isEmpty();
 }
 
 ReosMeteoFranceApiArome::ReosMeteoFranceApiArome( const QString &keyFileName )
-    : mKeyFileName( keyFileName )
+  : mKeyFileName( keyFileName )
 {
   setKey( keyFileName );
 }
 
-void ReosMeteoFranceApiArome::connectToService( const Model &model, QString &error )
+bool ReosMeteoFranceApiArome::connectToServiceBlocking( const Model &model, QString &error )
 {
+  mStatus = Connecting;
   mCoverageIds.clear();
   mModel = model;
+
   QString strUrl = baseUrl( model ) + capabilitiesRequest();
-
   QByteArray bytes = networkRequestBlocking( strUrl, error );
-  if ( !error.isEmpty() )
-    return;
 
+  if ( !error.isEmpty() )
+    return false;
+
+  return onConnectionReply( bytes, error );
+}
+
+void ReosMeteoFranceApiArome::connectToService( const Model &model, QString &error )
+{
+  mStatus = Connecting;
+  mCoverageIds.clear();
+  mModel = model;
+
+  const QString strUrl = baseUrl( model ) + capabilitiesRequest();
+  QNetworkReply *reply = networkRequest( strUrl, error );
+
+  connect( reply, &QNetworkReply::finished, this, [reply, this]
+  {
+    onConnectionReply( reply->readAll(), mLastError );
+    reply->deleteLater();
+  } );
+}
+
+
+bool ReosMeteoFranceApiArome::onConnectionReply( const QByteArray &bytes, QString &error )
+{
+  if ( mStatus != Connecting )
+  {
+    error = tr( "Connection request obsolete." );
+    return false;
+  }
+
+  mStatus = Unconnected;
   QDomDocument domDoc( QStringLiteral( "reply" ) );
   domDoc.setContent( bytes );
 
-  QDomElement rootElem = domDoc.firstChildElement( QStringLiteral( "wcs:Capabilities" ) );
+  const QDomElement rootElem = domDoc.firstChildElement( QStringLiteral( "wcs:Capabilities" ) );
   if ( rootElem.isNull() )
   {
     error = QObject::tr( "Invalid reply of the server." );
-    return;
+    return false;
   }
 
-  QDomElement contentElement = rootElem.firstChildElement( QStringLiteral( "wcs:Contents" ) );
+  const QDomElement contentElement = rootElem.firstChildElement( QStringLiteral( "wcs:Contents" ) );
 
   if ( contentElement.isNull() )
   {
     error = QObject::tr( "Invalid reply of the server." );
-    return;
+    return false;
   }
 
   QDomNode coverageSummary = contentElement.firstChildElement( QStringLiteral( "wcs:CoverageSummary" ) );
@@ -100,36 +131,66 @@ void ReosMeteoFranceApiArome::connectToService( const Model &model, QString &err
   {
     const QDomElement coverageIdElem = coverageSummary.firstChildElement( QStringLiteral( "wcs:CoverageId" ) );
     QString idText = coverageIdElem.text();
-    if ( idText.startsWith( QStringLiteral( "TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE___" ) ) )
+    if ( idText.startsWith( QStringLiteral( "TOTAL_PRECIPITATION__GROUND_OR_WATER_SURFACE___" ) ) &&
+         idText.endsWith( QStringLiteral( "_PT1H" ) ) )
     {
       QString isoDate = idText;
-      isoDate.remove( QStringLiteral( "TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE___" ) );
+      isoDate.remove( QStringLiteral( "TOTAL_PRECIPITATION__GROUND_OR_WATER_SURFACE___" ) );
+      isoDate.remove( QStringLiteral( "_PT1H" ) );
       isoDate.replace( '.', ':' );
       const QDateTime time = QDateTime::fromString( isoDate, Qt::ISODate );
-      if ( time.isValid() )
+      if ( time.isValid() && !mCoverageIds.contains( time ) )
       {
         mCoverageIds.insert( time, idText );
       }
     }
     coverageSummary = coverageSummary.nextSiblingElement( QStringLiteral( "wcs:CoverageSummary" ) );
   }
-}
 
+  mStatus = Connected;
+  emit connected( error );
+  return true;
+}
 
 QList<QDateTime> ReosMeteoFranceApiArome::availableRuns() const
 {
   return mCoverageIds.keys();
 }
 
-ReosMeteoFranceApiArome::RunInfo ReosMeteoFranceApiArome::runInfo( const QDateTime &run ) const
+ReosMeteoFranceApiArome::RunInfo ReosMeteoFranceApiArome::runInfoBlocking( const QDateTime &run ) const
 {
-  QString strUrl = baseUrl( mModel ) + describeCoverageRequest( run );
+  if ( mStatus != Connected )
+    return RunInfo();
 
-  RunInfo runInfo;
+  const QString strUrl = baseUrl( mModel ) + describeCoverageRequest( run );
   QString error;
   QByteArray bytes = networkRequestBlocking( strUrl, error );
   if ( !error.isEmpty() )
-    return runInfo;
+    return RunInfo();
+
+  return decodeRunInfo( bytes, error );
+}
+
+void ReosMeteoFranceApiArome::requestRunInfo( const QDateTime &run, QString &error )
+{
+  if ( mStatus != Connected )
+  {
+    error = tr( "Service not connected" );
+    return;
+  }
+
+  const QString strUrl = baseUrl( mModel ) + describeCoverageRequest( run );
+  QNetworkReply *reply = networkRequest( strUrl, error );
+  connect( reply, &QNetworkReply::finished, this, [this, reply, run]
+  {
+    emit runInfoReady( reply->readAll(), run );
+    reply->deleteLater();
+  } );
+}
+
+ReosMeteoFranceApiArome::RunInfo ReosMeteoFranceApiArome::decodeRunInfo( const QByteArray &bytes, QString &error )
+{
+  RunInfo runInfo;
 
   QDomDocument domDoc( QStringLiteral( "reply" ) );
   domDoc.setContent( bytes );
@@ -190,7 +251,7 @@ ReosMeteoFranceApiArome::RunInfo ReosMeteoFranceApiArome::runInfo( const QDateTi
     return runInfo;
   }
 
-  QString crs = ReosGisEngine::crsFromEPSG( 4326 );
+  const QString crs = ReosGisEngine::crsFromEPSG( 4326 );
   runInfo.extent = ReosMapExtent( ReosSpatialPosition( lowerCorner, crs ), ReosSpatialPosition( upperCorner, crs ) );
 
   const QDomElement beginPositionElem = envelopElement.firstChildElement( QStringLiteral( "gml:beginPosition" ) );
@@ -205,12 +266,15 @@ ReosMeteoFranceApiArome::RunInfo ReosMeteoFranceApiArome::runInfo( const QDateTi
 }
 
 
-QByteArray ReosMeteoFranceApiArome::requestFrameBlocking( const ReosMapExtent &extent, const QDateTime &run, int frameIndex ) const
+QByteArray ReosMeteoFranceApiArome::requestFrameBlocking( const ReosMapExtent &extent, const QDateTime &run, int frameIndex )
 {
   QString strUrl = baseUrl( mModel ) + coverageRequest( run, frameIndex, extent );
 
   QString error;
-  return networkRequestBlocking( strUrl, error );
+  const QByteArray ret = networkRequestBlocking( strUrl, error );
+  emit valuesReady( ret, frameIndex );
+
+  return ret;
 }
 
 void ReosMeteoFranceApiArome::requestFrame( const ReosMapExtent &extent, const QDateTime &run, int frameIndex )
@@ -243,18 +307,23 @@ void ReosMeteoFranceApiArome::requestFrameDeffered( const ReosMapExtent &extent,
   } );
 }
 
-QStringList ReosMeteoFranceApiArome::extentToLonLatList( const ReosMapExtent &extent )
+QStringList ReosMeteoFranceApiArome::extentToLonLatList( const ReosMapExtent &extent, int precision )
 {
   ReosMapExtent lonLat = ReosGisEngine::transformExtent( extent, ReosGisEngine::crsFromEPSG( 4326 ) );
-  QString latMin = QString::number( lonLat.yMapMin(), 'f', 16 );
-  QString latMax = QString::number( lonLat.yMapMax(), 'f', 16 );
-  QString lonMin = QString::number( lonLat.xMapMin(), 'f', 16 );
-  QString lonMax = QString::number( lonLat.xMapMax(), 'f', 16 );
+  const QString latMin = QString::number( lonLat.yMapMin(), 'f', precision );
+  const QString latMax = QString::number( lonLat.yMapMax(), 'f', precision );
+  const QString lonMin = QString::number( lonLat.xMapMin(), 'f', precision );
+  const QString lonMax = QString::number( lonLat.xMapMax(), 'f', precision );
 
   QStringList ret;
   ret  << lonMin << lonMax << latMin << latMax;
 
   return ret;
+}
+
+QList<ReosMeteoFranceApiArome::Model> ReosMeteoFranceApiArome::availableModels()
+{
+  return sAvailableModels;
 }
 
 QByteArray ReosMeteoFranceApiArome::preventThrottling( QNetworkReply *reply, bool &throttled )

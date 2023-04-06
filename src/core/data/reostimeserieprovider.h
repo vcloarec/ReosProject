@@ -173,6 +173,11 @@ class ReosTimeSerieConstantTimeStepMemoryProviderFactory : public ReosDataProvid
 
     ReosDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override {return QStringLiteral( "constant-time-step-memory" );}
+
+    bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+
+  private:
+    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Memory};
 };
 
 //**********************************************************************
@@ -207,6 +212,9 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     void clear() override;
     void copy( ReosTimeSerieVariableTimeStepProvider *other ) override;
 
+
+  private:
+
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext & ) override;
 
@@ -217,6 +225,7 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     QVector<double> mValues;
     QVector<ReosDuration> mTimeValues;
 
+
 };
 
 
@@ -225,6 +234,10 @@ class ReosTimeSerieVariableTimeStepMemoryProviderFactory : public ReosDataProvid
   public:
     ReosTimeSerieProvider *createProvider( const QString & ) const override {return new ReosTimeSerieVariableTimeStepMemoryProvider;}
     QString key() const override {return QStringLiteral( "variable-time-step-memory" );}
+    bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+
+  private:
+    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Memory};
 };
 
 

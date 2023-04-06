@@ -280,7 +280,10 @@ QString ReosHubEauHydrographProviderFactory::key() const
 
 bool ReosHubEauHydrographProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
 {
-  return ( capabilities & mCapabilities ) == mCapabilities;
+  if ( dataType.contains( ReosHydrograph::staticType() ) )
+    return ( capabilities & mCapabilities ) == capabilities;
+
+  return false;
 }
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()

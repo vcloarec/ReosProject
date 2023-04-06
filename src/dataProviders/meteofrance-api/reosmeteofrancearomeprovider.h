@@ -61,6 +61,8 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     static int runIndexfromUri( const QString &uri );
 
   private slots:
+    void onConnected( const QString &connectError );
+    void receiveRunInfo( const QByteArray &data, const QDateTime &run );
     void receiveData( const QByteArray &data, int frameIndex );
 
   private:
@@ -83,6 +85,11 @@ class ReosMeteoFranceAromeApiProviderFactory: public ReosDataProviderFactory
   public:
     ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
+
+    bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+
+  private:
+    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Net | ReosDataProvider::Spatial};
 };
 
 
