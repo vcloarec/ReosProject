@@ -41,6 +41,9 @@ class REOSGUI_EXPORT ReosGriddedRainDataProviderSelectorWidget : public ReosData
 
     //! Set the datasource \a source to populate the selector, and returns details. Default implementation does nothing
     virtual ReosGriddedRainfallProvider::FileDetails setSource( const QString &source, ReosModule::Message &message ) {return ReosGriddedRainfallProvider::FileDetails();};
+
+    //! Returns a name that represents the current selected data, default implementation returns an empty string
+    virtual QString dataName() const {return QString();}
 };
 
 //! Widget class used to select/defined gridded rainfall
@@ -60,6 +63,8 @@ class ReosGriddedRainfallSelectorWidget : public ReosDataProviderSelectorWidget
     void onPathChanged();
     void updateRainfall();
     void updateDataOnMap();
+    void onFileRemoteChanged();
+    void onRemoteSourceChanged();
 
   private:
     Ui::ReosGriddedRainfallSelectorWidget *ui;

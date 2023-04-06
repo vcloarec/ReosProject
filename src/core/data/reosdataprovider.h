@@ -30,7 +30,10 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
     enum Capability
     {
       CanWrite = 1 << 0, //!< If the dataprovider support writting data
-      Spatial = 1 << 1, //!< Id data is related to a spatial position
+      Spatial = 1 << 1, //!< If data is related to a spatial position
+      File = 1 << 2, //!< source of data is a file or a group of files
+      Memory = 1 << 3, //! Data are stored in memory and in the project files
+      Net = 1 << 4, //! Source of the data is on internet
     };
 
     Q_ENUM( Capability )
@@ -45,9 +48,6 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 
     //! Returns whether the provider can read the \a uri
     virtual bool canReadUri( const QString &uri ) const;
-
-    //! Returns whether the provider can write data
-    virtual bool canWrite() const {return false;}
 
     virtual QStringList fileSuffixes() const = 0;
 

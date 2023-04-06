@@ -147,8 +147,6 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
                 const ReosRasterExtent &destination,
                 const ReosTimeWindow &timeWindow ) const override;
 
-    bool canWrite() const override;
-
     static QString dataType();
 
     QList<ReosDssPath> griddedRainfallPathes( const QString &filePath, ReosModule::Message &message ) const;
@@ -188,6 +186,8 @@ class ReosDssProviderFactory: public ReosDataProviderFactory
      */
     bool createNewDataSource( const QString &uri, const QString &dataType, QString &error ) override;
     QString key() const override;
+
+    bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
 
 };
 

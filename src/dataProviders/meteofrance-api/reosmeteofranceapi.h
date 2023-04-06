@@ -70,6 +70,9 @@ class ReosMeteoFranceApiArome : public QObject
     //! Returns whether the service has a key
     bool hasKey() const;
 
+    //! Connects to the service with the \a model and returns \a error, wait for reply
+    bool connectToServiceBlocking( const Model &model, QString &error );
+
     //! Connects to the service with the \a model and returns \a error
     void connectToService( const Model &model, QString &error );
 
@@ -77,13 +80,16 @@ class ReosMeteoFranceApiArome : public QObject
     QList<QDateTime> availableRuns() const;
 
     //! Returns information about the \a run, must be connected \see connectToService()
-    RunInfo runInfo( const QDateTime &run ) const;
+    RunInfo runInfoBlocking( const QDateTime &run ) const;
+
+    //! Lanches a request to obtain information about the \a run. Once receive the signal runInfoReady is connected with data as paramters
+    void requestRunInfo( const QDateTime &run, QString &error );
 
     /**
      * Requests a rainfall frame with \a extent fot the \a run and with index \a frameIndexReturns, must be connected \see connectToService()
      * The request is blocked until response is finished
      */
-    QByteArray requestFrameBlocking( const ReosMapExtent &extent, const QDateTime &run, int frameIndex ) const;
+    QByteArray requestFrameBlocking( const ReosMapExtent &extent, const QDateTime &run, int frameIndex );
 
     //! Launch a request for a rainfall frame with \a extent fot the \a run and with index \a frameIndexReturns, must be connected \see connectToService()
     void requestFrame( const ReosMapExtent &extent, const QDateTime &run, int frameIndex );
@@ -97,9 +103,13 @@ class ReosMeteoFranceApiArome : public QObject
     void requestFrameDeffered( const ReosMapExtent &extent, const QDateTime &run, int frameIndex, int delay );
 
 
-    static QStringList extentToLonLatList( const ReosMapExtent &extent );
+    static QStringList extentToLonLatList( const ReosMapExtent &extent, int precision = 16 );
+    static QList<Model> availableModels();
+    static RunInfo decodeRunInfo( const QByteArray &bytes, QString &error );
 
   signals:
+    void connected( const QString &error );
+    void runInfoReady( const QByteArray &bytes, const QDateTime &run );
     void valuesReady( const QByteArray &bytes, int frameIndex );
 
   private:
@@ -109,6 +119,16 @@ class ReosMeteoFranceApiArome : public QObject
     static QList<Model> sAvailableModels;
     int mTimeOutDelay = 60000;
     Model mModel;
+    QString mLastError;
+
+    enum Status
+    {
+      Unconnected,
+      Connecting,
+      Connected,
+    };
+
+    Status mStatus = Unconnected;
 
     struct ServiceVersion
     {
@@ -129,6 +149,8 @@ class ReosMeteoFranceApiArome : public QObject
     QByteArray networkRequestBlocking( const QString &stringRequest, QString &error ) const;
     QNetworkReply *networkRequest( const QString &stringRequest, QString &error ) const;
     static QByteArray preventThrottling( QNetworkReply *reply, bool &throttled );
+
+    bool onConnectionReply( const QByteArray &bytes, QString &error );
 
     bool setKey( const QString &fileName );
 };

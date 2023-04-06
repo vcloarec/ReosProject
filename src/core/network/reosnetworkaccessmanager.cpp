@@ -62,7 +62,7 @@ QNetworkReply *ReosNetworkAccessManager::getBlocking( const QNetworkRequest &req
     timer.start( timeOut );
   }
 
-  loop.exec();
+  loop.exec( QEventLoop::ExcludeUserInputEvents );
 
   if ( isTimeOut )
   {

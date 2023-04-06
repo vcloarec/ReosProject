@@ -454,3 +454,19 @@ ReosDataProvider *ReosTimeSerieConstantTimeStepMemoryProviderFactory::createProv
 
   return nullptr;
 }
+
+bool ReosTimeSerieConstantTimeStepMemoryProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  if ( dataType.contains( ReosTimeSerieConstantInterval::staticType() ) )
+    return ( capabilities & mCapabilities ) == capabilities;
+
+  return false;
+}
+
+bool ReosTimeSerieVariableTimeStepMemoryProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  if ( dataType.contains( ReosTimeSerieVariableTimeStep::staticType() ) )
+    return ( capabilities & mCapabilities ) == capabilities;
+
+  return false;
+}

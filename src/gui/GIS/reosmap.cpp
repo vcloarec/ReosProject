@@ -333,7 +333,7 @@ void ReosRendererObjectHandler::onRendererFinished()
   if ( !renderer )
     return;
 
-  ReosRenderedObject *object = renderer->object();
+  QPointer<ReosRenderedObject> object = renderer->object();
 
   if ( !renderer->isRenderingStopped() && object )
   {
@@ -970,6 +970,7 @@ ReosDataVizMapWidget::ReosDataVizMapWidget( QWidget *parent )
 {
   QVBoxLayout *lay = new QVBoxLayout( this );
   setLayout( lay );
+  lay->setContentsMargins( 0, 0, 0, 0 );
   lay->addWidget( mMap->mapCanvas() );
   lay->addWidget( mMap->temporalControllerDockWidget() );
   mMap->activateOpenStreetMap();

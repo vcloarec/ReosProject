@@ -61,6 +61,7 @@ class REOSGUI_EXPORT ReosDataProviderSelectorWidget : public QWidget
     void dataSelectionChanged( bool dataIsSelected );
     void dataIsLoading();
     void dataIsReady();
+    void dataIsReset();
 
   public slots:
     virtual void onClosed() {};

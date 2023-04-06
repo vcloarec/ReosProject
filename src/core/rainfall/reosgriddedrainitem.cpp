@@ -51,6 +51,12 @@ ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &elem
   return new ReosGriddedRainfall( element, context, parent );
 }
 
+void ReosGriddedRainfall::updateData() const
+{
+  if ( dataProvider() )
+    dataProvider()->setDataSource( dataProvider()->dataSource() );
+}
+
 ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
   : ReosRenderedObject( parent )
 {
