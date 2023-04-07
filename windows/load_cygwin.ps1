@@ -36,7 +36,7 @@ $cygwin_root_install
     --packages flex,bison `
     --quiet-mode `
     --root $cygwin_root_install `
-    --site "https://mirror.easyname.at/cygwin/" `
+    --site "https://ftp.fau.de/cygwin/" `
     --upgrade-also
 
 Write-Host "========================= Content of directory after installation:"
