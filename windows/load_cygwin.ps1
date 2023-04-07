@@ -37,8 +37,7 @@ $cygwin_root_install
     --quiet-mode `
     --root $cygwin_root_install `
     --site "https://mirror.easyname.at/cygwin/" `
-    --upgrade-also `
-| out-null
+    --upgrade-also
 
 Write-Host "========================= Content of directory after installation:"
 ls $cygwin_root_install
