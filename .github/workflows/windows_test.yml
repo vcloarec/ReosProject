@@ -34,17 +34,6 @@ jobs:
           echo "NSI_DESTINATION=${{github.workspace}}" >> $env:GITHUB_ENV
           echo "LEKAN_EXPERIMENTAL_VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
           
-    - name: Cache GMSH
-      id: cache-gmsh
-      uses: actions/cache@v3
-      with:
-        path: ${{env.GMSH_BUILT}}
-        key: ${{ runner.os }}-gmsh
-        
-    - name: build GMSH
-      if: steps.cache-gmsh.outputs.cache-hit != 'true'
-      run: ./windows/load_build_gmsh.ps1
-        
     - name: Cache CYGWIN
       id: cache-cygwin
       uses: actions/cache@v3
@@ -55,6 +44,17 @@ jobs:
     - name: load CYGWIN
       if: steps.cache-cygwin.outputs.cache-hit != 'true'
       run: ./windows/load_cygwin.ps1
+          
+    - name: Cache GMSH
+      id: cache-gmsh
+      uses: actions/cache@v3
+      with:
+        path: ${{env.GMSH_BUILT}}
+        key: ${{ runner.os }}-gmsh
+        
+    - name: build GMSH
+      if: steps.cache-gmsh.outputs.cache-hit != 'true'
+      run: ./windows/load_build_gmsh.ps1
       
     - name: Cache OSGEO
       id: cache-osgeo

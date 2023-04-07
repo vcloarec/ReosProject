@@ -40,13 +40,13 @@ $cygwin_root_install
     --upgrade-also `
 | out-null
 
-Write-Host "========================= Contant of directory after installation:"
+Write-Host "========================= Content of directory after installation:"
 ls $cygwin_root_install
 
 if (-Not (Test-Path "$env:CYGWIN_ROOT\setup-x86_64.exe" -PathType leaf ))
 {
     Write-Host "***************************************************************************** ERROR Cygwin not installed"
-    }
+}
 
 Set-Location $starter_path
 
