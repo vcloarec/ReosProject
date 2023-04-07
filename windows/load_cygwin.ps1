@@ -43,10 +43,10 @@ $cygwin_root_install
 Write-Host "========================= Content of directory after installation:"
 ls $cygwin_root_install
 
-if (-Not (Test-Path "$env:CYGWIN_ROOT\setup-x86_64.exe" -PathType leaf ))
-{
-    Write-Host "***************************************************************************** ERROR Cygwin not installed"
-}
+#if (-Not (Test-Path "$env:CYGWIN_ROOT\setup-x86_64.exe" -PathType leaf ))
+#{
+#    Write-Host "***************************************************************************** ERROR Cygwin not installed"
+#}
 
-Set-Location $starter_path
+#Set-Location $starter_path
 
