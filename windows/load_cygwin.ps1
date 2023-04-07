@@ -31,7 +31,6 @@ $cygwin_root_install
 .\setup-x86_64.exe `
     --arch x86_64 `
     --delete-orphans `
-    --local-package-dir "$env:APPDATA/OSGeo4W-Packages" ` `
     --no-desktop `
     --packages flex,bison `
     --quiet-mode `
