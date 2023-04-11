@@ -92,6 +92,7 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     QString key() const override {return staticKey();}
     void setDataSource( const QString &dataSource ) override;
     QStringList fileSuffixes() const override;
+    QString htmlDescription() const override;
 
     bool isValid() const override;
     int count() const override;

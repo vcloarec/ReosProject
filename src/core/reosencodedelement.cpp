@@ -109,10 +109,11 @@ QString ReosEncodeContext::pathToEncode( const QString &filePath ) const
 
 QString ReosEncodeContext::resolvePath( const QString &path ) const
 {
-  QFileInfo fileInfo( path );
+  const QFileInfo fileInfo( path );
   if ( fileInfo.isRelative() && mEncodeRelativePath )
   {
-    return mBaseDir.filePath( path );
+    const QFileInfo absoluteFilePath( mBaseDir.filePath( path ) );
+    return absoluteFilePath.canonicalFilePath();
   }
   else
     return path;
@@ -123,7 +124,7 @@ void ReosEncodeContext::setBaseDir( const QDir &newBaseDir )
   mBaseDir = newBaseDir;
 }
 
-void ReosEncodeContext::setEncodeRelativePath(bool isRelative )
+void ReosEncodeContext::setEncodeRelativePath( bool isRelative )
 {
   mEncodeRelativePath = isRelative;
 }

@@ -129,6 +129,7 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     bool createNewSerie( const ReosDssPath &, ReosDssFile &, QString & ) const override {return false;}
     void setDataSource( const QString &dataSource ) override;
     bool canReadUri( const QString &uri ) const override;
+    QString htmlDescription() const override;
 
     FileDetails details( const QString &, ReosModule::Message & ) const override;
     ReosGriddedRainfallProvider *clone() const override;

@@ -45,6 +45,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     const QVector<double> data( int index ) const override;
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
+    QString htmlDescription() const override;
 
     static QString dataType();
 

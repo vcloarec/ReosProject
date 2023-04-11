@@ -487,6 +487,42 @@ bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const
   return !pathes.isEmpty();
 }
 
+QString ReosDssProviderGriddedRainfall::htmlDescription() const
+{
+  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+
+
+  htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "HEC DSS" ) + QStringLiteral( "</td></tr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
+              + mFilePath + QStringLiteral( "</td></tr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "DSS Path" ) ) + QStringLiteral( "</td><td>" )
+              + mPath.string() + QStringLiteral( "</td></tr>\n" );
+
+  if ( count() > 0 )
+  {
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + startTime( 0 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+  }
+
+  return htmlText;
+}
+
 ReosGriddedRainfallProvider::FileDetails ReosDssProviderGriddedRainfall::details( const QString &uri, ReosModule::Message &message ) const
 {
   QString fileName = ReosDssUtils::dssFileFromUri( uri );

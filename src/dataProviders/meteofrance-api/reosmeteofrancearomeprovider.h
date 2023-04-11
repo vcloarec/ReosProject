@@ -17,6 +17,7 @@
 #define REOSMETEOFRANCEAROMEPROVIDER_H
 
 #include <QSet>
+#include <QLocale>
 
 #include "reosgriddedrainfallprovider.h"
 #include "reosmeteofranceapi.h"
@@ -35,6 +36,7 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     QStringList fileSuffixes() const override {return QStringList();}
     QString key() const override {return staticKey();}
     void setDataSource( const QString &dataSource ) override;
+    QString htmlDescription() const override;
 
     FileDetails details( const QString &, ReosModule::Message & ) const override;
     bool isValid() const override;

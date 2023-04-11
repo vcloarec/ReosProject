@@ -16,6 +16,7 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QLocale>
 
 #include "reosgribprovider.h"
 #include "reosgriddedrainitem.h"
@@ -302,6 +303,41 @@ void ReosGribGriddedRainfallProvider::calculateMinMax( double &min, double &max 
   min = mMin;
   max = mMax;
   mHasMinMaxCalculated = true;
+}
+
+QString ReosGribGriddedRainfallProvider::htmlDescription() const
+{
+  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+
+  htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "GRIB 2" ) + QStringLiteral( "</td></tr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
+              + sourcePathFromUri( dataSource() ) + QStringLiteral( "</td></tr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Variable" ) ) + QStringLiteral( "</td><td>" )
+              + variableFromUri( dataSource() ) + QStringLiteral( "</td></tr>\n" );
+
+  if ( count() > 0 )
+  {
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + startTime( 0 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+  }
+
+  return htmlText;
 }
 
 ReosRasterExtent ReosGribGriddedRainfallProvider::extent() const
