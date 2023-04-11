@@ -9,5 +9,6 @@ if (COMEPHORE_TESTS_ENABLE)
     add_subdirectory(comephore)
 endif(COMEPHORE_TESTS_ENABLE)
 
-
-add_subdirectory(mf-api)
+if (METEOFRANCEAPI_TESTS_ENABLE)
+    add_subdirectory(mf-api)
+endif(METEOFRANCEAPI_TESTS_ENABLE)
