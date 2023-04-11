@@ -33,18 +33,7 @@ jobs:
           echo "REOS_INSTALL=${{github.workspace}}\REOS_Install" >> $env:GITHUB_ENV
           echo "NSI_DESTINATION=${{github.workspace}}" >> $env:GITHUB_ENV
           echo "LEKAN_EXPERIMENTAL_VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
-          
-    - name: Cache GMSH
-      id: cache-gmsh
-      uses: actions/cache@v3
-      with:
-        path: ${{env.GMSH_BUILT}}
-        key: ${{ runner.os }}-gmsh
-        
-    - name: build GMSH
-      if: steps.cache-gmsh.outputs.cache-hit != 'true'
-      run: ./windows/load_build_gmsh.ps1
-        
+      
     - name: Cache CYGWIN
       id: cache-cygwin
       uses: actions/cache@v3
@@ -93,7 +82,7 @@ jobs:
           cd MDAL
           $MDAL_HASH=git rev-parse HEAD
           echo "mdal_hash=$MDAL_HASH" >> $env:GITHUB_ENV
-      
+          
     - name: Cache QGIS
       id: cache-qgis
       uses: actions/cache@v3
@@ -104,7 +93,7 @@ jobs:
     - name: build QGIS
       if: steps.cache-qgis.outputs.cache-hit != 'true'
       run: ./windows/qgis_env_before_powershell.bat "./windows/build_QGIS.ps1"
-      
+           
     - name: Cache MDAL
       id: cache-mdal
       uses: actions/cache@v3
@@ -120,6 +109,17 @@ jobs:
       uses: modflowpy/install-intelfortran-action@v1
       with:
         cache: false
+        
+    - name: Cache GMSH
+      id: cache-gmsh
+      uses: actions/cache@v3
+      with:
+        path: ${{env.GMSH_BUILT}}
+        key: ${{ runner.os }}-gmsh
+        
+    - name: build GMSH
+      if: steps.cache-gmsh.outputs.cache-hit != 'true'
+      run: ./windows/load_build_gmsh.ps1
 
     - name: config FORTRAN path
       run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV

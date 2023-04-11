@@ -47,10 +47,10 @@ tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
 if %ERRORLEVEL% NEQ 0 (
 echo "///////////////////// Test launch Lekan application fails
 exit %ERRORLEVEL%
-) else (
+ ) else (
 echo "///////////////////// Test launch Lekan application success
 taskkill /F /IM Lekan.exe
-)
+ )
 
 echo on
 
