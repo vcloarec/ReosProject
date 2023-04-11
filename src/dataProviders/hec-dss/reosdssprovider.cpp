@@ -472,6 +472,7 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
   } );
 
   emit dataReset();
+  emit loadingFinished();
 }
 
 bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const

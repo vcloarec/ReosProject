@@ -196,6 +196,11 @@ QString ReosHubEauHydrographProvider::htmlDescription() const
   return htmlDescriptionFromMeta( mMetadata );
 }
 
+bool ReosHubEauHydrographProvider::isLoading() const
+{
+  return mStatus == Status::Loading;
+}
+
 QString ReosHubEauHydrographProvider::htmlDescriptionFromMeta( const QVariantMap &metadata )
 {
   QString htmlText = QStringLiteral( "<html>\n<body>\n" );

@@ -46,6 +46,7 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     const QVector<double> data( int index ) const override;
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
+    bool isLoading() const override {return mIsLoading;}
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
@@ -68,6 +69,7 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
   private:
     std::unique_ptr<ReosMeteoFranceApiArome> mService;
     bool mIsValid = false;
+    bool mIsLoading = false;
     ReosMeteoFranceApiArome::Model mModel;
     QDateTime mRun;
     ReosMapExtent mRequestedExtent;

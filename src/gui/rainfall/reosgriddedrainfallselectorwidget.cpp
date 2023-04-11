@@ -255,7 +255,6 @@ void ReosGriddedRainfallSelectorWidget::updateRainfall()
   if ( mCurrentRainfall )
   {
     connect( mCurrentRainfall.get(), &ReosDataObject::dataReset, this, &ReosGriddedRainfallSelectorWidget::updateDataOnMap );
-    connect( mCurrentRainfall.get(), &ReosDataObject::dataChanged, mCurrentRainfall.get(), &ReosRenderedObject::repaintRequested );
   }
 
   updateDataOnMap();

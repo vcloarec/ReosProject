@@ -39,6 +39,7 @@
 #include "reosgisengine.h"
 #include "reosmap.h"
 #include "reosshowextentbutton.h"
+#include "reosgriddedrainfallprovider.h"
 
 
 ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
@@ -297,14 +298,40 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
   buttonShowExtent->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
   buttonShowExtent->setAutoRaise( true );
 
-  QToolButton *reloadButton = new QToolButton( formWidget );
-  formWidget->addWidget( reloadButton );
-  reloadButton->setIcon( QIcon( QStringLiteral( ":/images/reload.svg" ) ) );
-  reloadButton->setText( QObject::tr( "Reload" ) );
-  reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
-  reloadButton->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
-  reloadButton->setAutoRaise( true );
-  QObject::connect( reloadButton, &QToolButton::clicked, griddedRainFall, &ReosDataObject::updateData );
+
+  if ( ReosGriddedRainfallProvider *provider =  griddedRainFall->dataProvider() )
+  {
+    QToolButton *reloadButton = new QToolButton( formWidget );
+    reloadButton->setToolTip( QObject::tr( "Click to start reloading data" ) );
+    formWidget->addWidget( reloadButton );
+    if ( !provider->isLoading() )
+    {
+      reloadButton->setIcon( QIcon( QStringLiteral( ":/images/reload.svg" ) ) );
+      reloadButton->setText( QObject::tr( "Reload" ) );
+      reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+    }
+    else
+    {
+      reloadButton->setText( QObject::tr( "Loading..." ) );
+    }
+
+    reloadButton->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
+    reloadButton->setAutoRaise( true );
+
+    QObject::connect( reloadButton, &QToolButton::clicked, griddedRainFall, [griddedRainFall, reloadButton]
+    {
+      reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextOnly );
+      reloadButton->setText( QObject::tr( "Loading..." ) );
+      griddedRainFall->updateData();
+    } );
+
+    QObject::connect( griddedRainFall, &ReosGriddedRainfall::loadingFinished, reloadButton, [reloadButton]
+    {
+      reloadButton->setIcon( QIcon( QStringLiteral( ":/images/reload.svg" ) ) );
+      reloadButton->setText( QObject::tr( "Reload" ) );
+      reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+    } );
+  }
 
   return formWidget;
 }
