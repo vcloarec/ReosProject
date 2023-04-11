@@ -51,6 +51,7 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     ReosDuration relativeTimeAt( int i ) const override;
     ReosDuration lastRelativeTime() const override;
     QString htmlDescription() const override;
+    bool isLoading() const override;
 
     //! Returns the last status of  loading data
     Status status() const;

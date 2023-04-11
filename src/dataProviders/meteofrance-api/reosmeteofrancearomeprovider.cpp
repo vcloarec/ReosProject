@@ -16,7 +16,6 @@
 #include "reosmeteofrancearomeprovider.h"
 
 #include <QTemporaryFile>
-#include <QDebug>
 
 #include "reosgriddedrainitem.h"
 #include "reosgisengine.h"
@@ -175,7 +174,10 @@ void ReosMeteoFranceAromeApiProvider::receiveData( const QByteArray &data, int f
   }
 
   if ( mReceivedFrames.count() == mRunInfo.frameCount )
+  {
+    mIsLoading = false;
     emit loadingFinished();
+  }
   else
     emit dataChanged();
 }
@@ -183,6 +185,7 @@ void ReosMeteoFranceAromeApiProvider::receiveData( const QByteArray &data, int f
 void ReosMeteoFranceAromeApiProvider::loadFrame()
 {
   mIsValid = false;
+  mIsLoading = true;
   mReceivedFrames.clear();
   mService.reset( new ReosMeteoFranceApiArome( apiKeyFileNamefromUri( dataSource() ) ) );
   mModel.zone = zoneFromUri( dataSource() );

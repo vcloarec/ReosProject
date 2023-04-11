@@ -51,6 +51,8 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 
     virtual QStringList fileSuffixes() const = 0;
 
+    virtual bool isLoading() const  {return false;}
+
   signals:
     void dataChanged();
     void dataReset();

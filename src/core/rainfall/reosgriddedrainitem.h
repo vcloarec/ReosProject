@@ -117,7 +117,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
 
     QString formatKey( const QString &rawKey ) const;
-    void connectProvider();
+    void makeConnection();
 };
 
 class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem

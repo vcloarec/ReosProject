@@ -581,12 +581,14 @@ QWidget *ReosMap::mapCanvas() const
 
 void ReosMap::refreshCanvas()
 {
-  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
-  updateLegend();
-  if ( !mMapIsRendering )
-    canvas->refresh();
-  else
-    mNeedOtherRefresh = true;
+  if ( QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas ) )
+  {
+    updateLegend();
+    if ( !mMapIsRendering )
+      canvas->refresh();
+    else
+      mNeedOtherRefresh = true;
+  }
 }
 
 ReosGisEngine *ReosMap::engine() const

@@ -82,6 +82,7 @@ void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
   mIsValid = true;
 
   emit dataReset();
+  emit loadingFinished();
 }
 
 ReosGriddedRainfallProvider::FileDetails ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const

@@ -64,6 +64,7 @@ void ReosComephoreProvider::setDataSource( const QString &dataSource )
   }
 
   emit dataReset();
+  emit loadingFinished();
 }
 
 QStringList ReosComephoreProvider::fileSuffixes() const
