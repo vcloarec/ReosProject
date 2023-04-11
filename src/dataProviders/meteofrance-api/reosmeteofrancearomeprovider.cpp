@@ -211,6 +211,45 @@ void ReosMeteoFranceAromeApiProvider::setDataSource( const QString &dataSource )
   loadFrame();
 }
 
+QString ReosMeteoFranceAromeApiProvider::htmlDescription() const
+{
+  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "Météo France Arome API" ) + QStringLiteral( "</td></tr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Zone" ) ) + QStringLiteral( "</td><td>" )
+              + mModel.zone + QStringLiteral( "</td></tr>\n" );;
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Resolution" ) ) + QStringLiteral( "</td><td>" )
+              + mModel.resol + QStringLiteral( "</td></tr>\n" );;
+
+  int runIndex = runIndexfromUri( dataSource() );
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Run" ) ) + QStringLiteral( "</td><td>" )
+              + ( runIndex == 0 ? tr( "Last" ) : tr( "%1 before last" ).arg( runIndex ) )
+              + QStringLiteral( " (%1)" ).arg( mRun.toString( QLocale().dateTimeFormat() ) ) + QStringLiteral( "</td></tr>\n" );;
+
+  if ( count() > 0 )
+  {
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + startTime( 0 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+  }
+
+  return htmlText;
+}
+
 ReosGriddedRainfallProvider::FileDetails ReosMeteoFranceAromeApiProvider::details( const QString &, ReosModule::Message & ) const {return FileDetails();}
 
 bool ReosMeteoFranceAromeApiProvider::isValid() const {return mIsValid;}

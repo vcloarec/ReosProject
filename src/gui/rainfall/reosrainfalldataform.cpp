@@ -24,6 +24,7 @@
 #include <QClipboard>
 #include <QToolButton>
 #include <QDialogButtonBox>
+#include <QTextBrowser>
 
 #include "reosrainfalldataform.h"
 #include "reostimeserie.h"
@@ -301,6 +302,10 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
 
   if ( ReosGriddedRainfallProvider *provider =  griddedRainFall->dataProvider() )
   {
+    QTextBrowser *textbrowser = new QTextBrowser( formWidget );
+    textbrowser->setText( provider->htmlDescription() );
+    formWidget->addWidget( textbrowser );
+
     QToolButton *reloadButton = new QToolButton( formWidget );
     reloadButton->setToolTip( QObject::tr( "Click to start reloading data" ) );
     formWidget->addWidget( reloadButton );
@@ -325,11 +330,12 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
       griddedRainFall->updateData();
     } );
 
-    QObject::connect( griddedRainFall, &ReosGriddedRainfall::loadingFinished, reloadButton, [reloadButton]
+    QObject::connect( griddedRainFall, &ReosGriddedRainfall::loadingFinished, reloadButton, [reloadButton, provider, textbrowser]
     {
       reloadButton->setIcon( QIcon( QStringLiteral( ":/images/reload.svg" ) ) );
       reloadButton->setText( QObject::tr( "Reload" ) );
       reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );
+      textbrowser->setText( provider->htmlDescription() );
     } );
   }
 

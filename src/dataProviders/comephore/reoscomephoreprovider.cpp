@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reoscomephoreprovider.h"
 
+#include <QLocale>
+
 #include "reosgriddedrainitem.h"
 #include "reosgdalutils.h"
 #include "reosgisengine.h"
@@ -74,6 +76,38 @@ QStringList ReosComephoreProvider::fileSuffixes() const
       << QStringLiteral( "tiff" );
 
   return ret;
+}
+
+QString ReosComephoreProvider::htmlDescription() const
+{
+  QString htmlText = QStringLiteral( "<html>\n<body>\n" );
+  htmlText += QLatin1String( "<table class=\"list-view\">\n" );
+
+
+  htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "COMEPHORE" ) + QStringLiteral( "</td></tr>\n" );
+
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
+              + dataSource() + QStringLiteral( "</td></tr>\n" );
+
+  if ( count() > 0 )
+  {
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + startTime( 0 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
+                + QStringLiteral( "</td></tr>\n" );
+  }
+
+  return htmlText;
 }
 
 bool ReosComephoreProvider::isValid() const
