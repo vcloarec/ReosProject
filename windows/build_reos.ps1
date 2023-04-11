@@ -5,12 +5,14 @@ $QGIS_SRC=$env:QGIS_SRC
 $REOS_INSTALL=$env:REOS_INSTALL
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $QGIS_INSTALL=$env:QGIS_BUILT
+#$QGIS_INSTALL=Join-Path $env:OSGEO4W_ROOT "apps\qgis-dev"
 $REOS_BUILD=$env:REOS_BUILDING
 
 Write-Host "============================= dependencies directory:"
 Write-Host "=== OSGEO:"
 $OSGEO_DIR
 ls $OSGEO_DIR
+ls $OSGEO_DIR\apps
 
 Write-Host "=== MDAL"
 $env:MDAL_ROOT
@@ -72,7 +74,6 @@ cmake   -S $env:REOS_SOURCE `
         -D QGIS_GUI_LIB=$QGIS_INSTALL/lib/qgis_gui.lib `
         -D QGIS_PROVIDERS_PATH=$QGIS_INSTALL/plugins `
         -D GMSH_INCLUDE_DIR=$GMSH_INSTALL/include `
-        -D QGIS_3D_EXTRA_HEADER= `
         -D QGIS_APP_INCLUDE=$QGIS_SRC/src/app `
         -D GMSH_LIB=$GMSH_INSTALL/lib/gmsh.lib `
         -D GTest_DIR=GTest_DIR-NOTFOUND `
