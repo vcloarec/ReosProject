@@ -116,6 +116,11 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
 
 void ReosTelemac2DSimulationEngineFactory::initializeSettings()
 {
+  initializeSettingsStatic();
+}
+
+void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
+{
   ReosSettings settings;
 
 #if 0

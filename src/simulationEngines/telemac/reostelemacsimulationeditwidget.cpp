@@ -18,6 +18,7 @@
 #include "ui_reostelemacengineconfigurationdialog.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "reostelemac2dinitialcondition.h"
 #include "reoshydraulicstructure2d.h"
@@ -144,26 +145,8 @@ ReosTelemacEngineConfigurationDialog::ReosTelemacEngineConfigurationDialog( QWid
   ui( new Ui::ReosTelemacEngineConfigurationDialog )
 {
   ui->setupUi( this );
-  ReosSettings settings;
 
-  ui->mTelemac2DPythonScriptLineEdit->setText(
-    settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
-
-  ui->mTelemacConfigFileLineEdit->setText(
-    settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
-
-  ui->mLineEditConfig->setText(
-    settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
-
-  if ( settings.contains( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ) )
-    ui->mCPUSpinBox->setValue(
-      settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
-  else
-    ui->mCPUSpinBox->setValue( QThread::idealThreadCount() );
-
-  ui->mPythonPathLineEdit->setText( settings.value( QStringLiteral( "python_path" ) ).toString() );
-
-  ui->mDependenciesPathTextEdit->setText( settings.value( QStringLiteral( "/engine/telemac/additional_pathes" ) ).toString() );
+  accordToSettings();
 
   connect( this, &QDialog::accepted, this, &ReosTelemacEngineConfigurationDialog::onAccepted );
   connect( ui->mTelemac2DPythonScriptButton, &QToolButton::clicked, this, [this]
@@ -184,10 +167,12 @@ ReosTelemacEngineConfigurationDialog::ReosTelemacEngineConfigurationDialog( QWid
   connect( ui->mPythonPathButton, &QToolButton::clicked, this, [this]
   {
     const QFileInfo info( ui->mPythonPathLineEdit->text() );
-    QString filePath = QFileDialog::getOpenFileName( this, tr( "Python path" ), info.path() );
+    QString filePath = QFileDialog::getExistingDirectory( this, tr( "Python path" ), info.path() );
     if ( !filePath.isEmpty() )
-      ui->mTelemacConfigFileLineEdit->setText( filePath );
+      ui->mPythonPathLineEdit->setText( filePath );
   } );
+
+  connect( ui->mDefaultButton, &QPushButton::clicked, this, &ReosTelemacEngineConfigurationDialog::onResetToDefault );
 }
 
 void ReosTelemacEngineConfigurationDialog::onAccepted()
@@ -200,6 +185,42 @@ void ReosTelemacEngineConfigurationDialog::onAccepted()
   settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), ui->mCPUSpinBox->value() );
   settings.setValue( QStringLiteral( "/engine/telemac/additional_pathes" ), ui->mDependenciesPathTextEdit->toPlainText() );
   settings.setValue( QStringLiteral( "/python_path" ), ui->mPythonPathLineEdit->text() );
+}
+
+void ReosTelemacEngineConfigurationDialog::onResetToDefault()
+{
+  if ( QMessageBox::warning( this,
+                             tr( "Reset default TELEMAC settings" ),
+                             tr( "This will erase definitly the current settings. Continue?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) ==
+       QMessageBox::Yes )
+  {
+    ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
+    accordToSettings();
+  }
+}
+
+void ReosTelemacEngineConfigurationDialog::accordToSettings()
+{
+  ReosSettings settings;
+
+  ui->mTelemac2DPythonScriptLineEdit->setText(
+    settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
+
+  ui->mTelemacConfigFileLineEdit->setText(
+    settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
+
+  ui->mLineEditConfig->setText(
+    settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
+
+  if ( settings.contains( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ) )
+    ui->mCPUSpinBox->setValue(
+      settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
+  else
+    ui->mCPUSpinBox->setValue( QThread::idealThreadCount() );
+
+  ui->mPythonPathLineEdit->setText( settings.value( QStringLiteral( "python_path" ) ).toString() );
+
+  ui->mDependenciesPathTextEdit->setText( settings.value( QStringLiteral( "/engine/telemac/additional_pathes" ) ).toString() );
 }
 
 QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget(
