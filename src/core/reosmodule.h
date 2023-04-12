@@ -22,6 +22,7 @@ email                : vcloarec at gmail dot com
 #include <QTime>
 #include <QToolBar>
 #include <QFileInfoList>
+#include <QPointer>
 
 #include "reoscore.h"
 
@@ -95,7 +96,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
     void sendMessage( QString mes, MessageType type, bool messageBox = false ) const;
 
   private:
-    ReosModule *mReosParent = nullptr;
+    QPointer<ReosModule> mReosParent;
     QList<ReosModule *> mReosChildren;
     QString mProjectFileName;
 };
