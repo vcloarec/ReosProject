@@ -595,6 +595,7 @@ void ReosHydraulicStructure2D::updateCalculationContext( const ReosCalculationCo
           bc->updateCalculationContextFromUpstream( context, nullptr, true );
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+        case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
           break;
       }
     }
@@ -1452,6 +1453,17 @@ ReosHydraulicNetworkElementCompatibilty ReosHydraulicStructure2D::checkCompatibl
     return sim->checkCompatiblity( scheme );
 
   return ReosHydraulicNetworkElementCompatibilty();
+}
+
+QFileInfoList ReosHydraulicStructure2D::cleanScheme( ReosHydraulicScheme *scheme )
+{
+  QFileInfoList ret;
+  for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
+  {
+    ret.append( sim->cleanScheme( this, scheme ) );
+  }
+
+  return ret;
 }
 
 ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const

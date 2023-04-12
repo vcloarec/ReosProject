@@ -78,6 +78,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    QFileInfoList cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme ) override;
 
     ReosEncodedElement encode() const override;
 

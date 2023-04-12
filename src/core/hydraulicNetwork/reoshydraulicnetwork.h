@@ -98,6 +98,9 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const;
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme );
 
+    //! Cleans all data related to \a scheme, returns a list of files or folder that should be removec when saving the project
+    virtual QFileInfoList cleanScheme( ReosHydraulicScheme *scheme );
+
     virtual ReosDuration currentElementTimeStep() const;
 
     virtual ReosTimeWindow timeWindow() const;
@@ -190,6 +193,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
   public:
     ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule );
 
+    QFileInfoList uselessFiles( bool clean ) const override;
+
     //! Returns element with id \a elementId
     ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
 
@@ -228,7 +233,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;
     ReosHydraulicScheme *scheme( int index ) const;
     ReosHydraulicScheme *schemeByName( const QString &schemeName ) const;
-    int schemeIndex(const QString schemeId ) const;
+    int schemeIndex( const QString schemeId ) const;
     void setCurrentScheme( int newSchemeIndex );
     ReosHydraulicScheme *addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel = nullptr );
     void addExistingScheme( ReosHydraulicScheme *scheme );
@@ -267,6 +272,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     QHash<QString, ReosHydraulicNetworkElement *> mElements;
     mutable QString mProjectPath;
     mutable QString mProjectName;
+    mutable QFileInfoList mUselessFile;
 
     void elemPositionChangedPrivate( ReosHydraulicNetworkElement *elem );
 

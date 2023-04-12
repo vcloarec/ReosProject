@@ -355,6 +355,11 @@ void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme 
     ic->restoreConfiguration( scheme );
 }
 
+QFileInfoList ReosTelemac2DSimulation::cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme )
+{
+  return QFileInfoList( {QFileInfo( simulationDir( hydraulicStructure, scheme->id() ).path() )} );
+}
+
 QString ReosTelemac2DSimulation::engineName() const
 {
   return QStringLiteral( "TELEMAC" );

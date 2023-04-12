@@ -121,6 +121,14 @@ void ReosModule::setProjectFileName( const QString &projectFileName )
   mProjectFileName = projectFileName;
 }
 
+QFileInfoList ReosModule::uselessFiles( bool clean ) const
+{
+  QFileInfoList ret;
+  for ( ReosModule *mod : mReosChildren )
+    ret.append( mod->uselessFiles( clean ) );
+  return ret;
+}
+
 QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
 
 const QString ReosModule::projectFileName()
