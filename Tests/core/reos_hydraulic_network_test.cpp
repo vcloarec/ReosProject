@@ -63,7 +63,7 @@ void ReoHydraulicNetworkTest::initTestCase()
   ReosSimulationEngineRegistery::instance()->registerEngineFactory( new ReosSimulationEngineFactoryDummy );
 
   QVERIFY( mNetwork->hydraulicNetworkElements().isEmpty() );
-  QCOMPARE( mNetwork->hydraulicSchemeCollection()->schemeCount(), 1 );
+  QCOMPARE( mNetwork->schemeCount(), 1 );
 }
 
 void ReoHydraulicNetworkTest::addRemoveElement()
@@ -314,13 +314,10 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   mWatershedModule->meteoModelsCollection()->addMeteorologicModel( QStringLiteral( "Other meteomodel" ) );
   QCOMPARE( mWatershedModule->meteoModelsCollection()->modelCount(), 2 );
 
-  std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
-  scheme->schemeName()->setValue( tr( "Other scheme" ) );
-  scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 1 ) );
+  ReosHydraulicScheme *scheme = mNetwork->addNewScheme( tr( "Other scheme" ), mWatershedModule->meteoModelsCollection()->meteorologicModel( 1 ) );
   QCOMPARE( scheme->meteoModel()->name()->value(), QStringLiteral( "Other meteomodel" ) );
-  mNetwork->hydraulicSchemeCollection()->addScheme( scheme.release() );
 
-  QCOMPARE( mNetwork->hydraulicSchemeCollection()->schemeCount(), 2 );
+  QCOMPARE( mNetwork->schemeCount(), 2 );
   QCOMPARE( watershedNode->outputHydrograph()->valueCount(), 71 );
   QCOMPARE( link1->outputHydrograph()->valueCount(), 71 );
   QCOMPARE( bc3->outputHydrograph()->valueCount(), 75 );

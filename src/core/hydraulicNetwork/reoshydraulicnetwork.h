@@ -35,6 +35,7 @@ class ReosGisEngine;
 class ReosHydraulicSchemeCollection;
 class ReosHydraulicScheme;
 class ReosMapExtent;
+class ReosMeteorologicModel;
 
 struct REOSCORE_EXPORT ReosHydraulicNetworkElementCompatibilty
 {
@@ -221,13 +222,17 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosHydraulicSchemeCollection *hydraulicSchemeCollection() const;
 
+    int schemeCount() const;
     int currentSchemeIndex() const;
-
     ReosHydraulicScheme *currentScheme() const;
-
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;
-
+    ReosHydraulicScheme *scheme( int index ) const;
+    ReosHydraulicScheme *schemeByName( const QString &schemeName ) const;
+    int schemeIndex(const QString schemeId ) const;
     void setCurrentScheme( int newSchemeIndex );
+    ReosHydraulicScheme *addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel = nullptr );
+    void addExistingScheme( ReosHydraulicScheme *scheme );
+    void removeScheme( int schemeIndex );
 
     ReosDuration currentTimeStep() const;
 

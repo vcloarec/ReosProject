@@ -815,11 +815,10 @@ bool ReosHydraulicStructure2D::hasSimulationRunning() const
 
 bool ReosHydraulicStructure2D::hasResults() const
 {
-  ReosHydraulicSchemeCollection *schemesCollection = mNetwork->hydraulicSchemeCollection();
-  int schemeCount = schemesCollection->schemeCount();
+  int schemeCount = mNetwork->schemeCount();
   for ( int i = 0; i < schemeCount; ++i )
   {
-    ReosHydraulicScheme *scheme = schemesCollection->scheme( i );
+    ReosHydraulicScheme *scheme = mNetwork->scheme( i );
     const ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
     QString simulationId;
 
@@ -901,11 +900,10 @@ void ReosHydraulicStructure2D::removeAllResults()
   qDeleteAll( mSimulationResults );
   mSimulationResults.clear();
 
-  ReosHydraulicSchemeCollection *schemesColection = network()->hydraulicSchemeCollection();
-  int schemeCount = schemesColection->schemeCount();
+  int schemeCount = mNetwork->schemeCount();
   for ( int i = 0; i < schemeCount; ++i )
   {
-    ReosHydraulicScheme *scheme = schemesColection->scheme( i );
+    ReosHydraulicScheme *scheme = mNetwork->scheme( i );
     const ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
     QString simulationId;
 
@@ -933,7 +931,7 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
     delete mSimulationResults.value( schemeId ); // replace be deleteLater() ?
     mSimulationResults.remove( schemeId );
 
-    ReosHydraulicScheme *scheme = mNetwork->hydraulicSchemeCollection()->scheme( schemeId );
+    ReosHydraulicScheme *scheme = mNetwork->scheme( schemeId );
     if ( scheme )
     {
       ReosHydraulicSimulation *sim = simulation( scheme );
