@@ -64,9 +64,12 @@ class ReosTelemacEngineConfigurationDialog : public QDialog
 
   private slots:
     void onAccepted();
+    void onResetToDefault();
 
   private:
     Ui::ReosTelemacEngineConfigurationDialog *ui;
+
+    void accordToSettings();
 };
 
 class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWidgetFactory
@@ -77,7 +80,7 @@ class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWid
     QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const override;
     QDialog *engineConfigurationDialog( QWidget *parent ) const override;
     QWidget *simulationEngineDescription( QWidget *parent ) const override;
-    ReosImportHydraulicStructureWidget* simulationImportWidget(QWidget* parent) const override { return nullptr;}
+    ReosImportHydraulicStructureWidget *simulationImportWidget( QWidget *parent ) const override { return nullptr;}
 };
 
 

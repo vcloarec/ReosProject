@@ -231,6 +231,8 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
     ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
 
     void initializeSettings() override;
+
+    static void initializeSettingsStatic();
 };
 
 #endif // REOSTELEMAC2DSIMULATION_H

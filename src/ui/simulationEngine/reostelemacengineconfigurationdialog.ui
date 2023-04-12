@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>475</width>
-    <height>256</height>
+    <height>314</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,17 +16,10 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="1">
-      <widget class="QSpinBox" name="mCPUSpinBox">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label">
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>TELEMAC 2D Python script</string>
+        <string>Additional pathes</string>
        </property>
       </widget>
      </item>
@@ -34,6 +27,20 @@
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Configuration name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>CPU Usage Count</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="mCPUSpinBox">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
@@ -51,10 +58,17 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+     <item row="4" column="0">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Configuration file</string>
+        <string>TELEMAC 2D Python script</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Python path</string>
        </property>
       </widget>
      </item>
@@ -65,17 +79,23 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>CPU Usage Count</string>
+        <string>Configuration file</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Python path</string>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="mTelemac2DPythonScriptLineEdit"/>
+     </item>
+     <item row="6" column="1">
+      <widget class="QTextEdit" name="mDependenciesPathTextEdit"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="mTelemacConfigFileLineEdit">
+       <property name="toolTip">
+        <string>Configuration file can have a name as systel.***.cfg</string>
        </property>
       </widget>
      </item>
@@ -89,23 +109,10 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="mTelemacConfigFileLineEdit">
-       <property name="toolTip">
-        <string>Configuration file can have a name as systel.***.cfg</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="mTelemac2DPythonScriptLineEdit"/>
-     </item>
-     <item row="6" column="1">
-      <widget class="QTextEdit" name="mDependenciesPathTextEdit"/>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_6">
+     <item row="7" column="0">
+      <widget class="QPushButton" name="mDefaultButton">
        <property name="text">
-        <string>Additional pathes</string>
+        <string>Reset to Default</string>
        </property>
       </widget>
      </item>
