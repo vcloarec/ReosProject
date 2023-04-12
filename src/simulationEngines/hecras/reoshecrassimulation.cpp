@@ -194,28 +194,20 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
 
   QStringList schemeNameToKeep;
 
-  if ( mCreationOption.createSchemeWithPlan &&
-       parent->network() &&
-       parent->network()->hydraulicSchemeCollection() )
+  ReosHydraulicNetwork *network = parent->network();
+
+  if ( mCreationOption.createSchemeWithPlan && network )
   {
-
-    const ReosHydraulicNetworkContext context = parent->network()->context();
-    ReosHydraulicSchemeCollection *schemeCollection = context.network()->hydraulicSchemeCollection();
-
-    int previousSchemeCount = schemeCollection->schemeCount();
+    int previousSchemeCount = network->schemeCount();
 
     const QStringList planIds = mProject->planIds();
     for ( const QString &id : planIds )
     {
       const QString planTitle = mProject->planTitle( id );
-      ReosHydraulicScheme *scheme = nullptr;
-      if ( !schemeCollection->schemeByName( planTitle ) )
+      ReosHydraulicScheme *scheme = network->schemeByName( planTitle );
+      if ( !scheme )
       {
-        std::unique_ptr<ReosHydraulicScheme> sch( new ReosHydraulicScheme( schemeCollection ) );
-        sch->schemeName()->setValue( planTitle );
-        sch->setMeteoModel( context.watershedModule()->meteoModelsCollection()->meteorologicModel( 0 ) );
-        scheme = sch.get();
-        schemeCollection->addScheme( sch.release() );
+        scheme = network->addNewScheme( planTitle );
       }
       else if ( mCreationOption.removePreviousScheme )
       {
@@ -230,17 +222,17 @@ QList<ReosHydraulicSimulation *> ReosHecRasStructureImporter::createSimulations(
       sim->setMappingInterval( plan.mappingInterval(), scheme );
     }
 
-    int schemeCount = schemeCollection->schemeCount();
+    int schemeCount = network->schemeCount();
 
     if ( mCreationOption.removePreviousScheme )
     {
       int schemeToRemove = 0;
-      while ( schemeCollection->schemeCount() > ( schemeCount - previousSchemeCount ) + schemeToRemove )
+      while ( network->schemeCount() > ( schemeCount - previousSchemeCount ) + schemeToRemove )
       {
-        if ( schemeNameToKeep.contains( schemeCollection->scheme( schemeToRemove )->schemeName()->value() ) )
+        if ( schemeNameToKeep.contains( network->scheme( schemeToRemove )->schemeName()->value() ) )
           schemeToRemove++;
         else
-          schemeCollection->removeScheme( schemeToRemove );
+          network->removeScheme( schemeToRemove );
       }
     }
   }
@@ -890,13 +882,12 @@ void ReosHecRasSimulation::updateBoundaryConditions( ReosHecRasProject *project,
 
 ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkPlanCompability( const QString &planId ) const
 {
-  if ( mStructure->network() && mStructure->network()->hydraulicSchemeCollection() )
+  if ( mStructure->network() )
   {
     ReosHydraulicNetworkElementCompatibilty ret;
-    ReosHydraulicSchemeCollection *schemeCollection = mStructure->network()->hydraulicSchemeCollection();
-    int schemeCount = schemeCollection->schemeCount();
+    int schemeCount = mStructure->network()->schemeCount();
     for ( int i = 0; i < schemeCount; ++i )
-      ret.combine( mProject->checkCompatibility( planId, mStructure, schemeCollection->scheme( i ) ) ) ;
+      ret.combine( mProject->checkCompatibility( planId, mStructure, mStructure->network()->scheme( i ) ) ) ;
 
     return ret;
   }

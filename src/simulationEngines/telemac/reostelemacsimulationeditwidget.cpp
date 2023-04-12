@@ -272,7 +272,7 @@ ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalCo
   mSchemeCombo = new QComboBox( this );
   gridLayout->addWidget( mSchemeCombo, 0, 1 );
   mSchemeCombo->setModel( network->hydraulicSchemeCollection() );
-  mSchemeCombo->setCurrentIndex( network->hydraulicSchemeCollection()->schemeIndex( mInitialCondition->otherSchemeId() ) );
+  mSchemeCombo->setCurrentIndex( network->schemeIndex( mInitialCondition->otherSchemeId() ) );
   connect( mSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
            this, &ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange );
 
@@ -295,7 +295,7 @@ void ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange()
   mTimeStepCombo->clear();
 
   ReosHydraulicNetwork *network =  mStructure->network();
-  ReosHydraulicScheme *otherScheme = network->hydraulicSchemeCollection()->scheme( mSchemeCombo->currentIndex() );
+  ReosHydraulicScheme *otherScheme = network->scheme( mSchemeCombo->currentIndex() );
 
   if ( otherScheme && mStructure->results( otherScheme ) )
   {

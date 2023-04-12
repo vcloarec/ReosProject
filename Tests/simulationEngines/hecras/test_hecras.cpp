@@ -1215,12 +1215,12 @@ void ReosHecrasTesting::planCompatibility()
   simulateEventLoop( WAITING_TIME_FOR_LOOP );
   QVERIFY( link.isNull() ); //link was removed because planId_2 is not compatible with
 
-  network->hydraulicSchemeCollection()->addScheme( new ReosHydraulicScheme( network->hydraulicSchemeCollection() ) );
-  network->hydraulicSchemeCollection()->addScheme( new ReosHydraulicScheme( network->hydraulicSchemeCollection() ) );
-  QCOMPARE( network->hydraulicSchemeCollection()->schemeCount(), 3 );
-  ReosHydraulicScheme *scheme_1 = network->hydraulicSchemeCollection()->scheme( 0 );
-  ReosHydraulicScheme *scheme_2 = network->hydraulicSchemeCollection()->scheme( 1 );
-  ReosHydraulicScheme *scheme_3 = network->hydraulicSchemeCollection()->scheme( 2 );
+  network->addNewScheme( QStringLiteral( "scheme 2" ) );
+  network->addNewScheme( QStringLiteral( "scheme 3" ) );
+  QCOMPARE( network->schemeCount(), 3 );
+  ReosHydraulicScheme *scheme_1 = network->scheme( 0 );
+  ReosHydraulicScheme *scheme_2 = network->scheme( 1 );
+  ReosHydraulicScheme *scheme_3 = network->scheme( 2 );
   QVERIFY( scheme_1 );
   QVERIFY( scheme_2 );
   QVERIFY( scheme_3 );
@@ -1269,9 +1269,9 @@ void ReosHecrasTesting::importCreatingScheme()
     ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
     QVERIFY( structure );
 
-    QCOMPARE( network->hydraulicSchemeCollection()->schemeCount(), 3 );
+    QCOMPARE( network->schemeCount(), 3 );
 
-    scheme = network->hydraulicSchemeCollection()->scheme( 1 );
+    scheme = network->scheme( 1 );
     QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test" ) );
     QVERIFY( scheme->meteoModel() );
     network->setCurrentScheme( 1 );
@@ -1281,7 +1281,7 @@ void ReosHecrasTesting::importCreatingScheme()
     QVERIFY( simulation );
     QCOMPARE( simulation->currentPlan(), QStringLiteral( "p01" ) );
 
-    scheme = network->hydraulicSchemeCollection()->scheme( 2 );
+    scheme = network->scheme( 2 );
     QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test_2" ) );
     QVERIFY( scheme->meteoModel() );
     network->setCurrentScheme( 2 );
@@ -1304,9 +1304,9 @@ void ReosHecrasTesting::importCreatingScheme()
     ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
     QVERIFY( structure );
 
-    QCOMPARE( network->hydraulicSchemeCollection()->schemeCount(), 2 );
+    QCOMPARE( network->schemeCount(), 2 );
 
-    scheme = network->hydraulicSchemeCollection()->scheme( 0 );
+    scheme = network->scheme( 0 );
     QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test" ) );
     network->setCurrentScheme( 0 );
 
@@ -1315,7 +1315,7 @@ void ReosHecrasTesting::importCreatingScheme()
     QVERIFY( simulation );
     QCOMPARE( simulation->currentPlan(), QStringLiteral( "p01" ) );
 
-    scheme = network->hydraulicSchemeCollection()->scheme( 1 );
+    scheme = network->scheme( 1 );
     QCOMPARE( scheme->schemeName()->value(), QStringLiteral( "plan_test_2" ) );
     network->setCurrentScheme( 1 );
     QCOMPARE( simulation->currentPlan(), QStringLiteral( "p02" ) );

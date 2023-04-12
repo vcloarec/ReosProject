@@ -179,12 +179,7 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   mElementFactories.emplace( ReosHydraulicStructure2D::staticType(), new ReosHydraulicStructure2dFactory );
   mElementFactories.emplace( ReosHydraulicStructureBoundaryCondition::staticType(), new ReosHydraulicStructureBoundaryConditionFactory );
 
-  std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
-  scheme->schemeName()->setValue( tr( "Scheme 1" ) );
-  if ( mWatershedModule && mWatershedModule->meteoModelsCollection()->modelCount() != 0 )
-    scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
-
-  mHydraulicSchemeCollection->addScheme( scheme.release() );
+  addNewScheme( tr( "Scheme 1" ) );
 
   connect( mHydraulicSchemeCollection, &ReosHydraulicSchemeCollection::dirtied, this, &ReosModule::dirtied );
 }
@@ -297,10 +292,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   if ( mHydraulicSchemeCollection->schemeCount() == 0 )
   {
-    std::unique_ptr<ReosHydraulicScheme> scheme = std::make_unique<ReosHydraulicScheme>();
-    scheme->schemeName()->setValue( tr( "Scheme 1" ) );
-    scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
-    mHydraulicSchemeCollection->addScheme( scheme.release() );
+    addNewScheme( tr( "Scheme 1" ) );
   }
 
   int currentSchemeIndex = -1;
@@ -407,6 +399,11 @@ ReosHydraulicSchemeCollection *ReosHydraulicNetwork::hydraulicSchemeCollection()
   return mHydraulicSchemeCollection;
 }
 
+int ReosHydraulicNetwork::schemeCount() const
+{
+  return mHydraulicSchemeCollection->schemeCount();
+}
+
 void ReosHydraulicNetwork::changeScheme( int newSchemeIndex )
 {
   if ( newSchemeIndex == mCurrentSchemeIndex )
@@ -446,6 +443,21 @@ ReosHydraulicScheme *ReosHydraulicNetwork::scheme( const QString &schemeId ) con
   return mHydraulicSchemeCollection->scheme( schemeId );
 }
 
+ReosHydraulicScheme *ReosHydraulicNetwork::scheme( int index ) const
+{
+  return mHydraulicSchemeCollection->scheme( index );
+}
+
+ReosHydraulicScheme *ReosHydraulicNetwork::schemeByName( const QString &schemeName ) const
+{
+  return mHydraulicSchemeCollection->schemeByName( schemeName );
+}
+
+int ReosHydraulicNetwork::schemeIndex( const QString schemeId ) const
+{
+  return mHydraulicSchemeCollection->schemeIndex( schemeId );
+}
+
 void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
 {
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
@@ -474,6 +486,28 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   onMapTimeWindowChanged();
   emit schemeChanged();
   emit dirtied();
+}
+
+ReosHydraulicScheme *ReosHydraulicNetwork::addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel )
+{
+  ReosHydraulicScheme *scheme = new ReosHydraulicScheme( mHydraulicSchemeCollection );
+  scheme->schemeName()->setValue( schemeName );
+  if ( meteoModel )
+    scheme->setMeteoModel( meteoModel );
+  else if ( mWatershedModule && mWatershedModule->meteoModelsCollection() && mWatershedModule->meteoModelsCollection()->modelCount() > 0 )
+    scheme->setMeteoModel( mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 ) );
+  mHydraulicSchemeCollection->addScheme( scheme );
+  return scheme;
+}
+
+void ReosHydraulicNetwork::addExistingScheme( ReosHydraulicScheme *scheme )
+{
+  mHydraulicSchemeCollection->addScheme( scheme );
+}
+
+void ReosHydraulicNetwork::removeScheme( int schemeIndex )
+{
+  mHydraulicSchemeCollection->removeScheme( schemeIndex );
 }
 
 ReosDuration ReosHydraulicNetwork::currentTimeStep() const

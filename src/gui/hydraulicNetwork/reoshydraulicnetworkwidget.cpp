@@ -192,7 +192,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   } );
 
   ui->mMeteoModelCombo->setModel( mHydraulicNetwork->context().watershedModule()->meteoModelsCollection() );
-  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->schemeCount() > 1 );
   connect( ui->mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
            this, &ReosHydraulicNetworkWidget::onMeteoModelChanged );
 }
@@ -363,19 +363,19 @@ void ReosHydraulicNetworkWidget::onAddHydraulicScheme()
 
   if ( dia->exec() )
   {
-    mHydraulicNetwork->hydraulicSchemeCollection()->addScheme( scheme.release() );
-    ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() - 1 );
+    mHydraulicNetwork->addExistingScheme( scheme.release() );
+    ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->schemeCount() - 1 );
   }
 
   dia->deleteLater();
 
-  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->schemeCount() > 1 );
 }
 
 void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
 {
   int currentSchemeIndex = ui->mHydraulicSchemeCombo->currentIndex();
-  ReosHydraulicScheme *scheme = mHydraulicNetwork->hydraulicSchemeCollection()->scheme( currentSchemeIndex );
+  ReosHydraulicScheme *scheme = mHydraulicNetwork->scheme( currentSchemeIndex );
   if ( scheme )
   {
     if ( QMessageBox::warning( this, tr( "Remove Hydraulic Scheme" ),
@@ -383,10 +383,10 @@ void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
                                QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
       return;
 
-    mHydraulicNetwork->hydraulicSchemeCollection()->removeScheme( currentSchemeIndex );
+    mHydraulicNetwork->removeScheme( currentSchemeIndex );
 
     ui->mHydraulicSchemeCombo->blockSignals( true );
-    if ( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 0 )
+    if ( mHydraulicNetwork->schemeCount() > 0 )
     {
       mHydraulicNetwork->setCurrentScheme( 0 );
       ui->mHydraulicSchemeCombo->setCurrentIndex( 0 );
@@ -399,7 +399,7 @@ void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
     ui->mHydraulicSchemeCombo->blockSignals( false );
   }
 
-  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->schemeCount() > 1 );
 }
 
 void ReosHydraulicNetworkWidget::onRenameHydraulicScheme()
@@ -419,7 +419,7 @@ void ReosHydraulicNetworkWidget::onCurrentSchemeChange( int index )
 {
   int prvIndex = mHydraulicNetwork->currentSchemeIndex();
 
-  ReosHydraulicScheme *newScheme = mHydraulicNetwork->hydraulicSchemeCollection()->scheme( index );
+  ReosHydraulicScheme *newScheme = mHydraulicNetwork->scheme( index );
   ReosHydraulicNetworkElementCompatibilty compatibility = mHydraulicNetwork->checkSchemeCompatibility( newScheme );
 
   if ( !compatibility.isCompatible )
@@ -449,7 +449,7 @@ void ReosHydraulicNetworkWidget::onCurrentSchemeChange( int index )
 void ReosHydraulicNetworkWidget::onNetworkLoaded()
 {
   ui->mHydraulicSchemeCombo->setCurrentIndex( mHydraulicNetwork->currentSchemeIndex() );
-  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->hydraulicSchemeCollection()->schemeCount() > 1 );
+  ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->schemeCount() > 1 );
 }
 
 void ReosHydraulicNetworkWidget::onModuleReset()
