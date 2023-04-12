@@ -116,6 +116,9 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
 
 void ReosTelemac2DSimulationEngineFactory::initializeSettings()
 {
+  ReosSettings settings;
+  if (settings.contains(QStringLiteral("/engine/telemac/telemac-config-file")))
+      return;
   initializeSettingsStatic();
 }
 
@@ -130,8 +133,7 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ), QString() );
   settings.setValue( QStringLiteral( "/python_path" ), QString() );
 #else
-  if ( settings.contains( QStringLiteral( "/engine/telemac/telemac-config-file" ) ) )
-    return;
+ 
 #endif
 
   const QString appPath = QCoreApplication::applicationDirPath();
