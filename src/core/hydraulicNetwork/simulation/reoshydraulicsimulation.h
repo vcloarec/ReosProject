@@ -156,6 +156,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const;
 
+    virtual QFileInfoList cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme ) {return QFileInfoList();};
+
   signals:
 
     void timeStepChanged();

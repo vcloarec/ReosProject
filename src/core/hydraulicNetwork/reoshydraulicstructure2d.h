@@ -73,6 +73,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosTimeWindow timeWindow() const override;
     QIcon icon() const override;
     ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override;
+    QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) override;
 
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }

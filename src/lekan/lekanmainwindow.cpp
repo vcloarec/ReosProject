@@ -253,6 +253,24 @@ bool LekanMainWindow::saveProject()
   stream << lekanProject.bytes();
 
   storeProjectPath( filePath );
+
+  const QFileInfoList filesToRemove = rootModule()->uselessFiles( true );
+  for ( const QFileInfo &fileInfo : filesToRemove )
+  {
+    if ( !fileInfo.exists() )
+      continue;
+    if ( fileInfo.isDir() )
+    {
+      QDir dir( fileInfo.path() );
+      dir.removeRecursively();
+    }
+    else if ( fileInfo.isFile() )
+    {
+      QFile file( fileInfo.path() );
+      file.remove();
+    }
+  }
+
   return true;
 }
 

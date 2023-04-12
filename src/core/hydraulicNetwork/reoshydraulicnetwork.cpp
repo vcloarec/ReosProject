@@ -134,6 +134,11 @@ void ReosHydraulicNetworkElement::saveConfiguration( ReosHydraulicScheme * ) con
 
 void ReosHydraulicNetworkElement::restoreConfiguration( ReosHydraulicScheme * ) {}
 
+QFileInfoList ReosHydraulicNetworkElement::cleanScheme( ReosHydraulicScheme *scheme )
+{
+  return QFileInfoList();
+}
+
 ReosDuration ReosHydraulicNetworkElement::currentElementTimeStep() const
 {
   return ReosDuration( qint64( 0 ) );
@@ -184,6 +189,15 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   connect( mHydraulicSchemeCollection, &ReosHydraulicSchemeCollection::dirtied, this, &ReosModule::dirtied );
 }
 
+QFileInfoList ReosHydraulicNetwork::uselessFiles( bool clean ) const
+{
+  QFileInfoList ret = ReosModule::uselessFiles( clean );
+  ret.append( mUselessFile );
+  if ( clean )
+    mUselessFile.clear();
+  return ret;
+}
+
 ReosHydraulicNetworkElement *ReosHydraulicNetwork::getElement( const QString &elemId ) const
 {
   if ( mElements.contains( elemId ) )
@@ -225,6 +239,7 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   if ( !elem )
     return;
   emit elementWillBeRemoved( elem );
+
   ReosHydraulicNode *node = qobject_cast<ReosHydraulicNode *>( elem );
   if ( node )
   {
@@ -236,7 +251,9 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   ReosHydraulicStructure2D *structure = qobject_cast<ReosHydraulicStructure2D *>( elem );
   if ( structure )
   {
-    for ( ReosHydraulicStructureBoundaryCondition *bc : structure->boundaryConditions() )
+    mUselessFile.append( QFileInfo( structure->structureDirectory().path() ) );
+    const QList<ReosHydraulicStructureBoundaryCondition *> bcs = structure->boundaryConditions();
+    for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
       removeElement( bc );
   }
 
@@ -507,6 +524,11 @@ void ReosHydraulicNetwork::addExistingScheme( ReosHydraulicScheme *scheme )
 
 void ReosHydraulicNetwork::removeScheme( int schemeIndex )
 {
+  ReosHydraulicScheme *sch = scheme( schemeIndex );
+  for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
+    if ( elem )
+      mUselessFile.append( elem->cleanScheme( sch ) );
+
   mHydraulicSchemeCollection->removeScheme( schemeIndex );
 }
 

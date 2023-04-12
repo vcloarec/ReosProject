@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <QActionGroup>
 #include <QTime>
 #include <QToolBar>
+#include <QFileInfoList>
 
 #include "reoscore.h"
 
@@ -55,6 +56,8 @@ class REOSCORE_EXPORT ReosModule : public QObject
     const QString projectFileName();
 
     void setProjectFileName( const QString &projectFileName );
+
+    virtual QFileInfoList uselessFiles( bool clean ) const;
 
   signals:
     void newCommandToUndoStack( QUndoCommand *command );

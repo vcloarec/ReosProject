@@ -39,6 +39,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHydraulicSimulation::checkCompatibli
   return ReosHydraulicNetworkElementCompatibilty();
 }
 
+
 QDir ReosHydraulicSimulation::simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const
 {
   if ( !hydraulicStructure )
