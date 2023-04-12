@@ -214,7 +214,8 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   {
     if ( snappingEnabled() )
       e->snapPoint();
-    mRubberBand->addPoint( e->mapPoint() );
+    if ( !selfIntersect() || mAllowSelfIntersect )
+      mRubberBand->addPoint( e->mapPoint() );
   }
 
   if ( e->button() == Qt::RightButton )
@@ -233,7 +234,6 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     }
     else
     {
-
       QPolygonF polyline = mRubberBand->asGeometry().asQPolygonF();
       if ( !selfIntersect() || mAllowSelfIntersect )
       {
