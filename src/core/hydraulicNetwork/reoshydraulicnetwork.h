@@ -233,7 +233,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;
     ReosHydraulicScheme *scheme( int index ) const;
     ReosHydraulicScheme *schemeByName( const QString &schemeName ) const;
-    int schemeIndex( const QString schemeId ) const;
+    int schemeIndex(const QString &schemeId ) const;
     void setCurrentScheme( int newSchemeIndex );
     ReosHydraulicScheme *addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel = nullptr );
     void addExistingScheme( ReosHydraulicScheme *scheme );

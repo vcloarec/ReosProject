@@ -470,7 +470,7 @@ ReosHydraulicScheme *ReosHydraulicNetwork::schemeByName( const QString &schemeNa
   return mHydraulicSchemeCollection->schemeByName( schemeName );
 }
 
-int ReosHydraulicNetwork::schemeIndex( const QString schemeId ) const
+int ReosHydraulicNetwork::schemeIndex( const QString &schemeId ) const
 {
   return mHydraulicSchemeCollection->schemeIndex( schemeId );
 }

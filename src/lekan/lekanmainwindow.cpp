@@ -255,19 +255,19 @@ bool LekanMainWindow::saveProject()
   storeProjectPath( filePath );
 
   const QFileInfoList filesToRemove = rootModule()->uselessFiles( true );
-  for ( const QFileInfo &fileInfo : filesToRemove )
+  for ( const QFileInfo &fi : filesToRemove )
   {
-    if ( !fileInfo.exists() )
+    if ( !fi.exists() )
       continue;
-    if ( fileInfo.isDir() )
+    if ( fi.isDir() )
     {
-      QDir dir( fileInfo.path() );
+      QDir dir( fi.filePath() );
       dir.removeRecursively();
     }
-    else if ( fileInfo.isFile() )
+    else if ( fi.isFile() )
     {
-      QFile file( fileInfo.path() );
-      file.remove();
+      QFile fileToRemove( fi.path() );
+      fileToRemove.remove();
     }
   }
 

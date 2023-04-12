@@ -25,7 +25,10 @@ ReosModule::ReosModule( QObject *parent ):
   mReosParent = qobject_cast<ReosModule *>( parent );
 
   if ( mReosParent )
+  {
+    mReosParent->mReosChildren.append( this );
     connect( this, &ReosModule::dirtied, mReosParent, &ReosModule::dirtied );
+  }
 }
 
 ReosModule::~ReosModule()
