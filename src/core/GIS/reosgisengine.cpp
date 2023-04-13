@@ -264,27 +264,27 @@ QAbstractItemModel *ReosGisEngine::layerTreeModel() {return mLayerTreeModel;}
 
 QString ReosGisEngine::vectorLayerFilters() const
 {
-    QgsProviderMetadata* meta = QgsProviderRegistry::instance()->providerMetadata("ogr");
-    return meta->filters(Qgis::FileFilterType::Vector);
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( "ogr" );
+  return meta->filters( QgsProviderMetadata::FilterType::FilterVector );
 }
 
 QString ReosGisEngine::rasterLayerFilters() const
 {
-    QgsProviderMetadata* meta = QgsProviderRegistry::instance()->providerMetadata("gdal");
-    return meta->filters(Qgis::FileFilterType::Raster);
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( "gdal" );
+  return meta->filters( QgsProviderMetadata::FilterType::FilterRaster );
 }
 
 QString ReosGisEngine::meshLayerFilters() const
 {
-    QgsProviderMetadata* meta = QgsProviderRegistry::instance()->providerMetadata("mdal");
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( "mdal" );
 
-    if (meta)
-        return meta->filters(Qgis::FileFilterType::Mesh);
-    else
-    {
-        error(tr("Could not find MDAL"));
-        return QString();
-    }
+  if ( meta )
+    return meta->filters( QgsProviderMetadata::FilterType::FilterMesh );
+  else
+  {
+    error( tr( "Could not find MDAL" ) );
+    return QString();
+  }
 }
 
 QString ReosGisEngine::crs() const
@@ -1199,6 +1199,7 @@ bool ReosGisEngine::canBeRasterDem( QgsRasterLayer *layer ) const
       case Qgis::DataType::ARGB32_Premultiplied:
         return false;
         break;
+      case Qgis::DataType::Int8:
       case Qgis::DataType::UInt16:
       case Qgis::DataType::Int16:
       case Qgis::DataType::UInt32:
