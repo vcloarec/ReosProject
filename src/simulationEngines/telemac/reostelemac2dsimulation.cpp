@@ -117,8 +117,8 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
 void ReosTelemac2DSimulationEngineFactory::initializeSettings()
 {
   ReosSettings settings;
-  if (settings.contains(QStringLiteral("/engine/telemac/telemac-config-file")))
-      return;
+  if ( settings.contains( QStringLiteral( "/engine/telemac/telemac-config-file" ) ) )
+    return;
   initializeSettingsStatic();
 }
 
@@ -133,7 +133,7 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ), QString() );
   settings.setValue( QStringLiteral( "/python_path" ), QString() );
 #else
- 
+
 #endif
 
   const QString appPath = QCoreApplication::applicationDirPath();
@@ -1450,11 +1450,13 @@ void ReosTelemac2DSimulationProcess::start()
   env.insert( QStringLiteral( "USETELCFG" ), settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
 
   QString envPath = env.value( QStringLiteral( "PATH" ) );
+  QFileInfo telemac2DPythonScript( settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
+
 
 #ifdef _MSC_VER
   const QString pythonPath = settings.value( QStringLiteral( "/python_path" ) ).toString();
   env.insert( QStringLiteral( "PYTHONHOME" ), pythonPath );
-  env.insert( QStringLiteral( "PYTHONPATH" ), pythonPath + ';' + pythonPath + '/' + QStringLiteral( "Scripts" ) );
+  env.insert( QStringLiteral( "PYTHONPATH" ), pythonPath + ';' + telemac2DPythonScript.dir().path() );
   envPath.append( ';' );
   envPath.append( env.value( QStringLiteral( "PYTHONPATH" ) ) );
   envPath.append( ';' );
