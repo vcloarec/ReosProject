@@ -274,7 +274,7 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${QGIS_3D_LIB}
         ${QGIS_GUI_LIB}
         ${GMSH_LIB}
-        ${${NETCDF_LIBRARY}}
+        ${NETCDF_LIBRARY}
 )
 
 
