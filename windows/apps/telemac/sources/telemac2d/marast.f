@@ -5,7 +5,7 @@
      &(MARDAT,MARTIM,PHI0,NPOIN,AT,FU1,FV1,X,SINLAT,COSLAT,GRAV)
 !
 !***********************************************************************
-! TELEMAC2D   V7P0                                  20/01/2015
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    COMPUTES THE TIDAL FORCE.
@@ -44,7 +44,7 @@
 !| FV1            |<--| Y-COMPONENT OF TIDE GENERATING FORCE
 !| GRAV           |-->| GRAVITY
 !| MARDAT         |-->| DATE (YEAR, MONTH,DAY)
-!| MARTIM         |-->| TIME (HOUR, MINUTEUTE,SECOND)
+!| MARTIM         |-->| TIME (HOUR, MINUTE,SECOND)
 !| NPOIN          |-->| NUMBER OF POINTS
 !| PHI0           |-->| LONGITUDE OF ORIGIN POINT
 !| SINLAT         |-->| SINUS OF DE LATITUDE (IN SPHERICAL COORDINATES)
@@ -85,10 +85,10 @@
       MONTH = MARDAT(2)
       DAY   = MARDAT(3)
       HOUR  = MARTIM(1)
-      MINUTE   = MARTIM(2)
+      MINUTE = MARTIM(2)
       SEC   = MARTIM(3)
 !
-! REMINUTEDER : HOUR IN UNIVERSAL TIME |
+! REMINDER : HOUR IN UNIVERSAL TIME |
 ! GENERAL REMARK : T=TERRE, L=LUNE , S=SOLEIL
 !
 ! LONG0: REFERENCE LONGITUDE IN RADIAN (0,2PI)

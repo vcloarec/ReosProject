@@ -1029,6 +1029,7 @@ files: friction_def.f
   user_analytical_solution.f
   error_computation.F
   assignstr.f
+  user_dragfo.f
   dragfo.f
   fricti.f
   cost_function.f
@@ -1149,6 +1150,8 @@ files: friction_def.f
   propin_telemac2d.f
   astro.f
   marast.f
+  runoff_greenampt.f
+  runoff_horton.f
   zslope.f
   runoff_scs_cn.f
   user_rain.f
@@ -1249,19 +1252,19 @@ files: friction_def.f
   homere_adj_t2d.f
   lecdon_telemac2d_gaia.f
   lecdon_telemac2d_khione.f
+  lecdon_telemac2d_waqtel.f
   user_nomvar_telemac2d.f
   nomvar_telemac2d.f
   lecdon_telemac2d.f
   read_sections_telemac2d.f
   point_telemac2d.f
   homere_telemac2d.F
-  user_dragfo.f
 
 [tomawac]
 path: <root>|sources|tomawac
 files: declarations_tomawac.f
-  deall_tomawac.f
   interface_tomawac.f
+  deall_tomawac.f
   user_anamar.f
   anamar.f
   user_current.f
@@ -1338,6 +1341,7 @@ files: declarations_tomawac.f
   qnlin2.f
   qnlin3.f
   qporos.f
+  read_poly.f
   qtria1.f
   kerbou.f
   qtria2.f
@@ -1411,6 +1415,7 @@ files: declarations_waqtel.f
   fv_zones.F90
   t3d_aed2.F90
   calcs3d_aed2.F
+  ray_effect_3d.f
   calcs3d_biomass.f
   user_calcs3d_degradation.f
   calcs3d_degradation.f

@@ -15,7 +15,7 @@
      & MAXSCE,NREG,PT_IN_POLY,TNP,AREA_P,EQUA,CF)
 !
 !***********************************************************************
-! TELEMAC2D   V8P1
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    PREPARES THE SOURCE TERMS IN THE CONTINUITY EQUATION
@@ -121,6 +121,11 @@
 !+       V7P0
 !+       Modification to comply with the hermes module
 !
+!history J.-P. TRAVERT (EDF R&D, LNHE)
+!+       07/06/2022
+!+       V8P4
+!+       Modification to add new infiltration model
+!
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !| AT             |-->| TIME
 !| BANDEC         |-->| IF YES, TIDAL FLATS OR DRY ZONES
@@ -160,7 +165,7 @@
 !| NVARCL         |-->| NUMBER OF CLANDESTINE VARIABLES
 !| NWEIRS         |-->| NUMBER OF WEIRS
 !| OPTSOU         |-->| OPTION FOR THE TREATMENT OF SOURCES
-!| PHI0           |-->| LATITUDE OF ORIGIN POINT
+!| PHI0           |-->| LONGITUDE OF ORIGIN POINT
 !| PLUIE          |-->| BIEF_OBJ STRUCTURE WITH RAIN OR EVAPORATION.
 !| RAIN           |-->| IF YES, RAIN OR EVAPORATION TAKEN INTO ACCOUNT
 !| RAIN_MMPD      |-->| RAIN OR EVAPORATION IN MM PER DAY
@@ -189,10 +194,11 @@
       USE DECLARATIONS_TELEMAC2D, ONLY : WNODES_PROC,WNODES,U,V,H,
      &                                   RAIN_HDUR,CHESTR,KARMAN,
      &                                   SECCURRENTS,NTRAC,SEC_R,CN,
-     &                                   SEC_TAU,T2,T3,T7,ROEAU,S,
+     &                                   SEC_TAU,T2,T3,T7,ROEAU,S,FC,F0,
      &                                   IELMU,T,ACCROF,RUNOFFOPT,AMC,
-     &                                   T2DFO2,ZF,ZFSLOP,FAIRACCU,
-     &                                   PROSOU_DEJALU,KFROT,T4,T5,T6
+     &                                   T2DFO2,ZF,ZFSLOP,FAIRACCU,KS,
+     &                                   PROSOU_DEJALU,KFROT,T4,T5,T6,
+     &                                   ACCINF,T8,T9,T10,T11
       USE INTERFACE_TELEMAC2D, EX_PROSOU => PROSOU
       USE M_COUPLING_ESTEL3D
       USE INTERFACE_HERMES
@@ -471,30 +477,41 @@
         ENDIF
         SURDT=1.D0/DT
         IF(BANDEC) THEN
-          IF(RUNOFFOPT.EQ.0)THEN
+          IF(RUNOFFOPT.EQ.0) THEN
 !           EVAPORATION (TENTATIVELY...) LIMITED BY AVAILABLE WATER
             DO I=1,NPOIN
               PLUIE%R(I)=MAX(RAIN_MPS,-MAX(HN%R(I),0.D0)*SURDT)
             ENDDO
-          ELSEIF(RUNOFFOPT.EQ.1)THEN
+          ELSEIF(RUNOFFOPT.EQ.1) THEN
             CALL RUNOFF_SCS_CN(PLUIE,T1%R,T2%R,T3%R,ACCROF,RAIN_MPS,AMC,
      &                         CN,ZF,ZFSLOP,RAIN_HDUR,T2D_FILES,T2DFO2,
-     &                         NPOIN,MASKEL,MSK,IELM1,MESH)
+     &                         NPOIN,MASKEL,MSK,IELM1,MESH,T8,T9,
+     &                         T10,T11%R)
+          ELSEIF(RUNOFFOPT.EQ.2) THEN
+            CALL RUNOFF_HORTON(PLUIE,ACCINF,T3%R,ACCROF,RAIN_MPS,AMC,
+     &                         FC,F0,RAIN_HDUR,T2D_FILES,T2DFO2,
+     &                         NPOIN,MESH,T8%R,T9%R)
+          ELSEIF(RUNOFFOPT.EQ.3) THEN
+            CALL RUNOFF_GREENAMPT(PLUIE,ACCINF,T3%R,ACCROF,RAIN_MPS,
+     &                            KS,RAIN_HDUR,T2D_FILES,T2DFO2,
+     &                            NPOIN,MESH,T8%R,T9%R)
           ELSE
             WRITE(LU,222)
 222         FORMAT(1X,'PROSOU : RUNOFF MODEL NOT IMPLEMENTED YET',/,
      &             1X,'         AVAILABLE OPTIONS ARE:',/,
      &             1X,'         0 : NO INFILTRATION',/,
-     &             1X,'         1 : SCS CN MODEL')
+     &             1X,'         1 : SCS CN MODEL',/,
+     &             1X,'         2 : HORTON MODEL',/,
+     &             1X,'         3 : GREEN-AMPT MODEL')
 !
             CALL PLANTE(1)
             STOP
           ENDIF
         ELSE
-          IF(RUNOFFOPT.EQ.1) THEN
+          IF(RUNOFFOPT.EQ.1.OR.RUNOFFOPT.EQ.2.OR.RUNOFFOPT.EQ.3) THEN
             WRITE(LU,224)
 224         FORMAT(1X,'PROSOU : TIDAL FLATS OPTION MUST BE ACTIVATED',/,
-     &             1X,'         WITH SCS CN RUNOFF MODEL')
+     &             1X,'         WITH SCS CN, HORTON OR G-AMPT MODEL')
 !
             CALL PLANTE(1)
             STOP

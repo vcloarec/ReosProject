@@ -4,7 +4,7 @@
 !
 !
      & (PLUIE,ACCFA,ACCIA,ACCROFF,ACCROF_OLD,RAIN_MPS,AMC,CN,ZF,ZFSLOP,
-     &  RAIN_HDUR,FILES,FO2,NPOIN,MASKEL,MSK,IELM,MESH)
+     &  RAIN_HDUR,FILES,FO2,NPOIN,MASKEL,MSK,IELM,MESH,T8,T9,T10,RFM)
 !
 !***********************************************************************
 ! TELEMAC2D   V8P4
@@ -48,14 +48,17 @@
 !| PLUIE          |-->| BIEF_OBJ STRUCTURE WITH RAIN OR EVAPORATION.
 !| RAIN_HDUR      |-->| RAIN OR EVAPORATION DURATION IN HOURS
 !| RAIN_MPS       |<->| RAIN OR EVAPORATION IN M PER SECONDS
+!| RFM            |<->| TOTAL RAINFALL OVER A TIMESTEP
+!| T8             |<->| WORKING ARRAY
+!| T9             |<->| WORKING ARRAY
+!| T10            |<->| WORKING ARRAY
 !| ZF             |-->| BOTTOM ELEVATION
 !| ZFSLOP         |<->| BOTTOM SLOPE
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !
       USE BIEF
       USE DECLARATIONS_TELEMAC2D, ONLY: DT,LT,AT,HN,POTMAXRET,IABST,
-     &                                  ACCR,T8,T9,T10,IASCNOPT,ENTET,
-     &                                  T2DFO1
+     &                                  ACCR,IASCNOPT,ENTET,T2DFO1
       USE INTERFACE_TELEMAC2D, EX_RUNOFF_SCS_CN => RUNOFF_SCS_CN
 !
       IMPLICIT NONE
@@ -66,9 +69,10 @@
       LOGICAL            , INTENT(IN)    :: MSK
       DOUBLE PRECISION   , INTENT(IN)    :: RAIN_MPS,RAIN_HDUR
       DOUBLE PRECISION   , INTENT(INOUT) :: ACCIA(NPOIN),ACCFA(NPOIN)
-      DOUBLE PRECISION   , INTENT(INOUT) :: ACCROFF(NPOIN)
+      DOUBLE PRECISION   , INTENT(INOUT) :: ACCROFF(NPOIN),RFM(NPOIN)
       TYPE(BIEF_OBJ)     , INTENT(IN)    :: ZF,MASKEL
       TYPE(BIEF_OBJ)     , INTENT(INOUT) :: PLUIE,ACCROF_OLD,CN,ZFSLOP
+      TYPE(BIEF_OBJ)     , INTENT(INOUT) :: T8,T9,T10
       TYPE(BIEF_FILE)    , INTENT(IN)    :: FILES(*)
       TYPE(BIEF_MESH)    , INTENT(INOUT) :: MESH
 !
@@ -81,8 +85,9 @@
 !
       DOUBLE PRECISION RAIN_MPS_GEO,PEAK_TIME,CC,IA_S
       DOUBLE PRECISION, PARAMETER::EPS=1.E-6
-      DOUBLE PRECISION A,B,C,R,RELT,IMMH,RFM,RF_HDUR
-      DOUBLE PRECISION AT1,AT2,MM_AT2
+      DOUBLE PRECISION A,B,C,R,RELT,IMMH,RF_HDUR
+      DOUBLE PRECISION AT1,AT2,MM_AT2,RFMPOIN
+!
 !
 !+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 !
@@ -97,6 +102,7 @@
       CALL OV('X=C     ', X=ACCIA, C=0.D0, DIM1=NPOIN)
       CALL OV('X=C     ', X=ACCFA, C=0.D0, DIM1=NPOIN)
       CALL OV('X=C     ', X=ACCROFF, C=0.D0, DIM1=NPOIN)
+      CALL OV('X=C     ', X=RFM, C=0.D0, DIM1=NPOIN)
 !
 !-----------------------------------------------------------------------
 !
@@ -115,7 +121,8 @@
 !     ================================================================
       IF(RAINDEF.EQ.1) THEN
 !       RAINFALL AT TIME AT OVER ONE TIME-STEP, M
-        RFM = RAIN_MPS * DT
+        RFMPOIN=RAIN_MPS * DT
+        CALL OV('X=C     ', X=RFM, C=RFMPOIN, DIM1=NPOIN)
 !
 !     2. EXAMPLE A: CDS-TYPE HYETOGRAPH DEFINED BY IDF PARAMETERS
 !     ===========================================================
@@ -158,7 +165,8 @@
           IMMH = 0.D0
         ENDIF
 !       RAINFALL AT TIME AT OVER ONE TIME-STEP RFM, M
-        RFM = (IMMH / 1000.D0 / 3600.D0) * DT
+        RFMPOIN=(IMMH / 1000.D0 / 3600.D0) * DT
+        CALL OV('X=C     ', X=RFM, C=RFMPOIN, DIM1=NPOIN)
 !
 !
 !     3. EXAMPLE B: BLOCK-TYPE HYETOGRAPH READ IN A FORMATTED DATA FILE
@@ -206,7 +214,8 @@
 10      CONTINUE
         IF(AT.GE.AT1.AND.AT.LE.AT2) THEN
 !         RAINFALL AT TIME AT OVER ONE TIME-STEP RFM, M
-          RFM = (MM_AT2 / 1000.D0 / MAX((AT2-AT1),EPS)) * DT
+          RFMPOIN=(MM_AT2 / 1000.D0 / MAX((AT2-AT1),EPS)) * DT
+          CALL OV('X=C     ', X=RFM, C=RFMPOIN, DIM1=NPOIN)
         ELSE
           AT1=AT2
           READ(UL,*,ERR=100,END=200) AT2,MM_AT2
@@ -237,14 +246,16 @@
 !+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 !
 !     CHECK THAT RAINFALL IS POSITIVE (EVAPORATION NOT SUPPORTED)
-      IF(RFM.LT.0.D0) THEN
-        WRITE(LU,*) ' '
-        WRITE(LU,*)'RUNOFF_SCS_CN : NEGATIVE RAINFALL FOUND'
-        WRITE(LU,*)'                AT TIME', AT
-        WRITE(LU,*)'                EVAPORATION NOT SUPPORTED'
-        CALL PLANTE(1)
-        STOP
-      ENDIF
+      DO I=1,NPOIN
+        IF(RFM(I).LT.0.D0) THEN
+          WRITE(LU,*) ' '
+          WRITE(LU,*)'RUNOFF_SCS_CN : NEGATIVE RAINFALL FOUND'
+          WRITE(LU,*)'                AT TIME', AT
+          WRITE(LU,*)'                EVAPORATION NOT SUPPORTED'
+          CALL PLANTE(1)
+          STOP
+        ENDIF
+      ENDDO
 !
 !-----------------------------------------------------------------------
 !
@@ -268,8 +279,8 @@
 !             IN THE EXAMPLE BELOW CN IS READ FROM PRIVE%ADR(1)%P%R:
 !
 !      IF(LT.EQ.1) THEN
-!        CALL OV('X=Y     ', X=CN%R, Y=PRIVE%ADR(1)%P%R, DIM1=NPOIN)
-!      ENDIF
+!       CALL OV('X=Y     ', X=CN%R, Y=PRIVE%ADR(1)%P%R, DIM1=NPOIN)
+!    ENDIF
 !
 !     CHECK THAT CN IS NOT GREATER THAN 100
       DO I=1,NPOIN
@@ -444,7 +455,7 @@
 !
 !     ACCUMULATED RAINFALL AT TIME AT (ACCRF), M (ACCRF STOCKED IN  ACCR)
 !     ACCRF = ACCRF + RFM
-      CALL OV('X=X+C   ', X=ACCR%R, C=RFM, DIM1=NPOIN)
+      CALL OV('X=X+Y   ', X=ACCR%R, Y=RFM, DIM1=NPOIN)
 !
 !     ACCUMULATED INITIAL ABSTRACTION AT TIME AT (ACCIA), M
 !

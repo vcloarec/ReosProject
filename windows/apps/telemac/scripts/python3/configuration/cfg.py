@@ -203,11 +203,13 @@ class Config():
         n_mod_per_line = 4
         str_mod = ' / '.join(modules[0:n_mod_per_line]) + "\n"
         intent = '               '
+        last = 0
         for i in range(1, n_mod//n_mod_per_line):
             tmp_mod = modules[i*n_mod_per_line:(i+1)*n_mod_per_line]
             str_mod += intent+'  / '.join(tmp_mod) + "\n"
             last = i
-        str_mod += intent+' / '.join(modules[(last+1)*n_mod_per_line:])
+        if last > 0:
+            str_mod += intent+' / '.join(modules[(last+1)*n_mod_per_line:])
 
         print('    +> module: ' + str_mod)
 

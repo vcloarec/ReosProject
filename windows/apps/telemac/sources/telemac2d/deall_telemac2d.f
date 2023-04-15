@@ -1,11 +1,11 @@
 !                   **************************
                     SUBROUTINE DEALL_TELEMAC2D
 !                   **************************
+!
      & (FULL_DEALL)
 !
-!
 !***********************************************************************
-! TELEMAC2D   V6P3                                   21/08/2010
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    Memory allocation of structures, aliases, blocks...
@@ -265,6 +265,10 @@
       CALL BIEF_DEALLOBJ(PLUIE )
       CALL BIEF_DEALLOBJ(ACCROF)
       CALL BIEF_DEALLOBJ(ACCR  )
+      CALL BIEF_DEALLOBJ(FC  )
+      CALL BIEF_DEALLOBJ(F0  )
+      CALL BIEF_DEALLOBJ(ACCINF  )
+      CALL BIEF_DEALLOBJ(KS  )
       CALL BIEF_DEALLOBJ(POTMAXRET)
       CALL BIEF_DEALLOBJ(IABST )
       CALL BIEF_DEALLOBJ(CN    )

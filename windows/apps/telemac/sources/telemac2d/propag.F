@@ -346,7 +346,7 @@
      &                                 ADV_NSC_TF,ADV_PSI_TF,ADV_LPO_TF,
      &                                 KDDL
       USE DECLARATIONS_TELEMAC2D, ONLY : TYPSEUIL,IT1,IT2,TB2,NCO_DIST,
-     &                                   NSP_DIST
+     &                                   NSP_DIST,DEBU,TROUVE
       USE DECLARATIONS_TELEMAC, ONLY : MODASS
 !
       USE INTERFACE_TELEMAC2D, EX_PROPAG => PROPAG
@@ -1052,7 +1052,9 @@
           IF(IELMU.NE.IELMH) THEN
             CALL VECTOR(T2,'=','MASBAS          ',IELMU,
      &                  1.D0,S,S,S,S,S,S,MESH,.FALSE.,TE3)
-            IF(NCSIZE.GT.1) CALL PARCOM(T2,2,MESH)
+!           T3 AND T4 ARE ADDED TO AM3, WHICH IS ASSEMBLED LATER
+!           SO NO PARCOM FOR T2 IN PARALLEL
+!           IF(NCSIZE.GT.1) CALL PARCOM(T2,2,MESH)
             CALL OS('X=Y     ',X=T5,Y=HPROP)
             IF(T5%ELM.NE.IELMU) CALL CHGDIS(T5,T5%ELM,IELMU,MESH)
             DO I=1,BIEF_NBPTS(IELMU,MESH)
@@ -1066,7 +1068,9 @@
             DO I=1,BIEF_NBPTS(IELMU,MESH)
 !             HIDDEN PARAMETER
               IF(HPROP%R(I).LT.1.D-3) THEN
-                T3%R(I)=10.D0*V2DPAR%R(I)/DT
+!               T3 AND T4 ARE ADDED TO AM3, WHICH IS ASSEMBLED LATER
+!               SO USE OF VOLU2D RATHER THAN OLD V2DPAR IN PARALLEL
+                T3%R(I)=10.D0*VOLU2D%R(I)/DT
                 T4%R(I)=T3%R(I)
               ENDIF
             ENDDO
@@ -1298,15 +1302,23 @@
 !
       ELSEIF(IORDRH.EQ.1) THEN
 !
-        IF(LT.EQ.1.AND.ISOUSI.EQ.1) THEN
+        IF(LT.EQ.1.AND.ISOUSI.EQ.1
+     &            .AND.(DEBU.OR.TROUVE(36).NE.1)) THEN
           CALL OS( 'X=0     ' , X=DH )
         ENDIF
 !
       ELSEIF(IORDRH.EQ.2) THEN
 !
-        IF(LT.EQ.1.AND.ISOUSI.EQ.1) THEN
+        IF(LT.EQ.1.AND.ISOUSI.EQ.1
+     &            .AND.(DEBU.OR.TROUVE(36).NE.1)) THEN
           CALL OS( 'X=0     ' , X=DH )
+        ENDIF
+        IF(LT.EQ.1.AND.ISOUSI.EQ.1
+     &            .AND.(DEBU.OR.TROUVE(39).NE.1)) THEN
           CALL OS( 'X=0     ' , X=DHN)
+        ENDIF
+        IF(LT.LE.2.AND..NOT.DEBU.AND.TROUVE(36).EQ.1) THEN
+          CALL OS('X=CX    ' , X=DH , C=2.D0 )
         ENDIF
         IF (LT.GT.2) CALL OS('X=CX    ' , X=DH , C=2.D0 )
         CALL OS( 'X=X-Y   ' , X=DH , Y=DHN)
@@ -1335,8 +1347,12 @@
       ELSEIF(IORDRU.EQ.2) THEN
 !
         IF(LT.EQ.1.AND.ISOUSI.EQ.1) THEN
-          CALL OS( 'X=0     ' , X=DU )
-          CALL OS( 'X=0     ' , X=DV )
+          IF(DEBU.OR.TROUVE(37).NE.1) THEN
+            CALL OS( 'X=0     ' , X=DU )
+          ENDIF
+          IF(DEBU.OR.TROUVE(38).NE.1) THEN
+            CALL OS( 'X=0     ' , X=DV )
+          ENDIF
         ENDIF
         IF(ISOUSI.EQ.1) THEN
           CALL OS( 'X=Y+Z   ' , X=U , Y=UN , Z=DU )

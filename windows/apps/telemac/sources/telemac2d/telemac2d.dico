@@ -24,10 +24,10 @@
 /---SYSTEME-TELEMAC-------------------------------------------------------------
 /
 / INDICES IN USE SO FAR:
-/ INTEGER INDEX USED: 1-108,111-120 OUT OF 118
-/ REAL INDEX USED: 1-92 OUT OF  92
-/ LOGICAL INDEX USED: 1-64 OUT OF  64
-/ STRING INDEX USED: 1-3,6-11,13-41,48-56,58-98,100-103 OUT OF  92
+/ INTEGER INDEX USED: 1-120 OUT OF 120
+/ REAL INDEX USED: 1-96 OUT OF  96
+/ LOGICAL INDEX USED: 1-66 OUT OF  66
+/ STRING INDEX USED: 1-3,6-11,13-43,48-56,58-98,100-103 OUT OF  94
 /
 /-------------------------------------------------------------------------------
 /
@@ -472,7 +472,7 @@ NOM1 = 'BOTTOM SMOOTHINGS AFTER USER MODIFICATIONS'
 TYPE = LOGICAL
 INDEX = 60
 TAILLE = 1
-DEFAUT = YES
+DEFAUT = OUI
 DEFAUT1 = YES
 MNEMO = 'LISFON\_AFTER'
 RUBRIQUE =
@@ -862,8 +862,8 @@ NOM1 = 'RECORD NUMBER FOR RESTART'
 TYPE = INTEGER
 INDEX = 39
 TAILLE = 1
-DEFAUT = 0
-DEFAUT1 = 0
+DEFAUT = -1
+DEFAUT1 = -1
 MNEMO = 'START\_RECORD'
 RUBRIQUE =
 'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
@@ -871,13 +871,13 @@ RUBRIQUE1 =
 'COMPUTATION ENVIRONMENT';'RESTART';''
 NIVEAU = 0
 AIDE =
-'En cas de suite de calcul, numero de l''enregistrement
-de depart dans le fichier du calcul precedent. 0 signifie
-que l''on prend le dernier enregistrement.'
+'En cas de suite de calcul, numero de l enregistrement
+de depart dans le fichier du calcul precedent. -1 signifie
+que l on prend le dernier enregistrement.'
 AIDE1 =
 'In case of \telkey{COMPUTATION CONTINUED} = YES, record number
 to start from in the \telkey{PREVIOUS COMPUTATION FILE}.
-0 means the last record is taken.'
+-1 means the last record is taken.'
 /
 NOM = 'REMISE A ZERO DU TEMPS'
 NOM1 = 'INITIAL TIME SET TO ZERO'
@@ -896,6 +896,181 @@ AIDE =
 'Remet le temps a zero en cas de suite de calcul.'
 AIDE1 =
 'Initial time set to zero in case of restart.'
+/
+NOM = 'MODE SUITE'
+NOM1 = 'RESTART MODE'
+TYPE = LOGICAL
+INDEX = 65
+TAILLE = 1
+DEFAUT = NON
+DEFAUT1 = NO
+MNEMO = 'RESTART\_MODE'
+RUBRIQUE =
+'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
+RUBRIQUE1 =
+'COMPUTATION ENVIRONMENT';'RESTART';''
+NIVEAU = 1
+AIDE =
+'Declenche le remplissage du
+\telkey{FICHIER POUR SUITE}, qui permet une suite de calcul
+parfaite, contrairement au \telkey{FICHIER DES RESULTATS}.'
+AIDE1 =
+'Triggers the filling of the \telkey{RESTART FILE},
+which ensures a perfect restart of a computation,
+unlike using the \telkey{RESULTS FILE}.'
+/
+NOM = 'FICHIER POUR SUITE'
+NOM1 = 'RESTART FILE'
+TYPE = STRING
+INDEX = 42
+TAILLE = 1
+SUBMIT = 'T2DRST-WRITE;T2DRST;FACUL;BIN;ECR;SELAFIN'
+DEFAUT = ''
+DEFAUT1 = ''
+MNEMO = 'T2D\_FILES(T2DRST)\%NAME'
+RUBRIQUE =
+'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
+RUBRIQUE1 =
+'COMPUTATION ENVIRONMENT';'RESTART';''
+NIVEAU = 1
+AIDE =
+'Nom du fichier dans lequel seront ecrits les resultats du
+calcul pour obtenir une suite de calcul parfaite.
+C est donc un fichier de sortie pour le calcul en cours,
+qui servira de fichier d entree lors de la suite de calcul que l on
+souhaite parfaite (le mot-cle \telkey{FICHIER DU CALCUL PRECEDENT}
+est alors utilise).
+Le \telkey{FORMAT DU FICHIER POUR SUITE} et le
+\telkey{FORMAT DU FICHIER DU CALCUL PRECEDENT} doivent alors etre mis a
+ ''SERAFIND'' ou ''MED''.'
+AIDE1 =
+'Name of the file into which the computation results shall
+be written in order to get a perfect continued computation.
+It is then an output file for the current computation,
+which will be used as an input file when a continued computation
+is expected to be perfect (the keyword
+\telkey{PREVIOUS COMPUTATION FILE} is then used).
+The \telkey{RESTART FILE FORMAT} and the
+\telkey{PREVIOUS COMPUTATION FILE FORMAT} have to be set with
+ ''SERAFIND'' or ''MED''.'
+/
+NOM = 'FORMAT DU FICHIER POUR SUITE'
+NOM1 = 'RESTART FILE FORMAT'
+TYPE = STRING
+INDEX = 43
+TAILLE = 1
+DEFAUT = 'SERAFIND'
+DEFAUT1 = 'SERAFIND'
+MNEMO = 'T2D\_FILES(T2DRST)\%FMT'
+CHOIX =
+'SERAFIN';
+'SERAFIND';
+'MED'
+CHOIX1 =
+'SERAFIN';
+'SERAFIND';
+'MED'
+RUBRIQUE =
+'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
+RUBRIQUE1 =
+'COMPUTATION ENVIRONMENT';'RESTART';''
+NIVEAU = 2
+AIDE =
+'Format du \telkey{FICHIER POUR SUITE}.
+Les valeurs possibles sont :
+\begin{itemize}
+\item SERAFIN : format standard simple precision pour \tel ;
+\item SERAFIND: format standard double precision pour \tel ;
+\item MED     : format MED double precision base sur HDF5.
+\end{itemize}
+Seul les formats double precision assurent une suite parfaite.'
+AIDE1 =
+'Format of the \telkey{RESTART FILE}.
+Possible choices are:
+\begin{itemize}
+\item SERAFIN : classical single precision format in \tel,
+\item SERAFIND: classical double precision format in \tel,
+\item MED     : MED double precision format based on HDF5.
+\end{itemize}
+Only double precision formats ensure a perfect restart.'
+/
+NOM = 'PERIODE POUR LES SORTIES DU FICHIER POUR SUITE'
+NOM1 = 'RESTART FILE PRINTOUT PERIOD'
+TYPE = INTEGER
+INDEX = 109
+TAILLE = 1
+DEFAUT = 0
+DEFAUT1 = 0
+MNEMO = 'RSTPRD'
+RUBRIQUE =
+'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
+RUBRIQUE1 =
+'COMPUTATION ENVIRONMENT';'RESTART';''
+NIVEAU = 2
+AIDE =
+'Determine la periode en nombre de pas de temps d''impression des
+variables a sauver pour une reprise parfaite
+dans le \telkey{FICHIER POUR SUITE}.
+La valeur par defaut 0 signifie que le \telkey{FICHIER POUR SUITE}
+est seulement ecrit au dernier pas de temps ou au
+\telkey{NUMERO DE L''ENREGISTREMENT DANS LE FICHIER POUR SUITE}.'
+AIDE1 =
+'Determines, in number of time steps, the printout period for the
+variables to be saved for a perfect restart in the
+\telkey{RESTART FILE}.
+Default = 0 means the \telkey{RESTART FILE} is only written at the last
+time step or at the \telkey{RECORD NUMBER IN RESTART FILE}.'
+/
+NOM = 'NUMERO DE L''ENREGISTREMENT DANS LE FICHIER POUR SUITE'
+NOM1 = 'RECORD NUMBER IN RESTART FILE'
+TYPE = INTEGER
+INDEX = 110
+TAILLE = 1
+DEFAUT = -1
+DEFAUT1 = -1
+MNEMO = 'RESTART\_RECORD'
+RUBRIQUE =
+'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
+RUBRIQUE1 =
+'COMPUTATION ENVIRONMENT';'RESTART';''
+NIVEAU = 2
+AIDE =
+'Determine le numero de pas de temps d''impression des
+variables a sauver pour une reprise parfaite
+dans le \telkey{FICHIER POUR SUITE}.
+La valeur par defaut -1 signifie que le \telkey{FICHIER POUR SUITE}
+est seulement ecrit au dernier pas de temps et/ou periodiquement a la
+periode \telkey{PERIODE POUR LES SORTIES DU FICHIER POUR SUITE}.'
+AIDE1 =
+'Determines the number of time step when printing the variables to be
+saved for a perfect restart in the \telkey{RESTART FILE}.
+Default = -1 means the \telkey{RESTART FILE} is only written at the last
+time step and/or periodically at the period
+\telkey{RESTART FILE PRINTOUT PERIOD}.'
+/
+NOM = 'UTILISE LES VALEURS MAXIMUM DU FICHIER DU CALCUL PRECEDENT'
+NOM1 = 'USE MAXIMUM VALUES FROM PREVIOUS COMPUTATION FILE'
+TYPE = LOGICAL
+INDEX = 66
+TAILLE = 1
+DEFAUT = OUI
+DEFAUT1 = YES
+MNEMO = 'MAX\_PREV'
+RUBRIQUE =
+'ENVIRONNEMENT DE CALCUL';'REPRISE DE CALCUL';''
+RUBRIQUE1 =
+'COMPUTATION ENVIRONMENT';'RESTART';''
+NIVEAU = 2
+AIDE =
+'Si OUI, calcule les valeurs maximum pour les variables MAXZ, TMXZ,
+MAXV, TMXV a partir du \telkey{FICHIER DU CALCUL PRECEDENT} et du
+calcul en cours.
+Si NON, les variables sont seulement calculees a partir du calcul en
+cours.'
+AIDE1 =
+'If YES, computes maximum values for variables MAXZ, TMXZ, MAXV, TMXV
+from \telkey{PREVIOUS COMPUTATION FILE} and current computation.
+If NO, the variables are only computed from current computation.'
 /
 ////////////////////////////////////////////////////////////////////////
 ///// 1.3-OUTPUT FILES
@@ -3048,10 +3223,14 @@ DEFAUT1 = 0
 MNEMO = 'RUNOFFOPT'
 CHOIX =
 '0="Pas d infiltration"';
-'1="Modele CN"'
+'1="Modele CN"';
+'2="Modele Horton"';
+'3="Modele de Green et Ampt"'
 CHOIX1 =
 '0="No infiltration"';
-'1="CN runoff model"'
+'1="CN runoff model"';
+'2="Horton model"';
+'3="Green Ampt model"'
 RUBRIQUE =
 'HYDRO';'PARAMETRES PHYSIQUES HYDRO';'METEOROLOGIE'
 RUBRIQUE1 =
@@ -3061,13 +3240,17 @@ AIDE =
 'Option pour le modele pluie-debit. Les options disponibles sont :
 \begin{itemize}
 \item 0 : Pas d infiltration (fonction de base) ;
-\item 1 : Modele CN (Curve Number du SCS).
+\item 1 : Modele CN (Curve Number du SCS);
+\item 2 : Modele Horton;
+\item 3 : Modele de Green et Ampt,
 \end{itemize}'
 AIDE1 =
 'Option for the rainfall-runoff model. Available options are:
 \begin{itemize}
 \item 0: No infiltration (basic function),
-\item 1: CN runoff model (Curve Number method of the SCS).
+\item 1: CN runoff model (Curve Number method of the SCS),
+\item 2: Horton model,
+\item 3: Green-Ampt model.
 \end{itemize}'
 /
 NOM = 'CONDITIONS D''HUMIDITE PRECEDENTE'
@@ -3085,22 +3268,108 @@ RUBRIQUE1 =
 NIVEAU = 1
 AIDE =
 'Donne les conditions d humidite precedant un episode de pluie pour
-le modele CN du SCS. Les options disponibles sont :
+le modele CN du SCS et Horton. Les options disponibles sont :
 \begin{itemize}
 \item 1 : conditions precedentes seches ;
 \item 2 : conditions precedentes normales ;
 \item 3 : conditions prcedentes mouillees.
 \end{itemize}
-Ce mot cle est uniquement utile pour le modele pluie-debit 1 (CN).'
+Ce mot cle est uniquement utile pour le modele pluie-debit 1 (CN)
+ou 2 (Horton).'
 AIDE1 =
 'Gives the antecedent moisture conditions before a rainfall
- event for the SCS CN runoff model. Available options are:
+ event for the SCS CN and Horton runoff models. Available options are:
 \begin{itemize}
 \item 1: dry antecedent conditions,
 \item 2: normal antecedent conditions,
 \item 3: wet antecedent conditions.
 \end{itemize}
-This keyword is only usefull for runoff model 1 (SCS CN model).'
+This keyword is only usefull for runoff model 1 (SCS CN model)
+or 2 (Horton).'
+/
+NOM = 'CONSTANTE DE TEMPS HORTON'
+NOM1 = 'HORTON TIME CONSTANT'
+TYPE = REAL
+INDEX = 93
+TAILLE = 1
+DEFAUT = 1.0E-3
+DEFAUT1 = 1.0E-3
+MNEMO = 'KDECAY'
+RUBRIQUE =
+'HYDRO';'PARAMETRES PHYSIQUES HYDRO';'METEOROLOGIE'
+RUBRIQUE1 =
+'HYDRO';'PHYSICAL PARAMETERS HYDRO';'METEOROLOGY'
+NIVEAU = 1
+AIDE =
+'Constante de temps positive qui permet de quantifier la decroissance
+de la capacite d infiltration du sol pour le modele Horton.
+Ce mot cle est uniquement utile pour le modele pluie-debit 2 (Horton).'
+AIDE1 =
+'Positive time constant which enables to quantify the decrease
+of the capacity of infiltration of the soil in Horton model.
+This keyword is only useful for runoff model 2 (Horton).'
+/
+NOM = 'TENEUR EN EAU INITIALE'
+NOM1 = 'INITIAL WATER CONTENT'
+TYPE = REAL
+INDEX = 94
+TAILLE = 1
+DEFAUT = 0.
+DEFAUT1 = 0.
+MNEMO = 'THETAI'
+RUBRIQUE =
+'HYDRO';'PARAMETRES PHYSIQUES HYDRO';'METEOROLOGIE'
+RUBRIQUE1 =
+'HYDRO';'PHYSICAL PARAMETERS HYDRO';'METEOROLOGY'
+NIVEAU = 1
+AIDE =
+'Teneur en eau initiale qui represente la quantite d eau
+liquide contenue dans le sol.'
+AIDE1 =
+'Water content at the initial state which represents the
+quantity of water in the soil.'
+/
+NOM = 'TENEUR EN EAU A SATURATION'
+NOM1 = 'SATURATED WATER CONTENT'
+TYPE = REAL
+INDEX = 95
+TAILLE = 1
+DEFAUT = 0.5
+DEFAUT1 = 0.5
+MNEMO = 'THETAS'
+RUBRIQUE =
+'HYDRO';'PARAMETRES PHYSIQUES HYDRO';'METEOROLOGIE'
+RUBRIQUE1 =
+'HYDRO';'PHYSICAL PARAMETERS HYDRO';'METEOROLOGY'
+NIVEAU = 1
+AIDE =
+'Teneur en eau a saturation qui represente la quantite d eau
+liquide contenue dans le sol.'
+AIDE1 =
+'Water content at saturation state which represents the
+quantity of water in the soil.'
+/
+NOM = 'SUCCION'
+NOM1 = 'SUCTION'
+TYPE = REAL
+INDEX = 96
+TAILLE = 1
+DEFAUT = 0.2
+DEFAUT1 = 0.2
+MNEMO = 'HF'
+RUBRIQUE =
+'HYDRO';'PARAMETRES PHYSIQUES HYDRO';'METEOROLOGIE'
+RUBRIQUE1 =
+'HYDRO';'PHYSICAL PARAMETERS HYDRO';'METEOROLOGY'
+NIVEAU = 1
+AIDE =
+'Cela represente le pouvoir de capillarite d un liquide
+en ecoulement dans un espace etroit sans assistance de la
+gravite. Elle est donnee en m.'
+AIDE1 =
+'It represents the capillarity action with the liquid
+that is flowing in a narrow space without the assistance
+of gravity. It should be given in m.'
 /
 NOM = 'DUREE DE LA PLUIE OU EVAPORATION EN HEURES'
 NOM1 = 'DURATION OF RAIN OR EVAPORATION IN HOURS'
@@ -6101,8 +6370,8 @@ NOM1 = 'FINITE VOLUME SCHEME FOR TRACER DIFFUSION'
 TYPE = INTEGER
 INDEX = 46
 TAILLE = 2
-DEFAUT = 1
-DEFAUT1 = 1
+DEFAUT = 1;1
+DEFAUT1 = 1;1
 MNEMO = 'MVIST'
 APPARENCE =
 'DYNLIST'
@@ -8693,8 +8962,8 @@ AIDE =
 AIDE1 =
 'Description of breaches.'
 /
-NOM = 'LONGUEURS INITIALES DES BRECHES'
-NOM1 = 'INITIAL LENGTHS OF BREACHES'
+NOM = 'LARGEURS INITIALES DES BRECHES'
+NOM1 = 'INITIAL WIDTHS OF BREACHES'
 TYPE = LOGICAL
 INDEX = 64
 TAILLE = 1
@@ -8707,12 +8976,14 @@ RUBRIQUE1 =
 'HYDRAULIC STRUCTURES';'BREACHES';''
 NIVEAU = 0
 AIDE =
-'Variable logique pour indiquer si les longueurs initiales des breches
+'Variable logique pour indiquer si les largeurs initiales des breches
 sont connues. Si oui, les valeurs doivent etre donnees dans le
-\telkey{FICHIER DE DONNEES DES BRECHES}.'
+\telkey{FICHIER DE DONNEES DES BRECHES}.
+Ancien nom en version 8.3 : \telkey{LONGUEURS INITIALES DES BRECHES}'
 AIDE1 =
-'Logical to state if the initial lengths of breaches are known.
-If yes, values must be given in the \telkey{BREACHES DATA FILE}.'
+'Logical to state if the initial widths of breaches are known.
+If yes, values must be given in the \telkey{BREACHES DATA FILE}.
+Old name in release 8.3: \telkey{INITIAL LENGTHS OF BREACHES}. '
 /
 ////////////////////////////////////////////////////////////////////////
 /// 10-TIDES
@@ -8722,7 +8993,7 @@ NOM1 = 'BINARY DATABASE 1 FOR TIDE'
 TYPE = STRING
 INDEX = 86
 TAILLE = 1
-SUBMIT = 'NBB1-READ;T2DBB1;FACUL;BIN;LIT;PARAL'
+SUBMIT = 'NBB1-READ;T2DBB1;FACUL;BIN;LIT;SCAL'
 DEFAUT = ''
 DEFAUT1 = ''
 MNEMO = 'T2D\_FILES(T2DBB1)'
@@ -8745,7 +9016,7 @@ NOM1 = 'BINARY DATABASE 2 FOR TIDE'
 TYPE = STRING
 INDEX = 87
 TAILLE = 1
-SUBMIT = 'NBB2-READ;T2DBB2;FACUL;BIN;LIT;PARAL'
+SUBMIT = 'NBB2-READ;T2DBB2;FACUL;BIN;LIT;SCAL'
 DEFAUT = ''
 DEFAUT1 = ''
 MNEMO = 'T2D\_FILES(T2DBB2)'
@@ -8963,8 +9234,8 @@ NOM1 = 'INITIAL VELOCITIES COMPUTED BY TPXO'
 TYPE = LOGICAL
 INDEX = 61
 TAILLE = 1
-DEFAUT = YES
-DEFAUT1 = OUI
+DEFAUT = OUI
+DEFAUT1 = YES
 MNEMO = 'VITINI\_TPXO'
 RUBRIQUE =
 'MAREES';'';''

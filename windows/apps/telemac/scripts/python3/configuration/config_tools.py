@@ -173,6 +173,8 @@ def get_folders_modules_telemac(root, rescan, bypass):
                                 cmdf = get_scan_content(path.join(subpath, fle),
                                                         root, bypass)
                                 genmod = cmdf['general']['module']
+                                print('*********************',subpath)
+                                print('---------------------',  cmdf['general']['path'])
                                 if subpath != cmdf['general']['path']:
                                     raise TelemacException(\
                                          'This cmdf file ' + fle +

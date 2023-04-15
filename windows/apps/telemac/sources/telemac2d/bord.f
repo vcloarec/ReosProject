@@ -9,7 +9,7 @@
      & NOMIMP)
 !
 !***********************************************************************
-! TELEMAC2D   V8P3
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    MODIFIES THE BOUNDARY CONDITIONS ARRAYS
@@ -108,7 +108,8 @@
       USE INTERFACE_TELEMAC2D, EX_BORD => BORD
       USE DECLARATIONS_TELEMAC2D, ONLY: STA_DIS_CURVES,PTS_CURVES,QZ,
      &                                  FLUX_BOUNDARIES,MAXFRO,FRTYPE,
-     &                                  TIDALTYPE,RELAX_STA_DIS
+     &                                  TIDALTYPE,RELAX_STA_DIS,
+     &                                  SECCURRENTS
 !
       USE DECLARATIONS_SPECIAL
       USE INTERFACE_PARALLEL, ONLY : P_MAX,P_MIN
@@ -135,6 +136,7 @@
 !+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 !
       INTEGER K,MSK8,IFRLIQ,YADEB(MAXFRO),IERR,ITRAC,IFR,N,IELEB,KP1
+      INTEGER NTRACB
 !
       DOUBLE PRECISION Z,QIMP,ZMIN(MAXFRO)
 !
@@ -301,20 +303,27 @@
 !  IMPOSED TRACER
 !
       IF(NTRAC.GT.0) THEN
-        DO ITRAC=1,NTRAC
-        IF(LITBOR%ADR(ITRAC)%P%I(K).EQ.KENT.AND.
-     &    (NTRACE.GT.0.OR.NOMIMP(1:1).NE.' ')) THEN
-!         THE CASE NUMLIQ(K)=0 CORRESPONDS TO A SINGULARITY INITIALLY
-!         DECLARED AS A SOLID BOUNDARY AND FOR WHICH
-!         TBOR IS FILLED IN CLHUVT
-          IF(NUMLIQ(K).GT.0) THEN
-            N=NBOR(K)
-            IF(NCSIZE.GT.1) N=MESH%KNOLG%I(N)
-            Z = TR(NUMLIQ(K),ITRAC,N,IERR)
-            IF(IERR.EQ.0) TBOR%ADR(ITRAC)%P%R(K) = Z
-          ENDIF
+        IF(SECCURRENTS) THEN
+          NTRACB = NTRAC-1
+        ELSE
+          NTRACB = NTRAC
         ENDIF
-        ENDDO
+        IF(NTRACB.GT.0) THEN
+          DO ITRAC=1,NTRACB
+            IF(LITBOR%ADR(ITRAC)%P%I(K).EQ.KENT.AND.
+     &        (NTRACE.GT.0.OR.NOMIMP(1:1).NE.' ')) THEN
+!             THE CASE NUMLIQ(K)=0 CORRESPONDS TO A SINGULARITY
+!             INITIALLY DECLARED AS A SOLID BOUNDARY AND FOR WHICH
+!             TBOR IS FILLED IN CLHUVT
+              IF(NUMLIQ(K).GT.0) THEN
+                N=NBOR(K)
+                IF(NCSIZE.GT.1) N=MESH%KNOLG%I(N)
+                Z = TR(NUMLIQ(K),ITRAC,N,IERR)
+                IF(IERR.EQ.0) TBOR%ADR(ITRAC)%P%R(K) = Z
+              ENDIF
+            ENDIF
+          ENDDO
+        ENDIF
       ENDIF
 !
       ENDDO ! K

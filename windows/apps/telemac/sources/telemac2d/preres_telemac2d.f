@@ -154,8 +154,12 @@
 !
       IF(SORLEO(27).OR.SORIMP(27)) THEN
         IF(.NOT.DEJA1_PRERES) THEN
-          CALL OS('X=Y     ',X=MAXZ ,Y=ZF)
-          CALL OS('X=C     ',X=TMAXZ,C=AT)
+          IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(27).NE.1) THEN
+            CALL OS('X=Y     ',X=MAXZ ,Y=ZF)
+          ENDIF
+          IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(28).NE.1) THEN
+            CALL OS('X=C     ',X=TMAXZ,C=AT)
+          ENDIF
           DEJA1_PRERES=.TRUE.
         ELSE
           DO N=1,NPOIN
@@ -178,8 +182,12 @@
 !
       IF(SORLEO(29).OR.SORIMP(29)) THEN
         IF(.NOT.DEJA2_PRERES) THEN
-          CALL OS('X=C     ',X=MAXV ,C=0.D0)
-          CALL OS('X=C     ',X=TMAXV,C=AT)
+          IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(29).NE.1) THEN
+            CALL OS('X=C     ',X=MAXV ,C=0.D0)
+          ENDIF
+          IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(30).NE.1) THEN
+            CALL OS('X=C     ',X=TMAXV,C=AT)
+          ENDIF
           DEJA2_PRERES=.TRUE.
         ELSE
           DO N=1,NPOIN
@@ -199,10 +207,18 @@
 !
 !     CASE WHERE OUTINI=.TRUE. : PRIORITY ON PTINIG, VALUES FOR LT=0
 !     OTHERWISE THEY WOULD NOT BE INITIALISED
-        IF(SORLEO(27).OR.SORIMP(27)) CALL OS('X=Y     ',X=MAXZ ,Y=ZF)
-        IF(SORLEO(28).OR.SORIMP(28)) CALL OS('X=C     ',X=TMAXZ,C=AT)
-        IF(SORLEO(29).OR.SORIMP(29)) CALL OS('X=C     ',X=MAXV ,C=0.D0)
-        IF(SORLEO(30).OR.SORIMP(30)) CALL OS('X=C     ',X=TMAXV,C=AT)
+        IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(27).NE.1) THEN
+          IF(SORLEO(27).OR.SORIMP(27)) CALL OS('X=Y     ',X=MAXZ, Y=ZF)
+        ENDIF
+        IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(28).NE.1) THEN
+          IF(SORLEO(28).OR.SORIMP(28)) CALL OS('X=C     ',X=TMAXZ,C=AT)
+        ENDIF
+        IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(29).NE.1) THEN
+          IF(SORLEO(29).OR.SORIMP(29)) CALL OS('X=C     ',X=MAXV,C=0.D0)
+        ENDIF
+        IF(DEBU.OR..NOT.MAX_PREV.OR.TROUVE(30).NE.1) THEN
+          IF(SORLEO(30).OR.SORIMP(30)) CALL OS('X=C     ',X=TMAXV,C=AT)
+        ENDIF
 !
 !     ENDIF FOR : IF(LT.GE.PTINIG) THEN
       ENDIF

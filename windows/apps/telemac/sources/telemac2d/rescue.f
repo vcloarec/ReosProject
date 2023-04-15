@@ -2,7 +2,7 @@
                     SUBROUTINE RESCUE
 !                   *****************
 !
-     &(U,V,H,S,ZF,T,TRAC0,NTRAC,ITURB,NPOIN,AKEP,TROUVE,ADR_TRAC)
+     &(U,V,H,S,ZF,T,TRAC0,NTRAC,ITURB,NPOIN,AKEP,SA,TROUVE,ADR_TRAC)
 !
 !***********************************************************************
 ! TELEMAC2D   V8P2
@@ -56,6 +56,7 @@
 !| NPOIN          |-->| NUMBER OF POINTS
 !| NTRAC          |-->| NUMBER OF TRACERS
 !| S              |<--| FREE SURFACE
+!| SA             |-->| IF YES, SPALART ALLMARAS VARIABLES TO BE INITIALISED
 !| T              |<--| BLOCK OF TRACERS
 !| TRAC0          |-->| INITIAL VALUES OF TRACERS
 !| TROUVE         |-->| INTEGER ARRAY SAYING IF VARIABLES HAVE BEEN FOUND
@@ -70,7 +71,7 @@
 !+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 !
       INTEGER, INTENT(IN) :: TROUVE(*),ITURB,NPOIN,NTRAC,ADR_TRAC
-      LOGICAL, INTENT(INOUT)          :: AKEP
+      LOGICAL, INTENT(INOUT)          :: AKEP,SA
       DOUBLE PRECISION, INTENT(INOUT) :: U(NPOIN),V(NPOIN),H(NPOIN)
       DOUBLE PRECISION, INTENT(INOUT) :: S(NPOIN),ZF(NPOIN)
       DOUBLE PRECISION, INTENT(IN)    :: TRAC0(NTRAC)
@@ -150,6 +151,18 @@
       IF(ITURB.EQ.3.AND.(TROUVE(10).EQ.0.OR.TROUVE(11).EQ.0)) THEN
         WRITE(LU,951)
 951     FORMAT(1X,'RESCUE : K AND EPSILON WILL BE SET AGAIN')
+      ENDIF
+!
+!-----------------------------------------------------------------------
+!
+!  SPALART ALLMARAS
+!
+      IF(ITURB.EQ.6.AND.TROUVE(40).EQ.1) THEN
+        SA=.FALSE.
+      ENDIF
+      IF(ITURB.EQ.6.AND.TROUVE(40).EQ.0) THEN
+        WRITE(LU,971)
+971     FORMAT(1X,'RESCUE : SPALART ALLMARAS VAR WILL BE SET AGAIN')
       ENDIF
 !
 !-----------------------------------------------------------------------
