@@ -1,0 +1,100 @@
+diff --git a/scripts/python3/config.py b/scripts/python3/config.py
+index 511d22a..d4d1b52 100755
+--- a/scripts/python3/config.py
++++ b/scripts/python3/config.py
+@@ -10,7 +10,7 @@
+ import sys
+ from os import path, environ
+ from argparse import ArgumentParser
+-from utils.messages import git_banner
++#from utils.messages import git_banner
+ from configuration.cfg import Config
+ 
+ CFGS = Config()
+diff --git a/scripts/python3/configuration/cfg.py b/scripts/python3/configuration/cfg.py
+index 67e3fe8..98a7b4e 100644
+--- a/scripts/python3/configuration/cfg.py
++++ b/scripts/python3/configuration/cfg.py
+@@ -203,11 +203,13 @@ class Config():
+         n_mod_per_line = 4
+         str_mod = ' / '.join(modules[0:n_mod_per_line]) + "\n"
+         intent = '               '
++        last = 0
+         for i in range(1, n_mod//n_mod_per_line):
+             tmp_mod = modules[i*n_mod_per_line:(i+1)*n_mod_per_line]
+             str_mod += intent+'  / '.join(tmp_mod) + "\n"
+             last = i
+-        str_mod += intent+' / '.join(modules[(last+1)*n_mod_per_line:])
++        if last > 0:
++            str_mod += intent+' / '.join(modules[(last+1)*n_mod_per_line:])
+ 
+         print('    +> module: ' + str_mod)
+ 
+diff --git a/scripts/python3/execution/process.py b/scripts/python3/execution/process.py
+index 60cc690..4065e71 100644
+--- a/scripts/python3/execution/process.py
++++ b/scripts/python3/execution/process.py
+@@ -3,7 +3,7 @@ r""" @brief collection of processing methods for runcode.py
+ 
+ import shutil
+ from os import path, chdir, listdir, getcwd, mkdir, remove
+-from data_manip.computation.amp2wave import amp2wave
++#from data_manip.computation.amp2wave import amp2wave
+ from utils.files import symlink_file, get_file_content,\
+                         put_file_content,\
+                         is_newer
+diff --git a/scripts/python3/execution/study.py b/scripts/python3/execution/study.py
+index 6404e87..b9a0fc1 100644
+--- a/scripts/python3/execution/study.py
++++ b/scripts/python3/execution/study.py
+@@ -14,12 +14,12 @@ from execution.get import get_mpi_cmd, get_glogeo, get_partel_cmd, \
+                           get_hpc_cmd, get_hpc_depend, get_gretel_cmd, \
+                           get_partitionner
+ from execution.run import run_partition, run_code, run_recollection
+-from execution.mascaret_cas import MascaretCas
+-from execution.run_mascaret import create_mascaret_files
++#from execution.mascaret_cas import MascaretCas
++#from execution.run_mascaret import create_mascaret_files
+ from utils.files import put_file_content, get_file_content, zipsortie, \
+                         remove_directories
+ from utils.exceptions import TelemacException
+-from postel.parser_output import get_latest_output_files
++#from postel.parser_output import get_latest_output_files
+ 
+ 
+ class StudyException(TelemacException):
+@@ -386,7 +386,7 @@ class Study():
+         chdir(self.working_dir)
+         # ~~> Path
+         bin_path = path.join(self.cfg['root'], 'builds', self.cfgname, 'bin')
+-        parcmd = get_partel_cmd(bin_path, self.cfg, self.mpi_cmd)
++        parcmd = get_partel_cmd('"' +bin_path+ '"', self.cfg, self.mpi_cmd)
+         # >>> Add running command
+         self.par_cmd = parcmd
+ 
+@@ -677,7 +677,7 @@ class Study():
+             return
+         # ~~> Path
+         bin_path = path.join(self.cfg['root'], 'builds', self.cfgname, 'bin')
+-        execmd = get_gretel_cmd(bin_path, self.cfg)\
++        execmd = get_gretel_cmd('"' + bin_path + '"', self.cfg)\
+             .replace('<root>', self.cfg['root'])
+         # ~~> Run GRETEL
+         chdir(self.working_dir)
+diff --git a/scripts/python3/runcode.py b/scripts/python3/runcode.py
+index e066b42..5087fab 100755
+--- a/scripts/python3/runcode.py
++++ b/scripts/python3/runcode.py
+@@ -5,10 +5,11 @@
+ # _____             ___________________________________________________
+ # ____/ Imports /__________________________________________________/
+ #
++# ~~> dependencies towards standard python
+ import sys
+ from argparse import ArgumentParser, RawDescriptionHelpFormatter
+ from os import path
+-
++# ~~> dependencies towards other pytel/modules
+ from config import CFGS, add_config_argument, update_config
+ from execution.run_cas import run_study
+ from utils.exceptions import TelemacException
