@@ -218,7 +218,7 @@ QString ReosMeteoFranceAromeApiProvider::htmlDescription() const
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
               + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + QStringLiteral( "Météo France Arome API" ) + QStringLiteral( "</td></tr>\n" );
+              + tr( "Météo France Arome API" ) + QStringLiteral( "</td></tr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
               + QStringLiteral( "<b>%1</b>" ).arg( tr( "Zone" ) ) + QStringLiteral( "</td><td>" )

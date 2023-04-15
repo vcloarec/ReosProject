@@ -155,6 +155,8 @@ void ReosMeteoFranceAromeApiWidget::onApiKeyFileButton()
   QFileInfo fileInfo( keyFile );
   settings.setValue( settingsPath, fileInfo.dir().path() );
 
+  ui->mKeyFileLineEdit->setText(keyFile);
+
   if ( testKey() )
     settings.setValue( settingsFile, fileInfo.filePath() );
 }
