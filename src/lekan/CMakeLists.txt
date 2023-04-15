@@ -10,10 +10,19 @@ SET(REOS_LEKAN_HEADERS
     lekanmainwindow.h
 )
 
-ADD_EXECUTABLE(lekan
-    ${REOS_LEKAN_SOURCES}
-    ${REOS_LEKAN_HEADERS}
-	lekan.rc)
+if(DEFINED ENV{LEKAN_EXPERIMENTAL_VERSION})
+    ADD_EXECUTABLE(lekan 
+        ${REOS_LEKAN_SOURCES}
+        ${REOS_LEKAN_HEADERS}
+	    lekan.rc)
+else(DEFINED ENV{LEKAN_EXPERIMENTAL_VERSION})
+    ADD_EXECUTABLE(lekan WIN32
+        ${REOS_LEKAN_SOURCES}
+        ${REOS_LEKAN_HEADERS}
+	    lekan.rc)
+endif(DEFINED ENV{LEKAN_EXPERIMENTAL_VERSION})
+
+
 
 set_target_properties(lekan
     PROPERTIES
