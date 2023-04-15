@@ -5,7 +5,7 @@
      &( I , ITRAC , N, IERR )
 !
 !***********************************************************************
-! TELEMAC2D   V7P1
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    PRESCRIBES THE TRACER VALUES FOR TRACER IMPOSED
@@ -58,7 +58,7 @@
 !+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 !
       CHARACTER(LEN=9) FCT
-      INTEGER IRANK
+      INTEGER IRANK,NTRACB
 !
 !-----------------------------------------------------------------------
 !
@@ -114,7 +114,12 @@
 !
       IF(.NOT.OKTR(I,ITRAC).OR.T2D_FILES(T2DIMP)%NAME(1:1).EQ.' ') THEN
 !
-        IRANK=ITRAC+(I-1)*NTRAC
+        IF(SECCURRENTS) THEN
+          NTRACB = NTRAC-1
+        ELSE
+          NTRACB = NTRAC
+        ENDIF
+        IRANK=ITRAC+(I-1)*NTRACB
         IF(NTRACE.GE.IRANK) THEN
           TR = TRACER(IRANK)
           OKTR(I,ITRAC)=.TRUE.

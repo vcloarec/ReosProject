@@ -136,6 +136,11 @@
       TEXTE (33) = '1/R             1/M             '
       TEXTE (34) = 'WALLDIST        M               '
       TEXTE (35) = 'REFERENCE LEVEL M               '
+      TEXTE (36) = 'INCREMENT OF H  M               '
+      TEXTE (37) = 'INCREMENT OF U  M/S             '
+      TEXTE (38) = 'INCREMENT OF V  M/S             '
+      TEXTE (39) = 'INCREMENT OF HN M               '
+      TEXTE (40) = 'SA VISCOSITY    M2/S            '
 !
 ! TEXTPR IS USED TO READ PREVIOUS COMPUTATION FILES.
 ! IN GENERAL TEXTPR=TEXTE BUT YOU CAN FOLLOW UP A COMPUTATION
@@ -181,6 +186,11 @@
       TEXTPR (33) = '1/R             1/M             '
       TEXTPR (34) = 'WALLDIST        M               '
       TEXTPR (35) = 'REFERENCE LEVEL M               '
+      TEXTPR (36) = 'INCREMENT OF H  M               '
+      TEXTPR (37) = 'INCREMENT OF U  M/S             '
+      TEXTPR (38) = 'INCREMENT OF V  M/S             '
+      TEXTPR (39) = 'INCREMENT OF HN M               '
+      TEXTPR (40) = 'SA VISCOSITY    M2/S            '
 !
 !-----------------------------------------------------------------------
 !
@@ -227,6 +237,11 @@
       TEXTE (33) = '1/R             1/M             '
       TEXTE (34) = 'DIST PAROI      M               '
       TEXTE (35) = 'REFERENCE LEVEL M               '
+      TEXTE (36) = 'INCREMENT DE H  M               '
+      TEXTE (37) = 'INCREMENT DE U  M/S             '
+      TEXTE (38) = 'INCREMENT DE V  M/S             '
+      TEXTE (39) = 'INCREMENT DE HN M               '
+      TEXTE (40) = 'VISCOSITE SA    M2/S            '
 !
 ! TEXTPR SERT A LA LECTURE DES FICHIERS DE CALCULS PRECEDENTS
 ! A PRIORI TEXTPR=TEXTE MAIS ON PEUT ESSAYER DE FAIRE UNE SUITE
@@ -271,6 +286,11 @@
       TEXTPR (33) = '1/R             1/M             '
       TEXTPR (34) = 'DIST PAROI      M               '
       TEXTPR (35) = 'REFERENCE LEVEL M               '
+      TEXTPR (36) = 'INCREMENT DE H  M               '
+      TEXTPR (37) = 'INCREMENT DE U  M/S             '
+      TEXTPR (38) = 'INCREMENT DE V  M/S             '
+      TEXTPR (39) = 'INCREMENT DE HN M               '
+      TEXTPR (40) = 'VISCOSITE SA    M2/S            '
       ENDIF
 !
 !-----------------------------------------------------------------------
@@ -346,11 +366,22 @@
       MNEMO(33)   = '1/R     '
 !     WALL DISTANCE
       MNEMO(34)   = 'WDIST   '
-!
 !     REFERENCE LEVEL FOR NESTOR
       MNEMO(35)   = 'ZRL     '
+!     INCREMENT OF H
+      MNEMO(36)   = 'DH      '
+!     INCREMENT OF U
+      MNEMO(37)   = 'DU      '
+!     INCREMENT OF V
+      MNEMO(38)   = 'DV      '
+!     INCREMENT OF HN
+      MNEMO(39)   = 'DHN     '
+!     SPALART ALLMARAS VISCOSITY
+      MNEMO(40)   = 'VISCSA  '
 !
-      NVAR_T2D = 35
+      NVAR_T2D = 40
+!     CAUTION IN 2D!!! ADR_TRAC = NVAR_T2D
+!     CONTRARY TO 3D WITH ADR_TRAC = NVAR_T3D + 1!
 
       ADR_TRAC = NVAR_T2D
       ILAST = NVAR_T2D

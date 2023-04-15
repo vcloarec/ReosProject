@@ -135,16 +135,68 @@ class TelemacCas():
 
         # ~~ clean comments
         core = []
+        multiline = ''
+
+        def contains_multiple_line(line):
+            """
+            Check if a line contain a single ' (handle case when that ' is in
+            the keyword name)
+            """
+            start = 0
+            keyword_count = 0
+            for _ in range(line.count("'")):
+                pos = line.find("'", start)
+                if pos == 0:
+                    start = pos
+                    continue
+                if pos == len(line)-1:
+                    start = pos
+                    continue
+                # Detection of X'X (' in keyword name)
+                if re.match(r"[A-Z]'[A-Z]", line[pos-1:pos+2]):
+                    keyword_count += 1
+                start = pos
+
+            if (keyword_count % 2 == 0 and line.count("'") % 2 == 1) or \
+               (keyword_count % 2 == 1 and line.count("'") % 2 == 0):
+                return True
+            else:
+                return False
+
+        detect_num = 0
+        line_multiple = False
         for line in lines:
+            # We keep raw_line in which we do not replace '' by ' (for
+            # detection of multiple line)
             line = line.replace('"""', "'''")\
                        .replace('"', "'")\
                        .replace("''", '"')
             proc = re.match(KEY_COMMENT, line+'/')
             ini_line = line
-            line = proc.group('before').strip() + ' '
+
+            if contains_multiple_line(line) and line[0] != '/':
+                line_multiple = True
+                detect_num += 1
+
+            if not line_multiple:
+                line = proc.group('before').strip() + ' '
+
+            if detect_num == 2:
+                detect_num = 0
+                line_multiple = False
+
             proc = re.match(EMPTY_LINE, line)
             if not proc:
-                core.append(line)
+                # Case when we have a string on multiple lines
+                if multiline != '' or (contains_multiple_line(line)):
+                    if (contains_multiple_line(line)) and multiline != '':
+                        multiline += line
+                        core.append(multiline)
+                        multiline = ''
+                    else:
+                        multiline += line.strip(' ')
+                else:
+                    core.append(line)
             else:
                 # Save usefull comments (i.e. with text in it)
                 useless = True
@@ -157,7 +209,7 @@ class TelemacCas():
 
 
         # Creates a one line of the cleaned up steering
-        cas_stream = (' '.join(core))
+        cas_stream = (''.join(core))
         # ~~ Matching keword -> values
         while cas_stream != '':
             # ~~ Matching keyword
@@ -645,9 +697,9 @@ class TelemacCas():
         for key in self.in_files:
             ffiles = self.get(key)
 
-            # handle Mascaret case exception with list of files
+            # Handle Mascaret case exception with list of files
             if isinstance(ffiles, list) == False:
-                ffiles = [ffiles]
+                ffiles = [ffiles.strip()]
 
             for ffile in ffiles:
                 src = path.join(path.dirname(self.file_name), ffile)

@@ -4,7 +4,7 @@
 !
 !
 !***********************************************************************
-! TELEMAC2D   V8P3
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    DECLARATION OF PRINICIPAL TELEMAC2D VARIABLES
@@ -108,6 +108,11 @@
 !+        09/10/2020
 !+        V8P2
 !+   Addition of output file to print discharge of weirs (type=2)
+!
+!history  J.-P. TRAVERT (EDF, LNHE)
+!+        07/06/2022
+!+        V8P4
+!+   Addition of new arrays and variables for new models of infiltration
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -546,6 +551,7 @@
 !     FOR RAIN-EVAPORATION OPTION WITH RUNOFF-RAINFALL PREDICTION
 !
       TYPE(BIEF_OBJ),TARGET :: ACCROF,CN,ZFSLOP,ACCR,POTMAXRET,IABST
+      TYPE(BIEF_OBJ),TARGET :: F0, FC, ACCINF, KS
 !
 !     FOR CULVERTS/SIPHONS MANAGEMENT
 !
@@ -615,7 +621,7 @@
       DOUBLE PRECISION, ALLOCATABLE :: UC(:),F1(:),F2(:)
 !     FOR FROEHLICH: DF, DIFFERENCE BETWEEN INITIAL AND FINAL ELEVATION OF THE DIKE
       DOUBLE PRECISION, ALLOCATABLE :: DF(:)
-!     LOGICAL FOR INITIAL LENGTH OF BREACH
+!     LOGICAL FOR INITIAL WIDTH OF BREACH
       LOGICAL LOGINB
 !
 !     FOR WEIR MANAGEMENT (TYPE WEIR = 1)
@@ -835,7 +841,7 @@
 !     28/11/2017: 52   coupling with Nestor
 !     09/10/2020: 53   output weirs discharge
 !
-      INTEGER, PARAMETER :: MAXLU_T2D = 59
+      INTEGER, PARAMETER :: MAXLU_T2D = 60
 !
 !     GEOMETRY FILE NUMBER
 !
@@ -1010,6 +1016,10 @@
 !
       INTEGER T2DL93
 !
+!     RESTART FILE
+!
+      INTEGER T2DRST
+!
 !     GRAPHIC PRINTOUT PERIOD
 !
       INTEGER, TARGET ::  LEOPRD
@@ -1017,6 +1027,10 @@
 !     LISTING PRINTOUT PERIOD
 !
       INTEGER, TARGET :: LISPRD
+!
+!     PRINTOUT PERIOD FOR RESTART FILE
+!
+      INTEGER, TARGET :: RSTPRD
 !
 !     NUMBER OF TIME STEPS
 !
@@ -1048,11 +1062,11 @@
 !
 !     INITIAL GUESS FOR H
 !
-      INTEGER IORDRH
+      INTEGER , TARGET :: IORDRH
 !
 !     INITIAL GUESS FOR U
 !
-      INTEGER IORDRU
+      INTEGER , TARGET :: IORDRU
 !
 !     NUMBER OF SUB-ITERATIONS FOR NON-LINEARITIES
 !
@@ -1372,6 +1386,10 @@
 !
       INTEGER, TARGET :: START_RECORD
 !
+!     RECORD NUMBER IN RESTART FILE
+!
+      INTEGER, TARGET :: RESTART_RECORD
+!
 !     NUMBER OF BREACHES
 !
       INTEGER NBRECH
@@ -1438,7 +1456,7 @@
 !
       INTEGER RUNOFFOPT
 !
-!     ANTECEDENT MOISTURE CONDITION (FOR SCS_CN RAINFALL-RUNOFF MODEL)
+!     ANTECEDENT MOISTURE CONDITION (FOR SCS_CN AND HORTON RAINFALL-RUNOFF MODELS)
 !
       INTEGER AMC
 !
@@ -1625,6 +1643,11 @@
 !
       LOGICAL SORLEO(MAXVAR),SORIMP(MAXVAR)
 !
+!     ARRAYS SAYING IF A VARIABLE IS TO BE PRINTED IN RESULTS FILE
+!     OR LISTING
+!
+      LOGICAL SOREST(MAXVAR),SORIS2(MAXVAR)
+!
 !     VARIABLE DENSITY. IF YES, DENSITY EFFECTS INCLUDED
 !
       LOGICAL ROVAR
@@ -1716,7 +1739,7 @@
 !
 !     SECONDARY CURRENTS
 !
-      LOGICAL SECCURRENTS
+      LOGICAL , TARGET :: SECCURRENTS
 !
 !     IF YES, CROSS SECTIONS WITH FLUXLINE METHOD
 !
@@ -1732,7 +1755,7 @@
 !
 !     IF YES, USE NESTOR
 !
-      LOGICAL NESTOR
+      LOGICAL , TARGET :: NESTOR
 !
 !     IF YES, COEFFICIENT OF WIND INFLUENCE VARIES WITH WIND SPEED
 !
@@ -1759,6 +1782,15 @@
 !     NOT THE MANDATORY ONES IN METEO_TELEMAC MODULE
 !
       LOGICAL FREE_ATMO
+!
+!     RESTART MODE (TO GENERATE A RESTART FILE)
+!
+      LOGICAL RESTART_MODE
+!
+!     IF YES, MAXIMUM VALUES LIKE MAXZ, TMXZ, MAXV, TMXV ONLY COMPUTED
+!     FROM PREVIOUS COMPUTATION FILE AND CURRENT COMPUTATION
+!
+      LOGICAL MAX_PREV
 !
 !-----------------------------------------------------------------------
 !
@@ -2099,6 +2131,18 @@
 !     DURATION OF RAIN OR EVAPORATION IN HOURS
 !
       DOUBLE PRECISION RAIN_HDUR
+!
+!     DECAY CONSTANT FOR HORTON MODEL
+!
+      DOUBLE PRECISION KDECAY
+!
+!     INITIAL AND SATURATED WATER CONTENTS
+!
+      DOUBLE PRECISION THETAI, THETAS
+!
+!     SUCTION FOR GREEN-AMPT MODEL
+!
+      DOUBLE PRECISION HF
 !
 !     TOLERANCE FOR FV SCHEME WETTING AND DRYING
 !
@@ -2771,8 +2815,14 @@
       INTEGER IOPTAN_T2D
 
       INTEGER JJJJ
+!                 U V   H S B       K E D
       INTEGER :: ALIRE(MAXVAR) = (/
-     &            1,1,0,1,1,1,0,0,0,1,1,1,(0,JJJJ=13,MAXVAR) /)
+     &            1,1,0,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+!                                 D
+!                                 H
+     &            0,0,0,0,0,0,0,0,1,(0,JJJJ=37,MAXVAR) /)
+!      INTEGER :: ALIRE(MAXVAR) = (/
+!     &            1,1,0,1,1,1,0,0,0,1,1,1,(0,JJJJ=13,MAXVAR) /)
 !     ADVECTION FIELD USED FOR SISYPHE CALL
 !
       TYPE(BIEF_OBJ), POINTER :: USIS,VSIS

@@ -3,7 +3,7 @@
 !                     ***********
 !
 !***********************************************************************
-! TELEMAC2D   V8P1
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    Module containing TPXO variables and subroutines
@@ -71,6 +71,11 @@
 !+        V8P1
 !+        S1 is now taken into account (for TPXO9)
 !
+!history  C.-T. PHAM (LNHE)
+!+        27/01/2022
+!+        V8P4
+!+        2Q1 and M3 are now taken into account (for TPXO9v5)
+!
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !note     THIS FILE IS ORGANISED IN SEVERAL PARTS:
@@ -95,7 +100,7 @@
 !+  AMPLITUDES, FREQUENCIES, ETC. FOR THE PRIMARY TIDAL CONSTITUENTS
 !+  (CURRENTLY 29)
 !
-      INTEGER, PARAMETER :: TPXO_NCMX = 30
+      INTEGER, PARAMETER :: TPXO_NCMX = 32
       CHARACTER(LEN=4) :: TPXO_CONSTID(TPXO_NCMX)
       PARAMETER ( TPXO_CONSTID = (
      &            /'m2  ','s2  ','k1  ','o1  ',
@@ -105,7 +110,7 @@
      &             'rho1','mf  ','mm  ','ssa ',
      &             'm4  ','ms4 ','mn4 ','m6  ',
      &             'm8  ','mk3 ','s6  ','2sm2',
-     &             '2mk3','s1  '/) )
+     &             '2mk3','s1  ','2q1 ','m3  '/) )
 !
 !brief  FOR EACH CONSTITUENT, THE FOLLOWING PARAMETERS ARE GIVEN:
 !+  - ALPHA = CORRECTION FACTOR FOR FIRST ORDER LOAD TIDES
@@ -162,20 +167,21 @@
 !     NO DATA STATEMENT FOR ALLOCATABLE USER TYPES ALLOWED
       PARAMETER ( TPXO_OMEGA_D = (/
      &    1.405189025757300D-4,1.454441043328608D-4,
-     &    7.292115854682399D-5,6.759774402890599D-5,
-     &    1.378796995659399D-4,7.252294578603680D-5,
+     &    7.292115854682400D-5,6.759774402890597D-5,
+     &    1.378796995659399D-4,7.252294578603679D-5,
      &    1.458423170936480D-4,6.495854101911592D-5,
      &    1.352404965561499D-4,1.355937008185992D-4,
      &    1.382329038283892D-4,1.431581055855200D-4,
-     &    1.452450074605617D-4,7.556036155661405D-5,
+     &    1.452450074605617D-4,7.556036155661406D-5,
      &    7.028195553703394D-5,7.824457306474201D-5,
-     &    6.531174528156522D-5,5.323414517918014D-6,
+     &    6.531174528156523D-5,5.323414517918016D-6,
      &    2.639203009790057D-6,3.982127607872015D-7,
-     &    2.810378051514600D-4,2.859630069085908D-4,
+     &    2.810378051514599D-4,2.859630069085908D-4,
      &    2.783986021416699D-4,4.215567077271900D-4,
-     &    5.620756103029200D-4,2.134400611225540D-4,
-     &    4.363323129985823D-4,1.503693060899916D-4,
-     &    2.081166466046360D-4,2.908882086657216D-4/
+     &    5.620756103029198D-4,2.134400611225540D-4,
+     &    4.363323129985824D-4,1.503693060899916D-4,
+     &    2.081166445429299D-4,7.272205216643039D-5,
+     &    6.231933800932588D-5,2.107783538635950D-4/
      & ) )
 !
 !brief   ASTRONOMICAL ARGUMENTS, OBTAINED WITH RICHARD RAY'S
@@ -216,7 +222,8 @@
      &    1.49909348144841D0,  5.19467263702969D0,
      &    0.643044875526663D0, 1.90456121954902D0,
      &    0.00000000000000D0,  4.55162776150302D0,
-     &    3.29011141748067D0,  0.00000000000000D0/
+     &    3.29011141748067D0,  0.00000000000000D0,
+     &    3.91369595917427D0,  2.59733631851484D0/
      & ) )
 !
 !note I AM PUTTING 0 FOR MS2, MN4 ETC. FOR NOW: CORRECT LATER
@@ -237,7 +244,10 @@
 !         FOR M4 JUST USING VALUE FOR SEMI-DIURNALS (NO GOOD REASON!)
      &    0.9540D0,      0.9540D0,      0.9540D0,      0.954D0,
      &    0.9540D0,      0.9540D0,      0.9540D0,      0.954D0,
-     &    0.9540D0,      0.9400D0/
+!         FOR 2Q1 USING VALUE FROM CONSTIT.H
+!         NOT A PROBLEM AS WHEN CALLING MAKE_A, 1ST ARGUMENT IS
+!         FALSE AND LAST IS TRUE => TPXO_BETA_SE NOT USED
+     &    0.9540D0,      0.9400D0,      0.9540D0,      0.9540D0/
      & ) )
 !      DATA BETA_SE/29*1./
 !
@@ -1305,9 +1315,10 @@
 !     INDEX GIVES CORRESPONDENCE BETWEEN CONSTIT AND RICHARD'S SUBROUTINES
 !     IN CONSTIT   M2,S2,K1,O1,N2,P1,K2,q1,2N2,mu2,nu2,L2,t2,
 !                  J1,M1(no1),OO1,rho1,Mf,Mm,SSA,M4,
-!                  MS4,MN4,M6,M8,MK3,S6,2SM2,2MK3,S1
+!                  MS4,MN4,M6,M8,MK3,S6,2SM2,2MK3,S1,2Q1,M3
       PARAMETER ( INDEX = (/ 30,35,19,12,27,17,37,10,25,26,28,33,34,
-     &           23,14,24,11,5,3,2,45,46,44,50,54,42,51,40,55,18 /) )
+     &                       23,14,24,11,5,3,2,45,46,44,50,54,42,51,40,
+     &                       55,18, 8,41 /) )
 !
       INTRINSIC ATAN
 !
@@ -1420,7 +1431,8 @@
       ARG(15) = T1 - S + THREE*H - P + NINETY           ! chi1
       ARG(16) = T1 - TWO*H + PP - NINETY                ! pi1
       ARG(17) = T1 - H - NINETY                         ! p1
-      ARG(18) = T1 + NINETY                             ! s1
+      ARG(18) = T1                                      ! s1
+!      ARG(18) = T1 + NINETY                             ! s1
       ARG(19) = T1 + H + NINETY                         ! k1
       ARG(20) = T1 + TWO*H - PP + NINETY                ! psi1
       ARG(21) = T1 + THREE*H + NINETY                   ! phi1
@@ -1497,7 +1509,7 @@
      &             (.1554D0*SINN-.0029D0*SIN2N)**2)       ! K1
       F(20) = ONE                                         ! psi1
       F(21) = ONE                                         ! phi1
-!     BUG IN TPXO F(23) SHOULD BE EQUAL TO F(23) OR F(15) RATHER THAN ONE
+!     BUG IN TPXO F(22) SHOULD BE EQUAL TO F(23) OR F(15) RATHER THAN ONE
 !     THETA1 IS NOT A SOLAR COMPONENT
 !     IN SCHUREMAN, THETA1 HAS THE SAME NODAL FACTORS AS
 !     CHI1 AND J1
@@ -1577,7 +1589,7 @@
      &             (ONE+.1158D0*COSN-.0029D0*COS2N))*RTD   ! K1
       U(20) = ZERO                                         ! psi1
       U(21) = ZERO                                         ! phi1
-!     BUG IN TPXO U(23) SHOULD BE EQUAL TO U(23) OR U(15) RATHER THAN ZERO
+!     BUG IN TPXO U(22) SHOULD BE EQUAL TO U(23) OR U(15) RATHER THAN ZERO
 !     THETA1 IS NOT A SOLAR COMPONENT
 !     IN SCHUREMAN, THETA1 HAS THE SAME NODAL FACTORS AS
 !     CHI1 AND J1

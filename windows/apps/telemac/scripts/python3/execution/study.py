@@ -386,7 +386,7 @@ class Study():
         chdir(self.working_dir)
         # ~~> Path
         bin_path = path.join(self.cfg['root'], 'builds', self.cfgname, 'bin')
-        parcmd = get_partel_cmd(bin_path, self.cfg, self.mpi_cmd)
+        parcmd = get_partel_cmd('"' +bin_path+ '"', self.cfg, self.mpi_cmd)
         # >>> Add running command
         self.par_cmd = parcmd
 
@@ -481,6 +481,9 @@ class Study():
             hpccmd = hpccmd.replace('<id_log>', options.id_log)
         else:
             hpccmd = hpccmd.replace('<id_log>', 'id.log')
+
+        hpccmd = hpccmd.replace('<project>', options.project)
+
         # ~~> HPC dependency between jobs
         hpcjob = get_hpc_depend(self.cfg['HPC'])
         if hpcjob != '' and job_id != '':
@@ -528,7 +531,7 @@ class Study():
         stdin = stdin.replace('<nctile>', str(self.nctile))
         stdin = stdin.replace('<ncnode>', str(self.ncnode))
         stdin = stdin.replace('<email>', options.email)
-        stdin = stdin.replace('<jobname>', options.jobname)
+        stdin = stdin.replace('<jobname>', options.jobname[:40])
         time = strftime("%Y-%m-%d-%Hh%Mmin%Ss", localtime())
         stdin = stdin.replace('<time>', time)
         stdin = stdin.replace('<queue>', options.hpc_queue)
@@ -546,7 +549,7 @@ class Study():
 
     def run_hpc_full(self, options, job_id=''):
         """
-        Rerun whole script in jpbscheduler
+        Rerun whole script in jobscheduler
 
         @return job_id (integer) Id of the job that was launched
         """
@@ -559,6 +562,8 @@ class Study():
             hpccmd = hpccmd.replace('<id_log>', options.id_log)
         else:
             hpccmd = hpccmd.replace('<id_log>', 'id.log')
+
+        hpccmd = hpccmd.replace('<project>', options.project)
 
         # ~~> HPC dependency between jobs
         hpcjob = get_hpc_depend(self.cfg['HPC'])
@@ -582,7 +587,7 @@ class Study():
         if options.root_dir != '':
             runcmd = runcmd + ' -r ' + options.root_dir
         runcmd = runcmd + ' -s '
-        if options.tmpdirectory:
+        if not options.tmpdirectory:
             runcmd = runcmd + ' -t '
         runcmd = runcmd + ' -w ' + self.working_dir
         runcmd = runcmd + ' --nctile ' + str(self.nctile)
@@ -596,6 +601,8 @@ class Study():
             runcmd = runcmd + ' --merge '
         if options.run:
             runcmd = runcmd + ' --run '
+        if options.gretel_method > 1:
+            runcmd = runcmd + ' --gretel-method ' + str(options.gretel_method)
         runcmd = runcmd + ' ' + self.steering_file
         stdin = stdin.replace('<py_runcode>', runcmd)
 
@@ -659,16 +666,18 @@ class Study():
         elif 'PYCODE' in self.cfg['HPC']:
             self.run_hpc_full(options)
 
-    def merge(self):
+    def merge(self, method):
         """
         Run gretel on file that need it
+
+        @param method (int) the method to be used for merging data"
         """
         # No merging to do
         if self.ncsize <= 1:
             return
         # ~~> Path
         bin_path = path.join(self.cfg['root'], 'builds', self.cfgname, 'bin')
-        execmd = get_gretel_cmd(bin_path, self.cfg)\
+        execmd = get_gretel_cmd('"' + bin_path + '"', self.cfg)\
             .replace('<root>', self.cfg['root'])
         # ~~> Run GRETEL
         chdir(self.working_dir)
@@ -677,14 +686,14 @@ class Study():
         g_geo, g_fmt_geo, g_bnd = get_glogeo(cas)
         run_recollection(
             execmd, cas, g_geo, g_fmt_geo, g_bnd,
-            self.ncsize)
+            self.ncsize, method)
 
         # Running it for coupled steering files
         for cas_cpl in self.cpl_cases.values():
             g_geo, g_fmt_geo, g_bnd = get_glogeo(cas_cpl)
             run_recollection(
                 execmd, cas_cpl, g_geo, g_fmt_geo, g_bnd,
-                self.ncsize)
+                self.ncsize, method)
 
     def gather(self, sortie_file, nozip):
         """

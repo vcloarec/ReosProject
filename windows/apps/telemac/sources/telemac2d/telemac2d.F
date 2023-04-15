@@ -6,7 +6,7 @@
      & CONVERGENCE_LEVEL)
 !
 !***********************************************************************
-! TELEMAC2D   V8P2
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    SOLVES THE SAINT-VENANT EQUATIONS FOR U,V,H.
@@ -344,7 +344,8 @@
      &  VCONV_GAI,SOLSYS_GAI,FLUER_ADV,FLUDPT_ADV,SAVE_UCONV,SAVE_VCONV,
      &  FLUDPT,FLUDP,FLULIM_GAI,YAFLULIM_GAI,NSUSP_TEL
       USE METEO_TELEMAC !, ONLY: WINDX,WINDY,PATMOS
-      USE DECLARATIONS_WAQTEL, ONLY : WAQPROCESS,IND_SF,IND_CSF
+      USE DECLARATIONS_WAQTEL, ONLY: WAQPROCESS,IND_SF,IND_CSF,IND_CSF2,
+     &                               KIN_MICROPOL
       USE INTERFACE_TELEMAC2D, EX_TELEMAC2D => TELEMAC2D
       USE INTERFACE_SISYPHE, ONLY: SISYPHE
       USE INTERFACE_GAIA,    ONLY: GAIA_STEP
@@ -496,21 +497,6 @@
         YAFLODEL=.FALSE.
       ENDIF
 !
-!     FOR READING TRACERS IN SELAFIN FILES
-!
-      IF(NTRAC.GT.0) THEN
-        DO ITRAC=1,NTRAC
-!         SEE NOMVAR_TELEMAC2D
-          ALIRE(ADR_TRAC+ITRAC) = 1
-        ENDDO
-      ENDIF
-!
-!     FOR AVOIDING READING K, EPSILON AND DIFFUSION WHEN NOT RELEVANT
-!
-      IF(ITURB.NE.3) ALIRE(10) = 0
-      IF(ITURB.NE.3) ALIRE(11) = 0
-      IF(ITURB.EQ.1) ALIRE(12) = 0
-!
 !     FOR READING GRADIENTS IN SELAFIN FILES
 !
       IF(NADVAR.GT.0) THEN
@@ -597,49 +583,13 @@
 !
 !=======================================================================
 !
-!     COUPLING WITH TOMAWAC
-!
-      IF(INCLUS(COUPLING,'TOMAWAC').AND.
-     &   PERCOU_WAC*((LT-1)/PERCOU_WAC).EQ.LT-1) THEN
-!
-        CALL CONFIG_CODE(3)
-!                                                       WAC2
-        IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING TOMAWAC'
-
-        IF(INCLUS(COUPLING,'TOMAWAC2')) THEN
-          CALL SEND_COUPLE(1,NPOIN,NVARTEL2TOM,TEL2TOM)
-        ENDIF
-        CALL T2D_WAC_CPL_UPDATE()
-        CALL WAC(PART=1)
-        IF(INCLUS(COUPLING,'TOMAWAC2')) THEN
-          CALL GET_MESH_NPTIR(T2D_FILES(T2DGEO)%FMT,
-     &       T2D_FILES(T2DGEO)%LU,NPTIR,IERR)
-          CALL RECEIVE_COUPLE(2,NPOIN,NVARTOM2TEL,TOM2TEL)
-          ! CONVERT DIRECTIONS BACK
-          DO I=1,NPOIN
-            IF((ABS(SINDIR%R(I)).GE.1.D-14).OR.
-     &          (ABS(COSDIR%R(I)).GE.1.D-14)) THEN
-              DIRMOY%R(I) = RAD2DEG * ATAN2(SINDIR%R(I),COSDIR%R(I))
-            ELSE
-!     POINT HAS NO INFORMATION
-              DIRMOY%R(I) = 0.D0
-            ENDIF
-          ENDDO
-        ENDIF
-        IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM TOMAWAC'
-        CALL CONFIG_CODE(1)
-!
-      ENDIF
-!
-!=======================================================================
-!
       IF(ADJO) THEN
         AT = AT - DT
       ELSE
 !       DT IS NOT YET KNOWN IN FINITE VOLUMES
         IF(EQUA(1:15).NE.'SAINT-VENANT VF') AT = AT + DT
       ENDIF
-!
+
       IF(DTVARI) THEN
         IF(ABS(AT-(DUREE+AT0)).LT.1.E-14) THEN
 !         LAST TIME STEP
@@ -666,6 +616,51 @@
 !
       IF(ENTET) CALL ENTETE(2,AT,LT)
 !
+!  WEATHER CONDITIONS.
+!
+      IF(VENT.OR.ATMOS.OR.INCLUS(COUPLING,'WAQTEL')) THEN
+        CALL METEO(PATMOS%R,WINDX%R,WINDY%R,
+     &             CST_WINDX,CST_WINDY,AT,LT,NPOIN,VENT,ATMOS,
+     &             T2ATMA,T2ATMB,T2D_FILES,LISTIN,CST_PATMOS,
+     &             INCLUS(COUPLING,'WAQTEL'),PLUIE,OPTWIND,WIND_SPD)
+      ENDIF
+!!
+!=======================================================================
+!
+!     COUPLING WITH TOMAWAC
+!
+      IF(INCLUS(COUPLING,'TOMAWAC').AND.
+     &   PERCOU_WAC*((LT-1)/PERCOU_WAC).EQ.LT-1) THEN
+!
+        CALL CONFIG_CODE(3)
+!                                                       WAC2
+        IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING TOMAWAC'
+
+        IF(INCLUS(COUPLING,'TOMAWAC2')) THEN
+          CALL SEND_COUPLE(1,NPOIN,NVARTEL2TOM,TEL2TOM)
+        ENDIF
+        CALL T2D_WAC_CPL_UPDATE(PART=1)
+        CALL WAC(PART=1)
+        IF(INCLUS(COUPLING,'TOMAWAC2')) THEN
+          CALL GET_MESH_NPTIR(T2D_FILES(T2DGEO)%FMT,
+     &       T2D_FILES(T2DGEO)%LU,NPTIR,IERR)
+          CALL RECEIVE_COUPLE(2,NPOIN,NVARTOM2TEL,TOM2TEL)
+          ! CONVERT DIRECTIONS BACK
+          DO I=1,NPOIN
+            IF((ABS(SINDIR%R(I)).GE.1.D-14).OR.
+     &          (ABS(COSDIR%R(I)).GE.1.D-14)) THEN
+              DIRMOY%R(I) = RAD2DEG * ATAN2(SINDIR%R(I),COSDIR%R(I))
+            ELSE
+!     POINT HAS NO INFORMATION
+              DIRMOY%R(I) = 0.D0
+            ENDIF
+          ENDDO
+        ENDIF
+        IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM TOMAWAC'
+        CALL CONFIG_CODE(1)
+!
+      ENDIF
+
 !=======================================================================
 !
 ! BACKUP OF UN, VN, HN, TN, AKN AND EPN (THEY ARE IN FN)
@@ -727,6 +722,7 @@
 ! UPDATES POROSITY : NEW VALUE IN TE5
 !                    OLD - NEW IN TE4
 !
+!
       IF(OPTBAN.EQ.3) THEN
 !
         CALL OS('X=Y     ',X=TE4,Y=TE5)
@@ -750,6 +746,9 @@
         IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING CHPCONV 1'
         CALL CHPCONV(UCONV,VCONV,U,V,UN,VN,TETAU)
         IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM CHPCONV 1'
+      ELSE
+        CALL OS('X=Y     ',X=UCONV,Y=UN)
+        CALL OS('X=Y     ',X=VCONV,Y=VN)
       ENDIF
 !
 !     COMPUTATION OF THE NEW PROPAGATION TERM
@@ -910,6 +909,9 @@
      &     7*INT(WAQPROCESS/7).EQ.WAQPROCESS) THEN
           CALL OS('X=0     ', X=VISCT%ADR(IND_SF)%P)
           CALL OS('X=0     ', X=VISCT%ADR(IND_CSF)%P)
+          IF(KIN_MICROPOL.EQ.2) THEN
+            CALL OS('X=0     ', X=VISCT%ADR(IND_CSF2)%P)
+          ENDIF
         ENDIF
       ENDIF
 !
@@ -1153,15 +1155,6 @@
 !     IF LISTING IS REQUESTED
       INFOGS=.FALSE.
       IF(INFOGR.AND.ENTET) INFOGS=.TRUE.
-!
-!  WEATHER CONDITIONS.
-!
-      IF(VENT.OR.ATMOS.OR.INCLUS(COUPLING,'WAQTEL')) THEN
-        CALL METEO(PATMOS%R,WINDX%R,WINDY%R,
-     &             CST_WINDX,CST_WINDY,AT,LT,NPOIN,VENT,ATMOS,
-     &             T2ATMA,T2ATMB,T2D_FILES,LISTIN,CST_PATMOS,
-     &             INCLUS(COUPLING,'WAQTEL'),PLUIE,OPTWIND,WIND_SPD)
-      ENDIF
 !
 !  COMPUTES THE DENSITY WHEN IT IS VARIABLE
 !
@@ -1536,11 +1529,11 @@
 !
         IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING CVDFTR SOLSYS=',SOLSYS_GAI
         CALL CVDFTR(T%ADR(ITRAC)%P,TTILD%ADR(ITRAC)%P,
-     &              TN%ADR(ITRAC)%P,CSRATIO%ADR(ITRAC)%P,
+     &              TN%ADR(ITRAC)%P,TSCEXP%ADR(ITRAC)%P,
      &              DIFT,ICONVFT(ITRAC),.TRUE.,HN_GAI,HOLD,HPROP,
      &              UCONV_GAI,VCONV_GAI,DM1,ZCONV,SOLSYS_GAI,
      &              VISCT%ADR(ITRAC)%P,VISC_S,FLUER_ADV,
-     &              CSRATIO%ADR(ITRAC)%P,.FALSE.,
+     &              SMH,YASMH,
 !                              YASMI
      &              FLUDPT_ADV,.TRUE.,AM1,AM2,ZF,
      &              TBOR%ADR(ITRAC)%P,ATBOR%ADR(ITRAC)%P,
@@ -1928,6 +1921,34 @@
 
 
 800   IF(PASS.EQ.1) RETURN
+!
+!=======================================================================
+!                      WRITES OUT THE RESTART FILE
+!=======================================================================
+!
+      IF(.NOT.ADJO.AND.CODE(1:7).NE.'ESTEL3D') THEN
+        CALL PRERES_TELEMAC2D()
+!
+!       OUTPUT FOR RESTART
+!
+        IF(RESTART_MODE.AND.T2D_FILES(T2DRST)%NAME(1:1).NE.' ') THEN
+          IF(RSTPRD.NE.0.AND.MOD(LT,RSTPRD).EQ.0) THEN
+            IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING BIEF_DESIMP RESTART'
+            CALL BIEF_DESIMP(T2D_FILES(T2DRST)%FMT,VARSOR,NPOIN,
+     &                       T2D_FILES(T2DRST)%LU,AT,LT,1,RSTPRD,
+     &                       SOREST,SORIS2,MAXVAR,TEXTE,0,0)
+            IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM BIEF_DESIMP RESTART'
+          ELSEIF(RESTART_RECORD.EQ.-1.AND.LT.EQ.TOTAL_ITER
+     &       .OR.RESTART_RECORD.NE.-1.AND.LT.EQ.RESTART_RECORD) THEN
+            IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING BIEF_DESIMP RESTART'
+            CALL BIEF_DESIMP(T2D_FILES(T2DRST)%FMT,VARSOR,NPOIN,
+     &                       T2D_FILES(T2DRST)%LU,AT,LT,1,LT,
+     &                       SOREST,SORIS2,MAXVAR,TEXTE,0,0)
+            IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM BIEF_DESIMP RESTART'
+          ENDIF
+        ENDIF
+      ENDIF
+!
 !=======================================================================
 !                      WRITES OUT THE RESULTS
 !=======================================================================
@@ -1956,7 +1977,7 @@
           ! set to 1 by preres_telemac2d on the last time step
           OLD_LEOPRD = LEOPRD
 !
-          CALL PRERES_TELEMAC2D()
+!          CALL PRERES_TELEMAC2D()
           IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING BIEF_DESIMP',LEO, LT, AT
           CALL BIEF_DESIMP(T2D_FILES(T2DRES)%FMT,VARSOR,
      &            NPOIN,T2D_FILES(T2DRES)%LU,AT,LT,
@@ -1964,6 +1985,7 @@
      &            SORLEO,SORIMP,MAXVAR,TEXTE,PTINIG,PTINIL,
      &            IIMP=IMP,ILEO=LEO,COMPGRAPH=COMPLEO)
           IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM BIEF_DESIMP',LEO
+!
           IF(INCLUS(COUPLING,'KHIONE')) THEN
             IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING OUTPUT_KHIONE'
             CALL OUTPUT_KHIONE(

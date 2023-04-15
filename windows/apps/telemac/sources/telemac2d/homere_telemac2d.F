@@ -4,7 +4,7 @@
 !
 !
 !***********************************************************************
-! TELEMAC2D   V7P3
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !brief    1) READS ALL NECESSARY DATA.
@@ -50,6 +50,7 @@
       USE INTERFACE_WAQTEL
       USE INTERFACE_STBTEL
       USE INTERFACE_KHIONE
+      USE INTERFACE_TOMAWAC
       USE DECLARATIONS_SPECIAL
       USE COUPLE_MOD
 !
@@ -195,8 +196,8 @@
         IF(INCLUS(COUPLING,'TOMAWAC2')) CALL INIT_COUPLE
         CALL PRINT_HEADER(CODE3,CODE1)
 !
-        CALL T2D_WAC_CPL_UPDATE()
-        CALL LECDON_TOMAWAC(FILE_DESC,PATH,NCAR,DUMMY,DUMMY)
+        CALL T2D_WAC_CPL_UPDATE(PART=0)
+        CALL LECDON_TOMAWAC(FILE_DESC,PATH,NCAR,DUMMY,DUMMY,PART=0)
 !
 !-----------------------------------------------------------------------
 !
@@ -228,12 +229,12 @@
         IF(INCLUS(COUPLING,'TOMAWAC2')) THEN
           CALL ADD_SENDER(MESH,1)
           CALL ADD_RECEIVER(MESH_TOM,WAC_FILES(WACGEO),
-     &    'TEL2TOM         ',1)
+     &    'TEL2TOM         ',1,NVARTEL2TOM)
 
 !     SENDING DATA FROM TOMAWAC TO TELEMAC
           CALL ADD_SENDER(MESH_TOM,2)
           CALL ADD_RECEIVER(MESH,T2D_FILES(T2DGEO),
-     &         'TOM2TEL         ',2)
+     &         'TOM2TEL         ',2,NVARTOM2TEL)
         ENDIF
 !
       ENDIF

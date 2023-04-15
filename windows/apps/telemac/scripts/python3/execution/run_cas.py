@@ -72,7 +72,7 @@ def run_local_cas(my_study, options):
     # merge part
     if options.merge or full_run:
         print('... merging separated result files\n')
-        my_study.merge()
+        my_study.merge(options.gretel_method)
         print('... handling result files\n')
         my_study.gather(options.sortie_file, options.nozip)
 
@@ -126,7 +126,7 @@ def run_hpc_cas(my_study, options):
 
         if options.merge:
             print('... merging separated result files\n')
-            my_study.merge()
+            my_study.merge(options.gretel_method)
             print('... handling result files\n')
             my_study.gather(options.sortie_file, options.nozip)
 

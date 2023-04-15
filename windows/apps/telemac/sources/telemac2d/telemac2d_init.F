@@ -168,13 +168,6 @@
         ENDDO
       ENDIF
 !
-!     INITIALISES SECONDARY CURRENTS VARIABLES
-!
-      IF(SECCURRENTS) THEN
-        CALL OS('X=0     ',X=SEC_TAU)
-        CALL OS('X=0     ',X=SEC_R)
-      ENDIF
-!
 !-----------------------------------------------------------------------
 !
 !  INITIALISES PRIVE
@@ -278,6 +271,33 @@
      &                  GEOFORMAT=T2D_FILES(T2DGEO)%FMT,
      &                  LATLONG=PROTYP0.EQ.3.AND.KEEP_LONLAT)!IF LONG-LAT
         IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM WRITE_MESH (TELEMAC-2D)'
+!
+!       OUTPUT FOR RESTART
+!
+        IF(RESTART_MODE.AND.T2D_FILES(T2DRST)%NAME(1:1).NE.' ') THEN
+          IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING WRITE_HEADER EN RESTART'
+          CALL WRITE_HEADER(T2D_FILES(T2DRST)%FMT, ! RESULT FILE FORMAT
+     &                      T2D_FILES(T2DRST)%LU,  ! RESULT FILE LU
+     &                      TITCAS,     ! TITLE
+     &                      MAXVAR,     ! MAX NUMBER OF OUTPUT VARIABLES
+     &                      TEXTE,      ! NAMES OF OUTPUT VARIABLES
+     &                      SOREST)     ! OUTPUT OR NOT
+          IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM WRITE_HEADER EN RESTART'
+!
+          IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING WRITE_MESH EN RESTART'
+          CALL WRITE_MESH(T2D_FILES(T2DRST)%FMT, ! RESULT FILE FORMAT
+     &                    T2D_FILES(T2DRST)%LU,  ! RESULT FILE LU
+     &                    MESH,
+     &                    1,               ! NUMBER OF PLANES /NA/
+     &                    MARDAT,          ! START DATE
+     &                    MARTIM,          ! START HOUR
+     &                    T1,T2,           ! WORKING ARRAYS
+     &                    NCSIZE.GT.1, NPTIR,
+     &                    NGEO=T2D_FILES(T2DGEO)%LU,
+     &                    GEOFORMAT=T2D_FILES(T2DGEO)%FMT,
+     &                    LATLONG=PROTYP0.EQ.3.AND.KEEP_LONLAT)!IF LONG-LAT
+          IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM WRITE_MESH EN RESTART'
+        ENDIF
 !
       ENDIF
 !
@@ -514,6 +534,52 @@
         CALL HREF
       ENDIF
 !
+! SET ALIRE TO 1 WHEN VARIABLE IS RELEVANT OR 0 IF NOT
+!
+!     FOR READING TRACERS IN SELAFIN FILES
+!
+      IF(NTRAC.GT.0) THEN
+        DO ITRAC=1,NTRAC
+!         SEE NOMVAR_TELEMAC2D
+          ALIRE(ADR_TRAC+ITRAC) = 1
+        ENDDO
+      ENDIF
+!
+!     FOR AVOIDING READING K, EPSILON AND DIFFUSION WHEN NOT RELEVANT
+!
+      IF(ITURB.NE.3) ALIRE(10) = 0
+      IF(ITURB.NE.3) ALIRE(11) = 0
+      IF(ITURB.EQ.1) ALIRE(12) = 0
+!
+!     FOR READING MAXZ,TMXZ,MAXV,TMXV
+!
+      IF(MAX_PREV) THEN
+        IF(SORLEO(27)) THEN
+          ALIRE(27) = 1
+          IF(SORLEO(28)) ALIRE(28) = 1
+        ENDIF
+        IF(SORLEO(29)) THEN
+          ALIRE(29) = 1
+          IF(SORLEO(30)) ALIRE(30) = 1
+        ENDIF
+      ENDIF
+!
+!     FOR READING SPALART ALLMARAS VISCOSITY IN SELAFIN FILES
+!
+      IF(ITURB.EQ.6) ALIRE(40) = 1
+!
+!     FOR READING 1/R IN SELAFIN FILES
+!
+      IF(SECCURRENTS) ALIRE(33) = 1
+!
+!     FOR READING DU,DV,DHN IN SELAFIN FILES
+!
+      IF(IORDRU.EQ.2) THEN
+        ALIRE(37) = 1
+        ALIRE(38) = 1
+      ENDIF
+      IF(IORDRH.EQ.2) ALIRE(39) = 1
+!
 !     READ THE REFERENCE LEVEL ZRL FOR NESTOR  IN THE GEOMETRY FILE
       IF(NESTOR.AND.DEBU) THEN
         CALL FIND_VARIABLE( T2D_FILES(T2DGEO)%FMT
@@ -538,7 +604,7 @@
         IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING READ_DATASET (TELEMAC-2D)'
         CALL READ_DATASET(T2D_FILES(T2DPRE)%FMT,T2D_FILES(T2DPRE)%LU,
      &                    VARSOR,NPOIN,START_RECORD,AT,TEXTPR,TROUVE,
-     &                    ALIRE,LISTIN,START_RECORD.EQ.0,MAXVAR)
+     &                    ALIRE,LISTIN,START_RECORD.EQ.-1,MAXVAR)
         IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM READ_DATASET (TELEMAC-2D)'
         ALIRE(19)=0
         IF(INCLUS(COUPLING,'SISYPHE').AND.TROUVE(6).NE.1) THEN
@@ -567,7 +633,7 @@
 !       RESCUE MISSING VARIABLES
 !
         CALL RESCUE(U%R,V%R,H%R,FV%R,ZF%R,T,TRAC0,NTRAC,
-     &              ITURB,NPOIN,AKEP,TROUVE,ADR_TRAC)
+     &              ITURB,NPOIN,AKEP,SA,TROUVE,ADR_TRAC)
 !
 !       DIFFERENTIATED VARIABLES
 !
@@ -580,6 +646,15 @@
 !       CASE WHERE POSITIVE DEPTHS ARE NECESSARY
         IF(OPTBAN.EQ.1.AND.OPT_HNEG.EQ.2) THEN
           CALL CLIP(H,0.D0,.TRUE.,1.D6,.FALSE.,-NPOIN)
+        ENDIF
+      ENDIF
+!
+!     INITIALISES SECONDARY CURRENTS VARIABLES
+!
+      IF(SECCURRENTS) THEN
+        CALL OS('X=0     ',X=SEC_TAU)
+        IF(DEBU.OR.TROUVE(33).NE.1) THEN
+          CALL OS('X=0     ',X=SEC_R)
         ENDIF
       ENDIF
 !
@@ -897,7 +972,7 @@
 !
                 TNP(IREG)=TNP(IREG)+1
                 PT_IN_POLY(IREG,TNP(IREG))=I
-                AREA_P(IREG)=AREA_P(IREG)+V2DPAR%R(I)
+                AREA_P(IREG)=AREA_P(IREG)+VOLU2D%R(I)
               ENDIF
             ENDDO
 !           ERROR MESSAGES FOR REGIONS OUTSIDE THE DOMAINS
@@ -915,6 +990,7 @@
                 CALL PLANTE(1)
                 STOP
               ENDIF
+              AREA_P(IREG)=P_SUM(AREA_P(IREG))
             ENDIF
 !
 !           COMPUTING FLOWRATE FROM VELOCITIES WHEN IT IS NOT GIVEN BY USER
@@ -1044,6 +1120,30 @@
      &                  IIMP=IMP,ILEO=LEO,COMPGRAPH=COMPLEO)
 !                                                  PTINIG,PTINIL
         IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM DESIMP'
+!
+!     INITIAL CONDITIONS OF 2D OUTPUT FOR RESTART (NOT USED BY NOW MANDATORY)
+!
+        IF(RESTART_MODE.AND.T2D_FILES(T2DRST)%NAME(1:1).NE.' ') THEN
+          IF(DEBU.OR.TROUVE(36).NE.1) THEN
+            CALL OS('X=0     ',X=DH)
+          ENDIF
+          IF(IORDRU.EQ.2) THEN
+            IF(DEBU.OR.TROUVE(37).NE.1) THEN
+              CALL OS('X=0     ',X=DU)
+            ENDIF
+            IF(DEBU.OR.TROUVE(38).NE.1) THEN
+              CALL OS('X=0     ',X=DV)
+            ENDIF
+          ENDIF
+          IF(IORDRH.EQ.2.AND.(DEBU.OR.TROUVE(39).NE.1)) THEN
+            CALL OS('X=0     ',X=DHN)
+          ENDIF
+          IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING BIEF_DESIMP RESTART MODE'
+          CALL BIEF_DESIMP(T2D_FILES(T2DRST)%FMT,VARSOR,NPOIN,
+     &                     T2D_FILES(T2DRST)%LU,AT,LT,
+     &                     1,NIT,SOREST,SORIS2,MAXVAR,TEXTE,0,0)
+          IF(DEBUG.GT.0) WRITE(LU,*) 'BACK FROM BIEF_DESIMP RESTART'
+        ENDIF
 !
         IF(INCLUS(COUPLING,'KHIONE')) THEN
           IF(DEBUG.GT.0) WRITE(LU,*) 'CALLING OUTPUT_KHIONE'
@@ -1237,7 +1337,7 @@
           CALL SEND_COUPLE(1,NPOIN,NVARTEL2TOM,TEL2TOM)
         ENDIF
 
-        CALL T2D_WAC_CPL_UPDATE()
+        CALL T2D_WAC_CPL_UPDATE(PART=0)
         CALL WAC(PART=0)
         IF(INCLUS(COUPLING,'TOMAWAC2')) THEN
           CALL GET_MESH_NPTIR(T2D_FILES(T2DGEO)%FMT,

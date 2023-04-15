@@ -11,7 +11,7 @@
      & NPTSCE,NPOIN2,KSCE)
 !
 !***********************************************************************
-! TELEMAC2D   V7P3
+! TELEMAC2D   V8P4
 !***********************************************************************
 !
 !Brief    TREATS CULVERTS/TUBES (OR BRIDGES) IN CHARGE
@@ -56,6 +56,12 @@
 !+        V7P3
 !+     Correct the formulation 1 (Carlier) so that it falls back to a
 !+     siphon formula when necessary
+!
+!History M. SECHER, T. VIARD, L. MESQUITA (EDF CIH)
+!+        04/07/2022
+!+        V8P4
+!+     Fix possible negative terms under square roots in both
+!+     formulations
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !| ALTBUS         |-->| ELEVATIONS OF CULVERTS
@@ -139,7 +145,7 @@
       INTEGER N,I1,I2,ITRAC,FTYP
       INTEGER VOFFSET
 !
-      DOUBLE PRECISION L,LARG,HAUT1,HAUT2,HAUT,TETA
+      DOUBLE PRECISION L,LARG,HAUT1,HAUT2,HAUT,TETAS2
       DOUBLE PRECISION S1,S2,CE1,CE2,CS1,CS2,Q,QMAX1,QMAX2
       DOUBLE PRECISION RD1,RD2,RD
       DOUBLE PRECISION FRIC,LONG,HAST,RAYON,TRASH,RADI1,RADI2
@@ -235,7 +241,7 @@
 !
               IF(S1.LT.(RD1+H1).AND.S1.LT.(RD2+H2)) THEN
 !             FREE SURFACE FLOW WHICH FOLLOWS A WEIR LAW
-                IF(S2.GT.(TWOTHIRDS*(S1-RD))+RD) THEN
+                IF(S2.GT.(TWOTHIRDS*(S1-RD1))+RD2) THEN
                   IF(CIR.GT.0.D0) THEN
                     SECBUS(N) = PI*0.5D0*RADI2*(S2-RD2)
                   ELSE
@@ -253,14 +259,21 @@
               ELSE
 !               PRESSURE FLOW --> ORIFICE LAW
                 IF(CIR.GT.0.D0) THEN
-                  SECBUS(N) = PI*RADI1**2.D0
+                  SECBUS(N) = PI*RADI1**2
                 ELSE
                   SECBUS(N) = LARG*HAUT1
                 ENDIF
                 IF(S1.GE.(RD1+H1).AND.S2.LT.(RD2+H2)) THEN
-                  Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-(RD2+H2))
-     &              /(1.D0+CE1+L))
+!               > PARTIALLY PRESSURIZED FLOW
+                  IF(S1.GT.(RD2+H2)) THEN
+                    Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-(RD2+H2))
+     &                                     /(1.D0+CE1+L))
+!                 ONLY POSSIBLE WITH STEEP ADVERSE SLOPE
+                  ELSE
+                    Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)/(1.D0+CE1+L))
+                  ENDIF
                 ELSE
+!               > FULLY PRESSURIZED FLOW
                   Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)/(L+CS2+CE1))
                 ENDIF
               ENDIF
@@ -274,7 +287,7 @@
 
               IF(S2.LT.(RD1+H1).AND.S2.LT.(RD2+H2)) THEN
 !               FREE SURFACE FLOW WHICH FOLLOWS A WEIR LAW
-                IF(S1.GT.(TWOTHIRDS*(S2-RD1)+RD1)) THEN
+                IF(S1.GT.(TWOTHIRDS*(S2-RD2)+RD1)) THEN
                   IF(CIR.GT.0.D0) THEN
                     SECBUS(N) = PI*0.5D0*RADI1*(S1-RD1)
                   ELSE
@@ -283,28 +296,35 @@
                   Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)/(CE2+L+CS1))
                 ELSE
                   IF(CIR.GT.0.D0) THEN
-                    SECBUS(N) = PI*0.5D0*RADI1*(S2-RD2)
+                    SECBUS(N) = PI*0.5D0*RADI2*(S2-RD2)
                   ELSE
                     SECBUS(N) = LARG*(S2-RD2)
                   ENDIF
-                  Q = -SECBUS(N)*SQRT(2.D0*GRAV)*SQRT((S2-RD2))*0.385D0
+                  Q = -SECBUS(N)*SQRT(2.D0*GRAV)*SQRT(S2-RD2)*0.385D0
                 ENDIF
               ELSE
 !               PRESSURE FLOW --> ORIFICE LAW
                 IF(CIR.GT.0.D0) THEN
-                  SECBUS(N) = PI*RADI1**2.D0
+                  SECBUS(N) = PI*RADI2**2
                 ELSE
-                  SECBUS(N) = LARG*HAUT1
+                  SECBUS(N) = LARG*HAUT2
                 ENDIF
                 IF(S2.GE.(RD2+H2).AND.S1.LT.(RD1+H1)) THEN
-                  Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-(RD1+H1))
-     &              /(1.D0+CE2+L))
+!               > PARTIALLY PRESSURIZED FLOW
+                  IF(S2.GT.(RD1+H1)) THEN
+                    Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-(RD1+H1))
+     &                                      /(1.D0+CE2+L))
+!                 ONLY POSSIBLE WITH STEEP ADVERSE SLOPE
+                  ELSE
+                    Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)/(1.D0+CE2+L))
+                  ENDIF
                 ELSE
+!               > FULLY PRESSURIZED FLOW
                   Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)/(L+CS1+CE2))
                 ENDIF
               ENDIF
             ELSE
-              Q=0.D0
+              Q = 0.D0
             ENDIF
           ENDIF
 !
@@ -340,7 +360,8 @@
                   ! LARGER THAN THE ACTUAL CROSS SECTION
                     SECBUS(N) = LARG*(S2-RD)
                   ENDIF
-                  Q=SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)/(CE1+L+CS2+TRASH))
+                  Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)
+     &                                   /(CE1+L+CS2+VALVE+TRASH))
 !
 !               UNSUBMERGED WEIR - FLOW TYPE 2
                 ELSE !IF(S2.LE.(TWOTHIRDS*(S1-RD)+RD)) THEN
@@ -351,28 +372,31 @@
                   IF(CIR.GT.0.D0) THEN
                     ! FORMULA FOR SECTION OF CIRCLE; HEIGHT IS S2-RD2
                     IF((S1-RD1).LT.RADI1) THEN
-                      TETA = 2.D0*ACOS((RADI1-(S1-RD1))/RADI1)
-                      SECBUS(N) = ACOS((RADI1-(S1-RD1))/RADI1)
-     &                          *(RADI1**2)- 0.5D0*RADI1*SIN(TETA/2)
-     &                          *(RADI1-(S1-RD1))
+                      TETAS2    = ACOS((RADI1-(S1-RD1))/RADI1)
+                      SECBUS(N) = ACOS((RADI1-(S1-RD1))/RADI1)*RADI1**2
+     &                        - 0.5D0*RADI1*SIN(TETAS2)*(RADI1-(S1-RD1))
                     ELSEIF((S1-RD1).EQ.RADI1) THEN
-                      SECBUS(N) = PI*(RADI1**2)*0.5D0
-                    ELSEIF((S1-RD1).GT.RADI1
-     &                .AND.(S1-RD1).LT.H1) THEN
-                      TETA = 2.D0*ACOS(((S1-RD1)-RADI1)/RADI1)
-                      SECBUS(N) = (PI*(RADI1**2))-(ACOS(((S1-RD1)-RADI1)
-     &                          / RADI1)*(RADI1**2)
-     &                          - 0.5D0*RADI1*SIN(TETA/2)
-     &                          *((S1-RD1)-RADI1))
+                      SECBUS(N) = PI*RADI1**2*0.5D0
+                    ELSEIF((S1-RD1).GT.RADI1.AND.(S1-RD1).LT.H1) THEN
+                      TETAS2    = ACOS(((S1-RD1)-RADI1)/RADI1)
+                      SECBUS(N) = PI*RADI1**2
+     &                          - ACOS(((S1-RD1)-RADI1)/RADI1)*RADI1**2
+     &                        - 0.5D0*RADI1*SIN(TETAS2)*((S1-RD1)-RADI1)
                     ELSEIF((S1-RD1).GE.H1) THEN
-                      SECBUS(N) = PI*(RADI1**2)
+                      SECBUS(N) = PI*RADI1**2
                     ENDIF
                   ELSE
                     SECBUS(N) = LARG*(TWOTHIRDS*(S1-RD))
                   ENDIF
-                  Q = SECBUS(N)
-     &               *SQRT(2.D0*GRAV*(S1-(RD+TWOTHIRDS*(S1-RD)))
-     &                     /(CE1+L+CS2+TRASH))
+                  IF(S1.GT.RD+TWOTHIRDS*(S1-RD)) THEN
+                    Q = SECBUS(N)
+     &                 *SQRT(2.D0*GRAV*(S1-(RD+TWOTHIRDS*(S1-RD)))
+     &                           /(CE1+L+CS2+VALVE+TRASH))
+!                 ONLY POSSIBLE WITH STEEP ADVERSE SLOPE
+                  ELSE
+                    Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)
+     &                                     /(CE1+L+CS2+VALVE+TRASH))
+                  ENDIF
                 ENDIF
 !
 !             PRESSURE FLOW --> ORIFICE LAW
@@ -388,8 +412,14 @@
                   ELSE
                     SECBUS(N) = LARG*HAUT1
                   ENDIF
-                  Q = SECBUS(N)
-     &               *SQRT(2.D0*GRAV*(S1-(RD2+HAUT))/(CE1+L+CS2+TRASH))
+                  IF(S1.GT.(RD2+HAUT)) THEN
+                    Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-(RD2+HAUT))
+     &                                     /(CE1+L+CS2+VALVE+TRASH))
+!                 ONLY POSSIBLE WITH STEEP ADVERSE SLOPE
+                  ELSE
+                    Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)
+     &                                     /(CE1+L+CS2+VALVE+TRASH))
+                  ENDIF
 !             FLOW TYPE 5
                 ELSEIF(LONG.LT.CORR56*HAUT1) THEN
                   FTYP=5
@@ -401,7 +431,8 @@
                   ELSE
                     SECBUS(N) = LARG*HAUT1
                   ENDIF
-                  Q=SECBUS(N)*SQRT(2.D0*GRAV*(S1-RD)/(CORR5*CE1+TRASH))
+                  Q=SECBUS(N)*SQRT(2.D0*GRAV*(S1-RD)
+     &                                 /(CORR5*CE1+CORRV5*VALVE+TRASH))
                 ENDIF
 !           FLOW TYPE 4 SUBMERGED OUTLET
               ELSEIF(S1.GT.(RD1+H1).AND.S2.GT.(RD2+H2)) THEN
@@ -414,12 +445,13 @@
                 ELSE
                   SECBUS(N) = LARG*HAUT1
                 ENDIF
-                Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)/(CE1+L+CS2+TRASH))
+                Q = SECBUS(N)*SQRT(2.D0*GRAV*(S1-S2)
+     &                                 /(CE1+L+CS2+VALVE+TRASH))
               ENDIF
 !           IF WL ON BOTH SIDES IS LOWER THAN THE CULVERT
             ELSE
               FTYP=0
-              Q=0.D0
+              Q = 0.D0
             ENDIF
 !
 !         IF S1 IS SMALLER THAN S2; SO ONLY OUTLET FLOW
@@ -439,8 +471,8 @@
                   ELSE
                     SECBUS(N) = LARG*(S1-RD)
                   ENDIF
-                  Q = -SECBUS(N)
-     &                *SQRT(2.D0*GRAV*(S2-S1)/(CE2+L+VALVE+CS1+TRASH))
+                  Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)
+     &                                    /(CE2+L+VALVE+CS1+TRASH))
 !               UNSUBMERGED WEIR - FLOW TYPE 2
                 ELSE !IF(S1.LE.(TWOTHIRDS*(S2-RD)+RD)) THEN
                   FTYP=-2
@@ -450,27 +482,33 @@
                   IF(CIR.GT.0.D0) THEN
                     ! FORMULA FOR SECTION OF CIRCLE; HEIGHT IS S2-RD2
                     IF((S2-RD2).LT.RADI2) THEN
-                      TETA = 2.D0*ACOS((RADI2-(S2-RD2))/RADI2)
-                      SECBUS(N) = ACOS((RADI2-(S2-RD2))/RADI2)
-     &                          *(RADI2**2)- (0.5D0*RADI2*SIN(TETA/2)
-     &                          *(RADI2-(S2-RD2)))
+                      TETAS2    = ACOS((RADI2-(S2-RD2))/RADI2)
+                      SECBUS(N) = ACOS((RADI2-(S2-RD2))/RADI2)*RADI2**2
+     &                          - 0.5D0*RADI2*SIN(TETAS2)
+     &                                 *(RADI2-(S2-RD2))
                     ELSEIF((S2-RD2).EQ.RADI2) THEN
-                      SECBUS(N) = PI*(RADI2**2)*0.5D0
-                    ELSEIF((S2-RD2).GT.RADI2
-     &                .AND.(S2-RD2).LT.H2) THEN
-                      TETA = 2.D0*ACOS(((S2-RD2)-RADI2)/RADI2)
-                      SECBUS(N) = (PI*(RADI2**2))-(ACOS(((S2-RD2)-RADI2)
-     &                          / RADI2)*(RADI2**2)- 0.5D0*RADI2
-     &                          *SIN(TETA/2)*((S2-RD2)-RADI2))
+                      SECBUS(N) = PI*RADI2**2*0.5D0
+                    ELSEIF((S2-RD2).GT.RADI2.AND.(S2-RD2).LT.H2) THEN
+                      TETAS2    = ACOS(((S2-RD2)-RADI2)/RADI2)
+                      SECBUS(N) = PI*RADI2**2
+     &                          - ACOS(((S2-RD2)-RADI2)/RADI2)*RADI2**2
+     &                          - 0.5D0*RADI2*SIN(TETAS2)
+     &                                 *((S2-RD2)-RADI2)
                     ELSEIF((S2-RD2).GE.H2) THEN
-                      SECBUS(N) = PI*(RADI2**2)
+                      SECBUS(N) = PI*RADI2**2
                     ENDIF
                   ELSE
                     SECBUS(N) = LARG*TWOTHIRDS*(S2-RD)
                   ENDIF
-                  Q = -SECBUS(N)
-     &                *SQRT(2.D0*GRAV*(S2-(RD+TWOTHIRDS*(S2-RD)))
-     &                               /(CE2+VALVE+L+CS1+TRASH))
+                  IF(S2.GT.RD+TWOTHIRDS*(S2-RD)) THEN
+                    Q = -SECBUS(N)
+     &                  *SQRT(2.D0*GRAV*(S2-(RD+TWOTHIRDS*(S2-RD)))
+     &                            /(CE2+VALVE+L+CS1+TRASH))
+!                 ONLY POSSIBLE WITH STEEP ADVERSE SLOPE
+                  ELSE
+                    Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)
+     &                                      /(CE2+L+CS1+VALVE+TRASH))
+                  ENDIF
                 ENDIF
 !             PRESSURE FLOW --> ORIFICE LAW
               ELSEIF((S2-RD2).GE.1.5D0*H2.AND.S1.LE.(RD1+H1)) THEN
@@ -485,8 +523,14 @@
                   ELSE
                     SECBUS(N) = LARG*HAUT2
                   ENDIF
-                  Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-(RD1+HAUT))
-     &                                         /(CE2+VALVE+L+CS1+TRASH))
+                  IF(S2.GT.(RD1+HAUT)) THEN
+                    Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-(RD1+HAUT))
+     &                                      /(CE2+VALVE+L+CS1+TRASH))
+!                 ONLY POSSIBLE WITH STEEP ADVERSE SLOPE
+                  ELSE
+                    Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)
+     &                                      /(CE2+VALVE+L+CS1+TRASH))
+                  ENDIF
 !                 FLOW TYPE 5
                 ELSEIF(LONG.LT.CORR56*HAUT2) THEN
                   FTYP=-5
@@ -499,7 +543,7 @@
                     SECBUS(N) = LARG*HAUT2
                   ENDIF
                   Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-RD)
-     &                                  /(CORR5*CE2+CORRV5*VALVE+TRASH))
+     &                                /(CORR5*CE2+CORRV5*VALVE+TRASH))
                 ENDIF
 !             FLOW TYPE 4 SUBMERGED OUTLET
               ELSEIF(S2.GT.(RD2+H2).AND.S1.GT.(RD1+H1)) THEN
@@ -512,8 +556,8 @@
                 ELSE
                   SECBUS(N) = LARG*HAUT2
                 ENDIF
-                Q = -SECBUS(N)
-     &              *SQRT(2.D0*GRAV*(S2-S1)/(CE2+VALVE+L+CS1+TRASH))
+                Q = -SECBUS(N)*SQRT(2.D0*GRAV*(S2-S1)
+     &                                  /(CE2+VALVE+L+CS1+TRASH))
               ENDIF
 !           IF THE WATER DOES NOT REACH HIGH ENOUGH TO ENTER THE CULVERT
             ELSE
@@ -565,7 +609,7 @@
           UBUS(2,N) = (COS(D2)*DBUS(N)/SECBUS(N)) * COS(ANGBUS(N,2))
           VBUS(2,N) = (COS(D2)*DBUS(N)/SECBUS(N)) * SIN(ANGBUS(N,2))
           IF(I1.GT.0) THEN
-            IF (PRESENT(KSCE)) THEN
+            IF(PRESENT(KSCE)) THEN
               VOFFSET = (KSCE(NPTSCE+N)-1)*NPOIN2
             ELSE
               VOFFSET = 0
@@ -584,7 +628,7 @@
           UBUS(1,N) = (COS(D1)*DBUS(N)/SECBUS(N)) * COS(ANGBUS(N,1))
           VBUS(1,N) = (COS(D1)*DBUS(N)/SECBUS(N)) * SIN(ANGBUS(N,1))
           IF(I2.GT.0) THEN
-            IF (PRESENT(KSCE)) THEN
+            IF(PRESENT(KSCE)) THEN
               VOFFSET = (KSCE(NPTSCE+NBUSE+N)-1)*NPOIN2
             ELSE
               VOFFSET = 0
@@ -622,7 +666,7 @@
 !             CASE DBUS(N)=0.D0 NOT CLEAR, BUT A VALUE HAS TO BE
 !             GIVEN HERE, LEST IT IS USED AFTER
               IF(I1.GT.0) THEN
-                IF (PRESENT(KSCE)) THEN
+                IF(PRESENT(KSCE)) THEN
                   VOFFSET = (KSCE(NPTSCE+N)-1)*NPOIN2
                 ELSE
                   VOFFSET = 0
@@ -637,7 +681,7 @@
               ENDIF
             ELSE ! I2 --> I1
               IF(I2.GT.0) THEN
-                IF (PRESENT(KSCE)) THEN
+                IF(PRESENT(KSCE)) THEN
                   VOFFSET = (KSCE(NPTSCE+NBUSE+N)-1)*NPOIN2
                 ELSE
                   VOFFSET = 0

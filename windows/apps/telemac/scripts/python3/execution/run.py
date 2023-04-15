@@ -182,19 +182,18 @@ def run_code(exe, sortiefile):
         raise TelemacException('Fail to run\n'+exe)
 
 
-def run_recollection(gretel, cas, glogeo, fmtgeo, globnd,
-                     ncsize):
-
+def run_recollection(gretel, cas, glogeo, fmtgeo, globnd, ncsize, method):
     """
     @brief Recollects the results
 
-    @param gretel (string): the path of gredel
+    @param gretel (string): the path to gretel
     @param cas (string): the name of the *.cas file
     @param glogeo (string): global geometry file (.geo)
     @param fmtgeo (string): format of the global geometry file
         (serafin, serafind, med)
     @param globnd (string): global boundary file (.cli)
     @param ncsize (int): the number of processors
+    @param method (int): the method to be used for merging data
 
     @return True if there is only one processor or no exception was
         raised or bypass is True
@@ -216,7 +215,7 @@ def run_recollection(gretel, cas, glogeo, fmtgeo, globnd,
             except TelemacException:
                 nplan = 0
             run_gretel(gretel, file_name, file_format, glogeo, fmtgeo,
-                       globnd, ncsize, nplan)
+                       globnd, ncsize, nplan, method)
         if tpe[0:6] == 'DELWAQ':
             print('     collecting: ' + path.basename(file_name))
             run_gredel(gretel, file_name, glogeo, tpe[6:], ncsize, False)

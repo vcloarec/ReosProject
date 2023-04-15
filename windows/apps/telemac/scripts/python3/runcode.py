@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """@author TELEMAC-MASCARET Consortium
-    @brief runcode is the execution launcher for all TELEMAC modules
+   @brief runcode is the execution launcher for all TELEMAC modules
 """
 # _____             ___________________________________________________
 # ____/ Imports /__________________________________________________/
@@ -10,19 +10,20 @@ import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os import path
 # ~~> dependencies towards other pytel/modules
+from config import CFGS, add_config_argument, update_config
+from execution.run_cas import run_study
+from utils.exceptions import TelemacException
 from utils.files import check_sym_link
 from utils.messages import Messages, git_banner
-from utils.exceptions import TelemacException
-from config import add_config_argument, update_config, CFGS
-from execution.run_cas import run_study
+
 
 def add_mpi_argument(parser):
     """
-    Adding argument for an mpi run
+    Add arguments for an MPI run.
 
-    @param parser (ArgumentParser) where to add the arguments
+    @param parser (ArgumentParser) where to add the arguments.
 
-    @return (ArgumentParser) The updated parser
+    @return (ArgumentParser) The updated parser.
     """
     parser.add_argument(
         "--hosts",
@@ -46,12 +47,13 @@ def add_mpi_argument(parser):
 
     return parser
 
+
 def add_hpc_argument(parser, module=None):
     """
-    Adding argument for an mpi run
+    Add arguments for an HPC run.
 
-    @param parser (ArgumentParser) where to add the arguments
-    @param module (string) Telemac module
+    @param parser (ArgumentParser) Where to add the arguments.
+    @param module (string) The Telemac module.
 
     @return (ArgumentParser) The updated parser
     """
@@ -68,25 +70,30 @@ def add_hpc_argument(parser, module=None):
     parser.add_argument(
         "--queue",
         dest="hpc_queue", default='',
-        help="specify a queue for HPC queue tracking")
+        help="set the partition to use for HPC queue tracking")
     parser.add_argument(
         "--walltime",
         dest="walltime", default='01:00:00',
-        help="specify a walltime for HPC queue tracking")
+        help="set the limit on the total run time of the job allocation")
     parser.add_argument(
         "--email",
         dest="email", default='',
         help="specify an e-mail adress to warn when HPC job is finished")
+    parser.add_argument(
+        "--project",
+        dest="project", default='',
+        help="specify the name of the project to be used for the job")
     return parser
+
 
 def add_runcode_argument(parser, module=None):
     """
-    Adding argument for runcode
+    Add all possible arguments for runcode.
 
-    @param parser (ArgumentParser) where to add the arguments
-    @param module (string) Telemac module
+    @param parser (ArgumentParser) Where to add the arguments.
+    @param module (string) The Telemac module.
 
-    @return (ArgumentParser) The updated parser
+    @return (ArgumentParser) The updated parser.
     """
     # ~~> Environment
     parser = add_config_argument(parser)
@@ -111,7 +118,6 @@ def add_runcode_argument(parser, module=None):
     # ~~> HPC / parallel
     parser = add_hpc_argument(parser, module=module)
     parser = add_mpi_argument(parser)
-
 
     parser.add_argument(
         "--sequential",
@@ -151,6 +157,10 @@ def add_runcode_argument(parser, module=None):
         dest="use_link", default=False,
         help="Will use link instead of copy in the temporary folder"
              " (Unix system only)")
+    parser.add_argument(
+        "--gretel-method",
+        dest="gretel_method", default=1, type=int,
+        help="Set the gretel method to be used for merging data, default is 1")
 
     if module == "mascaret" or module == None:
         parser.add_argument(
@@ -162,6 +172,7 @@ def add_runcode_argument(parser, module=None):
                  " to detect the format (Damocles if .cas, xml xcas otherwise)")
 
     return parser
+
 
 def main(module=None):
     """
@@ -230,10 +241,10 @@ where module can be:\n
 # ~~~~ Works for one configuration only ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Checking if symlink is available
     if options.use_link and not check_sym_link(options.use_link):
-        raise TelemacException(\
-                '\nThe symlink option is only '
-                'available on Linux systems. '
-                'Remove the option and try again')
+        raise TelemacException(
+            '\nThe symlink option is only '
+            'available on Linux systems. '
+            'Remove the option and try again')
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # ~~~~ Reads command line arguments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -246,10 +257,10 @@ where module can be:\n
     options.bypass = False
     if options.split or options.merge or options.run:
         if options.w_dir == '':
-            raise TelemacException(\
-                    '\nPlease use option -w (--workdirectory)'
-                    ' with either of the options '
-                    '--split, --run or --merge\n')
+            raise TelemacException(
+                '\nPlease use option -w (--workdirectory)'
+                ' with either of the options '
+                '--split, --run or --merge\n')
     # parsing for proper naming
     CFGS.compute_execution_info()
     cfg = CFGS.configs[CFGS.cfgname]
@@ -258,16 +269,16 @@ where module can be:\n
     CFGS.light_dump()
     if options.w_dir != '':
         print('     +> directory        ' + options.w_dir)
-        options.tmpdirectory = False
     print('\n\n'+'~'*72+'\n')
 
 # >>> Check wether the config has been compiled for the runcode
     if options.compileonly:
         cfg['REBUILD'] = 1
     if code_name not in cfg['MODULES']:
-        raise TelemacException(\
-                '\nThe code requested is not installed '
-                'on this system : {}\n'.format(code_name))
+        print(cfg['MODULE'])
+        raise TelemacException(
+            '\nThe code requested is not installed '
+            'on this system : {}\n'.format(code_name))
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # ~~~~ Reporting errors ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -281,9 +292,9 @@ where module can be:\n
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # ~~~~ Reporting errors ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if xcpts.not_empty():
-        raise TelemacException(\
-                '\n\nHummm ... I could not complete '
-                'my work.\n{}{}'.format('~'*72, xcpts.except_messages()))
+        raise TelemacException(
+            '\n\nHummm ... I could not complete '
+            'my work.\n{}{}'.format('~'*72, xcpts.except_messages()))
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # ~~~~ Jenkins' success message ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
