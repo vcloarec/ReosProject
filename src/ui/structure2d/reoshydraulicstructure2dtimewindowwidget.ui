@@ -17,10 +17,10 @@
    <item>
     <widget class="QCheckBox" name="mExternallyCheckBox">
      <property name="toolTip">
-      <string>Typically, used time window configured in original imported file.</string>
+      <string>Typically, use time window configured in original imported file.</string>
      </property>
      <property name="text">
-      <string>Used Externally Defined Time Window</string>
+      <string>Use Externally Defined Time Window</string>
      </property>
     </widget>
    </item>

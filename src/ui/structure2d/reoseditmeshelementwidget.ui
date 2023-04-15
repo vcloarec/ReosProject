@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
-    <height>418</height>
+    <width>364</width>
+    <height>461</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,8 +52,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>338</width>
-        <height>418</height>
+        <width>362</width>
+        <height>442</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -172,7 +172,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorMinimumAngle">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -182,7 +182,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -222,7 +222,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorMaximumAngle">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -232,7 +232,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -293,7 +293,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorConnectionCount">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -303,7 +303,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -340,7 +340,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorConnectionBoundary">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -350,7 +350,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -411,7 +411,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorMaximumSlope">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -421,7 +421,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -485,7 +485,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorMinimumArea">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -495,7 +495,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -532,7 +532,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorMaximumArea">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -542,7 +542,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">
@@ -582,7 +582,7 @@
                <item>
                 <widget class="ReosColorButton" name="mColorMaximumAreaChange">
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                 </widget>
                </item>
@@ -592,7 +592,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string notr="true">...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../../images/images.qrc">

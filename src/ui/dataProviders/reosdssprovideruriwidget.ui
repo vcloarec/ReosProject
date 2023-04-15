@@ -41,8 +41,11 @@
    </item>
    <item row="0" column="5">
     <widget class="QToolButton" name="mFileButton">
+     <property name="toolTip">
+      <string/>
+     </property>
      <property name="text">
-      <string>...</string>
+      <string notr="true">...</string>
      </property>
     </widget>
    </item>

@@ -206,7 +206,7 @@
            <string>Adjust the extent considering the resolution</string>
           </property>
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../images/images.qrc">
@@ -263,7 +263,7 @@
          <string>Adjust the resolution considering the extent</string>
         </property>
         <property name="text">
-         <string>...</string>
+         <string notr="true">...</string>
         </property>
         <property name="icon">
          <iconset resource="../../images/images.qrc">
