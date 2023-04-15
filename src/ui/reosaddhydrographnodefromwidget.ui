@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add Hydrograph Node From ...</string>
+   <string>Add Hydrograph Node From...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
    <item>
@@ -62,7 +62,7 @@
         <string>A node will be created containing a copy of this hydrograph that will be save on the project file.</string>
        </property>
        <property name="text">
-        <string>Add  Node Fom Copy</string>
+        <string>Add  Node From Copy</string>
        </property>
       </widget>
      </item>

@@ -87,7 +87,7 @@
            <string>Add New Hydraulic Scheme</string>
           </property>
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../images/images.qrc">
@@ -101,7 +101,7 @@
         <item>
          <widget class="QToolButton" name="mHydraulicShcemeRemoveButton">
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../images/images.qrc">
@@ -115,7 +115,7 @@
         <item>
          <widget class="QToolButton" name="mHydraulicShcemeRenameButton">
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../images/images.qrc">

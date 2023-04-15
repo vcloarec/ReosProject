@@ -100,7 +100,7 @@
      <item>
       <widget class="QToolButton" name="mToolButtonAddClass">
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../../images/images.qrc">
@@ -119,6 +119,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="mToolButtonRemoveClass">
+       <property name="text">
+        <string notr="true"/>
+       </property>
        <property name="icon">
         <iconset resource="../../../images/images.qrc">
          <normaloff>:/images/remove.svg</normaloff>:/images/remove.svg</iconset>

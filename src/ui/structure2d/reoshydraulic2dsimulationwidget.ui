@@ -44,7 +44,7 @@
      <item>
       <widget class="QToolButton" name="mAddSimulationButton">
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../../images/images.qrc">
@@ -64,7 +64,7 @@
      <item>
       <widget class="QToolButton" name="mRemoveSimulationButton">
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../../images/images.qrc">

@@ -44,7 +44,7 @@
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>16</hour>
+         <hour>20</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2000</year>
@@ -82,7 +82,7 @@
         <string>Previous map time step</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
@@ -99,7 +99,7 @@
         <string>Play backward</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
@@ -119,7 +119,7 @@
         <string>Pause</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
@@ -139,7 +139,7 @@
         <string>Play forward</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
@@ -159,7 +159,7 @@
         <string>Next map time step</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../../images/images.qrc">
