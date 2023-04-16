@@ -72,6 +72,7 @@ class ReosMovingTracesRenderer : public QObject
     int mFramePerSeconds = 10;
     quint64 mTracesAges;
     QTimer *mTimer;
+    int mParticulesCount = 1000;
 };
 
 class ReosMovingTracesController : public QObject
