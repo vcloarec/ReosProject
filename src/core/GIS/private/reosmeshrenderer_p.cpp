@@ -290,6 +290,7 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   mTraceGenerator->setParticlesSize(
     mRenderContext.convertToPainterUnits( tracesSettings.traceWidth, Qgis::RenderUnit::Millimeters ) );
 
+  mParticulesCount = vectorSettings.tracesSettings().particlesCount();
   mFramePerSeconds = tracesSettings.fps;
 
   //****  For now, the class QgsMeshVectorTraceAnimationGenerator return an image with the effective extent of the layer int he map
@@ -328,7 +329,7 @@ void ReosMovingTracesRenderer::resetVectorDataset( const QgsMeshDataBlock &datas
 void ReosMovingTracesRenderer::start()
 {
   mTracesAges = 0;
-  mTraceGenerator->seedRandomParticles( 1000 );
+  mTraceGenerator->seedRandomParticles( mParticulesCount );
   if ( !mFeedBack->isCanceled() )
   {
     mTimer->start( static_cast<int>( 1000.0 / static_cast<double>( mFramePerSeconds ) ) );
