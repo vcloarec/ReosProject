@@ -69,10 +69,13 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
          << QPointF( 0.5, 1 )
          << QPointF( 1, 1 )
          << QPointF( 1, 0.5 )
+         << QPointF( 1, 0.5 ) //dupplicate vertex
          << QPointF( 1, 0 )
          << QPointF( 0.5, 0 );
 
   std::unique_ptr < ReosHydraulicStructure2D> structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
+
+  domain.removeAt( 6 ); //remove the dupplicte vertex that has to be removed in the structure
 
   ReosPolylinesStructure *geomStructure = structure2D->geometryStructure();
 
