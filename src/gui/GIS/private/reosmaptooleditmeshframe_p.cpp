@@ -750,7 +750,7 @@ void ReosMapToolEditMeshFrame_p::startMeshEditing()
   QgsMeshEditingError error;
   if ( !mMeshLayer->startFrameEditing( transform, error, false ) )
   {
-    QMessageBox::warning( mCanvas, tr( "Start Editing Elements" ), "Unable to start editing mesh elements." );
+    QMessageBox::warning( mCanvas, tr( "Start Editing Elements" ), tr( "Unable to start editing mesh elements." ) );
     return;
   }
 
