@@ -249,8 +249,24 @@ ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QPolyg
   : ReosPolylineStructureVectorLayer( wktCrs )
 {
   Data data;
-  data.vertices = boundary;
-  data.boundaryPointCount = boundary.count();
+
+  // Remove dupplicate vertices
+  int i = 0;
+  int count = boundary.count();
+  QPolygonF effBound = boundary;
+  while ( i < count )
+    if ( effBound.at( i ) == effBound.at( ( i + 1 ) % count ) )
+    {
+      effBound.removeAt( i );
+      count--;
+    }
+    else
+    {
+      ++i;
+    }
+
+  data.vertices = effBound;
+  data.boundaryPointCount = effBound.count();
   data.extent = mVectorLayer->extent().toRectF();
   buildGeometry( data );
 }
@@ -271,6 +287,7 @@ void ReosPolylineStructureVectorLayer::buildGeometry( const ReosPolylinesStructu
   QgsPointXY point0( vertices.at( 0 ) );
   QgsPointXY point1( vertices.at( 1 ) );
   SegmentId sid = addSegmentToVectorLayer( point0, point1 );
+
   VertexS vert0 = createVertex( sid, 0 );
   VertexS firstVertex = vert0;
 
