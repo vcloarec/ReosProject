@@ -298,7 +298,12 @@ void ReosMainWindow::languageSelection()
 
 void ReosMainWindow::newVersionAvailable()
 {
-  new ReosVersionMessageBox( this, version(), false );
+    new ReosVersionMessageBox( this, version(), false );
+}
+
+ReosModule *ReosMainWindow::rootModule() const
+{
+    return mRootModule;
 }
 
 ReosModule *ReosMainWindow::guiRootModule() const

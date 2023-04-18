@@ -326,6 +326,7 @@ TARGET_INCLUDE_DIRECTORIES( reosCore PUBLIC
     ${CMAKE_SOURCE_DIR}/src/core/hydraulicNetwork/simulation
     ${CMAKE_SOURCE_DIR}/src/core/mesh
     ${CMAKE_SOURCE_DIR}/src/core/network
+)
 
 INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}

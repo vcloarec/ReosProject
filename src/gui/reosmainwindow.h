@@ -48,7 +48,9 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     void setRecentProjects( const QStringList &recentProjects );
 
-  public slots:
+    ReosModule *rootModule() const;
+
+public slots:
     void newProject();
 
   protected:
