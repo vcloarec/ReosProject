@@ -118,8 +118,6 @@ QFileInfoList ReosModule::uselessFiles( bool clean ) const
   return ret;
 }
 
-QList<QAction *> ReosModule::actions() const {return mGroupAction->actions();}
-
 ReosModule *ReosModule::childModule( const QString &moduleName ) const
 {
   return mReosChildren.value( moduleName, nullptr );
