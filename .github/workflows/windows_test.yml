@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - release-**
-  pull_request:
+    pull_request:
       - master
       - release-**
 
