@@ -61,7 +61,8 @@ void ReosRainfallTest::addingItem()
 {
   ReosRainfallModel rainfallModel;
 
-  QVERIFY( rainfallModel.addZone( QStringLiteral( "Somewhere" ), QString() ) );
+  ReosZoneItem *zone1 = rainfallModel.addZone( QStringLiteral( "Somewhere" ), QString() );
+  QVERIFY( zone1 );
 
   QCOMPARE( rainfallModel.rowCount( QModelIndex() ), 1 );
 
@@ -69,7 +70,8 @@ void ReosRainfallTest::addingItem()
   QVERIFY( ! rainfallModel.addZone( QStringLiteral( "Somewhere" ), QString() ) );
   QCOMPARE( rainfallModel.rowCount( QModelIndex() ), 1 );
 
-  QVERIFY( rainfallModel.addZone( QStringLiteral( "Elsewhere" ), QString() ) );
+  ReosZoneItem *zone2 = rainfallModel.addZone( QStringLiteral( "Elsewhere" ), QString() );
+  QVERIFY( zone2 );
   QCOMPARE( rainfallModel.rowCount( QModelIndex() ), 2 );
 
   QModelIndex index = rainfallModel.index( 0, 0, QModelIndex() );
@@ -113,6 +115,10 @@ void ReosRainfallTest::addingItem()
   QVERIFY( item );
   QCOMPARE( item->name(), QStringLiteral( "Elsewhere in somewhere" ) );
   QCOMPARE( item->name(), otherModel.data( index, Qt::DisplayRole ).toString() );
+
+  ReosStationItem *station = rainfallModel.addStation( QStringLiteral( "a station somewhere" ), QString(), rainfallModel.itemToIndex( zone1 ) );
+  QVERIFY( station );
+  ReosRainfallGaugedRainfallItem *rainfall = rainfallModel.addGaugedRainfall( "rainfall", QString(), rainfallModel.itemToIndex( station ) );
 }
 
 void ReosRainfallTest::IDFCurvesMontana()
