@@ -2,9 +2,12 @@ name: Build Test Package Windows
 
 on:
   push:
-    branches: [ "release_2.3" ]
+    branches:
+      - master
+      - release-**
   pull_request:
-    branches: [ "release_2.3" ]
+      - master
+      - release-**
 
 env:
   BUILD_TYPE: Release
