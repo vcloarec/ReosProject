@@ -171,6 +171,11 @@ class REOSCORE_EXPORT ReosRainfallDataItem: public ReosRainfallItem
 
     virtual QString information() const {return QString();}
 
+    bool canBeSubItem( const ReosRainfallItem *item, bool ) const
+    {
+      return item && item->type() == ReosRainfallItem::Station;
+    }
+
     virtual QString dataType() const = 0;
 };
 
@@ -363,6 +368,16 @@ class REOSCORE_EXPORT ReosRainfallIntensityDurationCurveItem: public ReosRainfal
     QList<ReosParameter *> parameters() const override;
     ReosIntensityDurationCurve *data() const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
+    bool canBeSubItem( const ReosRainfallItem *item, bool ) const
+    {
+      if ( item && item->type() == ReosRainfallItem::Data )
+      {
+        const ReosRainfallIdfCurvesItem *idfc = qobject_cast<const ReosRainfallIdfCurvesItem * >( item );
+        return ( idfc != nullptr );
+      }
+
+      return false;
+    }
 
   private:
     ReosIntensityDurationCurve *mIntensityDurationCurve = nullptr;
