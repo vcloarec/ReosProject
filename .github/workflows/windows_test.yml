@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - master
-      - release-**
+      - release_**
     pull_request:
       - master
-      - release-**
+      - release_**
 
 env:
   BUILD_TYPE: Release
