@@ -73,6 +73,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject
 
   signals:
     void sendInformation( const QString & ) const;
+    void canCancel( bool b );
 
   protected slots:
     bool finish();

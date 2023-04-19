@@ -30,6 +30,7 @@ class ReosProcessControler : public QDialog
 
   public slots:
     int exec() override;
+    void enableCancel( bool enable );
 
   private slots:
     void refresh();
