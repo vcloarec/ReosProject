@@ -859,5 +859,5 @@ ReosLineEdit::ReosLineEdit( QWidget *parent ) : QLineEdit( parent )
 void ReosLineEdit::focusOutEvent( QFocusEvent *event )
 {
   emit focusOut();
-  QLineEdit::focusInEvent( event );
+  QLineEdit::focusOutEvent( event );
 }
