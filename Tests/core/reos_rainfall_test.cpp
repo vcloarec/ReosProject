@@ -118,7 +118,19 @@ void ReosRainfallTest::addingItem()
 
   ReosStationItem *station = rainfallModel.addStation( QStringLiteral( "a station somewhere" ), QString(), rainfallModel.itemToIndex( zone1 ) );
   QVERIFY( station );
-  ReosRainfallGaugedRainfallItem *rainfall = rainfallModel.addGaugedRainfall( "rainfall", QString(), rainfallModel.itemToIndex( station ) );
+  ReosRainfallGaugedRainfallItem *gaugedRainfall = rainfallModel.addGaugedRainfall( "gauged rainfall", QString(), rainfallModel.itemToIndex( station ) );
+  QVERIFY( gaugedRainfall );
+  ReosRainfallDoubleTriangleItem *doubTriRainfall = rainfallModel.addDoubleTriangleRainfall( "double tri rainfall", QString(), rainfallModel.itemToIndex( station ) );
+  QVERIFY( doubTriRainfall );
+  ReosRainfallChicagoItem *chicRainfall = rainfallModel.addChicagoRainfall( "chic rainfall", QString(), rainfallModel.itemToIndex( station ) );
+  QVERIFY( chicRainfall );
+  ReosRainfallAlternatingBlockItem *altRainfall = rainfallModel.addAlternatingBlockRainfall( "alt rainfall", QString(), rainfallModel.itemToIndex( station ) );
+  QVERIFY( altRainfall );
+
+  ReosRainfallIdfCurvesItem *idfCurves = rainfallModel.addIDFCurves( "idf curves", QString(), rainfallModel.itemToIndex( station ) );
+  QVERIFY( idfCurves );
+  ReosRainfallIntensityDurationCurveItem *idCurve = rainfallModel.addIDCurve( ReosDuration( 10, ReosDuration::year ), QString(), rainfallModel.itemToIndex( idfCurves ) );
+  QVERIFY( idCurve );
 }
 
 void ReosRainfallTest::IDFCurvesMontana()
