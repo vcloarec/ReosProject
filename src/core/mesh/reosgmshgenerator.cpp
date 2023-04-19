@@ -122,7 +122,9 @@ void ReosMeshGeneratorGmshProcess::start()
 {
   setMaxProgression( 0 );
   setInformation( tr( "Mesh generation in progress." ) );
+  emit canCancel( false );
   mResult = ReosGmshEngine::instance()->generateMesh( mData, mResolutionValues.get(), mAlgorithm );
+  emit canCancel( true );
   mResult.extent = mData.extent;
   mIsSuccessful = true;
   finish();

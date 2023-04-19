@@ -9,6 +9,7 @@ ReosProcessControler::ReosProcessControler( ReosProcess *process, QWidget *paren
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
+  setWindowFlag( Qt::WindowCloseButtonHint, false );
   setFocusPolicy( Qt::NoFocus );
   setAttribute( Qt::WA_ShowWithoutActivating );
 
@@ -21,6 +22,7 @@ ReosProcessControler::ReosProcessControler( ReosProcess *process, QWidget *paren
     ui->progressBar->setMaximum( mProcess->maxProgression() );
     connect( mProcess, &ReosProcess::finished, this, &ReosProcessControler::onFinished );
     connect( mProcess, &ReosProcess::sendInformation, ui->labelInformationText, &QLabel::setText );
+    connect( mProcess, &ReosProcess::canCancel, this, &ReosProcessControler::enableCancel );
   }
 
   mTimer.setInterval( mRefreshInterval );
@@ -43,6 +45,11 @@ int ReosProcessControler::exec()
   int res = QDialog::exec();
   mTimer.stop();
   return res;
+}
+
+void ReosProcessControler::enableCancel( bool enable )
+{
+  ui->buttonBox->button( QDialogButtonBox::Cancel )->setEnabled( enable );
 }
 
 void ReosProcessControler::refresh()
