@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosplottimeconstantinterval.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosplot_p.h"
 
 #include <qwt_plot_histogram.h>
@@ -36,7 +36,7 @@ ReosPlotHistogramItem_p *ReosPlotTimeHistogram::histogram()
 
 void ReosPlotTimeHistogram::setSettings()
 {
-  if ( mTimeSerie && mTimeSerie->data() )
+  if ( mTimeSeries && mTimeSeries->data() )
   {
     QPen pen;
     if ( mBorderWidth > 0 )
@@ -44,7 +44,7 @@ void ReosPlotTimeHistogram::setSettings()
     pen.setColor( mBorderColor );
     QBrush brush;
     brush.setStyle( mBrushStyle );
-    QColor brushColor = mBrushColor.isValid() ? mBrushColor : mTimeSerie->data()->currentValueModeColor();
+    QColor brushColor = mBrushColor.isValid() ? mBrushColor : mTimeSeries->data()->currentValueModeColor();
     brush.setColor( brushColor );
     histogram()->setBrush( brush );
     histogram()->setPen( pen );
@@ -52,23 +52,23 @@ void ReosPlotTimeHistogram::setSettings()
     if ( histogram()->plot() && mMasterItem )
     {
       histogram()->plot()->setAxisTitle( QwtPlot::yLeft,
-                                         mTimeSerie->data()->unitStringCurrentMode() );
+                                         mTimeSeries->data()->unitStringCurrentMode() );
     }
   }
 }
 
-void ReosPlotTimeHistogram::setTimeSerie( ReosTimeSerieConstantInterval *timeSerie, bool replot )
+void ReosPlotTimeHistogram::setTimeSeries(ReosTimeSeriesConstantInterval *timeSeries, bool replot )
 {
-  if ( mTimeSerie && mTimeSerie->data() )
-    disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+  if ( mTimeSeries && mTimeSeries->data() )
+    disconnect( mTimeSeries->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
 
-  mTimeSerie = new ReosPlotConstantIntervalTimeIntervalSerie( timeSerie );
-  histogram()->setSamples( mTimeSerie );
+  mTimeSeries = new ReosPlotConstantIntervalTimeIntervalSerie( timeSeries );
+  histogram()->setSamples( mTimeSeries );
 
-  if ( timeSerie )
+  if ( timeSeries )
   {
-    connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
-    connect( timeSerie, &ReosDataObject::settingsChanged, this, &ReosPlotTimeHistogram::setSettings );
+    connect( timeSeries, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+    connect( timeSeries, &ReosDataObject::settingsChanged, this, &ReosPlotTimeHistogram::setSettings );
   }
 
   setSettings();
@@ -104,7 +104,7 @@ ReosPlotTimeCumulativeCurve::ReosPlotTimeCumulativeCurve( const QString &name )
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
 }
 
-void ReosPlotTimeCumulativeCurve::setTimeSerie( ReosTimeSerieConstantInterval *timeSerie )
+void ReosPlotTimeCumulativeCurve::setTimeSeries( ReosTimeSeriesConstantInterval *timeSerie )
 {
   if ( mTimeSerie && mTimeSerie->data() )
     disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
@@ -127,7 +127,7 @@ void ReosPlotTimeCumulativeCurve::setSettings()
   if ( mTimeSerie && mTimeSerie->data() )
   {
     QPen pen;
-    pen.setColor( mTimeSerie->data()->valueModeColor( ReosTimeSerieConstantInterval::Cumulative ) );
+    pen.setColor( mTimeSerie->data()->valueModeColor( ReosTimeSeriesConstantInterval::Cumulative ) );
     pen.setWidth( 3 );
     curve()->setPen( pen );
   }
@@ -148,19 +148,19 @@ ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &nam
   curve->setLegendIconSize( QSize( 20, 5 ) );
 }
 
-void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot, bool applysettings )
+void ReosPlotTimeSerieVariableStep::setTimeSeries( ReosTimeSeriesVariableTimeStep *timeSerie, bool replot, bool applysettings )
 {
-  if ( mTimeSerie && mTimeSerie->data() )
+  if ( mTimeSeries && mTimeSeries->data() )
   {
-    disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
-    disconnect( mTimeSerie->data(), &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
-    disconnect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::displayColorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
+    disconnect( mTimeSeries->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
+    disconnect( mTimeSeries->data(), &ReosDataObject::dataChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
+    disconnect( mTimeSeries->data(), &ReosTimeSeriesVariableTimeStep::displayColorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
   }
 
-  mTimeSerie = nullptr;
+  mTimeSeries = nullptr;
   if ( timeSerie )
-    mTimeSerie = new ReosPlotVariableStepTimeSerie( timeSerie );
-  curve()->setSamples( mTimeSerie );
+    mTimeSeries = new ReosPlotVariableStepTimeSerie( timeSerie );
+  curve()->setSamples( mTimeSeries );
 
   if ( applysettings )
     setSettings();
@@ -169,7 +169,7 @@ void ReosPlotTimeSerieVariableStep::setTimeSerie( ReosTimeSerieVariableTimeStep 
   {
     connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );
     connect( timeSerie, &ReosDataObject::nameChanged, this, &ReosPlotTimeSerieVariableStep::onNameChanged );
-    connect( mTimeSerie->data(), &ReosTimeSerieVariableTimeStep::displayColorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
+    connect( mTimeSeries->data(), &ReosTimeSeriesVariableTimeStep::displayColorChanged, this, &ReosPlotTimeSerieVariableStep::setColor );
   }
 
   if ( curve()->plot() && replot )
@@ -180,25 +180,25 @@ void ReosPlotTimeSerieVariableStep::setSettings()
 {
   QPen pen = curve()->pen();
   pen.setWidthF( 2 );
-  if ( mTimeSerie && mTimeSerie->data() && mTimeSerie->data()->color().isValid() )
-    pen.setColor( mTimeSerie->data()->color() );
+  if ( mTimeSeries && mTimeSeries->data() && mTimeSeries->data()->color().isValid() )
+    pen.setColor( mTimeSeries->data()->color() );
   curve()->setPen( pen );
 
-  if ( mTimeSerie && curve()->plot() && mMasterItem )
+  if ( mTimeSeries && curve()->plot() && mMasterItem )
   {
     curve()->plot()->setAxisTitle( QwtPlot::yLeft,
-                                   mTimeSerie->data()->unitString() );
+                                   mTimeSeries->data()->unitString() );
   }
 
-  if ( mTimeSerie && mTimeSerie->data() )
-    setName( mTimeSerie->data()->name() );
+  if ( mTimeSeries && mTimeSeries->data() )
+    setName( mTimeSeries->data()->name() );
 }
 
 void ReosPlotTimeSerieVariableStep::onNameChanged()
 {
-  if ( mTimeSerie )
+  if ( mTimeSeries )
   {
-    setName( mTimeSerie->data()->name() );
+    setName( mTimeSeries->data()->name() );
     if ( curve()->plot() )
       curve()->plot()->replot();
   }
@@ -258,8 +258,8 @@ QPixmap ReosPlotTimeSerieVariableStep::icone( const QSize &size ) const
 
 QString ReosPlotTimeSerieVariableStep::name() const
 {
-  if ( mTimeSerie && mTimeSerie->data() )
-    return mTimeSerie->data()->name();
+  if ( mTimeSeries && mTimeSeries->data() )
+    return mTimeSeries->data()->name();
   else
     return ReosPlotItem::name();
 }

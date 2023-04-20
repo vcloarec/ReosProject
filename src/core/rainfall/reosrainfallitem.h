@@ -23,7 +23,7 @@
 #include <QUuid>
 
 #include "reosidfcurves.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reossyntheticrainfall.h"
 #include "reoscore.h"
 #include "reosmapextent.h"

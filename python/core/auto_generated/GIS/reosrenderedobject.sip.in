@@ -1,7 +1,7 @@
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/hydrograph/reoshydrograph.h                                 *
+ * src/core/GIS/reosrenderedobject.h                                    *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
@@ -10,39 +10,36 @@
 
 
 
-class ReosHydrograph : ReosTimeSeriesVariableTimeStep
+
+class ReosRenderedObject: ReosDataObject  /Abstract/
 {
 %Docstring(signature="appended")
-Class that represents a hydrograph
+Base classe of data object rendered on the map (for example mesh)
 %End
 
 %TypeHeaderCode
-#include "reoshydrograph.h"
+#include "reosrenderedobject.h"
 %End
   public:
-    ReosHydrograph( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    ReosRenderedObject( QObject *parent = 0 );
 %Docstring
-Constructs an hydrograph with ``providerKey`` and ``datasource``. The data could not be available just after creation dependeing of the provider.
-Remote provider could take sometime to obtain data
+Constructor
 %End
 
-    virtual QString type() const;
-    static QString staticType();
 
-    static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = 0 ) /Transfer/;
-%Docstring
-Loads and returns an completly loaded hydrograph.
-If the source is remote, that means that calling this methods lead to wait for reply of the remote source.
-The caller take ownership.
-%End
 
+
+
+
+
+  signals:
 };
-
 
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/hydrograph/reoshydrograph.h                                 *
+ * src/core/GIS/reosrenderedobject.h                                    *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/

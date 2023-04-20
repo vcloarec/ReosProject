@@ -26,8 +26,8 @@
 #include "reosdataobject.h"
 #include "reosdataprovider.h"
 
-class ReosTimeSerieConstantInterval;
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesConstantInterval;
+class ReosTimeSeriesVariableTimeStep;
 
 /**
  * Abstract class for time serie provider
@@ -120,7 +120,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSer
      * Writes \a series to location specified in \a uri, return false if fails.
      * Default implementation does nothing and return false.
      */
-    virtual bool writeSeries( ReosTimeSerieVariableTimeStep *series, const QString &uri );
+    virtual bool writeSeries( ReosTimeSeriesVariableTimeStep *series, const QString &uri );
 
     int timeValueIndex( const ReosDuration &time, bool &exact ) const;
     double valueAtTime( const ReosDuration &relativeTime ) const;

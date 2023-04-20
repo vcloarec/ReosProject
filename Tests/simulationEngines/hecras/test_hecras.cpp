@@ -358,7 +358,7 @@ void ReosHecrasTesting::createTimeSerie()
 
   filePath = filePath + QStringLiteral( ".dss" );
 
-  ReosTimeSerieConstantInterval newTimeSeries( nullptr, QStringLiteral( "dss" ), "\"" + filePath + "\"::" + path.string() );
+  ReosTimeSeriesConstantInterval newTimeSeries( nullptr, QStringLiteral( "dss" ), "\"" + filePath + "\"::" + path.string() );
   QCOMPARE( newTimeSeries.referenceTime(), refTime );
   QCOMPARE( newTimeSeries.timeStep(), ReosDuration( 600, ReosDuration::second ) );
 
@@ -367,7 +367,7 @@ void ReosHecrasTesting::createTimeSerie()
   QCOMPARE( newTimeSeries.valueAt( 1 ), 3.45 );
   QCOMPARE( newTimeSeries.valueAt( 2 ), 6.78 );
 
-  ReosTimeSerieVariableTimeStep variableTimeSeries( nullptr, QStringLiteral( "dss" ), "\"" + filePath + "\"::" + path.string() );
+  ReosTimeSeriesVariableTimeStep variableTimeSeries( nullptr, QStringLiteral( "dss" ), "\"" + filePath + "\"::" + path.string() );
   QCOMPARE( variableTimeSeries.referenceTime(), refTime );
 
   QCOMPARE( variableTimeSeries.valueCount(), 3 );

@@ -1,0 +1,41 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/process/reosprocess.h                                       *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosProcess : QObject /Abstract/
+{
+%Docstring(signature="appended")
+Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
+Processes can be nested.
+%End
+
+%TypeHeaderCode
+#include "reosprocess.h"
+%End
+  public:
+    virtual ~ReosProcess();
+
+    virtual void stop( bool b );
+    bool isStop() const;
+    bool isSuccessful() const;
+    bool isFinished() const;
+
+
+  signals:
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/process/reosprocess.h                                       *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

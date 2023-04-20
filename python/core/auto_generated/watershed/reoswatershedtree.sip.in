@@ -1,0 +1,144 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershedtree.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+
+
+class ReosWatershedTree: QObject
+{
+%Docstring(signature="appended")
+*************************************************************************
+reoswatershedtree.h
+--------------------------------------
+  Date                 : 04-10-2020
+  Copyright            : (C) 2020 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reoswatershedtree.h"
+%End
+  public:
+    explicit ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent = 0 );
+
+
+
+    ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
+%Docstring
+If there is no watershed downstrean, return None
+%End
+
+    ReosWatershed *watershed( const QPointF &point );
+%Docstring
+Returns the smallest watershed (the more upstream that contains the points
+%End
+
+    int watershedCount() const;
+%Docstring
+Returns the count of watershed (extreme downstream)
+%End
+
+    int masterWatershedCount() const;
+%Docstring
+Returns the count of master watershed (extreme downstream)
+%End
+
+    ReosWatershed *masterWatershed( int index ) const;
+%Docstring
+Returns a pointer to master watershed with ``index``
+%End
+
+    int masterWatershedPosition( ReosWatershed *watershed ) const;
+%Docstring
+Returns the position of the master watershed, if not a master watershed, returns -1
+%End
+
+    QList<ReosWatershed *> allWatershedsFromUSToDS() const;
+%Docstring
+Returns a list of all the watershed sorted from upstream to downstream
+%End
+
+    QList<ReosWatershed *> allWatershedsFromDSToUS() const;
+%Docstring
+Returns a list of all the watershed sorted from downstream to upstream
+%End
+
+
+    ReosWatershed *extractWatershed( ReosWatershed *ws ) /Transfer/;
+%Docstring
+Removes (if present) the watershed from the watershed ``ws``, but do not delete it, returns a pointer to it.
+Caller takes ownership
+Do not maintained sub watershed but move them to downstream.
+%End
+
+
+    void clearWatersheds();
+%Docstring
+Removes all the watersheds of the tree
+%End
+
+
+
+  signals:
+    void treeWillBeReset();
+%Docstring
+Emitted before the tree will be reset
+%End
+
+    void treeReset();
+%Docstring
+Emitted when the tree is reset
+%End
+
+    void watershedWillBeAdded();
+%Docstring
+Emitted before a watershed will be added
+%End
+
+    void watershedAdded( ReosWatershed * );
+%Docstring
+emitted when watershed is added with the pointer to the directly downsteam watershed (None if added watershed is a the extreme downstream)
+%End
+
+    void watershedWillBeRemoved( ReosWatershed * );
+%Docstring
+Emitted when a watershed will be remove with a pointer to the removed watershed
+%End
+
+    void watershedRemoved();
+%Docstring
+Emitted whan a whatershed is removed
+%End
+
+    void watershedChanged();
+%Docstring
+Emitted when a watershed changed
+%End
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershedtree.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

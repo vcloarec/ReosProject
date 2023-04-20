@@ -33,7 +33,7 @@ class ReosRootItem;
 class ReosZoneItem;
 class ReosStationItem;
 class ReosRainfallGaugedRainfallItem;
-class ReosTimeSerieConstantInterval;
+class ReosTimeSeriesConstantInterval;
 class ReosRainfallIdfCurvesItem;
 class ReosRainfallIntensityDurationCurveItem;
 class ReosGriddedRainfall;

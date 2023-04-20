@@ -23,8 +23,8 @@
 
 class ReosParameterBoolean;
 class ReosParameterDuration;
-class ReosTimeSerieVariableTimeStepModel;
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesVariableTimeStepModel;
+class ReosTimeSeriesVariableTimeStep;
 class ReosHydrograph;
 
 class ReosHydrographEditingWidget : public ReosFormWidget
@@ -38,7 +38,7 @@ class ReosHydrographEditingWidget : public ReosFormWidget
     ReosParameterBoolean *mIsUseConstantTimeStepForNewEntry = nullptr;
     ReosParameterDuration *mConstantTimeStepForNewEntry = nullptr;
     QWidget *mConstantTimeStepForNewEntryWidget = nullptr;
-    ReosTimeSerieVariableTimeStepModel *mDataModel;
+    ReosTimeSeriesVariableTimeStepModel *mDataModel;
     ReosDurationUnitComboBox *mTimeStepUnitCombo;
 };
 

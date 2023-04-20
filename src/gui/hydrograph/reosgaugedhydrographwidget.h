@@ -28,7 +28,7 @@ namespace Ui
 
 class ReosWatershed;
 class ReosHydrographsStore;
-class ReosTimeSerieVariableTimeStepModel;
+class ReosTimeSeriesVariableTimeStepModel;
 class ReosPlotTimeSerieVariableStep;
 class ReosHydrographEditingWidget;
 class ReosHydrograph;

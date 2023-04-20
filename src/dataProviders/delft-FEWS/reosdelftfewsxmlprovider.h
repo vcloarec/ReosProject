@@ -16,7 +16,7 @@
 #ifndef REOSDELFTFEWSXMLPROVIDER_H
 #define REOSDELFTFEWSXMLPROVIDER_H
 
-#include "reostimeserieprovider.h"
+#include "reostimeseriesprovider.h"
 
 class QDomElement;
 class QDomDocument;

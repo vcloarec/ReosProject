@@ -1336,12 +1336,12 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
   ReosTextFileData mtextFile;
 
   mImportedRainfall->setValueUnit( tr( "mm" ) );
-  mImportedRainfall->setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "Height per time step" ) );
-  mImportedRainfall->setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "Total height" ) );
-  mImportedRainfall->setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
-  mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
-  mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
-  mImportedRainfall->setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
+  mImportedRainfall->setValueModeName( ReosTimeSeriesConstantInterval::Value, tr( "Height per time step" ) );
+  mImportedRainfall->setValueModeName( ReosTimeSeriesConstantInterval::Cumulative, tr( "Total height" ) );
+  mImportedRainfall->setValueModeName( ReosTimeSeriesConstantInterval::Intensity, tr( "Rainfall intensity" ) );
+  mImportedRainfall->setValueModeColor( ReosTimeSeriesConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
+  mImportedRainfall->setValueModeColor( ReosTimeSeriesConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
+  mImportedRainfall->setValueModeColor( ReosTimeSeriesConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
   mImportedRainfall->setAddCumulative( true );
 
   setLayout( new QHBoxLayout );
@@ -1493,20 +1493,20 @@ QString ReosPlotItemRainfallSerieFactory::datatype() const {return ReosSeriesRai
 
 void ReosPlotItemRainfallSerieFactory::buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {
-  ReosTimeSerieConstantInterval *_data = static_cast<ReosTimeSerieConstantInterval *>( data );
+  ReosTimeSeriesConstantInterval *_data = static_cast<ReosTimeSeriesConstantInterval *>( data );
 
-  if ( _data->valueMode() != ReosTimeSerieConstantInterval::Cumulative )
+  if ( _data->valueMode() != ReosTimeSeriesConstantInterval::Cumulative )
   {
     std::unique_ptr<ReosPlotTimeHistogram> histogram = std::make_unique<ReosPlotTimeHistogram>( _data->name() + QObject::tr( ", instant value" ), true );
-    histogram->setTimeSerie( _data );
+    histogram->setTimeSeries( _data );
     plotWidget->addPlotItem( histogram.release() );
   }
 
-  if ( _data->valueMode() == ReosTimeSerieConstantInterval::Cumulative || _data->addCumultive() )
+  if ( _data->valueMode() == ReosTimeSeriesConstantInterval::Cumulative || _data->addCumultive() )
   {
     plotWidget->enableAxeYRight( true );
     std::unique_ptr<ReosPlotTimeCumulativeCurve> cumulCurve = std::make_unique<ReosPlotTimeCumulativeCurve>( _data->name() + QObject::tr( ", cumulative value" ) );
-    cumulCurve->setTimeSerie( _data );
+    cumulCurve->setTimeSeries( _data );
     cumulCurve->setOnRightAxe();
     plotWidget->addPlotItem( cumulCurve.release() );
     plotWidget->setTitleAxeYRight( QObject::tr( "Cumulative rainfall (mm)" ) );

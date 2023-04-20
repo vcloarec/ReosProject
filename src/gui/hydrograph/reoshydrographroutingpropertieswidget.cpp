@@ -207,7 +207,7 @@ void ReosHydrographRoutingPropertiesWidget::populateHydrographs()
   mHydrographPlotButton->addData( mRouting->inputHydrograph() );
   mHydrographPlotButton->addData( mRouting->outputHydrograph() );
 
-  QList<ReosTimeSerieVariableTimeStep *> tsList;
+  QList<ReosTimeSeriesVariableTimeStep *> tsList;
 
   for ( ReosHydrograph *hyd : std::as_const( hydrographs ) )
     tsList.append( hyd );

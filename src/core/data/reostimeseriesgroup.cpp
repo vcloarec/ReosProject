@@ -15,14 +15,14 @@
  ***************************************************************************/
 #include "reostimeseriesgroup.h"
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 
 ReosTimeSeriesVariableTimeStepGroup::ReosTimeSeriesVariableTimeStepGroup( QObject *parent ): ReosDataObject( parent )
 {
 
 }
 
-int ReosTimeSeriesVariableTimeStepGroup::addTimeSeries( ReosTimeSerieVariableTimeStep *timeSeries )
+int ReosTimeSeriesVariableTimeStepGroup::addTimeSeries( ReosTimeSeriesVariableTimeStep *timeSeries )
 {
   mTimeSeries.append( timeSeries );
   timeSeries->setParent( this );
@@ -37,7 +37,7 @@ int ReosTimeSeriesVariableTimeStepGroup::timeSeriesCount() const
   return mTimeSeries.count();
 }
 
-ReosTimeSerieVariableTimeStep *ReosTimeSeriesVariableTimeStepGroup::timeSeries( int index ) const
+ReosTimeSeriesVariableTimeStep *ReosTimeSeriesVariableTimeStepGroup::timeSeries( int index ) const
 {
   if ( index < 0 || index >= mTimeSeries.count() )
     return nullptr;
@@ -59,7 +59,7 @@ QStringList ReosTimeSeriesVariableTimeStepGroup::seriesNames() const
 {
   QStringList ret;
 
-  for ( ReosTimeSerieVariableTimeStep *ts : mTimeSeries )
+  for ( ReosTimeSeriesVariableTimeStep *ts : mTimeSeries )
     ret.append( ts->name() );
 
   return ret;
@@ -71,7 +71,7 @@ ReosEncodedElement ReosTimeSeriesVariableTimeStepGroup::encode( const ReosEncode
 
   QList<ReosEncodedElement> seriesList;
 
-  for ( ReosTimeSerieVariableTimeStep *series : mTimeSeries )
+  for ( ReosTimeSeriesVariableTimeStep *series : mTimeSeries )
   {
     seriesList.append( series->encode( context ) );
   }
@@ -89,5 +89,5 @@ void ReosTimeSeriesVariableTimeStepGroup::decode( const ReosEncodedElement &elem
   QList<ReosEncodedElement> seriesList = element.getListEncodedData( QStringLiteral( "series-list" ) );
 
   for ( const ReosEncodedElement &elem : std::as_const( seriesList ) )
-    mTimeSeries.append( ReosTimeSerieVariableTimeStep::decode( elem, context, this ) );
+    mTimeSeries.append( ReosTimeSeriesVariableTimeStep::decode( elem, context, this ) );
 }

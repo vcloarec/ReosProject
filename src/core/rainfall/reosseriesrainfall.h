@@ -16,17 +16,16 @@
 #ifndef REOSSERIESRAINFALL_H
 #define REOSSERIESRAINFALL_H
 
-#define SIP_NO_FILE
 
 #include "reoscore.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosprocess.h"
 
 class ReosWatershed;
 class ReosGriddedRainfall;
 class ReosGriddedRainfallProvider;
 
-class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
+class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
 {
     Q_OBJECT
   public:
@@ -34,8 +33,9 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
 
     QString type() const override {return staticType();}
 
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
+#ifndef SIP_RUN
 
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
     //! Creates new instance from the encoded element
     static ReosSeriesRainfall *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
     static QString staticType();
@@ -43,6 +43,7 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSerieConstantInterval
   protected:
     explicit ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
+#endif // No SIP_RUN
   private:
     void setupData();
 
@@ -58,9 +59,12 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
   signals:
     void calculationFinished();
 
+#ifndef SIP_RUN
+
   protected:
     void updateData() const override;
 
+#endif // No SIP_RUN
   private:
 
     class AverageCalculation : public ReosProcess
@@ -68,7 +72,7 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
       public:
         std::unique_ptr<ReosGriddedRainfallProvider> griddedRainfallProvider;
         QPolygonF watershedPolygon;
-        ReosTimeSerieConstantInterval result;
+        ReosTimeSeriesConstantInterval result;
         ReosDuration timeStep;
         bool usePrecision = false;
         void start() override;
@@ -81,7 +85,6 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
 
     void launchCalculation();
     AverageCalculation *getCalculationProcess() const;
-
 };
 
 

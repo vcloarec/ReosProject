@@ -23,7 +23,7 @@
 
 #include "reosplotwidget.h"
 #include "reosplot_p.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosidfcurves.h"
 #include "reosplotidfcurve.h"
@@ -864,7 +864,7 @@ ReosPlotItem *ReosPlotItemFactories::buildPlotItem( ReosPlotWidget *plotWidget, 
 }
 
 ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent )
-  : ReosModule( QStringLiteral("plot-item-factories"), parent ) {}
+  : ReosModule( QStringLiteral( "plot-item-factories" ), parent ) {}
 
 void ReosDataPlotItemFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * ) {}
 

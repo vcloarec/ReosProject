@@ -21,7 +21,7 @@
 #include "reosdataobject.h"
 #include "reosencodedelement.h"
 
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesVariableTimeStep;
 
 class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObject
 {
@@ -29,10 +29,10 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObjec
   public:
     ReosTimeSeriesVariableTimeStepGroup( QObject *parent = nullptr );
 
-    int addTimeSeries( ReosTimeSerieVariableTimeStep *timeSeries );
+    int addTimeSeries( ReosTimeSeriesVariableTimeStep *timeSeries );
     int timeSeriesCount() const;
 
-    ReosTimeSerieVariableTimeStep *timeSeries( int index ) const;
+    ReosTimeSeriesVariableTimeStep *timeSeries( int index ) const;
 
     void removeTimeSeries( int index );
 
@@ -45,7 +45,7 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepGroup : public ReosDataObjec
     void serieChanged();
 
   private:
-    QList<ReosTimeSerieVariableTimeStep *> mTimeSeries;
+    QList<ReosTimeSeriesVariableTimeStep *> mTimeSeries;
 };
 
 #endif // REOSTIMESERIESGROUP_H

@@ -21,7 +21,7 @@
 #include <QMessageBox>
 #include <QClipboard>
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 
 ReosHorizontalHeaderView::ReosHorizontalHeaderView( QWidget *parent ) : QHeaderView( Qt::Horizontal, parent )
 {

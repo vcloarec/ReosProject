@@ -24,9 +24,9 @@
 class QToolBar;
 
 class ReosTimeSeriesVariableTimeStepGroup;
-class ReosTimeSerieVariableTimeStepModel;
+class ReosTimeSeriesVariableTimeStepModel;
 class ReosPlotTimeSerieVariableStep;
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesVariableTimeStep;
 class ReosGuiContext;
 class ReosMap;
 
@@ -66,7 +66,7 @@ class ReosVariableTimeStepTimeSeriesGroupWidget: public ReosStackedPageWidget
     QWidget *mCurrentProviderSettingsWidget = nullptr;
     QWidget *mCurrenEditingWidget = nullptr;
 //    QMap<QAction *, QString> mProvidersActionToKeys;
-    QPointer<ReosTimeSerieVariableTimeStep> mCurrentSeries = nullptr;
+    QPointer<ReosTimeSeriesVariableTimeStep> mCurrentSeries = nullptr;
     ReosPlotTimeSerieVariableStep *mSeriesPlot = nullptr;
     QToolBar *mToolBarProvider;
 
@@ -82,14 +82,14 @@ class ReosVariableTimeStepSeriesEditingWidget : public ReosFormWidget
 {
     Q_OBJECT
   public:
-    explicit ReosVariableTimeStepSeriesEditingWidget( ReosTimeSerieVariableTimeStep *timeSeries, QWidget *parent = nullptr );
+    explicit ReosVariableTimeStepSeriesEditingWidget( ReosTimeSeriesVariableTimeStep *timeSeries, QWidget *parent = nullptr );
     ~ReosVariableTimeStepSeriesEditingWidget();
 
   private:
     ReosParameterBoolean *mIsUseConstantTimeStepForNewEntry = nullptr;
     ReosParameterDuration *mConstantTimeStepForNewEntry = nullptr;
     QWidget *mConstantTimeStepForNewEntryWidget = nullptr;
-    ReosTimeSerieVariableTimeStepModel *mDataModel;
+    ReosTimeSeriesVariableTimeStepModel *mDataModel;
     ReosDurationUnitComboBox *mTimeStepUnitCombo;
 };
 

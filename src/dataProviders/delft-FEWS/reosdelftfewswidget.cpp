@@ -87,7 +87,7 @@ ReosDataObject *ReosDelftFewsWidget::createData( QObject *parent ) const
 
   const ReosDelftFewsStation &station = mStationsModel->station( stationIndex );
 
-  std::unique_ptr<ReosTimeSerie> dataObject;
+  std::unique_ptr<ReosTimeSeries> dataObject;
   ReosDelftFewsXMLProviderInterface *provider = nullptr;
 
   if ( station.dataType() == ReosDelftFewsXMLHydrographProvider::dataType() )
@@ -202,7 +202,7 @@ void ReosDelftFewsWidget::onStationChanged()
       mCurrentHydrograph = createHydrograph( this );
       if ( mCurrentHydrograph )
       {
-        mHydrographPlot->setTimeSerie( mCurrentHydrograph, false );
+        mHydrographPlot->setTimeSeries( mCurrentHydrograph, false );
         ui->mPlotWidget->setTitleAxeYLeft( tr( "Flow rate (%1)" ).arg( QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
       }
     }
@@ -211,7 +211,7 @@ void ReosDelftFewsWidget::onStationChanged()
     {
       mCurrentRainfall = createRainfall( this );
       if ( mCurrentRainfall )
-        mRainfallPlot->setTimeSerie( mCurrentRainfall, false );
+        mRainfallPlot->setTimeSeries( mCurrentRainfall, false );
     }
 
     if ( station.dataType() == mDataType )
@@ -382,7 +382,7 @@ ReosSeriesRainfall *ReosDelftFewsWidget::createRainfall( QObject *parent ) const
                                           + QStringLiteral( "::" )
                                           + ReosDelftFewsXMLRainfallProvider::dataType(), currentUri() );
 
-  rainfall->setValueMode( ReosTimeSerieConstantInterval::Intensity );
+  rainfall->setValueMode( ReosTimeSeriesConstantInterval::Intensity );
   return rainfall.release();
 }
 

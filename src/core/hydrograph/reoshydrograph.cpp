@@ -23,7 +23,7 @@
 
 
 ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, const QString &dataSource )
-  : ReosTimeSerieVariableTimeStep( parent,
+  : ReosTimeSeriesVariableTimeStep( parent,
                                    providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : formatKey( providerKey ),
                                    dataSource ) {}
 
@@ -49,7 +49,7 @@ void ReosHydrograph::updateData() const
 ReosEncodedElement ReosHydrograph::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "hydrograph" ) );
-  ReosTimeSerieVariableTimeStep::baseEncode( element, context );
+  ReosTimeSeriesVariableTimeStep::baseEncode( element, context );
   return element;
 }
 
@@ -260,7 +260,7 @@ void ReosRunoffHydrographsStore::updateStore()
         }
         ReosHydrograph *hyd = hydData.hydrograph.get();
         connect( hyd, &ReosHydrograph::colorChanged, model, &ReosMeteorologicModel::setColor );
-        connect( model, &ReosMeteorologicModel::colorChanged, hyd, &ReosTimeSerieVariableTimeStep::setCommonColor );
+        connect( model, &ReosMeteorologicModel::colorChanged, hyd, &ReosTimeSeriesVariableTimeStep::setCommonColor );
 
         hydData.hydrograph->setName( tr( "%1 hydrograph" ).arg( model->name()->value() ) );
         hydData.runoff.reset( new ReosRunoff( mWatershed->runoffModels(), hydData.rainfall ) );

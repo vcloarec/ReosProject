@@ -19,7 +19,7 @@
 #include <QFileInfo>
 
 #include "reosrainfallitem.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosparameter.h"
 #include "reosversion.h"
 
@@ -65,11 +65,11 @@ void ReosRunoffModel::encodeBase( ReosEncodedElement &element ) const
   element.addData( QStringLiteral( "unique-id" ), mUniqueId );
 }
 
-ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConstantInterval *rainfall, QObject *parent ):
+ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSeriesConstantInterval *rainfall, QObject *parent ):
   ReosDataObject( parent )
   , mRainfall( rainfall )
   , mRunoffModelsGroups( runoffModels )
-  , mData( new ReosTimeSerieConstantInterval( this ) )
+  , mData( new ReosTimeSeriesConstantInterval( this ) )
 {
   mData->copyAttribute( mRainfall );
   mData->syncWith( mRainfall );
@@ -78,7 +78,7 @@ ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConsta
   registerUpstreamData( mRunoffModelsGroups );
 }
 
-void ReosRunoff::setRainfall( ReosTimeSerieConstantInterval *rainfall )
+void ReosRunoff::setRainfall( ReosTimeSeriesConstantInterval *rainfall )
 {
   deregisterUpstreamData( mRainfall );
   mRainfall = rainfall;
@@ -107,7 +107,7 @@ double ReosRunoff::value( int i ) const
 double ReosRunoff::incrementalValue( int i )
 {
   updateValues();
-  return mData->valueWithMode( i, ReosTimeSerieConstantInterval::Value );
+  return mData->valueWithMode( i, ReosTimeSeriesConstantInterval::Value );
 }
 
 void ReosRunoff::updateValues() const
@@ -147,7 +147,7 @@ void ReosRunoff::updateValues() const
   return ;
 }
 
-ReosTimeSerieConstantInterval *ReosRunoff::data() const
+ReosTimeSeriesConstantInterval *ReosRunoff::data() const
 {
   updateValues();
   return mData;
@@ -178,7 +178,7 @@ QList<ReosParameter *> ReosRunoffConstantCoefficientModel::parameters() const
   return ret;
 }
 
-bool ReosRunoffModel::applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+bool ReosRunoffModel::applyRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor )
 {
   if ( !rainfall || !runoffResult )
     return false;
@@ -189,7 +189,7 @@ bool ReosRunoffModel::applyRunoffModel( ReosTimeSerieConstantInterval *rainfall,
   return addRunoffModel( rainfall, runoffResult, factor );
 }
 
-bool ReosRunoffConstantCoefficientModel::addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+bool ReosRunoffConstantCoefficientModel::addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor )
 {
   if ( !rainfall || !runoffResult )
     return false;
@@ -1042,7 +1042,7 @@ double static resolveFpEquation( double T, double SM, double K )
   return X2 * SM;
 }
 
-bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor )
 {
   if ( !rainfall || !runoffResult )
     return false;
@@ -1216,7 +1216,7 @@ QList<ReosParameter *> ReosRunoffCurveNumberModel::parameters() const
   return ret;
 }
 
-bool ReosRunoffCurveNumberModel::addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor )
+bool ReosRunoffCurveNumberModel::addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor )
 {
   if ( !rainfall || !runoffResult )
     return false;

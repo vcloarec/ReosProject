@@ -22,7 +22,7 @@ class ReosPlotHistogramItem_p;
 
 class ReosPlotConstantIntervalTimeIntervalSerie;
 class ReosPlotConstantIntervalTimePointSerie;
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesVariableTimeStep;
 class ReosPlotVariableStepTimeSerie;
 
 /**
@@ -33,8 +33,8 @@ class REOSGUI_EXPORT ReosPlotTimeHistogram: public ReosPlotItem
     Q_OBJECT
   public:
     //! Contructor with the name of the item. If this item is contructed with \a masterItem true, this item will control the title of Y left axe.
-    ReosPlotTimeHistogram( const QString &name, bool masterItem = false );
-    void setTimeSerie( ReosTimeSerieConstantInterval *timeSerie, bool replot = true );
+    explicit ReosPlotTimeHistogram( const QString &name, bool masterItem = false );
+    void setTimeSeries( ReosTimeSeriesConstantInterval *timeSeries, bool replot = true );
 
     //! Sets the color of the border (default black);
     void setBorderColor( const QColor &color );
@@ -53,7 +53,7 @@ class REOSGUI_EXPORT ReosPlotTimeHistogram: public ReosPlotItem
 
   private:
     ReosPlotHistogramItem_p *histogram();
-    ReosPlotConstantIntervalTimeIntervalSerie *mTimeSerie = nullptr;
+    ReosPlotConstantIntervalTimeIntervalSerie *mTimeSeries = nullptr;
 
     QColor mBorderColor = Qt::black;
     QColor mBrushColor;
@@ -67,10 +67,10 @@ class REOSGUI_EXPORT ReosPlotTimeCumulativeCurve: public ReosPlotItem
     Q_OBJECT
   public:
     ReosPlotTimeCumulativeCurve( const QString &name = QString() );
-    void setTimeSerie( ReosTimeSerieConstantInterval *timeSerie );
+    void setTimeSeries( ReosTimeSeriesConstantInterval *timeSerie );
 
   private slots:
-    void setSettings();
+    void setSettings() override;
 
   private:
     QwtPlotCurve *curve();
@@ -83,7 +83,7 @@ class REOSGUI_EXPORT ReosPlotTimeSerieVariableStep: public ReosPlotItem
     Q_OBJECT
   public:
     ReosPlotTimeSerieVariableStep( const QString &name = QString() );
-    void setTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, bool replot = true, bool applysettings = true );
+    void setTimeSeries( ReosTimeSeriesVariableTimeStep *timeSerie, bool replot = true, bool applysettings = true );
 
     QColor color() const override;
     QPixmap icone( const QSize &size ) const override;
@@ -100,7 +100,7 @@ class REOSGUI_EXPORT ReosPlotTimeSerieVariableStep: public ReosPlotItem
 
   private:
     QwtPlotCurve *curve() const;
-    ReosPlotVariableStepTimeSerie *mTimeSerie = nullptr;
+    ReosPlotVariableStepTimeSerie *mTimeSeries = nullptr;
 };
 
 #endif // REOSPLOTTIMECONSTANTINTERVAL_H

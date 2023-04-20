@@ -217,7 +217,7 @@ ReosHydrograph *ReosTransferFunctionGeneralizedRationalMethod::applyFunction( Re
   ReosDuration::Unit timeUnit = ReosDuration::second;
 
   std::unique_ptr<ReosHydrograph> hydrograph = std::make_unique<ReosHydrograph>( hydrographParent );
-  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+  ReosTimeSeriesConstantInterval *runoffTimeSerie = runoff->data();
 
   ReosDuration timeStep = runoffTimeSerie->timeStepParameter()->value();
   ReosDuration concTime = concentrationTime()->value();
@@ -559,7 +559,7 @@ ReosHydrograph *ReosTransferFunctionSCSUnitHydrograph::applyFunction( ReosRunoff
   if ( !runoff || !runoff->data() )
     return nullptr;
 
-  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+  ReosTimeSeriesConstantInterval *runoffTimeSerie = runoff->data();
   QDateTime referenceTime = runoffTimeSerie->referenceTime();
   ReosDuration timeStep = runoffTimeSerie->timeStepParameter()->value();
 
@@ -604,7 +604,7 @@ ReosHydrographCalculation *ReosTransferFunctionSCSUnitHydrograph::calculationPro
   if ( !runoff || !runoff->data() )
     return nullptr;
 
-  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+  ReosTimeSeriesConstantInterval *runoffTimeSerie = runoff->data();
   QDateTime referenceTime = runoffTimeSerie->referenceTime();
   ReosDuration timeStep = runoffTimeSerie->timeStepParameter()->value();
 
@@ -1100,7 +1100,7 @@ ReosHydrograph *ReosTransferFunctionNashUnitHydrograph::applyFunction( ReosRunof
   if ( !runoff || !runoff->data() )
     return nullptr;
 
-  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
+  ReosTimeSeriesConstantInterval *runoffTimeSerie = runoff->data();
 
   ReosDuration K;
   if ( mUseConcentrationTime->value() )
@@ -1159,8 +1159,8 @@ ReosHydrographCalculation *ReosTransferFunctionNashUnitHydrograph::calculationPr
   if ( !runoff || !runoff->data() )
     return nullptr;
 
-  ReosTimeSerieConstantInterval *runoffTimeSerie = runoff->data();
-  QDateTime referenceTime = runoffTimeSerie->referenceTime();
+  ReosTimeSeriesConstantInterval *runoffTimeSeries = runoff->data();
+  QDateTime referenceTime = runoffTimeSeries->referenceTime();
 
   ReosDuration K;
   if ( mUseConcentrationTime->value() )
@@ -1168,7 +1168,7 @@ ReosHydrographCalculation *ReosTransferFunctionNashUnitHydrograph::calculationPr
   else
     K = mKParam->value();
 
-  return new Calculation( runoffTimeSerie->constData(), runoffTimeSerie->timeStepParameter()->value(), referenceTime, K, mNParam->value(), area()->value() );
+  return new Calculation( runoffTimeSeries->constData(), runoffTimeSeries->timeStepParameter()->value(), referenceTime, K, mNParam->value(), area()->value() );
 }
 
 

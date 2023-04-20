@@ -360,7 +360,7 @@ void ReosHydraulicStructureBoundaryCondition::setWaterLevelSeriesIndex( int wate
   emit dataChanged();
 }
 
-ReosTimeSerieVariableTimeStep *ReosHydraulicStructureBoundaryCondition::waterLevelSeries() const
+ReosTimeSeriesVariableTimeStep *ReosHydraulicStructureBoundaryCondition::waterLevelSeries() const
 {
   return mWaterLevelSeriesGroup->timeSeries( mWaterLevelSeriesIndex );
 }

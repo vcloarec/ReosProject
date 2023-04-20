@@ -1,0 +1,145 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatersheddelineating.h                        *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+
+
+class ReosWatershedDelineating : ReosModule
+{
+
+%TypeHeaderCode
+#include "reoswatersheddelineating.h"
+%End
+  public:
+    enum State
+    {
+      NoDigitalElevationModel,
+      WaitingForDownstream,
+      WaitingForExtent,
+      WaitingWithBroughtBackExtent,
+      WaitingforProceed,
+      Delineating,
+      WaitingForValidate,
+      WaitingToRecord
+    };
+
+    ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedTree, ReosGisEngine *gisEngine );
+    State currentState() const;
+
+    bool hasValidDigitalElevationModel() const;
+%Docstring
+Returns wheher the instance has a registered DEM to operate
+%End
+
+    bool setDigitalElevationModelDEM( const QString &layerId );
+%Docstring
+Sets the DEM to operate
+%End
+
+    bool setDownstreamLine( const QPolygonF &downstreamLine );
+%Docstring
+Sets the downstream line, return true if sucessful
+%End
+
+    bool setPreDefinedExtent( const ReosMapExtent &extent );
+%Docstring
+Sets the predefined extent, return true if sucessful
+%End
+
+    void setBurningLines( const QList<QPolygonF> &burningLines );
+%Docstring
+Adds a burning line
+%End
+
+    QList<QPolygonF> burninglines() const;
+%Docstring
+Returns all burning lines
+%End
+
+    void setCalculateAverageElevation( bool calculate );
+%Docstring
+Sets whether the average elevation of the watershed is calculated after delineating
+%End
+
+    bool hasDirectionData() const;
+%Docstring
+Returns whether the module has direction data ready for proceed
+%End
+
+    ReosMapExtent currentExtent() const;
+%Docstring
+Returns the current extent
+%End
+
+    bool prepareDelineating();
+%Docstring
+Prepare the delineating, return true if sucessful
+%End
+
+    ReosProcess *delineatingProcess();
+
+    bool isDelineatingFinished() const;
+%Docstring
+Returns if the delineating process is finished
+%End
+
+    QPolygonF lastWatershedDelineated() const;
+%Docstring
+Returns the last wateshed polygon delineated
+%End
+
+    QPolygonF lastStreamLine() const;
+%Docstring
+Returns the last downstream line polyline delineated
+%End
+
+
+    bool validateWatershed( bool &needAdjusting );
+%Docstring
+Validates the watershed and returns true if modification of delineating in necessary to add it
+%End
+
+    ReosWatershed *storeWatershed( bool adjustIfNeeded );
+%Docstring
+Store the wahtershed in the tree, returns pointer to the new watershed
+%End
+
+
+    void testPredefinedExtentValidity();
+%Docstring
+Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
+%End
+
+    void reset();
+%Docstring
+Resets the delineating toolto waiting for a downstream line
+%End
+
+    void clear();
+%Docstring
+Clears all the data from the delineating tool
+%End
+
+    static QString staticName();
+
+  signals:
+    void hasBeenReset();
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatersheddelineating.h                        *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

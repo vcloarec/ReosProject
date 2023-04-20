@@ -15,7 +15,7 @@ email                : vcloarec at gmail dot com
 #include<QtTest/QtTest>
 #include <QObject>
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosmemoryraster.h"
 
 class ReosDataTesting: public QObject
@@ -29,9 +29,9 @@ class ReosDataTesting: public QObject
 
 void ReosDataTesting::variable_time_step_time_model()
 {
-  ReosTimeSerieVariableTimeStep timeSerie;
+  ReosTimeSeriesVariableTimeStep timeSerie;
   timeSerie.setReferenceTime( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  ReosTimeSerieVariableTimeStepModel variableTimeStepModel;
+  ReosTimeSeriesVariableTimeStepModel variableTimeStepModel;
   variableTimeStepModel.setSerie( &timeSerie );
 
   QCOMPARE( variableTimeStepModel.rowCount( QModelIndex() ), 1 ); //row for new value
@@ -568,7 +568,7 @@ void ReosDataTesting::variable_time_step_time_model()
   ReosEncodeContext encodeContext;
   ReosEncodedElement elem = timeSerie.encode( encodeContext );
 
-  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem, encodeContext ) );
+  std::unique_ptr<ReosTimeSeriesVariableTimeStep> otherTimeSerie( ReosTimeSeriesVariableTimeStep::decode( elem, encodeContext ) );
   QVERIFY( otherTimeSerie );
   QCOMPARE( otherTimeSerie->valueCount(), 3 );
   QVERIFY( otherTimeSerie->relativeTimeAt( 0 ) == ReosDuration( -180, ReosDuration::second ) );
@@ -607,7 +607,7 @@ void ReosDataTesting::encode_variable_time_step()
   tsElement.addEncodedData( QStringLiteral( "provider-data" ), providerElement );
   ReosEncodeContext encodeContext;
 
-  std::unique_ptr<ReosTimeSerieVariableTimeStep> timeSerie( ReosTimeSerieVariableTimeStep::decode( tsElement, encodeContext ) );
+  std::unique_ptr<ReosTimeSeriesVariableTimeStep> timeSerie( ReosTimeSeriesVariableTimeStep::decode( tsElement, encodeContext ) );
 
   QVERIFY( timeSerie );
   QCOMPARE( timeSerie->valueCount(), 4 );
@@ -625,7 +625,7 @@ void ReosDataTesting::encode_variable_time_step()
   QCOMPARE( timeSerie->valueAt( 3 ), 9.12 );
 
   ReosEncodedElement elem = timeSerie->encode( encodeContext );
-  std::unique_ptr<ReosTimeSerieVariableTimeStep> otherTimeSerie( ReosTimeSerieVariableTimeStep::decode( elem, encodeContext ) );
+  std::unique_ptr<ReosTimeSeriesVariableTimeStep> otherTimeSerie( ReosTimeSeriesVariableTimeStep::decode( elem, encodeContext ) );
   QVERIFY( otherTimeSerie );
 
   QCOMPARE( otherTimeSerie->valueCount(), 4 );

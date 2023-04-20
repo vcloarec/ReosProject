@@ -29,7 +29,7 @@
 
 #include "reosparameterwidget.h"
 #include "reosparameter.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosrainfallintensitydurationwidget.h"
 #include "reosidfcurves.h"
 #include "reossyntheticrainfall.h"

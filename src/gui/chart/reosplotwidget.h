@@ -44,7 +44,7 @@ class ReosPlotPolygons_p;
 
 class ReosPlot_p;
 class ReosDataObject;
-class ReosTimeSerieConstantInterval;
+class ReosTimeSeriesConstantInterval;
 class ReosVariableTimeStepPlotListButton;
 class ReosPlotTimeLine;
 class CoordinatesWidget;

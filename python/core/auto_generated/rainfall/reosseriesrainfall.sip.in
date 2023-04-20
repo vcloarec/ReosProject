@@ -1,0 +1,65 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/rainfall/reosseriesrainfall.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+class ReosSeriesRainfall : ReosTimeSeriesConstantInterval
+{
+%Docstring(signature="appended")
+*************************************************************************
+reosseriesrainfall.h - ReosSeriesRainfall
+
+---------------------
+  begin                : 22.11.2022
+  copyright            : (C) 2022 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reosseriesrainfall.h"
+%End
+  public:
+    ReosSeriesRainfall( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual QString type() const;
+
+};
+
+
+class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall
+{
+
+%TypeHeaderCode
+#include "reosseriesrainfall.h"
+%End
+  public:
+    ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = 0 );
+
+  signals:
+    void calculationFinished();
+
+      public:
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/rainfall/reosseriesrainfall.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

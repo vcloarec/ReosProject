@@ -22,7 +22,7 @@
 
 #include "reosmapextent.h"
 #include "reosmodule.h"
-#include "reostimeserieprovider.h"
+#include "reostimeseriesprovider.h"
 
 
 class QNetworkAccessManager;
