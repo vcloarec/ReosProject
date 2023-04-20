@@ -25,7 +25,7 @@
 class ReosPlotItem;
 class ReosPlotWidget;
 class ReosDataObject;
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesVariableTimeStep;
 
 
 class ReosPlotItemListModel : public QAbstractListModel
@@ -41,14 +41,14 @@ class ReosPlotItemListModel : public QAbstractListModel
     bool setData( const QModelIndex &index, const QVariant &value, int role ) override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
 
-    ReosPlotItem *addData( ReosTimeSerieVariableTimeStep *data );
+    ReosPlotItem *addData( ReosTimeSeriesVariableTimeStep *data );
     void clear();
 
     bool globalVisibilty() const;
     void setGlobalVisibilty( bool globalVisibilty );
 
   private:
-    QList < std::tuple<ReosPlotItem *, ReosTimeSerieVariableTimeStep *, bool>> mPlot;
+    QList < std::tuple<ReosPlotItem *, ReosTimeSeriesVariableTimeStep *, bool>> mPlot;
     bool mGlobalVisibilty = false;
     ReosPlotWidget *mPlotWidget = nullptr;
 
@@ -59,7 +59,7 @@ class ReosVariableTimeStepPlotListView : public QListView
 {
   public:
     ReosVariableTimeStepPlotListView( ReosPlotWidget *plotWidget, QWidget *parent = nullptr );
-    ReosPlotItem *addData( ReosTimeSerieVariableTimeStep *data );
+    ReosPlotItem *addData( ReosTimeSeriesVariableTimeStep *data );
 
     void clear();
 
@@ -82,7 +82,7 @@ class ReosVariableTimeStepPlotListButton: public QToolButton
   public:
     ReosVariableTimeStepPlotListButton( const QString &title, ReosPlotWidget *parent );
 
-    ReosPlotItem *addData( ReosTimeSerieVariableTimeStep *data );
+    ReosPlotItem *addData( ReosTimeSeriesVariableTimeStep *data );
     void clear();
 
   private:

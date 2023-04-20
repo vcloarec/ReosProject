@@ -1,5 +1,5 @@
 /***************************************************************************
-  reostimeserieprovider.cpp - ReosTimeSerieProvider
+  reostimeseriesprovider.cpp - ReosTimeSeriesProvider
 
  ---------------------
  begin                : 2.11.2021
@@ -13,8 +13,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reostimeserieprovider.h"
-#include "reostimeserie.h"
+#include "reostimeseriesprovider.h"
+#include "reostimeseries.h"
 
 ReosTimeSerieProvider::~ReosTimeSerieProvider() {}
 
@@ -200,7 +200,7 @@ void ReosTimeSerieConstantTimeStepMemoryProvider::setValues( const QVector<doubl
 
 QString ReosTimeSerieConstantTimeStepMemoryProvider::staticType()
 {
-  return ReosTimeSerieConstantInterval::staticType();
+  return ReosTimeSeriesConstantInterval::staticType();
 }
 
 ReosTimeSerieVariableTimeStepProvider::~ReosTimeSerieVariableTimeStepProvider()
@@ -218,7 +218,7 @@ void ReosTimeSerieVariableTimeStepProvider::insertValue( int, const ReosDuration
 
 void ReosTimeSerieVariableTimeStepProvider::copy( ReosTimeSerieVariableTimeStepProvider * ) {}
 
-bool ReosTimeSerieVariableTimeStepProvider::writeSeries( ReosTimeSerieVariableTimeStep *, const QString & ) {return false;}
+bool ReosTimeSerieVariableTimeStepProvider::writeSeries( ReosTimeSeriesVariableTimeStep *, const QString & ) {return false;}
 
 int ReosTimeSerieVariableTimeStepProvider::timeValueIndex( const ReosDuration &time, bool &exact ) const
 {
@@ -444,7 +444,7 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::decode( const ReosEncodedEleme
 
 QString ReosTimeSerieVariableTimeStepMemoryProvider::staticType()
 {
-  return ReosTimeSerieVariableTimeStep::staticType();
+  return ReosTimeSeriesVariableTimeStep::staticType();
 }
 
 ReosDataProvider *ReosTimeSerieConstantTimeStepMemoryProviderFactory::createProvider( const QString &dataType ) const
@@ -457,7 +457,7 @@ ReosDataProvider *ReosTimeSerieConstantTimeStepMemoryProviderFactory::createProv
 
 bool ReosTimeSerieConstantTimeStepMemoryProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
 {
-  if ( dataType.contains( ReosTimeSerieConstantInterval::staticType() ) )
+  if ( dataType.contains( ReosTimeSeriesConstantInterval::staticType() ) )
     return ( capabilities & mCapabilities ) == capabilities;
 
   return false;
@@ -465,7 +465,7 @@ bool ReosTimeSerieConstantTimeStepMemoryProviderFactory::hasCapabilities( const 
 
 bool ReosTimeSerieVariableTimeStepMemoryProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
 {
-  if ( dataType.contains( ReosTimeSerieVariableTimeStep::staticType() ) )
+  if ( dataType.contains( ReosTimeSeriesVariableTimeStep::staticType() ) )
     return ( capabilities & mCapabilities ) == capabilities;
 
   return false;

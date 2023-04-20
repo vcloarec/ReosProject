@@ -22,16 +22,16 @@
 #include "reosgriddedrainfallprovider.h"
 
 ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource ):
-  ReosTimeSerieConstantInterval( parent, providerKey, dataSource )
+  ReosTimeSeriesConstantInterval( parent, providerKey, dataSource )
 {
   setupData();
 }
 
-QString ReosSeriesRainfall::staticType() {return ReosTimeSerieConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );}
+QString ReosSeriesRainfall::staticType() {return ReosTimeSeriesConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );}
 
 ReosEncodedElement ReosSeriesRainfall::encode( const ReosEncodeContext &context ) const
 {
-  return ReosTimeSerieConstantInterval::encode( context, QStringLiteral( "serie-rainfall-data" ) );
+  return ReosTimeSeriesConstantInterval::encode( context, QStringLiteral( "serie-rainfall-data" ) );
 }
 
 ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
@@ -43,7 +43,7 @@ ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &elemen
 }
 
 ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
-  ReosTimeSerieConstantInterval( element, context, parent )
+  ReosTimeSeriesConstantInterval( element, context, parent )
 {
   setupData();
 }
@@ -51,12 +51,12 @@ ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const
 void ReosSeriesRainfall::setupData()
 {
   setValueUnit( tr( "mm" ) );
-  setValueModeName( ReosTimeSerieConstantInterval::Value, tr( "Height per time step" ) );
-  setValueModeName( ReosTimeSerieConstantInterval::Cumulative, tr( "Total height" ) );
-  setValueModeName( ReosTimeSerieConstantInterval::Intensity, tr( "Rainfall intensity" ) );
-  setValueModeColor( ReosTimeSerieConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
-  setValueModeColor( ReosTimeSerieConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
-  setValueModeColor( ReosTimeSerieConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
+  setValueModeName( ReosTimeSeriesConstantInterval::Value, tr( "Height per time step" ) );
+  setValueModeName( ReosTimeSeriesConstantInterval::Cumulative, tr( "Total height" ) );
+  setValueModeName( ReosTimeSeriesConstantInterval::Intensity, tr( "Rainfall intensity" ) );
+  setValueModeColor( ReosTimeSeriesConstantInterval::Value, QColor( 0, 0, 200, 200 ) );
+  setValueModeColor( ReosTimeSeriesConstantInterval::Intensity, QColor( 50, 100, 255, 200 ) );
+  setValueModeColor( ReosTimeSeriesConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
 }
 
 ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatershed(

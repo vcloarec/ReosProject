@@ -121,8 +121,8 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosDuration mMappingInterval = ReosDuration( 5.0, ReosDuration::minute );
     //***
 
-    void transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const;
-    bool writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const;
+    void transformVariableTimeStepToConstant( ReosTimeSeriesVariableTimeStep *variable, ReosTimeSeriesConstantInterval *constant ) const;
+    bool writeDssConstantTimeSeries( ReosTimeSeriesConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const;
 
     void accordCurrentPlan();
 

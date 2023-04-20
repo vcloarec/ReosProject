@@ -196,7 +196,7 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   }
 
   populateMeta( mCurrentHubEauStationMeta );
-  mHydrographPlot->setTimeSerie( mCurrentHydrograph );
+  mHydrographPlot->setTimeSeries( mCurrentHydrograph );
 }
 
 void ReosHubEauWidget::onHydrographUpdated()

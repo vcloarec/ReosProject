@@ -20,7 +20,7 @@
 #include <QLibrary>
 #include <QDebug>
 
-#include "reostimeserieprovider.h"
+#include "reostimeseriesprovider.h"
 
 
 ReosDataProviderRegistery *ReosDataProviderRegistery::sInstance = nullptr;

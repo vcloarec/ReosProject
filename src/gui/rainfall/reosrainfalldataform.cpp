@@ -27,7 +27,7 @@
 #include <QTextBrowser>
 
 #include "reosrainfalldataform.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosidfcurves.h"
 #include "reossyntheticrainfall.h"
 #include "reosintensitydurationselectedcurvewidget.h"
@@ -43,17 +43,17 @@
 #include "reosgriddedrainfallprovider.h"
 
 
-ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent ):
+ReosTimeSeriesConstantIntervalWidget::ReosTimeSeriesConstantIntervalWidget( ReosTimeSeriesConstantInterval *timeSerie, QWidget *parent ):
   ReosFormWidget( parent, Qt::Vertical, false )
-  , mModel( new ReosTimeSerieConstantIntervalModel( this ) )
+  , mModel( new ReosTimeSeriesConstantIntervalModel( this ) )
 {
   mModel->setSerieData( timeSerie );
   addParameter( timeSerie->timeStepParameter() );
   addParameter( timeSerie->referenceTimeParameter() );
 
   mValueModeComboBox = new QComboBox( this );
-  mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Value ), ReosTimeSerieConstantInterval::Value );
-  mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSerieConstantInterval::Intensity ), ReosTimeSerieConstantInterval::Intensity );
+  mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSeriesConstantInterval::Value ), ReosTimeSeriesConstantInterval::Value );
+  mValueModeComboBox->addItem( timeSerie->valueModeName( ReosTimeSeriesConstantInterval::Intensity ), ReosTimeSeriesConstantInterval::Intensity );
   mValueModeComboBox->setCurrentIndex( mValueModeComboBox->findData( timeSerie->valueMode() ) );
   mIntensityUnitComboBox = new QComboBox( this );
 
@@ -66,7 +66,7 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
   mIntensityUnitComboBox->addItem( tr( "month" ), ReosDuration::month );
   mIntensityUnitComboBox->addItem( tr( "year" ), ReosDuration::year );
   mIntensityUnitComboBox->setCurrentIndex( mIntensityUnitComboBox->findData( timeSerie->intensityTimeUnit() ) );
-  mIntensityUnitComboBox->setEnabled( timeSerie->valueMode() == ReosTimeSerieConstantInterval::Intensity );
+  mIntensityUnitComboBox->setEnabled( timeSerie->valueMode() == ReosTimeSeriesConstantInterval::Intensity );
 
   QHBoxLayout *layoutIntUnit = new QHBoxLayout;
   layoutIntUnit->addWidget( new QLabel( tr( "Intensity time unit" ), this ) );
@@ -79,9 +79,9 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
 
   connect( mValueModeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
   {
-    ReosTimeSerieConstantInterval::ValueMode mode = static_cast<ReosTimeSerieConstantInterval::ValueMode>( this->mValueModeComboBox->currentData().toInt() );
+    ReosTimeSeriesConstantInterval::ValueMode mode = static_cast<ReosTimeSeriesConstantInterval::ValueMode>( this->mValueModeComboBox->currentData().toInt() );
     timeSerie->setValueMode( mode );
-    mIntensityUnitComboBox->setEnabled( mode == ReosTimeSerieConstantInterval::Intensity );
+    mIntensityUnitComboBox->setEnabled( mode == ReosTimeSeriesConstantInterval::Intensity );
   } );
 
   connect( mIntensityUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
@@ -101,7 +101,7 @@ ReosTimeSerieConstantIntervalWidget::ReosTimeSerieConstantIntervalWidget( ReosTi
 
 
 ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainfall, QWidget *parent ):
-  ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
+  ReosTimeSeriesConstantIntervalWidget( rainfall, parent ),
   mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
 {
   addParameter( rainfall->totalDuration(), 1 );
@@ -127,7 +127,7 @@ ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainf
 }
 
 ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTriangleRainfall *rainfall, QWidget *parent ):
-  ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
+  ReosTimeSeriesConstantIntervalWidget( rainfall, parent ),
   mIntenseIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) ),
   mTotalIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
 {
@@ -180,14 +180,14 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
 
 ReosFormWidget *ReosFormWidgetTimeSerieConstantIntervalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
-  ReosTimeSerieConstantInterval *object = qobject_cast<ReosTimeSerieConstantInterval *>( dataObject );
+  ReosTimeSeriesConstantInterval *object = qobject_cast<ReosTimeSeriesConstantInterval *>( dataObject );
   if ( object )
-    return new ReosTimeSerieConstantIntervalWidget( object, context.parent() );
+    return new ReosTimeSeriesConstantIntervalWidget( object, context.parent() );
 
   return nullptr;
 }
 
-QString ReosFormWidgetTimeSerieConstantIntervalFactory::datatype() const {return ReosTimeSerieConstantInterval::staticType();}
+QString ReosFormWidgetTimeSerieConstantIntervalFactory::datatype() const {return ReosTimeSeriesConstantInterval::staticType();}
 
 
 ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
@@ -236,7 +236,7 @@ ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( 
 QString ReosFormWidgetAlternatingBlockRainfalFactory::datatype() const {return ReosAlternatingBlockRainfall::staticType();}
 
 ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlternatingBlockRainfall *rainfall, QWidget *parent ):
-  ReosTimeSerieConstantIntervalWidget( rainfall, parent ),
+  ReosTimeSeriesConstantIntervalWidget( rainfall, parent ),
   mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
 {
   addParameter( rainfall->totalDuration(), 1 );

@@ -17,7 +17,7 @@
 
 #include <QFileInfo>
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosgriddedrainitem.h"
 #include "reosdssutils.h"
 
@@ -233,7 +233,7 @@ bool ReosDssProviderTimeSerieConstantTimeStep::persistData( QString &error )
 
 QString ReosDssProviderTimeSerieConstantTimeStep::dataType()
 {
-  return ReosTimeSerieConstantInterval::staticType();
+  return ReosTimeSeriesConstantInterval::staticType();
 }
 
 ReosDataProvider *ReosDssProviderFactory::createProvider( const QString &dataType ) const
@@ -422,7 +422,7 @@ const QVector<ReosDuration> &ReosDssProviderTimeSerieVariableTimeStep::constTime
 
 QString ReosDssProviderTimeSerieVariableTimeStep::dataType()
 {
-  return ReosTimeSerieVariableTimeStep::staticType();
+  return ReosTimeSeriesVariableTimeStep::staticType();
 }
 
 QString ReosDssProviderGriddedRainfall::key() const

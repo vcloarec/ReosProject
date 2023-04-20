@@ -21,14 +21,14 @@
 #include <QSet>
 
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reossyntheticrainfall.h"
 #include "reosprocess.h"
 
 class ReosHydrograph;
 
 //! Class that represents a hydrograph
-class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
+class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
 {
     Q_OBJECT
   public:
@@ -39,7 +39,7 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
     ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSerieVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
+    static QString staticType() {return ReosTimeSeriesVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
 
     /**
      * Loads and returns an completly loaded hydrograph.

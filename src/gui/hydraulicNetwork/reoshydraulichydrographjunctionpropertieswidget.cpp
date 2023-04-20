@@ -136,7 +136,7 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   if ( hydrographs.count() > 1 && internalHyd && mJunctionNode->internalHydrographOrigin() != ReosHydrographJunction::None )
     hydrographs.append( internalHyd );
 
-  QList<ReosTimeSerieVariableTimeStep *> tsList;
+  QList<ReosTimeSeriesVariableTimeStep *> tsList;
 
   for ( ReosHydrograph *hyd : std::as_const( hydrographs ) )
   {

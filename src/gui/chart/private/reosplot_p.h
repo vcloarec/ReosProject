@@ -26,7 +26,7 @@
 #include <qwt_date_scale_draw.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_scale_widget.h>
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 
 class ReosPlotItem;
 
@@ -133,50 +133,50 @@ class ReosPlot_p: public QwtPlot
 class ReosPlotConstantIntervalTimeIntervalSerie: public QwtSeriesData<QwtIntervalSample>
 {
   public:
-    ReosPlotConstantIntervalTimeIntervalSerie( ReosTimeSerieConstantInterval *timeSerie );
+    ReosPlotConstantIntervalTimeIntervalSerie( ReosTimeSeriesConstantInterval *timeSeries );
 
     size_t size() const override;
     QwtIntervalSample sample( size_t i ) const override;
     QRectF boundingRect() const override;
 
-    ReosTimeSerieConstantInterval *data() const;
+    ReosTimeSeriesConstantInterval *data() const;
 
   private:
-    QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
+    QPointer<ReosTimeSeriesConstantInterval> mTimeSeries;
 };
 
 
 class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
 {
   public:
-    ReosPlotConstantIntervalTimePointSerie( ReosTimeSerieConstantInterval *timeSerie );
+    ReosPlotConstantIntervalTimePointSerie( ReosTimeSeriesConstantInterval *timeSeries );
 
     size_t size() const override;
     QPointF sample( size_t i ) const override;
     QRectF boundingRect() const override;
 
-    ReosTimeSerieConstantInterval *data() const;
+    ReosTimeSeriesConstantInterval *data() const;
     void setCumulative( bool b );
 
   private:
-    QPointer<ReosTimeSerieConstantInterval> mTimeSerie;
+    QPointer<ReosTimeSeriesConstantInterval> mTimeSerie;
     bool mIsCumulative = false;
-    ReosTimeSerieConstantInterval::ValueMode mValueMode = ReosTimeSerieConstantInterval::Value ;
+    ReosTimeSeriesConstantInterval::ValueMode mValueMode = ReosTimeSeriesConstantInterval::Value ;
 };
 
 class ReosPlotVariableStepTimeSerie: public  QwtSeriesData<QPointF>
 {
   public:
-    ReosPlotVariableStepTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie );
+    ReosPlotVariableStepTimeSerie( ReosTimeSeriesVariableTimeStep *timeSeries );
 
     size_t size() const override;
     QPointF sample( size_t i ) const override;
     QRectF boundingRect() const override;
 
-    ReosTimeSerieVariableTimeStep *data() const;
+    ReosTimeSeriesVariableTimeStep *data() const;
 
   private:
-    QPointer<ReosTimeSerieVariableTimeStep> mTimeSerie;
+    QPointer<ReosTimeSeriesVariableTimeStep> mTimeSeries;
 };
 
 

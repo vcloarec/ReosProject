@@ -163,7 +163,7 @@ class QDialogButtonBox;
 class QLabel;
 class QToolButton;
 class QTreeView;
-class ReosTimeSerieConstantInterval;
+class ReosTimeSeriesConstantInterval;
 
 class ReosImportRainfallDialog: public QDialog
 {

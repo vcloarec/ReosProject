@@ -24,7 +24,7 @@
 #include <QApplication>
 #include <QClipboard>
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosparameterwidget.h"
 #include "reosparameter.h"
 #include "reostableview.h"
@@ -122,7 +122,7 @@ QVariant ReosTimeSeriesVariableTimeStepReadOnlyModel::headerData( int section, Q
   return QVariant();
 }
 
-void ReosTimeSeriesVariableTimeStepReadOnlyModel::addTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, const QString &name )
+void ReosTimeSeriesVariableTimeStepReadOnlyModel::addTimeSerie( ReosTimeSeriesVariableTimeStep *timeSerie, const QString &name )
 {
   beginResetModel();
   mTimeSeries.append( timeSerie );
@@ -168,7 +168,7 @@ void ReosTimeSeriesVariableTimeStepReadOnlyModel::updateTimeStep()
   {
     if ( mTimeSeries.at( i ).isNull() )
       continue;
-    ReosTimeSerieVariableTimeStep *serie = mTimeSeries.at( i );
+    ReosTimeSeriesVariableTimeStep *serie = mTimeSeries.at( i );
     if ( serie->valueCount() == 0 )
       continue;
     QDateTime begin = serie->timeAt( 0 );
@@ -260,7 +260,7 @@ QDateTime ReosTimeSeriesVariableTimeStepReadOnlyModel::timeAtRow( int row ) cons
 
 QVariant ReosTimeSeriesVariableTimeStepReadOnlyModel::valueAt( int row, int column ) const
 {
-  ReosTimeSerieVariableTimeStep *serie = mTimeSeries.at( column - 1 );
+  ReosTimeSeriesVariableTimeStep *serie = mTimeSeries.at( column - 1 );
   if ( !serie || serie->valueCount() == 0 )
     return QVariant();
 
@@ -392,9 +392,9 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setConstantTimeStepParame
   } );
 }
 
-void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setSeries( QList < ReosTimeSerieVariableTimeStep *> series, const QString &unit )
+void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setSeries( QList < ReosTimeSeriesVariableTimeStep *> series, const QString &unit )
 {
-  for ( ReosTimeSerieVariableTimeStep *serie : std::as_const( series ) )
+  for ( ReosTimeSeriesVariableTimeStep *serie : std::as_const( series ) )
     mModel->addTimeSerie( serie, QStringLiteral( "%1\n(%2)" ).arg( serie->name(), unit ) );
 
   mView->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );

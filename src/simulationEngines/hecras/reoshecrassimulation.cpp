@@ -349,7 +349,7 @@ void ReosHecRasSimulation::prepareInput(
             break;
           case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
           {
-            std::unique_ptr<ReosTimeSerieConstantInterval> constant( new ReosTimeSerieConstantInterval() );
+            std::unique_ptr<ReosTimeSeriesConstantInterval> constant( new ReosTimeSeriesConstantInterval() );
             transformVariableTimeStepToConstant( bc->outputHydrograph(), constant.get() );
 
             path.setParameter( QStringLiteral( "Flow" ) );
@@ -895,7 +895,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkPlanCompabili
   return mProject->checkCompatibility( planId, mStructure, nullptr );
 }
 
-void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVariableTimeStep *variable, ReosTimeSerieConstantInterval *constant ) const
+void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSeriesVariableTimeStep *variable, ReosTimeSeriesConstantInterval *constant ) const
 {
   if ( !variable || !constant )
     return;
@@ -956,7 +956,7 @@ void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSerieVar
   constant->setValues( betterValues );
 }
 
-bool ReosHecRasSimulation::writeDssConstantTimeSeries( ReosTimeSerieConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const
+bool ReosHecRasSimulation::writeDssConstantTimeSeries( ReosTimeSeriesConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const
 {
   QFileInfo fileInfo( fileName );
   ReosDssFile file( fileName, !fileInfo.exists() );

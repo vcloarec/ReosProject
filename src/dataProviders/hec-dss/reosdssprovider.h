@@ -17,7 +17,7 @@
 #define REOSDSSPROVIDER_H
 
 #include "reosdssfile.h"
-#include "reostimeserieprovider.h"
+#include "reostimeseriesprovider.h"
 #include "reosgriddedrainfallprovider.h"
 #include "reosdssfile.h"
 

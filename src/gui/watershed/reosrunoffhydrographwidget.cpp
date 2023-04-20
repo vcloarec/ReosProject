@@ -306,12 +306,12 @@ void ReosRunoffHydrographWidget::updateRainfall()
 
   if ( rainfallItem && rainfallSeries )
   {
-    mRainfallHistogram->setTimeSerie( rainfallSeries );
+    mRainfallHistogram->setTimeSeries( rainfallSeries );
     ui->labelRainfallInfo->setText( rainfallItem->information() );
   }
   else
   {
-    mRainfallHistogram->setTimeSerie( nullptr );
+    mRainfallHistogram->setTimeSeries( nullptr );
     ui->labelRainfallInfo->setText( QString() );
   }
 
@@ -343,13 +343,13 @@ void ReosRunoffHydrographWidget::updateResultData()
 
   if ( mCurrentRunoff )
   {
-    mRunoffHistogram->setTimeSerie( mCurrentRunoff->data() );
+    mRunoffHistogram->setTimeSeries( mCurrentRunoff->data() );
     mRunoffResultTabModel->addTimeSerie( mCurrentRunoff->data(), tr( "Runoff %1" ).arg( mCurrentRunoff->data()->unitStringCurrentMode() ) );
     ui->tableViewRunoffResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
     ui->tableViewRunoffResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
   }
   else
-    mRunoffHistogram->setTimeSerie( nullptr );
+    mRunoffHistogram->setTimeSeries( nullptr );
 
   if ( mCurrentHydrograph )
     mHydrographCurve->setName( mCurrentHydrograph->name() );
@@ -359,7 +359,7 @@ void ReosRunoffHydrographWidget::updateResultData()
   else
     emit timeWindowChanged();
 
-  mHydrographCurve->setTimeSerie( mCurrentHydrograph, false, false );
+  mHydrographCurve->setTimeSeries( mCurrentHydrograph, false, false );
 }
 
 
@@ -370,7 +370,7 @@ void ReosRunoffHydrographWidget::onHydrographReady( ReosHydrograph *hydrograph )
 
   if ( hydrograph == mCurrentHydrograph )
   {
-    mHydrographCurve->setTimeSerie( mCurrentHydrograph, true, false );
+    mHydrographCurve->setTimeSeries( mCurrentHydrograph, true, false );
 
     mHydrographResultModel->clearSerie();
     if ( mCurrentHydrograph )
@@ -1130,7 +1130,7 @@ QVariant ReosTimeSeriesTableModel::data( const QModelIndex &index, int role ) co
         break;
       default:
       {
-        ReosTimeSerie *serie = mTimeSeries.at( index.column() - 1 );
+        ReosTimeSeries *serie = mTimeSeries.at( index.column() - 1 );
         if ( !serie )
           return QVariant();
         if ( row >= serie->valueCount() )
@@ -1174,9 +1174,9 @@ QVariant ReosTimeSeriesTableModel::headerData( int section, Qt::Orientation orie
   return QVariant();
 }
 
-void ReosTimeSeriesTableModel::addTimeSerie( ReosTimeSerie *timeSerie, const QString &name )
+void ReosTimeSeriesTableModel::addTimeSerie( ReosTimeSeries *timeSerie, const QString &name )
 {
-  connect( timeSerie, &ReosTimeSerie::dataChanged, this, &ReosTimeSeriesTableModel::onDataChanged );
+  connect( timeSerie, &ReosTimeSeries::dataChanged, this, &ReosTimeSeriesTableModel::onDataChanged );
 
   beginResetModel();
   mTimeSeries.append( timeSerie );
@@ -1186,8 +1186,8 @@ void ReosTimeSeriesTableModel::addTimeSerie( ReosTimeSerie *timeSerie, const QSt
 
 void ReosTimeSeriesTableModel::clearSerie()
 {
-  for ( ReosTimeSerie *ts : std::as_const( mTimeSeries ) )
-    disconnect( ts, &ReosTimeSerie::dataChanged, this, &ReosTimeSeriesTableModel::onDataChanged );
+  for ( ReosTimeSeries *ts : std::as_const( mTimeSeries ) )
+    disconnect( ts, &ReosTimeSeries::dataChanged, this, &ReosTimeSeriesTableModel::onDataChanged );
 
   beginResetModel();
   mTimeSeries.clear();

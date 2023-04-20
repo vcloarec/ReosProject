@@ -1,5 +1,5 @@
 /***************************************************************************
-  reostimeserie.h - ReosTimeSerie
+  reostimeseries.h - ReosTimeSeries
 
  ---------------------
  begin                : 26.1.2021
@@ -13,8 +13,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSTIMESERIE_H
-#define REOSTIMESERIE_H
+#ifndef REOSTIMESERIES_H
+#define REOSTIMESERIES_H
 
 #include <memory>
 
@@ -27,14 +27,18 @@
 #include "reosduration.h"
 #include "reosparameter.h"
 #include "reosdataobject.h"
-#include "reostimeserieprovider.h"
+#include "reostimeseriesprovider.h"
+
+class ReosTimeSeriesVariableTimeStepModel;
+
+class ReosTimeSeriesVariableTimeStepModel;
 
 //! Class that handle time serie data
-class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject SIP_ABSTRACT
+class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
-    ReosTimeSerie( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
+    ReosTimeSeries( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return staticType();}
 
@@ -131,17 +135,18 @@ class REOSCORE_EXPORT ReosTimeSerie : public ReosDataObject SIP_ABSTRACT
     void updateStats();
 };
 
-#ifndef SIP_RUN
+
 /**
  *  Class that handle time serie data with constant time interval
  *
  *  By default, value are considered as incremental value. Different modes (\see ValueMode) can be used to return
  *   intensity value ( incremental value divided by the time step) or cumulative value (sum from the begining).
  */
-class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
+class REOSCORE_EXPORT ReosTimeSeriesConstantInterval: public ReosTimeSeries
 {
     Q_OBJECT
   public:
+
     enum ValueMode
     {
       Value,
@@ -149,22 +154,22 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
       Cumulative
     };
 
-    ReosTimeSerieConstantInterval( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
+    ReosTimeSeriesConstantInterval( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     ReosDuration relativeTimeAt( int i ) const override;
-    QPair<QDateTime, QDateTime> timeExtent() const override;
+    QPair<QDateTime, QDateTime> timeExtent() const override SIP_SKIP;
     double valueAt( int i ) const override;
     void setValueAt( int i, double value ) override;
+    QString type() const override {return staticType();}
+    static QString staticType() {return ReosTimeSeries::staticType() + ':' + QStringLiteral( "constant-interval" );}
 
+    //! Set all values with the array \a vals
     void setValues( const QVector<double> &vals );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "constant-interval" );}
-
-    //! Overrides the type
-    void setType( const QString &dataType );
-
+    //! Appends a value at the end of the series
     void appendValue( double value );
+
+    //! Inserts  value \a count time from position \a fromPos
     void insertValues( int fromPos, int count, double value );
 
     //! Returns the current value mode
@@ -174,7 +179,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     void setValueMode( const ValueMode &valueMode );
 
     //! Returns a pointer to the constant time step parameter
-    ReosParameterDuration *timeStepParameter() const;
+    ReosParameterDuration *timeStepParameter() const SIP_SKIP;
 
     //! Sets the constant time step of this time serie
     void setTimeStep( const ReosDuration &timeStep );
@@ -182,14 +187,16 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Returns the constant time step of this time serie
     ReosDuration timeStep() const;
 
+    //! Returns the intensity time unit
     ReosDuration::Unit intensityTimeUnit() const;
+
     void setIntensityTimeUnit( const ReosDuration::Unit &intensityTimeUnit );
 
     //! Returns value at position \a i considering the \a mode
     double valueWithMode( int i, ValueMode mode = Value ) const;
 
     //! Returns the value extent considering the \a mode
-    QPair<double, double> extentValueWithMode( ValueMode mode = Value ) const;
+    QPair<double, double> extentValueWithMode( ValueMode mode = Value ) const SIP_SKIP;
 
     //! Returns the name of the data considering the \a mode
     QString valueModeName( ValueMode mode ) const;
@@ -197,7 +204,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     //! Sets the \a name of the data considering the \a mode
     void setValueModeName( ValueMode mode, const QString &name );
 
-    //! Returns the color attributed to the data cnsidering the \a mode
+    //! Returns the color attributed to the data cansidering the \a mode
     QColor valueModeColor( ValueMode mode ) const;
 
     //! Return current mode value unit string
@@ -211,35 +218,38 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
 
     //! Returns a flag to make this instance using cumulative mode in addition to the current mode
     bool addCumultive() const;
+
     //! Sets a flag to make this instance using cumulative mode in addition to the current mode
     void setAddCumulative( bool addCumulative );
 
     //! Connects attribute with \a other
-    void syncWith( ReosTimeSerieConstantInterval *other );
+    void syncWith( ReosTimeSeriesConstantInterval *other );
 
     //! Copy atributes from \a other to \a this
-    void copyAttribute( ReosTimeSerieConstantInterval *other );
+    void copyAttribute( ReosTimeSeriesConstantInterval *other );
+
+    //! Copy the serie \a other in \a this.
+    void copyFrom( ReosTimeSeriesConstantInterval *other );
+
+#ifndef SIP_RUN
 
     //! Returns a encoded element corresponding to this serie
     ReosEncodedElement encode( const ReosEncodeContext &context, const QString &descritpion = QString() ) const;
 
     //! Creates new instance from the encoded element
-    static ReosTimeSerieConstantInterval *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
+    static ReosTimeSeriesConstantInterval *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
     ReosTimeSerieConstantTimeStepProvider *constantTimeStepDataProvider() const;
-
-    //! Copy the serie \a other in \a this.
-    void copyFrom( ReosTimeSerieConstantInterval *other );
 
   private slots:
     void onDataProviderChanged() override;
 
   protected:
     void connectParameters();
-    ReosTimeSerieConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
+    ReosTimeSeriesConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
     QString formatKey( const QString &rawKey ) const override;
-
+#endif //no SIP_RUN
   private:
     ReosParameterDuration *mTimeStepParameter = nullptr;
 
@@ -253,18 +263,15 @@ class REOSCORE_EXPORT ReosTimeSerieConstantInterval: public ReosTimeSerie
     double convertFromIntensityValue( double v );
 };
 
-class ReosTimeSerieVariableTimeStepModel;
 
-#endif //no SIP_RUN
-
-class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
+class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
 {
     Q_OBJECT
   public:
-    ReosTimeSerieVariableTimeStep( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
+    ReosTimeSeriesVariableTimeStep( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSerie::staticType() + ':' + QStringLiteral( "variable-time-step" );}
+    static QString staticType() {return ReosTimeSeries::staticType() + ':' + QStringLiteral( "variable-time-step" );}
 
     //! Returns the relative time at \a i
     ReosDuration relativeTimeAt( int i ) const override;
@@ -296,7 +303,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     double valueAtTime( const QDateTime &time ) const;
 
     //! Adds another instance to this the values of this ones, create new time steps if needed
-    void addOther( const ReosTimeSerieVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
+    void addOther( const ReosTimeSeriesVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 
     //! Returns the unit of the values as a string
     QString unitString() const;
@@ -310,15 +317,15 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     //! Sets the color used to render the time serie
     void setColor( const QColor &color );
 
-    void copyFrom( const ReosTimeSerieVariableTimeStep *other );
+    void copyFrom( const ReosTimeSeriesVariableTimeStep *other );
 
-    bool operator==( const ReosTimeSerieVariableTimeStep &other ) const;
+    bool operator==( const ReosTimeSeriesVariableTimeStep &other ) const;
 
 #ifndef SIP_RUN
     QAbstractItemModel *model();
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
-    static ReosTimeSerieVariableTimeStep *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
+    static ReosTimeSeriesVariableTimeStep *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
   public slots:
     //! Sets indirectly the color from an object that handle common color for time series
@@ -343,7 +350,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
     QString mUnitString;
     QColor mColor;
 
-    ReosTimeSerieVariableTimeStepModel *mModel = nullptr;
+    ReosTimeSeriesVariableTimeStepModel *mModel = nullptr;
 
 
     /**
@@ -376,11 +383,11 @@ class REOSCORE_EXPORT ReosTimeSerieModel : public QAbstractTableModel
 };
 
 //! Model used to handle AND edit time series with constant time step
-class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieModel
+class REOSCORE_EXPORT ReosTimeSeriesConstantIntervalModel : public ReosTimeSerieModel
 {
     Q_OBJECT
   public:
-    ReosTimeSerieConstantIntervalModel( QObject *parent = nullptr );
+    ReosTimeSeriesConstantIntervalModel( QObject *parent = nullptr );
 
     int rowCount( const QModelIndex & ) const override;
     int columnCount( const QModelIndex & ) const override;
@@ -389,7 +396,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
     Qt::ItemFlags flags( const QModelIndex &index ) const override;
 
-    void setSerieData( ReosTimeSerieConstantInterval *data );
+    void setSerieData( ReosTimeSeriesConstantInterval *data );
 
     void setValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
     void insertValues( const QModelIndex &fromIndex, const QList<QVariantList> &values ) override;
@@ -399,7 +406,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
     bool isEditable() const;
 
   private:
-    ReosTimeSerieConstantInterval *mData;
+    ReosTimeSeriesConstantInterval *mData;
     double mDefaultValue = 0;
     void setValues( const QModelIndex &fromIndex, const QList<double> &values );
 
@@ -407,11 +414,11 @@ class REOSCORE_EXPORT ReosTimeSerieConstantIntervalModel : public ReosTimeSerieM
 };
 
 //! Model used to handle AND edit time series with variable time step
-class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieModel
+class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepModel: public ReosTimeSerieModel
 {
     Q_OBJECT
   public:
-    ReosTimeSerieVariableTimeStepModel( QObject *parent = nullptr );
+    ReosTimeSeriesVariableTimeStepModel( QObject *parent = nullptr );
 
     int rowCount( const QModelIndex & ) const override;
     int columnCount( const QModelIndex & ) const override;
@@ -425,7 +432,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
     void deleteRows( const QModelIndex &fromIndex, int count ) override;
     void insertRows( const QModelIndex &fromIndex, int count ) override;
 
-    void setSerie( ReosTimeSerieVariableTimeStep *serie );
+    void setSerie( ReosTimeSeriesVariableTimeStep *serie );
     void setNewRowWithFixedTimeStep( bool newRowWithFixedTimeStep );
     void setFixedTimeStep( const ReosDuration &fixedTimeStep );
     void setVariableTimeStepUnit( const ReosDuration::Unit &variableTimeStepUnit );
@@ -436,7 +443,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
     void updateModel();
 
   private:
-    QPointer<ReosTimeSerieVariableTimeStep> mData;
+    QPointer<ReosTimeSeriesVariableTimeStep> mData;
     bool mIsEditable = true;
     double mDefaultValue = 0.0;
     bool mNewRowWithFixedTimeStep = true;
@@ -452,4 +459,4 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepModel: public ReosTimeSerieMo
 
 #endif //no SIP_RUN
 
-#endif // REOSTIMESERIE_H
+#endif // REOSTIMESERIES_H

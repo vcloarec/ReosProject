@@ -91,7 +91,7 @@ class ReosTimeSeriesTableModel: public QAbstractTableModel
     QVariant data( const QModelIndex &index, int role ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void addTimeSerie( ReosTimeSerie *timeSerie, const QString &name );
+    void addTimeSerie( ReosTimeSeries *timeSerie, const QString &name );
 
     void clearSerie();
 
@@ -99,7 +99,7 @@ class ReosTimeSeriesTableModel: public QAbstractTableModel
     void onDataChanged();
 
   private:
-    QList<QPointer<ReosTimeSerie>> mTimeSeries;
+    QList<QPointer<ReosTimeSeries>> mTimeSeries;
     QStringList mHeaderName;
 };
 

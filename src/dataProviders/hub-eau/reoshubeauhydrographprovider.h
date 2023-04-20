@@ -16,7 +16,7 @@
 #ifndef REOSHUBEAUHYDROGRAPHPROVIDER_H
 #define REOSHUBEAUHYDROGRAPHPROVIDER_H
 
-#include "reostimeserieprovider.h"
+#include "reostimeseriesprovider.h"
 #include "reosmodule.h"
 
 class ReosHubEauConnectionControler;

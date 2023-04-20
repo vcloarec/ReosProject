@@ -25,7 +25,7 @@
 #include "reosformwidget.h"
 #include "reosparameter.h"
 #include "reossettings.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosguicontext.h"
 #include "reosstyleregistery.h"
 

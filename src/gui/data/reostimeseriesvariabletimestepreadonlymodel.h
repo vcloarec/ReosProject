@@ -22,7 +22,7 @@
 
 #include "reosduration.h"
 
-class ReosTimeSerieVariableTimeStep;
+class ReosTimeSeriesVariableTimeStep;
 class QHBoxLayout;
 class QCheckBox;
 class ReosParameterDurationWidget;
@@ -43,7 +43,7 @@ class ReosTimeSeriesVariableTimeStepReadOnlyModel: public QAbstractTableModel
     QVariant data( const QModelIndex &index, int role ) const override;
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
 
-    void addTimeSerie( ReosTimeSerieVariableTimeStep *timeSerie, const QString &name );
+    void addTimeSerie( ReosTimeSeriesVariableTimeStep *timeSerie, const QString &name );
 
     void clearSerie();
 
@@ -62,7 +62,7 @@ class ReosTimeSeriesVariableTimeStepReadOnlyModel: public QAbstractTableModel
     void updateTimeStep();
 
   private:
-    QList<QPointer<ReosTimeSerieVariableTimeStep>> mTimeSeries;
+    QList<QPointer<ReosTimeSeriesVariableTimeStep>> mTimeSeries;
     QStringList mHeaderName;
     bool mIsFixedTimeStep = false;
     QDateTime mFirstTime;
@@ -102,7 +102,7 @@ class ReosTimeSeriesVariableTimeStepReadOnlyTablesView : public QWidget
     void setConstantTimeStepParameter( ReosParameterDuration *constantTimeSepParamater,
                                        ReosParameterBoolean *useConstantTimeStepParameter );
 
-    void setSeries( QList<ReosTimeSerieVariableTimeStep *> series, const QString &unit );
+    void setSeries( QList<ReosTimeSeriesVariableTimeStep *> series, const QString &unit );
     void clearSeries();
 
   private:

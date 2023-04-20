@@ -270,7 +270,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   ReosSeriesRainfall *rainfall = meteoModel->associatedRainfall( watershed1 );
   QVERIFY( rainfall );
   QCOMPARE( rainfall->valueCount(), 12 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 72.34254782834526 );
 
   meteoCollection.addMeteorologicModel( "model_2" );
   QCOMPARE( meteoCollection.modelCount(), 2 );
@@ -282,7 +282,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   rainfall = meteoModel_2->associatedRainfall( watershed1 );
   QVERIFY( rainfall );
   QCOMPARE( rainfall->valueCount(), 6 );
-  QCOMPARE( rainfall->valueWithMode( 5, ReosTimeSerieConstantInterval::Cumulative ), 42.0128468263 );
+  QCOMPARE( rainfall->valueWithMode( 5, ReosTimeSeriesConstantInterval::Cumulative ), 42.0128468263 );
 
 
   ReosRunoffHydrographsStore runoffStore( &meteoCollection );

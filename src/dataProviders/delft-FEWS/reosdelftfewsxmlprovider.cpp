@@ -528,7 +528,7 @@ QString ReosDelftFewsXMLProviderFactory::key() const
 
 bool ReosDelftFewsXMLProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
 {
-  if ( dataType.contains( ReosHydrograph::staticType() ) || dataType.contains( ReosTimeSerieConstantInterval::staticType() ) )
+  if ( dataType.contains( ReosHydrograph::staticType() ) || dataType.contains( ReosTimeSeriesConstantInterval::staticType() ) )
     return ( capabilities & mCapabilities ) == capabilities;
 
   return false;

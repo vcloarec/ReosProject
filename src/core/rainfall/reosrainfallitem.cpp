@@ -728,7 +728,7 @@ QString ReosRainfallSerieRainfallItem::information() const
   ret.append( "\n" );
   ret.append( tr( "Time Step: %1" ).arg( data()->timeStepParameter()->value().toString( 2 ) ) );
   ret.append( "\n" );
-  double cumul = data()->valueWithMode( data()->valueCount(), ReosTimeSerieConstantInterval::Cumulative );
+  double cumul = data()->valueWithMode( data()->valueCount(), ReosTimeSeriesConstantInterval::Cumulative );
   ret.append( tr( "Cumulative height: %1 mm" ).arg( ReosParameter::doubleToString( cumul, 2 ) ) );
   return ret;
 }

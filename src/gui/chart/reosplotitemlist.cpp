@@ -23,7 +23,7 @@
 #include <QMouseEvent>
 
 #include "reosplotwidget.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 
 
 ReosPlotItemListModel::ReosPlotItemListModel( ReosPlotWidget *plotWidget, QObject *parent )
@@ -104,7 +104,7 @@ Qt::ItemFlags ReosPlotItemListModel::flags( const QModelIndex &index ) const
   return QAbstractItemModel::flags( index ) | Qt::ItemIsUserCheckable;
 }
 
-ReosPlotItem *ReosPlotItemListModel::addData( ReosTimeSerieVariableTimeStep *data )
+ReosPlotItem *ReosPlotItemListModel::addData( ReosTimeSeriesVariableTimeStep *data )
 {
   beginResetModel();
   std::unique_ptr<ReosPlotItem> item( ReosPlotItemFactories::instance()->buildPlotItem( mPlotWidget, data ) );
@@ -170,7 +170,7 @@ ReosVariableTimeStepPlotListButton::ReosVariableTimeStepPlotListButton( const QS
   setEnabled( false );
 }
 
-ReosPlotItem *ReosVariableTimeStepPlotListButton::addData( ReosTimeSerieVariableTimeStep *data )
+ReosPlotItem *ReosVariableTimeStepPlotListButton::addData( ReosTimeSeriesVariableTimeStep *data )
 {
   setEnabled( true );
   return mView->addData( data );
@@ -188,7 +188,7 @@ ReosVariableTimeStepPlotListView::ReosVariableTimeStepPlotListView( ReosPlotWidg
   setModel( mModel );
 }
 
-ReosPlotItem *ReosVariableTimeStepPlotListView::addData( ReosTimeSerieVariableTimeStep *data )
+ReosPlotItem *ReosVariableTimeStepPlotListView::addData( ReosTimeSeriesVariableTimeStep *data )
 {
   return mModel->addData( data );
 }
@@ -218,7 +218,7 @@ void ReosVariableTimeStepPlotListView::contextMenuEvent( QContextMenuEvent *even
   if ( !index.isValid() )
     return;
 
-  ReosTimeSerieVariableTimeStep *data = static_cast<ReosTimeSerieVariableTimeStep *>( index.internalPointer() );
+  ReosTimeSeriesVariableTimeStep *data = static_cast<ReosTimeSeriesVariableTimeStep *>( index.internalPointer() );
 
   QMenu menu;
 
@@ -229,7 +229,7 @@ void ReosVariableTimeStepPlotListView::contextMenuEvent( QContextMenuEvent *even
   colorWheelAction->setDismissOnColorSelection( false );
   menu.addAction( colorWheelAction );
 
-  connect( colorWheelAction, &QgsColorWidgetAction::colorChanged, data, &ReosTimeSerieVariableTimeStep::setColor );
+  connect( colorWheelAction, &QgsColorWidgetAction::colorChanged, data, &ReosTimeSeriesVariableTimeStep::setColor );
 
   menu.exec( mapToGlobal( event->pos() ) );
 }

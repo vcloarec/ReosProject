@@ -1,0 +1,74 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosdigitalelevationmodel.h                             *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+class ReosDigitalElevationModel /Abstract/
+{
+%Docstring(signature="appended")
+The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
+%End
+
+%TypeHeaderCode
+#include "reosdigitalelevationmodel.h"
+%End
+  public:
+    ReosDigitalElevationModel();
+    virtual ~ReosDigitalElevationModel();
+
+    virtual double elevationAt( const QPointF &point, const QString &pointCrs = QString() ) const = 0;
+%Docstring
+Returns elevation value at ``point`` in DEM coordinate
+%End
+
+    virtual QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = 0 ) const = 0;
+%Docstring
+Returns a profile corresponding on the elevation on the DEM, resolution depends on the DEM type
+
+:param polyline: the polyline that support the projection of elevation
+:param polylineCrs: is the CRS of ``polyline``
+
+:return: a profile with distance in meters
+%End
+
+    virtual double averageElevationInPolygon( const QPolygonF &polylgon, const QString &polygonCrs = QString(), ReosProcess *process = 0 ) const = 0;
+%Docstring
+Calculates and returns the average elevation
+
+:param polylgon: the polygon in which the calculation is executed
+:param polygonCrs: is the CRS of ``polygon``
+
+:return: a doublevalue corresponding to the average elevation
+%End
+
+
+    virtual QString source() const = 0;
+%Docstring
+Returns the source of the DEM, if it is a map layer, returns the layer Id
+%End
+
+
+
+    virtual double noDataValue() const = 0;
+%Docstring
+Returns the no data value for this DEM
+%End
+};
+
+
+
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosdigitalelevationmodel.h                             *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

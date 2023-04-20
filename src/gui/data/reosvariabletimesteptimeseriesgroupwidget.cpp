@@ -21,7 +21,7 @@
 #include "reosguicontext.h"
 #include "reosstyleregistery.h"
 #include "reosformwidget.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reostimeseriesgroup.h"
 #include "reosplottimeconstantinterval.h"
 #include "reosdataprovidergui.h"
@@ -97,7 +97,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::setTimeSeriesGroup( ReosTimeSeri
 
   if ( !mGroup )
   {
-    mSeriesPlot->setTimeSerie( nullptr );
+    mSeriesPlot->setTimeSeries( nullptr );
     setEnabled( false );
   }
   else
@@ -125,7 +125,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onAddSeries()
 
   if ( dial->exec() )
   {
-    std::unique_ptr<ReosTimeSerieVariableTimeStep> newSeries = std::make_unique<ReosTimeSerieVariableTimeStep>();
+    std::unique_ptr<ReosTimeSeriesVariableTimeStep> newSeries = std::make_unique<ReosTimeSeriesVariableTimeStep>();
     newSeries->setName( nameParam.value() );
     newSeries->setColor( Qt::blue );
     newSeries->setReferenceTime( QDateTime( QDate::currentDate(), QTime( 0, 0, 0 ), Qt::UTC ) );
@@ -143,7 +143,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onRemoveSeries()
     return;
 
   int currentIndex = ui->mComboBoxTimeSeriesName->currentIndex();
-  ReosTimeSerieVariableTimeStep *timeSeriesToRemove = mGroup->timeSeries( currentIndex );
+  ReosTimeSeriesVariableTimeStep *timeSeriesToRemove = mGroup->timeSeries( currentIndex );
   if ( !timeSeriesToRemove )
     return;
 
@@ -164,7 +164,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onRenameSeries()
     return;
 
   int currentIndex = ui->mComboBoxTimeSeriesName->currentIndex();
-  ReosTimeSerieVariableTimeStep *timeSeriesToRename = mGroup->timeSeries( currentIndex );
+  ReosTimeSeriesVariableTimeStep *timeSeriesToRename = mGroup->timeSeries( currentIndex );
   if ( !timeSeriesToRename )
     return;
 
@@ -232,7 +232,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onCurrentSeriesChanged()
     newEditingWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
   }
 
-  mSeriesPlot->setTimeSerie( mCurrentSeries );
+  mSeriesPlot->setTimeSeries( mCurrentSeries );
   ui->plotWidget->updatePlot();
 
   if ( ui->mEditingWidgetLayout->count() != 0 )
@@ -258,14 +258,14 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::updatePlotExtent()
 
 }
 
-ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget( ReosTimeSerieVariableTimeStep *timeSeries, QWidget *parent )
+ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget( ReosTimeSeriesVariableTimeStep *timeSeries, QWidget *parent )
   : ReosFormWidget( parent, Qt::Vertical, false )
   , mIsUseConstantTimeStepForNewEntry( new ReosParameterBoolean( tr( "Use constant time step for new entry" ), false, this ) )
   , mConstantTimeStepForNewEntry( new ReosParameterDuration( tr( "Constant time step" ) ) )
 {
   ReosSettings settings;
 
-  mDataModel = qobject_cast<ReosTimeSerieVariableTimeStepModel *>( timeSeries->model() );
+  mDataModel = qobject_cast<ReosTimeSeriesVariableTimeStepModel *>( timeSeries->model() );
 
   mIsUseConstantTimeStepForNewEntry->setValue( false );
   addParameter( timeSeries->referenceTimeParameter() );
@@ -351,12 +351,12 @@ ReosVariableTimeStepSeriesEditingWidget::~ReosVariableTimeStepSeriesEditingWidge
 
 QString ReosVariableTimeStepSeriesEditingWidgetFactory::datatype() const
 {
-  return ReosTimeSerieVariableTimeStep::staticType();
+  return ReosTimeSeriesVariableTimeStep::staticType();
 }
 
 ReosFormWidget *ReosVariableTimeStepSeriesEditingWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
-  ReosTimeSerieVariableTimeStep *ts = qobject_cast<ReosTimeSerieVariableTimeStep *>( dataObject );
+  ReosTimeSeriesVariableTimeStep *ts = qobject_cast<ReosTimeSeriesVariableTimeStep *>( dataObject );
   if ( ts )
     return new ReosVariableTimeStepSeriesEditingWidget( ts, context.parent() );
   else

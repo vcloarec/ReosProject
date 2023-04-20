@@ -20,7 +20,7 @@
 #include <QComboBox>
 
 #include "reosparameter.h"
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reoshydrograph.h"
 #include "reostableview.h"
 #include "reossettings.h"
@@ -35,7 +35,7 @@ ReosHydrographEditingWidget::ReosHydrographEditingWidget( ReosHydrograph *hydrog
 {
   ReosSettings settings;
 
-  mDataModel = qobject_cast<ReosTimeSerieVariableTimeStepModel *>( hydrograph->model() );
+  mDataModel = qobject_cast<ReosTimeSeriesVariableTimeStepModel *>( hydrograph->model() );
 
   mIsUseConstantTimeStepForNewEntry->setValue( false );
   addParameter( hydrograph->referenceTimeParameter() );
@@ -141,7 +141,7 @@ ReosPlotItem *ReosHydrographPlotFactory::buildPlotItem( ReosPlotWidget *plotWidg
     return nullptr;
 
   std::unique_ptr<ReosPlotTimeSerieVariableStep> plotItem( new ReosPlotTimeSerieVariableStep( hyd->name() ) );
-  plotItem->setTimeSerie( hyd );
+  plotItem->setTimeSeries( hyd );
 
   plotWidget->addPlotItem( plotItem.get() );
 

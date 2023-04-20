@@ -1181,7 +1181,7 @@ void ReosWatersehdTest::runoffhydrograph()
   ReosSeriesRainfall *rainfall = meteoModel->associatedRainfall( watershed );
   QVERIFY( rainfall );
   QCOMPARE( rainfall->valueCount(), 12 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 72.34254782834526 );
 
   ReosRunoffHydrographsStore runoffHydrographStore( &meteoCollection );
   runoffHydrographStore.setWatershed( watershed );
@@ -1191,7 +1191,7 @@ void ReosWatersehdTest::runoffhydrograph()
   QVERIFY( runoff->isObsolete() );
   QCOMPARE( runoff->valueCount(), 12 );
   QVERIFY( !runoff->isObsolete() );
-  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 36.17127391417263 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 36.17127391417263 );
 
   QEventLoop loop;
   QTimer timer;
@@ -1236,8 +1236,8 @@ void ReosWatersehdTest::runoffhydrograph()
   QVERIFY( !hydrograph->isObsolete() ); //update done
   QCOMPARE( hydrograph->valueCount(), 98 );
   QCOMPARE( hydrograph->valueAt( 70 ), 1.508769080560959 );
-  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 36.17127391417263 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 72.34254782834526 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 36.17127391417263 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 72.34254782834526 );
 
   rainfall->setValueAt( 5, 0 );
   QCOMPARE( runoffHydrographStore.updateCount, 2 ); //update will be launch when come back to the event loop
@@ -1248,8 +1248,8 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( runoffHydrographStore.updateCount, 3 ); //update just launch
   QVERIFY( hydrograph->isObsolete() ); //but not done
   QCOMPARE( hydrograph->valueCount(), 0 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 ); //just the rainfall and runoff updated (done a least in the main thread before launching)
-  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 29.05423133832502 );
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 58.10846267665004 ); //just the rainfall and runoff updated (done a least in the main thread before launching)
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 29.05423133832502 );
 
   timer.start( 200 );
   loop.exec();
@@ -1267,8 +1267,8 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( runoffHydrographStore.updateCount, 4 ); //update just launch
   QVERIFY( hydrograph->isObsolete() ); //but not done
   QCOMPARE( hydrograph->valueCount(), 0 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 );
-  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 23.243385070660015 ); // just the runoff updated (done a least in the main thread before launching)
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 58.10846267665004 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 23.243385070660015 ); // just the runoff updated (done a least in the main thread before launching)
 
   timer.start( 200 );
   loop.exec();
@@ -1378,8 +1378,8 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( runoffHydrographStore.updateCount, 7 ); //update just launch
   QVERIFY( hydrograph->isObsolete() ); //but not done
   QCOMPARE( hydrograph->valueCount(), 0 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 );
-  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 23.243385070660015 ); //just the runoff updated (done a least in the main thread before launching)
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 58.10846267665004 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 23.243385070660015 ); //just the runoff updated (done a least in the main thread before launching)
 
   timer.start( 200 );
   loop.exec();
@@ -1398,8 +1398,8 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( runoffHydrographStore.updateCount, 8 ); //update just launch
   QVERIFY( hydrograph->isObsolete() ); //but not done
   QCOMPARE( hydrograph->valueCount(), 0 );
-  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 58.10846267665004 );
-  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSerieConstantInterval::Cumulative ), 23.243385070660015 ); //just the runoff updated (done a least in the main thread before launching)
+  QCOMPARE( rainfall->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 58.10846267665004 );
+  QCOMPARE( runoff->data()->valueWithMode( 11, ReosTimeSeriesConstantInterval::Cumulative ), 23.243385070660015 ); //just the runoff updated (done a least in the main thread before launching)
 
   timer.start( 200 );
   loop.exec();

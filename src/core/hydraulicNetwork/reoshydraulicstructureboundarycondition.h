@@ -89,7 +89,7 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     ReosTimeSeriesVariableTimeStepGroup *waterLevelSeriesGroup() const;
     int waterLevelSeriesIndex() const;
     void setWaterLevelSeriesIndex( int waterLevelSeriesIndex );
-    ReosTimeSerieVariableTimeStep *waterLevelSeries() const;
+    ReosTimeSeriesVariableTimeStep *waterLevelSeries() const;
 
     ReosHydraulicStructure2D *structure() const;
 

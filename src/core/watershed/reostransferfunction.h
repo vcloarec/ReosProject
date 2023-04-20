@@ -18,7 +18,7 @@
 
 #define SIP_NO_FILE
 
-#include "reostimeserie.h"
+#include "reostimeseries.h"
 #include "reosmodule.h"
 #include "reosencodedelement.h"
 #include "reosprocess.h"

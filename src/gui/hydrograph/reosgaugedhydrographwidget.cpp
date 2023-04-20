@@ -89,7 +89,7 @@ void ReosGaugedHydrographWidget::setHydrographStore( ReosHydrographsStore *store
   mHydrographStore = store;
   if ( !mHydrographStore )
   {
-    mHydrographPlot->setTimeSerie( nullptr );
+    mHydrographPlot->setTimeSeries( nullptr );
     setEnabled( false );
   }
   else
@@ -224,7 +224,7 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
     newEditingWidget.reset( new QLabel( tr( "No Hydrograph" ) ) );
   }
 
-  mHydrographPlot->setTimeSerie( mCurrentHydrograph );
+  mHydrographPlot->setTimeSeries( mCurrentHydrograph );
   ui->plotWidget->updatePlot();
 
   if ( ui->mEditingWidgetLayout->count() != 0 )

@@ -21,14 +21,14 @@
 
 
 //! Widget that can be uses to display/edits paramters of a ReosTimeSerieConstantInterval
-class ReosTimeSerieConstantIntervalWidget: public ReosFormWidget
+class ReosTimeSeriesConstantIntervalWidget: public ReosFormWidget
 {
     Q_OBJECT
   public:
-    explicit ReosTimeSerieConstantIntervalWidget( ReosTimeSerieConstantInterval *timeSerie, QWidget *parent );
+    explicit ReosTimeSeriesConstantIntervalWidget( ReosTimeSeriesConstantInterval *timeSerie, QWidget *parent );
 
   private:
-    ReosTimeSerieConstantIntervalModel *mModel = nullptr;
+    ReosTimeSeriesConstantIntervalModel *mModel = nullptr;
     QComboBox *mValueModeComboBox = nullptr;
     QComboBox *mIntensityUnitComboBox = nullptr;
 };
@@ -48,7 +48,7 @@ class ReosFormWidgetTimeSerieConstantIntervalFactory : public ReosFormWidgetData
 };
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
-class ReosChicagoRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+class ReosChicagoRainfallWidget: public ReosTimeSeriesConstantIntervalWidget
 {
     Q_OBJECT
   public:
@@ -66,7 +66,7 @@ class ReosFormWidgetChicagoRainfalFactory : public ReosFormWidgetDataFactory
 };
 
 //! Widget that can be uses to display/edits paramters of a alternating block rainfall
-class ReosAlternatingBlockRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+class ReosAlternatingBlockRainfallWidget: public ReosTimeSeriesConstantIntervalWidget
 {
     Q_OBJECT
   public:
@@ -84,7 +84,7 @@ class ReosFormWidgetAlternatingBlockRainfalFactory : public ReosFormWidgetDataFa
 };
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
-class ReosDoubleTriangleRainfallWidget: public ReosTimeSerieConstantIntervalWidget
+class ReosDoubleTriangleRainfallWidget: public ReosTimeSeriesConstantIntervalWidget
 {
     Q_OBJECT
   public:

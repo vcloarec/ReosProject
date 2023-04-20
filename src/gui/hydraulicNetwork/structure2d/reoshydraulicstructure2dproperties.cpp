@@ -700,13 +700,13 @@ void ReosHydraulicStructure2DProperties::populateHydrograph()
   mOutputHydrographPlotButton->clear();
   mInputHydrographPlotButton->clear();
 
-  QList<ReosTimeSerieVariableTimeStep *> inList;
-  QList<ReosTimeSerieVariableTimeStep *> outList;
+  QList<ReosTimeSeriesVariableTimeStep *> inList;
+  QList<ReosTimeSeriesVariableTimeStep *> outList;
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = mStructure2D->boundaryConditions();
 
   for ( ReosHydraulicStructureBoundaryCondition *boundary : boundaries )
   {
-    ReosTimeSerieVariableTimeStep *hyd = boundary->outputHydrograph();
+    ReosTimeSeriesVariableTimeStep *hyd = boundary->outputHydrograph();
     switch ( boundary->conditionType() )
     {
       case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:

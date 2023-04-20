@@ -26,12 +26,12 @@
 #include "reosmodule.h"
 #include "reosdataobject.h"
 
-class ReosTimeSerieConstantInterval;
+class ReosTimeSeriesConstantInterval;
 class ReosParameter;
 class ReosParameterBoolean;
 class ReosParameterDouble;
 class ReosParameterString;
-class ReosTimeSerieConstantInterval;
+class ReosTimeSeriesConstantInterval;
 /**
  * Abstract class that represent a runoff calculation on a rainfall,
  * instance of a derived class should contain the parameter necessary to apply the model on a rainfall
@@ -54,10 +54,10 @@ class REOSCORE_EXPORT ReosRunoffModel : public ReosDataObject
     ReosParameterString *name() const;
 
     //! Applies the model on the \a rainfall and put the result in runoffResult
-    bool applyRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double  factor = 1 );
+    bool applyRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double  factor = 1 );
 
     //! Adds the resulting application of \a rainfall to the \a runoff result
-    virtual bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) = 0;
+    virtual bool addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor = 1 ) = 0;
 
     virtual ReosEncodedElement encode() const = 0;
 
@@ -195,14 +195,14 @@ class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
 {
   public:
     //! Constructor with the runoff models group and the \a rainfall
-    ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSerieConstantInterval *rainfall, QObject *parent = nullptr );
+    ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSeriesConstantInterval *rainfall, QObject *parent = nullptr );
     ~ReosRunoff() = default;
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "runoff-result" );}
 
     //! Sets the rainfall
-    void setRainfall( ReosTimeSerieConstantInterval *rainfall );
+    void setRainfall( ReosTimeSeriesConstantInterval *rainfall );
 
     //! Returns the current values count
     int valueCount() const;
@@ -220,12 +220,12 @@ class REOSCORE_EXPORT ReosRunoff : public ReosDataObject
     void updateValues() const;
 
     //! Returns a pointer to the time series that represents the result values of the runoff
-    ReosTimeSerieConstantInterval *data() const;
+    ReosTimeSeriesConstantInterval *data() const;
 
   protected:
-    QPointer<ReosTimeSerieConstantInterval> mRainfall;
+    QPointer<ReosTimeSeriesConstantInterval> mRainfall;
     QPointer<ReosRunoffModelsGroup> mRunoffModelsGroups;
-    ReosTimeSerieConstantInterval *mData;
+    ReosTimeSeriesConstantInterval *mData;
 
 
 };
@@ -372,7 +372,7 @@ class REOSCORE_EXPORT ReosRunoffConstantCoefficientModel: public ReosRunoffModel
 
     QString runoffType() const override {return QStringLiteral( "constant-coefficient" );}
     QList<ReosParameter *> parameters() const override;
-    bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
+    bool addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor = 1 ) override;
     ReosEncodedElement encode() const override;
     static ReosRunoffConstantCoefficientModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
 
@@ -398,7 +398,7 @@ class REOSCORE_EXPORT ReosRunoffGreenAmptModel: public ReosRunoffModel
 
     QString runoffType() const override {return QStringLiteral( "green-ampt" );}
     QList<ReosParameter *> parameters() const override;
-    bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
+    bool addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor = 1 ) override;
     ReosEncodedElement encode() const override;
     static ReosRunoffGreenAmptModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
 
@@ -424,7 +424,7 @@ class REOSCORE_EXPORT ReosRunoffCurveNumberModel: public ReosRunoffModel
 
     QString runoffType() const override {return QStringLiteral( "curve-number" );}
     QList<ReosParameter *> parameters() const override;
-    bool addRunoffModel( ReosTimeSerieConstantInterval *rainfall, ReosTimeSerieConstantInterval *runoffResult, double factor = 1 ) override;
+    bool addRunoffModel( ReosTimeSeriesConstantInterval *rainfall, ReosTimeSeriesConstantInterval *runoffResult, double factor = 1 ) override;
     ReosEncodedElement encode() const override;
     static ReosRunoffCurveNumberModel *create( const ReosEncodedElement &element, QObject *parent = nullptr );
 

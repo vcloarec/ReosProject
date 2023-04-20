@@ -52,7 +52,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
       int rank = -1;
       QString header;
       QString unit;
-      ReosTimeSerieVariableTimeStep *timeSeries = nullptr;
+      ReosTimeSeriesVariableTimeStep *timeSeries = nullptr;
       QString boundaryId;
       ReosHydraulicStructureBoundaryCondition::Type type;
 
