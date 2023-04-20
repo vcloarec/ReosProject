@@ -58,11 +58,7 @@ void ReosProcess::setCurrentProgression( int value )
 
 unsigned ReosProcess::maximumThreads()
 {
-  unsigned maxThread = std::max( std::thread::hardware_concurrency() - 1, 1u );
-  if ( MAX_THREAD > 0u )
-    maxThread = std::min( MAX_THREAD, maxThread );
-
-  return maxThread;
+  return QThread::idealThreadCount();
 }
 
 void ReosProcess::notify( const ReosModule::Message &message )

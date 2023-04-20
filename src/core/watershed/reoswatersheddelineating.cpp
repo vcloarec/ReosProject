@@ -360,9 +360,10 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalEle
   mCalculateAverageElevation( calculateAverageElevation )
 {}
 
-ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
-    const QPolygonF &downtreamLine,
-    const QString layerId ):
+ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
+  ReosWatershed *downstreamWatershed,
+  const QPolygonF &downtreamLine,
+  const QString &layerId ):
   mDownstreamLine( downtreamLine ),
   mDirections( downstreamWatershed->directions( layerId ) ),
   mPredefinedRasterExtent( downstreamWatershed->directionExtent( layerId ) )

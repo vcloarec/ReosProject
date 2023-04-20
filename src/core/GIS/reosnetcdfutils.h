@@ -16,6 +16,8 @@
 #ifndef REOSNETCDFUTILS_H
 #define REOSNETCDFUTILS_H
 
+#define SIP_NO_FILE
+
 #include <QString>
 #include<QMap>
 #include "reoscore.h"
@@ -40,7 +42,7 @@ class REOSCORE_EXPORT ReosNetCdfFile
 
     QVector<qint64> getInt64Array( const QString &variableName, int size );
 
-    QVector<int> getIntArray(const QString &variableName, const QVector<int> &starts, const QVector<int> &count );
+    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &count );
 
   private:
     bool mIsValid = false;

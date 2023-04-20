@@ -21,7 +21,6 @@
 #include "reosrenderedobject.h"
 #include "reos_sip.h"
 
-#define SIP_NO_FILE
 
 class ReosRasterExtent;
 class ReosGriddedRainfallProvider;

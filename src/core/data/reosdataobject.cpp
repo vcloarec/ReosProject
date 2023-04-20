@@ -19,10 +19,10 @@
 
 #include "reosencodedelement.h"
 
-ReosDataObject::ReosDataObject( QObject *parent ): QObject( parent )
-{
-  mUid = QUuid::createUuid().toString();
-}
+ReosDataObject::ReosDataObject( QObject *parent )
+  : QObject( parent )
+  , mUid( QUuid::createUuid().toString() )
+{}
 
 QString ReosDataObject::name() const
 {

@@ -15,7 +15,6 @@ email                : vcloarec at gmail dot com
 #ifndef REOSDIGITALELEVATIONMODEL_H
 #define REOSDIGITALELEVATIONMODEL_H
 
-#define SIP_NO_FILE
 
 #include <QString>
 
@@ -26,7 +25,7 @@ email                : vcloarec at gmail dot com
 /**
  * The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
 */
-class REOSCORE_EXPORT ReosDigitalElevationModel
+class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
 {
   public:
     ReosDigitalElevationModel() = default;
@@ -57,10 +56,10 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
      *  Calculates and returns the average elevation based on a grid
      *
      * \param grid the grid represented by a raster memory of byte, 0 : do not take account the elevation, 1 : take account
-     * \param rasterExtent the raster extent of the grid used to retrieve the world world coordinates
+     * \param rasterExtent the raster extent of the grid used to retrieve the world coordinates
      * \return a double value corresponding to the average elevation
      */
-    virtual double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0;
+    virtual double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
     //! Returns the source of the DEM, if it is a map layer, returns the layer Id
     virtual QString source() const = 0;
@@ -77,7 +76,7 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
       const ReosMapExtent &extent,
       ReosRasterExtent &rasterExtent,
       float &maxValue,
-      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0;
+      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
     /**
      * Extract a memory raster with simple precision from the DEM in \a a rasterExtent.
@@ -86,11 +85,13 @@ class REOSCORE_EXPORT ReosDigitalElevationModel
      */
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosRasterExtent &destinationRasterExtent,
-      ReosProcess *process = nullptr ) const = 0;
+      ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
     //! Returns the no data value for this DEM
     virtual double noDataValue() const = 0 ;
 };
+
+#ifndef SIP_RUN
 
 //! Process class that extract elevation on a polyline from a digital elevation model
 class REOSCORE_EXPORT ReosElevationOnPolylineProcess: public ReosProcess
@@ -113,9 +114,9 @@ class REOSCORE_EXPORT ReosElevationOnPolylineProcess: public ReosProcess
     QPolygonF mPolyline;
     QString mDestinationCRS;
     QPolygonF mResult;
-
 };
 
+#endif // No SIP_RUN
 
 //! Process that calculate the average elevation of the DEM in a watershed defined
 

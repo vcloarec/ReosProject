@@ -22,7 +22,6 @@
 #include "reosdataobject.h"
 #include "reosprocess.h"
 
-#define SIP_NO_FILE
 
 class QPainter;
 class ReosRenderedObject;
@@ -84,7 +83,7 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
 /**
  * Base classe of data object rendered on the map (for example mesh)
  */
-class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject
+class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject  SIP_ABSTRACT
 {
     Q_OBJECT
   public:

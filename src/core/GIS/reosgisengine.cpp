@@ -404,7 +404,7 @@ static void allLayersOrder( QgsLayerTreeNode *node, QList<QgsMapLayer *> &allLay
 }
 
 
-ReosDigitalElevationModel *ReosGisEngine::getRasterDigitalElevationModel( const QString &uri )
+ReosDigitalElevationModel *ReosGisEngine::createRasterDigitalElevationModel( const QString &uri )
 {
   QgsCoordinateTransformContext transformContext = QgsProject::instance()->transformContext();
   return ReosDigitalElevationModelFactory::createDEMFromUri( uri, transformContext );

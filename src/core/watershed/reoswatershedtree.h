@@ -13,7 +13,6 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#define SIP_NO_FILE
 
 #ifndef REOSWATERSHEDTREE_H
 #define REOSWATERSHEDTREE_H
@@ -36,13 +35,13 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     explicit ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent = nullptr );
 
     //! Purpose to add a watershed to the tree. Returns whether the delineating of the purposed watershed intersect other delineating
-    bool isWatershedIntersectExisting( ReosWatershed *purposedWatershed );
+    bool isWatershedIntersectExisting( ReosWatershed *purposedWatershed ) SIP_SKIP;
 
     /**
      * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its sub watershed).
      * Take ownership and returns a pointer to the added watershed
      */
-    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
+    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false ) SIP_SKIP;
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
@@ -70,32 +69,45 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     QList<ReosWatershed *> allWatershedsFromDSToUS() const;
 
     //! Removes direction data present in any watershed in the tree
-    void removeDirectionData();
+    void removeDirectionData() SIP_SKIP;
 
     /**
-     * Removes (if present) the watershed from the watershed \a ws, but do not delete it, returns a pointer to it
+     * Removes (if present) the watershed from the watershed \a ws, but do not delete it, returns a pointer to it.
+     * Caller takes ownership
      * Do not maintained sub watershed but move them to downstream.
      */
-    ReosWatershed *extractWatershed( ReosWatershed *ws );
+    ReosWatershed *extractWatershed( ReosWatershed *ws ) SIP_TRANSFER;
 
-    ReosWatershed *uriToWatershed( const QString &uri ) const;
-    QString watershedUri( ReosWatershed *watershed ) const;
+    ReosWatershed *uriToWatershed( const QString &uri ) const SIP_SKIP;
+    QString watershedUri( ReosWatershed *watershed ) const SIP_SKIP;
 
     //! Removes all the watersheds of the tree
     void clearWatersheds();
 
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
-    void decode( const ReosEncodedElement &elem, const ReosEncodeContext &context );
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
+    void decode( const ReosEncodedElement &elem, const ReosEncodeContext &context ) SIP_SKIP;
 
 
   signals:
+    //! Emitted before the tree will be reset
     void treeWillBeReset();
+
+    //! Emitted when the tree is reset
     void treeReset();
+
+    //! Emitted before a watershed will be added
     void watershedWillBeAdded();
+
     //! emitted when watershed is added with the pointer to the directly downsteam watershed (nullptr if added watershed is a the extreme downstream)
     void watershedAdded( ReosWatershed * );
+
+    //! Emitted when a watershed will be remove with a pointer to the removed watershed
     void watershedWillBeRemoved( ReosWatershed * );
+
+    //! Emitted whan a whatershed is removed
     void watershedRemoved();
+
+    //! Emitted when a watershed changed
     void watershedChanged();
 
   private:
@@ -103,6 +115,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
     ReosGisEngine *mGisEngine = nullptr;
 };
 
+#ifndef SIP_RUN
 
 class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
 {
@@ -146,5 +159,6 @@ class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
     ReosWatershedTree *mWatershedTree = nullptr;
 };
 
+#endif // No SIP_RUN
 
 #endif // REOSWATERSHEDTREE_H
