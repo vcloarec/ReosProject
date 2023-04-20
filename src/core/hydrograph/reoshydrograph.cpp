@@ -19,12 +19,26 @@
 #include "reostransferfunction.h"
 
 #include <QTimer>
+#include <QEventLoop>
 
 
 ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, const QString &dataSource )
   : ReosTimeSerieVariableTimeStep( parent,
                                    providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : formatKey( providerKey ),
                                    dataSource ) {}
+
+ReosHydrograph *ReosHydrograph::loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent )
+{
+  std::unique_ptr<ReosHydrograph> ret = std::make_unique<ReosHydrograph>( parent, providerKey, dataSource );
+  if ( ret->dataProvider()->isLoading() )
+  {
+    QEventLoop loop;
+    connect( ret->dataProvider(), &ReosDataProvider::loadingFinished, &loop, &QEventLoop::quit );
+    loop.exec();
+  }
+
+  return ret.release();
+}
 
 void ReosHydrograph::updateData() const
 {

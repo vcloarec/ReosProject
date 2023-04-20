@@ -277,6 +277,9 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     QPair<QDateTime, QDateTime> timeExtent() const override SIP_SKIP;
 
+    //! Returns the relative times from the reference time
+    const QVector<ReosDuration> relativeTimesData() const;
+
     //! Return the total durarion of the serie
     ReosDuration totalDuration() const;
 
@@ -309,7 +312,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStep: public ReosTimeSerie
 
     void copyFrom( const ReosTimeSerieVariableTimeStep *other );
 
-    bool operator==(const ReosTimeSerieVariableTimeStep &other ) const;
+    bool operator==( const ReosTimeSerieVariableTimeStep &other ) const;
 
 #ifndef SIP_RUN
     QAbstractItemModel *model();

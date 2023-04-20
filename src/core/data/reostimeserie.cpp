@@ -1011,6 +1011,16 @@ QPair<QDateTime, QDateTime> ReosTimeSerieVariableTimeStep::timeExtent() const
   return {refTime.addMSecs( dataProv->relativeTimeAt( 0 ).valueMilliSecond() ), refTime.addMSecs( dataProv->lastRelativeTime().valueMilliSecond() )};
 }
 
+const QVector<ReosDuration> ReosTimeSerieVariableTimeStep::relativeTimesData() const
+{
+  ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
+
+  if ( dataProv )
+    return dataProv->constTimeData();
+
+  return QVector<ReosDuration>();
+}
+
 void ReosTimeSerieVariableTimeStep::setValue( const ReosDuration &relativeTime, double value )
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
