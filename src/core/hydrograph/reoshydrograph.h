@@ -32,10 +32,21 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSerieVariableTimeStep
 {
     Q_OBJECT
   public:
+    /**
+     * Constructs an hydrograph with \a providerKey and \a datasource. The data could not be available just after creation dependeing of the provider.
+     * Remote provider could take sometime to obtain data
+     */
     ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
     QString type() const override {return staticType();}
     static QString staticType() {return ReosTimeSerieVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
+
+    /**
+     * Loads and returns an completly loaded hydrograph.
+     * If the source is remote, that means that calling this methods lead to wait for reply of the remote source.
+     * The caller take ownership.
+     */
+    static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = nullptr ) SIP_TRANSFER;
 
 #ifndef SIP_RUN
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;

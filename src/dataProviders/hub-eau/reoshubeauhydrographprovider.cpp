@@ -143,6 +143,7 @@ void ReosHubEauHydrographProvider::onLoadingFinished()
   else
     mStatus = Status::Loaded;
 
+  emit loadingFinished();
   emit dataChanged();
 }
 
