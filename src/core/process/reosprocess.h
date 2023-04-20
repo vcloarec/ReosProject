@@ -25,8 +25,6 @@ email                : vcloarec at gmail dot com
 
 #define MAX_THREAD 0u
 
-#define SIP_NO_FILE
-
 
 /**
  * Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
@@ -42,6 +40,8 @@ class REOSCORE_EXPORT ReosProcess : public QObject SIP_ABSTRACT
     bool isStop() const;
     bool isSuccessful() const;
     bool isFinished() const;
+
+#ifndef SIP_RUN
 
     virtual void start() = 0;
     //! Return the current progression on the process
@@ -87,6 +87,8 @@ class REOSCORE_EXPORT ReosProcess : public QObject SIP_ABSTRACT
     //! Sets a the current sub process, do not take ownership and caller must set nullptr before deleting the subprocess
     void setSubProcess( ReosProcess *subProcess );
 
+#endif // No SIP_RUN
+
   private:
     int mMaxProgression = 0;
     int mCurrentProgression = 0;
@@ -103,7 +105,7 @@ class REOSCORE_EXPORT ReosProcess : public QObject SIP_ABSTRACT
     void setParentProcess( ReosProcess *parent );
 
   signals:
-    void finished( QPrivateSignal );
+    void finished( QPrivateSignal ) SIP_SKIP;
 };
 
 #endif // REOSPROCESS_H

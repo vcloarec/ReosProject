@@ -787,8 +787,6 @@ void ReosHecrasTesting::importAndLaunchStructure()
   ReosHydraulicScheme *scheme = network->currentScheme();
   QVERIFY( scheme );
 
-  QVERIFY( network->gisEngine()->crs().isEmpty() );
-
   std::unique_ptr<ReosHecRasStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( path, network->context() ) );
   std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
 

@@ -83,7 +83,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     ReosGisEngine( QObject *parent = nullptr );
     ~ReosGisEngine();
 
-    static QString staticName() {return QStringLiteral("gis-engine");}
+    static QString staticName() {return QStringLiteral( "gis-engine" );}
 
     void initGisEngine();
 
@@ -157,8 +157,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns whether the layrId is registered as a Digigtal Elevation Model
     bool isDigitalElevationModel( const QString &layerId ) const;
 
-    //! Returns a pointer to a Digitial Elevation Model from a raster file wwith  \a uri
-    static ReosDigitalElevationModel *getRasterDigitalElevationModel( const QString &uri )  SIP_SKIP;
+    //! Returns a pointer to a Digitial Elevation Model from a raster file with  \a uri
+    static ReosDigitalElevationModel *createRasterDigitalElevationModel( const QString &uri )  SIP_TRANSFER;
 
     //! Returns a pointer to a Digitial Elevation Model corresponding to the topest layer registered as DEM, caller take ownership
     ReosDigitalElevationModel *getTopDigitalElevationModel() const SIP_SKIP;

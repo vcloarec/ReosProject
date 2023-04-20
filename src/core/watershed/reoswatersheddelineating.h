@@ -13,7 +13,6 @@ email                : vcloarec at gmail dot com
  *                                                                         *
  ***************************************************************************/
 
-#define SIP_NO_FILE
 
 #ifndef REOSWATERSHEDDELINEATING_H
 #define REOSWATERSHEDDELINEATING_H
@@ -31,6 +30,7 @@ email                : vcloarec at gmail dot com
 class ReosRasterFillingWangLiu;
 class ReosWatershedTree;
 
+#ifndef SIP_RUN
 class ReosWatershedDelineatingProcess: public ReosProcess
 {
     Q_OBJECT
@@ -43,12 +43,13 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 
     ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
                                      const QPolygonF &downtreamLine,
-                                     const QString layerId );
+                                     const QString &layerId );
 
     void start() override;
 
     QPolygonF watershedPolygon() const;
     QPolygonF streamLine() const;
+
     ReosRasterWatershed::Directions directions() const;
     ReosRasterWatershed::Watershed rasterizedWatershed() const;
 
@@ -77,6 +78,8 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 
     static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent );
 };
+
+#endif //No SIP_RUN
 
 
 class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
@@ -151,8 +154,8 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Store the wahtershed in the tree, returns pointer to the new watershed
     ReosWatershed *storeWatershed( bool adjustIfNeeded );
 
-    ReosEncodedElement encode() const;
-    void decode( const ReosEncodedElement &element );
+    ReosEncodedElement encode() const SIP_SKIP;
+    void decode( const ReosEncodedElement &element ) SIP_SKIP;
 
     //! Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
     void testPredefinedExtentValidity();

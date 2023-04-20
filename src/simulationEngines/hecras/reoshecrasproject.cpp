@@ -232,7 +232,7 @@ ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosMod
   std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mFileName + QStringLiteral( ".hdf" ), destinationCrs, message ) );
 
   QString demFile = terrainVrtFile();
-  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::getRasterDigitalElevationModel( demFile ) );
+  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::createRasterDigitalElevationModel( demFile ) );
   if ( !dem )
   {
     message.text = QObject::tr( "Unable to load the vrt file corresponding to the terrain." );
@@ -254,7 +254,7 @@ void ReosHecRasGeometry::resetMesh( ReosMesh *mesh, const QString &destinationCr
   mesh->resetMeshFrameFromeFile( meshFileName, destinationCrs, message );
   QString demFile = terrainVrtFile();
 
-  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::getRasterDigitalElevationModel( demFile ) );
+  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::createRasterDigitalElevationModel( demFile ) );
 
   if ( !dem )
   {

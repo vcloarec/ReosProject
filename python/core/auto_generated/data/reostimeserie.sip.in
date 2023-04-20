@@ -141,6 +141,11 @@ Sets the relative time ``relativeTime`` at postion ``i`` regardless of the value
 %End
 
 
+    const QVector<ReosDuration> relativeTimesData() const;
+%Docstring
+Returns the relative times from the reference time
+%End
+
     ReosDuration totalDuration() const;
 %Docstring
 Return the total durarion of the serie
@@ -193,7 +198,7 @@ Sets the color used to render the time serie
 
     void copyFrom( const ReosTimeSerieVariableTimeStep *other );
 
-    bool operator==( ReosTimeSerieVariableTimeStep &other ) const;
+    bool operator==( const ReosTimeSerieVariableTimeStep &other ) const;
 
 };
 
