@@ -214,7 +214,7 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   {
     if ( snappingEnabled() )
       e->snapPoint();
-    if ( !selfIntersect() || mAllowSelfIntersect )
+    if ( !selfIntersect( false ) || mAllowSelfIntersect )
       mRubberBand->addPoint( e->mapPoint() );
   }
 
@@ -271,9 +271,23 @@ void ReosMapToolDrawPolyline_p::setAllowSelfIntersect( bool allowSelfIntersect )
   mAllowSelfIntersect = allowSelfIntersect;
 }
 
-bool ReosMapToolDrawPolyline_p::selfIntersect() const
+bool ReosMapToolDrawPolyline_p::selfIntersect( bool complete ) const
 {
-  QgsGeometry geom = mRubberBand->asGeometry();
+  QgsGeometry geom;
+  if ( complete )
+  {
+    geom = mRubberBand->asGeometry();
+  }
+  else
+  {
+    QPolygonF poly = mRubberBand->asGeometry().asQPolygonF();
+    if ( ! poly.isEmpty() )
+    {
+      poly.removeLast();
+      geom = QgsGeometry::fromQPolygonF( poly );
+    }
+  }
+
   geom.removeDuplicateNodes();
   return !geom.isNull() && geom.constGet()->vertexCount() > 3 && !QgsGeometryUtils::selfIntersections( geom.constGet(), 0, 0, 0 ).isEmpty();
 }

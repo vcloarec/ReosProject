@@ -136,7 +136,7 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
     QColor mFillColor;
     bool mAllowSelfIntersect = true;
 
-    bool selfIntersect() const;
+    bool selfIntersect( bool complete = true ) const;
     void updateColor();
 
 };
