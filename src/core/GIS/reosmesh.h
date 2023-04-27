@@ -373,6 +373,8 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     virtual double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const = 0;
 
+    virtual bool rasterizeDatasetValue( const ReosMeshDatasetSource *datasetSource, const QString &fileName, int sourceGroupindex, int datasetIndex, double resolution ) const = 0;
+
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );
 

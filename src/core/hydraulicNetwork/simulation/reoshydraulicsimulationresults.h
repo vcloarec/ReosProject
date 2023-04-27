@@ -62,6 +62,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
 
     double interpolateResultOnMesh( ReosMesh *mesh, const ReosSpatialPosition &position, const QDateTime &time, DatasetType dataType );
 
+    virtual bool rasterizeResultFromMesh( ReosMesh *mesh, const QString &filePath, const QDateTime &time, DatasetType dataType, double resolution );
+
     virtual QString unitString( DatasetType dataType ) const = 0;
 
     QVector<double> resultValues( DatasetType datasetType, int index ) const;

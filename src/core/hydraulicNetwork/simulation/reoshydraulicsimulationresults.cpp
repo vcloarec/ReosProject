@@ -126,6 +126,14 @@ double ReosHydraulicSimulationResults::interpolateResultOnMesh(
   return mesh->interpolateDatasetValueOnPoint( this, position, grInd, dsInd );
 }
 
+bool ReosHydraulicSimulationResults::rasterizeResultFromMesh( ReosMesh *mesh, const QString &filePath, const QDateTime &time, DatasetType dataType, double resolution )
+{
+  int grInd = groupIndex( dataType );
+  int dsInd = datasetIndexClosestBeforeTime( grInd, time );
+
+  return mesh->rasterizeDatasetValue( this, filePath, grInd, dsInd, resolution );
+}
+
 QVector<double> ReosHydraulicSimulationResults::resultValues( ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const
 {
   int gi = groupIndex( datasetType );

@@ -78,6 +78,10 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
 
+
+    //! Returns the directory where data and simulation will be stored on the disk
+    QDir structureDirectory() const;
+
     //! Returns whether the structure supports the \a capability
     bool hasCapability( Structure2DCapability capability ) const;
 
@@ -238,9 +242,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the results associated with \a scheme
     ReosHydraulicSimulationResults *results( ReosHydraulicScheme *scheme );
 
-    //! Returns the directory where data and simulation will be stored on the disk
-    QDir structureDirectory() const;
-
     //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
     void activateResultDatasetGroup( const QString &id = QString() );
 
@@ -294,7 +295,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns the index of the \a profile
     int profileIndex( ReosHydraulicStructureProfile *profile );
-
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;

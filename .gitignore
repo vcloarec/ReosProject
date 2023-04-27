@@ -1,2 +1,14 @@
 *.user
 Tests/testData/tmp/*
+
+.idea/dbnavigator.xml
+
+.idea/inspectionProfiles/profiles_settings.xml
+
+.idea/ReosProject.iml
+
+.idea/vcs.xml
+
+.idea/workspace.xml
+
+.idea/misc.xml

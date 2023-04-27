@@ -26,6 +26,8 @@
 #include <qgsgeometryengine.h>
 #include <qgsgeometryutils.h>
 #include <qgsunittypes.h>
+#include <qgsrasterfilewriter.h>
+#include <qgsmeshlayerutils.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
@@ -796,6 +798,49 @@ void ReosMeshFrame_p::setWireFrameSettings( const WireFrameSettings &wireFrameSe
   updateWireFrameSettings( update );
 }
 
+static double interpolateOnQuad( const QgsPointXY &pA, const QgsPointXY &pB, const QgsPointXY &pC, const QgsPointXY &pD
+                                 , const QgsPointXY &pP,
+                                 double vA, double vB, double vC, double vD )
+{
+  // bilinear interpolation
+  // see https://www.particleincell.com/2012/quad-interpolation/
+  double a1 = pA.x();
+  double a2 = -pA.x() + pB.x();
+  double a3 = -pA.x() + pD.x();
+  double a4 = pA.x() - pB.x() + pC.x() - pD.x();
+
+  double b1 = pA.y();
+  double b2 = -pA.y() + pB.y();
+  double b3 = -pA.y() + pD.y();
+  double b4 = pA.y() - pB.y() + pC.y() - pD.y();
+
+  double x = pP.x();
+  double y = pP.y();
+
+  double A = a4 * b3 - a3 * b4;
+  double B = a4 * b1 - a1 * b4 + a2 * b3 - a3 * b2 + b4 * x - a4 * y;
+  double C = a2 * b1 - a1 * b2 + x * b2 - y * a2;
+
+  double m;
+  if ( A != 0 )
+  {
+    m = ( -B + sqrt( B * B - 4 * A * C ) ) / ( 2 * A );
+    if ( m < 0 || m > 1 )
+      m = ( -B - sqrt( B * B - 4 * A * C ) ) / ( 2 * A );
+  }
+  else
+    m = -C / B;
+
+  double l = ( x - a1 - a3 * m ) / ( a2 + a4 * m );
+
+  double wA = l * m;
+  double wB = ( 1 - l ) * m;
+  double wC = ( 1 - l ) * ( 1 - m );
+  double wD = ( l * ( 1 - m ) );
+
+  return wA * vA + wB * vB + wC * vC + wD * vD;
+}
+
 
 //from QGIS src/core/mesh/qgsmeshlayerutils.cpp
 static double interpolate( const QgsPointXY &pA, const QgsPointXY &pB, const QgsPointXY &pC, const QgsPointXY &pP, double vA, double vB, double vC, bool &ok )
@@ -931,6 +976,31 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
   }
 
   return result;
+}
+
+bool ReosMeshFrame_p::rasterizeDatasetValue( const ReosMeshDatasetSource *datasetSource, const QString &fileName, int sourceGroupindex, int datasetIndex, double resolution ) const
+{
+  QFileInfo fileInfo( fileName );
+
+  QString outputFormat = QgsRasterFileWriter::driverForExtension( fileInfo.suffix() );
+  QgsRasterFileWriter rasterFileWriter( fileName );
+  rasterFileWriter.setOutputProviderKey( QStringLiteral( "gdal" ) );
+  rasterFileWriter.setOutputFormat( outputFormat );
+
+  QgsRectangle ext = extent().toRectF();
+
+  int width = static_cast<int>( std::round( ext.width() / resolution ) );
+  int height = static_cast<int>( std::round( ext.height() / resolution ) );
+
+  std::unique_ptr<QgsRasterDataProvider> rasterDataProvider(
+    rasterFileWriter.createMultiBandRaster( Qgis::DataType::Float64, width, height, QgsRectangle( ext ), mMeshLayer->crs(), 1 ) );
+  rasterDataProvider->setEditable( true );
+
+
+
+
+
+  rasterDataProvider->setEditable( false );
 }
 
 QString ReosMeshFrame_p::exportAsMesh( const QString &fileName, ReosModule::Message &message ) const
