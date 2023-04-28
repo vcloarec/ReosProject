@@ -907,7 +907,12 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
     return;
 
   for ( int i = 0; i < size; ++i )
-    waterDepthDataset->values[i] = waterDepthValue.at( i );
+  {
+    if ( std::isnan( waterDepthValue.at( i ) ) )
+      waterDepthDataset->values[i] = 0;
+    else
+      waterDepthDataset->values[i] = waterDepthValue.at( i );
+  }
 
   waterDepthDataset->valid = true;
   waterDepthDataset->time = 0;
@@ -929,8 +934,15 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
 
   for ( int i = 0; i < size; ++i )
   {
-    velocityDatasetU->values[i] = velocityValue.at( 2 * i );
-    velocityDatasetV->values[i] = velocityValue.at( 2 * i + 1 );
+    if ( std::isnan( velocityValue.at( 2 * i ) ) )
+      velocityDatasetU->values[i] = 0;
+    else
+      velocityDatasetU->values[i] = velocityValue.at( 2 * i );
+
+    if ( std::isnan( velocityValue.at( 2 * i + 1 ) ) )
+      velocityDatasetV->values[i] = 0;
+    else
+      velocityDatasetV->values[i] = velocityValue.at( 2 * i + 1 );
   }
 
   velocityDatasetU->valid = true;
