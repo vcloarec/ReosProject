@@ -666,6 +666,8 @@ QDockWidget *ReosMap::temporalControllerDockWidget()
 
 void ReosMap::initialize()
 {
+  if ( mDefaultMapTool )
+    mDefaultMapTool->deactivate(); //to reinitialize it
   setDefaultMapTool();
   mExtraRenderedObjects.clear();
 
