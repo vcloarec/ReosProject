@@ -250,9 +250,18 @@ ReosTimeWindow ReosHydraulicStructureBoundaryCondition::timeWindow() const
     case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
       break;
     case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
-    case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
       return ReosHydrographJunction::timeWindow();
       break;
+    case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+    {
+      if ( mIsWaterLevelConstant )
+        return ReosTimeWindow();
+      else if ( ReosTimeSerieVariableTimeStep *ts = waterLevelSeries() )
+        return ReosTimeWindow( ts->timeExtent() );
+      else
+        ReosTimeWindow();
+    }
+    break;
     case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
     {
       if ( mStructure->currentSimulation() )
