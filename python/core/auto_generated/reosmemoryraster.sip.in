@@ -49,7 +49,7 @@ If cell size is negative, the row or column index will increase when real world 
 So, if YCellSize < 0 and XCellSize>0, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
 %End
     ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant = true, bool yAscendant = false );
-    ReosRasterExtent( const ReosMapExtent &extent );
+    explicit ReosRasterExtent( const ReosMapExtent &extent );
 
     bool isValid() const;
 %Docstring
