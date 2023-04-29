@@ -22,6 +22,7 @@ class ReosWatershedModule;
 class ReosGisEngine;
 class ReosHydraulicNetwork;
 
+
 class REOSCORE_EXPORT ReosCoreModule : public ReosModule
 {
     Q_OBJECT
@@ -32,6 +33,15 @@ class REOSCORE_EXPORT ReosCoreModule : public ReosModule
 
     //! Returns a pointer to the GIS engine
     ReosGisEngine *gisEngine() const;
+
+    //! Opens a project with file path \a filePath
+    bool openProject( const QString &filePath );
+
+    //! Saves project with a file path \a filePath
+    bool saveProject( const QString &filePath );
+
+    //! Clears all data on the current project
+    void clearProject();
 
 #ifndef SIP_RUN
     //! Returns a pointer to the watersehd module

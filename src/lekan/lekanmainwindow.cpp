@@ -41,12 +41,10 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosoverridecursor.h"
 #include "reoscoremodule.h"
 
-#define PROJECT_FILE_MAGIC_NUMBER 19092014
-
 LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   : ReosMainWindow( core, parent )
-  , mGisEngine( core->gisEngine() )
-  , mMap( new ReosMap( mGisEngine, this ) )
+  , mCore( core )
+  , mMap( new ReosMap( mCore->gisEngine(), this ) )
   , mActionRainfallManager( new QAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ), this ) )
   , mActionRunoffManager( new QAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ), this ) )
 {
@@ -90,12 +88,9 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
 
   mGisDock = new QDockWidget( tr( "GIS Layers" ) );
   mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
-  mGisDock->setWidget( new ReosGisLayersWidget( mGisEngine, mMap, this ) );
+  mGisDock->setWidget( new ReosGisLayersWidget( mCore->gisEngine(), mMap, this ) );
 
-  mWatershedModule = core->watershedModule();
-  mHydraulicNetwork = core->hydraulicNetwork();
-
-  mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mHydraulicNetwork, mWatershedModule, guiContext );
+  mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mCore->hydraulicNetwork(), mCore->watershedModule(), guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
 
   mHydraulicNetworkWidget = mDockHydraulicNetwork->hydraulicNetworkWidget();
@@ -103,7 +98,7 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   mMap->addSelectToolTarget( ReosHydraulicNetworkElement::staticType() );
   addToolBar( mHydraulicNetworkWidget->structure2dToolBar() );
 
-  mDockWatershed = new  ReosWatershedDockWidget( guiContext, mWatershedModule, mHydraulicNetwork );
+  mDockWatershed = new  ReosWatershedDockWidget( guiContext, mCore->watershedModule(), mCore->hydraulicNetwork() );
   mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
 
   mWatershedWidget = mDockWatershed->watershedWidget();
@@ -130,62 +125,11 @@ bool LekanMainWindow::openProject()
 {
   ReosOverrideCursor overrideCursor;
   QString filePath = currentProjectFilePath();
-  QString path = currentProjectPath();
-  QString baseName = currentProjectBaseName();
 
-  QFile file( filePath );
-  if ( !file.open( QIODevice::ReadOnly ) )
-    return false;
-
-  clearProject();
-
-  ReosVersion version;
-  ReosEncodeContext encodeContext;
-  encodeContext.setBaseDir( QDir( path ) );
-
-  QDataStream stream( &file );
-
-  //*** read header
-  qint32 magicNumber;
-  QByteArray bytesVersion;
-  stream >> magicNumber;
-
-  if ( magicNumber == PROJECT_FILE_MAGIC_NUMBER )
-  {
-    // since Lekan 2.2
-    qint32 serialisationVersion;
-    stream >> serialisationVersion;
-    stream >> bytesVersion;
-    QDataStream::Version v = static_cast<QDataStream::Version>( serialisationVersion );
-    ReosEncodedElement::setSerialisationVersion( v );
-    version = ReosVersion( bytesVersion, v );
-  }
-  else
-  {
-    //old version don't have header
-    ReosEncodedElement::setSerialisationVersion( QDataStream::Qt_5_12 ); /// TODO : check the Qt version of Lekan 2.0 / 2.1
-    stream.device()->reset();
-  }
-
-  QByteArray byteArray;
-  stream >> byteArray;
-
-  ReosEncodedElement lekanProject( byteArray );
-  if ( lekanProject.description() != QStringLiteral( "Lekan-project" ) )
-    return false;
-
-  QByteArray gisEngineData;
-  if ( !lekanProject.getData( QStringLiteral( "GIS-engine" ), gisEngineData ) )
-    return false;
-  ReosEncodedElement encodedGisEngine( gisEngineData );
-  if ( !mGisEngine->decode( lekanProject.getEncodedData( QStringLiteral( "GIS-engine" ) ), path, baseName ) )
+  if ( ! mCore->openProject( filePath ) )
     return false;
 
   mMap->initialize();
-
-  mWatershedModule->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ), encodeContext );
-  mHydraulicNetwork->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), path, baseName );
-
   storeProjectPath( filePath );
 
   return true;
@@ -206,63 +150,14 @@ void LekanMainWindow::onMapTimeStepChanged()
 bool LekanMainWindow::saveProject()
 {
   QString filePath = currentProjectFilePath();
-  QString path = currentProjectPath();
-  QString baseName = currentProjectBaseName();
 
   mRainFallManagerWidget->saveRainfallFile();
   mRunoffManagerWidget->save();
 
-  ReosEncodeContext context;
-  context.setBaseDir( QDir( currentProjectPath() ) );
-  ReosEncodedElement lekanProject( QStringLiteral( "Lekan-project" ) );
-  ReosEncodedElement encodedGisEngine = mGisEngine->encode( path, baseName );
-  lekanProject.addEncodedData( QStringLiteral( "GIS-engine" ), encodedGisEngine );
-  lekanProject.addEncodedData( QStringLiteral( "watershed-module" ), mWatershedModule->encode( context ) );
-  lekanProject.addEncodedData( QStringLiteral( "hydaulic-network" ), mHydraulicNetwork->encode( path, baseName ) );
-
-  QFileInfo fileInfo( filePath );
-  if ( fileInfo.suffix().isEmpty() )
-    filePath.append( QStringLiteral( ".lkn" ) );
-
-  QFile file( filePath );
-  if ( !file.open( QIODevice::WriteOnly ) )
+  if ( ! mCore->saveProject( filePath ) )
     return false;
 
-  QDataStream stream( &file );
-
-  //**** header
-  qint32 magicNumber = PROJECT_FILE_MAGIC_NUMBER;
-  qint32 serialisationVersion = stream.version();
-
-  QByteArray versionBytes = ReosVersion::currentApplicationVersion().bytesVersion();
-
-  Q_ASSERT( versionBytes.size() == 21 );
-
-  stream << magicNumber;
-  stream << serialisationVersion;
-  stream << versionBytes;
-  //*****
-
-  stream << lekanProject.bytes();
-
   storeProjectPath( filePath );
-
-  const QFileInfoList filesToRemove = rootModule()->uselessFiles( true );
-  for ( const QFileInfo &fi : filesToRemove )
-  {
-    if ( !fi.exists() )
-      continue;
-    if ( fi.isDir() )
-    {
-      QDir dir( fi.filePath() );
-      dir.removeRecursively();
-    }
-    else if ( fi.isFile() )
-    {
-      QFile fileToRemove( fi.path() );
-      fileToRemove.remove();
-    }
-  }
 
   return true;
 }
@@ -271,18 +166,11 @@ void LekanMainWindow::clearProject()
 {
   mDockHydraulicNetwork->closePropertieWidget();
 
-  if ( mGisEngine )
-    mGisEngine->clearProject();
+  if ( mCore )
+    mCore->clearProject();
 
   if ( mMap )
     mMap->initialize();
-
-  if ( mWatershedModule )
-    mWatershedModule->reset();
-
-  if ( mHydraulicNetwork )
-    mHydraulicNetwork->reset();
-
 }
 
 void LekanMainWindow::checkExtraProjectToSave()

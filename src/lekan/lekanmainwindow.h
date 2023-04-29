@@ -67,12 +67,9 @@ class LekanMainWindow : public ReosMainWindow
     QFileInfo gisFileInfo() const;
 
     void storeProjectPath( const QString &path );
-
-    ReosGisEngine *mGisEngine = nullptr;
+    ReosCoreModule *mCore = nullptr;
     ReosMap *mMap = nullptr;
-    ReosWatershedModule *mWatershedModule = nullptr;
     ReosWatershedWidget *mWatershedWidget = nullptr;
-    ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
     ReosHydraulicNetworkWidget *mHydraulicNetworkWidget = nullptr;
 
     QDockWidget *mGisDock = nullptr;
