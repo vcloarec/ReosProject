@@ -1256,23 +1256,19 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
   if ( mNetwork->calculationContext().schemeId() != schemeId )
     return;
 
-  if ( currentSimulation() && currentSimulation()->hasResult( this, schemeId ) )
-  {
-    if ( !mSimulationResults.contains( schemeId ) )
-      loadResult( currentSimulation(), schemeId );
+  qDebug() << "Update result at:" << QTime::currentTime();
+  QElapsedTimer timer;
+  timer.start();
 
-    if ( mCurrentResult != mSimulationResults.value( schemeId ) )
-    {
-      mCurrentResult = mSimulationResults.value( schemeId );
-      setResultsOnStructure( mCurrentResult );
-      emit timeWindowChanged();
-      emit timeStepChanged();
-    }
-  }
-  else
+  if ( !mSimulationResults.contains( schemeId ) &&
+       currentSimulation() &&
+       currentSimulation()->hasResult( this, schemeId ) )
+    loadResult( currentSimulation(), schemeId );
+
+  if ( mCurrentResult != mSimulationResults.value( schemeId ) )
   {
-    mCurrentResult = nullptr;
-    setResultsOnStructure( nullptr );
+    mCurrentResult = mSimulationResults.value( schemeId );
+    setResultsOnStructure( mCurrentResult );
     emit timeWindowChanged();
     emit timeStepChanged();
   }
