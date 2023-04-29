@@ -8,6 +8,7 @@
 
 
 
+
 class ReosCoreModule : ReosModule
 {
 %Docstring(signature="appended")
@@ -41,6 +42,21 @@ Constructor
     ReosGisEngine *gisEngine() const;
 %Docstring
 Returns a pointer to the GIS engine
+%End
+
+    bool openProject( const QString &filePath );
+%Docstring
+Opens a project with file path ``filePath``
+%End
+
+    bool saveProject( const QString &filePath );
+%Docstring
+Saves project with a file path ``filePath``
+%End
+
+    void clearProject();
+%Docstring
+Clears all data on the current project
 %End
 
 };
