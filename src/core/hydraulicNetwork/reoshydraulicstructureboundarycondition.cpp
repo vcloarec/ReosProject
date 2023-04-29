@@ -256,7 +256,7 @@ ReosTimeWindow ReosHydraulicStructureBoundaryCondition::timeWindow() const
     {
       if ( mIsWaterLevelConstant )
         return ReosTimeWindow();
-      else if ( ReosTimeSerieVariableTimeStep *ts = waterLevelSeries() )
+      else if ( ReosTimeSeriesVariableTimeStep *ts = waterLevelSeries() )
         return ReosTimeWindow( ts->timeExtent() );
       else
         ReosTimeWindow();
