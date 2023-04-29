@@ -1,0 +1,157 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reosmemoryraster.h                                          *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+
+
+class ReosRasterExtent : ReosMapExtent
+{
+%Docstring(signature="appended")
+Class that represent the extent of a raster in a map, handle also pixel map position
+%End
+
+%TypeHeaderCode
+#include "reosmemoryraster.h"
+%End
+  public:
+
+    enum Position
+    {
+      Center,
+      Interior,
+      Exterior
+    };
+
+    ReosRasterExtent();
+%Docstring
+Default constructor
+%End
+
+    ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize );
+%Docstring
+Constructor
+
+:param extent: in real world coordinate coordinates
+:param XCellCount:
+:param XCellSize: size of the cell in X direction, can be negative
+:param YCellSize: size of the cell in X direction, can be negative
+
+If cell size is negative, the row or column index will increase when real world coordinate decreases.
+So, if YCellSize < 0 and XCellSize>0, then the origin of the grid raster (0,0) will be at (Xmin,Ymax) of extent.
+%End
+    ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant = true, bool yAscendant = false );
+    ReosRasterExtent( const ReosMapExtent &extent );
+
+    bool isValid() const;
+%Docstring
+Returns whether the extent is valid
+%End
+    double xMapOrigin() const;
+%Docstring
+Returns x map coordinate of the orgin if the raster, x min if XCellSize > 0
+%End
+    double yMapOrigin() const;
+%Docstring
+Returns y map coordinate of the orgin if the raster, y min if YCellSize > 0
+%End
+    double xCellSize() const;
+%Docstring
+Returns cell size in X direction
+%End
+    double yCellSize() const;
+%Docstring
+Returns cell size in Y direction
+%End
+    int xCellCount() const;
+%Docstring
+Returns cell count in X direction
+%End
+    int yCellCount() const;
+%Docstring
+Returns cell count in Y direction
+%End
+
+    QPoint mapToCell( const QPointF &point ) const;
+%Docstring
+Returns position of the cell from a ``point`` in real world coordinates
+%End
+    QPointF interCellToMap( const QPoint &cellPos ) const;
+%Docstring
+Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
+%End
+    double cellXBeforeToMap( int i ) const;
+%Docstring
+Returns the x coordinate before the column i
+%End
+    double cellXAfterToMap( int i ) const;
+%Docstring
+Returns the x coordinate after the column i
+%End
+    double cellYBeforeToMap( int i ) const;
+%Docstring
+Returns the y coordinate before the row i
+%End
+    double cellYAfterToMap( int i )const;
+%Docstring
+Returns the y coordinate after the row i
+%End
+    QPointF cellMinMinCornerToMap( const QPoint &cellPos ) const;
+%Docstring
+Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
+%End
+    QPointF cellMaxMaxCornerToMap( const QPoint &cellPos ) const;
+%Docstring
+Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
+%End
+    QPointF cellMinMaxCornerToMap( const QPoint &cellPos ) const;
+%Docstring
+Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
+%End
+    QPointF cellMaxMinCornerToMap( const QPoint &cellPos ) const;
+%Docstring
+Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
+%End
+    QRect mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
+%Docstring
+Returns a rectangle from real world cordintates to raster cell postions
+%End
+    ReosMapExtent cellRectToMapExtent( const QRect &cellRect, const Position &position = Center ) const;
+%Docstring
+Returns a rectangle from raster cell position to real world coordinates
+%End
+    double cellSurface() const;
+%Docstring
+Returns the surface of a cell
+%End
+
+    ReosRasterExtent operator*( const ReosRasterExtent &other ) const;
+
+    bool operator==( const ReosRasterExtent &other ) const;
+
+    bool operator!=( const ReosRasterExtent &other ) const;
+
+
+
+};
+
+
+
+
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reosmemoryraster.h                                          *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

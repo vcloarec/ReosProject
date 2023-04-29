@@ -190,6 +190,12 @@ class ReosDssProviderFactory: public ReosDataProviderFactory
 
     bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
 
+    bool supportType( const QString &dataType ) const override;
+
+    QVariantMap uriParameters( const QString &dataType ) const override;
+    QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
+
+
 };
 
 #endif // REOSDSSPROVIDER_H

@@ -40,41 +40,43 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override SIP_SKIP;
     ReosMapExtent extent() const override SIP_SKIP;
 
+    static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
+
     ReosGriddedRainfallProvider *dataProvider() const SIP_SKIP;
 
-    static QString staticType() SIP_SKIP;
+    static QString staticType();
 
     //! Returns the count of grids (e.g. time steps)
-    int gridCount() const SIP_SKIP;
+    int gridCount() const;
 
     //! Returns the start time related to the grid with \a index
-    const QDateTime startTime( int index ) const SIP_SKIP;
+    const QDateTime startTime( int index ) const;
 
     //! Returns the end time related to the grif with \a index
-    const QDateTime endTime( int index ) const SIP_SKIP;
+    const QDateTime endTime( int index ) const;
 
     //! Returns the time extent of the gridded rainfall
     virtual QPair<QDateTime, QDateTime> timeExtent() const SIP_SKIP;
 
-    ReosDuration minimumTimeStep() const SIP_SKIP;
+    ReosDuration minimumTimeStep() const;
 
     /**
      * Returns all the values related to \a index, order of values can be deduced from the sign of sizes dx,dy)
      *  of the cell contained in the raster extent (see extent()
      */
-    const QVector<double> intensityValues( int index ) const SIP_SKIP;
+    const QVector<double> intensityValues( int index ) const;
 
     //! Returns a raster stored in memory containing the intensity values of the rain fall( unit: mm / h ) for the index \a index
     ReosRasterMemory<double> intensityRaster( int index ) const SIP_SKIP;
 
     //! Returns the index corresponding to \a time
-    int dataIndex( const QDateTime &time ) const SIP_SKIP;
+    int dataIndex( const QDateTime &time ) const;
 
     //! Returns the raster extent of all the grids
-    ReosRasterExtent rasterExtent() const SIP_SKIP;
+    ReosRasterExtent rasterExtent() const;
 
     //! Returns whether the gridded rainfallis valid
-    bool isValid() const SIP_SKIP;
+    bool isValid() const;
 
     //! Overrides the coordinates system with the wkt string \a crs of the gridded rainfall without modifying the coordinates
     void overrideCrs( const QString &crs ) SIP_SKIP;

@@ -1,0 +1,61 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosdataprovider.h                                     *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+class ReosDataProviderRegistery
+{
+%Docstring(signature="appended")
+Class that stores time serie provider factory
+%End
+
+%TypeHeaderCode
+#include "reosdataprovider.h"
+%End
+  public:
+    ReosDataProviderRegistery();
+
+
+
+
+
+    QStringList providers( const QString &dataType ) const;
+%Docstring
+Returns a list of providers that support the type of data ``dataType``
+%End
+
+
+    QVariantMap uriParameters( const QString &key, const QString &dataType );
+%Docstring
+Returns a list of parameters that define the uri of the provider with ``key`` and with type ``dataType``
+%End
+
+    QString buildUri( const QString &key, const QString &dataType, const QVariantMap &parameters, bool &ok /Out/ );
+%Docstring
+Build the uri for the provider with ``key`` for data type ``dataType`` and with ``parameters``.
+Returns false if parameters are not valid
+%End
+
+    static ReosDataProviderRegistery *instance();
+%Docstring
+Returns a pointer to the static instance of this registery
+%End
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosdataprovider.h                                     *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

@@ -16,13 +16,15 @@
 #ifndef REOSDATAPROVIDER_H
 #define REOSDATAPROVIDER_H
 
-#define SIP_NO_FILE
+
 
 #include <QObject>
 #include <map>
 #include <memory>
 
 #include "reoscore.h"
+
+#ifndef SIP_RUN
 
 class REOSCORE_EXPORT ReosDataProvider : public QObject
 {
@@ -76,7 +78,18 @@ class REOSCORE_EXPORT ReosDataProviderFactory
     //! Returns whether the data provider has the \a capabilities with data type \a dataType
     virtual bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const;
 
+    //! Returns whether the fctory support data type \a dataType
+    virtual bool supportType( const QString &dataType ) const = 0;
+
+    //! Returns the list of parameters necessary to build an uri for the data type \a dataType
+    virtual QVariantMap uriParameters( const QString &dataType ) const = 0;
+
+    //! Builds the uri coresponding to the  data type \a dataType with \a parameters
+    virtual QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const = 0;
+
 };
+
+#endif // No SIP_RUN
 
 /**
  * Class that stores time serie provider factory
@@ -87,31 +100,37 @@ class REOSCORE_EXPORT ReosDataProviderRegistery
     ReosDataProviderRegistery();
 
     //! Registers a \a factory
-    void registerProviderFactory( ReosDataProviderFactory *factory );
+    void registerProviderFactory( ReosDataProviderFactory *factory ) SIP_SKIP;
 
     //! Creates and returns a provider corresponding to the \a key. Caller takes ownership
-    ReosDataProvider *createProvider( const QString &key );
+    ReosDataProvider *createProvider( const QString &key ) SIP_SKIP;
 
     //! Creates and returns a provider corresponding to the \a key ans \a dataType. Caller takes ownership
-    ReosDataProvider *createProvider( const QString &key, const QString &dataType );
+    ReosDataProvider *createProvider( const QString &key, const QString &dataType ) SIP_SKIP;
 
     //! Creates a provider that can read the data pointed by \a uri
-    ReosDataProvider *createCompatibleProvider( const QString &uri, const QString &dataType ) const;
+    ReosDataProvider *createCompatibleProvider( const QString &uri, const QString &dataType ) const SIP_SKIP;
+
+    //! Returns a list of providers that support the type of data \a dataType
+    QStringList providers( const QString &dataType ) const;
 
     //! Returns a list of data providers that have the \a capabilities with data type \a dataType
-    QStringList withCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities );
+    QStringList withCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const SIP_SKIP;
 
-    QStringList fileSuffixes( const QString &key ) const;
+    //! Returns a list of parameters that define the uri of the provider with \a key and with type \a dataType
+    QVariantMap uriParameters( const QString &key, const QString &dataType );
+
+    /**
+     * Build the uri for the provider with \a key for data type \a dataType and with \a parameters.
+     * Returns false if parameters are not valid
+     */
+    QString buildUri( const QString &key, const QString &dataType, const QVariantMap &parameters, bool &ok SIP_OUT );
 
     //! Returns a pointer to the static instance of this registery
     static ReosDataProviderRegistery *instance();
 
   private:
-#ifdef _MSC_VER
-    std::unique_ptr<ReosDataProviderFactory> dummy; // workaround for MSVC, if not, the line after create an compilation error if this class is exported (REOSCORE_EXPORT)
-#endif
-
-    std::map<QString, std::unique_ptr<ReosDataProviderFactory>> mFactories;
+    std::map<QString, std::shared_ptr<ReosDataProviderFactory>> mFactories;
 
     // List of providers used to retrieve the compatible providers following an order
     // For now, providers are ordered following the order of the library files in the folder

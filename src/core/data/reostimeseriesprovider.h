@@ -177,6 +177,9 @@ class ReosTimeSerieConstantTimeStepMemoryProviderFactory : public ReosDataProvid
     QString key() const override {return QStringLiteral( "constant-time-step-memory" );}
 
     bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+    bool supportType( const QString &dataType ) const override;
+    QVariantMap uriParameters( const QString & ) const override {return QVariantMap();}
+    QString buildUri( const QString &, const QVariantMap &, bool &ok ) const override {ok = true; return QString();}
 
   private:
     ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Memory};
@@ -214,13 +217,12 @@ class ReosTimeSerieVariableTimeStepMemoryProvider : public ReosTimeSerieVariable
     void clear() override;
     void copy( ReosTimeSerieVariableTimeStepProvider *other ) override;
 
+    static QString staticType();
 
   private:
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext & ) override;
-
-    static QString staticType();
 
   private:
     QDateTime mReferenceTime;
@@ -237,6 +239,9 @@ class ReosTimeSerieVariableTimeStepMemoryProviderFactory : public ReosDataProvid
     ReosTimeSerieProvider *createProvider( const QString & ) const override {return new ReosTimeSerieVariableTimeStepMemoryProvider;}
     QString key() const override {return QStringLiteral( "variable-time-step-memory" );}
     bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+    bool supportType( const QString &dataType ) const override;
+    QVariantMap uriParameters( const QString & ) const override {return QVariantMap();}
+    QString buildUri( const QString &, const QVariantMap &, bool &ok ) const override {ok = true; return QString();}
 
   private:
     ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Memory};

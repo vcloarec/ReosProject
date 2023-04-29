@@ -82,7 +82,17 @@ ReosDataProvider *ReosDataProviderRegistery::createCompatibleProvider( const QSt
   return nullptr;
 }
 
-QStringList ReosDataProviderRegistery::withCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities )
+QStringList ReosDataProviderRegistery::providers( const QString &dataType ) const
+{
+  QStringList ret;
+  for ( auto it = mFactories.cbegin(); it != mFactories.cend(); ++it )
+    if ( it->second->supportType( dataType ) )
+      ret.append( it->first );
+
+  return ret;
+}
+
+QStringList ReosDataProviderRegistery::withCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
 {
   QStringList ret;
   for ( auto it = mFactories.cbegin(); it != mFactories.cend(); ++it )
@@ -90,6 +100,27 @@ QStringList ReosDataProviderRegistery::withCapabilities( const QString &dataType
       ret.append( it->first );
 
   return ret;
+}
+
+QVariantMap ReosDataProviderRegistery::uriParameters( const QString &key, const QString &dataType )
+{
+  auto it = mFactories.find( key );
+  if ( it != mFactories.end() )
+    return it->second->uriParameters( dataType );
+  else
+    return QVariantMap();
+}
+
+QString ReosDataProviderRegistery::buildUri( const QString &key, const QString &dataType, const QVariantMap &parameters, bool &ok )
+{
+  auto it = mFactories.find( key );
+  if ( it != mFactories.end() )
+    return it->second->buildUri( dataType, parameters, ok );
+  else
+  {
+    ok = false;
+    return QString();
+  }
 }
 
 void ReosDataProviderRegistery::loadDynamicProvider()

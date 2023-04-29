@@ -534,3 +534,50 @@ bool ReosDelftFewsXMLProviderFactory::hasCapabilities( const QString &dataType, 
   return false;
 }
 
+bool ReosDelftFewsXMLProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosHydrograph::staticType() ) ||
+         dataType.contains( ReosSeriesRainfall::staticType() );
+}
+
+QVariantMap ReosDelftFewsXMLProviderFactory::uriParameters( const QString &dataType ) const
+{
+  QVariantMap ret;
+
+  if ( supportType( dataType ) )
+  {
+    ret.insert( QStringLiteral( "file-path" ), QObject::tr( "XML file with Deflt FEWS data" ) );
+    ret.insert( QStringLiteral( "station-id" ), QObject::tr( "The location Id" ) );
+    ret.insert( QStringLiteral( "start-date-time" ), QObject::tr( "Start date/time (ISO 8601)" ) );
+    ret.insert( QStringLiteral( "end-date-time" ), QObject::tr( "End date/time (ISO 8601)" ) );
+  }
+
+  return ret;
+}
+
+QString ReosDelftFewsXMLProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
+{
+  if ( supportType( dataType ) &&
+       parameters.contains( QStringLiteral( "file-path" ) ) &&
+       parameters.contains( QStringLiteral( "station-id" ) ) &&
+       parameters.contains( QStringLiteral( "start-date-time" ) ) &&
+       parameters.contains( QStringLiteral( "end-date-time" ) ) )
+  {
+    const QDateTime start = QDateTime::fromString( parameters.value( QStringLiteral( "start-date-time" ) ).toString(), Qt::ISODate );
+    const QDateTime end = QDateTime::fromString( parameters.value( QStringLiteral( "end-date-time" ) ).toString(), Qt::ISODate );
+    const QString id = parameters.value( QStringLiteral( "station-id" ) ).toString();
+    const QString path = parameters.value( QStringLiteral( "file-path" ) ).toString();
+
+    if ( start.isValid() && end.isValid() && !id.isEmpty() && !path.isEmpty() )
+    {
+      ok = true;
+      return ReosDelftFewsXMLProviderInterface::buildUri( path, id, start, end );
+    }
+  }
+
+  ok = false;
+  return QString();
+
+}
+
+

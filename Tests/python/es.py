@@ -1,6 +1,7 @@
 from reos.core import *
 from PyQt5.QtCore import QTimer
-
+import sys
+import os
 
 def on_data_reloaded( hyd ):
     value_count = hyd.valueCount()
@@ -11,7 +12,7 @@ def reload(hyd):
     hyd.reload()
 
 
-app = ReosApplication([])
+app = ReosApplication([list(map(os.fsencode,sys.argv))])
 core_module = app.coreModule()
 
 station_id = 'J881301001'

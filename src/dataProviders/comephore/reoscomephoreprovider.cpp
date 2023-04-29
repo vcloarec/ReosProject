@@ -333,7 +333,7 @@ QVector<int> ReosComephoreTiffFilesReader::data( int index, bool &readLine ) con
 ReosRasterExtent ReosComephoreTiffFilesReader::extent() const
 {
   if ( mFilesNames.isEmpty() )
-    return ReosMapExtent();
+    return ReosRasterExtent();
 
   ReosGdalDataset dataset( mFilesNames.begin().value() );
 
@@ -385,6 +385,35 @@ ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( cons
 QString ReosComephoresProviderFactory::key() const
 {
   return COMEPHORES_KEY;
+}
+
+bool ReosComephoresProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosGriddedRainfall::staticType() );
+}
+
+QVariantMap ReosComephoresProviderFactory::uriParameters( const QString &dataType ) const
+{
+  QVariantMap ret;
+
+  if ( supportType( dataType ) )
+    ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
+
+  return ret;
+}
+
+QString ReosComephoresProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
+{
+  if ( supportType( dataType ) && parameters.contains( QStringLiteral( "file-or-dir-path" ) ) )
+  {
+    ok = true;
+    return parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+  }
+  else
+  {
+    ok = false;
+    return QString();
+  }
 }
 
 ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &filePath )
