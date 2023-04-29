@@ -132,6 +132,19 @@ ReosMapExtent ReosGriddedRainfall::extent() const
   return rasterExtent();
 }
 
+ReosGriddedRainfall *ReosGriddedRainfall::loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent )
+{
+  std::unique_ptr<ReosGriddedRainfall> ret = std::make_unique<ReosGriddedRainfall>( dataSource, providerKey, parent );
+  if ( ret->dataProvider()->isLoading() )
+  {
+    QEventLoop loop;
+    connect( ret->dataProvider(), &ReosDataProvider::loadingFinished, &loop, &QEventLoop::quit );
+    loop.exec();
+  }
+
+  return ret.release();
+}
+
 ReosGriddedRainfallProvider *ReosGriddedRainfall::dataProvider() const
 {
   return mProvider.get();

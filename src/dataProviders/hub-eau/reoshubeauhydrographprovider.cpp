@@ -292,6 +292,38 @@ bool ReosHubEauHydrographProviderFactory::hasCapabilities( const QString &dataTy
   return false;
 }
 
+bool ReosHubEauHydrographProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosHydrograph::staticType() );
+}
+
+QVariantMap ReosHubEauHydrographProviderFactory::uriParameters( const QString &dataType ) const
+{
+  QVariantMap ret;
+
+  if ( supportType( dataType ) )
+  {
+    ret.insert( QStringLiteral( "station-id" ), QObject::tr( "Station code without space" ) );
+  }
+
+  return ret;
+}
+
+QString ReosHubEauHydrographProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
+{
+  if ( supportType( dataType ) &&
+       parameters.contains( QStringLiteral( "station-id" ) ) )
+  {
+    const QString stationId = parameters.value( QStringLiteral( "station-id" ) ).toString();
+
+    ok = !stationId.isEmpty();
+    return stationId;
+
+  }
+  ok = false;
+  return QString();
+}
+
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
   return new ReosHubEauHydrographProviderFactory();

@@ -303,6 +303,46 @@ bool ReosDssProviderFactory::hasCapabilities( const QString &dataType, ReosDataP
   return ( cap & capabilities ) == capabilities;
 }
 
+bool ReosDssProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosGriddedRainfall::staticType() ) ||
+         dataType.contains( ReosTimeSeriesConstantInterval::staticType() ) ||
+         dataType.contains( ReosTimeSeriesVariableTimeStep::staticType() );
+}
+
+QVariantMap ReosDssProviderFactory::uriParameters( const QString &dataType ) const
+{
+  QVariantMap ret;
+
+  if ( supportType( dataType ) )
+  {
+    ret.insert( QStringLiteral( "file-path" ), QObject::tr( "DSS file where are stored the data" ) );
+    ret.insert( QStringLiteral( "dss-path" ), QObject::tr( "DSS Path of the data : /group/location/parameter/start-date/time-interval/version/" ) );
+  }
+
+  return ret;
+}
+
+QString ReosDssProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
+{
+  if ( supportType( dataType ) &&
+       parameters.contains( QStringLiteral( "file-path" ) ) &&
+       parameters.contains( QStringLiteral( "dss-path" ) ) )
+  {
+    const QString filePath = parameters.value( QStringLiteral( "file-path" ) ).toString();
+    const QString dssPathString = parameters.value( QStringLiteral( "dss-path" ) ).toString();
+    const ReosDssPath dssPath( dssPathString );
+
+    if ( dssPath.isValid() )
+    {
+      ok = true;
+      return ReosDssUtils::uri( filePath, dssPath );
+    }
+  }
+  ok = false;
+  return QString();
+}
+
 QString ReosDssProviderTimeSerieVariableTimeStep::key() const
 {
   return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();

@@ -463,10 +463,20 @@ bool ReosTimeSerieConstantTimeStepMemoryProviderFactory::hasCapabilities( const 
   return false;
 }
 
+bool ReosTimeSerieConstantTimeStepMemoryProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosTimeSerieConstantTimeStepMemoryProvider::staticType() );
+}
+
 bool ReosTimeSerieVariableTimeStepMemoryProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
 {
   if ( dataType.contains( ReosTimeSeriesVariableTimeStep::staticType() ) )
     return ( capabilities & mCapabilities ) == capabilities;
 
   return false;
+}
+
+bool ReosTimeSerieVariableTimeStepMemoryProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosTimeSerieVariableTimeStepMemoryProvider::staticType() );
 }

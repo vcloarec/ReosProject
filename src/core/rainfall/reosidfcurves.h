@@ -96,7 +96,7 @@ class REOSCORE_EXPORT ReosIdfFormula
     //! Creates paramters and add it to the \a interval
     ReosIdfParameters *createParameters( ReosIntensityDurationInterval *interval, ReosDuration::Unit parameterTimeUnit, ReosDuration::Unit resultTimeUnit ) const;
 
-    //! Returns thelist of the parameter names
+    //! Returns the list of the parameter names
     virtual QStringList parametersNames() const = 0;
 
     virtual QPixmap formulaImage() const;

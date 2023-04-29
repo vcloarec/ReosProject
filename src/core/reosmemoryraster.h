@@ -28,7 +28,6 @@ email                : vcloarec@gmail.com
 
 #include "reosmapextent.h"
 
-#define SIP_NO_FILE
 
 class ReosRasterCellPos;
 
@@ -63,7 +62,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
      */
     ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize );
     ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant = true, bool yAscendant = false );
-    ReosRasterExtent( const ReosMapExtent &extent );
+    explicit ReosRasterExtent( const ReosMapExtent &extent );
 
     //! Returns whether the extent is valid
     bool isValid() const;
@@ -101,9 +100,9 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
     QPointF cellMaxMinCornerToMap( const QPoint &cellPos ) const;
     //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
-    QPointF cellCenterToMap( const QPoint &cellPos ) const;
+    QPointF cellCenterToMap( const QPoint &cellPos ) const SIP_SKIP;
     //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
-    QPointF cellCenterToMap( const ReosRasterCellPos &cellPos ) const;
+    QPointF cellCenterToMap( const ReosRasterCellPos &cellPos ) const SIP_SKIP;
     //! Returns a rectangle from real world cordintates to raster cell postions
     QRect mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
     //! Returns a rectangle from raster cell position to real world coordinates
@@ -111,7 +110,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     //! Returns the surface of a cell
     double cellSurface() const;
     //! Returns position of the cell from a \a point in real world coordinates
-    ReosRasterCellPos mapToCellPos( const QPointF &point ) const;
+    ReosRasterCellPos mapToCellPos( const QPointF &point ) const SIP_SKIP;
 
     //! Returns the intersection of the extents, the position and the size of the pixels are the ones of the first member
     ReosRasterExtent operator*( const ReosRasterExtent &other ) const;
@@ -120,9 +119,9 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
 
     bool operator!=( const ReosRasterExtent &other ) const;
 
-    ReosEncodedElement encode() const;
+    ReosEncodedElement encode() const SIP_SKIP;
 
-    static ReosRasterExtent decode( const ReosEncodedElement &element );
+    static ReosRasterExtent decode( const ReosEncodedElement &element ) SIP_SKIP;
 
   private:
     bool mIsValid = false;
@@ -134,6 +133,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     int mYCellCount = 0;
 };
 
+#ifndef SIP_RUN
 /**
  * Convenient class used to navigate in a raster
  */
@@ -563,6 +563,8 @@ class REOSCORE_EXPORT ReosRasterTestingCellInPolygon: public ReosRasterTestingCe
     ReosRasterExtent mExtent;
     const QPolygonF mPolygon;
 };
+
+#endif //No SIP_RUN
 
 
 #endif // REOSMEMORYRASTER_H

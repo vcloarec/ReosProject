@@ -38,17 +38,50 @@ the Free Software Foundation; either version 2 of the License, or     *
     ~ReosGriddedRainfall();
 
 
+    static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
 
 
+    static QString staticType();
+
+    int gridCount() const;
+%Docstring
+Returns the count of grids (e.g. time steps)
+%End
+
+    const QDateTime startTime( int index ) const;
+%Docstring
+Returns the start time related to the grid with ``index``
+%End
+
+    const QDateTime endTime( int index ) const;
+%Docstring
+Returns the end time related to the grif with ``index``
+%End
 
 
+    ReosDuration minimumTimeStep() const;
+
+    const QVector<double> intensityValues( int index ) const;
+%Docstring
+Returns all the values related to ``index``, order of values can be deduced from the sign of sizes dx,dy)
+of the cell contained in the raster extent (see :py:func:`~ReosGriddedRainfall.extent`
+%End
 
 
+    int dataIndex( const QDateTime &time ) const;
+%Docstring
+Returns the index corresponding to ``time``
+%End
 
+    ReosRasterExtent rasterExtent() const;
+%Docstring
+Returns the raster extent of all the grids
+%End
 
-
-
-
+    bool isValid() const;
+%Docstring
+Returns whether the gridded rainfallis valid
+%End
 
 
 

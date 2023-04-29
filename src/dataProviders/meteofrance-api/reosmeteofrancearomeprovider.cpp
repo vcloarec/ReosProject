@@ -78,8 +78,15 @@ QString ReosMeteoFranceAromeApiProvider::resolFromUri( const QString &uri )
 ReosMapExtent ReosMeteoFranceAromeApiProvider::extentFromUri( const QString &uri )
 {
   QList<double> extentNumber = extentListFromUri( uri );
-  QString crs = ReosGisEngine::crsFromEPSG( 4326 );
-  return ReosMapExtent( ReosSpatialPosition( extentNumber.at( 0 ), extentNumber.at( 2 ), crs ), ReosSpatialPosition( extentNumber.at( 1 ), extentNumber.at( 3 ), crs ) );
+  return extentFromList( extentNumber );
+}
+
+ReosMapExtent ReosMeteoFranceAromeApiProvider::extentFromList( const QList<double> &list )
+{
+  if ( list.count() != 4 )
+    return ReosMapExtent();
+  const QString crs = ReosGisEngine::crsFromEPSG( 4326 );
+  return ReosMapExtent( ReosSpatialPosition( list.at( 0 ), list.at( 2 ), crs ), ReosSpatialPosition( list.at( 1 ), list.at( 3 ), crs ) );
 }
 
 QList<double> ReosMeteoFranceAromeApiProvider::extentListFromUri( const QString &uri )
@@ -191,7 +198,7 @@ void ReosMeteoFranceAromeApiProvider::loadFrame()
   mModel.zone = zoneFromUri( dataSource() );
   mModel.resol = resolFromUri( dataSource() );
   mRequestedExtent = extentFromUri( dataSource() );
-  mExtent = mRequestedExtent;
+  mExtent = ReosRasterExtent( mRequestedExtent );
 
   QString error;
   connect( mService.get(), &ReosMeteoFranceApiArome::connected, this, &ReosMeteoFranceAromeApiProvider::onConnected );
@@ -256,7 +263,7 @@ bool ReosMeteoFranceAromeApiProvider::isValid() const {return mIsValid;}
 
 int ReosMeteoFranceAromeApiProvider::count() const { return mRunInfo.frameCount;}
 
-bool ReosMeteoFranceAromeApiProvider::canReadUri( const QString &path ) const {return false;}
+bool ReosMeteoFranceAromeApiProvider::canReadUri( const QString & ) const {return false;}
 
 QDateTime ReosMeteoFranceAromeApiProvider::startTime( int index ) const
 {
@@ -344,4 +351,68 @@ bool ReosMeteoFranceAromeApiProviderFactory::hasCapabilities( const QString &dat
     return ( mCapabilities & capabilities ) == capabilities;
 
   return false;
+}
+
+bool ReosMeteoFranceAromeApiProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosGriddedRainfall::staticType() );
+}
+
+QVariantMap ReosMeteoFranceAromeApiProviderFactory::uriParameters( const QString &dataType ) const
+{
+  QVariantMap ret;
+
+  if ( supportType( dataType ) )
+  {
+    ret.insert( QStringLiteral( "api-key-file" ), QObject::tr( "Path of the file containing the API Key" ) );
+    ret.insert( QStringLiteral( "zone" ), QObject::tr( "Covered zone : FRANCE, NCALED, INDIEN, GUYANE, ANTIL or POLYN" ) );
+    ret.insert( QStringLiteral( "resolution" ), QObject::tr( "Resolution : 001 (only for FRANCE) or 0025" ) );
+    ret.insert( QStringLiteral( "extent" ), QObject::tr( "Extent request in EPSG 4326 system coordinates : [long min, long max, lat min, lat max]" ) );
+    ret.insert( QStringLiteral( "run-index-before-last" ), QObject::tr( "The index of the run before the last existing run" ) );
+  }
+
+  return ret;
+}
+
+QString ReosMeteoFranceAromeApiProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
+{
+  if ( supportType( dataType ) &&
+       parameters.contains( QStringLiteral( "api-key-file" ) ) &&
+       parameters.contains( QStringLiteral( "zone" ) ) &&
+       parameters.contains( QStringLiteral( "resolution" ) ) &&
+       parameters.contains( QStringLiteral( "extent" ) ) &&
+       parameters.contains( QStringLiteral( "run-index-before-last" ) ) )
+  {
+    const QString apiFile = parameters.value( QStringLiteral( "api-key-file" ) ).toString();
+    const QString zone = parameters.value( QStringLiteral( "zone" ) ).toString();
+    const QString resolution = parameters.value( QStringLiteral( "resolution" ) ).toString();
+    int runIndex = parameters.value( QStringLiteral( "run-index-before-last" ) ).toInt();
+    QVariant extentVar = parameters.value( QStringLiteral( "extent" ) );
+
+    if ( extentVar.type() == QVariant::List )
+    {
+      const QVariantList varList = extentVar.toList();
+      if ( varList.count() == 4 )
+      {
+        QList<double> extentDouble;
+        for ( const QVariant &var : varList )
+        {
+          extentDouble.append( var.toDouble( &ok ) );
+          if ( !ok )
+            return QString();
+        }
+
+        if ( !apiFile.isEmpty() &&
+             !zone.isEmpty() &&
+             !resolution.isEmpty() &&
+             runIndex >= 0 )
+        {
+          ok = true;
+          return ReosMeteoFranceAromeApiProvider::uri( apiFile, zone, resolution, ReosMeteoFranceAromeApiProvider::extentFromList( extentDouble ), runIndex );
+        }
+      }
+    }
+  }
+  ok = false;
+  return QString();
 }

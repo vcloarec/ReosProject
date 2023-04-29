@@ -56,10 +56,12 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     static QString dataType();
     static QString staticKey();
     static QString uri( const QString &apiKeyFileName, const QString &zone, const QString &resol, const ReosMapExtent &extent, int runIndex );
+
     static QString apiKeyFileNamefromUri( const QString &uri );
     static QString zoneFromUri( const QString &uri );
     static QString resolFromUri( const QString &uri );
     static ReosMapExtent extentFromUri( const QString &uri );
+    static ReosMapExtent extentFromList(const QList<double> &list );
     static QList<double> extentListFromUri( const QString &uri );
     static int runIndexfromUri( const QString &uri );
 
@@ -91,6 +93,9 @@ class ReosMeteoFranceAromeApiProviderFactory: public ReosDataProviderFactory
     QString key() const override;
 
     bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
+    bool supportType( const QString &dataType ) const override;
+    QVariantMap uriParameters( const QString &dataType ) const override;
+    QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
 
   private:
     ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Net | ReosDataProvider::Spatial};

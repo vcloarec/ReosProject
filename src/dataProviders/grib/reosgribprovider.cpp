@@ -628,3 +628,44 @@ QString ReosGribProviderFactory::key() const
 {
   return GRIB_KEY;
 }
+
+bool ReosGribProviderFactory::supportType( const QString &dataType ) const
+{
+  return dataType.contains( ReosGriddedRainfall::staticType() );
+}
+
+QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) const
+{
+  QVariantMap ret;
+
+  if ( supportType( dataType ) )
+  {
+    ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
+    ret.insert( QStringLiteral( "variable" ), QObject::tr( "variable that store the pricipitation values" ) );
+    ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Intensity(0), Height for the time step (1) or Cummulative heigth (2) " ) );
+  }
+
+  return ret;
+}
+
+QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
+{
+  if ( supportType( dataType ) &&
+       parameters.contains( QStringLiteral( "file-or-dir-path" ) ) &&
+       parameters.contains( QStringLiteral( "variable" ) ) &&
+       parameters.contains( QStringLiteral( "value-type" ) ) )
+  {
+    const QString path = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+    const QString variable = parameters.value( QStringLiteral( "variable" ) ).toString();
+    int typeInt = parameters.value( QStringLiteral( "value-type" ) ).toInt();
+
+    if ( typeInt >= 0 && typeInt < 3 )
+    {
+      ReosGriddedRainfallProvider::ValueType type = static_cast<ReosGriddedRainfallProvider::ValueType>( typeInt );
+      ok = true;
+      return ReosGribGriddedRainfallProvider::uri( path, variable, type );
+    }
+  }
+  ok = false;
+  return QString();
+}

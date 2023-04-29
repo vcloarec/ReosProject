@@ -104,6 +104,9 @@ class ReosGribProviderFactory: public ReosDataProviderFactory
   public:
     ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
+    bool supportType( const QString &dataType ) const override;
+    QVariantMap uriParameters( const QString &dataType ) const override;
+    QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
 };
 
 #endif // REOSGRIBPROVIDER_H
