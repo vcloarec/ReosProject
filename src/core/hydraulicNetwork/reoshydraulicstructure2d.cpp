@@ -929,7 +929,11 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
 
   if ( mSimulationResults.contains( schemeId ) )
   {
-    delete mSimulationResults.value( schemeId ); // replace be deleteLater() ?
+    ReosHydraulicSimulationResults *resToRemove = mSimulationResults.value( schemeId );
+    if ( resToRemove == mCurrentResult )
+      setResultsOnStructure( nullptr );
+
+    delete mSimulationResults.value( schemeId ); // replace by deleteLater() ?
     mSimulationResults.remove( schemeId );
 
     ReosHydraulicScheme *scheme = mNetwork->scheme( schemeId );
@@ -1189,6 +1193,8 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
     return;
 
   mesh()->setSimulationResults( simResults, mNetwork->gisEngine()->crs() );
+  emit timeWindowChanged();
+  emit timeStepChanged();
 
   // First we clean boundaries condition
   const QList<ReosHydraulicStructureBoundaryCondition *> boundaries = boundaryConditions();
@@ -1256,7 +1262,6 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
   if ( mNetwork->calculationContext().schemeId() != schemeId )
     return;
 
-  qDebug() << "Update result at:" << QTime::currentTime();
   QElapsedTimer timer;
   timer.start();
 
@@ -1269,8 +1274,6 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
   {
     mCurrentResult = mSimulationResults.value( schemeId );
     setResultsOnStructure( mCurrentResult );
-    emit timeWindowChanged();
-    emit timeStepChanged();
   }
 
 }
