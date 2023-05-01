@@ -24,11 +24,24 @@ email                : vcloarec at gmail dot com
 #include "reoscoremodule.h"
 #include "reoswatershedmodule.h"
 
+QString ReosApplication::sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
 
 ReosApplication::ReosApplication( int &argc, char **argv, int flag )
   : QApplication( argc, argv, flag )
   , mCoreModule( new ReosCoreModule( this ) )
 {
+  QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
+  QCoreApplication::setApplicationName( QStringLiteral( "Reos System" ) );
+
+  sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
+  if ( sReosPrefix.isEmpty() )
+  {
+    sReosPrefix = QApplication::applicationDirPath();
+    if ( sReosPrefix.endsWith( "/bin" ) )
+    {
+      sReosPrefix.chop( 4 );
+    }
+  }
 
   QApplication::setStyle( QStyleFactory::create( "fusion" ) );
 

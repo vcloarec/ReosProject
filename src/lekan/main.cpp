@@ -68,9 +68,6 @@ int main( int argc, char *argv[] )
 
   ReosApplication a( argc, argv );
 
-  QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
-  QCoreApplication::setApplicationName( QStringLiteral( "Lekan" ) );
-
   std::unique_ptr<LekanMainWindow> mainWindow = std::make_unique<LekanMainWindow>( a.coreModule() );
   new ReosVersionMessageBox( mainWindow.get(), ReosVersion::currentApplicationVersion() );
 

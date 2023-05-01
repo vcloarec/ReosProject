@@ -43,13 +43,11 @@ class REOSCORE_EXPORT ReosCoreModule : public ReosModule
     //! Clears all data on the current project
     void clearProject();
 
-#ifndef SIP_RUN
-    //! Returns a pointer to the watersehd module
-    ReosWatershedModule *watershedModule() const;
-
     //! Returns a pointer to the hydraulic network module
     ReosHydraulicNetwork *hydraulicNetwork() const;
-#endif //No SIP_RUN
+
+    //! Returns a pointer to the watersehd module
+    ReosWatershedModule *watershedModule() const;
 };
 
 
