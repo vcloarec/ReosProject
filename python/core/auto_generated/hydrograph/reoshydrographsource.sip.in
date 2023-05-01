@@ -1,0 +1,124 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydrograph/reoshydrographsource.h                           *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+
+class ReosHydrographNode : ReosHydraulicNode /Abstract/
+{
+%Docstring(signature="appended")
+Abstract class that represent a node for hydrograph transfer
+%End
+
+%TypeHeaderCode
+#include "reoshydrographsource.h"
+%End
+  public:
+    ReosHydrographNode( ReosHydraulicNetwork *parent = 0 );
+
+    virtual QString type() const;
+    static QString staticType();
+
+    virtual QPointF position( const QString & ) const;
+    virtual ReosSpatialPosition spatialPosition() const;
+
+};
+
+class ReosHydrographSource : ReosHydrographNode /Abstract/
+{
+%Docstring(signature="appended")
+Abstract class that represent a hydrograph source, that is a node that has a hydrograph as output
+%End
+
+%TypeHeaderCode
+#include "reoshydrographsource.h"
+%End
+  public:
+    ReosHydrographSource( ReosHydraulicNetwork *parent = 0 );
+
+    virtual ReosHydrograph *outputHydrograph() const = 0;
+
+    virtual QString type() const;
+    static QString staticType();
+
+};
+
+
+
+class ReosHydrographJunction : ReosHydrographSource
+{
+%Docstring(signature="appended")
+Class that represents an node that can collect and sum hydrograph
+%End
+
+%TypeHeaderCode
+#include "reoshydrographsource.h"
+%End
+  public:
+    enum InternalHydrographOrigin
+    {
+      None,
+      RunoffHydrograph,
+      GaugedHydrograph
+    };
+
+    explicit ReosHydrographJunction( const ReosSpatialPosition &position, ReosHydraulicNetwork *parent = 0 );
+
+    virtual ReosHydrograph *outputHydrograph() const;
+
+
+    virtual QString type() const;
+    static QString staticType();
+
+    virtual QPointF position( const QString &destinationCrs ) const;
+
+    virtual ReosSpatialPosition spatialPosition() const;
+
+    virtual void setPosition( const ReosSpatialPosition &pos );
+
+    virtual QString defaultDisplayName() const;
+    virtual bool calculationInProgress() const;
+
+    virtual int calculationMaxProgression() const;
+
+    virtual int calculationProgression() const;
+
+    virtual ReosTimeWindow timeWindow() const;
+
+    virtual QIcon icon() const;
+
+
+    ReosHydrograph *internalHydrograph() const;
+
+    InternalHydrographOrigin internalHydrographOrigin() const;
+    void setInternalHydrographOrigin( InternalHydrographOrigin origin );
+
+
+
+
+  signals:
+    void internalHydrographPointerChange();
+%Docstring
+Emitted when the internal hydrograph pointer change
+%End
+
+
+      public:
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydrograph/reoshydrographsource.h                           *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

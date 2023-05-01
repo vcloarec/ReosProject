@@ -21,8 +21,12 @@ ReosHydraulicNode::ReosHydraulicNode( ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
 {}
 
+QString ReosHydraulicNode::type() const {return staticType();}
+
+QString ReosHydraulicNode::staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "node" );}
+
 ReosHydraulicNode::ReosHydraulicNode( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
-  : ReosHydraulicNetworkElement( encodedElement, parent )
+    : ReosHydraulicNetworkElement( encodedElement, parent )
 {}
 
 void ReosHydraulicNode::attachBySide1( ReosHydraulicLink *link )

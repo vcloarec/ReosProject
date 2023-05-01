@@ -16,7 +16,6 @@
 #ifndef REOSHYDROGRAPHSOURCE_H
 #define REOSHYDROGRAPHSOURCE_H
 
-#define SIP_NO_FILE
 
 #include <QObject>
 #include <QPointer>
@@ -27,6 +26,7 @@
 #include "reoswatershedmodule.h"
 #include "reosparameter.h"
 
+
 class ReosCalculationContext;
 class ReosHydraulicLink;
 class ReosHydrographRoutingLink;
@@ -34,6 +34,7 @@ class ReosWatershed;
 class ReosRunoffHydrographsStore;
 class ReosMeteorologicModelsCollection;
 
+#ifndef SIP_RUN
 class ReosHydraulicNetworkUtils
 {
   public:
@@ -66,10 +67,10 @@ class ReosHydraulicNetworkUtils
       return ret;
     }
 };
-
+#endif //No SIP_RUN
 
 //! Abstract class that represent a node for hydrograph transfer
-class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode
+class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode SIP_ABSTRACT
 {
     Q_OBJECT
   public:
@@ -81,6 +82,8 @@ class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode
     QPointF position( const QString & ) const override  {return QPointF();}
     ReosSpatialPosition spatialPosition() const override {return ReosSpatialPosition();}
 
+#ifndef SIP_RUN
+
     virtual void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange ) = 0;
 
   public slots:
@@ -89,10 +92,11 @@ class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode
   protected:
     ReosHydrographNode( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
 
+#endif // No SIP_RUN
 };
 
 //! Abstract class that represent a hydrograph source, that is a node that has a hydrograph as output
-class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode
+class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode SIP_ABSTRACT
 {
     Q_OBJECT
   public:
@@ -100,10 +104,11 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode
 
     virtual ReosHydrograph *outputHydrograph() const = 0;
 
-    ReosHydrographRoutingLink *outputHydrographTransfer() const;
-
     QString type() const override {return staticType(); }
     static QString staticType() {return ReosHydrographNode::staticType() + QString( ':' ) + QStringLiteral( "source" );}
+
+#ifndef SIP_RUN
+    ReosHydrographRoutingLink *outputHydrographTransfer() const;
 
     virtual bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink = nullptr ) = 0;
 
@@ -116,8 +121,11 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode
 
     ReosParameterBoolean *mUseForceOutputTimeStep = nullptr;
     ReosParameterDuration *mForceOutputTimeStep = nullptr;
+#endif // No SIP_RUN
 };
 
+
+#ifndef SIP_RUN
 //! Class that represent an hydrograph source with a fixed hydrograph
 class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
 {
@@ -151,6 +159,8 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
     void encodeData( ReosEncodedElement &,  const ReosHydraulicNetworkContext & ) const override {}
 };
 
+#endif //No SIP_RUN
+
 /**
  * Class that represents an node that can collect and sum hydrograph
  */
@@ -165,7 +175,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
       GaugedHydrograph
     };
 
-    ReosHydrographJunction( const ReosSpatialPosition &position, ReosHydraulicNetwork *parent = nullptr );
+    explicit ReosHydrographJunction( const ReosSpatialPosition &position, ReosHydraulicNetwork *parent = nullptr );
 
     ReosHydrograph *outputHydrograph() const override;
 
@@ -179,34 +189,35 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     bool calculationInProgress() const override;
     int calculationMaxProgression() const override;
     int calculationProgression() const override;
-    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
-    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     ReosTimeWindow timeWindow() const override;
     QIcon icon() const override {return QIcon( ":/images/hydrographJunction.svg" );}
 
+#ifndef SIP_RUN
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     static ReosHydrographJunction *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
-
     virtual void updateCalculationContext( const ReosCalculationContext &context ) override;
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange ) override;
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context, ReosHydrographRoutingLink *downstreamLink = nullptr ) override;
-
     ReosHydrographRoutingLink *downstreamRouting() const;
+#endif //No SIP_RUN
 
     ReosHydrograph *internalHydrograph() const;
 
     InternalHydrographOrigin internalHydrographOrigin() const;
     void setInternalHydrographOrigin( InternalHydrographOrigin origin );
 
-    int gaugedHydrographIndex() const;
+    int gaugedHydrographIndex() const SIP_SKIP;
 
-    ReosHydrographsStore *gaugedHydrographsStore() const;
+    ReosHydrographsStore *gaugedHydrographsStore() const SIP_SKIP;
 
-    virtual QString outputPrefixName() const;
+    virtual QString outputPrefixName() const SIP_SKIP;
 
   signals:
     //! Emitted when the internal hydrograph pointer change
     void internalHydrographPointerChange();
 
+#ifndef SIP_RUN
   public slots:
     void onUpstreamRoutingUpdated( const QString &routingId ) override;
     void setGaugedHydrographIndex( int gaugedHydrographIndex );
@@ -234,6 +245,8 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 
     bool setCurrentInternalHydrograph( ReosHydrograph *newHydrograph );
     virtual bool updateInternalHydrograph();
+
+#endif //No SIP_RUN
 
   private:
     ReosSpatialPosition mPosition;
@@ -270,6 +283,8 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     virtual void calculateInternalHydrograph();
     void calculateOuputHydrograph();
 };
+
+#ifndef SIP_RUN
 
 class ReosHydrographJunctionFactory : public ReosHydraulicNetworkElementFactory
 {
@@ -327,5 +342,7 @@ class ReosHydrographNodeWatershedFactory : public ReosHydraulicNetworkElementFac
     ReosHydrographNodeWatershedFactory() = default;
     ReosHydraulicNetworkElement *decodeElement( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const override;
 };
+
+#endif //No SIP_RUN
 
 #endif // REOSHYDROGRAPHSOURCE_H
