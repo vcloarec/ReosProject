@@ -1,7 +1,6 @@
 #ifndef REOSWATERSHEDMODULE_H
 #define REOSWATERSHEDMODULE_H
 
-#define SIP_NO_FILE
 
 #include "reosmodule.h"
 #include "reoswatershedtree.h"
@@ -17,6 +16,8 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
     ~ReosWatershedModule();
 
+#ifndef SIP_RUN
+
     //! Returns a pointer to the watershed tree
     ReosWatershedTree *watershedTree() const;
     ReosWatershedDelineating *delineatingModule() const;
@@ -27,6 +28,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
 
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
+#endif //No SIP_RUN
 
     static QString staticName()  {return QStringLiteral( "watershed-module" );}
 

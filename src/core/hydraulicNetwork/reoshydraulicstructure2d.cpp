@@ -27,8 +27,10 @@
 #include "reostimewindowsettings.h"
 #include "reosstructureimporter.h"
 
+#include <QTimer>
 #include <QProcess>
 #include <QDir>
+#include <QEventLoop>
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )
@@ -787,7 +789,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::createSimulationProcess( const 
 
       mSimulationProcesses.erase( it );
 
-      emit simulationFinished();
+      emit simulationFinished( success );
     }
 
   } );
@@ -810,6 +812,85 @@ bool ReosHydraulicStructure2D::hasSimulationRunning() const
       return true;
 
   return true;
+}
+
+bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &context )
+{
+  QTextStream txtStream( stdout );
+  QElapsedTimer timer;
+  timer.start();
+  txtStream << QStringLiteral( "*********************************************************************************" ) << Qt::endl;
+  txtStream << tr( "Start running simulation for hydraulic structure \"%1\"" ).arg( elementName() ) << Qt::endl;
+  txtStream << QStringLiteral( "*********************************************************************************" ) << Qt::endl;
+
+  QString error;
+
+  removeResults( context );
+  updateResults( context.schemeId() );
+
+  ReosHydraulicScheme *scheme = mNetwork->scheme( context.schemeId() );
+  if ( currentSimulation() )
+  {
+    currentSimulation()->saveConfiguration( scheme );
+  }
+  else
+  {
+    txtStream << tr( "No simulation set for this structure and the current scheme. Simulation aborded." ) << Qt::endl;
+    return false;
+  }
+
+  txtStream << tr( "Start preparation of simulation" ) << Qt::endl;
+  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( getPreparationProcessSimulation( context, error ) );
+  if ( !preparationProcess )
+  {
+    txtStream << tr( "Simulation did not start for following reason:\n\n%1" ).arg( error ) << Qt::endl;
+    return false;
+  }
+  std::unique_ptr<QEventLoop> loop( new QEventLoop );
+  connect( preparationProcess.get(), &ReosProcess::finished, loop.get(), &QEventLoop::quit );
+  connect( preparationProcess.get(), &ReosProcess::sendInformation, this, [&]( const QString & mess )
+  {
+    txtStream << mess << Qt::endl;
+  } );
+  preparationProcess->startOnOtherThread();
+  loop->exec();
+
+  if ( !preparationProcess->isSuccessful() )
+  {
+    txtStream << tr( "Something get wrong during simulation preparation.\nPlease, check the model." ) << Qt::endl;
+    return false;
+  }
+  txtStream << tr( "Preparation of the simulation is succesfull. Time Elapsed: %1 ms" ).arg( timer.elapsed() ) << Qt::endl;
+
+  ReosCalculationContext effCalcContext = preparationProcess->calculationContext();
+
+  txtStream << QStringLiteral( "*********************************************************************************" ) << Qt::endl;
+  txtStream << tr( "Start simulation" ) << Qt::endl;
+  ReosSimulationProcess *process( createSimulationProcess( effCalcContext, error ) );
+  if ( !process )
+  {
+    txtStream << tr( "Simulation did not start for following reason:\n\n%1" ).arg( error ) << Qt::endl;
+    return false;
+  }
+
+  loop.reset( new QEventLoop );
+  bool isSuccess;
+  connect( this, &ReosHydraulicStructure2D::simulationFinished, loop.get(), [&]( bool success )
+  {
+    isSuccess = success;
+    loop->quit();
+  } );
+  connect( process, &ReosProcess::sendInformation, this, [&]( const QString & mess )
+  {
+    txtStream << mess << Qt::endl;
+  } );
+
+  process->startOnOtherThread();
+  loop->exec();
+
+  txtStream << tr( "Simulation is finished. Time Elapsed: %1 s" ).arg( QString::number( static_cast<double>( timer.elapsed() ) / 1000.0, 'f', 2 ) ) << Qt::endl;
+
+  return isSuccess;
 }
 
 bool ReosHydraulicStructure2D::hasResults() const
@@ -1314,7 +1395,6 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( const ReosEncodedEle
   context.network()->addElement( elem.get(), false );
 
   return elem.release();
-
 }
 
 ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context )
