@@ -160,7 +160,7 @@ ReosMeshDatasetSource::Location ReosHecRasSimulationResults::groupLocation( int 
   {
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return ReosMeshDatasetSource::Location::Face;
       break;
     case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
@@ -192,7 +192,7 @@ QVector<double> ReosHecRasSimulationResults::datasetValues( int groupIndex, int 
       if ( !mCache.at( index ).velocity.isEmpty() )
         return mCache.at( index ).velocity;
       break;
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return QVector<double>();
       break;
   }
@@ -230,7 +230,7 @@ QVector<double> ReosHecRasSimulationResults::datasetValues( int groupIndex, int 
     case ReosHydraulicSimulationResults::DatasetType::WaterDepth:
       ret = calculateDepth( index );
       break;
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       break;
   }
 
@@ -245,7 +245,7 @@ QVector<double> ReosHecRasSimulationResults::datasetValues( int groupIndex, int 
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
       mCache[index].velocity = ret;
       break;
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return QVector<double>();
       break;
   }

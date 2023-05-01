@@ -378,7 +378,7 @@ void ReosHydraulicStructure2DProperties::fillResultGroupBox( const ReosCalculati
 
 void ReosHydraulicStructure2DProperties::updateFillResultGroupBox()
 {
-  if ( mStructure2D->currentActivatedDatasetResultType() == ReosHydraulicSimulationResults::DatasetType::None )
+  if ( mStructure2D->currentActivatedDatasetResultType() == ReosHydraulicSimulationResults::DatasetType::NoType )
   {
     ui->mLabelResultValueDisplayed->setText( mStructure2D->meshDatasetName( mStructure2D->terrainMeshDatasetId() ) );
   }
@@ -754,7 +754,7 @@ void ReosHydraulicStructure2DProperties::onMapCursorMove( const QPointF &pos )
   double value;
   QString unit;
 
-  if ( dt == ReosHydraulicSimulationResults::DatasetType::None && mStructure2D->mesh() )
+  if ( dt == ReosHydraulicSimulationResults::DatasetType::NoType && mStructure2D->mesh() )
   {
     value = mStructure2D->mesh()->datasetScalarValueAt( mStructure2D->terrainMeshDatasetId(), pos );
     unit = tr( "m" );

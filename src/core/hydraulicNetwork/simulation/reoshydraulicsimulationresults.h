@@ -16,8 +16,6 @@
 #ifndef REOSHYDRAULICSIMULATIONRESULTS_H
 #define REOSHYDRAULICSIMULATIONRESULTS_H
 
-#define SIP_NO_FILE
-
 #include <QObject>
 #include <QVector>
 #include <QDateTime>
@@ -31,24 +29,28 @@ class ReosHydrograph;
 class ReosMesh;
 class ReosSpatialPosition;
 
-class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSource
+class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSource SIP_ABSTRACT
 {
     Q_OBJECT
   public:
     enum class DatasetType
     {
-      None,
-      WaterLevel,
-      WaterDepth,
-      Velocity,
+      NoType, //!< None type
+      WaterLevel, //!< WaterLevel type
+      WaterDepth, //!< WaterDepth type
+      Velocity, //!< Velocity type
     };
+    Q_ENUM( DatasetType )
 
-    ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent = nullptr );
+    ReosHydraulicSimulationResults( QObject *parent = nullptr );
+
+    ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent = nullptr ) SIP_SKIP;
 
     int groupCount() const override;
     QString groupName( int groupIndex ) const override;
     bool groupIsScalar( int groupIndex ) const override;
 
+#ifndef SIP_RUN
     QString groupId( DatasetType type ) const;
     QString groupId( int groupIndex ) const;
     DatasetType datasetType( int groupIndex ) const;
@@ -64,6 +66,13 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
 
     double interpolateResultOnMesh( ReosMesh *mesh, const ReosSpatialPosition &position, const QDateTime &time, DatasetType dataType );
 
+    virtual bool rasterizeResultFromMesh( ReosMesh *mesh,
+                                          const QString &filePath,
+                                          const QDateTime &time,
+                                          DatasetType dataType,
+                                          const QString &destinationCrs,
+                                          double resolution );
+
     virtual QString unitString( DatasetType dataType ) const = 0;
 
     QVector<double> resultValues( DatasetType datasetType, int index ) const;
@@ -71,11 +80,12 @@ class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSou
   protected:
     void registerGroups( const QList<DatasetType> &types );
 
+#endif //No SIP_RUN
   private:
     QList<DatasetType> mGroupIndexToType;
 };
 
-
+#ifndef SIP_RUN
 class ReosHydraulicSimulationResultsDummy : public ReosHydraulicSimulationResults
 {
   public:
@@ -100,5 +110,7 @@ class ReosHydraulicSimulationResultsDummy : public ReosHydraulicSimulationResult
   private:
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
 };
+
+#endif //No SIP_RUN
 
 #endif // REOSHYDRAULICSIMULATIONRESULTS_H

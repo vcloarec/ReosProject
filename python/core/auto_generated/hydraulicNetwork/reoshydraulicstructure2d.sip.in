@@ -68,11 +68,51 @@ Contructor from a ``domain``, ccordinate system ``crs`` and a ``context``
     virtual QIcon icon() const;
 
 
+
+    QDir structureDirectory() const;
+%Docstring
+Returns the directory where data and simulation will be stored on the disk
+%End
+
+    bool hasCapability( Structure2DCapability capability ) const;
+%Docstring
+Returns whether the structure supports the ``capability``
+%End
+
+    ReosTimeWindowSettings *timeWindowSettings() const;
+%Docstring
+Returns a pointer to the time windows settings
+%End
+
     bool runSimulation( const ReosCalculationContext &context );
 %Docstring
 Start running a simulation and wait the simulation finishes
 %End
 
+    double resultsValueAt( const QDateTime &time,
+                           const ReosSpatialPosition &position,
+                           ReosHydraulicSimulationResults::DatasetType datasetType,
+                           const QString &schemeId );
+%Docstring
+Returns the value of the results with type ``datasetType`` for the specified ``context``, ``position`` and ``time``
+%End
+
+    QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
+%Docstring
+Returns a translated string corresponding to the unit of the results associated with ``context`` and to the type  ``datasetType``
+%End
+
+    bool rasterizeResult( const QDateTime &time,
+                          ReosHydraulicSimulationResults::DatasetType datasetType,
+                          const QString &schemeId,
+                          const QString &fileName,
+                          const QString &destinationCrs,
+                          double resolution );
+%Docstring
+Creates a raster file ``fileName`` with results of type ``datasetType``, for the scheme ``schemeId``, at ``time``,
+with coordinates reference système (WKT) ``destination`` CRS, and with ``resolution`` in map unit of ``destinationCrs``.
+Return True if successful.
+%End
 };
 
 

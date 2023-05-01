@@ -16,14 +16,14 @@
 #ifndef REOSMESHDATASETSOURCE_H
 #define REOSMESHDATASETSOURCE_H
 
-#define SIP_NO_FILE
-
 #include <QString>
 #include <QObject>
 
+#include "reoscore.h"
+
 class ReosDuration;
 
-class ReosMeshDatasetSource : public QObject
+class REOSCORE_EXPORT ReosMeshDatasetSource : public QObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:

@@ -1120,7 +1120,7 @@ void ReosHecrasTesting::simulationResults()
   QVERIFY( tw == mGisEngine->mapTimeWindow() );
 
   structure->timeWindowSettings()->setOriginEnd( ReosTimeWindowSettings::Begin );
-  structure->timeWindowSettings()->endOffset()->setValue( ReosDuration( 3.0, ReosDuration::hour ) );
+  structure->timeWindowSettings()->endOffsetParameter()->setValue( ReosDuration( 3.0, ReosDuration::hour ) );
 
   tw = structure->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );

@@ -411,7 +411,7 @@ ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentAct
     }
   }
 
-  return ReosHydraulicSimulationResults::DatasetType::None;
+  return ReosHydraulicSimulationResults::DatasetType::NoType;
 }
 
 QString ReosHydraulicStructure2D::currentDatasetName() const
@@ -972,6 +972,24 @@ QString ReosHydraulicStructure2D::resultsUnits( ReosHydraulicSimulationResults::
     return mSimulationResults.value( schemeId )->unitString( datasetType );
 
   return QString();
+}
+
+bool ReosHydraulicStructure2D::rasterizeResult(
+  const QDateTime &time,
+  ReosHydraulicSimulationResults::DatasetType datasetType,
+  const QString &schemeId,
+  const QString &fileName,
+  const QString &destinationCrs,
+  double resolution )
+{
+  if ( mSimulationResults.contains( schemeId ) )
+  {
+    ReosHydraulicSimulationResults *results = mSimulationResults.value( schemeId );
+    if ( results )
+      return results->rasterizeResultFromMesh( mMesh.get(), fileName, time, datasetType, destinationCrs, resolution );
+  }
+
+  return false;
 }
 
 void ReosHydraulicStructure2D::removeAllResults()
