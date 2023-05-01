@@ -23,6 +23,13 @@
 #include "reosgisengine.h"
 #include <QUuid>
 
+
+QString ReosHydraulicNetworkElement::hydraulicStructure2DType()
+{
+  return ReosHydraulicStructure2D::staticType();
+}
+
+
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
   ReosDataObject( parent )
   , mNetwork( parent )
@@ -163,6 +170,12 @@ ReosHydraulicNetwork *ReosHydraulicNetworkElement::network() const
 
 ReosHydraulicNetworkElementCompatibilty ReosHydraulicNetworkElement::checkCompatiblity( ReosHydraulicScheme * ) const
 {return ReosHydraulicNetworkElementCompatibilty();}
+
+void ReosHydraulicNetworkElement::calculationUpdated()
+{
+  setActualized();
+  emit calculationIsUpdated( id(), QPrivateSignal() );
+}
 
 ReosMapExtent ReosHydraulicNetworkElement::extent() const
 {
@@ -558,7 +571,7 @@ ReosMapExtent ReosHydraulicNetwork::networkExtent() const
   for ( const ReosHydraulicNetworkElement *elem : mElements )
     extent.extendWithExtent( elem->extent() );
 
-  return extent;
+  return mGisEngine->transformToProjectExtent( extent );
 }
 
 ReosTimeWindow ReosHydraulicNetwork::mapTimeWindow() const
