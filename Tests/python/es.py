@@ -1,31 +1,20 @@
 from reos.core import *
-from PyQt5.QtCore import QTimer
 import sys
 import os
 
-def on_data_reloaded( hyd ):
-    value_count = hyd.valueCount()
-    if value_count > 0:
-        print(str(hyd.valueAt(value_count-1)))
+app = ReosApplication(list(map(os.fsencode,sys.argv)))
+reos_core = app.coreModule()
 
-def reload(hyd):
-    hyd.reload()
+reos_core.openProject('/home/vincent/lekan/Fango-use-case/fango.lkn')
 
+network = reos_core.hydraulicNetwork()
+extent = network.networkExtent()
+print(extent.width(), ' x ', extent.height())
 
-app = ReosApplication([list(map(os.fsencode,sys.argv))])
-core_module = app.coreModule()
+structures=network.hydraulicNetworkElements(ReosHydraulicStructure2D.staticType())
+print(str(len(structures)))
 
-station_id = 'J881301001'
+structure2d=structures[0]
+print('Structure name: ',structure2d.elementName())
 
-hydrograph = ReosHydrograph(None, 'hub-eau-hydrometry', station_id)
-
-timer = QTimer()
-timer.timeout.connect(lambda: reload(hydrograph))
-timer.start(5000)
-hydrograph.dataReset.connect(lambda: on_data_reloaded(hydrograph))
-
-
-app.exec()
-
-
-
+structure2d.runSimulation(network.calculationContext())
