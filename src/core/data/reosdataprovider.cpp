@@ -21,6 +21,7 @@
 #include <QDebug>
 
 #include "reostimeseriesprovider.h"
+#include "reosapplication.h"
 
 
 ReosDataProviderRegistery *ReosDataProviderRegistery::sInstance = nullptr;
@@ -125,22 +126,11 @@ QString ReosDataProviderRegistery::buildUri( const QString &key, const QString &
 
 void ReosDataProviderRegistery::loadDynamicProvider()
 {
-  QString providerPath = QCoreApplication::applicationDirPath();
-  QDir providerDir( providerPath );
-  if ( providerDir.cd( QStringLiteral( REOS_PROVIDERS ) ) )
-    providerPath = providerDir.absolutePath();
-  else
-  {
-    providerPath = REOS_BUILDING_OUTPUT;
-    providerDir = QDir( providerPath );
-    if ( providerDir.cd( QStringLiteral( REOS_PROVIDERS ) ) )
-      providerPath = providerDir.absolutePath();
-    else
-    {
-      providerPath = REOS_PROVIDERS;
-      providerDir = QDir( providerPath );
-    }
-  }
+  QDir providerDir( ReosApplication::dataProviderpath() );
+
+#ifndef _NDEBUG
+  qDebug() << "Data provider libraries path: " << providerDir.absolutePath();
+#endif
 
   providerDir.setSorting( QDir::Name | QDir::IgnoreCase );
   providerDir.setFilter( QDir::Files | QDir::NoSymLinks );
