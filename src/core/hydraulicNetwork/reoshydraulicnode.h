@@ -16,8 +16,6 @@
 #ifndef REOSHYDRAULICNODE_H
 #define REOSHYDRAULICNODE_H
 
-#define SIP_NO_FILE
-
 #include <QObject>
 #include <QPointer>
 
@@ -26,16 +24,17 @@
 class ReosHydraulicLink;
 class ReosSpatialPosition;
 
-class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement
+class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement SIP_ABSTRACT
 {
     Q_OBJECT
   public:
-    ReosHydraulicNode( ReosHydraulicNetwork *parent );
+    explicit ReosHydraulicNode( ReosHydraulicNetwork *parent );
     ~ReosHydraulicNode();
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "node" );}
+    QString type() const override;
+    static QString staticType();
 
+#ifndef SIP_RUN
     QList<ReosHydraulicLink *> links() const;
 
     QList<ReosHydraulicLink *> linksBySide1() const;
@@ -62,6 +61,7 @@ class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement
     void detachFromSide2( ReosHydraulicLink *link );
 
     friend class ReosHydraulicLink;
+#endif //No SIP_RUN
 
 };
 
