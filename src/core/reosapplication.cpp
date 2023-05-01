@@ -204,7 +204,41 @@ QString ReosApplication::styleSheet()
   return myStyle;
 }
 
+QString ReosApplication::resolvePath( const QString &subDir )
+{
+  QDir targetDir( sReosPrefix + QStringLiteral( "/bin" ) );
+  if ( targetDir.cd( subDir ) )
+    return targetDir.absolutePath();
+  else
+  {
+#ifndef _NDEBUG
+    qDebug() << QStringLiteral( "Default path not found(\"%1\"). Try with building directory." ).arg( targetDir.absolutePath() );
+#endif
+    QString targetPath = REOS_BUILDING_OUTPUT;
+    targetDir = QDir( targetPath );
+    if ( targetDir.cd( subDir ) )
+      return targetPath = targetDir.absolutePath();
+    else
+      return subDir;
+  }
+}
+
 ReosCoreModule *ReosApplication::coreModule() const
 {
   return mCoreModule;
+}
+
+QString ReosApplication::enginesPath()
+{
+  return resolvePath( QStringLiteral( REOS_SIMULATION_ENGINES ) );
+}
+
+QString ReosApplication::dataProviderpath()
+{
+  return resolvePath( QStringLiteral( REOS_PROVIDERS ) );
+}
+
+QString ReosApplication::gisProviderPath()
+{
+  return resolvePath( QStringLiteral( "qgisProvider" ) );
 }

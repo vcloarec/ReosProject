@@ -29,6 +29,7 @@
 #include "reoscalculationcontext.h"
 #include "reoshydrograph.h"
 #include "reostimewindowsettings.h"
+#include "reosapplication.h"
 
 ReosHydraulicSimulation::ReosHydraulicSimulation( ReosHydraulicStructure2D *parent ): ReosDataObject( parent )
 {
@@ -160,15 +161,7 @@ ReosStructureImporterSource *ReosSimulationEngineRegistery::createStructureImpor
 
 void ReosSimulationEngineRegistery::loadDynamicLibrary()
 {
-  QString enginesPath = QCoreApplication::applicationDirPath();
-  QDir enginesDir( enginesPath );
-  if ( enginesDir.cd( QStringLiteral( REOS_SIMULATION_ENGINES ) ) )
-    enginesPath = enginesDir.absolutePath();
-  else
-  {
-    enginesPath = REOS_SIMULATION_ENGINES;
-    enginesDir = QDir( enginesPath );
-  }
+  QDir enginesDir( ReosApplication::enginesPath() );
 
   enginesDir.setSorting( QDir::Name | QDir::IgnoreCase );
   enginesDir.setFilter( QDir::Files | QDir::NoSymLinks );
@@ -182,6 +175,12 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
   typedef ReosSimulationEngineFactory *factory_function( );
 
   const QFileInfoList files = enginesDir.entryInfoList();
+
+  if ( files.isEmpty() )
+  {
+    qDebug() << QStringLiteral( "None Engine library found in \"%1\"" ).arg( enginesDir.absolutePath() );
+  }
+
   for ( const QFileInfo &file : files )
   {
     QLibrary library( file.filePath() );
@@ -194,6 +193,11 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
       {
         ReosSimulationEngineFactory *engineSimulationFactory = func();
         registerEngineFactory( engineSimulationFactory );
+        qDebug() << QStringLiteral( "Engine library for %1 found and conform" ).arg( file.baseName() );
+      }
+      else
+      {
+        qDebug() << QStringLiteral( "Engine library for %1 not found" ).arg( file.baseName() ) << library.errorString();
       }
     }
     else
@@ -203,7 +207,8 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
 
 ReosSimulationPreparationProcess::ReosSimulationPreparationProcess(
   ReosHydraulicStructure2D *hydraulicStructure,
-  ReosHydraulicSimulation *simulation, const ReosCalculationContext &context )
+  ReosHydraulicSimulation *simulation,
+  const ReosCalculationContext &context )
   : mStructure( hydraulicStructure )
   , mSimulation( simulation )
   , mSimulationData( hydraulicStructure->simulationData() )

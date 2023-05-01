@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel_p.h"
 #include "reosmeshdataprovider_p.h"
 #include "reosgriddedrainfallrenderer_p.h"
+#include "reosapplication.h"
 
 #include <QStandardPaths>
 #include <qmath.h>
@@ -154,9 +155,9 @@ void ReosGisEngine::initGisEngine()
 
   // Here we use the provider files that are in the folder "qgisProvider", if this folder do not exist (local build),
   // then we use the folder defined by the varaible QGIS_PLUGINS
-  QString qgisProviderPath = QCoreApplication::applicationDirPath();
+  QString qgisProviderPath = ReosApplication::gisProviderPath();
   QDir providerDir( qgisProviderPath );
-  if ( providerDir.cd( QStringLiteral( "qgisProvider" ) ) )
+  if ( providerDir.exists() )
     qgisProviderPath = providerDir.absolutePath();
   else
     qgisProviderPath = QGIS_PLUGINS;
@@ -267,27 +268,27 @@ QAbstractItemModel *ReosGisEngine::layerTreeModel() {return mLayerTreeModel;}
 
 QString ReosGisEngine::vectorLayerFilters() const
 {
-    QgsProviderMetadata* meta = QgsProviderRegistry::instance()->providerMetadata("ogr");
-    return meta->filters(Qgis::FileFilterType::Vector);
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( "ogr" );
+  return meta->filters( Qgis::FileFilterType::Vector );
 }
 
 QString ReosGisEngine::rasterLayerFilters() const
 {
-    QgsProviderMetadata* meta = QgsProviderRegistry::instance()->providerMetadata("gdal");
-    return meta->filters(Qgis::FileFilterType::Raster);
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( "gdal" );
+  return meta->filters( Qgis::FileFilterType::Raster );
 }
 
 QString ReosGisEngine::meshLayerFilters() const
 {
-    QgsProviderMetadata* meta = QgsProviderRegistry::instance()->providerMetadata("mdal");
+  QgsProviderMetadata *meta = QgsProviderRegistry::instance()->providerMetadata( "mdal" );
 
-    if (meta)
-        return meta->filters(Qgis::FileFilterType::Mesh);
-    else
-    {
-        error(tr("Could not find MDAL"));
-        return QString();
-    }
+  if ( meta )
+    return meta->filters( Qgis::FileFilterType::Mesh );
+  else
+  {
+    error( tr( "Could not find MDAL" ) );
+    return QString();
+  }
 }
 
 QString ReosGisEngine::crs() const

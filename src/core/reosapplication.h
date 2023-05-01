@@ -116,6 +116,15 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
     //! Returns a pointer to the core module that contains all other modules
     ReosCoreModule *coreModule() const;
 
+    //! Returns the path of engine library files
+    static QString enginesPath();
+
+    //! Returns the path of data provider library files
+    static QString dataProviderpath();
+
+    //! Returns the path of gis provider library files
+    static QString gisProviderPath();
+
 #ifndef SIP_RUN
 
     static QString i18nPath();
@@ -126,6 +135,8 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
 
   private:
     QPointer<ReosCoreModule> mCoreModule;
+    static QString sReosPrefix;
+    static QString resolvePath( const QString &subDir );
 };
 
 
