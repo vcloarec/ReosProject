@@ -1,7 +1,7 @@
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/reoscoremodule.h                                            *
+ * src/core/hydraulicNetwork/reoshydraulicstructure2d.h                 *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
@@ -9,15 +9,15 @@
 
 
 
-class ReosCoreModule : ReosModule
+class ReosHydraulicStructure2D : ReosHydraulicNetworkElement
 {
 %Docstring(signature="appended")
 *************************************************************************
-reoscoremodule.h - ReosCoreModule
+reoshydraulicstructure2d.h - ReosHydraulicStructure2D
 
 ---------------------
-  begin                : 11.3.2023
-  copyright            : (C) 2023 by Vincent Cloarec
+  begin                : 9.1.2022
+  copyright            : (C) 2022 by Vincent Cloarec
   email                : vcloarec at gmail dot com
   **************************************************************************
 
@@ -30,51 +30,57 @@ the Free Software Foundation; either version 2 of the License, or     *
 %End
 
 %TypeHeaderCode
-#include "reoscoremodule.h"
+#include "reoshydraulicstructure2d.h"
 %End
   public:
 
-    ReosCoreModule( QObject *parent = 0 );
+    enum Structure2DCapability
+    {
+      GeometryEditable,
+      MultiSimulation,
+      DefinedExternally,
+      GriddedPrecipitation
+    };
+
+    typedef QFlags<ReosHydraulicStructure2D::Structure2DCapability> Structure2DCapabilities;
+
+
+    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
 %Docstring
-Constructor
+Contructor from a ``domain``, ccordinate system ``crs`` and a ``context``
+%End
+    ~ReosHydraulicStructure2D();
+
+
+
+    static QString staticType();
+
+    virtual QString type() const;
+    virtual ReosMapExtent extent() const;
+
+    virtual QString defaultDisplayName() const;
+    virtual ReosDuration currentElementTimeStep() const;
+
+    virtual ReosDuration mapTimeStep() const;
+
+    virtual ReosTimeWindow timeWindow() const;
+
+    virtual QIcon icon() const;
+
+
+    bool runSimulation( const ReosCalculationContext &context );
+%Docstring
+Start running a simulation and wait the simulation finishes
 %End
 
-    ReosGisEngine *gisEngine() const;
-%Docstring
-Returns a pointer to the GIS engine
-%End
-
-    bool openProject( const QString &filePath );
-%Docstring
-Opens a project with file path ``filePath``
-%End
-
-    bool saveProject( const QString &filePath );
-%Docstring
-Saves project with a file path ``filePath``
-%End
-
-    void clearProject();
-%Docstring
-Clears all data on the current project
-%End
-
-    ReosHydraulicNetwork *hydraulicNetwork() const;
-%Docstring
-Returns a pointer to the hydraulic network module
-%End
-
-    ReosWatershedModule *watershedModule() const;
-%Docstring
-Returns a pointer to the watersehd module
-%End
 };
+
 
 
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/reoscoremodule.h                                            *
+ * src/core/hydraulicNetwork/reoshydraulicstructure2d.h                 *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
