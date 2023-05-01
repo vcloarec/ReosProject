@@ -1,0 +1,79 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reostimewindowsettings.h                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+class ReosTimeWindowSettings : ReosDataObject
+{
+%Docstring(signature="appended")
+*************************************************************************
+reostimewindowsettings.h - ReosTimeWindowSettings
+
+---------------------
+  begin                : 2.1.2023
+  copyright            : (C) 2023 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reostimewindowsettings.h"
+%End
+  public:
+    enum OffsetOrigin
+    {
+      Begin,
+      End,
+    };
+
+    enum CombineMethod
+    {
+      Intersection,
+      Union,
+    };
+
+    explicit ReosTimeWindowSettings( QObject *parent = 0 );
+
+    ReosTimeWindow timeWindow( const ReosTimeWindow &input ) const;
+%Docstring
+Returns a time window defined by the settings, using input if time window is defined automatically
+%End
+
+    OffsetOrigin originStart() const;
+    void setOriginStart( OffsetOrigin newOriginStart );
+
+    OffsetOrigin originEnd() const;
+    void setOriginEnd( OffsetOrigin newOriginEnd );
+
+    void setStartOffset( const ReosDuration &startOffset );
+    void setEndOffset( const ReosDuration &endOffset );
+    void setUserStartTime( const QDateTime &startTime );
+    void setUserEndTime( const QDateTime &endTime );
+
+    void setAutomaticallyDefined( bool b );
+    void setUseExternalDefinedTimeWindow( bool b );
+
+    CombineMethod combineMethod() const;
+    void setCombineMethod( CombineMethod newCombineMethod );
+
+
+};
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reostimewindowsettings.h                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

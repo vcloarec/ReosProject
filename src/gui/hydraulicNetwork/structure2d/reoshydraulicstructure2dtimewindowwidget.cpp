@@ -25,9 +25,9 @@ Reoshydraulicstructure2dTimeWindowWidget::Reoshydraulicstructure2dTimeWindowWidg
 {
   ui->setupUi( this );
 
-  ui->mStartOffset->setDuration( timeWindowSettings->startOffset() );
+  ui->mStartOffset->setDuration( timeWindowSettings->startOffsetParameter() );
   ui->mStartOffset->hideLabel();
-  ui->mEndOffset->setDuration( timeWindowSettings->endOffset() );
+  ui->mEndOffset->setDuration( timeWindowSettings->endOffsetParameter() );
   ui->mEndOffset->hideLabel();
 
   ui->mComboBoxOriginStart->addItem( tr( "From beginning" ), ReosTimeWindowSettings::Begin );

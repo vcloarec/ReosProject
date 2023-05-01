@@ -16,7 +16,6 @@
 #ifndef REOSTIMEWINDOWSETTINGS_H
 #define REOSTIMEWINDOWSETTINGS_H
 
-#define SIP_NO_FILE
 
 #include "reosdataobject.h"
 #include "reosparameter.h"
@@ -37,30 +36,41 @@ class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
       Union,
     };
 
-    explicit ReosTimeWindowSettings( QObject *parent );
+    explicit ReosTimeWindowSettings( QObject *parent = nullptr );
 
-    virtual ReosTimeWindow timeWindow( const ReosTimeWindow &automaticTimeWindow ) const;
-
-    ReosParameterDuration *startOffset() const;
-    ReosParameterDuration *endOffset() const;
+    //! Returns a time window defined by the settings, using input if time window is defined automatically
+    ReosTimeWindow timeWindow( const ReosTimeWindow &input ) const;
 
     OffsetOrigin originStart() const;
     void setOriginStart( OffsetOrigin newOriginStart );
+
     OffsetOrigin originEnd() const;
     void setOriginEnd( OffsetOrigin newOriginEnd );
+
+    void setStartOffset( const ReosDuration &startOffset );
+    void setEndOffset( const ReosDuration &endOffset );
+    void setUserStartTime( const QDateTime &startTime );
+    void setUserEndTime( const QDateTime &endTime );
+
+    void setAutomaticallyDefined( bool b );
+    void setUseExternalDefinedTimeWindow( bool b );
+
+    CombineMethod combineMethod() const;
+    void setCombineMethod( CombineMethod newCombineMethod );
+
+#ifndef SIP_RUN
+    ReosParameterDuration *startOffsetParameter() const;
+    ReosParameterDuration *endOffsetParameter() const;
     ReosParameterDateTime *userStartTime() const;
     ReosParameterDateTime *userEndTime() const;
     ReosParameterBoolean *automaticallyDefined() const;
     ReosParameterBoolean *useExternalDefinedTimeWindow() const;
 
-    ReosEncodedElement encode() const;
-
     void decode( const ReosEncodedElement &element );
+    ReosEncodedElement encode() const;
+#endif //No SIP_RUN
 
-    CombineMethod combineMethod() const;
-    void setCombineMethod( CombineMethod newCombineMethod );
-
-  protected:
+  private:
     ReosParameterBoolean *mUseExternalDefinedTimeWindow = nullptr;
     ReosParameterBoolean *mAutomaticallyDefined = nullptr;
     CombineMethod mCombineMethod = Intersection;

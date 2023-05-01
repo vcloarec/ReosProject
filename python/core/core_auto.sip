@@ -23,5 +23,6 @@
 %Include auto_generated/hydrograph/reoshydrograph.sip
 %Include auto_generated/hydraulicNetwork/reoshydraulicnetwork.sip
 %Include auto_generated/hydraulicNetwork/reoshydraulicstructure2d.sip
+%Include auto_generated/hydraulicNetwork/reostimewindowsettings.sip
 %Include auto_generated/hydraulicNetwork/simulation/reoshydraulicsimulationresults.sip
 %Include auto_generated/mesh/reosmeshdatasetsource.sip
