@@ -879,7 +879,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
       {
         ret.isCompatible = false;
         ret.incompatibilityReasons.append(
-          QObject::tr( "Boundary condition \"%1\", modified in %2, is not present in the plan \"%3\"" ).arg( bc->elementName()->value(), schemeRef, planName ) );
+          QObject::tr( "Boundary condition \"%1\", modified in %2, is not present in the plan \"%3\"" ).arg( bc->elementNameParameter()->value(), schemeRef, planName ) );
       }
 
       if ( ! bc->linksBySide1().isEmpty() ||
@@ -889,13 +889,13 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
         QString message =
           QObject::tr( "Boundary condition \"%1\", not present in the plan \"%2\","
                        " is linked to %n element(s) in project:", "", bc->linksBySide1().count() + bc->linksBySide2().count() )
-          .arg( bc->elementName()->value(), planName );
+          .arg( bc->elementNameParameter()->value(), planName );
 
         QList<ReosHydraulicLink *> elems = bc->linksBySide1();
         for ( ReosHydraulicNetworkElement *elem : std::as_const( elems ) )
         {
           message.append( QStringLiteral( " \"" ) );
-          message.append( elem->elementName()->value() );
+          message.append( elem->elementNameParameter()->value() );
           message.append( QStringLiteral( "\"" ) );
         }
         elems = bc->linksBySide2();
@@ -903,7 +903,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
         {
           message.append( QStringLiteral( " \"" ) );
           message.append( QStringLiteral( "\n" ) );
-          message.append( elem->elementName()->value() );
+          message.append( elem->elementNameParameter()->value() );
           message.append( QStringLiteral( "\"" ) );
         }
 

@@ -323,19 +323,19 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
 
 
   ReosHydrographNodeWatershed watershedNode1( watershed1, &meteoCollection );
-  watershedNode1.elementName()->setValue( "watershed node 1" );
+  watershedNode1.elementNameParameter()->setValue( "watershed node 1" );
   ReosHydrographNodeWatershed watershedNode2( watershed2, &meteoCollection );
-  watershedNode2.elementName()->setValue( "watershed node 2" );
+  watershedNode2.elementNameParameter()->setValue( "watershed node 2" );
   ReosHydrographNodeWatershed watershedNode3( watershed3, &meteoCollection );
-  watershedNode3.elementName()->setValue( "watershed node 3" );
+  watershedNode3.elementNameParameter()->setValue( "watershed node 3" );
 
   ReosHydrographJunction junction1( QPointF( 0, 0 ) );
-  junction1.elementName()->setValue( "junction 1" );
+  junction1.elementNameParameter()->setValue( "junction 1" );
   ReosHydrographJunction junction2( QPointF( 10, 0 ) );
-  junction2.elementName()->setValue( "junction 2" );
+  junction2.elementNameParameter()->setValue( "junction 2" );
 
   ReosHydrographJunction junction3( QPointF( 10, 0 ) );
-  junction2.elementName()->setValue( "junction 3" );
+  junction2.elementNameParameter()->setValue( "junction 3" );
 
   ReosHydrographRoutingLink link1;
   link1.setInputHydrographSource( &watershedNode1 );
@@ -446,7 +446,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
 
   // Change the routing methof of link 3
   link3.setCurrentRoutingMethod( ReosHydrographRoutingMethodMuskingum::staticType() );
-  link3.elementName()->setValue( "link 3" );
+  link3.elementNameParameter()->setValue( "link 3" );
   ReosHydrographRoutingMethodMuskingum *muskingumRouting = qobject_cast<ReosHydrographRoutingMethodMuskingum *>( link3.currentRoutingMethod() );
   Q_ASSERT( muskingumRouting );
 

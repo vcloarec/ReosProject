@@ -182,11 +182,11 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   ReosHydraulicStructureBoundaryCondition *bc3 = nullptr;
   for ( ReosHydraulicStructureBoundaryCondition *bc : boundaryConditions )
   {
-    if ( bc->elementName()->value() == "BC_1" )
+    if ( bc->elementNameParameter()->value() == "BC_1" )
       bc1 = bc;
-    if ( bc->elementName()->value() == "BC_2" )
+    if ( bc->elementNameParameter()->value() == "BC_2" )
       bc2 = bc;
-    if ( bc->elementName()->value() == "BC_3" )
+    if ( bc->elementNameParameter()->value() == "BC_3" )
       bc3 = bc;
   }
   QVERIFY( bc1 && bc2 && bc3 );

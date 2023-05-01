@@ -177,7 +177,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::cr
     const ReosSpatialPosition position( bc.middlePosition, crs() );
     const QString id = bc.id();
     std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
-    sbc->elementName()->setValue( bc.name() + QString( '-' ) + bc.area() );
+    sbc->elementNameParameter()->setValue( bc.name() + QString( '-' ) + bc.area() );
     sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
     ret.append( sbc.get() );
     context.network()->addElement( sbc.release() );
@@ -401,7 +401,7 @@ void ReosHecRasSimulation::prepareInput(
         gridPrecipDssFile = mProject->directory().filePath( QStringLiteral( "gridded_precip_%1.dss" ).arg( mCurrentPlan ) );
         ReosDssFile file( gridPrecipDssFile, true );
         gridPrecipDssPath.setGroup( mProject->projectName() );
-        gridPrecipDssPath.setLocation( hydraulicStructure->elementName()->value() );
+        gridPrecipDssPath.setLocation( hydraulicStructure->elementNameParameter()->value() );
         gridPrecipDssPath.setParameter( QStringLiteral( "PRECIP" ) );
         if ( file.isValid() )
         {
@@ -871,7 +871,7 @@ void ReosHecRasSimulation::updateBoundaryConditions( ReosHecRasProject *project,
     const ReosSpatialPosition position( bc.middlePosition, project->crs() );
     const QString id = bc.id();
     std::unique_ptr<ReosHydraulicStructureBoundaryCondition> sbc( new ReosHydraulicStructureBoundaryCondition( structure, id, position, context ) );
-    sbc->elementName()->setValue( bc.name() + QString( '-' ) + bc.area() );
+    sbc->elementNameParameter()->setValue( bc.name() + QString( '-' ) + bc.area() );
     sbc->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally );
     ret.append( sbc.get() );
     QString bcId = sbc->boundaryConditionId();

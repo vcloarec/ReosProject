@@ -1215,7 +1215,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
   stream << QStringLiteral( "LIQUID BOUNDARIES FILE : '%1'\n" ).arg( mBoundaryConditionFileName );
   stream << QStringLiteral( "GEOMETRY FILE : '%1'\n" ).arg( mGeomFileName );
   stream << QStringLiteral( "RESULTS FILE : '%1'\n" ).arg( mResultFileName );
-  stream << QStringLiteral( "TITLE : '%1'\n" ).arg( hydraulicStructure->elementName()->value() );
+  stream << QStringLiteral( "TITLE : '%1'\n" ).arg( hydraulicStructure->elementNameParameter()->value() );
   stream << QStringLiteral( "VARIABLES FOR GRAPHIC PRINTOUTS : 'S,U,V,B,H,W,US,MAXZ,MAXV'\n" );
 
   // Time parameters
