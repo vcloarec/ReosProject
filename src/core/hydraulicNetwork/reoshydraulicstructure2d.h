@@ -16,8 +16,6 @@
 #ifndef REOSHYDRAULICSTRUCTURE2D_H
 #define REOSHYDRAULICSTRUCTURE2D_H
 
-#define SIP_NO_FILE
-
 #include "reoscore.h"
 
 #include "reoshydraulicnetwork.h"
@@ -58,25 +56,26 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ~ReosHydraulicStructure2D();
 
     //! Creates a structure from \a encodedElement and a \a context
-    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context );
+    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context ) SIP_SKIP;
 
     //! Creates a structure from \a structureImporter
-    static ReosHydraulicStructure2D *create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context );
+    static ReosHydraulicStructure2D *create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context ) SIP_SKIP;
 
     static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
 
     QString type() const override {return staticType();}
-    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
-    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override SIP_SKIP;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override SIP_SKIP;
     ReosMapExtent extent() const override;
     QString defaultDisplayName() const override {return tr( "Hydraulic structure 2D" );}
     ReosDuration currentElementTimeStep() const override;
     ReosDuration mapTimeStep() const override;
     ReosTimeWindow timeWindow() const override;
     QIcon icon() const override;
-    ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override;
-    QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) override;
+    ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override SIP_SKIP;
+    QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) override SIP_SKIP;
 
+#ifndef SIP_RUN
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
 
@@ -190,7 +189,10 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a process that prepare the current simulation files in a specific \a diectory, caller take ownership
     ReosSimulationPreparationProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error, const QDir &directory );
 
-    //! Creates a new simulation process and returns a pointer to the process, the process is not starting
+    /**
+     * Creates a new simulation process and returns a pointer to the process, the process is not starting.
+     * Caller does NOT take ownership ship and the object is destroyed once finished
+     */
     ReosSimulationProcess *createSimulationProcess( const ReosCalculationContext &context, QString &error );
 
     //! Returns  a pointer to the current simulation process
@@ -198,6 +200,12 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns whether a simulation is running
     bool hasSimulationRunning() const;
+
+#endif // No SIP_RUN
+    //! Start running a simulation and wait the simulation finishes
+    bool runSimulation( const ReosCalculationContext &context );
+
+#ifndef SIP_RUN
 
     //**************************** Results related methods
 
@@ -313,12 +321,13 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Emitted when values of a boundary is updated
     void boundaryUpdated( ReosHydraulicStructureBoundaryCondition *bc );
     void currentSimulationChanged();
-    void simulationFinished();
+    void simulationFinished( bool success );
     void simulationResultChanged();
 
   protected:
     void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
 
+#endif //No SIP_RUN
   private slots:
     void onBoundaryConditionAdded( const QString &bid );
     void onBoundaryConditionRemoved( const QString &bid );
@@ -381,6 +390,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     friend class ReoHydraulicStructure2DTest;
 };
 
+#ifndef SIP_RUN
 class ReosHydraulicStructure2dFactory : public ReosHydraulicNetworkElementFactory
 {
   public:
@@ -404,6 +414,8 @@ class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
     std::unique_ptr<ReosPolygonStructure> mStructure;
     ReosParameterDouble *mDefaultRoughness = nullptr;
 };
+
+#endif //No SIP_RUN
 
 
 #endif // REOSHYDRAULICSTRUCTURE2D_H

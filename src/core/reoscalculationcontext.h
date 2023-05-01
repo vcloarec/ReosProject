@@ -16,8 +16,6 @@
 #ifndef REOSCALCULATIONCONTEXT_H
 #define REOSCALCULATIONCONTEXT_H
 
-#define SIP_NO_FILE
-
 #include <QPointer>
 
 #include "reoscore.h"
@@ -28,8 +26,8 @@ class REOSCORE_EXPORT ReosCalculationContext
   public:
     ReosCalculationContext();
 
-    ReosMeteorologicModel *meteorologicModel() const;
-    void setMeteorologicModel( ReosMeteorologicModel *meteoModel );
+    ReosMeteorologicModel *meteorologicModel() const SIP_SKIP;
+    void setMeteorologicModel( ReosMeteorologicModel *meteoModel ) SIP_SKIP;
 
     QString schemeId() const;
     void setSchemeId( const QString &schemeId );
