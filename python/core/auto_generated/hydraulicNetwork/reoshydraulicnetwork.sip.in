@@ -1,0 +1,271 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reoshydraulicnetwork.h                     *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+class ReosHydraulicNetworkElement : ReosDataObject /Abstract/
+{
+
+%TypeHeaderCode
+#include "reoshydraulicnetwork.h"
+%End
+%ConvertToSubClassCode
+    ReosHydraulicNetworkElement *element = qobject_cast<ReosHydraulicNetworkElement *>( sipCpp );
+
+    sipType = 0;
+
+    if ( element )
+    {
+      if ( element->type() == ReosHydraulicNetworkElement::hydraulicStructure2DType() )
+      {
+        sipType = sipType_ReosHydraulicStructure2D;
+      }
+    }
+%End
+  public:
+
+    static QString hydraulicStructure2DType();
+
+    ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent = 0 );
+    virtual ~ReosHydraulicNetworkElement();
+
+    virtual QString type() const;
+    static QString staticType();
+
+
+    QString elementName() const;
+%Docstring
+Returns the element nale
+%End
+
+    virtual QString defaultDisplayName() const;
+%Docstring
+Returns the defautl base name of the element
+%End
+
+    virtual void destroy();
+%Docstring
+Destroy the element (the instance will be deleted later).
+%End
+
+    void positionChanged();
+%Docstring
+Called when the position of the item is changed
+%End
+
+
+
+    virtual bool calculationInProgress() const;
+%Docstring
+Returns whether calculation is in progress, default implementation returns false
+%End
+
+    virtual int calculationMaxProgression() const;
+%Docstring
+Returns the maximum progression of calculation
+%End
+
+    virtual int calculationProgression() const;
+%Docstring
+Returns the progression of calculation
+%End
+
+
+    void notify( const ReosModule::Message &message );
+%Docstring
+Notifies a message to the element
+%End
+
+    ReosModule::Message lastMessage() const;
+%Docstring
+Returns the last message
+%End
+
+    virtual bool isAutoSelectable() const;
+%Docstring
+Returns whether the element is auto selectable on a map
+%End
+
+    virtual bool isRemovable() const;
+%Docstring
+Returns whether the element us removable
+%End
+
+
+
+    virtual ReosDuration currentElementTimeStep() const;
+%Docstring
+Returns the current element time step
+%End
+
+    virtual ReosTimeWindow timeWindow() const;
+%Docstring
+Returns the element time window
+%End
+
+    virtual ReosDuration mapTimeStep() const;
+%Docstring
+Returns the element time step related to map rendering
+%End
+
+    ReosHydraulicNetwork *network() const;
+%Docstring
+Return a pointer to the networl of the element
+%End
+
+    virtual ReosMapExtent extent() const = 0;
+%Docstring
+Returns the extent of the element
+%End
+
+    virtual QIcon icon() const;
+%Docstring
+Returns a icon representing the element
+%End
+
+
+  public slots:
+
+  signals:
+    void timeWindowChanged();
+%Docstring
+Emitted whrn the time window of the element is changed
+%End
+
+    void mapTimeStepChanged();
+%Docstring
+Emitted whrn the map time step of the element is changed
+%End
+
+  protected:
+
+
+  signals:
+    void calculationStart();
+    void timeStepChanged();
+    void dirtied();
+
+};
+
+class ReosHydraulicNetworkContext
+{
+
+%TypeHeaderCode
+#include "reoshydraulicnetwork.h"
+%End
+  public:
+    ReosHydraulicNetworkContext();
+    ReosHydraulicNetwork *network() const;
+
+    QString crs() const;
+
+    QString projectPath() const;
+    QString projectName() const;
+
+
+    QString currentSchemeId() const;
+
+};
+
+
+class ReosHydraulicNetwork : ReosModule
+{
+
+%TypeHeaderCode
+#include "reoshydraulicnetwork.h"
+%End
+  public:
+    ReosHydraulicNetwork();
+    ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *gisEngine, ReosWatershedModule *watershedModule );
+
+    virtual QFileInfoList uselessFiles( bool clean ) const;
+
+
+    ReosHydraulicNetworkElement *getElement( const QString &elemId ) const;
+%Docstring
+Returns element with id ``elementId``
+%End
+
+    int elementsCount() const;
+%Docstring
+Returns the count of elements present in the network
+%End
+
+    QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
+%Docstring
+Returns a list of elements of ``type``. Returns all element if type is empty or not prvided
+%End
+
+
+    void removeElement( ReosHydraulicNetworkElement *elem );
+%Docstring
+Removes the element ``elem``. The element is destoyed by calling this method.
+%End
+
+
+    void clear();
+%Docstring
+Clears the network
+%End
+
+    void reset();
+%Docstring
+Reset the network, that is, clear all and creates just one hydraulic scheme
+%End
+
+    ReosGisEngine *gisEngine() const;
+
+    ReosHydraulicNetworkContext context() const;
+%Docstring
+Returns an hydraulic network context corresponding to this network
+%End
+
+    ReosCalculationContext calculationContext() const;
+
+
+
+    ReosDuration currentTimeStep() const;
+%Docstring
+Returns the current minimum time step used in the network
+%End
+
+    ReosMapExtent networkExtent() const;
+
+    ReosTimeWindow mapTimeWindow() const;
+%Docstring
+Return time window including all element that can be rendered on map
+%End
+
+
+    static QString staticName();
+
+  signals:
+    void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
+    void elementWillBeRemoved( ReosHydraulicNetworkElement *elem );
+    void elementRemoved();
+    void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
+    void hasBeenReset();
+    void schemeChanged();
+    void loaded();
+    void timeStepChanged();
+
+  public slots:
+    void changeScheme( int newSchemeIndex );
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reoshydraulicnetwork.h                     *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

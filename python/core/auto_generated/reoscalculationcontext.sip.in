@@ -1,23 +1,22 @@
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/reoscoremodule.h                                            *
+ * src/core/reoscalculationcontext.h                                    *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/
 
 
 
-
-class ReosCoreModule : ReosModule
+class ReosCalculationContext
 {
 %Docstring(signature="appended")
 *************************************************************************
-reoscoremodule.h - ReosCoreModule
+reoscalculationcontext.h - ReosCalculationContext
 
 ---------------------
-  begin                : 11.3.2023
-  copyright            : (C) 2023 by Vincent Cloarec
+  begin                : 19.5.2021
+  copyright            : (C) 2021 by Vincent Cloarec
   email                : vcloarec at gmail dot com
   **************************************************************************
 
@@ -30,51 +29,24 @@ the Free Software Foundation; either version 2 of the License, or     *
 %End
 
 %TypeHeaderCode
-#include "reoscoremodule.h"
+#include "reoscalculationcontext.h"
 %End
   public:
+    ReosCalculationContext();
 
-    ReosCoreModule( QObject *parent = 0 );
-%Docstring
-Constructor
-%End
 
-    ReosGisEngine *gisEngine() const;
-%Docstring
-Returns a pointer to the GIS engine
-%End
+    QString schemeId() const;
+    void setSchemeId( const QString &schemeId );
 
-    bool openProject( const QString &filePath );
-%Docstring
-Opens a project with file path ``filePath``
-%End
+    const ReosTimeWindow &timeWindow() const;
+    void setTimeWindow( const ReosTimeWindow &newTimeWindow );
 
-    bool saveProject( const QString &filePath );
-%Docstring
-Saves project with a file path ``filePath``
-%End
-
-    void clearProject();
-%Docstring
-Clears all data on the current project
-%End
-
-    ReosHydraulicNetwork *hydraulicNetwork() const;
-%Docstring
-Returns a pointer to the hydraulic network module
-%End
-
-    ReosWatershedModule *watershedModule() const;
-%Docstring
-Returns a pointer to the watersehd module
-%End
 };
-
 
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *
- * src/core/reoscoremodule.h                                            *
+ * src/core/reoscalculationcontext.h                                    *
  *                                                                      *
  * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
  ************************************************************************/

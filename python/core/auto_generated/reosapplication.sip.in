@@ -116,6 +116,21 @@ Constructor for ReosApplication.
 Returns a pointer to the core module that contains all other modules
 %End
 
+    static QString enginesPath();
+%Docstring
+Returns the path of engine library files
+%End
+
+    static QString dataProviderpath();
+%Docstring
+Returns the path of data provider library files
+%End
+
+    static QString gisProviderPath();
+%Docstring
+Returns the path of gis provider library files
+%End
+
 
 };
 

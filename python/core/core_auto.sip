@@ -3,6 +3,7 @@
 %Include auto_generated/reosmemoryraster.sip
 %Include auto_generated/reosmodule.sip
 %Include auto_generated/reoscoremodule.sip
+%Include auto_generated/reoscalculationcontext.sip
 %Include auto_generated/GIS/reosdigitalelevationmodel.sip
 %Include auto_generated/GIS/reosgisengine.sip
 %Include auto_generated/GIS/reosmapextent.sip
@@ -11,6 +12,7 @@
 %Include auto_generated/watershed/reoswatershed.sip
 %Include auto_generated/watershed/reoswatersheddelineating.sip
 %Include auto_generated/watershed/reoswatershedtree.sip
+%Include auto_generated/watershed/reoswatershedmodule.sip
 %Include auto_generated/rainfall/reosgriddedrainitem.sip
 %Include auto_generated/rainfall/reosseriesrainfall.sip
 %Include auto_generated/quantity/reosarea.sip
@@ -19,3 +21,5 @@
 %Include auto_generated/data/reosdataobject.sip
 %Include auto_generated/data/reosdataprovider.sip
 %Include auto_generated/hydrograph/reoshydrograph.sip
+%Include auto_generated/hydraulicNetwork/reoshydraulicnetwork.sip
+%Include auto_generated/hydraulicNetwork/reoshydraulicstructure2d.sip
