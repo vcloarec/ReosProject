@@ -226,7 +226,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
       if ( !mCache.at( index ).velocity.isEmpty() )
         return mCache.at( index ).velocity;
       break;
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return QVector<double>();
       break;
   }
@@ -270,7 +270,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
       adaptVelocity( ret, index );
       mCache[index].velocity = ret;
       break;
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return QVector<double>();
       break;
   }
@@ -323,7 +323,7 @@ QString ReosTelemac2DSimulationResults::unitString( ReosHydraulicSimulationResul
 {
   switch ( dataType )
   {
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return QString();
       break;
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:

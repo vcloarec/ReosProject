@@ -75,15 +75,19 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override SIP_SKIP;
     QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) override SIP_SKIP;
 
-#ifndef SIP_RUN
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) {}
-    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) { return false; }
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange )  SIP_SKIP {}
+    bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) SIP_SKIP { return false; }
+
+    //! Returns the directory where data and simulation will be stored on the disk
+    QDir structureDirectory() const;
 
     //! Returns whether the structure supports the \a capability
     bool hasCapability( Structure2DCapability capability ) const;
 
     //! Returns a pointer to the time windows settings
     ReosTimeWindowSettings *timeWindowSettings() const;
+
+#ifndef SIP_RUN
 
     //! Returns a pointer to the structure importer if exists, else return nullptr
     ReosStructureImporterSource *structureImporterSource() const;
@@ -227,6 +231,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the time step count of the results corresponding to \a context
     int resultsTimeStepCount( const QString &schemeId ) const;
 
+#endif // No SIP_RUN
     //! Returns the value of the results with type \a datasetType for the specified \a context, \a position and \a time
     double resultsValueAt( const QDateTime &time,
                            const ReosSpatialPosition &position,
@@ -235,6 +240,19 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
     QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
+
+    /**
+     * Creates a raster file \a fileName with results of type \a datasetType, for the scheme \a schemeId, at \a time,
+     *  with coordinates reference système (WKT) \a destination CRS, and with \a resolution in map unit of \a destinationCrs.
+     *  Return True if successful.
+     */
+    bool rasterizeResult( const QDateTime &time,
+                          ReosHydraulicSimulationResults::DatasetType datasetType,
+                          const QString &schemeId,
+                          const QString &fileName,
+                          const QString &destinationCrs,
+                          double resolution );
+#ifndef SIP_RUN
 
     //! Removes and erase all results related to the structure, also from sources (disk).
     void removeAllResults();
@@ -247,9 +265,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns the results associated with \a scheme
     ReosHydraulicSimulationResults *results( ReosHydraulicScheme *scheme );
-
-    //! Returns the directory where data and simulation will be stored on the disk
-    QDir structureDirectory() const;
 
     //! Activates the result dataset groups with \a id. If id is void, the current group is reactivated
     void activateResultDatasetGroup( const QString &id = QString() );
@@ -304,7 +319,6 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
     //! Returns the index of the \a profile
     int profileIndex( ReosHydraulicStructureProfile *profile );
-
 
   public slots:
     void updateCalculationContext( const ReosCalculationContext &context ) override;

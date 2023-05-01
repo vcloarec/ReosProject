@@ -17,6 +17,10 @@
 #include "reoshydraulicsimulation.h"
 #include "reosmesh.h"
 
+ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( QObject *parent )  : ReosMeshDatasetSource( parent )
+{
+}
+
 ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent )
   : ReosMeshDatasetSource( parent )
 {
@@ -31,7 +35,7 @@ QString ReosHydraulicSimulationResults::groupId( ReosHydraulicSimulationResults:
 {
   switch ( type )
   {
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return QStringLiteral( "none" );
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
       return QStringLiteral( "water-level" );
@@ -55,7 +59,7 @@ QString ReosHydraulicSimulationResults::groupId( int groupIndex ) const
 ReosHydraulicSimulationResults::DatasetType ReosHydraulicSimulationResults::datasetType( int groupIndex ) const
 {
   if ( groupIndex < 0 && groupIndex >= mGroupIndexToType.count() )
-    return DatasetType::None;
+    return DatasetType::NoType;
 
   return mGroupIndexToType.at( groupIndex );
 }
@@ -74,7 +78,7 @@ QString ReosHydraulicSimulationResults::groupName( int groupIndex ) const
 
   switch ( dt )
   {
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return tr( "None" );
     case ReosHydraulicSimulationResults::DatasetType::WaterLevel:
       return tr( "Water level" );
@@ -106,7 +110,7 @@ bool ReosHydraulicSimulationResults::groupIsScalar( int groupIndex ) const
       return true;
       break;
     case ReosHydraulicSimulationResults::DatasetType::Velocity:
-    case ReosHydraulicSimulationResults::DatasetType::None:
+    case ReosHydraulicSimulationResults::DatasetType::NoType:
       return false;
       break;
   }
@@ -124,6 +128,20 @@ double ReosHydraulicSimulationResults::interpolateResultOnMesh(
   int dsInd = datasetIndexClosestBeforeTime( grInd, time );
 
   return mesh->interpolateDatasetValueOnPoint( this, position, grInd, dsInd );
+}
+
+bool ReosHydraulicSimulationResults::rasterizeResultFromMesh(
+  ReosMesh *mesh,
+  const QString &filePath,
+  const QDateTime &time,
+  DatasetType dataType,
+  const QString &destinationCrs,
+  double resolution )
+{
+  int grInd = groupIndex( dataType );
+  int dsInd = datasetIndexClosestBeforeTime( grInd, time );
+
+  return mesh->rasterizeDatasetValue( filePath, grInd, dsInd, destinationCrs, resolution );
 }
 
 QVector<double> ReosHydraulicSimulationResults::resultValues( ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const
