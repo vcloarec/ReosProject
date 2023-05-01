@@ -276,7 +276,7 @@ ReosModule::Message ReosHydraulicStructure2D::exportResultAsMeshInGisProject( Re
 {
   ReosModule::Message message;
   const QFileInfo fileInfo( fileName );
-  const QString meshName = elementName()->value().replace( ':', '-' ) + '-' + scheme->schemeName()->value();
+  const QString meshName = elementNameParameter()->value().replace( ':', '-' ) + '-' + scheme->schemeName()->value();
   QString meshFileName = fileInfo.dir().filePath( meshName );
 
   ReosMesh *meshFrameToExport = nullptr;
@@ -371,7 +371,7 @@ ReosModule::Message ReosHydraulicStructure2D::exportResultAsMeshInGisProject( Re
   if ( message.type == ReosModule::Simple )
   {
     message.addText( tr( "Hydraulic scheme \"%1\" of hydraulic structure \"%2\" successfully exported." ).
-                     arg( scheme->schemeName()->value(), elementName()->value() ) );
+                     arg( scheme->schemeName()->value(), elementNameParameter()->value() ) );
   }
   mNetwork->message( message, false );
   return message;
@@ -728,13 +728,11 @@ ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProces
     error = tr( "The mesh need to be regenerated" );
     return nullptr;
   }
-
   if ( !currentSimulation() )
   {
     error = tr( "Current simulation not defined" );
     return nullptr;
   }
-
   if ( mNetwork->projectFileName().isEmpty() )
   {
     error = tr( "Project must be saved at least one time." );

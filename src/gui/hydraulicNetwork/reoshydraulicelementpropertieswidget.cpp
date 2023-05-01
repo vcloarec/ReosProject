@@ -84,7 +84,7 @@ void ReosHydraulicElementPropertiesWidget::setCurrentElement( ReosHydraulicNetwo
     newWidget = widgetFactory( element->type() )->createWidget( element, ReosGuiContext( guiContext, this ) );
     connect( newWidget, &ReosHydraulicElementWidget::stackedPageWidgetOpened, this, &ReosStackedPageWidget::addOtherPage );
     connect( newWidget, &ReosHydraulicElementWidget::askForShow, this, &ReosStackedPageWidget::askForShow );
-    newNameWidget = new ReosParameterStringWidget( element->elementName(), this );
+    newNameWidget = new ReosParameterStringWidget( element->elementNameParameter(), this );
   }
   else
   {
@@ -250,7 +250,7 @@ void ReosHydraulicElementPropertiesActionWidget::setCurrentElement( ReosHydrauli
     return;
 
   if ( element )
-    setWindowTitle( element->elementName()->value() );
+    setWindowTitle( element->elementNameParameter()->value() );
   else
     setWindowTitle( tr( "No Element Selected" ) );
 

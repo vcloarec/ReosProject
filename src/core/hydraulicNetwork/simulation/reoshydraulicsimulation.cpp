@@ -315,7 +315,7 @@ ReosSimulationProcess::ReosSimulationProcess(
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           mOutputHydrographs.insert( bc->boundaryConditionId(), new ReosHydrograph( this ) );
-          mOutputHydrographs.last()->setName( bc->outputPrefixName()  + QStringLiteral( " %1" ).arg( bc->elementName()->value() ) );
+          mOutputHydrographs.last()->setName( bc->outputPrefixName()  + QStringLiteral( " %1" ).arg( bc->elementNameParameter()->value() ) );
           break;
       }
     }

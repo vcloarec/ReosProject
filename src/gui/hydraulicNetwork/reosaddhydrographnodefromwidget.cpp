@@ -156,7 +156,7 @@ void ReosAddHydrographNodeFromWidget::addNode( const QVariantMap &metadata, Reos
         std::make_unique<ReosHydrographJunction>( position, mNetWork );
 
       int hydIndex = junctionNode->gaugedHydrographsStore()->hydrographCount();
-      junctionNode->elementName()->setValue( metadata.value( QStringLiteral( "station" ) ).toString() );
+      junctionNode->elementNameParameter()->setValue( metadata.value( QStringLiteral( "station" ) ).toString() );
       junctionNode->setInternalHydrographOrigin( ReosHydrographJunction::GaugedHydrograph );
       junctionNode->gaugedHydrographsStore()->addHydrograph( hyd.release() );
       junctionNode->setGaugedHydrographIndex( hydIndex );
