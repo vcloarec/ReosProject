@@ -46,7 +46,7 @@ QVariant ReosHydraulicElementModel::data( const QModelIndex &index, int role ) c
   switch ( role )
   {
     case Qt::DisplayRole:
-      return elem->elementName()->value();
+      return elem->elementNameParameter()->value();
       break;
     case Qt::DecorationRole:
       return elem->icon();
@@ -77,7 +77,7 @@ void ReosHydraulicElementModel::updateElements()
   mElements = mNetwork->hydraulicNetworkElements();
   std::sort( mElements.begin(), mElements.end(), []( ReosHydraulicNetworkElement * elem1, ReosHydraulicNetworkElement * elem2 )->bool
   {
-    return elem1->elementName()->value() < elem2->elementName()->value();
+    return elem1->elementNameParameter()->value() < elem2->elementNameParameter()->value();
   } );
 
   endResetModel();

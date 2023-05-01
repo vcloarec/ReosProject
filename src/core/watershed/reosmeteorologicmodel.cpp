@@ -711,7 +711,7 @@ QVariant ReosMeteorologicStructureItemModel::data( const QModelIndex &index, int
   if ( index.column() == 0 )
   {
     if ( role == Qt::DisplayRole )
-      return struct2D->elementName()->value();
+      return struct2D->elementNameParameter()->value();
 
     if ( role == Qt::DecorationRole )
       return QIcon( QStringLiteral( ":/images/hydraulicStructure2D.svg" ) );
@@ -849,7 +849,7 @@ void ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved()
   std::sort( mStructures.begin(), mStructures.end(), []( ReosHydraulicStructure2D * elem1, ReosHydraulicStructure2D * elem2 )->bool
   {
     if ( elem1 && elem2 )
-      return elem1->elementName()->value() < elem2->elementName()->value();
+      return elem1->elementNameParameter()->value() < elem2->elementNameParameter()->value();
 
     return false;
   } );

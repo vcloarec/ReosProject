@@ -78,7 +78,7 @@ class ReosMeshPointValue_p
     virtual ~ReosMeshPointValue_p();
 
   private:
-    std::atomic_int ref = 0;
+    std::atomic_int ref;
     QPointF mPoint;
     virtual double interpolateValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const = 0;
     virtual double interpolateVectorValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const = 0;

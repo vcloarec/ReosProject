@@ -324,7 +324,7 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
     return;
 
   if ( QMessageBox::warning( this, tr( "Remove Hydraulic Network Element" ), tr( "This action will remove definitly the element \"%1\"\n"
-                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->elementName()->value() ),
+                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->elementNameParameter()->value() ),
                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
     return;
 

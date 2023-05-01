@@ -168,10 +168,10 @@ ReosHydrographJunction::ReosHydrographJunction(
 
 void ReosHydrographJunction::init()
 {
-  mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
-  connect( elementName(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
+  mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementNameParameter()->value() ) );
+  connect( elementNameParameter(), &ReosParameterString::valueChanged, mOutputHydrograph, [this]
   {
-    mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
+    mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementNameParameter()->value() ) );
   } );
 
   connect( this, &ReosHydraulicNode::dataChanged, this, [this]
@@ -388,7 +388,7 @@ void ReosHydrographJunction::calculateInternalHydrograph()
 void ReosHydrographJunction::calculateOuputHydrograph()
 {
 #ifndef _NDEBUG
-  qDebug() << "calculation of output will be launched: " << elementName()->value();
+  qDebug() << "calculation of output will be launched: " << elementNameParameter()->value();
 #endif
   mCalculationIsInProgress = true;
 
@@ -402,7 +402,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
   {
     newCalculation->addHydrograph( mInternalHydrograph );
 #ifndef _NDEBUG
-    qDebug() << QStringLiteral( "Time extent of internal hydrograph %1: " ).arg( elementName()->value() )
+    qDebug() << QStringLiteral( "Time extent of internal hydrograph %1: " ).arg( elementNameParameter()->value() )
              << mOutputHydrograph->timeExtent().first << mInternalHydrograph->timeExtent().second;
 #endif
   }
@@ -434,7 +434,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
       }
       mCalculationIsInProgress = false;
 #ifndef _NDEBUG
-      qDebug() << QStringLiteral( "time extent of output hydrograph %1: " ).arg( elementName()->value() )
+      qDebug() << QStringLiteral( "time extent of output hydrograph %1: " ).arg( elementNameParameter()->value() )
                << mOutputHydrograph->timeExtent().first << mOutputHydrograph->timeExtent().second;
 #endif
       emit timeWindowChanged();
@@ -444,7 +444,7 @@ void ReosHydrographJunction::calculateOuputHydrograph()
 
   newCalculation->startOnOtherThread();
 #ifndef _NDEBUG
-  qDebug() << "calculation of junction: " << elementName()->value();
+  qDebug() << "calculation of junction: " << elementNameParameter()->value();
 #endif
 }
 
@@ -538,7 +538,7 @@ ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( ReosWatershed *watersh
 {
   mInternalHydrographOrigin = RunoffHydrograph;
   if ( mWatershed )
-    elementName()->setValue( mWatershed->watershedName()->value() );
+    elementNameParameter()->setValue( mWatershed->watershedName()->value() );
   init();
 }
 

@@ -128,7 +128,7 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   QList<ReosHydrographRoutingLink *> upstreamRoutingList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
 
   hydrographs.append( mJunctionNode->outputHydrograph() );
-  qDebug() << QString( "********** Hydrograph junction %1" ).arg( mJunctionNode->elementName()->value() ) << QString( " with %1 values" ).arg( mJunctionNode->outputHydrograph()->valueCount() );
+  qDebug() << QString( "********** Hydrograph junction %1" ).arg( mJunctionNode->elementNameParameter()->value() ) << QString( " with %1 values" ).arg( mJunctionNode->outputHydrograph()->valueCount() );
 
   for ( ReosHydrographRoutingLink *routing : std::as_const( upstreamRoutingList ) )
     hydrographs.append( routing->outputHydrograph() );

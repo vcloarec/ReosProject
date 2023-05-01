@@ -65,7 +65,7 @@ void ReosHydraulicStructureBoundaryCondition::init()
   mIsWaterLevelConstant->setValue( true );
   mConstantWaterLevel->setValue( 0 );
 
-  connect( elementName(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
+  connect( elementNameParameter(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
 
   connect( mWaterLevelSeriesGroup, &ReosDataObject::dataChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
   connect( mIsWaterLevelConstant, &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::dataChanged );
@@ -79,7 +79,7 @@ void ReosHydraulicStructureBoundaryCondition::init()
 
 void ReosHydraulicStructureBoundaryCondition::syncHydrographName()
 {
-  mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementName()->value() ) );
+  mOutputHydrograph->setName( outputPrefixName() + QStringLiteral( " %1" ).arg( elementNameParameter()->value() ) );
 }
 
 void ReosHydraulicStructureBoundaryCondition::encodeData( ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) const
@@ -285,9 +285,9 @@ void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStru
   {
     connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
     connect( mStructure->geometryStructure(), &ReosPolylinesStructure::geometryChanged, this, &ReosHydraulicNetworkElement::positionChanged );
-    elementName()->blockSignals( true );
-    elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
-    elementName()->blockSignals( false );
+    elementNameParameter()->blockSignals( true );
+    elementNameParameter()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
+    elementNameParameter()->blockSignals( false );
   }
 
   connect( this, &ReosHydraulicNetworkElement::calculationIsUpdated, structure, [this, structure]
@@ -331,15 +331,15 @@ ReosHydraulicStructureBoundaryCondition::ConnectionState ReosHydraulicStructureB
 
 void ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange()
 {
-  disconnect( elementName(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
-  elementName()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
-  connect( elementName(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
+  disconnect( elementNameParameter(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
+  elementNameParameter()->setValue( mStructure->geometryStructure()->value( mBoundaryConditionId ).toString() );
+  connect( elementNameParameter(), &ReosParameter::valueChanged, this, &ReosHydraulicStructureBoundaryCondition::onParameterNameChange );
 }
 
 void ReosHydraulicStructureBoundaryCondition::onParameterNameChange()
 {
   disconnect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
-  mStructure->geometryStructure()->changeClassValue( mBoundaryConditionId, elementName()->value() );
+  mStructure->geometryStructure()->changeClassValue( mBoundaryConditionId, elementNameParameter()->value() );
   connect( mStructure->geometryStructure(), &ReosPolylinesStructure::classesChanged, this, &ReosHydraulicStructureBoundaryCondition::onBoundaryClassesChange );
 }
 

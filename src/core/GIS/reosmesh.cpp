@@ -269,7 +269,8 @@ double ReosMeshPointValue::terrainElevation( ReosMesh *mesh ) const
 }
 
 ReosMeshPointValue_p::ReosMeshPointValue_p( const QPointF &point )
-  : mPoint( point )
+    : ref( 0 )
+    , mPoint( point )
 {}
 
 ReosMeshPointValue_p::~ReosMeshPointValue_p() {}

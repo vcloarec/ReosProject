@@ -62,7 +62,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject
     QString type() const override {return staticType();}
     static QString staticType() {return QStringLiteral( "hydraulicNetwork" );}
 
-    ReosParameterString *elementName() const;
+    ReosParameterString *elementNameParameter() const SIP_SKIP;
 
     virtual QString defaultDisplayName() const {return type();}
 

@@ -84,10 +84,12 @@ void ReosHydraulicNetworkElement::positionChanged()
     mNetwork->elemPositionChangedPrivate( this );
 }
 
-ReosParameterString *ReosHydraulicNetworkElement::elementName() const
+ReosParameterString *ReosHydraulicNetworkElement::elementNameParameter() const
 {
   return mNameParameter;
 }
+
+QString ReosHydraulicNetworkElement::elementName() const {return mNameParameter->value();}
 
 ReosParameterDuration *ReosHydraulicNetworkElement::constantTimeStepInTable() const
 {
@@ -119,7 +121,7 @@ void ReosHydraulicNetworkElement::notify( const ReosModule::Message &messageObje
   if ( !messageObject.text.isEmpty() )
   {
     ReosModule::Message sendedMessage = messageObject;
-    sendedMessage.prefixMessage( tr( "Routing %1: " ).arg( elementName()->value() ) );
+    sendedMessage.prefixMessage( tr( "Routing %1: " ).arg( elementNameParameter()->value() ) );
     if ( mNetwork )
       mNetwork->message( sendedMessage );
   }
@@ -214,11 +216,11 @@ int ReosHydraulicNetwork::elementsCount() const
 ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetworkElement *elem, bool select )
 {
   mElements.insert( elem->id(), elem );
-  if ( !elem->elementName()->isValid() )
+  if ( !elem->elementNameParameter()->isValid() )
   {
     int index = mElementIndexesCounter.value( elem->type(), 0 ) + 1;
     mElementIndexesCounter[ elem->type()] = index;
-    elem->elementName()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
+    elem->elementNameParameter()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
   }
   emit elementAdded( elem, select );
 
