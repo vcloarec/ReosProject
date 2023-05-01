@@ -254,8 +254,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 48, 45 ), Qt::UTC ) );
 
-  structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( 3, ReosDuration::minute ) );
-  structure2D->timeWindowSettings()->endOffset()->setValue( ReosDuration( 5, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->startOffsetParameter()->setValue( ReosDuration( 3, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->endOffsetParameter()->setValue( ReosDuration( 5, ReosDuration::minute ) );
 
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 58, 0 ), Qt::UTC ) );
@@ -264,7 +264,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QVERIFY( tw == mtw );
 
   structure2D->timeWindowSettings()->setOriginStart( ReosTimeWindowSettings::End );
-  structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( -2, ReosDuration::hour ) );
+  structure2D->timeWindowSettings()->startOffsetParameter()->setValue( ReosDuration( -2, ReosDuration::hour ) );
 
   tw = structure2D->timeWindow();
   QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 0, 48, 45 ), Qt::UTC ) );
@@ -272,8 +272,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   mtw = mGisEngine->mapTimeWindow();
   QVERIFY( tw == mtw );
 
-  structure2D->timeWindowSettings()->startOffset()->setValue( ReosDuration( 0, ReosDuration::minute ) );
-  structure2D->timeWindowSettings()->endOffset()->setValue( ReosDuration( 0, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->startOffsetParameter()->setValue( ReosDuration( 0, ReosDuration::minute ) );
+  structure2D->timeWindowSettings()->endOffsetParameter()->setValue( ReosDuration( 0, ReosDuration::minute ) );
   structure2D->timeWindowSettings()->setOriginStart( ReosTimeWindowSettings::Begin );
 
   tw = structure2D->timeWindow();

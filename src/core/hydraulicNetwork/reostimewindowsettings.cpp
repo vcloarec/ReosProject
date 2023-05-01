@@ -39,7 +39,7 @@ ReosTimeWindowSettings::ReosTimeWindowSettings( QObject *parent )
   connect( mUserEndTime, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosTimeWindow ReosTimeWindowSettings::timeWindow( const ReosTimeWindow &automaticTimeWindow ) const
+ReosTimeWindow ReosTimeWindowSettings::timeWindow( const ReosTimeWindow &input ) const
 {
   if ( mAutomaticallyDefined->value() )
   {
@@ -47,20 +47,20 @@ ReosTimeWindow ReosTimeWindowSettings::timeWindow( const ReosTimeWindow &automat
     switch ( mOriginStart )
     {
       case Begin:
-        startOrigin = automaticTimeWindow.start();
+        startOrigin = input.start();
         break;
       case End:
-        startOrigin = automaticTimeWindow.end();
+        startOrigin = input.end();
         break;
     }
     QDateTime endOrigin;
     switch ( mOriginEnd )
     {
       case Begin:
-        endOrigin = automaticTimeWindow.start();
+        endOrigin = input.start();
         break;
       case End:
-        endOrigin = automaticTimeWindow.end();
+        endOrigin = input.end();
         break;
     }
     return ReosTimeWindow( startOrigin.addMSecs( mStartOffset->value().valueMilliSecond() )
@@ -72,12 +72,12 @@ ReosTimeWindow ReosTimeWindowSettings::timeWindow( const ReosTimeWindow &automat
   }
 }
 
-ReosParameterDuration *ReosTimeWindowSettings::startOffset() const
+ReosParameterDuration *ReosTimeWindowSettings::startOffsetParameter() const
 {
   return mStartOffset;
 }
 
-ReosParameterDuration *ReosTimeWindowSettings::endOffset() const
+ReosParameterDuration *ReosTimeWindowSettings::endOffsetParameter() const
 {
   return mEndOffset;
 }
@@ -179,4 +179,34 @@ void ReosTimeWindowSettings::setOriginEnd( OffsetOrigin newOriginEnd )
 {
   mOriginEnd = newOriginEnd;
   emit dataChanged();
+}
+
+void ReosTimeWindowSettings::setStartOffset( const ReosDuration &startOffset )
+{
+  mStartOffset->setValue( startOffset );
+}
+
+void ReosTimeWindowSettings::setEndOffset( const ReosDuration &endOffset )
+{
+  mEndOffset->setValue( endOffset );
+}
+
+void ReosTimeWindowSettings::setUserStartTime( const QDateTime &startTime )
+{
+  mUserStartTime->setValue( startTime );
+}
+
+void ReosTimeWindowSettings::setUserEndTime( const QDateTime &endTime )
+{
+  mUserEndTime->setValue( endTime );
+}
+
+void ReosTimeWindowSettings::setAutomaticallyDefined( bool b )
+{
+  mAutomaticallyDefined->setValue( b );
+}
+
+void ReosTimeWindowSettings::setUseExternalDefinedTimeWindow( bool b )
+{
+  mUseExternalDefinedTimeWindow->setValue( b );
 }
