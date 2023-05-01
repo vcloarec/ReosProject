@@ -97,6 +97,7 @@ bool ReosCoreModule::openProject( const QString &filePath )
   watershedModule()->decode( lekanProject.getEncodedData( QStringLiteral( "watershed-module" ) ), encodeContext );
   hydraulicNetwork()->decode( lekanProject.getEncodedData( QStringLiteral( "hydaulic-network" ) ), projectDir.path(), fileInfo.baseName() );
 
+  setProjectFileName( filePath );
   return true;
 }
 

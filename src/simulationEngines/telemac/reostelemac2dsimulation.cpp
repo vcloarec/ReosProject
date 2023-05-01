@@ -1453,6 +1453,7 @@ ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalcul
 
 void ReosTelemac2DSimulationProcess::start()
 {
+  mIsSuccessful = false;
   QThread::msleep( 100 ); //just a bit of time to make the connection with the console (TODO: change the logic of process creation to avoid this)
   mProcess = new QProcess();
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -1462,8 +1463,19 @@ void ReosTelemac2DSimulationProcess::start()
   env.insert( QStringLiteral( "USETELCFG" ), settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
 
   QString envPath = env.value( QStringLiteral( "PATH" ) );
-  QFileInfo telemac2DPythonScript( settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
 
+  QString telemScripts = settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString();
+  if ( telemScripts.isEmpty() )
+  {
+    emit sendInformation( tr( "TELEMAC 2D Python script not set. Please verify TELEMAC settings." ) );
+    return;
+  }
+  QFileInfo telemac2DPythonScript( telemScripts );
+  if ( !telemac2DPythonScript.exists() )
+  {
+    emit sendInformation( tr( "TELEMAC 2D Python script not found. Please verify TELEMAC settings." ) );
+    return;
+  }
 
 #ifdef _MSC_VER
   const QString pythonPath = settings.value( QStringLiteral( "/python_path" ) ).toString();
@@ -1517,7 +1529,6 @@ void ReosTelemac2DSimulationProcess::start()
   bool finished = false;
   if ( resultStart )
   {
-    emit sendInformation( tr( "Start simulation" ) );
     finished = mProcess->waitForFinished( -1 );
     setCurrentProgression( 100 );
 
@@ -1657,8 +1668,9 @@ void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressi
 
     emit sendBoundaryFlow( mStartTime.addMSecs( qint64( time * 1000 ) ), ids, flows );
 
-    setCurrentProgression( int( time * 100.0 / mTotalTime ) );
-    emit sendInformation( timeString );
+    int progress = int( time * 100.0 / mTotalTime );
+    setCurrentProgression( progress );
+    emit sendInformation( QString::number( progress ) + QStringLiteral( " % ," ) + timeString );
     mCurrentTime = mCurrentTime + mTimeStep.valueSecond();
   }
 }
