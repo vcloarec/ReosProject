@@ -141,7 +141,7 @@ class ReosMeshFrame_p : public ReosMesh
     WireFrameSettings wireFrameSettings() const override ;
     void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update ) override;
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
-    bool rasterizeDatasetValue(const QString &fileName, int sourceGroupindex, int datasetIndex, QString detinationCrs, double resolution ) const override;
+    bool rasterizeDatasetValue( const QString &fileName, const QString &groupId, int datasetIndex, QString detinationCrs, double resolution ) const override;
     QString exportAsMesh( const QString &fileName, ReosModule::Message &message ) const override;
     ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;

@@ -138,10 +138,11 @@ bool ReosHydraulicSimulationResults::rasterizeResultFromMesh(
   const QString &destinationCrs,
   double resolution )
 {
+  const QString datasetId = groupId( dataType );
   int grInd = groupIndex( dataType );
   int dsInd = datasetIndexClosestBeforeTime( grInd, time );
 
-  return mesh->rasterizeDatasetValue( filePath, grInd, dsInd, destinationCrs, resolution );
+  return mesh->rasterizeDatasetValue( filePath, datasetId, dsInd, destinationCrs, resolution );
 }
 
 QVector<double> ReosHydraulicSimulationResults::resultValues( ReosHydraulicSimulationResults::DatasetType datasetType, int index ) const

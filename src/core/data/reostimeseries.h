@@ -42,8 +42,15 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
 
     QString type() const override {return staticType();}
 
-    //! Reload data from provider
+    /**
+     * Asks for Reloading data from provider.
+     * In case of remote data, data are not available just after calling this method but once data aare effectivly loading.
+     * If caller need data just after calling, see reloadBlocking().
+     */
     void reload();
+
+    //! Reload data from provider and wait until the data is effectivly reloaded.
+    void reloadBlocking(int timeout = -1, bool repeat = false );
 
     //! Sets the reference time
     void setReferenceTime( const QDateTime &dateTime );

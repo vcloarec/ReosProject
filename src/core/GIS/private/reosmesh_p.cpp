@@ -981,7 +981,7 @@ double ReosMeshFrame_p::interpolateDatasetValueOnPoint(
 
 bool ReosMeshFrame_p::rasterizeDatasetValue(
   const QString &fileName,
-  int sourceGroupindex,
+  const QString &datasetId,
   int datasetIndex,
   QString destinationCrs,
   double resolution ) const
@@ -1014,7 +1014,8 @@ bool ReosMeshFrame_p::rasterizeDatasetValue(
     rasterFileWriter.createMultiBandRaster( Qgis::DataType::Float64, width, height, QgsRectangle( ext ), mMeshLayer->crs(), 1 ) );
   rasterDataProvider->setEditable( true );
 
-  QgsMeshDatasetIndex index( sourceGroupindex, datasetIndex );
+  int sourceGroupIndex = mDatasetGroupsIndex.value( datasetId );
+  QgsMeshDatasetIndex index( sourceGroupIndex, datasetIndex );
 
   std::unique_ptr<QgsRasterBlock> block( QgsMeshUtils::exportRasterBlock(
       *mMeshLayer.get(),

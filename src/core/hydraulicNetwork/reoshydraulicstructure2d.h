@@ -170,8 +170,10 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns a pointer to the simulation associated with \a scheme
     ReosHydraulicSimulation *simulation( ReosHydraulicScheme *scheme ) const;
 
+#endif // No SIP_RUN
     //! Returns a pointer to the current simulation
     ReosHydraulicSimulation *currentSimulation() const;
+#ifndef SIP_RUN
 
     //! Returns the count of simulation
     int simulationCount() const {return mSimulations.count();}
