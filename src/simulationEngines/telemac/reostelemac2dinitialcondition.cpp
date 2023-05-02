@@ -128,6 +128,16 @@ void ReosTelemac2DInitialConditionFromSimulation::setTimeStepIndex( int timeStep
   mTimeStepIndex = timeStepIndex;
 }
 
+bool ReosTelemac2DInitialConditionFromSimulation::useLastTimeStep() const
+{
+  return mUseLastTimeStep;
+}
+
+void ReosTelemac2DInitialConditionFromSimulation::setUseLastTimeStep( bool useLastTimeStep )
+{
+  mUseLastTimeStep = useLastTimeStep;
+}
+
 ReosTelemac2DInitialConditionFromInterpolation::ReosTelemac2DInitialConditionFromInterpolation( QObject *parent )
   : ReosTelemac2DInitialCondition( parent )
 {

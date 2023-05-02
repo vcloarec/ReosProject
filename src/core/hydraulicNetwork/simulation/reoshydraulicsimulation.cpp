@@ -35,6 +35,11 @@ ReosHydraulicSimulation::ReosHydraulicSimulation( ReosHydraulicStructure2D *pare
 {
 }
 
+bool ReosHydraulicSimulation::hasCapability( Capability cap ) const
+{
+  return false;
+}
+
 ReosHydraulicNetworkElementCompatibilty ReosHydraulicSimulation::checkCompatiblity( ReosHydraulicScheme *scheme ) const
 {
   return ReosHydraulicNetworkElementCompatibilty();

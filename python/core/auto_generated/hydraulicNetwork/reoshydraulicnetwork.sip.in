@@ -28,11 +28,17 @@ class ReosHydraulicNetworkElement : ReosDataObject /Abstract/
       {
         sipType = sipType_ReosHydraulicStructure2D;
       }
+
+      if ( element->type() == ReosHydraulicNetworkElement::hydrographJunction() )
+      {
+        sipType = sipType_ReosHydrographJunction;
+      }
     }
 %End
   public:
 
     static QString hydraulicStructure2DType();
+    static QString hydrographJunction();
 
     ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent = 0 );
     virtual ~ReosHydraulicNetworkElement();
@@ -230,6 +236,36 @@ Returns an hydraulic network context corresponding to this network
 
     ReosCalculationContext calculationContext() const;
 
+
+    int schemeCount() const;
+%Docstring
+Returns the count of hydraulic scheme
+%End
+
+    int currentSchemeIndex() const;
+%Docstring
+Returns the current scheme index
+%End
+
+    int schemeIndex( const QString &schemeId ) const;
+%Docstring
+Return the id of the scheme with ``index``
+%End
+
+    void setCurrentScheme( int schemeIndex );
+%Docstring
+Sets the current scheme with ``schemeIndex``
+%End
+
+    void setCurrentScheme( const QString &schemeId );
+%Docstring
+Sets the current scheme with ``schemeId``
+%End
+
+    QString currentSchemeId() const;
+%Docstring
+Returns the current scheme Id
+%End
 
 
     ReosDuration currentTimeStep() const;

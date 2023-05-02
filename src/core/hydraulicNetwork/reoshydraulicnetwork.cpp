@@ -29,6 +29,11 @@ QString ReosHydraulicNetworkElement::hydraulicStructure2DType()
   return ReosHydraulicStructure2D::staticType();
 }
 
+QString ReosHydraulicNetworkElement::hydrographJunction()
+{
+  return ReosHydrographJunction::staticType();
+}
+
 
 ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
   ReosDataObject( parent )
@@ -490,7 +495,7 @@ int ReosHydraulicNetwork::schemeIndex( const QString &schemeId ) const
   return mHydraulicSchemeCollection->schemeIndex( schemeId );
 }
 
-void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
+void ReosHydraulicNetwork::setCurrentScheme( int schemeIndex )
 {
   ReosHydraulicScheme *currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
@@ -499,10 +504,10 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
     disconnect( currentScheme, &ReosHydraulicScheme::meteoTimeWindowChanged, this, &ReosHydraulicNetwork::onMapTimeWindowChanged );
   }
 
-  mCurrentSchemeIndex = newSchemeIndex;
+  mCurrentSchemeIndex = schemeIndex;
 
   for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
-    elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( newSchemeIndex ) );
+    elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( schemeIndex ) );
 
   currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
   if ( currentScheme )
@@ -518,6 +523,21 @@ void ReosHydraulicNetwork::setCurrentScheme( int newSchemeIndex )
   onMapTimeWindowChanged();
   emit schemeChanged();
   emit dirtied();
+}
+
+void ReosHydraulicNetwork::setCurrentScheme( const QString &schemeId )
+{
+  int index = schemeIndex( schemeId );
+  setCurrentScheme( index );
+}
+
+QString ReosHydraulicNetwork::currentSchemeId() const
+{
+  ReosHydraulicScheme *scheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+  if ( scheme )
+    return scheme->id();
+
+  return QString();
 }
 
 ReosHydraulicScheme *ReosHydraulicNetwork::addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel )

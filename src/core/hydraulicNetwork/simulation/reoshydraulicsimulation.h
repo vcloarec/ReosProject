@@ -16,8 +16,6 @@
 #ifndef REOSHYDRAULICSIMULATION_H
 #define REOSHYDRAULICSIMULATION_H
 
-#define SIP_NO_FILE
-
 #include "reosdataobject.h"
 
 #include "reosprocess.h"
@@ -44,6 +42,7 @@ class ReosPolygonStructureValues;
 struct ReosHydraulicNetworkElementCompatibilty;
 
 
+#ifndef SIP_RUN
 struct ReosSimulationData
 {
   struct BoundaryVertices
@@ -116,31 +115,43 @@ class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
   private:
     QMap<QString, ReosHydrograph *> mOutputHydrographs;
     ReosTimeWindow mTimewWindow;
-
 };
 
-class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
+#endif // No SIP_RUN
+
+class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
+
+    enum class Capability
+    {
+      Hotstart = 1 << 0, //!< If the simulation support hot start
+    };
+    Q_ENUM( Capability )
+    Q_DECLARE_FLAGS( Capabilities, Capability )
+    Q_FLAG( Capabilities )
+
     ReosHydraulicSimulation( ReosHydraulicStructure2D *parent = nullptr );
 
+    virtual bool hasCapability( Capability cap ) const;
+
     virtual QString key() const = 0;
-    virtual ReosEncodedElement encode() const = 0;
+    virtual ReosEncodedElement encode() const = 0 SIP_SKIP;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0;
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0 SIP_SKIP;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0;
+    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0 SIP_SKIP;
 
-    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0;
+    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0 SIP_SKIP;
 
     virtual ReosDuration representativeTimeStep() const = 0;
 
     virtual ReosDuration representative2DTimeStep() const = 0;
 
-    virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const = 0;
+    virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const = 0 SIP_SKIP;
 
-    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const = 0;
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const = 0 SIP_SKIP;
 
     virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
 
@@ -148,17 +159,25 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
 
     virtual QString engineName() const = 0;
 
-    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0;
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const =  0 SIP_SKIP;
 
-    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0;
+    virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0 SIP_SKIP;
 
     virtual ReosTimeWindow externalTimeWindow() const = 0;
 
-    virtual ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const = 0;
+    virtual ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const = 0 SIP_SKIP;
 
-    virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const;
+    virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const SIP_SKIP;
 
-    virtual QFileInfoList cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme ) {return QFileInfoList();};
+    virtual QFileInfoList cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme ) SIP_SKIP {return QFileInfoList();};
+
+    virtual void setHotStartSchemeId( const QString &schemeId ) {}
+
+    virtual void setHotStartTimeStepIndex( int index ) {}
+
+    virtual void setHotStartUseLastTimeStep( bool b ) {}
+
+#ifndef SIP_RUN
 
   signals:
 
@@ -170,9 +189,11 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject
     QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
     virtual QString directoryName() const {return QString();}
 
+#endif // No SIP_RUN
+
 };
 
-
+#ifndef SIP_RUN
 class ReosSimulationEngineFactory
 {
     Q_GADGET
@@ -325,5 +346,7 @@ class ReosSimulationEngineFactoryDummy : public ReosSimulationEngineFactory
 
     void initializeSettings() override {}
 };
+
+#endif // No SIP_RUN
 
 #endif // REOSHYDRAULICSIMULATION_H

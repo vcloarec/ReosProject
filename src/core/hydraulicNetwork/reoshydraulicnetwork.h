@@ -70,6 +70,11 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
       {
         sipType = sipType_ReosHydraulicStructure2D;
       }
+
+      if ( element->type() == ReosHydraulicNetworkElement::hydrographJunction() )
+      {
+        sipType = sipType_ReosHydrographJunction;
+      }
     }
     SIP_END
 #endif
@@ -77,6 +82,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
   public:
 
     static QString hydraulicStructure2DType();
+    static QString hydrographJunction();
 
     ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent = nullptr );
     ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr ) SIP_SKIP;
@@ -272,15 +278,29 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosHydraulicSchemeCollection *hydraulicSchemeCollection() const SIP_SKIP;
 
-#ifndef SIP_RUN
+    //! Returns the count of hydraulic scheme
     int schemeCount() const;
+
+    //! Returns the current scheme index
     int currentSchemeIndex() const;
+
+    //! Return the id of the scheme with \a index
+    int schemeIndex( const QString &schemeId ) const;
+
+    //! Sets the current scheme with \a schemeIndex
+    void setCurrentScheme( int schemeIndex );
+
+    //! Sets the current scheme with \a schemeId
+    void setCurrentScheme( const QString &schemeId );
+
+    //! Returns the current scheme Id
+    QString currentSchemeId() const;
+
+#ifndef SIP_RUN
     ReosHydraulicScheme *currentScheme() const;
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;
     ReosHydraulicScheme *scheme( int index ) const;
     ReosHydraulicScheme *schemeByName( const QString &schemeName ) const;
-    int schemeIndex( const QString &schemeId ) const;
-    void setCurrentScheme( int newSchemeIndex );
     ReosHydraulicScheme *addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel = nullptr );
     void addExistingScheme( ReosHydraulicScheme *scheme );
     void removeScheme( int schemeIndex );

@@ -63,7 +63,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     static QString staticKey() {return QStringLiteral( "telemac2D" );}
 
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
-
+    bool hasCapability( Capability cap ) const override;
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
     ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
@@ -83,6 +83,11 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosEncodedElement encode() const override;
 
     //***** Configuration parameters
+
+    void setHotStartSchemeId( const QString &schemeId ) override;
+    void setHotStartTimeStepIndex( int index ) override;
+    void setHotStartUseLastTimeStep( bool b ) override;
+
     ReosParameterDuration *timeStep() const;
     ReosParameterInteger *outputPeriodResult2D() const;
     ReosParameterInteger *outputPeriodResultHydrograph() const;
@@ -123,6 +128,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     QString mBoundaryFileName = QStringLiteral( "boundary.cli" );
     QString mBoundaryConditionFileName = QStringLiteral( "boundaryCondition.liq" );
     QString mSteeringFileName = QStringLiteral( "simulation.cas" );
+
+    Capabilities mCapabilities;
 
     ReosDuration timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const;
 

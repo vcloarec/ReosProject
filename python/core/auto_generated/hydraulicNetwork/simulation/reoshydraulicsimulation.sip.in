@@ -1,0 +1,73 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.h       *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+
+
+class ReosHydraulicSimulation : ReosDataObject /Abstract/
+{
+
+%TypeHeaderCode
+#include "reoshydraulicsimulation.h"
+%End
+  public:
+
+    enum class Capability
+    {
+      Hotstart,
+    };
+    typedef QFlags<ReosHydraulicSimulation::Capability> Capabilities;
+
+
+    ReosHydraulicSimulation( ReosHydraulicStructure2D *parent = 0 );
+
+    virtual bool hasCapability( Capability cap ) const;
+
+    virtual QString key() const = 0;
+
+
+
+
+    virtual ReosDuration representativeTimeStep() const = 0;
+
+    virtual ReosDuration representative2DTimeStep() const = 0;
+
+
+
+    virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+
+    virtual void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+
+    virtual QString engineName() const = 0;
+
+
+
+    virtual ReosTimeWindow externalTimeWindow() const = 0;
+
+
+
+    virtual void setHotStartSchemeId( const QString &schemeId );
+
+    virtual void setHotStartTimeStepIndex( int index );
+
+    virtual void setHotStartUseLastTimeStep( bool b );
+
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/simulation/reoshydraulicsimulation.h       *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

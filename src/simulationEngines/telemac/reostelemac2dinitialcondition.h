@@ -68,7 +68,7 @@ class ReosTelemac2DInitialConditionFromSimulation: public ReosTelemac2DInitialCo
     Q_OBJECT
   public:
     ReosTelemac2DInitialConditionFromSimulation( QObject *parent = nullptr );
-    ReosTelemac2DInitialConditionFromSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
+    explicit ReosTelemac2DInitialConditionFromSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
 
     Type initialConditionType() const override {return Type::FromOtherSimulation;}
     ReosEncodedElement encode() const override;
@@ -81,9 +81,13 @@ class ReosTelemac2DInitialConditionFromSimulation: public ReosTelemac2DInitialCo
     int timeStepIndex() const;
     void setTimeStepIndex( int timeStepIndex );
 
+    bool useLastTimeStep() const;
+    void setUseLastTimeStep( bool useLastTimeStep );
+
   private:
     QString mOtherSchemeId;
     int mTimeStepIndex = -1;
+    bool mUseLastTimeStep = false;
 };
 
 class ReosTelemac2DInitialConditionFromInterpolation: public ReosTelemac2DInitialCondition

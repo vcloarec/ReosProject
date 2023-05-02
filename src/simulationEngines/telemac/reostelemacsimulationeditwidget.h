@@ -25,6 +25,7 @@
 #include "reosmapitem.h"
 
 class QComboBox;
+class QCheckBox;
 class ReosMapToolDrawPolyline;
 class ReosTelemac2DInitialConditionFromSimulation;
 
@@ -108,6 +109,7 @@ class ReosTelemac2DInititalConditionFromOtherSimulationWidget : public QWidget
     QPointer<ReosHydraulicStructure2D> mStructure;
     QComboBox *mSchemeCombo = nullptr;
     QComboBox *mTimeStepCombo = nullptr;
+    QCheckBox *mUseLastCheckBox = nullptr;
 };
 
 class ReosTelemac2DInititalConditionInterpolationWidget : public QWidget

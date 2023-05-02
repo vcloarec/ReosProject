@@ -16,7 +16,10 @@
 #include "reostimeseries.h"
 
 #include <QLocale>
+#include <QEventLoop>
+#include <QTimer>
 
+#include "qdebug.h"
 #include "reostimeseriesprovider.h"
 
 ReosTimeSeriesConstantIntervalModel::ReosTimeSeriesConstantIntervalModel( QObject *parent ): ReosTimeSerieModel( parent )
@@ -739,10 +742,40 @@ ReosTimeSeries::ReosTimeSeries( QObject *parent, const QString &providerKey, con
   }
 }
 
-void ReosTimeSeries::reload()
+void ReosTimeSeries::reload( )
 {
   if ( mProvider )
     mProvider->load();
+}
+
+void ReosTimeSeries::reloadBlocking( int timeout, bool  repeat )
+{
+  if ( !mProvider )
+    return;
+
+  int tryCount = 0;
+
+  do
+  {
+    if ( tryCount > 0 )
+    {
+      qDebug() << tr( "Loading timeout %1 times" ).arg( tryCount );
+    }
+    QEventLoop loop;
+    connect( mProvider.get(), &ReosDataProvider::loadingFinished, &loop, &QEventLoop::quit );
+    QTimer timer;
+    connect( &timer, &QTimer::timeout, &loop, &QEventLoop::quit );
+    if ( timeout > 0 )
+      timer.start( timeout );
+
+    if ( ! mProvider->isLoading() )
+      mProvider->load();
+
+    loop.exec();
+    tryCount++;
+  }
+  while ( repeat && mProvider->isLoading() );
+
 }
 
 void ReosTimeSeries::setReferenceTime( const QDateTime &dateTime )

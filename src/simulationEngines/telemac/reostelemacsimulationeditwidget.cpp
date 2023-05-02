@@ -19,6 +19,7 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QCheckBox>
 
 #include "reostelemac2dinitialcondition.h"
 #include "reoshydraulicstructure2d.h"
@@ -279,6 +280,9 @@ ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalCo
   gridLayout->addWidget( new QLabel( tr( "Time step" ), this ), 1, 0 );
   mTimeStepCombo = new QComboBox( this );
   gridLayout->addWidget( mTimeStepCombo, 1, 1 );
+
+  mUseLastCheckBox = new QCheckBox( this );
+  gridLayout->addWidget( mUseLastCheckBox, 2, 1 );
 
   onSchemeChange();
 

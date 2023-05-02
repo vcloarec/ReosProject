@@ -84,6 +84,10 @@ Returns whether the structure supports the ``capability``
 Returns a pointer to the time windows settings
 %End
 
+    ReosHydraulicSimulation *currentSimulation() const;
+%Docstring
+Returns a pointer to the current simulation
+%End
     bool runSimulation( const ReosCalculationContext &context );
 %Docstring
 Start running a simulation and wait the simulation finishes

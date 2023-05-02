@@ -42,6 +42,7 @@
 
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
+  , mCapabilities( Capability::Hotstart )
 {
   init();
 }
@@ -64,6 +65,11 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
       mInitialConditions.append( new ReosTelemac2DInitialConditionFromInterpolation( elem, this ) );
   }
   init();
+}
+
+bool ReosTelemac2DSimulation::hasCapability( Capability cap ) const
+{
+  return mCapabilities.testFlag( cap );
 }
 
 ReosEncodedElement ReosTelemac2DSimulation::encode() const
@@ -360,6 +366,36 @@ void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme 
 QFileInfoList ReosTelemac2DSimulation::cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme )
 {
   return QFileInfoList( {QFileInfo( simulationDir( hydraulicStructure, scheme->id() ).path() )} );
+}
+
+static ReosTelemac2DInitialConditionFromSimulation *getHotStartCondIni( const QList<ReosTelemac2DInitialCondition *> &initialConditions )
+{
+  for ( ReosTelemac2DInitialCondition *iniCond : std::as_const( initialConditions ) )
+  {
+    if ( iniCond->initialConditionType() == ReosTelemac2DInitialCondition::Type::FromOtherSimulation )
+      return qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( iniCond );
+  }
+
+  return nullptr;
+}
+
+void ReosTelemac2DSimulation::setHotStartSchemeId( const QString &schemeId )
+{
+  ReosTelemac2DInitialConditionFromSimulation *hotStartIni = getHotStartCondIni( mInitialConditions );
+  if ( hotStartIni )
+    hotStartIni->setOtherSchemeId( schemeId );
+}
+
+void ReosTelemac2DSimulation::setHotStartTimeStepIndex( int index )
+{
+  ReosTelemac2DInitialConditionFromSimulation *hotStartIni = getHotStartCondIni( mInitialConditions );
+  if ( hotStartIni )
+    hotStartIni->setTimeStepIndex( index );
+}
+
+void ReosTelemac2DSimulation::setHotStartUseLastTimeStep( bool b )
+{
+
 }
 
 QString ReosTelemac2DSimulation::engineName() const
@@ -1295,7 +1331,15 @@ void ReosTelemac2DSimulation::createSteeringFile(
         std::unique_ptr<ReosHydraulicSimulationResults> results( loadSimulationResults( hydraulicStructure, cifs->otherSchemeId() ) );
         int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
         if ( results->datasetCount( waterlevelGroupIndex ) >  cifs->timeStepIndex() )
+        {
+          int timeStepIndex = 0;
+          if ( cifs->useLastTimeStep() )
+            timeStepIndex = results->timeSteps().count() - 1;
+          else
+            timeStepIndex = cifs->timeStepIndex();
+
           createSelafinInitialConditionFile( hydraulicStructure, simulationData, verticesPosInBoundary, results.get(), cifs->timeStepIndex(), directory );
+        }
       }
     }
     break;
