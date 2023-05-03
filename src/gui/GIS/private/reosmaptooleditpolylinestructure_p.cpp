@@ -437,7 +437,7 @@ void ReosMapToolEditPolylineStructure_p::keyPressEvent( QKeyEvent *e )
 
 void ReosMapToolEditPolylineStructure_p::insertVertex( const QPointF &mapPoint, qint64 lineId )
 {
-  mStructure->insertVertex( mapPoint, lineId );
+  mStructure->insertVertex( ReosSpatialPosition( mapPoint ), lineId );
 }
 
 void ReosMapToolEditPolylineStructure_p::removeVertex( ReosGeometryStructureVertex *vertex )

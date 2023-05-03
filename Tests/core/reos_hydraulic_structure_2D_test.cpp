@@ -52,12 +52,12 @@ class ReoHydraulicStructure2DTest: public QObject
 
 void ReoHydraulicStructure2DTest::initTestCase()
 {
-  mRootModule = new ReosModule( QStringLiteral("root"), this );
+  mRootModule = new ReosModule( QStringLiteral( "root" ), this );
   mGisEngine = new ReosGisEngine( this );
   mNetwork = new ReosHydraulicNetwork( mRootModule, mGisEngine, nullptr );
 
   mRainfallModel = ReosRainfallRegistery::instance()->rainfallModel();
-  mRainZone1 = mRainfallModel->addZone( QStringLiteral("Zone 1"), "", QModelIndex() );
+  mRainZone1 = mRainfallModel->addZone( QStringLiteral( "Zone 1" ), "", QModelIndex() );
 }
 
 void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
@@ -271,10 +271,10 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   geomStructure = structure2D->geometryStructure();
 
   geomStructure->searchForLine( ReosMapExtent( 0.99, 0.4, 1.01, 0.5 ), lineId );
-  geomStructure->insertVertex( QPointF( 1, 0.7 ), lineId );
+  geomStructure->insertVertex( ReosSpatialPosition( 1, 0.7 ), lineId );
 
   geomStructure->searchForLine( ReosMapExtent( 0.99, 0.4, 1.01, 0.5 ), lineId );
-  geomStructure->insertVertex( QPointF( 1, 0.3 ), lineId );
+  geomStructure->insertVertex( ReosSpatialPosition( 1, 0.3 ), lineId );
 
   data = geomStructure->structuredLinesData();
   QCOMPARE( data.boundaryPointCount, 6 );
@@ -372,7 +372,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   QCOMPARE( data.vertices.count(), 11 );
 
   vert = geomStructure->searchForVertex( ReosMapExtent( 0.19, 0.74, 0.21, 0.76 ) );
-  geomStructure->moveVertex( vert, QPointF( 0.5, 0.5 ) );
+  geomStructure->moveVertex( vert, ReosSpatialPosition( 0.5, 0.5 ) );
 
   data = geomStructure->structuredLinesData();
   QCOMPARE( data.boundaryPointCount, 8 );
@@ -432,7 +432,7 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
        << QPointF( 2.5, 7.5 )
        << QPointF( 2.5, 2.5 );
   mHydraulicStructure->geometryStructure()->addPolylines( hole );
-  mHydraulicStructure->geometryStructure()->addHolePoint( QPointF( 5, 5 ) );
+  mHydraulicStructure->geometryStructure()->addHolePoint( ReosSpatialPosition( 5, 5 ) );
 
   meshGenerator.reset( mHydraulicStructure->getGenerateMeshProcess() );
   meshGenerator->start();

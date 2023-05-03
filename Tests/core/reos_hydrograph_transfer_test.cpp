@@ -84,7 +84,7 @@ void ReosHydrographTransferTest::initTestCase()
 void ReosHydrographTransferTest::test_junction()
 {
   ReosCalculationContext context;
-  ReosHydrographJunction junction{ QPointF()};
+  ReosHydrographJunction junction{ ReosSpatialPosition()};
 
   ReosHydrograph *inputHydrograph_1 = mSource1.outputHydrograph( );
   ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( );
@@ -136,7 +136,7 @@ void ReosHydrographTransferTest::test_junction()
               inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) );
   }
 
-  ReosHydrographJunction junction2{ QPointF()};
+  ReosHydrographJunction junction2{ ReosSpatialPosition()};
 
   ReosHydrographRoutingLink transfer3;
   transfer3.setInputHydrographSource( &mSource3 );
@@ -329,12 +329,12 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
   ReosHydrographNodeWatershed watershedNode3( watershed3, &meteoCollection );
   watershedNode3.elementNameParameter()->setValue( "watershed node 3" );
 
-  ReosHydrographJunction junction1( QPointF( 0, 0 ) );
+  ReosHydrographJunction junction1( ReosSpatialPosition( 0, 0 ) );
   junction1.elementNameParameter()->setValue( "junction 1" );
-  ReosHydrographJunction junction2( QPointF( 10, 0 ) );
+  ReosHydrographJunction junction2( ReosSpatialPosition( 10, 0 ) );
   junction2.elementNameParameter()->setValue( "junction 2" );
 
-  ReosHydrographJunction junction3( QPointF( 10, 0 ) );
+  ReosHydrographJunction junction3( ReosSpatialPosition( 10, 0 ) );
   junction2.elementNameParameter()->setValue( "junction 3" );
 
   ReosHydrographRoutingLink link1;

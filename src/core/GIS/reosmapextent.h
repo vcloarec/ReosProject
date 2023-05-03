@@ -28,7 +28,7 @@ class REOSCORE_EXPORT ReosSpatialPosition
 {
   public:
     ReosSpatialPosition() = default;
-    ReosSpatialPosition( const QPointF &position, const QString &crs = QString() );
+    explicit ReosSpatialPosition( const QPointF &position, const QString &crs = QString() );
     ReosSpatialPosition( double x, double y, const QString &crs = QString() );
 
     QPointF position() const;

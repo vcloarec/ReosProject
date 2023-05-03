@@ -532,7 +532,7 @@ ReosHydrograph *ReosHydrographJunction::internalHydrograph() const
 ReosHydrographNodeWatershed::ReosHydrographNodeWatershed( ReosWatershed *watershed,
     ReosMeteorologicModelsCollection *meteoModelCollection,
     ReosHydraulicNetwork *parent )
-  : ReosHydrographJunction( QPointF(), parent )
+  : ReosHydrographJunction( ReosSpatialPosition(), parent )
   , mWatershed( watershed )
   , mRunoffHydrographs( new ReosRunoffHydrographsStore( meteoModelCollection, this ) )
 {
@@ -759,7 +759,7 @@ QPointF ReosHydrographNodeWatershed::position( const QString &destinationCrs ) c
 ReosSpatialPosition ReosHydrographNodeWatershed::spatialPosition() const
 {
   if ( mWatershed.isNull() )
-    return QPointF();
+    return ReosSpatialPosition();
   else
     return ReosSpatialPosition( mWatershed->outletPoint(), QString() );
 }

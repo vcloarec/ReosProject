@@ -24,7 +24,7 @@ ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition
   ReosHydraulicStructure2D *hydStructure,
   const QString &boundaryConditionId,
   const ReosHydraulicNetworkContext &context )
-  : ReosHydrographJunction( QPointF(), context.network() )
+  : ReosHydrographJunction( ReosSpatialPosition(), context.network() )
   , mContext( context )
   , mBoundaryConditionId( boundaryConditionId )
 {
