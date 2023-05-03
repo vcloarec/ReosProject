@@ -296,6 +296,9 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Returns the current scheme Id
     QString currentSchemeId() const;
 
+    //! Returns the current scheme Name
+    QString currentSchemeName() const;
+
 #ifndef SIP_RUN
     ReosHydraulicScheme *currentScheme() const;
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;

@@ -267,6 +267,11 @@ Sets the current scheme with ``schemeId``
 Returns the current scheme Id
 %End
 
+    QString currentSchemeName() const;
+%Docstring
+Returns the current scheme Name
+%End
+
 
     ReosDuration currentTimeStep() const;
 %Docstring

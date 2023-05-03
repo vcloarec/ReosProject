@@ -540,6 +540,15 @@ QString ReosHydraulicNetwork::currentSchemeId() const
   return QString();
 }
 
+QString ReosHydraulicNetwork::currentSchemeName() const
+{
+  ReosHydraulicScheme *scheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
+  if ( scheme )
+    return scheme->schemeName()->value();
+
+  return QString();
+}
+
 ReosHydraulicScheme *ReosHydraulicNetwork::addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel )
 {
   ReosHydraulicScheme *scheme = new ReosHydraulicScheme( mHydraulicSchemeCollection );
