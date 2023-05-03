@@ -168,7 +168,7 @@ ReosMapToolMoveHydraulicNetworkElement::ReosMapToolMoveHydraulicNetworkElement( 
   {
     ReosHydrographNode *node = qobject_cast<ReosHydrographNode *>( mNetwork->getElement( elemId ) );
     if ( node )
-      node->setPosition( position );
+      node->setPosition( ReosSpatialPosition( position ) );
   } );
 }
 
