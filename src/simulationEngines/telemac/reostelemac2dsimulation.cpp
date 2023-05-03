@@ -395,7 +395,9 @@ void ReosTelemac2DSimulation::setHotStartTimeStepIndex( int index )
 
 void ReosTelemac2DSimulation::setHotStartUseLastTimeStep( bool b )
 {
-
+  ReosTelemac2DInitialConditionFromSimulation *hotStartIni = getHotStartCondIni( mInitialConditions );
+  if ( hotStartIni )
+    hotStartIni->setUseLastTimeStep( b );
 }
 
 QString ReosTelemac2DSimulation::engineName() const
@@ -1338,7 +1340,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
           else
             timeStepIndex = cifs->timeStepIndex();
 
-          createSelafinInitialConditionFile( hydraulicStructure, simulationData, verticesPosInBoundary, results.get(), cifs->timeStepIndex(), directory );
+          createSelafinInitialConditionFile( hydraulicStructure, simulationData, verticesPosInBoundary, results.get(), timeStepIndex, directory );
         }
       }
     }
