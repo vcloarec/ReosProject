@@ -170,7 +170,7 @@ void ReosWatershed::setDelineating( const QPolygonF &del )
     mType = Manual;
   blockSignals( false );
 
-  emit dataChanged();
+  emit geometryChanged();
 }
 
 QPointF ReosWatershed::outletPoint() const
@@ -188,7 +188,7 @@ void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
   else
     mOutletPoint = outletPoint;
 
-  emit outletPositionChange();
+  emit outletPositionChanged();
 }
 
 int ReosWatershed::upstreamWatershedCount() const
@@ -832,11 +832,11 @@ void ReosWatershed::connectParameters()
 
 
   // Propagate change outside the watershed
-  connect( mArea, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-  connect( mSlope, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-  connect( mDrop, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-  connect( mLongestStreamPath, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
-  connect( mAverageElevation, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
+  connect( mArea, &ReosParameter::valueChanged, this, &ReosWatershed::geometryChanged );
+  connect( mSlope, &ReosParameter::valueChanged, this, &ReosWatershed::geometryChanged );
+  connect( mDrop, &ReosParameter::valueChanged, this, &ReosWatershed::geometryChanged );
+  connect( mLongestStreamPath, &ReosParameter::valueChanged, this, &ReosWatershed::geometryChanged );
+  connect( mAverageElevation, &ReosParameter::valueChanged, this, &ReosWatershed::geometryChanged );
   connect( mConcentrationTimeValue, &ReosParameterDuration::valueChanged, this, &ReosDataObject::dataChanged );
 }
 

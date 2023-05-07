@@ -66,6 +66,7 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
     return nullptr;
 
   connect( ws.get(), &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
+  connect( ws.get(), &ReosWatershed::geometryChanged, this, &ReosWatershedTree::watershedChanged );
 
   emit watershedWillBeAdded();
 
@@ -290,7 +291,10 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncode
 
   QList<ReosWatershed *> allWs = allWatershedsFromUSToDS();
   for ( ReosWatershed *ws : std::as_const( allWs ) )
+  {
     connect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
+    connect( ws, &ReosWatershed::geometryChanged, this, &ReosWatershedTree::watershedChanged );
+  }
 
   emit treeReset();
 }
@@ -396,12 +400,14 @@ void ReosWatershedItemModel::onWatershedAdded( ReosWatershed *watershed )
 {
   endResetModel();
   connect( watershed, &ReosDataObject::dataChanged, this, &ReosWatershedItemModel::onWatershedChanged );
+  connect( watershed, &ReosWatershed::geometryChanged, this, &ReosWatershedItemModel::onWatershedChanged );
   emit watershedAdded( watershedToIndex( watershed ) );
 }
 
 void ReosWatershedItemModel::onWatershedWillBeRemoved( ReosWatershed *ws )
 {
   disconnect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedItemModel::onWatershedChanged );
+  disconnect( ws, &ReosWatershed::geometryChanged, this, &ReosWatershedItemModel::onWatershedChanged );
   beginResetModel();
 }
 
