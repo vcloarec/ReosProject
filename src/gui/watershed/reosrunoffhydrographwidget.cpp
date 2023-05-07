@@ -187,7 +187,6 @@ void ReosRunoffHydrographWidget::setCurrentWatershed( ReosWatershed *watershed )
     syncTransferFunction( nullptr );
     mRunoffResultTabModel->clearSerie();
     mHydrographResultModel->clearSerie();
-
   }
   else
   {
@@ -221,7 +220,6 @@ void ReosRunoffHydrographWidget::onModelMeteoChanged()
   }
 
   updateRainfall();
-
 }
 
 void ReosRunoffHydrographWidget::onRunoffTableViewContextMenu( const QPoint &pos )

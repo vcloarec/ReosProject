@@ -247,7 +247,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     QString crs() const;
 
   signals:
-    void outletPositionChange();
+    void outletPositionChanged();
+    void geometryChanged();
 
   public slots:
     void calculateArea();

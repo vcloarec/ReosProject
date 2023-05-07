@@ -312,13 +312,19 @@ void ReosHydrographGroup::registerInputdata( ReosDataObject *input, ReosHydrogra
 {
   hydrograph->setObsolete();
   hydrograph->registerUpstreamData( input );
+  if ( ReosWatershed *ws = qobject_cast<ReosWatershed *>( input ) )
+    connect( ws, &ReosWatershed::geometryChanged, hydrograph, &ReosHydrograph::setObsolete );
 
   QList<QPointer<ReosHydrograph>> hydsPtr;
 
   if ( mMapInputToHydrographs.contains( input ) )
     hydsPtr = mMapInputToHydrographs.value( input );
   else
+  {
     connect( input, &ReosDataObject::dataChanged, this, &ReosHydrographGroup::updateHydrographFromSignal );
+    if ( ReosWatershed *ws = qobject_cast<ReosWatershed *>( input ) )
+      connect( ws, &ReosWatershed::geometryChanged, this, &ReosHydrographGroup::updateHydrographFromSignal );
+  }
 
   if ( !hydsPtr.contains( hydrograph ) )
     hydsPtr.append( hydrograph );
@@ -328,6 +334,8 @@ void ReosHydrographGroup::registerInputdata( ReosDataObject *input, ReosHydrogra
 void ReosHydrographGroup::deregisterInputData( ReosDataObject *input, ReosHydrograph *hydrograph )
 {
   hydrograph->deregisterUpstreamData( input );
+  if ( ReosWatershed *ws = qobject_cast<ReosWatershed *>( input ) )
+    disconnect( ws, &ReosWatershed::geometryChanged, hydrograph, &ReosHydrograph::setObsolete );
 
   if ( mMapInputToHydrographs.contains( input ) )
   {
@@ -338,6 +346,8 @@ void ReosHydrographGroup::deregisterInputData( ReosDataObject *input, ReosHydrog
     if ( hydsPtr.isEmpty() )
     {
       disconnect( input, &ReosDataObject::dataChanged, this, &ReosHydrographGroup::updateHydrographFromSignal );
+      if ( ReosWatershed *ws = qobject_cast<ReosWatershed *>( input ) )
+        disconnect( ws, &ReosWatershed::geometryChanged, this, &ReosHydrographGroup::updateHydrographFromSignal );
       mMapInputToHydrographs.remove( input );
     }
     else
@@ -458,7 +468,9 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
 
         connect( hydrographCalculation, &ReosHydrographCalculation::finished, this, [this, model, hydrographCalculation]()
         {
-          if ( mMeteoModelToHydrographCalculationData.contains( model ) && hydrographCalculation->isSuccessful() )
+          if ( mMeteoModelToHydrographCalculationData.contains( model ) &&
+               mHydrographCalculation.value( model ) == hydrographCalculation &&
+               hydrographCalculation->isSuccessful() )
           {
             mMeteoModelToHydrographCalculationData.value( model ).hydrograph->copyFrom( hydrographCalculation->hydrograph() );
             emit hydrographReady( mMeteoModelToHydrographCalculationData.value( model ).hydrograph.get() );
