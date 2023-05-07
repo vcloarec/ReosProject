@@ -5,7 +5,6 @@ $QGIS_SRC=$env:QGIS_SRC
 $REOS_INSTALL=$env:REOS_INSTALL
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $QGIS_INSTALL=$env:QGIS_BUILT
-#$QGIS_INSTALL=Join-Path $env:OSGEO4W_ROOT "apps\qgis-dev"
 $REOS_BUILD=$env:REOS_BUILDING
 
 Write-Host "============================= dependencies directory:"
@@ -13,6 +12,7 @@ Write-Host "=== OSGEO:"
 $OSGEO_DIR
 ls $OSGEO_DIR
 ls $OSGEO_DIR\apps
+ls $OSGEO_DIR\apps\Python39
 
 Write-Host "=== MDAL"
 $env:MDAL_ROOT
@@ -76,6 +76,7 @@ cmake   -S $env:REOS_SOURCE `
         -D GMSH_INCLUDE_DIR=$GMSH_INSTALL/include `
         -D QGIS_APP_INCLUDE=$QGIS_SRC/src/app `
         -D GMSH_LIB=$GMSH_INSTALL/lib/gmsh.lib `
+		-D PYHTON_EXECUTABLE=$OSGEO_DIR/apps/Python39
         -D GTest_DIR=GTest_DIR-NOTFOUND `
         -D INSTALL_GTEST=ON `
         -D MDAL_INCLUDE_DIR=$env:MDAL_ROOT/include `
