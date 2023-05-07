@@ -315,6 +315,7 @@ void ReosRunoffHydrographWidget::updateRainfall()
 
   updateResultData();
   updateOtherRunoffHydrograph();
+  ui->widgetPlot->updatePlot();
 }
 
 void ReosRunoffHydrographWidget::updateResultData()
