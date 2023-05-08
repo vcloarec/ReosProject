@@ -1002,7 +1002,7 @@ bool ReosMeshFrame_p::rasterizeDatasetValue(
   {
     ext = transform.transform( QgsRectangle( extent().toRectF() ) );
   }
-  catch ( QgsCsException &e )
+  catch ( QgsCsException & )
   {
     ext = extent().toRectF();
   }
