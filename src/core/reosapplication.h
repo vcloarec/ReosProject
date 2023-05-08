@@ -79,7 +79,7 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
     Q_OBJECT
   public:
 #ifndef SIP_RUN
-    ReosApplication( int &argc, char **argv, int flag = ApplicationFlags );
+    ReosApplication( int &argc, char **argv, const QString &appName = QStringLiteral( "Reos" ), int flag = ApplicationFlags );
 #else
 
     /**

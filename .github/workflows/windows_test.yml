@@ -17,9 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: detect Python
-      run: python --version
-    
     - name: config env variables
       run: |
           echo "CYGWIN_ROOT=${{github.workspace}}\cygwin64" >> $env:GITHUB_ENV
