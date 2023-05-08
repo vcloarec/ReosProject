@@ -67,7 +67,7 @@ ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatersh
   , mWatershed( watershed )
   , mGriddedRainfall( griddedRainfall )
 {
-  registerUpstreamData( watershed );
+  connect( watershed, &ReosWatershed::geometryChanged, this, &ReosSeriesRainfallFromGriddedOnWatershed::setObsolete );
   registerUpstreamData( griddedRainfall );
   launchCalculation();
 }
