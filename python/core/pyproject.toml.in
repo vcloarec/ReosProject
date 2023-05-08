@@ -6,7 +6,7 @@ build-backend = "sipbuild.api"
 # Specify the PEP 566 metadata for the project.
 [tool.sip.metadata]
 name = "REOS"
-version = "@VERSION_WITHOUT_PATCH@"
+version = "@COMPLETE_API_VERSION@"
 summary = "Python bindings for REOS System"
 home-page = "https://www.reos.site"
 author = "Vincent Cloarec"
