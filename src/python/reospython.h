@@ -26,7 +26,7 @@ struct _object;
 typedef _object PyObject;
 #endif
 
-class ReosPython : public ReosModule
+class REOS_PYTHON_EXPORT ReosPython : public ReosModule
 {
   public:
     ReosPython();

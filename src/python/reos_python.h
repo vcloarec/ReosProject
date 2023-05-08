@@ -20,18 +20,18 @@
 #  define PYTHON_EXPORT
 #  define PYTHON_NO_EXPORT
 #else
-#  ifndef PYTHON_EXPORT
-#    ifdef qgispython_EXPORTS
+#  ifndef REOS_PYTHON_EXPORT
+#    ifdef reosPython_EXPORTS
 /* We are building this library */
-#      define PYTHON_EXPORT __attribute__((visibility("default")))
+#      define REOS_PYTHON_EXPORT __attribute__((visibility("default")))
 #    else
 /* We are using this library */
-#      define PYTHON_EXPORT __attribute__((visibility("default")))
+#      define REOS_PYTHON_EXPORT __attribute__((visibility("default")))
 #    endif
 #  endif
 
-#  ifndef PYTHON_NO_EXPORT
-#    define PYTHON_NO_EXPORT __attribute__((visibility("hidden")))
+#  ifndef REOS_PYTHON_NO_EXPORT
+#    define REOS_PYTHON_NO_EXPORT __attribute__((visibility("hidden")))
 #  endif
 #endif
 

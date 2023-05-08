@@ -201,13 +201,14 @@ endif()
 # testing
 IF (ENABLE_TESTS)
 
-  SET(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
+  set(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
   set(METEOFRANCEAPI_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Meteo France, a file containing a API key is necessary")
+  set(INTERN_PYTHON_TESTS_ENABLE FALSE CACHE BOOL "Enable tests related calling python from Reos")
 
-  INCLUDE (CTest)
-  ADD_DEFINITIONS(-DENABLE_TESTS)
-  ENABLE_TESTING()
-  ADD_SUBDIRECTORY(Tests)
+  include (CTest)
+  add_definitions(-DENABLE_TESTS)
+  enable_testing()
+  add_subdirectory(Tests)
 
 ENDIF(ENABLE_TESTS)
 
