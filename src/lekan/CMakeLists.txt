@@ -35,7 +35,6 @@ TARGET_LINK_LIBRARIES(lekan PUBLIC
         ${Qt5Concurrent_LIBRARIES}
         reosGui
         reosCore
-        reosPython
 )
 
 INCLUDE_DIRECTORIES(

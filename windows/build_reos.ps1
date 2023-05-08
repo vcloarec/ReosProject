@@ -14,6 +14,8 @@ ls $OSGEO_DIR
 ls $OSGEO_DIR\apps
 ls $OSGEO_DIR\apps\Python39
 
+python --version
+
 Write-Host "=== MDAL"
 $env:MDAL_ROOT
 ls $env:MDAL_ROOT\lib
@@ -76,7 +78,7 @@ cmake   -S $env:REOS_SOURCE `
         -D GMSH_INCLUDE_DIR=$GMSH_INSTALL/include `
         -D QGIS_APP_INCLUDE=$QGIS_SRC/src/app `
         -D GMSH_LIB=$GMSH_INSTALL/lib/gmsh.lib `
-		-D PYHTON_EXECUTABLE=$OSGEO_DIR/apps/Python39
+		-D PYTHON_DIR=$OSGEO_DIR/apps/Python39 `
         -D GTest_DIR=GTest_DIR-NOTFOUND `
         -D INSTALL_GTEST=ON `
         -D MDAL_INCLUDE_DIR=$env:MDAL_ROOT/include `

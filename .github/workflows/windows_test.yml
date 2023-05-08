@@ -10,13 +10,15 @@ env:
   BUILD_TYPE: Release
   WINDIR: C:\Windows
   CMAKE_PATH: C:\Program Files\CMake\bin
-
 jobs:
   build-test-package:
     runs-on: windows-2019
     
     steps:
     - uses: actions/checkout@v3
+    
+    - name: detect Python
+      run: python --version
     
     - name: config env variables
       run: |

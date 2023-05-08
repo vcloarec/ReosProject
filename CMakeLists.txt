@@ -132,6 +132,11 @@ SET(WITH_BINDINGS TRUE CACHE BOOL "Enable python binding.")
 set(MIN_PYTHON_VERSION "3.7")
 set(Python_FIND_FRAMEWORK "LAST")
 
+if(PYTHON_DIR)
+    set(Python_FIND_STRATEGY "LOCATION")
+	set(Python_ROOT_DIR "${PYTHON_DIR}")
+endif()
+
 if (WITH_BINDINGS)
   find_package(Python ${MIN_PYTHON_VERSION} REQUIRED COMPONENTS Interpreter Development)
 else()

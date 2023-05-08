@@ -100,12 +100,13 @@ foreach(module ${PY_MODULES})
 
   # concat auto_additions/*.py in _module_/__init__.py
   file(GLOB PY_FILES_AUTO_ADDITIONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${module}/auto_additions/*.py)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${module}/__init__.py.in ${REOS_PYTHON_OUTPUT_DIRECTORY}/${module}/__init__.py COPYONLY)
+  set(OUTPUT_DIR ${REOS_PYTHON_OUTPUT_DIRECTORY}/${module})
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${module}/__init__.py.in ${OUTPUT_DIR}/__init__.py COPYONLY)
   foreach(pyfile ${PY_FILES_AUTO_ADDITIONS})
     file(READ ${pyfile} CONTENTS)
-    file(APPEND ${REOS_PYTHON_OUTPUT_DIRECTORY}/${module}/__init__.py "${CONTENTS}")
+    file(APPEND ${OUTPUT_DIR}/__init__.py "${CONTENTS}")
   endforeach(pyfile)
-  install(FILES ${REOS_PYTHON_OUTPUT_DIRECTORY}/${module}/__init__.py DESTINATION "${REOS_PYTHON_DIR}/${module}")
+  install(FILES ${OUTPUT_DIR}/__init__.py DESTINATION "${REOS_PYTHON_DIR}/${module}")
 
   file(GLOB PY_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${module}/*.py)
   install(FILES ${PY_FILES} DESTINATION "${REOS_PYTHON_DIR}/${module}")
