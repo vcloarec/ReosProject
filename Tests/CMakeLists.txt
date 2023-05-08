@@ -27,4 +27,7 @@ add_subdirectory(core)
 add_subdirectory(gui)
 add_subdirectory(dataProviders)
 add_subdirectory(simulationEngines)
-#add_subdirectory(python)
+
+if(INTERN_PYTHON_TESTS_ENABLE)
+    add_subdirectory(python)
+endif(INTERN_PYTHON_TESTS_ENABLE)
