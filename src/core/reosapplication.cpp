@@ -26,9 +26,8 @@ email                : vcloarec at gmail dot com
 
 QString ReosApplication::sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
 
-ReosApplication::ReosApplication(int &argc, char **argv, const QString &appName , int flag)
+ReosApplication::ReosApplication( int &argc, char **argv, const QString &appName, int flag )
   : QApplication( argc, argv, flag )
-  , mCoreModule( new ReosCoreModule( this ) )
 {
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
   QCoreApplication::setApplicationName( appName );
@@ -85,6 +84,8 @@ ReosApplication::ReosApplication(int &argc, char **argv, const QString &appName 
     installTranslator( &QgisTranslator );
   if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
     installTranslator( &ReosTranslator );
+
+  mCoreModule = new ReosCoreModule( this );
 }
 
 ReosApplication::~ReosApplication()
@@ -225,7 +226,7 @@ QString ReosApplication::resolvePath( const QString &subDir )
   else
   {
 #ifndef _NDEBUG
-    qDebug() << QStringLiteral( "Default path not found(\"%1\"). Try with building directory." ).arg( targetDir.absolutePath() );
+    qDebug() << QStringLiteral( "Default path not found (%1) for %2. Try with building directory." ).arg( targetDir.absolutePath(), subDir );
 #endif
     QString targetPath = REOS_BUILDING_OUTPUT;
     targetDir = QDir( targetPath );
