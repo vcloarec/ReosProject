@@ -34,7 +34,6 @@ TARGET_LINK_LIBRARIES(${SYSTEM_APP_NAME} PUBLIC
         ${Qt5Concurrent_LIBRARIES}
         reosGui
         reosCore
-        reosPython
 )
 
 INCLUDE_DIRECTORIES(

@@ -26,10 +26,6 @@ int main( int argc, char *argv[] )
 {
 #ifdef _MSC_VER
   qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
-
-  QString arg( argv[1] );
-  if ( arg != "test" )
-    SetUnhandledExceptionFilter( handleCrash );
 #endif
 
   ReosApplication a( argc, argv );
