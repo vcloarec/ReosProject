@@ -5,7 +5,8 @@ on:
     branches:
       - master
       - 'release_2.3'
-    pull_request:
+  pull_request:
+    branches:
       - master
       - 'release_2.3'
 
