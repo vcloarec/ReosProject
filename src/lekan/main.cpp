@@ -66,7 +66,7 @@ int main( int argc, char *argv[] )
     SetUnhandledExceptionFilter( handleCrash );
 #endif
 
-  ReosApplication a( argc, argv );
+  ReosApplication a( argc, argv, QStringLiteral( "Lekan" ) );
 
   std::unique_ptr<LekanMainWindow> mainWindow = std::make_unique<LekanMainWindow>( a.coreModule() );
   new ReosVersionMessageBox( mainWindow.get(), ReosVersion::currentApplicationVersion() );
