@@ -87,7 +87,7 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     QAction *mActionRenameMeteoModel = nullptr;
     QAction *mActionDisplayGriddedOnMap = nullptr;
 
-    QHash<QString, ReosRenderedObject *> mActiveRenderedObject;
+    QHash<QString, QPointer<ReosRenderedObject> > mActiveRenderedObject;
 
     ReosMeteorologicModel *currentModel() const;
 };
