@@ -269,23 +269,23 @@ void ReosMeteorologicModelWidget::handleRenderedObject()
   if ( mCurrentModel )
   {
     const QHash<QString, ReosDataObject *> newActiveObjects = mCurrentModel->allRainfall();
-    QList<ReosRenderedObject *> renderedObjectToRemove;
+    QStringList renderedObjectToRemove;
     QList<ReosRenderedObject *> renderedObjectToAdd;
 
-    for ( ReosDataObject *objCurrent : std::as_const( mActiveRenderedObject ) )
+    for ( auto it = mActiveRenderedObject.constBegin(); it != mActiveRenderedObject.constEnd(); ++it )
     {
-      auto itNew = newActiveObjects.find( objCurrent->id() );
-      if ( itNew == newActiveObjects.end() )
+      auto itNew = newActiveObjects.find( it.key() );
+      if ( !it.value() || itNew == newActiveObjects.end() )
       {
-        if ( ReosRenderedObject *rendObj = qobject_cast<ReosRenderedObject *>( objCurrent ) )
-          renderedObjectToRemove.append( rendObj );
+        renderedObjectToRemove.append( it.key() );
       }
     }
 
-    for ( ReosRenderedObject *rendObj : std::as_const( renderedObjectToRemove ) )
+    for ( const QString &id  : std::as_const( renderedObjectToRemove ) )
     {
-      mActiveRenderedObject.remove( rendObj->id() );
-      mMap->removeExtraRenderedObject( rendObj );
+      ReosRenderedObject *obj = mActiveRenderedObject.value( id );
+      mActiveRenderedObject.remove( id );
+      mMap->removeExtraRenderedObject( obj );
     }
 
     for ( ReosDataObject *objNew : newActiveObjects )
