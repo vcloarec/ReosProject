@@ -672,6 +672,8 @@ void ReosMap::initialize()
   mExtraRenderedObjects.clear();
 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
+  if ( canvas->snappingUtils() )
+    canvas->snappingUtils()->deleteLater();
   QgsMapCanvasSnappingUtils *snappingUtils = new QgsMapCanvasSnappingUtils( canvas, this );
   canvas->setSnappingUtils( snappingUtils );
 
