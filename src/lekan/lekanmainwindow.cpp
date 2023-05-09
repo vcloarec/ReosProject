@@ -48,7 +48,7 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   , mActionRainfallManager( new QAction( QIcon( QStringLiteral( ":/images/rainfall.svg" ) ), tr( "Rainfall manager" ), this ) )
   , mActionRunoffManager( new QAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ), this ) )
 {
-  setWindowTitle( QStringLiteral("Lekan") );
+  setWindowTitle( QStringLiteral( "Lekan" ) );
   int verMaj = QString( MAJ_VER_LEKAN ).toInt();
   int verMin = QString( MIN_VER_LEKAN ).toInt();
 #ifdef LEKAN_EXP
@@ -167,11 +167,11 @@ void LekanMainWindow::clearProject()
 {
   mDockHydraulicNetwork->closePropertieWidget();
 
-  if ( mCore )
-    mCore->clearProject();
-
   if ( mMap )
     mMap->initialize();
+
+  if ( mCore )
+    mCore->clearProject();
 }
 
 void LekanMainWindow::checkExtraProjectToSave()
