@@ -358,7 +358,7 @@ void ReosRunoffHydrographWidget::updateResultData()
   else
     emit timeWindowChanged();
 
-  mHydrographCurve->setTimeSeries( mCurrentHydrograph, false, false );
+  mHydrographCurve->setTimeSerie( mCurrentHydrograph, false, false );
 
   updateGaugedHydrograph();
 }
