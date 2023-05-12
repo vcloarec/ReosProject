@@ -358,7 +358,9 @@ void ReosRunoffHydrographWidget::updateResultData()
   else
     emit timeWindowChanged();
 
-  mHydrographCurve->setTimeSerie( mCurrentHydrograph, false, false );
+  mHydrographCurve->setTimeSeries( mCurrentHydrograph, false, false );
+
+  updateGaugedHydrograph();
 }
 
 
@@ -482,27 +484,27 @@ void ReosRunoffHydrographWidget::updateGaugedHydrograph()
 {
   mGaugedHydrographButton->clear();
 
-  QDateTime startTime;
-  QDateTime endTime;
-  if ( mCurrentRunoff )
-  {
-    auto timeExtent = mCurrentRunoff->data()->timeExtent();
-    startTime = timeExtent.first;
-    endTime = timeExtent.second;
-
-    if ( mCurrentHydrograph )
-    {
-      timeExtent = mCurrentHydrograph->timeExtent();
-      if ( startTime > timeExtent.first )
-        startTime = timeExtent.first;
-      if ( endTime < timeExtent.second )
-        endTime = timeExtent.second;
-    }
-  }
-
   if ( mCurrentWatershed )
   {
-    QList<ReosHydrograph *> gaugedHydrographs = mCurrentWatershed->gaugedHydrographs()->hydrographsForTimeRange( startTime, endTime );
+    QDateTime startTime;
+    QDateTime endTime;
+    if ( mCurrentRunoff )
+    {
+      auto timeExtent = mCurrentRunoff->data()->timeExtent();
+      startTime = timeExtent.first;
+      endTime = timeExtent.second;
+
+      if ( mCurrentHydrograph )
+      {
+        timeExtent = mCurrentHydrograph->timeExtent();
+        if ( startTime > timeExtent.first )
+          startTime = timeExtent.first;
+        if ( endTime < timeExtent.second )
+          endTime = timeExtent.second;
+      }
+    }
+
+    const QList<ReosHydrograph *> gaugedHydrographs = mCurrentWatershed->gaugedHydrographs()->hydrographsForTimeRange( startTime, endTime );
     for ( ReosHydrograph *hyd : std::as_const( gaugedHydrographs ) )
     {
       ReosPlotItem *itemPlot = mGaugedHydrographButton->addData( hyd );
@@ -510,7 +512,6 @@ void ReosRunoffHydrographWidget::updateGaugedHydrograph()
       {
         itemPlot->setAutoScale( false );
         itemPlot->setOnRightAxe();
-        //itemPlot->setStyle( Qt::DotLine );
         itemPlot->setWidth( 2 );
         itemPlot->setZ( 15 );
       }
