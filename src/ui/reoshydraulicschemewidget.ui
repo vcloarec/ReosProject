@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>92</height>
+    <width>287</width>
+    <height>111</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,10 +15,28 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ReosParameterStringWidget" name="mWidetName" native="true"/>
+    <widget class="QWidget" name="mNameWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="ReosParameterStringWidget" name="mParameterNameWidget" native="true"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <widget class="Line" name="line">
+    <widget class="Line" name="mNameSeprator">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
