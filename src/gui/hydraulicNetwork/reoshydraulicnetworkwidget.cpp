@@ -34,9 +34,10 @@
 #include "reoshydraulicelementmodel.h"
 #include "reosnetworkcompatibilitydialog.h"
 #include "reosaddhydrographnodefromwidget.h"
+#include "reoshydraulicschemewidget.h"
 
 
-ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
+ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, const ReosGuiContext &context ) :
   QWidget( context.parent() )
   , ui( new Ui::ReosHydraulicNetworkWidget )
   , mGuiContext( context )
@@ -184,17 +185,24 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( ui->mHydraulicShcemeRenameButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRenameHydraulicScheme );
   connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicNetworkWidget::onCurrentSchemeChange );
 
-  changeCurrentScheme( mHydraulicNetwork->currentScheme() );
-
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this]
   {
     emit mapTimeStepChanged();
   } );
 
-  ui->mMeteoModelCombo->setModel( mHydraulicNetwork->context().watershedModule()->meteoModelsCollection() );
+  mSchemeWidget = new ReosHydraulicSchemeWidget( network->context(), this );
+  mSchemeWidget->hideName();
+  QMenu *menu = new QMenu( ui->mSchemeSettingsButton );
+  QWidgetAction *wa = new QWidgetAction( this );
+  wa->setDefaultWidget( mSchemeWidget );
+  menu->addAction( wa );
+  ui->mSchemeSettingsButton->setMenu( menu );
+  ui->mSchemeSettingsButton->setPopupMode( QToolButton::InstantPopup );
+  connect( mSchemeWidget, &ReosHydraulicSchemeWidget::meteoModelChange, ui->mMeteoModelLabel, &QLabel::setText );
+
   ui->mHydraulicShcemeRemoveButton->setEnabled( mHydraulicNetwork->schemeCount() > 1 );
-  connect( ui->mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
-           this, &ReosHydraulicNetworkWidget::onMeteoModelChanged );
+
+  changeCurrentScheme( mHydraulicNetwork->currentScheme() );
 }
 
 ReosHydraulicNetworkWidget::~ReosHydraulicNetworkWidget()
@@ -358,7 +366,8 @@ void ReosHydraulicNetworkWidget::onAddHydraulicScheme()
   scheme->schemeName()->setValue( tr( "New Hydraulic Scheme" ) );
   const ReosHydraulicNetworkContext context = mHydraulicNetwork->context();
   scheme->setMeteoModel( context.watershedModule()->meteoModelsCollection()->meteorologicModel( 0 ) );
-  ReosHydraulicSchemeWidget *widget = new ReosHydraulicSchemeWidget( scheme.get(), context, dia );
+  ReosHydraulicSchemeWidget *widget = new ReosHydraulicSchemeWidget( context, dia );
+  widget->setScheme( scheme.get() );
   dia->addWidget( widget );
 
   if ( dia->exec() )
@@ -478,16 +487,6 @@ void ReosHydraulicNetworkWidget::onMapCrsChanged()
     mMapItemFactory.updateMapItem( it.key(), it.value().get() );
 }
 
-void ReosHydraulicNetworkWidget::onMeteoModelChanged()
-{
-  if ( mHydraulicNetwork )
-  {
-    ReosWatershedModule *wsm = mHydraulicNetwork->context().watershedModule();
-    if ( wsm && mCurrentHydraulicScheme )
-      mCurrentHydraulicScheme->setMeteoModel( wsm->meteoModelsCollection()->meteorologicModel( ui->mMeteoModelCombo->currentIndex() ) );
-  }
-}
-
 
 ReosStructure2dToolBar *ReosHydraulicNetworkWidget::structure2dToolBar() const
 {
@@ -554,26 +553,26 @@ void ReosHydraulicNetworkWidget::removeGeometryStructure( ReosHydraulicNetworkEl
 void ReosHydraulicNetworkWidget::changeCurrentScheme( ReosHydraulicScheme *scheme )
 {
   mCurrentHydraulicScheme = scheme;
-  ReosWatershedModule *wsm = mHydraulicNetwork->context().watershedModule();
-  int index = -1;
-  if ( wsm && mCurrentHydraulicScheme )
-    index = wsm->meteoModelsCollection()->modelIndex( scheme->meteoModel() );
-  ui->mMeteoModelCombo->blockSignals( true );
-  ui->mMeteoModelCombo->setCurrentIndex( index );
-  ui->mMeteoModelCombo->blockSignals( false );
+
+  mSchemeWidget->blockSignals( true );
+  mSchemeWidget->setScheme( scheme );
+  mSchemeWidget->blockSignals( false );
+
+  if ( scheme && scheme->meteoModel() )
+    ui->mMeteoModelLabel->setText( scheme->meteoModel()->name()->value() );
 }
 
 ReosHydraulicElementWidget::ReosHydraulicElementWidget( QWidget *parent )
   : QWidget( parent )
 {}
 
-ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, ReosWatershedModule *watershedModule, const ReosGuiContext &context )
+ReosHydraulicNetworkDockWidget::ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, const ReosGuiContext &context )
   : ReosDockWidget( tr( "Hydraulic Network" ), context.parent() )
 {
   DockWidgetFeatures feat = features();
   feat.setFlag( DockWidgetFeature::DockWidgetClosable, false );
   setFeatures( feat );
-  mHydraulicNetworkWidget = new ReosHydraulicNetworkWidget( network, watershedModule, ReosGuiContext( context, this ) );
+  mHydraulicNetworkWidget = new ReosHydraulicNetworkWidget( network, ReosGuiContext( context, this ) );
   setWidget( mHydraulicNetworkWidget );
 }
 

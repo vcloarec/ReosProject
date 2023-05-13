@@ -91,7 +91,7 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   mGisDock->setObjectName( QStringLiteral( "gisDock" ) );
   mGisDock->setWidget( new ReosGisLayersWidget( mCore->gisEngine(), mMap, this ) );
 
-  mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mCore->hydraulicNetwork(), mCore->watershedModule(), guiContext );
+  mDockHydraulicNetwork = new ReosHydraulicNetworkDockWidget( mCore->hydraulicNetwork(), guiContext );
   mDockHydraulicNetwork->setObjectName( QStringLiteral( "hydraulicDock" ) );
 
   mHydraulicNetworkWidget = mDockHydraulicNetwork->hydraulicNetworkWidget();

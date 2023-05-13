@@ -39,6 +39,7 @@ class ReosGeometryStructure;
 class ReosStructure2dToolBar;
 class ReosHydraulicElementModel;
 class ReosAddHydrographNodeFromWidget;
+class ReosHydraulicSchemeWidget;
 
 class REOSGUI_EXPORT ReosHydraulicElementWidget : public QWidget
 {
@@ -59,8 +60,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network,
-                                         ReosWatershedModule *watershedModule,
+    explicit ReosHydraulicNetworkWidget(ReosHydraulicNetwork *network,
                                          const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
@@ -100,8 +100,6 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     void onMapCrsChanged();
 
-    void onMeteoModelChanged();
-
   private:
     Ui::ReosHydraulicNetworkWidget *ui;
     ReosGuiContext mGuiContext;
@@ -111,6 +109,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     ReosHydraulicNetworkElement *mCurrentSelectedElement = nullptr;
     ReosHydraulicScheme *mCurrentHydraulicScheme = nullptr;
     ReosStructure2dToolBar *mStructure2dToolBar = nullptr;
+    ReosHydraulicSchemeWidget *mSchemeWidget = nullptr;
 
     typedef std::shared_ptr<ReosMapItem> NetworkItem ;
 
@@ -158,8 +157,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
 {
     Q_OBJECT
   public:
-    ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
-                                    ReosWatershedModule *watershedModule,
+    ReosHydraulicNetworkDockWidget(ReosHydraulicNetwork *network,
                                     const ReosGuiContext &context );
 
     void closePropertieWidget();

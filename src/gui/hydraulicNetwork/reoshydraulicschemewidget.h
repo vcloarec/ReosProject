@@ -25,6 +25,7 @@
 class ReosHydraulicScheme;
 class ReosHydraulicNetworkContext;
 class ReosHydraulicNetwork;
+class ReosMeteorologicModelsCollection;
 
 namespace Ui
 {
@@ -36,10 +37,15 @@ class ReosHydraulicSchemeWidget : public QWidget
     Q_OBJECT
 
   public:
-    explicit ReosHydraulicSchemeWidget( ReosHydraulicScheme *scheme, const ReosHydraulicNetworkContext &context, QWidget *parent = nullptr );
+    explicit ReosHydraulicSchemeWidget( const ReosHydraulicNetworkContext &context, QWidget *parent = nullptr );
     ~ReosHydraulicSchemeWidget();
 
     void setScheme( ReosHydraulicScheme *scheme );
+
+    void hideName();
+
+  signals:
+    void meteoModelChange( const QString &meteoName );
 
   private slots:
     void onMeteoModelChange();
@@ -47,25 +53,7 @@ class ReosHydraulicSchemeWidget : public QWidget
   private:
     Ui::ReosHydraulicSchemeWidget *ui;
     ReosHydraulicScheme *mScheme = nullptr;
-    ReosHydraulicNetworkContext mContext;
-};
-
-
-class ReosHydraulicSchemeWidgetAction : public QWidgetAction
-{
-    Q_OBJECT
-  public:
-    ReosHydraulicSchemeWidgetAction( ReosHydraulicNetwork *network, QObject *parent = nullptr );
-
-    void setCurrentScheme( ReosHydraulicScheme *scheme );
-
-  protected:
-    QWidget *createWidget( QWidget *parent ) override;
-
-  private:
-    ReosHydraulicNetwork *mNetwork = nullptr;
-    ReosHydraulicScheme *mScheme = nullptr;
-    ReosHydraulicSchemeWidget *mWidget = nullptr;
+    ReosMeteorologicModelsCollection *mMeteoCollection = nullptr;
 };
 
 
@@ -77,7 +65,7 @@ class ReosHydraulicSchemeListView : public QListView
     void setSchemeCollection( ReosHydraulicSchemeCollection *collection );
 
     ReosHydraulicScheme *currentScheme() const;
-    void setCurrentScheme(const QString &schemeId );
+    void setCurrentScheme( const QString &schemeId );
 
   private:
     ReosHydraulicSchemeCollection *mCollection = nullptr;
