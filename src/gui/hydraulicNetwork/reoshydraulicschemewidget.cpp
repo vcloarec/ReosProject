@@ -21,17 +21,14 @@
 #include "reoswatershedmodule.h"
 #include "reosmeteorologicmodel.h"
 
-ReosHydraulicSchemeWidget::ReosHydraulicSchemeWidget( ReosHydraulicScheme *scheme, const ReosHydraulicNetworkContext &context, QWidget *parent )
+ReosHydraulicSchemeWidget::ReosHydraulicSchemeWidget( const ReosHydraulicNetworkContext &context, QWidget *parent )
   : QWidget( parent )
   , ui( new Ui::ReosHydraulicSchemeWidget )
-  , mContext( context )
+  , mMeteoCollection( context.watershedModule()->meteoModelsCollection() )
 {
   ui->setupUi( this );
-  ui->mMeteoModelCombo->setModel( context.watershedModule()->meteoModelsCollection() );
-  setScheme( scheme );
-
+  ui->mMeteoModelCombo->setModel( mMeteoCollection );
   connect( ui->mMeteoModelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicSchemeWidget::onMeteoModelChange );
-
 }
 
 ReosHydraulicSchemeWidget::~ReosHydraulicSchemeWidget()
@@ -44,35 +41,30 @@ void ReosHydraulicSchemeWidget::setScheme( ReosHydraulicScheme *scheme )
   mScheme = scheme;
   if ( scheme )
   {
-    ui->mWidetName->setString( scheme->schemeName() );
-    int meteoModelindex = mContext.watershedModule()->meteoModelsCollection()->modelIndex( scheme->meteoModel() );
+    ui->mParameterNameWidget->setString( scheme->schemeName() );
+    int meteoModelindex = mMeteoCollection->modelIndex( scheme->meteoModel() );
 
     if ( meteoModelindex != -1 )
       ui->mMeteoModelCombo->setCurrentIndex( meteoModelindex );
   }
 }
 
+void ReosHydraulicSchemeWidget::hideName()
+{
+  ui->mNameWidget->hide();
+  ui->mNameSeprator->hide();
+}
+
 void ReosHydraulicSchemeWidget::onMeteoModelChange()
 {
   if ( mScheme )
-    mScheme->setMeteoModel( mContext.watershedModule()->meteoModelsCollection()->meteorologicModel( ui->mMeteoModelCombo->currentIndex() ) );
-}
-
-ReosHydraulicSchemeWidgetAction::ReosHydraulicSchemeWidgetAction( ReosHydraulicNetwork *network, QObject *parent )
-  : QWidgetAction( parent )
-  , mNetwork( network )
-{}
-
-void ReosHydraulicSchemeWidgetAction::setCurrentScheme( ReosHydraulicScheme *scheme )
-{
-  mScheme = scheme;
-  mWidget->setScheme( scheme );
-}
-
-QWidget *ReosHydraulicSchemeWidgetAction::createWidget( QWidget *parent )
-{
-  mWidget = new ReosHydraulicSchemeWidget( mScheme, mNetwork->context(), parent );
-  return mWidget;
+  {
+    mScheme->setMeteoModel( mMeteoCollection->meteorologicModel( ui->mMeteoModelCombo->currentIndex() ) );
+    QString meteoModelName;
+    if ( mScheme->meteoModel() )
+      meteoModelName = mScheme->meteoModel()->name()->value();
+    emit meteoModelChange( meteoModelName );
+  }
 }
 
 ReosHydraulicSchemeListView::ReosHydraulicSchemeListView( QWidget *parent ): QListView( parent )
