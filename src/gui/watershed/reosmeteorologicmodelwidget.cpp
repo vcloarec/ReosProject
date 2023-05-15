@@ -28,6 +28,8 @@
 #include "reoswatershedtree.h"
 #include "reosstyleregistery.h"
 #include "reosrenderedobject.h"
+#include "reoshydraulicnetwork.h"
+#include "reoshydraulicscheme.h"
 #include "reosmap.h"
 
 
@@ -88,6 +90,17 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget(
   connect( ui->comboBoxCurrentModel, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeteorologicModelWidget::onCurrentModelChanged );
   onCurrentModelChanged();
   connect( mActionDisplayGriddedOnMap, &QAction::toggled, this, &ReosMeteorologicModelWidget::displayRenderedObject );
+
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::schemeChanged, this, [this]
+  {
+    if ( mHydraulicNetwork->currentScheme() )
+    {
+      int mmIndex = mModelsCollections->modelIndex( mHydraulicNetwork->currentScheme()->meteoModel() );
+      if ( mmIndex >= 0 )
+        ui->comboBoxCurrentModel->setCurrentIndex( mmIndex );
+    }
+
+  } );
 
   handleRenderedObject();
 }
