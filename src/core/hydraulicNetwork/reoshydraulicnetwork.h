@@ -254,6 +254,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     void elementRemoved();
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
     void hasBeenReset();
+
+    //! Emited when the current scheme had changes or had been changed (not the same current scheme anymore)
     void schemeChanged();
     void loaded();
     void timeStepChanged();
