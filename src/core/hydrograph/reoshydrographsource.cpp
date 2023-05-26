@@ -492,6 +492,8 @@ void ReosHydrographJunction::saveConfiguration( ReosHydraulicScheme *scheme ) co
 
 void ReosHydrographJunction::restoreConfiguration( ReosHydraulicScheme *scheme )
 {
+  if ( !scheme )
+    return;
   ReosEncodedElement encodedElement = scheme->restoreElementConfig( id() );
 
   QString hydrographId;
