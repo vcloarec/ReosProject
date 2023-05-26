@@ -49,6 +49,7 @@ class Reos3dView : public ReosActionWidget
     Reos3DMapSettings map3DSettings() const;
 
     void setTerrainSettings( const Reos3DTerrainSettings &settings, bool updateView = true );
+    Reos3DTerrainSettings terrainSettings() const;
 
   signals:
     void mapSettingsChanged();

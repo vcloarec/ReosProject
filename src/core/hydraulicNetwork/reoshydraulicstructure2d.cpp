@@ -51,7 +51,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
-  , m3dMapSettings( encodedElement.getEncodedData( "3d-map-setings" ) )
+  , m3dMapSettings( encodedElement.getEncodedData( QStringLiteral( "3d-map-settings" ) ) )
+  , m3dTerrainSettings( encodedElement.getEncodedData( QStringLiteral( "3d-terrain-settings" ) ) )
 {
   // Before all, load cababilities
   if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
@@ -466,7 +467,8 @@ void ReosHydraulicStructure2D::encodeData( ReosEncodedElement &element, const Re
   element.addData( QStringLiteral( "wire-frame-color" ), wireframeSettings.color );
   element.addData( QStringLiteral( "wire-frame-width" ), wireframeSettings.width );
 
-  element.addEncodedData( QStringLiteral( "3d-map-setings" ), m3dMapSettings.encode() );
+  element.addEncodedData( QStringLiteral( "3d-map-settings" ), m3dMapSettings.encode() );
+  element.addEncodedData( QStringLiteral( "3d-terrain-settings" ), m3dTerrainSettings.encode() );
 
   element.addData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated );
 
