@@ -314,7 +314,7 @@ void ReosHydraulicNetwork::decode( const ReosEncodedElement &element, const QStr
 
   int currentSchemeIndex = -1;
   element.getData( QStringLiteral( "current-scheme-index" ), currentSchemeIndex );
-  if ( currentSchemeIndex >= mHydraulicSchemeCollection->schemeCount() )
+  if ( currentSchemeIndex < 0 || currentSchemeIndex >= mHydraulicSchemeCollection->schemeCount() )
     currentSchemeIndex = mHydraulicSchemeCollection->schemeCount() > 0 ? 0 : -1;
   setCurrentScheme( currentSchemeIndex );
 
