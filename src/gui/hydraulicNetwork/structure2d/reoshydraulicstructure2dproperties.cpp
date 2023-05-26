@@ -627,6 +627,11 @@ void ReosHydraulicStructure2DProperties::initialize3DView()
     mStructure2D->setMap3dSettings( mView3D->map3DSettings() );
   } );
 
+  connect( mView3D, &Reos3dView::terrainSettingsChanged, this, [this]
+  {
+    mStructure2D->setTerrain3DSettings( mView3D->terrainSettings() );
+  } );
+
   mView3D->addMesh( mStructure2D->mesh() );
   disconnect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
   mView3D->show();

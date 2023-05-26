@@ -176,6 +176,11 @@ void Reos3dView::setTerrainSettings( const Reos3DTerrainSettings &settings, bool
     onTerrainSettingsChanged();
 }
 
+Reos3DTerrainSettings Reos3dView::terrainSettings() const
+{
+  return mTerrainSettingsWidget->settings();
+}
+
 Reos3dView::~Reos3dView()
 {
   delete ui;
@@ -278,5 +283,5 @@ void Reos3dView::onTerrainSettingsChanged()
   newTerrain->setLayer( meshLayer );
   mCanvas->map()->setTerrainGenerator( newTerrain.release() );
 
-  emit mapSettingsChanged();
+  emit terrainSettingsChanged();
 }
