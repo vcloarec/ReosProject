@@ -630,6 +630,7 @@ void ReosHydraulicStructure2DProperties::initialize3DView()
   mView3D->addMesh( mStructure2D->mesh() );
   disconnect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
   mView3D->show();
+  mView3D->resize( mView3D->size() + QSize( 1, 1 ) ); //ugly work arround to fix a ugly 3D rendering when creating the widget
 }
 
 void ReosHydraulicStructure2DProperties::onProfileRequested()
