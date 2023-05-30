@@ -37,18 +37,14 @@ ReosMeshRenderer_p::~ReosMeshRenderer_p()
 
 void ReosMeshRenderer_p::render()
 {
-  QElapsedTimer timer;
-  timer.start();
   if ( mStaticRendering.isNull() )
   {
     ReosQgisLayerRenderer_p::render();
     mStaticRendering = mImage;
-    timer.restart();
   }
   else
   {
     mPainter->drawImage( 0, 0, mStaticRendering );
-    timer.restart();
   }
 
   if ( !mTraceImage.isNull() /*&& mTraceImage.size() == mImage.size()*/ )
@@ -245,9 +241,12 @@ QImage ReosMovingTracesController::lastTracesImage() const
 
 void ReosMovingTracesController::setLastImage( QImage img, quint64 tracesAge )
 {
-  mLastTracesImage = img;
-  mTracesAge = tracesAge;
-  emit imageReady();
+  if ( sender() == mRenderer )
+  {
+    mLastTracesImage = img;
+    mTracesAge = tracesAge;
+    emit imageReady();
+  }
 }
 
 ReosMovingTracesRenderer::ReosMovingTracesRenderer(

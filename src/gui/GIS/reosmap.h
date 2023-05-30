@@ -74,9 +74,6 @@ class ReosRendererObjectHandler : public QObject
     std::unique_ptr<ReosRendererObjectHandler_p> d;
     QImage transformImage( ReosRenderedObject *renderedObject );
 
-    //! Returns if a cache is present, event if not up to date
-    bool hasCache( ReosRenderedObject *renderedObject );
-
     //! Returns if a updtodate cache is present
     bool hasUpToDateCache( ReosRenderedObject *renderedObject, ReosRendererObjectMapTimeStamp *mapTimeStamp = nullptr );
 
