@@ -215,13 +215,6 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
   }
 }
 
-
-bool ReosRendererObjectHandler::hasCache( ReosRenderedObject *renderedObject )
-{
-  auto it = d->mCacheRenderings.find( renderedObject );
-  return it != d->mCacheRenderings.end();
-}
-
 bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedObject, ReosRendererObjectMapTimeStamp *mapTimeStamp )
 {
   auto it = d->mCacheRenderings.find( renderedObject );
@@ -416,9 +409,9 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget ):
   , mCanvas( new ReosQgsMapCanvas( parentWidget ) )
   , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
   , mDefaultMapTool( new ReosMapToolSelectMapItem( this ) )
-  , mActionPan( new QAction( QIcon( QStringLiteral( ":/images/pan.svg" ) ), tr( "Pan" ), this ) )
   , mActionZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomInExtent.svg" ) ), tr( "Zoom In" ), this ) )
   , mZoomMapTool( new ReosMapToolDrawExtent( this ) )
+  , mActionPan( new QAction( QIcon( QStringLiteral( ":/images/pan.svg" ) ), tr( "Pan" ), this ) )
   , mActionZoomIn( new QAction( QIcon( QStringLiteral( ":/images/zoomIn.svg" ) ), tr( "Zoom In" ), this ) )
   , mActionZoomOut( new QAction( QIcon( QStringLiteral( ":/images/zoomOut.svg" ) ), tr( "Zoom Out" ), this ) )
   , mActionPreviousZoom( new QAction( QIcon( QStringLiteral( ":/images/zoomPrevious.svg" ) ), tr( "Previous Zoom" ), this ) )
