@@ -95,15 +95,20 @@ static QgsMeshRendererVectorSettings getVectorSettingsFromEncoded( const ReosEnc
   return QgsMeshRendererVectorSettings();
 }
 
-static ReosEncodedElement encodedFromVectorSettings( const QgsMeshRendererVectorSettings &vectorSettings )
+static ReosEncodedElement encodedFromVectorSettings( const QgsMeshRendererVectorSettings &vectorSettings, const ReosEncodedElement &element )
 {
   QDomDocument docTo( QStringLiteral( "dataset-vector-symbology" ) );
   docTo.appendChild( vectorSettings.writeXml( docTo ) ) ;
-
-  ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
+  ReosEncodedElement encodedElem = element;
   QString docStringTo = docTo.toString();
   encodedElem.addData( QStringLiteral( "symbology" ), docStringTo );
   return encodedElem;
+}
+
+static ReosEncodedElement encodedFromVectorSettings( const QgsMeshRendererVectorSettings &vectorSettings )
+{
+  ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
+  return encodedFromVectorSettings( vectorSettings, encodedElem );
 }
 
 ReosMeshFrame_p::ReosMeshFrame_p( const QString &crs, QObject *parent ): ReosMesh( parent )
@@ -248,12 +253,15 @@ void ReosMeshFrame_p::applySymbologyOnScalarDataSet( const QString &id, QgsMeshR
 {
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
   int groupIndex = mDatasetGroupsIndex.value( id, -1 );
-  settings.setScalarSettings( groupIndex, scalarSettings );
-  mMeshLayer->setRendererSettings( settings );
-  mRendererCache.reset();
+  if ( groupIndex != -1 )
+  {
+    settings.setScalarSettings( groupIndex, scalarSettings );
+    mMeshLayer->setRendererSettings( settings );
+    mRendererCache.reset();
 
-  if ( id == mVerticesElevationDatasetId )
-    emit terrainSymbologyChanged();
+    if ( id == mVerticesElevationDatasetId )
+      emit terrainSymbologyChanged();
+  }
 }
 
 ReosEncodedElement ReosMeshFrame_p::restoreVectorSymbologyOnMeshDatasetGroup( const QString &id )
@@ -264,7 +272,7 @@ ReosEncodedElement ReosMeshFrame_p::restoreVectorSymbologyOnMeshDatasetGroup( co
   else if ( !id.isEmpty() )
   {
     symbology = datasetGroupVectorSymbologyfromLayer( id );
-    mDatasetScalarSymbologies.insert( id, symbology.bytes() );
+    mDatasetVectorSymbologies.insert( id, symbology.bytes() );
   }
 
   QgsMeshRendererVectorSettings settings = getVectorSettingsFromEncoded( symbology );
@@ -277,8 +285,12 @@ void ReosMeshFrame_p::applySymbologyOnVectorDataSet( const QString &id, QgsMeshR
 {
   mRendererCache.reset();
   QgsMeshRendererSettings settings = mMeshLayer->rendererSettings();
-  settings.setVectorSettings( mDatasetGroupsIndex.value( id, -1 ), vectorSettings );
-  mMeshLayer->setRendererSettings( settings );
+  int index = mDatasetGroupsIndex.value( id, -1 );
+  if ( index != -1 )
+  {
+    settings.setVectorSettings( index, vectorSettings );
+    mMeshLayer->setRendererSettings( settings );
+  }
 }
 
 ReosEncodedElement ReosMeshFrame_p::datasetScalarGroupSymbology( const QString &id ) const
@@ -326,12 +338,16 @@ void ReosMeshFrame_p::setDatasetVectorGroupSymbology( const ReosEncodedElement &
   if ( encodedElement.description() != QStringLiteral( "dataset-vector-symbology" ) )
     return;
 
-  mDatasetVectorSymbologies.insert( id, encodedElement.bytes() );
+  ReosEncodedElement symbology = encodedElement;
+  symbology.addData( QStringLiteral( "dynamic-traces" ), mTraceIsActive );
+
+  mDatasetVectorSymbologies.insert( id, symbology.bytes() );
   restoreVectorSymbologyOnMeshDatasetGroup( id );
 
   if ( id == mCurrentActiveVectorDatasetId )
   {
     QgsMeshRendererSettings qgsSettings = mMeshLayer->rendererSettings();
+    mTraceIsActive = isDynamicTracesActive();
     if ( mTraceIsActive )
       qgsSettings.setActiveVectorDatasetGroup( -1 );
     else
@@ -1269,8 +1285,9 @@ bool ReosMeshFrame_p::activateVectorDataset( const QString &id, bool update )
     mVectorShaderSettings->setCurrentSymbology( symbology );
 
   int index;
-  bool dynamicTraces = false;
-  if ( symbology.getData( QStringLiteral( "dynamic-traces" ), dynamicTraces ) )
+  mTraceIsActive = isDynamicTracesActive();
+
+  if ( mTraceIsActive )
     index = -1;
   else
     index = mDatasetGroupsIndex.value( id, -1 );
@@ -2135,14 +2152,21 @@ bool ReosMeshVectorColorShaderSettings_p::getDirectSourceMinMax( double &min, do
 
 void ReosMeshVectorColorShaderSettings_p::onSettingsUpdated()
 {
-  QgsMeshRendererSettings settings = mMesh->mMeshLayer->rendererSettings();
-  int idx = mMesh->mDatasetGroupsIndex.value( mMesh->mCurrentActiveVectorDatasetId, -1 );
+  QString dtId = mMesh->mCurrentActiveVectorDatasetId ;
+  auto it = mMesh->mDatasetVectorSymbologies.find( dtId );
+  if ( it == mMesh->mDatasetVectorSymbologies.end() )
+    return;
 
-  QgsMeshRendererVectorSettings vectorSettings = settings.vectorSettings( idx );
+  ReosEncodedElement symbology( it.value() );
+
+  QgsMeshRendererVectorSettings vectorSettings = getVectorSettingsFromEncoded( symbology );
   vectorSettings.setColorRampShader( mColorShader );
-  mMesh->applySymbologyOnVectorDataSet( mMesh->mCurrentActiveVectorDatasetId, vectorSettings );
 
-  mMesh->mDatasetVectorSymbologies.insert( mMesh->mCurrentScalarDatasetId, encodedFromVectorSettings( vectorSettings ).bytes() );
+  mMesh->applySymbologyOnVectorDataSet( mMesh->mCurrentActiveVectorDatasetId, vectorSettings );
+  symbology = encodedFromVectorSettings( vectorSettings, symbology );
+
+  mMesh->mDatasetVectorSymbologies.insert( dtId, symbology.bytes() );
+  mMesh->restoreVectorSymbologyOnMeshDatasetGroup( dtId );
 
   emit mMesh->repaintRequested();
 }
