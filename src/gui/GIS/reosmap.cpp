@@ -869,6 +869,8 @@ void ReosMap::onExtraObjectRequestRepaint()
     }
     if ( !mMapIsRendering )
       canvas->refresh();
+    else
+      mNeedOtherRefresh = true;
   }
 }
 
