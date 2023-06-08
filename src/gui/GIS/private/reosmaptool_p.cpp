@@ -61,7 +61,7 @@ static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouse
         }
         catch ( QgsCsException & )
         {
-          QgsDebugMsg( QStringLiteral( "Could not transform geometry to layer CRS" ) );
+          qDebug() << QStringLiteral( "Could not transform geometry to layer CRS" );
         }
 
         QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
@@ -100,7 +100,7 @@ bool ReosMapTool_p::hasFeatureOnMap( const QPointF &mapPoint ) const
       }
       catch ( QgsCsException & )
       {
-        QgsDebugMsg( QStringLiteral( "Could not transform geometry to layer CRS" ) );
+        qDebug() << QStringLiteral( "Could not transform geometry to layer CRS" );
       }
 
       QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()

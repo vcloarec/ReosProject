@@ -125,12 +125,13 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
 bool LekanMainWindow::openProject()
 {
   ReosOverrideCursor overrideCursor;
-  QString filePath = currentProjectFilePath();
+  mMap->deactivate();
+  mHydraulicNetworkWidget->unselectCurrentElement();
 
+  QString filePath = currentProjectFilePath();
   if ( ! mCore->openProject( filePath ) )
     return false;
 
-  mMap->initialize();
   storeProjectPath( filePath );
 
   return true;
