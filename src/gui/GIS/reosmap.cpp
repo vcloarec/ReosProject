@@ -659,10 +659,7 @@ QDockWidget *ReosMap::temporalControllerDockWidget()
 
 void ReosMap::initialize()
 {
-  if ( mDefaultMapTool )
-    mDefaultMapTool->deactivate(); //to reinitialize it
-  setDefaultMapTool();
-  mExtraRenderedObjects.clear();
+  deactivate();
 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   if ( canvas->snappingUtils() )
@@ -678,6 +675,14 @@ void ReosMap::initialize()
   snappingConfig.setMode( Qgis::SnappingMode::AllLayers );
   QgsProject::instance()->setSnappingConfig( snappingConfig );
   snappingUtils->setConfig( snappingConfig );
+}
+
+void ReosMap::deactivate()
+{
+  if ( mDefaultMapTool )
+    mDefaultMapTool->deactivate(); //to reinitialize it
+  setDefaultMapTool();
+  mExtraRenderedObjects.clear();
 }
 
 void ReosMap::addSnappableStructure( ReosGeometryStructure *structure )

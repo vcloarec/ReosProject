@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reosrenderersettings_p.h"
 
+#include <QDebug>
+
 #include <qgsmaplayerrenderer.h>
 #include <qgscolorrampimpl.h>
 
@@ -144,7 +146,7 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
   }
   catch ( QgsCsException & )
   {
-    QgsDebugMsg( QStringLiteral( "Transform error caught" ) );
+    qDebug() << QStringLiteral( "Could not transform geometry to layer CRS" );
     extent = QgsRectangle( std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max() );
     r2 = QgsRectangle( std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max() );
     res = false;

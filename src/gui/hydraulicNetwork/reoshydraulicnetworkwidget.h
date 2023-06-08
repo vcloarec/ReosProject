@@ -60,7 +60,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosHydraulicNetworkWidget(ReosHydraulicNetwork *network,
+    explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network,
                                          const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
@@ -69,6 +69,8 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     ReosDuration mapTimeStep() const;
 
     ReosStructure2dToolBar *structure2dToolBar() const;
+
+    void unselectCurrentElement();
 
   public slots:
     void onClosed();
@@ -144,7 +146,6 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 
     QAction *mActionZoomToNetworkExtent = nullptr;
 
-    void unselectCurrentElement();
     void setMapItemVisible( bool visible );
     QList<ReosGeometryStructure *> mGeometryStructures;
     void addGeometryStructure( ReosHydraulicNetworkElement *elem );
@@ -157,7 +158,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
 {
     Q_OBJECT
   public:
-    ReosHydraulicNetworkDockWidget(ReosHydraulicNetwork *network,
+    ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
                                     const ReosGuiContext &context );
 
     void closePropertieWidget();

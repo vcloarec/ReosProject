@@ -108,6 +108,8 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     void initialize();
 
+    void deactivate();
+
     void addSnappableStructure( ReosGeometryStructure *structure );
     void removeSnappableStructure( ReosGeometryStructure *structure );
 
