@@ -22,9 +22,9 @@
 
 
 ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, const QString &dataSource )
-  : ReosTimeSerieVariableTimeStep( parent,
-                                   providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : formatKey( providerKey ),
-                                   dataSource ) {}
+  : ReosTimeSeriesVariableTimeStep( parent,
+                                    providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : formatKey( providerKey ),
+                                    dataSource ) {}
 
 void ReosHydrograph::updateData() const
 {
@@ -414,7 +414,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
     QMetaObject::invokeMethod( this, [this]
     {
 #ifndef _NDEBUG
-      qDebug() << "launch hydrograhs calculation " << mModelMeteoToUpdate.count();
+      qDebug() << "prepare hydrographs calculation " << mModelMeteoToUpdate.count();
 #endif
       ReosTransferFunction *function = nullptr;
       if ( mWatershed )
@@ -441,7 +441,6 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
 
         if ( !hydro || !hydro->hydrographIsObsolete() )
         {
-          //emit hydrographReady( hydro );
           continue;
         }
 
@@ -451,6 +450,7 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
         if ( !hydrographCalculation )
           continue;
         mHydrographCalculation.insert( model, hydrographCalculation );
+        mCalculationToLaunch.append( hydrographCalculation );
 
         connect( hydrographCalculation, &ReosHydrographCalculation::finished, this, [this, model, hydrographCalculation]()
         {
@@ -481,15 +481,17 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
 
       if ( !mHydrographCalculation.isEmpty() )
       {
-        for ( ReosHydrographCalculation *calculation : std::as_const( mHydrographCalculation ) )
+        for ( ReosHydrographCalculation *calculation : std::as_const( mCalculationToLaunch ) )
         {
 #ifndef _NDEBUG
           qDebug() << "start hydrograh calculation " << calculation;
 #endif
-          calculation->startOnOtherThread();
+          if ( calculation )
+            calculation->startOnOtherThread();
         }
         updateCount++;
         mModelMeteoToUpdate.clear();
+        mCalculationToLaunch.clear();
       }
 
       mCalculationCanBeLaunch = true;

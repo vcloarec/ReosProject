@@ -498,11 +498,11 @@ ReosHydrographRoutingMethodDirect::Calculation::Calculation( ReosHydrograph *inp
 {
   mInputHydrograph = std::make_unique<ReosHydrograph>();
   mInputHydrograph->copyFrom( inputHydrograph );
+  mHydrograph.reset( new ReosHydrograph );
 }
 
 void ReosHydrographRoutingMethodDirect::Calculation::start()
 {
-  mHydrograph.reset( new ReosHydrograph );
   mHydrograph->copyFrom( mInputHydrograph.get() );
   mIsSuccessful = true;
 }
