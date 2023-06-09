@@ -230,6 +230,7 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
 
     QSet<ReosMeteorologicModel *> mModelMeteoToUpdate;
     QMap<ReosMeteorologicModel *, ReosHydrographCalculation *> mHydrographCalculation;
+    QList<ReosHydrographCalculation *> mCalculationToLaunch;
 
     bool mCalculationCanBeLaunch = true;
 
