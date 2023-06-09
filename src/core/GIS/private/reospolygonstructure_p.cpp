@@ -28,7 +28,6 @@
 
 ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs ): ReosGeometryStructure_p( QStringLiteral( "Polygon" ), wktCrs )
 {
-
   init();
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }

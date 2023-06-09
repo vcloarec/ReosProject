@@ -19,6 +19,8 @@ email                : vcloarec at gmail dot com
 #include <QMessageBox>
 #include <QTranslator>
 #include <QStyleFactory>
+#include <QDebug>
+
 #include "reosmapextent.h"
 #include "reossettings.h"
 #include "reoscoremodule.h"
@@ -41,6 +43,8 @@ ReosApplication::ReosApplication( int &argc, char **argv, const QString &appName
       sReosPrefix.chop( 4 );
     }
   }
+
+  qDebug() << QStringLiteral( "Reos prefix path is: %1" ).arg( sReosPrefix );
 
   QApplication::setStyle( QStyleFactory::create( "fusion" ) );
 

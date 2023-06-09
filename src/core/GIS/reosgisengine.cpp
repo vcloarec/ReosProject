@@ -200,6 +200,16 @@ void ReosGisEngine::initGisEngine()
   QgsAuthMethodRegistry::instance( qgisProviderPath );
   QgsNetworkAccessManager::instance();
 
+  QString qgisPkg = QgsApplication::pkgDataPath();
+  qDebug() << QStringLiteral( "QGIS root data path: %1" ).arg( qgisPkg );
+
+  QString srsDatabase = QgsApplication::srsDatabaseFilePath();
+  QFileInfo srsDatabaseFile( srsDatabase );
+  if ( srsDatabaseFile.exists() )
+    qDebug() << QStringLiteral( "QGIS CRS database found at %1" ).arg( srsDatabase );
+  else
+    qDebug() <<  QStringLiteral( "QGIS CRS database not found at %1" ).arg( srsDatabase );
+
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
 
   //! Add reos data provider to Qgis instances
