@@ -768,6 +768,7 @@ ReosSpatialPosition ReosHydrographNodeWatershed::spatialPosition() const
 
 ReosHydrographJunction::HydrographSumCalculation::HydrographSumCalculation()
 {
+  mHydrograph.reset( new ReosHydrograph );
 }
 
 void ReosHydrographJunction::HydrographSumCalculation::addHydrograph( ReosHydrograph *hydro )
@@ -787,7 +788,6 @@ void ReosHydrographJunction::HydrographSumCalculation::forceOutputTimeStep( cons
 void ReosHydrographJunction::HydrographSumCalculation::start()
 {
   mIsSuccessful = true;
-  mHydrograph.reset( new ReosHydrograph );
   if ( mHydrographsToAdd.isEmpty() )
     return;
 

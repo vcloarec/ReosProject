@@ -483,7 +483,7 @@ QString ReosHydrographRoutingMethodFactories::htmlDescription( const QString &ty
 }
 
 ReosHydrographRoutingMethodFactories::ReosHydrographRoutingMethodFactories( ReosModule *parent )
-  : ReosModule( QStringLiteral("hydrograph-routing-methods-factories"), parent )
+  : ReosModule( QStringLiteral( "hydrograph-routing-methods-factories" ), parent )
 {
   addFactory( new ReosHydrographRoutingMethodDirectFactory );
   addFactory( new ReosHydrographRoutingMethodMuskingumFactory );
@@ -499,11 +499,11 @@ ReosHydrographRoutingMethodDirect::Calculation::Calculation( ReosHydrograph *inp
 {
   mInputHydrograph = std::make_unique<ReosHydrograph>();
   mInputHydrograph->copyFrom( inputHydrograph );
+  mHydrograph.reset( new ReosHydrograph );
 }
 
 void ReosHydrographRoutingMethodDirect::Calculation::start()
 {
-  mHydrograph.reset( new ReosHydrograph );
   mHydrograph->copyFrom( mInputHydrograph.get() );
   mIsSuccessful = true;
 }
