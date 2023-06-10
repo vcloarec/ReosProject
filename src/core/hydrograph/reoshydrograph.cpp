@@ -22,9 +22,9 @@
 
 
 ReosHydrograph::ReosHydrograph( QObject *parent, const QString &providerKey, const QString &dataSource )
-  : ReosTimeSeriesVariableTimeStep( parent,
-                                    providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : formatKey( providerKey ),
-                                    dataSource ) {}
+  : ReosTimeSerieVariableTimeStep( parent,
+                                   providerKey.isEmpty() ? QStringLiteral( "variable-time-step-memory" ) : formatKey( providerKey ),
+                                   dataSource ) {}
 
 void ReosHydrograph::updateData() const
 {
