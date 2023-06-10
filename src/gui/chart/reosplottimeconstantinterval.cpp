@@ -57,7 +57,7 @@ void ReosPlotTimeHistogram::setSettings()
   }
 }
 
-void ReosPlotTimeHistogram::setTimeSeries(ReosTimeSeriesConstantInterval *timeSeries, bool replot )
+void ReosPlotTimeHistogram::setTimeSeries( ReosTimeSeriesConstantInterval *timeSeries, bool replot )
 {
   if ( mTimeSeries && mTimeSeries->data() )
     disconnect( mTimeSeries->data(), &ReosDataObject::dataChanged, this, &ReosPlotItem::itemChanged );

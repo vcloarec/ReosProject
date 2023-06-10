@@ -133,7 +133,7 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void hydrographTabContextMenu( const QPoint &pos );
     void rainfallRunoffTabContextMenu( const QPoint &pos );
     void onTransferFunctionFormulation();
-
+    void onHydrographObsolete();
     void updateResultData();
 
   private:
@@ -167,6 +167,8 @@ class ReosRunoffHydrographWidget : public ReosActionWidget
     void updateOtherRunoffHydrograph();
 
     ReosHydrographNodeWatershed *currentNetworkNode();
+
+    void updateProgessBar( bool isBusy );
 };
 
 //**************************************************

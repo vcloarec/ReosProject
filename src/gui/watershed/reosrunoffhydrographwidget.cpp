@@ -289,6 +289,7 @@ void ReosRunoffHydrographWidget::copyRainfallRunoffSelected( bool withHeader )
 
 void ReosRunoffHydrographWidget::updateRainfall()
 {
+  updateProgessBar( false );
   if ( !isVisible() )
     return;
 
@@ -326,7 +327,10 @@ void ReosRunoffHydrographWidget::updateResultData()
   mCurrentRunoff = mRunoffHydrographsStore->runoff( mCurrentMeteoModel );
 
   if ( mCurrentHydrograph )
+  {
     disconnect( mCurrentHydrograph, &ReosHydrograph::dataChanged, this, &ReosRunoffHydrographWidget::timeWindowChanged );
+    disconnect( mCurrentHydrograph, &ReosHydrograph::isSetObsolete, this, &ReosRunoffHydrographWidget::onHydrographObsolete );
+  }
 
   mCurrentHydrograph = mRunoffHydrographsStore->hydrograph( mCurrentMeteoModel );
 
@@ -351,12 +355,16 @@ void ReosRunoffHydrographWidget::updateResultData()
     mRunoffHistogram->setTimeSeries( nullptr );
 
   if ( mCurrentHydrograph )
+  {
+    updateProgessBar( mCurrentHydrograph->isObsolete() );
     mHydrographCurve->setName( mCurrentHydrograph->name() );
-
-  if ( mCurrentHydrograph )
     connect( mCurrentHydrograph, &ReosHydrograph::dataChanged, this, &ReosRunoffHydrographWidget::timeWindowChanged );
+    connect( mCurrentHydrograph, &ReosHydrograph::isSetObsolete, this, &ReosRunoffHydrographWidget::onHydrographObsolete );
+  }
   else
+  {
     emit timeWindowChanged();
+  }
 
   mHydrographCurve->setTimeSeries( mCurrentHydrograph, false, false );
 
@@ -387,6 +395,8 @@ void ReosRunoffHydrographWidget::onHydrographReady( ReosHydrograph *hydrograph )
       ui->constantHydrographTimeStep->durationParameter()->setValue( mCurrentRunoff->timeStep() );
       mCurrentWatershed->setTimeStepForOutputHydrograph( mCurrentRunoff->timeStep() );
     }
+
+    updateProgessBar( false );
   }
 
   updateGaugedHydrograph();
@@ -549,6 +559,12 @@ void ReosRunoffHydrographWidget::updateOtherRunoffHydrograph()
   }
 }
 
+void ReosRunoffHydrographWidget::updateProgessBar( bool isBusy )
+{
+  ui->mProgessBar->setMaximum( isBusy ? 0 : 100 );
+  ui->mProgessBar->setVisible( isBusy );
+}
+
 void ReosRunoffHydrographWidget::hydrographTabContextMenu( const QPoint &pos )
 {
   QMenu contextMenu;
@@ -630,6 +646,11 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
     dial->resize( textBrowser->document()->size().width() + dial->contentsMargins().left() + dial->contentsMargins().right() + 20,
                   textBrowser->document()->size().height() + dial->contentsMargins().top() + dial->contentsMargins().bottom() + 50 );
   }
+}
+
+void ReosRunoffHydrographWidget::onHydrographObsolete()
+{
+  updateProgessBar( true );
 }
 
 void ReosWatershedRunoffModelsModel::setWatershedRunoffModels( ReosRunoffModelsGroup *watershedRunoffModels )

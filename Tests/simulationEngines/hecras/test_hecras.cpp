@@ -140,7 +140,6 @@ void ReosHecrasTesting::createControllerInstance()
 
 void ReosHecrasTesting::getControllerPlans()
 {
-  qDebug() << "!!!!!!!!!!!!!!  Test: createControllerInstance";
   QStringList versions = ReosHecRasController::availableVersion();
   ReosHecRasController controller( versions.last() );
 
