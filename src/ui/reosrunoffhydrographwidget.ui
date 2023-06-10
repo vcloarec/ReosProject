@@ -224,6 +224,22 @@
              </property>
             </spacer>
            </item>
+           <item>
+            <widget class="QProgressBar" name="mProgessBar">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>0</number>
+             </property>
+             <property name="value">
+              <number>-1</number>
+             </property>
+             <property name="textVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>

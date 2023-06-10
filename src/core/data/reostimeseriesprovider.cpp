@@ -379,6 +379,7 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::copy( ReosTimeSerieVariableTim
   mTimeValues = other->constTimeData();
 
   emit dataChanged();
+  emit dataReset();
 }
 
 ReosEncodedElement ReosTimeSerieVariableTimeStepMemoryProvider::encode( const ReosEncodeContext & ) const

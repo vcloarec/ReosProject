@@ -412,24 +412,13 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
     }
   }
 
-#ifndef _NDEBUG
-  qDebug() << "update hydrograph " << mCalculationCanBeLaunch << mModelMeteoToUpdate.count();
-#endif
-
   if ( mCalculationCanBeLaunch && !mModelMeteoToUpdate.isEmpty() )
   {
-#ifndef _NDEBUG
-    qDebug() << "prepare hydrograhs calculation ";
-#endif
-
     // first, we invoke a lambda function that prepare the calculation once we come back to the event loop
     // this is because we are sure that all data objects related to the calculation will be set obsolete only when we are back in the event loop
     // this is due to the propogation of signals/slots and the fact that we don't know the order of the propagation
     QMetaObject::invokeMethod( this, [this]
     {
-#ifndef _NDEBUG
-      qDebug() << "prepare hydrographs calculation " << mModelMeteoToUpdate.count();
-#endif
       ReosTransferFunction *function = nullptr;
       if ( mWatershed )
         function = mWatershed->currentTransferFunction();
@@ -440,9 +429,6 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
       {
         if ( mHydrographCalculation.contains( model ) )
         {
-#ifndef _NDEBUG
-          qDebug() << "stop hydrograh calculation " << mHydrographCalculation.value( model );
-#endif
           mHydrographCalculation.value( model )->stop( true );
           mHydrographCalculation.remove( model );
         }
@@ -475,9 +461,6 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
             mMeteoModelToHydrographCalculationData.value( model ).hydrograph->copyFrom( hydrographCalculation->hydrograph() );
             emit hydrographReady( mMeteoModelToHydrographCalculationData.value( model ).hydrograph.get() );
           }
-#ifndef _NDEBUG
-          qDebug() << "finish hydrograh calculation " << hydrographCalculation;
-#endif
           hydrographCalculation->deleteLater();
           if ( mHydrographCalculation.value( model ) == hydrographCalculation )
             mHydrographCalculation.remove( model );
@@ -497,9 +480,6 @@ void ReosRunoffHydrographsStore::updateHydrograph( ReosHydrograph *hyd )
       {
         for ( ReosHydrographCalculation *calculation : std::as_const( mCalculationToLaunch ) )
         {
-#ifndef _NDEBUG
-          qDebug() << "start hydrograh calculation " << calculation;
-#endif
           if ( calculation )
             calculation->startOnOtherThread();
         }

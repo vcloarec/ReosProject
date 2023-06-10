@@ -302,9 +302,6 @@ void ReosHydrographRoutingLink::calculateRouting()
   {
     ReosCalculationContext context;
 //    method->calculateOutputHydrograph( inputHydrographSource()->outputHydrograph(), mOutputHydrograph, context );
-#ifndef _NDEBUG
-    qDebug() << "calculation of link: " << elementNameParameter()->value();
-#endif
 
     emit calculationStart();
     mCalculationIsInProgress = true;
@@ -557,18 +554,7 @@ ReosHydrographRoutingMethodMuskingum::ReosHydrographRoutingMethodMuskingum( cons
 
 void ReosHydrographRoutingMethodMuskingum::calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext & )
 {
-#ifndef _NDEBUG
-  QElapsedTimer timer;
-  timer.start();
-#endif
-
   calculate( inputHydrograph, outputHydrograph, mKParameter->value(), mXParameter->value() );
-
-#ifndef _NDEBUG
-  qDebug() << staticType() << " calculation spend "
-           << timer.elapsed() << "ms to obtain hydrograph with "
-           << outputHydrograph->valueCount() << "values from " << inputHydrograph->valueCount() << "values";
-#endif
 }
 
 ReosHydrographCalculation *ReosHydrographRoutingMethodMuskingum::calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context )

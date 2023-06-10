@@ -37,6 +37,9 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
 
     QString id() const;
 
+    //! Return true whether the data need to be calculated or updated
+    bool isObsolete() const;
+
     void encode( ReosEncodedElement &element ) const SIP_SKIP;
     void decode( const ReosEncodedElement &element ) SIP_SKIP;
 
@@ -56,12 +59,9 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     void settingsChanged() const SIP_SKIP;
 
   protected:
-    void registerUpstreamData( ReosDataObject *data ) SIP_SKIP;
-    void deregisterUpstreamData( ReosDataObject *data ) SIP_SKIP;
-    void setActualized() const SIP_SKIP;
-
-    //! Return true whether the data need to be calculated or updated
-    bool isObsolete() const SIP_SKIP;
+    void registerUpstreamData( ReosDataObject *data );
+    void deregisterUpstreamData( ReosDataObject *data );
+    void setActualized() const;
 
   protected slots:
     void setObsolete();
@@ -70,6 +70,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     QString mName;
     QString mUid;
     mutable bool mIsObsolete = true;
+    mutable bool mIsUpdated = false;
 
 //*** for tests
     friend class ReosRainfallTest;

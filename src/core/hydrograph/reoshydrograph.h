@@ -43,26 +43,24 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
 
     /**
      * Loads and returns an completly loaded hydrograph.
-     * If the source is remote, that means that calling this methods lead to wait for reply of the remote source.
+     * If the source is remote, that means that calling this methods leads to wait for reply of the remote source.
      * The caller take ownership.
      */
     static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = nullptr ) SIP_TRANSFER;
 
-#ifndef SIP_RUN
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
-    static ReosHydrograph *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
+    static ReosHydrograph *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr )  SIP_SKIP;
 
-    bool hydrographIsObsolete() const;
-    void setHydrographObsolete();
+    bool hydrographIsObsolete() const  SIP_SKIP;
+    void setHydrographObsolete()  SIP_SKIP ;
 
-    QString formatKey( const QString &rawKey ) const override;
+    QString formatKey( const QString &rawKey ) const override SIP_SKIP;
 
   protected:
-    ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
-    void updateData() const override;
+    ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr )  SIP_SKIP;
+    void updateData() const override SIP_SKIP;
 
     friend class ReosHydrographGroup;
-#endif // no SIP_RUN
 };
 
 #ifndef SIP_RUN
