@@ -52,7 +52,10 @@ void ReosComephoreProvider::setDataSource( const QString &dataSource )
 
   if ( sourceInfo.isDir() )
   {
-    mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource ) );
+    if ( ReosComephoreTiffFilesReader::canReadFile( dataSource ) )
+      mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource ) );
+    else
+      mFileReader.reset( new ReosComephoreNetCdfFolderReader( dataSource ) );
   }
   else if ( sourceInfo.isFile() && sourceInfo.suffix() == QStringLiteral( "nc" ) )
   {
@@ -191,6 +194,9 @@ bool ReosComephoreProvider::canReadUri( const QString &uri ) const
     return true;
 
   if ( ReosComephoreNetCdfFilesReader::canReadFile( uri ) )
+    return true;
+
+  if ( ReosComephoreNetCdfFolderReader::canReadFile( uri ) )
     return true;
 
   return false;
@@ -451,7 +457,14 @@ ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &f
 
 ReosComephoreFilesReader *ReosComephoreNetCdfFilesReader::clone() const
 {
-  return new ReosComephoreNetCdfFilesReader( mFileName );
+  std::unique_ptr<ReosComephoreNetCdfFilesReader> other = std::unique_ptr<ReosComephoreNetCdfFilesReader>();
+  other->mFile.reset( new ReosNetCdfFile( mFileName ) );
+
+  other->mFileName = mFileName;
+  other->mExtent = mExtent;
+  other->mFrameCount = mFrameCount;
+  other->mTimes = mTimes;
+  return other.release();
 }
 
 int ReosComephoreNetCdfFilesReader::frameCount() const
@@ -509,4 +522,104 @@ bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
   const QStringList dimensionNames = file.variableDimensionNames( QStringLiteral( "RR" ) );
 
   return dimensionNames.contains( QStringLiteral( "X" ) ) && dimensionNames.contains( QStringLiteral( "Y" ) );
+}
+
+ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString &folderPath )
+  : mFolderPath( folderPath )
+{
+  QDir dir( folderPath );
+
+  QStringList filters;
+  filters << "*.nc";
+  const QStringList entries = dir.entryList( filters, QDir::Files );
+
+  QMap<QDateTime, size_t> firstTimeToIndex;
+  for ( const QString &file : entries )
+  {
+    const QString filePath = dir.filePath( file );
+    if ( ReosComephoreNetCdfFilesReader::canReadFile( filePath ) )
+    {
+      std::unique_ptr<ReosComephoreNetCdfFilesReader> fileReader = std::make_unique<ReosComephoreNetCdfFilesReader>( filePath );
+      if ( fileReader->frameCount() == 0 )
+        continue;
+      if ( !mExtent.isValid() )
+        mExtent = fileReader->extent();
+      else if ( mExtent != fileReader->extent() )
+        continue;
+
+      firstTimeToIndex.insert( fileReader->time( 0 ),  mFileReaders.size() );
+      mFileReaders.emplace_back( fileReader.release() );
+    }
+  }
+
+  int count = 0;
+  const QList<QDateTime> times = firstTimeToIndex.keys();
+  for ( const QDateTime &dt : times )
+  {
+    size_t fileIndex = firstTimeToIndex.value( dt );
+    ReosComephoreNetCdfFilesReader *reader = mFileReaders.at( fileIndex ).get();
+    int frameCount = reader->frameCount();
+    for ( int i = 0; i < frameCount; ++i )
+    {
+      mGlobalIndexToReaderIndex.insert( count, InternalIndex{fileIndex, i} );
+      count++;
+    }
+  }
+}
+
+ReosComephoreFilesReader *ReosComephoreNetCdfFolderReader::clone() const
+{
+  return new ReosComephoreNetCdfFolderReader( mFolderPath );
+}
+
+int ReosComephoreNetCdfFolderReader::frameCount() const
+{
+  return mGlobalIndexToReaderIndex.count();
+}
+
+QDateTime ReosComephoreNetCdfFolderReader::time( int i ) const
+{
+  auto it = mGlobalIndexToReaderIndex.find( i );
+  if ( it != mGlobalIndexToReaderIndex.constEnd() )
+    return mFileReaders.at( it.value().fileIndex )->time( it.value().internIndex );
+
+  return QDateTime();
+}
+
+QVector<int> ReosComephoreNetCdfFolderReader::data( int index, bool &readLine ) const
+{
+  auto it = mGlobalIndexToReaderIndex.find( index );
+  if ( it != mGlobalIndexToReaderIndex.constEnd() )
+    return mFileReaders.at( it.value().fileIndex )->data( it.value().internIndex, readLine );
+
+  return QVector<int>();
+}
+
+ReosRasterExtent ReosComephoreNetCdfFolderReader::extent() const
+{
+  return mExtent;
+}
+
+bool ReosComephoreNetCdfFolderReader::getDirectMinMax( double &min, double &max ) const
+{
+  return false;
+}
+
+bool ReosComephoreNetCdfFolderReader::canReadFile( const QString &uri )
+{
+  QDir dir( uri );
+  if ( !dir.exists() )
+    return false;
+  QStringList filters;
+  filters << "*.nc";
+  const QStringList entries = dir.entryList( filters, QDir::Files );
+
+  for ( const QString &file : entries )
+  {
+    const QString filePath = dir.filePath( file );
+    if ( ReosComephoreNetCdfFilesReader::canReadFile( filePath ) )
+      return true;
+  }
+
+  return false;
 }

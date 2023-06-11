@@ -75,11 +75,40 @@ class ReosComephoreNetCdfFilesReader : public ReosComephoreFilesReader
     static bool canReadFile( const QString &uri );
 
   private:
+    ReosComephoreNetCdfFilesReader() = default;
     mutable std::unique_ptr<ReosNetCdfFile> mFile;
     QString mFileName;
     ReosRasterExtent mExtent;
     int mFrameCount = 0;
     QList<QDateTime> mTimes;
+};
+
+
+
+class ReosComephoreNetCdfFolderReader : public ReosComephoreFilesReader
+{
+  public:
+    explicit ReosComephoreNetCdfFolderReader( const QString &folderPath );
+
+    ReosComephoreFilesReader *clone() const override;
+    int frameCount() const override;
+    QDateTime time( int i ) const override;
+    QVector<int> data( int index, bool &readLine ) const override;
+    ReosRasterExtent extent() const override;
+    bool getDirectMinMax( double &min, double &max ) const override;
+
+    static bool canReadFile( const QString &uri );
+
+  private:
+    QString mFolderPath;
+    std::vector<std::unique_ptr<ReosComephoreNetCdfFilesReader>> mFileReaders;
+    ReosRasterExtent mExtent;
+    struct InternalIndex
+    {
+      size_t fileIndex = -1;
+      int internIndex = -1;
+    };
+    QMap<int, InternalIndex> mGlobalIndexToReaderIndex;
 };
 
 class ReosComephoreProvider : public ReosGriddedRainfallProvider

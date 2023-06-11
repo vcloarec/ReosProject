@@ -30,6 +30,7 @@ class ReosComephoreTest: public QObject
     void createRainfallFromTif();
     void netcdfFile();
     void createRainfallFromNetCdf();
+    void netCdfFolder();
 };
 
 void ReosComephoreTest::createProvider()
@@ -203,6 +204,42 @@ void ReosComephoreTest::createRainfallFromNetCdf()
   /*rainfall->calculateMinMaxValue( min, max );
   QCOMPARE( min, 0.1 );
   QCOMPARE( max, 89.90 );*/
+}
+
+void ReosComephoreTest::netCdfFolder()
+{
+  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
+        COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" ), ReosGriddedRainfall::staticType() ) );
+  QVERIFY( compatibleProvider );
+
+  ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
+
+  QString comephoresPath( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" ) );
+  provider->setDataSource( comephoresPath );
+
+  QVERIFY( provider->isValid() );
+
+  QCOMPARE( provider->count(), 9534 );
+  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 9000 ), QDateTime( QDate( 2020, 12, 9 ), QTime( 18, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 9000 ), QDateTime( QDate( 2020, 12, 9 ), QTime( 19, 0, 0 ), Qt::UTC ) );
+
+  ReosRasterExtent extent = provider->extent();
+
+  QCOMPARE( extent.xCellSize(), 1000.0 );
+  QCOMPARE( extent.yCellSize(), -1000.0 );
+  QCOMPARE( extent.xCellCount(), 1536 );
+  QCOMPARE( extent.yCellCount(), 1536 );
+
+  QVector<double> values = provider->data( 700 );
+  QCOMPARE( values.count(), 1536 * 1536 );
+  QCOMPARE( values.at( 866655 ), 0.4 );
+  QCOMPARE( values.at( 894433 ), 0.3 );
+  QVERIFY( std::isnan( values.last() ) );
+
 }
 
 
