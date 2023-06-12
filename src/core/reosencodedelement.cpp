@@ -103,7 +103,7 @@ QString ReosEncodeContext::pathToEncode( const QString &filePath ) const
   else
   {
     QFileInfo fileInfo( mBaseDir.filePath( filePath ) );
-    return fileInfo.absolutePath();
+    return fileInfo.absoluteFilePath();
   }
 }
 

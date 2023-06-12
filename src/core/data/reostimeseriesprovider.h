@@ -21,6 +21,7 @@
 #include <memory>
 #include <QVector>
 #include <QDateTime>
+#include <QVariantMap>
 
 #include "reosduration.h"
 #include "reosdataobject.h"
@@ -101,6 +102,7 @@ class REOSCORE_EXPORT ReosTimeSerieConstantTimeStepProvider : public ReosTimeSer
  */
 class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSerieProvider
 {
+    Q_OBJECT
   public:
     ReosTimeSerieVariableTimeStepProvider() = default;
     ~ReosTimeSerieVariableTimeStepProvider();
@@ -131,6 +133,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSer
 
 class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstantTimeStepProvider
 {
+    Q_OBJECT
   public:
     ReosTimeSerieConstantTimeStepMemoryProvider() = default;
     ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values );

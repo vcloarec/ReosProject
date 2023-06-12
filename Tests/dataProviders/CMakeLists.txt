@@ -5,6 +5,7 @@
 #########################################################################
 
 add_subdirectory(grib)
+add_subdirectory(hydroportail)
 if (COMEPHORE_TESTS_ENABLE)
     add_subdirectory(comephore)
 endif(COMEPHORE_TESTS_ENABLE)
