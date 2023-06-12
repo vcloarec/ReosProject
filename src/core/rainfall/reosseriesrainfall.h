@@ -52,6 +52,7 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
     Q_OBJECT
   public:
     ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = nullptr );
+    ~ReosSeriesRainfallFromGriddedOnWatershed();
 
   signals:
     void calculationFinished();

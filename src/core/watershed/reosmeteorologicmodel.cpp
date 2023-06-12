@@ -60,7 +60,10 @@ ReosMeteorologicModel::ReosMeteorologicModel(
                                      ( rainfallregistery->itemByUniqueId( associations.value( watershedUri ) ) );
 
     if ( ws && rainfall )
+    {
       mAssociations.append( {QPointer<ReosWatershed>( ws ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr} );
+      connect( ws, &QObject::destroyed, this, &ReosMeteorologicModel::purge );
+    }
   }
 
   for ( auto it = structureAssociations.constBegin(); it != structureAssociations.constEnd(); ++it )
@@ -169,6 +172,9 @@ void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallDat
   emit timeWindowChanged();
   emit mapTimeStepChanged();
   emit dataChanged();
+
+  if ( watershed )
+    connect( watershed, &QObject::destroyed, this, &ReosMeteorologicModel::purge );
 }
 
 void ReosMeteorologicModel::associate( ReosHydraulicStructure2D *structure, ReosRainfallDataItem *rainfall )
@@ -208,6 +214,8 @@ void ReosMeteorologicModel::disassociate( ReosWatershed *watershed )
   emit timeWindowChanged();
   emit mapTimeStepChanged();
   emit dataChanged();
+
+  disconnect( watershed, &QObject::destroyed, this, &ReosMeteorologicModel::purge );
 }
 
 void ReosMeteorologicModel::disassociate( ReosHydraulicStructure2D *structure2D )
