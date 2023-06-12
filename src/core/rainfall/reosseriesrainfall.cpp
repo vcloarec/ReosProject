@@ -72,6 +72,12 @@ ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatersh
   launchCalculation();
 }
 
+ReosSeriesRainfallFromGriddedOnWatershed::~ReosSeriesRainfallFromGriddedOnWatershed()
+{
+  if ( mCurrentCalculation )
+    mCurrentCalculation->stop( true );
+}
+
 void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const
 {
   if ( isObsolete() )
@@ -84,7 +90,7 @@ void ReosSeriesRainfallFromGriddedOnWatershed::launchCalculation()
 {
   AverageCalculation *newCalc = getCalculationProcess();
 
-  connect( newCalc, &ReosProcess::finished, this, [newCalc, this]
+  connect( newCalc, &ReosProcess::finished, newCalc, [newCalc, this]
   {
     if ( mCurrentCalculation == newCalc )
     {
@@ -127,14 +133,14 @@ ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation *ReosSeriesRainfall
                    std::fabs( rainExtent.yCellSize() ) );
   ReosArea cellArea = ReosGisEngine::polygonAreaWithCrs( cellRect, rainExtent.crs() );
 
-  AverageCalculation *newCalc = new AverageCalculation;
+  std::unique_ptr<AverageCalculation> newCalc( new AverageCalculation );
 
   newCalc->griddedRainfallProvider.reset( mGriddedRainfall->dataProvider()->clone() );
   newCalc->timeStep = mGriddedRainfall->minimumTimeStep();
   newCalc->usePrecision = watershedArea < cellArea * 30;
   newCalc->watershedPolygon = ReosGisEngine::transformToCoordinates( mWatershed->crs(), mWatershed->delineating(), rainExtent.crs() );
 
-  return newCalc;
+  return newCalc.release();
 }
 
 void ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation::start()

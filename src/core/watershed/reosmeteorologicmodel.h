@@ -80,9 +80,6 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     //! Returns whether the meteomodel has a associated rainfall for the watershed \a watershed
     bool hasRainfall( ReosWatershed *watershed ) const;
 
-    //! Remove all reference with no association
-    void purge() const;
-
     //! Returns the color used to display curve related to this meteorologic model
     QColor color() const;
 
@@ -105,6 +102,9 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
   public slots:
     //! Sets the color used to display curve related to this meteorologic model
     void setColor( const QColor &color );
+
+    //! Remove all reference with no association
+    void purge() const;
 
   private:
     std::unique_ptr<ReosParameterString> mName;
