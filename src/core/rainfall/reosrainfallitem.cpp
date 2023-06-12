@@ -409,7 +409,8 @@ ReosEncodedElement ReosRainfallGaugedRainfallItem::encode( const ReosEncodeConte
   ReosEncodedElement element( QStringLiteral( "rainfall-serie-item" ) );
   ReosRainfallItem::encodeBase( element, context );
 
-  element.addEncodedData( QStringLiteral( "data" ), mData->encode( context ) );
+  if ( mData )
+    element.addEncodedData( QStringLiteral( "data" ), mData->encode( context ) );
   return element;
 }
 
