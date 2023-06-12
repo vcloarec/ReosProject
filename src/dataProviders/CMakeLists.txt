@@ -10,3 +10,4 @@ if (ENABLE_HEC_DSS)
 endif (ENABLE_HEC_DSS)
 
 add_subdirectory(meteofrance-api)
+add_subdirectory(hydroportail)

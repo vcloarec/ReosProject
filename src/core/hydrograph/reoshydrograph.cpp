@@ -41,10 +41,7 @@ ReosHydrograph *ReosHydrograph::loadHydrograph( const QString &providerKey, cons
 }
 
 void ReosHydrograph::updateData() const
-{
-
-}
-
+{}
 
 ReosEncodedElement ReosHydrograph::encode( const ReosEncodeContext &context ) const
 {

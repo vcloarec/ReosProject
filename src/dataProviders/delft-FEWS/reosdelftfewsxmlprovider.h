@@ -128,7 +128,7 @@ class ReosDelftFewsXMLProviderFactory: public ReosDataProviderFactory
     QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
 
   private:
-    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Spatial};
+    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Spatial | ReosDataProvider::File};
 };
 
 #endif // REOSDELFTFEWSXMLPROVIDER_H
