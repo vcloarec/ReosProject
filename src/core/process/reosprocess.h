@@ -41,9 +41,10 @@ class REOSCORE_EXPORT ReosProcess : public QObject SIP_ABSTRACT
     bool isSuccessful() const;
     bool isFinished() const;
 
+    virtual void start() = 0;
+
 #ifndef SIP_RUN
 
-    virtual void start() = 0;
     //! Return the current progression on the process
     virtual int currentProgression() const;
 

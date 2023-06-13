@@ -257,6 +257,12 @@ QString ReosGisEngine::addRasterLayer( const QString &uri, const QString &name, 
   }
 }
 
+QString ReosGisEngine::addDemRasterLayer( const QString &uri, const QString &name )
+{
+  bool isDem = true;
+  return addRasterLayer( uri, name, &isDem );
+}
+
 QString ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
 {
   std::unique_ptr<QgsMeshLayer> meshLayer( new QgsMeshLayer( uri, name, "mdal" ) );

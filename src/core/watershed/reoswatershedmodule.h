@@ -16,24 +16,21 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
     ~ReosWatershedModule();
 
-#ifndef SIP_RUN
-
     //! Returns a pointer to the watershed tree
-    ReosWatershedTree *watershedTree() const;
+    ReosWatershedTree *watershedTree() const SIP_SKIP;
     ReosWatershedDelineating *delineatingModule() const;
-    ReosMeteorologicModelsCollection *meteoModelsCollection();
+    ReosMeteorologicModelsCollection *meteoModelsCollection() SIP_SKIP;
 
     //! Removes all the watersheds
-    void reset();
+    void reset() SIP_SKIP;
 
-    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const;
-#endif //No SIP_RUN
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) SIP_SKIP;
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
 
-    static QString staticName()  {return QStringLiteral( "watershed-module" );}
+    static QString staticName() SIP_SKIP {return QStringLiteral( "watershed-module" );}
 
   signals:
-    void hasBeenReset();
+    void hasBeenReset() SIP_SKIP;
 
   private:
     ReosWatershedTree *mWatershedTree = nullptr;

@@ -46,10 +46,15 @@ Constructor
 Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
 %End
 
-    QString addRasterLayer( const QString &uri, const QString &name = QString(), bool *isDEM = 0 );
+    QString addRasterLayer( const QString &uri, const QString &name = QString());
 %Docstring
 Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false.
 If the rasgter layer as to be registered as a DEM, ``isDem`` has to point to a bool with true value.
+%End
+
+    QString addDemRasterLayer( const QString &uri, const QString &name = QString() );
+%Docstring
+Adds a dem raster layer, if the loaded vector layer is invalid, do nothing and return false.
 %End
 
     QString addMeshLayer( const QString &uri, const QString &name = QString() );

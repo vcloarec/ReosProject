@@ -151,7 +151,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Validates the watershed and returns true if modification of delineating in necessary to add it
     bool validateWatershed( bool &needAdjusting );
 
-    //! Store the wahtershed in the tree, returns pointer to the new watershed
+    //! Store the watershed in the tree, returns pointer to the new watershed
     ReosWatershed *storeWatershed( bool adjustIfNeeded );
 
     ReosEncodedElement encode() const SIP_SKIP;

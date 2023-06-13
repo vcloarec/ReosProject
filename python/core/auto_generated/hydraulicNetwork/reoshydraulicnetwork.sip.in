@@ -294,7 +294,11 @@ Return time window including all element that can be rendered on map
     void elementRemoved();
     void elementPositionHasChanged( ReosHydraulicNetworkElement *elem );
     void hasBeenReset();
+
     void schemeChanged();
+%Docstring
+Emited when the current scheme had changes or had been changed (not the same current scheme anymore)
+%End
     void loaded();
     void timeStepChanged();
 
