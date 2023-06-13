@@ -19,11 +19,12 @@ class ReosWatershedModule : ReosModule
     ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
     ~ReosWatershedModule();
 
+    ReosWatershedDelineating *delineatingModule() const;
 
-    static QString staticName();
+
+
 
   signals:
-    void hasBeenReset();
 
 };
 

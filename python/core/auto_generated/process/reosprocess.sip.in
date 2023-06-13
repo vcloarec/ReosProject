@@ -28,6 +28,8 @@ Processes can be nested.
     bool isSuccessful() const;
     bool isFinished() const;
 
+    virtual void start() = 0;
+
 
   signals:
 };

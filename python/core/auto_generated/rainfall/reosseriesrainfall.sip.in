@@ -48,6 +48,7 @@ class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall
 %End
   public:
     ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = 0 );
+    ~ReosSeriesRainfallFromGriddedOnWatershed();
 
   signals:
     void calculationFinished();

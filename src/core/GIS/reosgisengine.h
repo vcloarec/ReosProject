@@ -94,7 +94,12 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
      *  Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false.
      *  If the rasgter layer as to be registered as a DEM, \a isDem has to point to a bool with true value.
      */
-    QString addRasterLayer( const QString &uri, const QString &name = QString(), bool *isDEM = nullptr );
+    QString addRasterLayer( const QString &uri, const QString &name = QString(), bool *isDEM SIP_PYARGREMOVE = nullptr );
+
+    /**
+     *  Adds a dem raster layer, if the loaded vector layer is invalid, do nothing and return false.
+     */
+    QString addDemRasterLayer( const QString &uri, const QString &name = QString() );
 
     //! Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
     QString addMeshLayer( const QString &uri, const QString &name = QString() );

@@ -29,6 +29,11 @@ Returns the type
 
     QString id() const;
 
+    bool isObsolete() const;
+%Docstring
+Return true whether the data need to be calculated or updated
+%End
+
 
 
   public slots:
@@ -37,7 +42,9 @@ Returns the type
     void dataReset() const;
 
   protected:
-
+    void registerUpstreamData( ReosDataObject *data );
+    void deregisterUpstreamData( ReosDataObject *data );
+    void setActualized() const;
 
   protected slots:
     void setObsolete();

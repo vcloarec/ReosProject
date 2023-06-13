@@ -110,7 +110,7 @@ Validates the watershed and returns true if modification of delineating in neces
 
     ReosWatershed *storeWatershed( bool adjustIfNeeded );
 %Docstring
-Store the wahtershed in the tree, returns pointer to the new watershed
+Store the watershed in the tree, returns pointer to the new watershed
 %End
 
 
