@@ -29,6 +29,7 @@ class ReosComephoreTest: public QObject
     void createProvider();
     void createRainfallFromTif();
     void netcdfFile();
+    void dupplicateFrames();
     void createRainfallFromNetCdf();
     void netCdfFolder();
 };
@@ -170,6 +171,24 @@ void ReosComephoreTest::netcdfFile()
   QCOMPARE( vals.at( 725983 ), 1.5 );
 }
 
+void ReosComephoreTest::dupplicateFrames()
+{
+  std::unique_ptr<ReosGriddedRainfall> rainfall =
+    std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH +
+        QStringLiteral( "/comephore_nc/comephore_1km-1h_202008.nc" ),
+        QStringLiteral( "comephore" ) );
+
+  QCOMPARE( rainfall->gridCount(), 744 );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 743 ), QDateTime( QDate( 2020, 8, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 743 ), QDateTime( QDate( 2020, 9, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+}
+
 void ReosComephoreTest::createRainfallFromNetCdf()
 {
   std::unique_ptr<ReosGriddedRainfall> rainfall =
@@ -219,13 +238,13 @@ void ReosComephoreTest::netCdfFolder()
 
   QVERIFY( provider->isValid() );
 
-  QCOMPARE( provider->count(), 9534 );
+  QCOMPARE( provider->count(), 8784 );
   QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
   QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
   QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
   QCOMPARE( provider->endTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->startTime( 9000 ), QDateTime( QDate( 2020, 12, 9 ), QTime( 18, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 9000 ), QDateTime( QDate( 2020, 12, 9 ), QTime( 19, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 8000 ), QDateTime( QDate( 2020, 11, 29 ), QTime( 8, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 8000 ), QDateTime( QDate( 2020, 11, 29 ), QTime( 9, 0, 0 ), Qt::UTC ) );
 
   ReosRasterExtent extent = provider->extent();
 

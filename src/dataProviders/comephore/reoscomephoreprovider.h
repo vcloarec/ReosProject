@@ -79,8 +79,8 @@ class ReosComephoreNetCdfFilesReader : public ReosComephoreFilesReader
     mutable std::unique_ptr<ReosNetCdfFile> mFile;
     QString mFileName;
     ReosRasterExtent mExtent;
-    int mFrameCount = 0;
     QList<QDateTime> mTimes;
+    QMap<int, int> mRainIndexToFileIndex;
 };
 
 
