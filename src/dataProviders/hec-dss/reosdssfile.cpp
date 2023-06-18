@@ -404,7 +404,7 @@ bool ReosDssFile::writeGriddedDataPrivate(
   destExtent.setCrs( destination.crs() );
 
   std::unique_ptr<ReosGriddedRainfall> transformedGriddedRainfall(
-    griddedRainFall->transform( destExtent, destResolution, destResolution ) );
+    griddedRainFall->transform( destExtent, destResolution, destResolution, timeWindow ) );
 
   ReosRasterExtent transformedExtent = transformedGriddedRainfall->rasterExtent();
 
@@ -413,9 +413,6 @@ bool ReosDssFile::writeGriddedDataPrivate(
     ReosDssPath effPath = path;
     const QDateTime startDateTime = transformedGriddedRainfall->startTime( i );
     const QDateTime endDateTime = transformedGriddedRainfall->endTime( i );
-
-    if ( timeWindow.isValid() && !( timeWindow.isIncluded( startDateTime ) || timeWindow.isIncluded( endDateTime ) ) )
-      continue;
 
     effPath.setParameter( QStringLiteral( "PRECIP" ) );
     effPath.setStartDate( ReosDssUtils::dateToHecRasDate( startDateTime.date() ) + ':' + startDateTime.time().toString( "HHmm" ) );

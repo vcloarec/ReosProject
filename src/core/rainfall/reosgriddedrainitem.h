@@ -81,8 +81,11 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Overrides the coordinates system with the wkt string \a crs of the gridded rainfall without modifying the coordinates
     void overrideCrs( const QString &crs ) SIP_SKIP;
 
-    //! Transform the gridded rain to fit with extent \a destination with resolution \a resolX and \a resolY
-    ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, QObject *parent = nullptr ) const SIP_SKIP;
+    /**
+     * Transform the gridded rain to fit with extent \a destination with resolution \a resolX and \a resolY,
+     * for each time steps intersecting \a timeWindow (all time step if timeWindow is invalid).
+     */
+    ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, const ReosTimeWindow &timeWindow = ReosTimeWindow(), QObject *parent = nullptr ) const SIP_FACTORY;
 
     //! Copies data from another rainfall
     void copyFrom( ReosGriddedRainfall *other ) SIP_SKIP;
