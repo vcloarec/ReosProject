@@ -84,6 +84,11 @@ Returns whether the gridded rainfallis valid
 %End
 
 
+    ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, const ReosTimeWindow &timeWindow = ReosTimeWindow(), QObject *parent = 0 ) const /Factory/;
+%Docstring
+Transform the gridded rain to fit with extent ``destination`` with resolution ``resolX`` and ``resolY``,
+for each time steps intersecting ``timeWindow`` (all time step if timeWindow is invalid).
+%End
 
 
 

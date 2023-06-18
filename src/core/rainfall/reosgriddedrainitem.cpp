@@ -260,7 +260,7 @@ void ReosGriddedRainfall::overrideCrs( const QString &crs )
   mOverridenCrs = crs;
 }
 
-ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destination, double resolX, double resolY, QObject *parent ) const
+ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destination, double resolX, double resolY, const ReosTimeWindow &timeWindow, QObject *parent ) const
 {
   std::unique_ptr<ReosGriddedRainfall> projectedRainfall( new ReosGriddedRainfall( parent ) );
 
@@ -277,8 +277,20 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
   int xCount = destinationExtent.xCellCount();
   int yCount = destinationExtent.yCellCount();
 
+  bool filterTime = timeWindow.isValid();
+
   for ( int i = 0; i < mProvider->count(); ++i )
   {
+    if ( filterTime )
+    {
+      const QDateTime &start = mProvider->startTime( i );
+      const QDateTime &end = mProvider->endTime( i );
+      const ReosTimeWindow step_tw( start, end );
+
+      if ( !timeWindow.intersect( step_tw ) )
+        continue;
+    }
+
     const QVector<double> sourceValue = mProvider->data( i );
     ReosRasterMemory<double> raster( yCount, xCount );
     raster.reserveMemory();
