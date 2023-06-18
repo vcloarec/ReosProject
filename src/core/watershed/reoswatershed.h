@@ -88,6 +88,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     //! Sets the name of the watershed
     void setWatershedName( const QString &name );
 
+#endif //#ifndef SIP_RUN
+
     //! Returns the extent of the watershed
     ReosMapExtent extent() const;
 
@@ -102,6 +104,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
     //! Sets the outlet point of the watershed
     void setOutletPoint( const QPointF &outletPoint );
+
+#ifndef SIP_RUN
 
     //! Returns whether the watrshed or its parent contoins direction data
     bool hasDirectiondata( const QString &layerId ) const;

@@ -46,7 +46,7 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
      * If the source is remote, that means that calling this methods leads to wait for reply of the remote source.
      * The caller take ownership.
      */
-    static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = nullptr ) SIP_TRANSFER;
+    static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = nullptr ) SIP_FACTORY;
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
     static ReosHydrograph *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr )  SIP_SKIP;
