@@ -143,7 +143,7 @@ QDateTime ReosComephoreProvider::endTime( int index ) const
 
 const QVector<double> ReosComephoreProvider::data( int index ) const
 {
-  if ( index < 0 )
+  if ( index < 0 || index >= mFileReader->frameCount() )
     return QVector<double>();
 
   if ( mCache.contains( index ) )
@@ -444,12 +444,19 @@ ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &f
     mExtent = ReosRasterExtent( projectedOrigin.x(), projectedOrigin.y(), xCount, yCount, xResolution, -yResolution );
     mExtent.setCrs( crs );
 
-    mFrameCount = mFile->dimensionLength( QStringLiteral( "time" ) );
-    const QVector<qint64> intTime = mFile->getInt64Array( QStringLiteral( "time" ), mFrameCount );
-    mTimes.reserve( mFrameCount );
+    int frameCount = mFile->dimensionLength( QStringLiteral( "time" ) );
+    const QVector<qint64> intTime = mFile->getInt64Array( QStringLiteral( "time" ), frameCount );
     const QDateTime oriTime( QDate( 1949, 12, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
-    for ( int i = 0; i < mFrameCount; ++i )
-      mTimes.append( oriTime.addSecs( 3600 * intTime.at( i ) ) );
+    QMap<QDateTime, int> timeToFileIndex;
+    for ( int i = 0; i < frameCount; ++i )
+    {
+      const QDateTime time = oriTime.addSecs( 3600 * intTime.at( i ) );
+      if ( !timeToFileIndex.contains( time ) )
+        timeToFileIndex.insert( time, i );
+    }
+    mTimes = timeToFileIndex.keys();
+    for ( int i = 0; i < mTimes.count(); ++i )
+      mRainIndexToFileIndex.insert( i, timeToFileIndex.value( mTimes.at( i ) ) );
   }
 
   mFile.reset();
@@ -462,21 +469,22 @@ ReosComephoreFilesReader *ReosComephoreNetCdfFilesReader::clone() const
 
   other->mFileName = mFileName;
   other->mExtent = mExtent;
-  other->mFrameCount = mFrameCount;
+  other->mRainIndexToFileIndex = mRainIndexToFileIndex;
   other->mTimes = mTimes;
   return other.release();
 }
 
 int ReosComephoreNetCdfFilesReader::frameCount() const
 {
-  return mFrameCount;
+  return mTimes.count();
 }
 
 QDateTime ReosComephoreNetCdfFilesReader::time( int i ) const
 {
-  if ( i < 0 || i >= mTimes.count() )
+  int index = mRainIndexToFileIndex.value( i, -1 );
+  if ( index < 0 || index >= mTimes.count() )
     return QDateTime();
-  return mTimes.at( i );
+  return mTimes.at( index );
 }
 
 QVector<int> ReosComephoreNetCdfFilesReader::data( int index, bool &readLine ) const
@@ -484,7 +492,9 @@ QVector<int> ReosComephoreNetCdfFilesReader::data( int index, bool &readLine ) c
   if ( !mFile )
     mFile.reset( new ReosNetCdfFile( mFileName ) );
 
-  const QVector<int> starts( {index, 0, 0} );
+  int fileIndex = mRainIndexToFileIndex.value( index, -1 );
+
+  const QVector<int> starts( {fileIndex, 0, 0} );
   int xCount = mExtent.xCellCount();
   int yCount = mExtent.yCellCount();
   const QVector<int> counts( {1, xCount, yCount} );

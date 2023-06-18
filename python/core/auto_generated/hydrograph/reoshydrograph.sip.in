@@ -29,7 +29,7 @@ Remote provider could take sometime to obtain data
     virtual QString type() const;
     static QString staticType();
 
-    static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = 0 ) /Transfer/;
+    static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = 0 ) /Factory/;
 %Docstring
 Loads and returns an completly loaded hydrograph.
 If the source is remote, that means that calling this methods leads to wait for reply of the remote source.
