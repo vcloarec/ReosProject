@@ -53,6 +53,32 @@ Constructor of manual delineating watershed with ``delineating`` polygon and the
 %End
 
 
+    ReosMapExtent extent() const;
+%Docstring
+Returns the extent of the watershed
+%End
+
+    QPolygonF delineating() const;
+%Docstring
+Returns the delineating of the watershed
+%End
+
+    void setDelineating( const QPolygonF &del );
+%Docstring
+Sets the delineating of the watershed
+%End
+
+    QPointF outletPoint() const;
+%Docstring
+Returns the outlet point of the watershed
+%End
+
+    void setOutletPoint( const QPointF &outletPoint );
+%Docstring
+Sets the outlet point of the watershed
+%End
+
+
     ReosArea area() const;
 %Docstring
 Returns the area of the watershed
