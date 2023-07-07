@@ -62,8 +62,8 @@ ReosGriddedRainfallExportOptionsWidget::ReosGriddedRainfallExportOptionsWidget( 
 
   connect( ui->mCrsWidget, &ReosCoordinateSystemWidget::crsChanged, this, &ReosGriddedRainfallExportOptionsWidget::reprojectExtent );
 
-  connect( ui->mFromTimeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGriddedRainfallExportOptionsWidget::onTimeFromChanged );
-  connect( ui->mToTimeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGriddedRainfallExportOptionsWidget::onTimeToChanged );
+  connect( ui->mStartDateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &ReosGriddedRainfallExportOptionsWidget::onTimeFromChanged );
+  connect( ui->mEndDateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &ReosGriddedRainfallExportOptionsWidget::onTimeToChanged );
 }
 
 ReosGriddedRainfallExportOptionsWidget::~ReosGriddedRainfallExportOptionsWidget()
@@ -74,18 +74,11 @@ ReosGriddedRainfallExportOptionsWidget::~ReosGriddedRainfallExportOptionsWidget(
 void ReosGriddedRainfallExportOptionsWidget::syncRainfall( ReosGriddedRainfall *rainfall )
 {
   setExtent( rainfall->rasterExtent() );
-  ui->mFromTimeCombo->clear();
-  ui->mToTimeCombo->clear();
 
   int count = rainfall->gridCount();
-  for ( int i = 0; i < count; ++i )
-  {
-    ui->mFromTimeCombo->addItem( QLocale().toString( rainfall->startTime( i ), QLocale::ShortFormat ), rainfall->startTime( i ) );
-    ui->mToTimeCombo->addItem( QLocale().toString( rainfall->endTime( i ), QLocale::ShortFormat ), rainfall->endTime( i ) );
-  }
 
-  ui->mFromTimeCombo->setCurrentIndex( 0 );
-  ui->mToTimeCombo->setCurrentIndex( ui->mToTimeCombo->count() - 1 );
+  ui->mStartDateTimeEdit->setDateTime( rainfall->startTime( 0 ) );
+  ui->mEndDateTimeEdit->setDateTime( rainfall->endTime( count - 1 ) );
 }
 
 void ReosGriddedRainfallExportOptionsWidget::setSupportedGridOrigin( ReosGriddedRainfallProvider::SupportedGridOrigins origins )
@@ -243,7 +236,7 @@ ReosRasterExtent ReosGriddedRainfallExportOptionsWidget::rasterExtent() const
 
 ReosTimeWindow ReosGriddedRainfallExportOptionsWidget::timeWindow() const
 {
-  return ReosTimeWindow( ui->mFromTimeCombo->currentData().toDateTime(), ui->mToTimeCombo->currentData().toDateTime() );
+  return ReosTimeWindow( ui->mStartDateTimeEdit->dateTime(), ui->mEndDateTimeEdit->dateTime() );
 }
 
 
@@ -351,48 +344,16 @@ void ReosGriddedRainfallExportOptionsWidget::onAdjustExtent()
 
 void ReosGriddedRainfallExportOptionsWidget::onTimeFromChanged()
 {
-  const QDateTime from = ui->mFromTimeCombo->currentData().toDateTime();
-  const QDateTime to = ui->mToTimeCombo->currentData().toDateTime();
+  const QDateTime from = ui->mStartDateTimeEdit->dateTime();
+  const QDateTime to = ui->mEndDateTimeEdit->dateTime();
   if ( from >= to )
-  {
-    int toIndex = ui->mToTimeCombo->currentIndex();
-
-    for ( int i = toIndex; i < ui->mFromTimeCombo->count() ; ++i )
-    {
-      QDateTime st = ui->mToTimeCombo->itemData( i ).toDateTime();
-      if ( st > from )
-      {
-        toIndex = i;
-        break;
-      }
-    }
-
-    ui->mToTimeCombo->blockSignals( true );
-    ui->mToTimeCombo->setCurrentIndex( toIndex );
-    ui->mToTimeCombo->blockSignals( false );
-  }
+    ui->mEndDateTimeEdit->setDateTime( from );
 }
 
 void ReosGriddedRainfallExportOptionsWidget::onTimeToChanged()
 {
-  const QDateTime from = ui->mFromTimeCombo->currentData().toDateTime();
-  const QDateTime to = ui->mToTimeCombo->currentData().toDateTime();
+  const QDateTime from = ui->mStartDateTimeEdit->dateTime();
+  const QDateTime to = ui->mEndDateTimeEdit->dateTime();
   if ( from >= to )
-  {
-    int fromIndex = ui->mFromTimeCombo->currentIndex();
-
-    for ( int i = fromIndex; i >= 0 ; --i )
-    {
-      QDateTime sf = ui->mFromTimeCombo->itemData( i ).toDateTime();
-      if ( sf < to )
-      {
-        fromIndex = i;
-        break;
-      }
-    }
-
-    ui->mFromTimeCombo->blockSignals( true );
-    ui->mFromTimeCombo->setCurrentIndex( fromIndex );
-    ui->mFromTimeCombo->blockSignals( false );
-  }
+    ui->mStartDateTimeEdit->setDateTime( to );
 }
