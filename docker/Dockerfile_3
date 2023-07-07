@@ -1,0 +1,5 @@
+FROM lekan2
+
+COPY build_qgis.sh /
+RUN chmod +x /build_qgis.sh
+RUN ./build_qgis.sh
