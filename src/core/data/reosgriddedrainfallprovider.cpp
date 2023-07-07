@@ -34,6 +34,10 @@ ReosDuration ReosGriddedRainfallProvider::intervalDuration( int index ) const
   return ReosDuration( startTime( index ), endTime( index ) );
 }
 
+bool ReosGriddedRainfallProvider::hasPrecipitationCapability( PrecipitationGridCapability )  const {return false;}
+
+const QVector<double> ReosGriddedRainfallProvider::qualifData( int ) const {return QVector<double>();}
+
 int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
 {
   int frameCount = count();

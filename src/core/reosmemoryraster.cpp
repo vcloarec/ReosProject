@@ -516,3 +516,23 @@ bool ReosRasterTestingCell::testCell( const ReosRasterCellPos &cell ) const
   return true;
 }
 
+
+ReosFloat64GridBlock::ReosFloat64GridBlock( int rowCount, int colCount )
+{
+  mMemoryRaster = ReosRasterMemory<double>( rowCount, colCount );
+}
+
+void ReosFloat64GridBlock::setValues( const QVector<double> values )
+{
+  mMemoryRaster.setValues( values );
+}
+
+const QVector<double> ReosFloat64GridBlock::values() const
+{
+  return mMemoryRaster.values();
+}
+
+const QByteArray ReosFloat64GridBlock::data() const
+{
+  return QByteArray::fromRawData( reinterpret_cast<const char *>( mMemoryRaster.values().constData() ), sizeof( double ) * mMemoryRaster.columnCount() * mMemoryRaster.rowCount() );
+}

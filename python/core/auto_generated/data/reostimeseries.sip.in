@@ -32,7 +32,7 @@ In case of remote data, data are not available just after calling this method bu
 If caller need data just after calling, see :py:func:`~ReosTimeSeries.reloadBlocking`.
 %End
 
-    void reloadBlocking(int timeout = -1, bool repeat = false );
+    void reloadBlocking( int timeout = -1, bool repeat = false );
 %Docstring
 Reload data from provider and wait until the data is effectivly reloaded.
 %End
@@ -75,7 +75,7 @@ Sets the ``value`` at position ``i``
 
     ReosTimeWindow timeWindow() const;
 %Docstring
-Return the time window (the tile extent) of this time series
+Return the time window (the time extent) of this time series
 %End
 
     void removeValues( int fromPos, int count );
@@ -104,6 +104,8 @@ Returns the text unit of values
 Sets the text unit of values
 %End
 
+
+    ReosFloat64GridBlock gridData() const;
 
     double maximum() const;
 %Docstring
@@ -345,6 +347,12 @@ Sets the color used to render the time serie
 %End
 
     void copyFrom( const ReosTimeSeriesVariableTimeStep *other );
+
+    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime() ) const;
+%Docstring
+Returns a 1D blocl of discretized hydrograph with a time step ``timeStep``.
+If start time is not valid, discretization start and is centered at the first value of the hydrograph.
+%End
 
     bool operator==( const ReosTimeSeriesVariableTimeStep &other ) const;
 

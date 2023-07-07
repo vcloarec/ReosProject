@@ -659,6 +659,13 @@ double *ReosTimeSeries::data()
   return mProvider->data();
 }
 
+ReosFloat64GridBlock ReosTimeSeries::gridData() const
+{
+  ReosFloat64GridBlock ret( 1, valueCount() );
+  ret.setValues( constData() );
+  return ret;
+}
+
 const QVector<double> &ReosTimeSeries::constData() const
 {
   updateData();
@@ -1128,6 +1135,9 @@ void ReosTimeSeriesVariableTimeStep::addOther( const ReosTimeSeriesVariableTimeS
 
   blockSignals( true );
 
+  if ( !referenceTime().isValid() )
+    setReferenceTime( other->referenceTime() );
+
   ReosDuration offset( referenceTime().msecsTo( other->referenceTime() ), ReosDuration::millisecond );
 
   //need to store apart and then apply, if not changed value will disturb the addiion for following
@@ -1206,6 +1216,23 @@ void ReosTimeSeriesVariableTimeStep::copyFrom( const ReosTimeSeriesVariableTimeS
     return;
 
   variableTimeStepDataProvider()->copy( other->variableTimeStepDataProvider() );
+}
+
+ReosFloat64GridBlock ReosTimeSeriesVariableTimeStep::toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime ) const
+{
+  QVector<double> vals( totalDuration().numberOfFullyContainedIntervals( timeStep ), 0 );
+
+  QDateTime refTime = referenceTime();
+  ReosDuration offset;
+  if ( startTime.isValid() )
+    offset = ReosDuration( startTime.msecsTo( refTime ) );
+  for ( int i = 0; i < vals.count(); ++i )
+    vals[i] = valueAtTime( timeStep * i - offset );
+
+  ReosFloat64GridBlock ret( 1, vals.count() );
+  ret.setValues( vals );
+
+  return ret;
 }
 
 bool ReosTimeSeriesVariableTimeStep::operator==( const ReosTimeSeriesVariableTimeStep &other ) const

@@ -113,6 +113,11 @@ QString ReosComephoreProvider::htmlDescription() const
   return htmlText;
 }
 
+bool ReosComephoreProvider::hasPrecipitationCapability( PrecipitationGridCapability capability ) const
+{
+  return mCapabilities.testFlag( capability );
+}
+
 bool ReosComephoreProvider::isValid() const
 {
   return mIsValid;
@@ -172,6 +177,97 @@ const QVector<double> ReosComephoreProvider::data( int index ) const
           ( *values )[retIndex] = std::numeric_limits<double>::quiet_NaN();
         else
           ( *values )[retIndex] = rawValue / 10.0;
+      }
+
+    QVector<double> ret = *values;
+    mCache.insert( index, values.release(), rawValues.size() );
+
+    return ret;
+  }
+
+  return QVector<double>();
+}
+
+const QVector<double> ReosComephoreProvider::dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const
+{
+  if ( index < 0 || index >= mFileReader->frameCount() )
+    return QVector<double>();
+
+  if ( rowMax < rowMin || colMax < colMin )
+    return QVector<double>();
+
+  if ( mFileReader )
+  {
+    bool readLine = true;
+    const QVector<int> rawValues = mFileReader->dataInGridExtent( index, rowMin, rowMax, colMin, colMax, readLine );
+    std::unique_ptr<QVector<double>> values = std::make_unique<QVector<double>>();
+    values->resize( rawValues.count() );
+
+    int xCount = colMax - colMin + 1;
+    int yCount = rowMax - rowMin + 1;
+
+    Q_ASSERT( xCount * yCount == rawValues.count() );
+
+    for ( int xi = 0; xi < xCount; ++xi )
+      for ( int yi = 0; yi < yCount; ++yi )
+      {
+        int retIndex = xi + yi * xCount;
+        int rawIndex = readLine ? retIndex : yi + xi * yCount;
+
+        int rawValue = rawValues.at( rawIndex );
+        if ( rawValue == 65535 || rawValues.at( rawIndex ) == 0 )
+          ( *values )[retIndex] = std::numeric_limits<double>::quiet_NaN();
+        else
+          ( *values )[retIndex] = rawValue / 10.0;
+      }
+
+    QVector<double> ret = *values;
+
+
+    return ret;
+  }
+
+  return QVector<double>();
+}
+
+const QVector<double> ReosComephoreProvider::qualifData( int index ) const
+{
+  if ( index < 0 || index >= mFileReader->frameCount() )
+    return QVector<double>();
+
+  if ( mFileReader )
+  {
+    bool readLine = true;
+    const QVector<int> rawValues = mFileReader->qualifData( index, readLine );
+    std::unique_ptr<QVector<double>> values = std::make_unique<QVector<double>>();
+    values->resize( rawValues.count() );
+
+    int xCount = mExtent.xCellCount();
+    int yCount = mExtent.yCellCount();
+
+    const QDateTime time = mFileReader->time( index );
+    bool before2007 = time < QDateTime( QDate( 2007, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
+
+    Q_ASSERT( xCount * yCount == rawValues.count() );
+
+    for ( int xi = 0; xi < xCount; ++xi )
+      for ( int yi = 0; yi < yCount; ++yi )
+      {
+        int retIndex = xi + yi * xCount;
+        int rawIndex = readLine ? retIndex : yi + xi * yCount;
+
+        int rawValue = rawValues.at( rawIndex );
+        if ( rawValue == 255 )
+          ( *values )[retIndex] = 0.0;
+        else
+        {
+          if ( before2007 )
+          {
+            ( *values )[retIndex] = rawValue;
+          }
+          else
+            ( * values )[retIndex] = static_cast<double>( rawValue );
+        }
       }
 
     QVector<double> ret = *values;
@@ -464,13 +560,7 @@ ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &f
 
 ReosComephoreFilesReader *ReosComephoreNetCdfFilesReader::clone() const
 {
-  std::unique_ptr<ReosComephoreNetCdfFilesReader> other = std::unique_ptr<ReosComephoreNetCdfFilesReader>();
-  other->mFile.reset( new ReosNetCdfFile( mFileName ) );
-
-  other->mFileName = mFileName;
-  other->mExtent = mExtent;
-  other->mRainIndexToFileIndex = mRainIndexToFileIndex;
-  other->mTimes = mTimes;
+  std::unique_ptr<ReosComephoreNetCdfFilesReader> other = std::make_unique<ReosComephoreNetCdfFilesReader>( mFileName );
   return other.release();
 }
 
@@ -481,10 +571,9 @@ int ReosComephoreNetCdfFilesReader::frameCount() const
 
 QDateTime ReosComephoreNetCdfFilesReader::time( int i ) const
 {
-  int index = mRainIndexToFileIndex.value( i, -1 );
-  if ( index < 0 || index >= mTimes.count() )
+  if ( i < 0 || i >= mTimes.count() )
     return QDateTime();
-  return mTimes.at( index );
+  return mTimes.at( i );
 }
 
 QVector<int> ReosComephoreNetCdfFilesReader::data( int index, bool &readLine ) const
@@ -508,6 +597,27 @@ QVector<int> ReosComephoreNetCdfFilesReader::data( int index, bool &readLine ) c
   return QVector<int>();
 }
 
+QVector<int> ReosComephoreNetCdfFilesReader::dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const
+{
+  if ( !mFile )
+    mFile.reset( new ReosNetCdfFile( mFileName ) );
+
+  int fileIndex = mRainIndexToFileIndex.value( index, -1 );
+
+  const QVector<int> starts( {fileIndex, colMin, rowMin} );
+  int xCount = colMax - colMin + 1;
+  int yCount = rowMax - rowMin + 1;
+  const QVector<int> counts( {1, xCount, yCount} );
+
+  if ( mFile->isValid() )
+  {
+    readLine = false;
+    return mFile->getIntArray( QStringLiteral( "RR" ), starts, counts );
+  }
+
+  return QVector<int>();
+}
+
 ReosRasterExtent ReosComephoreNetCdfFilesReader::extent() const
 {
   return mExtent;
@@ -516,6 +626,27 @@ ReosRasterExtent ReosComephoreNetCdfFilesReader::extent() const
 bool ReosComephoreNetCdfFilesReader::getDirectMinMax( double &min, double &max ) const
 {
   return false;
+}
+
+QVector<int> ReosComephoreNetCdfFilesReader::qualifData( int index, bool &readLine ) const
+{
+  if ( !mFile )
+    mFile.reset( new ReosNetCdfFile( mFileName ) );
+
+  int fileIndex = mRainIndexToFileIndex.value( index, -1 );
+
+  const QVector<int> starts( {fileIndex, 0, 0} );
+  int xCount = mExtent.xCellCount();
+  int yCount = mExtent.yCellCount();
+  const QVector<int> counts( {1, xCount, yCount} );
+
+  if ( mFile->isValid() )
+  {
+    readLine = false;
+    return mFile->getIntArray( QStringLiteral( "QUALIF" ), starts, counts );
+  }
+
+  return QVector<int>();
 }
 
 bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
@@ -605,6 +736,15 @@ QVector<int> ReosComephoreNetCdfFolderReader::data( int index, bool &readLine ) 
   return QVector<int>();
 }
 
+QVector<int> ReosComephoreNetCdfFolderReader::dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const
+{
+  auto it = mGlobalIndexToReaderIndex.find( index );
+  if ( it != mGlobalIndexToReaderIndex.constEnd() )
+    return mFileReaders.at( it.value().fileIndex )->dataInGridExtent( it.value().internIndex, rowMin, rowMax, colMin, colMax, readLine );
+
+  return QVector<int>();
+}
+
 ReosRasterExtent ReosComephoreNetCdfFolderReader::extent() const
 {
   return mExtent;
@@ -613,6 +753,15 @@ ReosRasterExtent ReosComephoreNetCdfFolderReader::extent() const
 bool ReosComephoreNetCdfFolderReader::getDirectMinMax( double &min, double &max ) const
 {
   return false;
+}
+
+QVector<int> ReosComephoreNetCdfFolderReader::qualifData( int index, bool &readLine ) const
+{
+  auto it = mGlobalIndexToReaderIndex.find( index );
+  if ( it != mGlobalIndexToReaderIndex.constEnd() )
+    return mFileReaders.at( it.value().fileIndex )->qualifData( it.value().internIndex, readLine );
+
+  return QVector<int>();
 }
 
 bool ReosComephoreNetCdfFolderReader::canReadFile( const QString &uri )

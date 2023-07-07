@@ -67,6 +67,20 @@ Returns all the values related to ``index``, order of values can be deduced from
 of the cell contained in the raster extent (see :py:func:`~ReosGriddedRainfall.extent`
 %End
 
+    const QVector<double> intensityValuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
+
+    const QVector<double> qualificationData( int index ) const;
+
+    double nullCoverage( int index ) const;
+
+    double qualifCoverage( int index, double qualif ) const;
+
+    bool supportExtractSubGrid() const;
+
+
+    ReosFloat64GridBlock intensityGridBlock( int index ) const;
+
+    ReosFloat64GridBlock qualificationGridBloc( int index ) const;
 
     int dataIndex( const QDateTime &time ) const;
 %Docstring

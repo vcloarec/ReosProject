@@ -58,6 +58,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Returns the time extent of the gridded rainfall
     virtual QPair<QDateTime, QDateTime> timeExtent() const SIP_SKIP;
 
+    //! Returns the minimum time step of the gridded series
     ReosDuration minimumTimeStep() const;
 
     /**
@@ -66,8 +67,37 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
      */
     const QVector<double> intensityValues( int index ) const;
 
+    /**
+     * Returns, if supported, a part of the values related to \a index, order of values can be deduced from the sign of sizes dx,dy)
+     * of the cell contained in the raster extent (see extent()
+     * The Returned values are from a subgrid defined by minimum anx maximum row and coulumn index.
+     * width = colMax - colMin + 1
+     * height = rowMax - rowMin + 1
+     *
+     * \see supportExtractSubGrid()
+     */
+    const QVector<double> intensityValuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
+
+    //! Returns, if exist, the qualification values for \a index
+    const QVector<double> qualificationData( int index ) const;
+
+    //! Returns the part of values that are not null for the \a index. Returns value are between 0.0 and 1.0.
+    double nullCoverage( int index ) const;
+
+    //! Returns the part of qualification values that are not null for the \a index. Returns value are between 0.0 and 1.0.
+    double qualifCoverage( int index, double qualif ) const;
+
+    //! Returns whether the data support extraction of subgrid
+    bool supportExtractSubGrid() const;
+
     //! Returns a raster stored in memory containing the intensity values of the rain fall( unit: mm / h ) for the index \a index
     ReosRasterMemory<double> intensityRaster( int index ) const SIP_SKIP;
+
+    //! Returns a grid block containing all the data for the \a index
+    ReosFloat64GridBlock intensityGridBlock( int index ) const;
+
+    //! Returns a grid block containing all the qualification data for the \a index
+    ReosFloat64GridBlock qualificationGridBloc( int index ) const;
 
     //! Returns the index corresponding to \a time
     int dataIndex( const QDateTime &time ) const;

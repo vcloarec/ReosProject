@@ -25,6 +25,7 @@
 #include <QAbstractTableModel>
 
 #include "reosduration.h"
+#include "reosmemoryraster.h"
 #include "reosparameter.h"
 #include "reosdataobject.h"
 #include "reostimeseriesprovider.h"
@@ -50,7 +51,7 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     void reload();
 
     //! Reload data from provider and wait until the data is effectivly reloaded.
-    void reloadBlocking(int timeout = -1, bool repeat = false );
+    void reloadBlocking( int timeout = -1, bool repeat = false );
 
     //! Sets the reference time
     void setReferenceTime( const QDateTime &dateTime );
@@ -76,7 +77,7 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     //! Returns the time extent of the serie
     virtual QPair<QDateTime, QDateTime> timeExtent() const = 0 SIP_SKIP;
 
-    //! Return the time window (the tile extent) of this time series
+    //! Returns the time window (the time extent) of this time series
     ReosTimeWindow timeWindow() const;
 
     //! Removes \a count values from position \a fromPos
@@ -100,6 +101,9 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     //! Returns a pointer to access directly to the data, can be used only  when need efficient calculation.
     double *data() SIP_SKIP;
 
+    //! Returns a grid (1d) block with all the values
+    ReosFloat64GridBlock gridData() const;
+
     //! Returns the maximum of values of this time serie
     double maximum() const;
 
@@ -120,6 +124,8 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     virtual void onDataProviderChanged();
 
   protected:
+    ReosTimeSeries( ReosTimeSerieProvider *provider, QObject *parent = nullptr );
+
     //! Connect all parameters with
     void connectParameters();
 
@@ -254,6 +260,7 @@ class REOSCORE_EXPORT ReosTimeSeriesConstantInterval: public ReosTimeSeries
   protected:
     void connectParameters();
     ReosTimeSeriesConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
+    ReosTimeSeriesConstantInterval( ReosTimeSerieConstantTimeStepProvider *provider,  QObject *parent = nullptr );
 
     QString formatKey( const QString &rawKey ) const override;
 #endif //no SIP_RUN
@@ -325,6 +332,12 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
     void setColor( const QColor &color );
 
     void copyFrom( const ReosTimeSeriesVariableTimeStep *other );
+
+    /**
+     * Returns a 1D blocl of discretized hydrograph with a time step \a timeStep.
+     * If start time is not valid, discretization start and is centered at the first value of the hydrograph.
+     */
+    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime() ) const;
 
     bool operator==( const ReosTimeSeriesVariableTimeStep &other ) const;
 

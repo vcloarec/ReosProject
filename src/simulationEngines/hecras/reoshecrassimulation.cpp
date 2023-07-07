@@ -350,7 +350,7 @@ void ReosHecRasSimulation::prepareInput(
           case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
           {
             std::unique_ptr<ReosTimeSeriesConstantInterval> constant( new ReosTimeSeriesConstantInterval() );
-            transformVariableTimeStepToConstant( bc->outputHydrograph(), constant.get() );
+            transformVariableTimeStepToConstant( bc->outputHydrograph(), constant.get(), mMinimumInterval );
 
             path.setParameter( QStringLiteral( "Flow" ) );
             path.setTimeInterval( constant->timeStep() );
@@ -895,7 +895,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkPlanCompabili
   return mProject->checkCompatibility( planId, mStructure, nullptr );
 }
 
-void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSeriesVariableTimeStep *variable, ReosTimeSeriesConstantInterval *constant ) const
+void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSeriesVariableTimeStep *variable, ReosTimeSeriesConstantInterval *constant, const ReosDuration &miniInter )
 {
   if ( !variable || !constant )
     return;
@@ -925,7 +925,6 @@ void ReosHecRasSimulation::transformVariableTimeStepToConstant( ReosTimeSeriesVa
   ReosDuration currentIntervaltest = maxInterval;
   ReosDuration betterInterval;
   QVector<double> betterValues;
-  ReosDuration miniInter = mMinimumInterval;
   double betterVolDiff = std::numeric_limits<double>::max();
   while ( currentIntervaltest >= miniInter )
   {

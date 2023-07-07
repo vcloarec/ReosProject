@@ -61,7 +61,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosDuration representativeTimeStep() const override;
     ReosDuration representative2DTimeStep() const override;
     void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
-    ReosHydraulicSimulationResults *loadSimulationResults(ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId, QObject *parent = nullptr ) const override;
+    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId, QObject *parent = nullptr ) const override;
     bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
     QString engineName() const override {return tr( "HECRAS" );}
@@ -121,7 +121,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosDuration mMappingInterval = ReosDuration( 5.0, ReosDuration::minute );
     //***
 
-    void transformVariableTimeStepToConstant( ReosTimeSeriesVariableTimeStep *variable, ReosTimeSeriesConstantInterval *constant ) const;
+    static void transformVariableTimeStepToConstant( ReosTimeSeriesVariableTimeStep *variable, ReosTimeSeriesConstantInterval *constant, const ReosDuration &miniInter );
     bool writeDssConstantTimeSeries( ReosTimeSeriesConstantInterval *series, const QString &fileName, const ReosDssPath &path, QString &error ) const;
 
     void accordCurrentPlan();
