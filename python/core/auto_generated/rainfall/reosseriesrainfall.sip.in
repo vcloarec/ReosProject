@@ -51,6 +51,9 @@ class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall
     ~ReosSeriesRainfallFromGriddedOnWatershed();
 
     static ReosSeriesRainfallFromGriddedOnWatershed *create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall ) /Factory/;
+%Docstring
+Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Caller takes ownership.
+%End
 
     virtual double valueAt( int i ) const;
 
