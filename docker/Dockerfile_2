@@ -1,0 +1,5 @@
+FROM lekan
+
+COPY build_gmsh.sh /
+RUN chmod +x /build_gmsh.sh
+RUN ./build_gmsh.sh
