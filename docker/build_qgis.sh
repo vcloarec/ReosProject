@@ -13,7 +13,7 @@ mkdir QGIS_built
 cd QGIS_building
 
 cmake   -S $env:QGIS_SRC \
-		-B . \
+		-B . \sudo docker 
 		-D WITH_QSPATIALITE=TRUE \
 		-D WITH_SERVER=FALSE \
 		-D SERVER_SKIP_ECW=TRUE \
@@ -31,7 +31,7 @@ cmake   -S $env:QGIS_SRC \
 		-D CMAKE_BUILD_TYPE=$BUILDCONF \
 		-D CMAKE_CONFIGURATION_TYPES=$BUILDCONF \
 		-D Qt5_DIR=$OSGEO_DIR/apps/qt5/lib/cmake/Qt5 \
-		-D CMAKE_INSTALL_PREFIX=$env:QGIS_BUILT \
+		-D CMAKE_INSTALL_PREFIX=/QGIS_built \
 		-D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE \
 
 cmake --build .  --config Release -j
