@@ -75,7 +75,7 @@ Sets the ``value`` at position ``i``
 
     ReosTimeWindow timeWindow() const;
 %Docstring
-Return the time window (the time extent) of this time series
+Returns the time window (the time extent) of this time series
 %End
 
     void removeValues( int fromPos, int count );
@@ -106,6 +106,9 @@ Sets the text unit of values
 
 
     ReosFloat64GridBlock gridData() const;
+%Docstring
+Returns a grid (1d) block with all the values
+%End
 
     double maximum() const;
 %Docstring
