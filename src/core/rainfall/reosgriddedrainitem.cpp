@@ -219,11 +219,103 @@ const QVector<double> ReosGriddedRainfall::intensityValues( int index ) const
     return QVector<double>();
 }
 
+const QVector<double> ReosGriddedRainfall::intensityValuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const
+{
+  if ( !mProvider )
+    return QVector<double>();
+
+  if ( index < 0 )
+    return QVector<double>();
+
+  if ( mProvider->hasPrecipitationCapability( ReosGriddedRainfallProvider::SubGridExtract ) )
+    return mProvider->dataInGridExtent( index, rowMin, rowMax, colMin, colMax );
+
+  QVector<double> data = mProvider->data( index );
+
+  ReosRasterExtent extent = mProvider->extent();
+  int colRawCount = extent.xCellCount();
+
+  int rowCount = rowMax - rowMin + 1;
+  int colCount = colMax - colMin + 1;
+  QVector<double> ret;
+  ret.resize( rowCount * colCount );
+  for ( int r = 0; r < rowCount; ++r )
+    for ( int c = 0; c < colCount; ++c )
+    {
+      int rawIndex = c + colMin + ( r + rowMin ) * colRawCount;
+      int locIndex = c + r * colCount;
+      ret[locIndex] = data.at( rawIndex );
+    }
+
+  return ret;
+}
+
+const QVector<double> ReosGriddedRainfall::qualificationData( int index ) const
+{
+  if ( mProvider && mProvider->hasPrecipitationCapability( ReosGriddedRainfallProvider::SubGridExtract ) )
+    return mProvider->qualifData( index );
+
+  return QVector<double>();
+}
+
+double ReosGriddedRainfall::nullCoverage( int index ) const
+{
+  const QVector<double> data = intensityValues( index );
+  int nullCount = 0;
+  for ( double val : data )
+    if ( std::isnan( val ) )
+      nullCount++;
+
+  return static_cast<double>( nullCount ) / data.size();
+}
+
+double ReosGriddedRainfall::qualifCoverage( int index, double qualif ) const
+{
+  if ( mProvider && mProvider->hasPrecipitationCapability( ReosGriddedRainfallProvider::QualificationValue ) )
+  {
+    const QVector<double> qualifData = mProvider->qualifData( index );
+    int supCount = 0;
+    for ( double val : qualifData )
+      if ( val >= qualif )
+        supCount++;
+
+    return static_cast<double>( supCount ) / qualifData.size();
+  }
+
+  return 1.0;
+}
+
+bool ReosGriddedRainfall::supportExtractSubGrid() const
+{
+  if ( mProvider )
+    return mProvider->hasPrecipitationCapability( ReosGriddedRainfallProvider::SubGridExtract );
+
+  return false;
+}
+
 ReosRasterMemory<double> ReosGriddedRainfall::intensityRaster( int index ) const
 {
   ReosRasterExtent extent = mProvider->extent();
   ReosRasterMemory<double> ret( extent.yCellCount(), extent.xCellCount() );
   ret.setValues( mProvider->data( index ) );
+
+  return ret;
+}
+
+ReosFloat64GridBlock ReosGriddedRainfall::intensityGridBlock( int index ) const
+{
+  ReosRasterExtent extent = mProvider->extent();
+  ReosFloat64GridBlock ret( extent.yCellCount(), extent.xCellCount() );
+  ret.setValues( mProvider->data( index ) );
+
+  return ret;
+}
+
+ReosFloat64GridBlock ReosGriddedRainfall::qualificationGridBloc( int index ) const
+{
+  ReosRasterExtent extent = mProvider->extent();
+  ReosFloat64GridBlock ret( extent.yCellCount(), extent.xCellCount() );
+  ret.setValues( qualificationData( index ) );
 
   return ret;
 }

@@ -169,6 +169,21 @@ void ReosComephoreTest::netcdfFile()
   QCOMPARE( vals.count(), 1536 * 1536 );
   QCOMPARE( vals.at( 695080 ), 1.3 );
   QCOMPARE( vals.at( 725983 ), 1.5 );
+
+  int rowMin = 350;
+  int rowMax = 360;
+  int colMin = 760;
+  int colMax = 770;
+
+  QVector<double> vals_ex = provider->dataInGridExtent( 200, rowMin, rowMax, colMin, colMax );
+  QCOMPARE( vals_ex.count(), ( colMax - colMin + 1 ) * ( rowMax - rowMin + 1 ) );
+  for ( int row = 0; row < rowMax - rowMin + 1 ; row++ )
+    for ( int col = 0; col < colMax - colMin; col++ )
+    {
+      int oriIndex = ( col + colMin ) + ( row  + rowMin )  * 1536;
+      int index = col + row * ( colMax - colMin + 1 );
+      QCOMPARE( vals.at( oriIndex ), vals_ex.at( index ) );
+    }
 }
 
 void ReosComephoreTest::dupplicateFrames()
@@ -187,6 +202,8 @@ void ReosComephoreTest::dupplicateFrames()
   QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 3, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->startTime( 743 ), QDateTime( QDate( 2020, 8, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
   QCOMPARE( rainfall->endTime( 743 ), QDateTime( QDate( 2020, 9, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+
+  QVERIFY( rainfall->minimumTimeStep().valueMilliSecond() == 3600000 );
 }
 
 void ReosComephoreTest::createRainfallFromNetCdf()
@@ -259,6 +276,19 @@ void ReosComephoreTest::netCdfFolder()
   QCOMPARE( values.at( 894433 ), 0.3 );
   QVERIFY( std::isnan( values.last() ) );
 
+  for ( int i = 0; i < provider->count(); ++i )
+    QVERIFY( provider->startTime( i ).isValid() );
+
+  QVERIFY( provider->hasPrecipitationCapability( ReosGriddedRainfallProvider::SubGridExtract ) );
+  QVERIFY( provider->hasPrecipitationCapability( ReosGriddedRainfallProvider::QualificationValue ) );
+
+  values = provider->dataInGridExtent( 700, 560, 570, 340, 360 );
+  QCOMPARE( values.count(), 231 );
+  QVERIFY( equal( values.at( 12 ), 0.3, 0.01 ) );
+
+  values = provider->qualifData( 700 );
+  QCOMPARE( values.count(), 1536 * 1536 );
+  QCOMPARE( values.at( 866655 ), 91 );
 }
 
 

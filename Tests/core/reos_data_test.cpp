@@ -17,6 +17,8 @@ email                : vcloarec at gmail dot com
 
 #include "reostimeseries.h"
 #include "reosmemoryraster.h"
+#include "reos_testutils.h"
+#include "reoshydrograph.h"
 
 class ReosDataTesting: public QObject
 {
@@ -24,6 +26,7 @@ class ReosDataTesting: public QObject
   private slots:
     void variable_time_step_time_model();
     void encode_variable_time_step();
+    void hydrograph();
 
 };
 
@@ -641,6 +644,33 @@ void ReosDataTesting::encode_variable_time_step()
   QCOMPARE( otherTimeSerie->timeAt( 3 ), QDateTime( QDate( 2020, 01, 02 ), QTime( 2, 0, 0 ), Qt::UTC ) );
   QVERIFY( otherTimeSerie->relativeTimeAt( 3 ) == ReosDuration( 24, ReosDuration::hour ) );
   QCOMPARE( otherTimeSerie->valueAt( 3 ), 9.12 );
+}
+
+void ReosDataTesting::hydrograph()
+{
+  QString file( testFile( QStringLiteral( "hydroportail/J261401002_Q_2000.csv" ) ) );
+  ReosHydrograph hydrograph( nullptr, "hydroportail", file );
+
+  QDateTime timeMax;
+  double max = 0;
+  for ( int i = 0; i < hydrograph.valueCount(); ++i )
+  {
+    if ( hydrograph.valueAt( i ) > max )
+    {
+      max = hydrograph.valueAt( i );
+    }
+  }
+
+  double min;
+
+  hydrograph.valuesExtent( min, max, true );
+
+  ReosFloat64GridBlock data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ) );
+  QVector<double> values = data.values();
+
+  QCOMPARE( values.count(), 87812 );
+  QVERIFY( equal( values.at( 500 ), 5.1281, 0.001 ) );
+  QVERIFY( equal( values.at( 1000 ), 4.4908, 0.001 ) );
 }
 
 QTEST_MAIN( ReosDataTesting )

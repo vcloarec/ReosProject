@@ -566,6 +566,20 @@ class REOSCORE_EXPORT ReosRasterTestingCellInPolygon: public ReosRasterTestingCe
 
 #endif //No SIP_RUN
 
+class REOSCORE_EXPORT ReosFloat64GridBlock
+{
+  public:
+    ReosFloat64GridBlock( int rowCount, int colCount );
+    void setValues( const QVector<double> values );
+
+    const QVector<double> values() const;
+    const QByteArray data() const;
+
+  private:
+    ReosRasterMemory<double> mMemoryRaster;
+
+};
+
 
 #endif // REOSMEMORYRASTER_H
 

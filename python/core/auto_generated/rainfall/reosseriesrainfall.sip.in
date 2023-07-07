@@ -50,8 +50,14 @@ class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall
     ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = 0 );
     ~ReosSeriesRainfallFromGriddedOnWatershed();
 
+    static ReosSeriesRainfallFromGriddedOnWatershed *create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall ) /Factory/;
+
+    virtual double valueAt( int i ) const;
+
+
   signals:
     void calculationFinished();
+
 
       public:
 };

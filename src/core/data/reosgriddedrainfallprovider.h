@@ -51,6 +51,15 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     Q_DECLARE_FLAGS( SupportedGridOrigins, SupportedGridOrigin )
     Q_FLAG( SupportedGridOrigins )
 
+    enum PrecipitationGridCapability
+    {
+      SubGridExtract = 1 << 0,
+      QualificationValue = 1 << 1,
+    };
+    Q_ENUM( PrecipitationGridCapability )
+    Q_DECLARE_FLAGS( PrecipitationGridCapabilities, PrecipitationGridCapability )
+    Q_FLAG( PrecipitationGridCapabilities )
+
     virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
 
     struct FileDetails
@@ -80,6 +89,12 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     ReosDuration intervalDuration( int index ) const;
 
     virtual const QVector<double> data( int index ) const = 0;
+
+    virtual bool hasPrecipitationCapability( PrecipitationGridCapability capability ) const;
+
+    virtual const QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const {return QVector<double>();}
+
+    virtual const QVector<double> qualifData( int index ) const;
 
     virtual ReosRasterExtent extent() const = 0;
 

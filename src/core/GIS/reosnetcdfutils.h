@@ -42,7 +42,7 @@ class REOSCORE_EXPORT ReosNetCdfFile
 
     QVector<qint64> getInt64Array( const QString &variableName, int size );
 
-    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &count );
+    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts );
 
   private:
     bool mIsValid = false;

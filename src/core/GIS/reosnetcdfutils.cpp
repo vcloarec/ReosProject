@@ -45,7 +45,7 @@ static std::string utf8ToWin32Recode( const std::string &utf8String )
   int len = WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr );
 
   std::string ret;
-  ret.resize(static_cast<size_t>(len ) + 1 );
+  ret.resize( static_cast<size_t>( len ) + 1 );
 
   WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), -1, ret.data(), ret.size(), nullptr, nullptr );
 
@@ -197,20 +197,20 @@ QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int 
   return ret;
 }
 
-QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &count )
+QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts )
 {
-  Q_ASSERT( starts.count() == count.count() );
+  Q_ASSERT( starts.count() == counts.count() );
   int varId = mVarNameToVarId.value( variableName );
 
   std::vector<size_t> startp( static_cast<size_t>( starts.count() ) );
   for ( int i = 0; i < starts.count(); ++i )
     startp[static_cast<size_t>( i )] = static_cast<size_t>( starts.at( i ) );
-  std::vector<size_t> countp( static_cast<size_t>( count.count() ) );
+  std::vector<size_t> countp( static_cast<size_t>( counts.count() ) );
   int totalSize = 1;
-  for ( int i = 0; i < count.count(); ++i )
+  for ( int i = 0; i < counts.count(); ++i )
   {
-    countp[static_cast<size_t>( i )] = static_cast<size_t>( count.at( i ) );
-    totalSize *= count.at( i );
+    countp[static_cast<size_t>( i )] = static_cast<size_t>( counts.at( i ) );
+    totalSize *= counts.at( i );
   }
 
   QVector<int> ret;

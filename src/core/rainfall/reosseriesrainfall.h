@@ -20,6 +20,7 @@
 #include "reoscore.h"
 #include "reostimeseries.h"
 #include "reosprocess.h"
+#include "reosmemoryraster.h"
 
 class ReosWatershed;
 class ReosGriddedRainfall;
@@ -57,6 +58,11 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
     ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = nullptr );
     ~ReosSeriesRainfallFromGriddedOnWatershed();
 
+    //! Returns a new created instance from \a watershed and \a gridded rainfall. Caller takes ownership.
+    static ReosSeriesRainfallFromGriddedOnWatershed *create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall ) SIP_FACTORY;
+
+    double valueAt( int i ) const override;
+
   signals:
     void calculationFinished();
 
@@ -66,6 +72,9 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
     void updateData() const override;
 
 #endif // No SIP_RUN
+
+  private slots:
+    void onWatershedGeometryChanged();
   private:
 
     class AverageCalculation : public ReosProcess
@@ -73,10 +82,14 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
       public:
         std::unique_ptr<ReosGriddedRainfallProvider> griddedRainfallProvider;
         QPolygonF watershedPolygon;
-        ReosTimeSeriesConstantInterval result;
         ReosDuration timeStep;
         bool usePrecision = false;
         void start() override;
+
+        ReosRasterMemory<double> rasterizedWatershed;
+        ReosRasterExtent rasterizedExtent;
+        int xOri = -1;
+        int yOri = -1;
     };
 
     mutable AverageCalculation *mCurrentCalculation = nullptr;
@@ -84,8 +97,14 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
     QPointer<ReosWatershed> mWatershed;
     QPointer<ReosGriddedRainfall> mGriddedRainfall;
 
+    ReosRasterMemory<double> mRasterizedWatershed;
+    ReosRasterExtent mRasterizedExtent;
+    int mXOri = -1;
+    int mYOri = -1;
+
     void launchCalculation();
     AverageCalculation *getCalculationProcess() const;
+
 };
 
 
