@@ -3,7 +3,7 @@ $starter_path = Get-Location
 git clone https://gitlab.onelab.info/gmsh/gmsh.git
 
 cd gmsh
-git checkout tags/gmsh_4_11_0 -b master
+git checkout tags/gmsh_4_11_0
 cd ..
 
 $GMSH_SRC = Join-Path $starter_path gmsh
