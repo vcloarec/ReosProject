@@ -19,8 +19,7 @@ git checkout forLekanMaster
 cd $prev_dir
 
 mkdir QGIS_building
-QGIS_BUILT=$QGIS_dir/Built
-mkdir QGIS_built
+QGIS_BUILT=$QGIS_dir
 
 cd QGIS_building
 
@@ -45,7 +44,7 @@ cmake   -S $QGIS_SRC \
 		-D CMAKE_INSTALL_PREFIX=$QGIS_BUILT \
 		-D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE \
 
-cmake --build .  --config Release -j
+cmake --build .  --config Release -j20
 cmake --install .
 
 cd ..

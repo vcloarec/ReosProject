@@ -27,7 +27,9 @@ COPY build_gmsh.sh /
 RUN chmod +x /build_gmsh.sh
 RUN ./build_gmsh.sh
 
-COPY build_qgis.sh /
-RUN chmod +x /build_qgis.sh
-RUN ./build_qgis.sh
+ARG QGIS_DIR="/qgis"
+
+COPY build_qgis.sh ${QGIS_DIR}/
+RUN chmod +x ${QGIS_DIR}/build_qgis.sh
+RUN export QGIS_SRC=${QGIS_DIR}/qgis_src &&  cd ${QGIS_DIR} && ./build_qgis.sh
 
