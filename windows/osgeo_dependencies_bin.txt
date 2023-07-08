@@ -1,4 +1,5 @@
 arrow.dll
+arrow_dataset.dll
 brotlicommon.dll
 brotlidec.dll
 brotlienc.dll
@@ -20,6 +21,8 @@ icudt67.dll
 icuin67.dll
 icuuc67.dll
 jpeg62.dll
+jxl.dll
+jxl_threads.dll
 Lerc.dll
 libcrypto-1_1-x64.dll
 libcurl.dll
