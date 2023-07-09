@@ -1,0 +1,13 @@
+diff --git a/heclib/javaHeclib/Makefile b/heclib/javaHeclib/Makefile
+index c684431..dd37ec9 100644
+--- a/heclib/javaHeclib/Makefile
++++ b/heclib/javaHeclib/Makefile
+@@ -11,7 +11,7 @@ ifeq ($(UNAME_S),Linux)
+ 		LDFLAGS1=-Wl,-z,defs,--wrap=powf
+ 		BITS=-m64
+ 	endif
+-	CFLAGS=$(BITS) -fPIC -g -std=gnu99 $(CWARNING) $(INC_DIRS) -D__linux__ -fcommon
++	CFLAGS=$(BITS) -fPIC -g -std=gnu99 $(CWARNING) $(INC_DIRS) -D__linux__ -fcommon -I/usr/lib/jvm/java-11-openjdk-amd64/include -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux
+ 	LDFLAGS=$(LDFLAGS1) -lz -lrt -lgfortran -lm
+ endif
+ ifeq ($(UNAME_S),SunOS)

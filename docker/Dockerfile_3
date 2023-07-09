@@ -1,7 +1,0 @@
-FROM lekan2
-
-ARG QGIS_DIR="/qgis"
-
-COPY build_qgis.sh ${QGIS_DIR}/
-RUN chmod +x ${QGIS_DIR}/build_qgis.sh
-RUN export QGIS_SRC=${QGIS_DIR}/qgis_src &&  cd ${QGIS_DIR} && ./build_qgis.sh
