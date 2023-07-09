@@ -36,5 +36,11 @@ cmake   -S .. \
 cmake --build .  --config Release -j20
 cmake --install .
 
+cd ..
+rm -r build
+cd ..
+rm - r ReosProject
+
+
 
 
