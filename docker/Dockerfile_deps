@@ -12,7 +12,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
        && apt-get install -y python3-pip\
        && pip3 install numpy
 
-ARG TELEMAC_DIR="/telemac"
+ENV TELEMAC_DIR="/telemac"
 
 RUN mkdir ${TELEMAC_DIR}
 COPY install_telemac.sh ${TELEMAC_DIR}/
@@ -23,19 +23,19 @@ RUN chmod +x ${TELEMAC_DIR}/install_telemac.sh
 RUN cd ${TELEMAC_DIR} \
        &&  ./install_telemac.sh
 
-ARG GMSH_DIR="/gmsh"       
+ENV GMSH_DIR="/gmsh"       
        
 COPY build_gmsh.sh ${GMSH_DIR}/
 RUN chmod +x ${GMSH_DIR}/build_gmsh.sh
 RUN cd ${GMSH_DIR}/ && ./build_gmsh.sh
 
-ARG QGIS_DIR="/qgis"
+ENV QGIS_DIR="/qgis"
 
 COPY build_qgis.sh ${QGIS_DIR}/
 RUN chmod +x ${QGIS_DIR}/build_qgis.sh
 RUN export QGIS_SRC=${QGIS_DIR}/qgis_src &&  cd ${QGIS_DIR} && ./build_qgis.sh
 
-ARG HEC_DSS_DIR="/hecdss"
+ENV HEC_DSS_DIR="/hecdss"
 
 RUN apt-get -y install default-jdk \
     && apt-get -y install zlib1g-dev \
@@ -46,7 +46,7 @@ COPY hecdss_jni.patch ${HEC_DSS_DIR}/
 RUN chmod +x ${HEC_DSS_DIR}/build_hecdss.sh
 RUN cd ${HEC_DSS_DIR} && ./build_hecdss.sh
 
-ARG MDAL_DIR="mdal"
+ENV MDAL_DIR="mdal"
     
 RUN mkdir ${MDAL_DIR}
 COPY build_mdal.sh ${MDAL_DIR}/
