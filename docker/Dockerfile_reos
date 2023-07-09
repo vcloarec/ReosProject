@@ -1,4 +1,4 @@
-FROM reos_dependencies
+FROM vcloarec/reos_dependencies
 LABEL maintainer="vcloarec@gmail.com"
 
 RUN mkdir reos
