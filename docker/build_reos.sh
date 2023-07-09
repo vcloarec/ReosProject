@@ -1,10 +1,8 @@
 git clone https://github.com/vcloarec/ReosProject.git
 
 cd ReosProject
-git checkout docker
 
-REOS_INSTALL=/reos
-
+REOS_INSTALL=$PWD
 
 mkdir build;
 cd build
