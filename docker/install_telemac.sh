@@ -19,7 +19,7 @@ if [ ! -d "metis" ] ; then
     tar -xvf metis-5.1.0.tar
     cd metis-5.1.0
     cmake -D CMAKE_INSTALL_PREFIX="$telemac_dir/metis/"
-    make
+    make -j5
     make install
     cd ..
     rm -r metis-5.1.0

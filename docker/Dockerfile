@@ -22,10 +22,12 @@ COPY ./dependencies/metis-5.1.0.tar.gz ${TELEMAC_DIR}/
 RUN chmod +x ${TELEMAC_DIR}/install_telemac.sh
 RUN cd ${TELEMAC_DIR} \
        &&  ./install_telemac.sh
+
+ARG GMSH_DIR="/gmsh"       
        
-COPY build_gmsh.sh /
-RUN chmod +x /build_gmsh.sh
-RUN ./build_gmsh.sh
+COPY build_gmsh.sh ${GMSH_DIR}/
+RUN chmod +x ${GMSH_DIR}/build_gmsh.sh
+RUN cd ${GMSH_DIR}/ && ./build_gmsh.sh
 
 ARG QGIS_DIR="/qgis"
 
@@ -33,3 +35,20 @@ COPY build_qgis.sh ${QGIS_DIR}/
 RUN chmod +x ${QGIS_DIR}/build_qgis.sh
 RUN export QGIS_SRC=${QGIS_DIR}/qgis_src &&  cd ${QGIS_DIR} && ./build_qgis.sh
 
+ARG HEC_DSS_DIR="/hecdss"
+
+RUN apt-get -y install default-jdk \
+    && apt-get -y install zlib1g-dev \
+    && apt-get -y install zip
+RUN mkdir ${HEC_DSS_DIR}
+COPY build_hecdss.sh ${HEC_DSS_DIR}/
+COPY hecdss_jni.patch ${HEC_DSS_DIR}/
+RUN chmod +x ${HEC_DSS_DIR}/build_hecdss.sh
+RUN cd ${HEC_DSS_DIR} && ./build_hecdss.sh
+
+ARG MDAL_DIR="mdal"
+    
+RUN mkdir ${MDAL_DIR}
+COPY build_mdal.sh ${MDAL_DIR}/
+RUN chmod +x ${MDAL_DIR}/build_mdal.sh
+RUN cd ${MDAL_DIR} && ./build_mdal.sh

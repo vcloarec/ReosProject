@@ -6,7 +6,7 @@ git checkout tags/gmsh_4_11_1
 GMSH_SRC=$PWD
 cd ..
 
-GMSH_INSTALL="/GMSH_Built"
+GMSH_INSTALL=$PWD
 
 mkdir gmsh_building
 cd gmsh_building
@@ -16,7 +16,7 @@ $gmsh_building_path=$PWD
 cmake   -S $GMSH_SRC \
 		-B . \
         -DCMAKE_BUILD_TYPE:STRING=Release \
-        -DCMAKE_INSTALL_PREFIX:PATH=$GMSH_INSTALL \
+        -DCMAKE_INSTALL_PREFIX=$GMSH_INSTALL \
         -DENABLE_3M:BOOL=OFF \
         -DENABLE_ALGLIB:BOOL=OFF \
         -DENABLE_ANN:BOOL=OFF \
@@ -93,7 +93,7 @@ cmake   -S $GMSH_SRC \
         -DENABLE_WRAP_PYTHON:BOOL=OFF \
         -DENABLE_ZIPPER:BOOL=OFF
         
-cmake --build .  --config Release -j
+cmake --build .  --config Release -j20
 cmake --install .
 
 
