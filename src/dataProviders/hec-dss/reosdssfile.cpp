@@ -90,7 +90,7 @@ bool ReosDssFile::isOpen() const
 void ReosDssFile::open()
 {
   mIfltab.reset( new std::array<long long, 250> );
-  mStatus = zopen( mIfltab->data(), mFileName.toUtf8().data() );
+  mStatus = hec_dss_zopen( mIfltab->data(), mFileName.toUtf8().data() );
   mIsOpen = mStatus == STATUS_OKAY;
   mIsValid = mIsOpen;
 }
