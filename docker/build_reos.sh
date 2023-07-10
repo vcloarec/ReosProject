@@ -1,8 +1,8 @@
 git clone https://github.com/vcloarec/ReosProject.git
 
-cd ReosProject
+REOS_INSTALL=$REOS_DIR
 
-REOS_INSTALL=$PWD
+cd ReosProject
 
 mkdir build;
 cd build
