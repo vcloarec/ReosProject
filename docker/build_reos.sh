@@ -39,7 +39,7 @@ cmake --install .
 cd ..
 rm -r build
 cd ..
-rm - r ReosProject
+rm -r ReosProject
 
 
 
