@@ -28,7 +28,7 @@ int main( int argc, char *argv[] )
   qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
 #endif
 
-  ReosApplication a( argc, argv, QStringLiteral( "Reos System" ) );
+  ReosApplication a( argc, argv, true, QStringLiteral( "Reos System" ) );
 
   std::unique_ptr<LekanMainWindow> lekan;
   QSystemTrayIcon *trayIcon = new QSystemTrayIcon( &a );
