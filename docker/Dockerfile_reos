@@ -1,14 +1,16 @@
 FROM vcloarec/reos_dependencies
 LABEL maintainer="vcloarec@gmail.com"
 
-RUN mkdir reos
-COPY build_reos.sh /reos/
-RUN chmod +x /reos/build_reos.sh
+ENV REOS_DIR="/reos"
+
+RUN mkdir ${REOS_DIR}
+COPY build_reos.sh ${REOS_DIR}/
+RUN chmod +x ${REOS_DIR}/build_reos.sh
 
 RUN export QGIS_INSTALL=/qgis \
        && export QGIS_APP_SRC=/qgis/app_src \
        && export MDAL_INSTALL=/mdal \
        && export GMSH_INSTALL=/gmsh \
        && export HEC_DSS_INSTALL=/hecdss \
-       && cd reos && ./build_reos.sh
+       && cd ${REOS_DIR} && ./build_reos.sh
 
