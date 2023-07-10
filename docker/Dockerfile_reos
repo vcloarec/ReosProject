@@ -6,6 +6,8 @@ ENV REOS_DIR="/reos"
 RUN mkdir ${REOS_DIR}
 COPY build_reos.sh ${REOS_DIR}/
 RUN chmod +x ${REOS_DIR}/build_reos.sh
+COPY pyReos_interpreter.sh /
+RUN chmod +x /pyReos_interpreter.sh
 
 RUN export QGIS_INSTALL=/qgis \
        && export QGIS_APP_SRC=/qgis/app_src \
