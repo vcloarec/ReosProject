@@ -79,7 +79,7 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
     Q_OBJECT
   public:
 #ifndef SIP_RUN
-    ReosApplication( int &argc, char **argv, bool guiEnabled, const QString &appName = QStringLiteral( "Reos" ) );
+    ReosApplication(int &argc, char **argv, const QString &appName = QStringLiteral( "Reos" ), bool guiEnabled = true);
 #else
 
     /**
@@ -87,7 +87,7 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
      *
      * \param argv command line arguments
      */
-    ReosApplication( SIP_PYLIST argv, bool GUIenabled, const QString &appName = QStringLiteral( "Reos" ) ) / PostHook = __pyQtQAppHook__ / [( int &argc, char **argv, bool GUIenabled, const QString &appName = QStringLiteral( "Reos" ) )];
+    ReosApplication( SIP_PYLIST argv ) / PostHook = __pyQtQAppHook__ / [( int &argc, char **argv )];
     % MethodCode
     // The Python interface is a list of argument strings that is modified.
 
@@ -102,7 +102,7 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
       // Create it now the arguments are right.
       static int nargc = argc;
 
-      sipCpp = new sipReosApplication( nargc, argv, a1, *a2 );
+      sipCpp = new sipReosApplication( nargc, argv );
 
       // Now modify the original list.
       qtgui_UpdatePyArgv( a0, argc, argv );

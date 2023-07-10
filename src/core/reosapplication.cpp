@@ -28,7 +28,7 @@ email                : vcloarec at gmail dot com
 
 QString ReosApplication::sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
 
-ReosApplication::ReosApplication( int &argc, char **argv, bool guiEnabled, const QString &appName )
+ReosApplication::ReosApplication( int &argc, char **argv, const QString &appName, bool guiEnabled )
   : QApplication( argc, argv, guiEnabled )
 {
   QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
