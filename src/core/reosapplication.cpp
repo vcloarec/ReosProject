@@ -121,6 +121,16 @@ bool ReosApplication::notify( QObject *receiver, QEvent *event )
 
 ReosApplication *ReosApplication::initializationReos( int &argc, char **argv, const QString &appName )
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !defined(ANDROID)
+  const QString &displayVar = qgetenv( "DISPLAY" );
+
+  if ( displayVar.isEmpty() )
+  {
+    qputenv( "QT_QPA_PLATFORM", "offscreen" );
+    qDebug() << "DISPLAY not set, running in offscreen mode.";
+  }
+#endif
+
   return new ReosApplication( argc, argv, appName );
 }
 
@@ -263,5 +273,8 @@ QString ReosApplication::dataProviderpath()
 
 QString ReosApplication::gisProviderPath()
 {
-  return resolvePath( QStringLiteral( "qgisProvider" ) );
+  QString qgisPluginPath = qgetenv( "QGIS_PLUGIN_PATH" );
+  if ( qgisPluginPath.isEmpty() )
+    return resolvePath( QStringLiteral( "qgisProvider" ) );
+  else return qgisPluginPath;
 }
