@@ -77,7 +77,36 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
 
     Q_OBJECT
   public:
+#ifndef SIP_RUN
+    ReosApplication( int &argc, char **argv, const QString &appName = QStringLiteral( "Reos" ) );
+#else
+    /**
+     * Constructor for ReosApplication.
+     *
+     * \param argv command line arguments
+     */
+    ReosApplication( SIP_PYLIST argv ) / PostHook = __pyQtQAppHook__ / [( int &argc, char **argv )];
+    % MethodCode
+    // The Python interface is a list of argument strings that is modified.
 
+    int argc;
+    char **argv;
+
+    // Convert the list.
+    if ( ( argv = qtgui_ArgvToC( a0, argc ) ) == NULL )
+      sipIsErr = 1;
+    else
+    {
+      // Create it now the arguments are right.
+      static int nargc = argc;
+
+      sipCpp = new sipReosApplication( nargc, argv );
+
+      // Now modify the original list.
+      qtgui_UpdatePyArgv( a0, argc, argv );
+    }
+    % End
+#endif
     ~ReosApplication();
     bool notify( QObject *receiver, QEvent *event ) override;
 
@@ -134,9 +163,6 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
 #endif // no SIP_RUN
 
   private:
-
-    ReosApplication( int &argc, char **argv, const QString &appName = QStringLiteral( "Reos" ) );
-
     QPointer<ReosCoreModule> mCoreModule;
     static QString sReosPrefix;
     static QString resolvePath( const QString &subDir );
