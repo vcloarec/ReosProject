@@ -66,9 +66,10 @@ int main( int argc, char *argv[] )
     SetUnhandledExceptionFilter( handleCrash );
 #endif
 
-  ReosApplication a( argc, argv, QStringLiteral( "Lekan" ) );
 
-  std::unique_ptr<LekanMainWindow> mainWindow = std::make_unique<LekanMainWindow>( a.coreModule() );
+  std::unique_ptr<ReosApplication> a( ReosApplication::initializationReos( argc, argv, QStringLiteral( "Lekan" ) ) );
+
+  std::unique_ptr<LekanMainWindow> mainWindow = std::make_unique<LekanMainWindow>( a->coreModule() );
   new ReosVersionMessageBox( mainWindow.get(), ReosVersion::currentApplicationVersion() );
 
   ReosSettings settings;
@@ -98,7 +99,7 @@ int main( int argc, char *argv[] )
     starting->deleteLater();
   } );
 
-  int ret = a.exec();
+  int ret = a->exec();
 
   return ret;
 

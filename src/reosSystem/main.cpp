@@ -28,16 +28,16 @@ int main( int argc, char *argv[] )
   qputenv( "PATH", "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\system32\\WBem" );
 #endif
 
-  ReosApplication a( argc, argv, QStringLiteral( "Reos System" ) );
+  std::unique_ptr<ReosApplication> a( ReosApplication::initializationReos( argc, argv, QStringLiteral( "Reos System" ) ) );
 
   std::unique_ptr<LekanMainWindow> lekan;
-  QSystemTrayIcon *trayIcon = new QSystemTrayIcon( &a );
+  QSystemTrayIcon *trayIcon = new QSystemTrayIcon( a.get() );
 
   QAction *actionStartLekan = new QAction( QObject::tr( "Open Lekan" ), trayIcon );
-  QObject::connect( actionStartLekan, &QAction::triggered, &a, [&]
+  QObject::connect( actionStartLekan, &QAction::triggered, a.get(), [&]
   {
     if ( !lekan )
-      lekan.reset( new LekanMainWindow( a.coreModule() ) );
+      lekan.reset( new LekanMainWindow( a->coreModule() ) );
 
     if ( lekan->isVisible() )
       return;
@@ -60,10 +60,7 @@ int main( int argc, char *argv[] )
   trayIcon->setContextMenu( &contextMenu );
   trayIcon->show();
 
-  QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
-  QCoreApplication::setApplicationName( QStringLiteral( "Reos System" ) );
-
-  int ret = a.exec();
+  int ret = a->exec();
 
   return ret;
 
