@@ -80,11 +80,17 @@ ReosSimulationEngineRegistery *ReosSimulationEngineRegistery::sInstance = nullpt
 ReosSimulationEngineRegistery::ReosSimulationEngineRegistery()
 {}
 
+ReosSimulationEngineRegistery::~ReosSimulationEngineRegistery()
+{
+  for ( std::map<QString, ReosSimulationEngineFactory *>::const_iterator it = mFactories.cbegin(); it != mFactories.cend(); ++it )
+    delete it->second;
+}
+
 void ReosSimulationEngineRegistery::registerEngineFactory( ReosSimulationEngineFactory *factory )
 {
   if ( factory )
   {
-    mFactories[factory->key()] = std::unique_ptr<ReosSimulationEngineFactory>( factory );
+    mFactories[factory->key()] = factory;
     mFactories[factory->key()]->initializeSettings();
   }
 }
@@ -354,6 +360,15 @@ QMap<QString, ReosHydrograph *> ReosSimulationProcess::outputHydrographs() const
 ReosTimeWindow ReosSimulationProcess::timeWindow() const
 {
   return mTimewWindow;
+}
+
+ReosSimulationEngineFactory::ReosSimulationEngineFactory()
+{
+
+}
+
+ReosSimulationEngineFactory::~ReosSimulationEngineFactory()
+{
 }
 
 bool ReosSimulationEngineFactory::hasCapability( SimulationEngineCapability capability ) const

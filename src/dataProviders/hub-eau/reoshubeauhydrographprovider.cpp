@@ -216,6 +216,11 @@ QString ReosHubEauHydrographProvider::htmlDescriptionFromMeta( const QVariantMap
     htmlText += QStringLiteral( "<h2>" ) + metadata.value( QStringLiteral( "libelle_station" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
+                + tr( "<b>Code</b>" ) + QStringLiteral( "</td><td>" )
+                + metadata.value( QStringLiteral( "code_station" ) ).toString()
+                + QStringLiteral( "</td></tr>\n" );
+
+    htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
                 + tr( "<b>On duty</b>" ) + QStringLiteral( "</td><td>" )
                 + ( metadata.value( QStringLiteral( "en_service" ) ).toBool() ? tr( "yes" ) : tr( "no" ) )
                 + QStringLiteral( "</td></tr>\n" );
