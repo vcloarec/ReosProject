@@ -124,7 +124,7 @@ Returns the element time step related to map rendering
 
     ReosHydraulicNetwork *network() const;
 %Docstring
-Return a pointer to the networl of the element
+Return a pointer to the network of the element
 %End
 
     virtual ReosMapExtent extent() const = 0;
@@ -169,6 +169,7 @@ class ReosHydraulicNetworkContext
 %End
   public:
     ReosHydraulicNetworkContext();
+    ReosWatershedModule *watershedModule() const;
     ReosHydraulicNetwork *network() const;
 
     QString crs() const;
@@ -270,6 +271,12 @@ Returns the current scheme Id
     QString currentSchemeName() const;
 %Docstring
 Returns the current scheme Name
+%End
+
+    ReosHydraulicScheme *addNewScheme( const QString &schemeName );
+%Docstring
+Creates and Adds a new scheme to the network with ``schemeName``.
+The associated meteo model will be the first one available.
 %End
 
 

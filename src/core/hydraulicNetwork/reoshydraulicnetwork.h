@@ -138,7 +138,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const SIP_SKIP;
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) SIP_SKIP;
 
-//! Cleans all data related to \a scheme, returns a list of files or folder that should be removec when saving the project
+    //! Cleans all data related to \a scheme, returns a list of files or folder that should be removed when saving the project
     virtual QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) SIP_SKIP;
 
     //! Returns the current element time step
@@ -150,7 +150,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     //! Returns the element time step related to map rendering
     virtual ReosDuration mapTimeStep() const;
 
-    //! Return a pointer to the networl of the element
+    //! Return a pointer to the network of the element
     ReosHydraulicNetwork *network() const;
 
     //! Returns the extent of the element
@@ -202,7 +202,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
 {
   public:
     ReosHydraulicNetworkContext() = default;
-    ReosWatershedModule *watershedModule() const SIP_SKIP;
+    ReosWatershedModule *watershedModule() const;
     ReosHydraulicNetwork *network() const;
 
     QString crs() const;
@@ -299,13 +299,28 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Returns the current scheme Name
     QString currentSchemeName() const;
 
+    /**
+     * Creates and Adds a new scheme to the network with \a schemeName.
+     * The associated meteo model will be the first one available.
+     */
+    ReosHydraulicScheme *addNewScheme( const QString &schemeName );
+
 #ifndef SIP_RUN
     ReosHydraulicScheme *currentScheme() const;
     ReosHydraulicScheme *scheme( const QString &schemeId ) const;
     ReosHydraulicScheme *scheme( int index ) const;
     ReosHydraulicScheme *schemeByName( const QString &schemeName ) const;
-    ReosHydraulicScheme *addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel = nullptr );
+
+    /**
+     * Creates and Adds a new scheme to the network with \a schemeName and associtated with a meteorological model \a meteoModel.
+     */
+    ReosHydraulicScheme *addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel );
+
+    /**
+     * Adds an existing scheme to the network, the scheme has to not be own by the network, and the network take ownership
+     */
     void addExistingScheme( ReosHydraulicScheme *scheme );
+
     void removeScheme( int schemeIndex );
 #endif
 
