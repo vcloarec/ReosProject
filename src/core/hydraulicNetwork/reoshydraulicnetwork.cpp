@@ -549,6 +549,11 @@ QString ReosHydraulicNetwork::currentSchemeName() const
   return QString();
 }
 
+ReosHydraulicScheme *ReosHydraulicNetwork::addNewScheme( const QString &schemeName )
+{
+  return addNewScheme( schemeName, nullptr );
+}
+
 ReosHydraulicScheme *ReosHydraulicNetwork::addNewScheme( const QString &schemeName, ReosMeteorologicModel *meteoModel )
 {
   ReosHydraulicScheme *scheme = new ReosHydraulicScheme( mHydraulicSchemeCollection );

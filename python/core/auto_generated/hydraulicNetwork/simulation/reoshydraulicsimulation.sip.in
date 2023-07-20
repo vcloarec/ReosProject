@@ -64,6 +64,42 @@ class ReosHydraulicSimulation : ReosDataObject /Abstract/
 };
 
 
+class ReosSimulationEngineRegistery
+{
+
+%TypeHeaderCode
+#include "reoshydraulicsimulation.h"
+%End
+  public:
+    ReosSimulationEngineRegistery();
+
+    ReosHydraulicSimulation *createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const;
+%Docstring
+Creates and returns a simuation corresponding to the ``key``
+%End
+
+
+    static ReosSimulationEngineRegistery *instance();
+%Docstring
+Returns a pointer to the static instance of this registery
+%End
+
+    const QMap<QString, QString> availableEngine();
+%Docstring
+Returns all the engine available
+%End
+
+
+    bool canImportSrtucture2D() const;
+%Docstring
+Returns whether the registery contains engine that importation
+%End
+
+
+
+};
+
+
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *

@@ -193,8 +193,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
 
 };
 
-#ifndef SIP_RUN
-class ReosSimulationEngineFactory
+class ReosSimulationEngineFactory SIP_ABSTRACT
 {
     Q_GADGET
   public:
@@ -208,8 +207,9 @@ class ReosSimulationEngineFactory
     Q_ENUM( SimulationEngineCapability )
     Q_DECLARE_FLAGS( SimulationEngineCapabilities, SimulationEngineCapability )
     Q_FLAG( SimulationEngineCapabilities )
-
-    virtual ~ReosSimulationEngineFactory() = default;
+    ReosSimulationEngineFactory();
+    virtual ~ReosSimulationEngineFactory();
+#ifndef SIP_RUN
 
     virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const = 0;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const = 0;
@@ -223,19 +223,22 @@ class ReosSimulationEngineFactory
 
   protected:
     SimulationEngineCapabilities mCapabilities = QFlags<SimulationEngineCapability>();
+#endif // No SIP_RUN
 
 };
+
 
 class REOSCORE_EXPORT ReosSimulationEngineRegistery
 {
   public:
     ReosSimulationEngineRegistery();
+    ~ReosSimulationEngineRegistery();
 
     //! Creates and returns a simuation corresponding to the \a key
     ReosHydraulicSimulation *createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const ;
 
     //! Creates and returns a simuation corresponding to the encoded \a element
-    ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent )const;
+    ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const SIP_SKIP;
 
     //! Returns a pointer to the static instance of this registery
     static ReosSimulationEngineRegistery *instance();
@@ -243,24 +246,23 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     //! Returns all the engine available
     const QMap<QString, QString> availableEngine();
 
-    const QMap<QString, QString> availableEngine( ReosSimulationEngineFactory::SimulationEngineCapability capability );
+    const QMap<QString, QString> availableEngine( ReosSimulationEngineFactory::SimulationEngineCapability capability ) SIP_SKIP;
 
-    //! Returns whether the registery contains engine that importation
+    //! Returns whether the registery contains at least one engine that support importation
     bool canImportSrtucture2D() const;
 
-    ReosStructureImporterSource *createStructureImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context );
+    ReosStructureImporterSource *createStructureImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) SIP_SKIP;
 
     //! Registers a \a factory
-    void registerEngineFactory( ReosSimulationEngineFactory *factory );
+    void registerEngineFactory( ReosSimulationEngineFactory *factory ) SIP_SKIP;
 
   private:
-#ifdef _MSC_VER
-    std::unique_ptr<ReosSimulationEngineFactory> dummy; // workaround for MSVC, if not, the line after create a compilation error if this class is exported (REOSCORE_EXPORT)
-#endif
-    std::map<QString, std::unique_ptr<ReosSimulationEngineFactory>> mFactories;
+    std::map<QString, ReosSimulationEngineFactory *> mFactories;
     static ReosSimulationEngineRegistery *sInstance;
     void loadDynamicLibrary();
 };
+
+#ifndef SIP_RUN
 
 class ReosHydraulicSimulationDummy;
 
