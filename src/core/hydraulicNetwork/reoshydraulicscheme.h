@@ -16,8 +16,6 @@
 #ifndef REOSHYDRAULICSCHEME_H
 #define REOSHYDRAULICSCHEME_H
 
-#define SIP_NO_FILE
-
 #include <QAbstractListModel>
 #include <QPointer>
 
@@ -42,24 +40,24 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 {
     Q_OBJECT
   public:
-    ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection = nullptr );
+    ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection = nullptr ) SIP_SKIP;
 
-    ReosParameterString *schemeName() const;
+    ReosParameterString *schemeName() const SIP_SKIP;
 
-    ReosEncodedElement encode() const;
-    static ReosHydraulicScheme *decode( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context );
+    ReosEncodedElement encode() const SIP_SKIP;
+    static ReosHydraulicScheme *decode( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context ) SIP_SKIP;
 
-    ReosMeteorologicModel *meteoModel() const;
-    void setMeteoModel( ReosMeteorologicModel *meteoModel );
+    ReosMeteorologicModel *meteoModel() const SIP_SKIP;
+    void setMeteoModel( ReosMeteorologicModel *meteoModel ) SIP_SKIP;
 
     //! Saves the configuration of element \a elementid contained in \a encodedelement
-    void saveElementConfig( const QString &elementId, const ReosEncodedElement &encodedElement );
+    void saveElementConfig( const QString &elementId, const ReosEncodedElement &encodedElement ) SIP_SKIP;
 
     //! Restores the encoded configuration of the element \a elementId, if not exist, creates empty one for the element
-    ReosEncodedElement restoreElementConfig( const QString &elementId );
+    ReosEncodedElement restoreElementConfig( const QString &elementId ) SIP_SKIP;
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return QStringLiteral( "scheme" );}
+    QString type() const override SIP_SKIP {return staticType();}
+    static QString staticType() SIP_SKIP {return QStringLiteral( "scheme" );}
 
     ReosCalculationContext calculationContext() const;
 
@@ -77,7 +75,7 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
 
 };
 
-
+#ifndef SIP_RUN
 class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
 {
     Q_OBJECT
@@ -121,9 +119,7 @@ class REOSCORE_EXPORT ReosHydraulicSchemeCollection : public QAbstractListModel
 
   private:
     QList<ReosHydraulicScheme *> mHydraulicSchemes;
-
-
 };
-
+#endif //SIP no run
 
 #endif // REOSHYDRAULICSCHEME_H

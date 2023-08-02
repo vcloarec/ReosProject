@@ -20,6 +20,7 @@
 
 #include "reosmeteorologicmodel.h"
 
+
 ReosHydraulicScheme::ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection )
   : ReosDataObject( collection )
   , mSchemeName( new ReosParameterString( tr( "Scheme name" ), false, this ) )

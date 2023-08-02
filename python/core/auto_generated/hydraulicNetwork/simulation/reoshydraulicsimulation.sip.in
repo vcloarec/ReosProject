@@ -63,6 +63,30 @@ class ReosHydraulicSimulation : ReosDataObject /Abstract/
 
 };
 
+class ReosSimulationEngineFactory /Abstract/
+{
+
+%TypeHeaderCode
+#include "reoshydraulicsimulation.h"
+%End
+  public:
+    static const QMetaObject staticMetaObject;
+
+  public:
+
+    enum SimulationEngineCapability
+    {
+      ImportStructure2D,
+      CanBeCreated
+    };
+
+    typedef QFlags<ReosSimulationEngineFactory::SimulationEngineCapability> SimulationEngineCapabilities;
+
+    ReosSimulationEngineFactory();
+    virtual ~ReosSimulationEngineFactory();
+
+};
+
 
 class ReosSimulationEngineRegistery
 {
@@ -72,6 +96,7 @@ class ReosSimulationEngineRegistery
 %End
   public:
     ReosSimulationEngineRegistery();
+    ~ReosSimulationEngineRegistery();
 
     ReosHydraulicSimulation *createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const;
 %Docstring
@@ -92,7 +117,7 @@ Returns all the engine available
 
     bool canImportSrtucture2D() const;
 %Docstring
-Returns whether the registery contains engine that importation
+Returns whether the registery contains at least one engine that support importation
 %End
 
 
