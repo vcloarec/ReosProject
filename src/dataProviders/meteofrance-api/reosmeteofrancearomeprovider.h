@@ -33,9 +33,9 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     ReosMeteoFranceAromeApiProvider();
 
     ReosGriddedRainfallProvider *clone() const override;
+    void load() override;
     QStringList fileSuffixes() const override {return QStringList();}
     QString key() const override {return staticKey();}
-    void setDataSource( const QString &dataSource ) override;
     QString htmlDescription() const override;
 
     FileDetails details( const QString &, ReosModule::Message & ) const override;
@@ -61,7 +61,7 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     static QString zoneFromUri( const QString &uri );
     static QString resolFromUri( const QString &uri );
     static ReosMapExtent extentFromUri( const QString &uri );
-    static ReosMapExtent extentFromList(const QList<double> &list );
+    static ReosMapExtent extentFromList( const QList<double> &list );
     static QList<double> extentListFromUri( const QString &uri );
     static int runIndexfromUri( const QString &uri );
 
@@ -82,8 +82,6 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     QList<QVector<double>> mValues;
     ReosMeteoFranceApiArome::RunInfo mRunInfo;
     QSet<int> mReceivedFrames;
-
-    void loadFrame();
 };
 
 class ReosMeteoFranceAromeApiProviderFactory: public ReosDataProviderFactory

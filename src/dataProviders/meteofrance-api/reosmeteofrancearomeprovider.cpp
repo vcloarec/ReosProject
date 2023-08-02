@@ -189,7 +189,7 @@ void ReosMeteoFranceAromeApiProvider::receiveData( const QByteArray &data, int f
     emit dataChanged();
 }
 
-void ReosMeteoFranceAromeApiProvider::loadFrame()
+void ReosMeteoFranceAromeApiProvider::load()
 {
   mIsValid = false;
   mIsLoading = true;
@@ -210,12 +210,6 @@ void ReosMeteoFranceAromeApiProvider::loadFrame()
 ReosGriddedRainfallProvider *ReosMeteoFranceAromeApiProvider::clone() const
 {
   return nullptr;
-}
-
-void ReosMeteoFranceAromeApiProvider::setDataSource( const QString &dataSource )
-{
-  ReosGriddedRainfallProvider::setDataSource( dataSource );
-  loadFrame();
 }
 
 QString ReosMeteoFranceAromeApiProvider::htmlDescription() const

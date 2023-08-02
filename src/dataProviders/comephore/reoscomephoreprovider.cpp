@@ -42,24 +42,21 @@ ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
   return other.release();
 }
 
-ReosComephoreProvider::~ReosComephoreProvider() = default;
-
-void ReosComephoreProvider::setDataSource( const QString &dataSource )
+void ReosComephoreProvider::load()
 {
   mIsValid = false;
-  ReosGriddedRainfallProvider::setDataSource( dataSource );
-  QFileInfo sourceInfo( dataSource );
+  QFileInfo sourceInfo( dataSource() );
 
   if ( sourceInfo.isDir() )
   {
-    if ( ReosComephoreTiffFilesReader::canReadFile( dataSource ) )
-      mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource ) );
+    if ( ReosComephoreTiffFilesReader::canReadFile( dataSource() ) )
+      mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource() ) );
     else
-      mFileReader.reset( new ReosComephoreNetCdfFolderReader( dataSource ) );
+      mFileReader.reset( new ReosComephoreNetCdfFolderReader( dataSource() ) );
   }
   else if ( sourceInfo.isFile() && sourceInfo.suffix() == QStringLiteral( "nc" ) )
   {
-    mFileReader.reset( new ReosComephoreNetCdfFilesReader( dataSource ) );
+    mFileReader.reset( new ReosComephoreNetCdfFilesReader( dataSource() ) );
   }
 
   if ( mFileReader )
@@ -71,6 +68,8 @@ void ReosComephoreProvider::setDataSource( const QString &dataSource )
   emit dataReset();
   emit loadingFinished();
 }
+
+ReosComephoreProvider::~ReosComephoreProvider() = default;
 
 QStringList ReosComephoreProvider::fileSuffixes() const
 {

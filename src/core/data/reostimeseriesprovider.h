@@ -60,7 +60,7 @@ class REOSCORE_EXPORT ReosTimeSerieProvider : public ReosDataProvider
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
     virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
 
-    virtual void load() {}
+    void load() override {}
     QString dataSource() const;
 
     void setDataSource( const QString &dataSource, bool loadAfter = true );

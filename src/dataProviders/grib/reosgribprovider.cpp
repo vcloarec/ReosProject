@@ -40,21 +40,11 @@ ReosGriddedRainfallProvider *ReosGribGriddedRainfallProvider::clone() const
   return other.release();
 }
 
-QStringList ReosGribGriddedRainfallProvider::fileSuffixes() const
+void ReosGribGriddedRainfallProvider::load()
 {
-  QStringList ret;
-  ret << QStringLiteral( "grib2" )
-      << QStringLiteral( "grb2" );
-
-  return ret;
-}
-
-void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
-{
-  ReosGriddedRainfallProvider::setDataSource( dataSource );
-  QString fileSource = sourcePathFromUri( dataSource );
-  QString varName = variableFromUri( dataSource );
-  mSourceValueType = valueTypeFromUri( dataSource );
+  QString fileSource = sourcePathFromUri( dataSource() );
+  QString varName = variableFromUri( dataSource() );
+  mSourceValueType = valueTypeFromUri( dataSource() );
   mIsValid = false;
 
   QMap<qint64, GribFrame> pathes;
@@ -84,6 +74,15 @@ void ReosGribGriddedRainfallProvider::setDataSource( const QString &dataSource )
 
   emit dataReset();
   emit loadingFinished();
+}
+
+QStringList ReosGribGriddedRainfallProvider::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "grib2" )
+      << QStringLiteral( "grb2" );
+
+  return ret;
 }
 
 ReosGriddedRainfallProvider::FileDetails ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const
