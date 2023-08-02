@@ -8,11 +8,6 @@ ADD_DEFINITIONS(-DTESTDATA="${TESTDATA_DIR}")
 
 #########################################################################
 #########################################################################
-SET(TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
-ADD_DEFINITIONS(-DTESTDATA="${TESTDATA_DIR}")
-
-#########################################################################
-#########################################################################
 
 MACRO (ADD_REOS_TEST TESTSRC)
   GET_FILENAME_COMPONENT(TESTNAME ${TESTSRC} NAME)
