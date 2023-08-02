@@ -193,7 +193,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
 
 };
 
-class ReosSimulationEngineFactory SIP_ABSTRACT
+class REOSCORE_EXPORT ReosSimulationEngineFactory SIP_ABSTRACT
 {
     Q_GADGET
   public:
