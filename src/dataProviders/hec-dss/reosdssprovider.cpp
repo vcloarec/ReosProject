@@ -465,24 +465,10 @@ QString ReosDssProviderTimeSerieVariableTimeStep::dataType()
   return ReosTimeSeriesVariableTimeStep::staticType();
 }
 
-QString ReosDssProviderGriddedRainfall::key() const
+void ReosDssProviderGriddedRainfall::load()
 {
-  return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();
-}
-
-QStringList ReosDssProviderGriddedRainfall::fileSuffixes() const
-{
-  QStringList ret;
-  ret << QStringLiteral( "dss" );
-  return ret;
-}
-
-void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
-{
-  ReosGriddedRainfallProvider::setDataSource( dataSource );
-
-  mFilePath = ReosDssUtils::dssFileFromUri( dataSource );
-  mPath = ReosDssUtils::dssPathFromUri( dataSource );
+  mFilePath = ReosDssUtils::dssFileFromUri( dataSource() );
+  mPath = ReosDssUtils::dssPathFromUri( dataSource() );
 
   mFile.reset( new ReosDssFile( mFilePath ) );
 
@@ -513,6 +499,18 @@ void ReosDssProviderGriddedRainfall::setDataSource( const QString &dataSource )
 
   emit dataReset();
   emit loadingFinished();
+}
+
+QString ReosDssProviderGriddedRainfall::key() const
+{
+  return ReosDssProviderBase::staticKey() + QStringLiteral( "::" ) + dataType();
+}
+
+QStringList ReosDssProviderGriddedRainfall::fileSuffixes() const
+{
+  QStringList ret;
+  ret << QStringLiteral( "dss" );
+  return ret;
 }
 
 bool ReosDssProviderGriddedRainfall::canReadUri( const QString &uri ) const

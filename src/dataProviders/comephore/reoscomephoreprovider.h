@@ -137,9 +137,9 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     ReosComephoreProvider();
     ~ReosComephoreProvider();
     ReosGriddedRainfallProvider *clone() const override;
+    void load() override;
 
     QString key() const override {return staticKey();}
-    void setDataSource( const QString &dataSource ) override;
     QStringList fileSuffixes() const override;
     QString htmlDescription() const override;
     bool hasPrecipitationCapability( PrecipitationGridCapability capability )  const override;

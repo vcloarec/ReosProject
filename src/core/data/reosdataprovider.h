@@ -53,6 +53,8 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
     //! Returns whether the provider can read the \a uri
     virtual bool canReadUri( const QString &uri ) const;
 
+    virtual void load() = 0;
+
     virtual QStringList fileSuffixes() const = 0;
 
     virtual bool isLoading() const  {return false;}

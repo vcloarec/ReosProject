@@ -54,7 +54,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &elem
 void ReosGriddedRainfall::updateData() const
 {
   if ( dataProvider() )
-    dataProvider()->setDataSource( dataProvider()->dataSource() );
+    dataProvider()->load();
 }
 
 ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )

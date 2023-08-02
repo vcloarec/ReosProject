@@ -60,8 +60,6 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     Q_DECLARE_FLAGS( PrecipitationGridCapabilities, PrecipitationGridCapability )
     Q_FLAG( PrecipitationGridCapabilities )
 
-    virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
-
     struct FileDetails
     {
       QStringList availableVariables;
@@ -74,9 +72,11 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 
     virtual ReosGriddedRainfallProvider *clone() const = 0;
 
+    virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
+
     QString dataSource() const;
 
-    virtual void setDataSource( const QString &uri );
+    void setDataSource( const QString &uri );
 
     virtual FileDetails details( const QString &, ReosModule::Message & ) const {return FileDetails();}
 
@@ -129,6 +129,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRain
   public:
     ReosGriddedRainfallProvider *clone() const override;
 
+    void load() override {};
     QString key() const override;
     QStringList fileSuffixes() const override {return QStringList();}
     bool isValid() const override {return true;}

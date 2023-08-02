@@ -27,6 +27,7 @@ QString ReosGriddedRainfallProvider::dataSource() const
 void ReosGriddedRainfallProvider::setDataSource( const QString &uri )
 {
   mDataSource = uri;
+  load();
 }
 
 ReosDuration ReosGriddedRainfallProvider::intervalDuration( int index ) const
