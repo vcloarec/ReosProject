@@ -80,6 +80,7 @@ SET(REOS_CORE_SOURCES
   data/reosdataprovider.cpp
   data/reostimeseriesgroup.cpp
   data/reosgriddedrainfallprovider.cpp
+  data/reosdataupdater.cpp
 
   hydrograph/reoshydrograph.cpp
   hydrograph/reoshydrographsource.cpp
@@ -174,6 +175,7 @@ SET(REOS_CORE_HEADERS
     data/reosdataprovider.h
     data/reostimeseriesgroup.h
     data/reosgriddedrainfallprovider.h
+    data/reosdataupdater.h
 
     hydrograph/reoshydrograph.h
     hydrograph/reoshydrographsource.h

@@ -20,6 +20,7 @@
 %Include auto_generated/data/reostimeseries.sip
 %Include auto_generated/data/reosdataobject.sip
 %Include auto_generated/data/reosdataprovider.sip
+%Include auto_generated/data/reosdataupdater.sip
 %Include auto_generated/hydrograph/reoshydrograph.sip
 %Include auto_generated/hydrograph/reoshydrographsource.sip
 %Include auto_generated/hydraulicNetwork/reoshydraulicscheme.sip
