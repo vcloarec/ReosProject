@@ -1,0 +1,78 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosdataupdater.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosDataUpdater : QObject /Abstract/
+{
+%Docstring(signature="appended")
+The ReosDataUpdater class is an abstract class used to update regulary data object
+%End
+
+%TypeHeaderCode
+#include "reosdataupdater.h"
+%End
+  public:
+    ReosDataUpdater( ReosDataObject *dataObject );
+%Docstring
+Constructor with ``dataObject`` as parent
+%End
+
+    void startWatching( int checkDelay );
+%Docstring
+Start watching every ``checkDelay`` seconds
+%End
+
+    void stopWatching();
+%Docstring
+Stop watching the data
+%End
+
+  public slots:
+    virtual void askUpdate() = 0;
+%Docstring
+Asks update of the data object
+%End
+
+  signals:
+    void dataUpdated();
+%Docstring
+Emitted when the data object is updated
+%End
+
+};
+
+
+class ReosTimeSeriesUpdater : ReosDataUpdater
+{
+
+%TypeHeaderCode
+#include "reosdataupdater.h"
+%End
+  public:
+    ReosTimeSeriesUpdater( ReosTimeSeries *timeSeries );
+
+    virtual void askUpdate();
+
+
+    ReosTimeWindow lastNewTimeWindow() const;
+%Docstring
+Returns the time windows which is new comparing to the former series
+%End
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosdataupdater.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
