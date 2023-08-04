@@ -96,12 +96,11 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
     void setHydrographFromModel( ReosHydrograph *hydrograph );
 
     //*** config attribute getter/setter
-    //! Returns the defult condition type corresponding to \a scheme, returns the current one if scheme is not provided
+    //! Returns the default condition type corresponding to \a scheme, returns the current one if scheme is not provided
     ReosHydraulicStructureBoundaryCondition::Type defaultConditionType( ReosHydraulicScheme *scheme = nullptr ) const;
 
-    //! Sets the current default condition tyle
+    //! Sets the current default condition type
     void setDefaultConditionType( const ReosHydraulicStructureBoundaryCondition::Type &defaultConditionType );
-
     //***
 
   public slots:

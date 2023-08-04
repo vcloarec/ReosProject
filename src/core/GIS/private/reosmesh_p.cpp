@@ -1092,7 +1092,9 @@ static int datasetGroupIndexFromName( QgsMeshLayer *mesh, const QString &groupNa
   return -1;
 }
 
-ReosModule::Message ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const
+ReosModule::Message ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimulationResults *result,
+    const QString &fileName,
+    const ReosTimeWindow &timeWindow ) const
 {
   ReosModule::Message message;
   if ( !result )
@@ -1108,7 +1110,7 @@ ReosModule::Message ReosMeshFrame_p::exportSimulationResults( ReosHydraulicSimul
 
   for ( int gi = 0; gi < groupCount; ++gi )
   {
-    std::unique_ptr<ReosResultDatasetGroup > dsg = std::make_unique<ReosResultDatasetGroup>( result, gi, false );
+    std::unique_ptr<ReosResultDatasetGroup > dsg = std::make_unique<ReosResultDatasetGroup>( result, gi, false, timeWindow );
     dsg->initialize();
     const QString groupName = dsg->name();
 
@@ -1460,6 +1462,28 @@ void ReosMeshFrame_p::applyDemOnVertices( ReosDigitalElevationModel *dem, const 
 
   mMeshDataProvider->applyDemOnVertices( dem );
   mMeshLayer->reload();
+  QgsCoordinateTransform tranform( mMeshLayer->crs(), qgisDestinationCrs, QgsProject::instance()->transformContext() );
+  mMeshLayer->updateTriangularMesh( tranform );
+  if ( mZVerticesDatasetGroup )
+    mZVerticesDatasetGroup->setStatisticObsolete();
+
+  activateDataset( mCurrentScalarDatasetId );
+
+  emit repaintRequested();
+  mMeshLayer->trigger3DUpdate();
+  emit dataChanged();
+}
+
+void ReosMeshFrame_p::applyConstantZValue( double zValue, const QString &destinationCrs )
+{
+  if ( mMeshLayer->isEditable() )
+    stopFrameEditing( true );
+  mMeshDataProvider->applyConstantZValueOnVertices( zValue );
+  mMeshLayer->reload();
+
+  QgsCoordinateReferenceSystem qgisDestinationCrs;
+  qgisDestinationCrs.createFromWkt( destinationCrs );
+
   QgsCoordinateTransform tranform( mMeshLayer->crs(), qgisDestinationCrs, QgsProject::instance()->transformContext() );
   mMeshLayer->updateTriangularMesh( tranform );
   if ( mZVerticesDatasetGroup )
@@ -1967,10 +1991,11 @@ int ReosResultDataset::valuesCount() const
   return mSimulationResult->datasetValuesCount( mGroupIndex, mDatasetIndex );
 }
 
-ReosResultDatasetGroup::ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index, bool faceSupportActiveFlag )
+ReosResultDatasetGroup::ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index, bool faceSupportActiveFlag, const ReosTimeWindow &timeWindow )
   : mSimulationResult( simResult )
   , mGroupIndex( index )
   , mFacesSupportActiveFlag( faceSupportActiveFlag )
+  , mTimeWindow( timeWindow )
 {
   mName = simResult->groupName( index );
   mIsScalar = simResult->groupIsScalar( index );
@@ -1989,9 +2014,13 @@ ReosResultDatasetGroup::ReosResultDatasetGroup( ReosMeshDatasetSource *simResult
 void ReosResultDatasetGroup::initialize()
 {
   int datasetCount = mSimulationResult->datasetCount( mGroupIndex );
-
+  const QDateTime refTime = groupMetadata().referenceTime();
   for ( int i = 0; i < datasetCount; ++i )
-    mDatasets.emplace_back( new ReosResultDataset( mSimulationResult, mGroupIndex, i, mFacesSupportActiveFlag ) );
+  {
+    std::unique_ptr<ReosResultDataset> ds = std::make_unique<ReosResultDataset>( mSimulationResult, mGroupIndex, i, mFacesSupportActiveFlag );
+    if ( !mTimeWindow.isValid() || mTimeWindow.isIncluded( refTime.addSecs( ds->metadata().time() * 3600 ) ) )
+      mDatasets.emplace_back( ds.release() );
+  }
 }
 
 QgsMeshDatasetMetadata ReosResultDatasetGroup::datasetMetadata( int datasetIndex ) const

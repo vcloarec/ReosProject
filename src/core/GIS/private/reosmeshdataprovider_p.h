@@ -51,6 +51,8 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
 
     void applyTopographyOnVertices( ReosTopographyCollection_p *topographyCollection, ReosProcess *process = nullptr );
 
+    void applyConstantZValueOnVertices( double zValue );
+
     //! Overrides the crs, used when the mesh provider is created from scratch
     void overrideCrs( const QgsCoordinateReferenceSystem &crs );
 

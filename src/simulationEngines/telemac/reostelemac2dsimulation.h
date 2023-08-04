@@ -148,7 +148,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
                                 const QVector<int> &verticesPosInBoundary,
                                 const QString &fileName );
 
-    void createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData,
+    void createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure,
+                                            const ReosSimulationData &simulationData,
                                             const QVector<int> &verticesPosInBoundary,
                                             const ReosHydraulicSimulationResults *result,
                                             int timeStepIndex,

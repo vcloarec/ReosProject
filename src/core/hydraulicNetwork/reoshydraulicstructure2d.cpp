@@ -267,12 +267,12 @@ ReosStructureImporterSource *ReosHydraulicStructure2D::structureImporterSource()
   return mStructureImporterSource.get();
 }
 
-void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName ) const
+void ReosHydraulicStructure2D::exportResultAsMesh( const QString &fileName, const ReosTimeWindow &timeWindow ) const
 {
   ReosModule::Message message;
   mMesh->exportAsMesh( fileName, message );
   if ( network() && network()->currentScheme() )
-    mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName );
+    mMesh->exportSimulationResults( mSimulationResults.value( network()->currentScheme()->id() ), fileName, timeWindow );
 }
 
 ReosModule::Message ReosHydraulicStructure2D::exportResultAsMeshInGisProject( ReosHydraulicScheme *scheme, const QString &fileName, bool keepLayers )
@@ -1162,6 +1162,15 @@ ReosHydraulicStructureBoundaryCondition *ReosHydraulicStructure2D::boundaryCondi
 ReosMeshGenerator *ReosHydraulicStructure2D::meshGenerator() const
 {
   return mMeshGenerator;
+}
+
+void ReosHydraulicStructure2D::generateMesh()
+{
+  std::unique_ptr<ReosMeshGeneratorProcess> process(
+    mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController, mMesh->crs() ) );
+  process->start();
+  removeAllResults();
+  onMeshGenerated( process->meshResult() );
 }
 
 QPolygonF ReosHydraulicStructure2D::domain( const QString &crs ) const
