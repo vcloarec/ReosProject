@@ -1,6 +1,10 @@
 # Reos licence GPL version 2
 # Copyright (C) 2022 Vincent Cloarec (vcloarec at gmail dot com)
 
+ADD_DEFINITIONS(-DTELEMAC_PATH="${TELEMAC_PATH}")
+ADD_DEFINITIONS(-DTELEMAC_CONFIG_NAME="${TELEMAC_CONFIG_NAME}")
+ADD_DEFINITIONS(-DTELEMAC_CONFIG_FILE="${TELEMAC_CONFIG_FILE}")
+
 SET(REOS_TELEMAC_SOURCES
     reostelemac2dsimulation.cpp
     reostelemacsimulationeditwidget.cpp

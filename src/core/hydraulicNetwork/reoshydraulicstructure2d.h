@@ -109,6 +109,9 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Returns the mesh generator
     ReosMeshGenerator *meshGenerator() const;
 
+    //! Generate the mesh in place and block until the mesh is generated
+    void generateMesh();
+
     //! Returns a process that generate the mesh, caller take ownership
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
 
@@ -295,7 +298,11 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     //! Return the name of the current dataset
     QString currentDatasetName() const;
 
-    void exportResultAsMesh( const QString &fileName ) const;
+    /**
+     * Exports current results in a UGRID mesh file, using only results contained in the time window.
+     * If the time window is not provided or if it is invalid, all the results are exported.
+     */
+    void exportResultAsMesh( const QString &fileName, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const;
 
     ReosModule::Message exportResultAsMeshInGisProject( ReosHydraulicScheme *scheme, const QString &fileName, bool keepLayers );
 

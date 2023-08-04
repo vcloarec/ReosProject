@@ -98,7 +98,7 @@ class REOSCORE_EXPORT ReosMeshGenerator : public ReosDataObject
     static ReosMeshGenerator *createMeshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
     virtual ReosEncodedElement encode() const = 0;
 
-    //! Static method hat return the type of this class
+    //! Static method that returns the type of this class
     static QString staticType() {return QStringLiteral( "mesh-generator" );}
 
   protected:

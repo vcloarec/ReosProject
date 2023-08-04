@@ -27,6 +27,7 @@
 #include "reosrenderedobject.h"
 #include "reosencodedelement.h"
 #include "reosmeshdatasetsource.h"
+#include "reosduration.h"
 
 class ReosMeshGenerator;
 struct ReosMeshFrameData;
@@ -328,6 +329,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Apply the dem on the mesh
     virtual void applyDemOnVertices( ReosDigitalElevationModel *dem, const QString &destnationCrs ) = 0;
 
+    //! Apply a constant Z value on vertices
+    virtual void applyConstantZValue( double zValue, const QString &destinationCrs ) = 0;
+
     //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 
@@ -399,7 +403,7 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     void setDatasetVectorSymbologies( const QMap<QString, QByteArray> &datasetVectorSymbologies );
 
     virtual QString exportAsMesh( const QString &fileName, ReosModule::Message &message ) const = 0;
-    virtual ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const = 0;
+    virtual ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const = 0;
 
   signals:
     void terrainSymbologyChanged();

@@ -4,6 +4,8 @@
 #########################################################################
 #########################################################################
 
-IF (ENABLE_HECRAS AND ENABLE_HEC_DSS)
-	ADD_SUBDIRECTORY(hecras)
-ENDIF(ENABLE_HECRAS AND ENABLE_HEC_DSS)
+if (ENABLE_HECRAS AND ENABLE_HEC_DSS)
+        add_subdirectory(hecras)
+endif(ENABLE_HECRAS AND ENABLE_HEC_DSS)
+
+add_subdirectory(telemac)

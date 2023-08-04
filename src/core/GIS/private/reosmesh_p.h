@@ -104,6 +104,7 @@ class ReosMeshFrame_p : public ReosMesh
     ReosMapExtent extent() const override;
     ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) override;
     void applyDemOnVertices( ReosDigitalElevationModel *dem, const QString &destinationCrs ) override;
+    void applyConstantZValue( double zValue, const QString &destinationCrs ) override;
     double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const override;
     void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const override;
     void save( const QString &dataPath ) override;
@@ -143,7 +144,7 @@ class ReosMeshFrame_p : public ReosMesh
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
     bool rasterizeDatasetValue( const QString &fileName, const QString &groupId, int datasetIndex, QString detinationCrs, double resolution ) const override;
     QString exportAsMesh( const QString &fileName, ReosModule::Message &message ) const override;
-    ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName ) const override;
+    ReosModule::Message exportSimulationResults( ReosHydraulicSimulationResults *result, const QString &fileName, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const override;
     QList<ReosColorShaderSettings *> colorShaderSettings() const override;
 
     ReosMeshRendererCache_p *rendererCache() const;
@@ -291,7 +292,7 @@ class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
 class ReosResultDatasetGroup : public QgsMeshDatasetGroup
 {
   public:
-    ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index, bool faceSupportActiveFlag = true );
+    ReosResultDatasetGroup( ReosMeshDatasetSource *simResult, int index, bool faceSupportActiveFlag = true, const ReosTimeWindow &timeWindow = ReosTimeWindow() );
 
     void initialize();
     QgsMeshDatasetMetadata datasetMetadata( int datasetIndex ) const;
@@ -306,6 +307,7 @@ class ReosResultDatasetGroup : public QgsMeshDatasetGroup
     int mGroupIndex = -1;
     bool mFacesSupportActiveFlag = true;
     std::vector<std::unique_ptr<QgsMeshDataset>> mDatasets;
+    ReosTimeWindow mTimeWindow;
 };
 
 class ReosResultDataset : public QgsMeshDataset

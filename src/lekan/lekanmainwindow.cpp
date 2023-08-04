@@ -49,18 +49,7 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   , mActionRunoffManager( new QAction( QIcon( QStringLiteral( ":/images/runoff.svg" ) ), tr( "Runoff manager" ), this ) )
 {
   setWindowTitle( QStringLiteral( "Lekan" ) );
-  int verMaj = QString( MAJ_VER_LEKAN ).toInt();
-  int verMin = QString( MIN_VER_LEKAN ).toInt();
-#ifdef LEKAN_EXP
-  bool ok = true;
-  QString ps = QString( PAT_VER_LEKAN );
-  int verPatch = QString( PAT_VER_LEKAN ).toInt( &ok, 16 );
-#else
-  int verPatch = QString( PAT_VER_LEKAN ).toInt();
-#endif
-  ReosVersion version( "Lekan", verMaj, verMin, verPatch );
 
-  ReosVersion::setCurrentApplicationVersion( version );
   ReosGuiContext guiContext( this );
   guiContext.setMap( mMap );
 

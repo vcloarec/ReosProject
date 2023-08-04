@@ -356,6 +356,14 @@ void ReosMeshDataProvider_p::applyTopographyOnVertices( ReosTopographyCollection
   emit dataChanged();
 }
 
+void ReosMeshDataProvider_p::applyConstantZValueOnVertices( double zValue )
+{
+  for ( int i = 0; i < mMesh.vertexCount(); ++i )
+    mMesh.vertices[i].setZ( zValue );
+
+  emit dataChanged();
+}
+
 void ReosMeshDataProvider_p::overrideCrs( const QgsCoordinateReferenceSystem &crs )
 {
   if ( crs.isValid() )

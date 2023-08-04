@@ -142,33 +142,51 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
 
 #endif
 
-  const QString appPath = QCoreApplication::applicationDirPath();
-  QDir telDir( appPath );
-  telDir.cdUp();
-  if ( !telDir.cd( QStringLiteral( "apps/telemac" ) ) )
-    return;
+  QDir telDir = QDir( QString( TELEMAC_PATH ) );
+  if ( !telDir.exists() )
+  {
+    const QString appPath = QCoreApplication::applicationDirPath();
+    telDir = QDir( appPath );
+    telDir.cdUp();
+    if ( !telDir.cd( QStringLiteral( "apps/telemac" ) ) )
+      return;
+  }
 
   QDir buildsDir( telDir.filePath( "builds" ) );
-  QDir configsDir( telDir.filePath( "configs" ) );
+  QFileInfo configFileInfo( QString( TELEMAC_CONFIG_FILE ) );
   QDir depsDir( telDir.filePath( "deps" ) );
   QDir scriptsDir( telDir.filePath( "scripts/python3" ) );
   if ( scriptsDir.exists() )
     scriptsDir.cd( QStringLiteral( "python3" ) );
 
-  if ( buildsDir.exists() )
+  QString configName( TELEMAC_CONFIG_FILE );
+  if ( configName.isEmpty() )
   {
-    const QStringList builds = buildsDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
-    if ( !builds.isEmpty() )
-      settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), builds.first() );
+    if ( buildsDir.exists() )
+    {
+      const QStringList builds = buildsDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+      if ( !builds.isEmpty() )
+        configName = builds.first();
+    }
   }
+  if ( configName.isEmpty() )
+    settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), configName );
 
-  if ( configsDir.exists() )
+  if ( configFileInfo.exists() )
   {
-    QStringList filters;
-    filters << QStringLiteral( "*.cfg" );
-    const QStringList configs = configsDir.entryList( filters );
-    if ( !configs.isEmpty() )
-      settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), configsDir.filePath( configs.first() ) );
+    settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), configFileInfo.filePath() );
+  }
+  else
+  {
+    QDir configsDir( telDir.filePath( "configs" ) );
+    if ( configsDir.exists() )
+    {
+      QStringList filters;
+      filters << QStringLiteral( "*.cfg" );
+      const QStringList configs = configsDir.entryList( filters );
+      if ( !configs.isEmpty() )
+        settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), configsDir.filePath( configs.first() ) );
+    }
   }
 
   if ( depsDir.exists() && !depsDir.entryList().isEmpty() )
@@ -1704,6 +1722,7 @@ void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressi
       {
         case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
         case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+        case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
           break;
         case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
           value = -value;
