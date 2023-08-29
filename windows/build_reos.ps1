@@ -95,7 +95,11 @@ cmake   -S $env:REOS_SOURCE `
         -D ENABLE_HEC_DSS=TRUE `
         -D HEC_DSS_INCLUDE=$env:REOS_SOURCE/external/heclib_win/heclib-7-IR-0-win-x86_64/headers `
         -D HEC_DSS_LIBS_PATH=$env:REOS_SOURCE/external/heclib_win/heclib-7-IR-0-win-x86_64/Release64 `
-        -D INTEL_FORTRAN_COMPILER_LIB_PATH=$env:FORTRAN_COMPILER_PATH\windows\compiler\lib\intel64_win
+        -D INTEL_FORTRAN_COMPILER_LIB_PATH=$env:FORTRAN_COMPILER_PATH\windows\compiler\lib\intel64_win `
+        -D TELEMAC_PATH=$REOS_INSTALL\apps\telemac `
+        -D TELEMAC_CONFIG_FILE=$REOS_INSTALL\apps\telemac\configs\systel.lekan.cfg `
+        -D TELEMAC_CONFIG_NAME=win `
+        -D TELEMAC_PYTHON_PATH=$REOS_INSTALL\apps\python
 
 cmake --build .  --config $env:BUILD_TYPE --parallel
 

@@ -31,64 +31,7 @@ QString ReosApplication::sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
 ReosApplication::ReosApplication( int &argc, char **argv, const QString &appName )
   : QApplication( argc, argv, QApplication::ApplicationFlags )
 {
-  QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
-  QCoreApplication::setApplicationName( appName );
-
-  sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
-  if ( sReosPrefix.isEmpty() )
-  {
-    sReosPrefix = QApplication::applicationDirPath();
-    if ( sReosPrefix.endsWith( "/bin" ) )
-    {
-      sReosPrefix.chop( 4 );
-    }
-  }
-
-  qDebug() << QStringLiteral( "Reos prefix path is: %1" ).arg( sReosPrefix );
-
-  QApplication::setStyle( QStyleFactory::create( "fusion" ) );
-
-  qRegisterMetaType<ReosSpatialPosition>( "ReosSpatialPosition" );
-
-#ifdef _MSC_VER
-  if ( qgetenv( "GDAL_DATA" ).isEmpty() )
-  {
-    QString gdalData = QCoreApplication::applicationDirPath();
-    gdalData.append( "\\..\\share\\gdal" );
-    qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
-  }
-
-#endif
-
-  QSettings::setDefaultFormat( QSettings::IniFormat );
-  ReosSettings settings;
-  QLocale localeGlobal;
-  if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
-    localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
-  else
-    localeGlobal = QLocale::system();
-
-  QLocale::setDefault( localeGlobal );
-
-  QLocale localeLanguage;
-  if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
-    localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
-  else
-    localeLanguage = QLocale::system();
-
-  QTranslator ReosTranslator;
-  QTranslator QtTranslator;
-  QTranslator QgisTranslator;
-
-  QString i18nPath = ReosApplication::i18nPath();
-
-  if ( QtTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
-    installTranslator( &QtTranslator );
-  if ( QgisTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
-    installTranslator( &QgisTranslator );
-  if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
-    installTranslator( &ReosTranslator );
-
+  initApplication( appName );
   mCoreModule = new ReosCoreModule( this );
 }
 
@@ -130,8 +73,16 @@ ReosApplication *ReosApplication::initializationReos( int &argc, char **argv, co
     qDebug() << "DISPLAY not set, running in offscreen mode.";
   }
 #endif
+  ReosApplication *app = nullptr;
 
-  return new ReosApplication( argc, argv, appName );
+  if ( !QApplication::instance() )
+    app = new ReosApplication( argc, argv, appName );
+  else
+  {
+    initApplication( appName ); // An instance of QApplication already exists (for example with Qt tests)
+  }
+
+  return app;
 }
 
 QString ReosApplication::i18nPath()
@@ -254,6 +205,67 @@ QString ReosApplication::resolvePath( const QString &subDir )
     else
       return subDir;
   }
+}
+
+void ReosApplication::initApplication( const QString &appName )
+{
+  QCoreApplication::setOrganizationName( QStringLiteral( "ReosProject" ) );
+  QCoreApplication::setApplicationName( appName );
+
+  sReosPrefix = qgetenv( "REOS_PREFIX_PATH" );
+  if ( sReosPrefix.isEmpty() )
+  {
+    sReosPrefix = QApplication::applicationDirPath();
+    if ( sReosPrefix.endsWith( "/bin" ) )
+    {
+      sReosPrefix.chop( 4 );
+    }
+  }
+
+  qDebug() << QStringLiteral( "Reos prefix path is: %1" ).arg( sReosPrefix );
+
+  QApplication::setStyle( QStyleFactory::create( "fusion" ) );
+
+  qRegisterMetaType<ReosSpatialPosition>( "ReosSpatialPosition" );
+
+#ifdef _MSC_VER
+  if ( qgetenv( "GDAL_DATA" ).isEmpty() )
+  {
+    QString gdalData = QCoreApplication::applicationDirPath();
+    gdalData.append( "\\..\\share\\gdal" );
+    qputenv( "GDAL_DATA", gdalData.toUtf8().constData() );
+  }
+
+#endif
+
+  QSettings::setDefaultFormat( QSettings::IniFormat );
+  ReosSettings settings;
+  QLocale localeGlobal;
+  if ( settings.contains( QStringLiteral( "Locale-global" ) ) )
+    localeGlobal = settings.value( QStringLiteral( "Locale-global" ) ).toLocale();
+  else
+    localeGlobal = QLocale::system();
+
+  QLocale::setDefault( localeGlobal );
+
+  QLocale localeLanguage;
+  if ( settings.contains( QStringLiteral( "Locale-language" ) ) )
+    localeLanguage = settings.value( QStringLiteral( "Locale-language" ) ).toLocale();
+  else
+    localeLanguage = QLocale::system();
+
+  QTranslator ReosTranslator;
+  QTranslator QtTranslator;
+  QTranslator QgisTranslator;
+
+  QString i18nPath = ReosApplication::i18nPath();
+
+  if ( QtTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qtbase" ), "_" ) )
+    installTranslator( &QtTranslator );
+  if ( QgisTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/qgis" ), "_" ) )
+    installTranslator( &QgisTranslator );
+  if ( ReosTranslator.load( localeLanguage, i18nPath + QStringLiteral( "/reos" ), "_" ) )
+    installTranslator( &ReosTranslator );
 }
 
 ReosCoreModule *ReosApplication::coreModule() const

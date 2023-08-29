@@ -14,7 +14,7 @@ endlocal
 echo "/////////////////////////////////////////////////////////////////////////////////"
 echo "                               Tests in independant PATH (almost)                "
 echo "/////////////////////////////////////////////////////////////////////////////////"
-rem For tests we still use the Qt dependencies binaries of OSGEO, because for now, no way to make it works without 
+rem For tests we still use the Qt dependencies binaries of OSGEO, because for now, no way to make it work without
 rem The Qt binaries are copied after tests.
 setlocal
 set PATH=%WINDIR%\system32;%WINDIR%\system32\WindowsPowerShell\v1.0;%WINDIR%;%WINDIR%\system32\WBem;%CMAKE_PATH%

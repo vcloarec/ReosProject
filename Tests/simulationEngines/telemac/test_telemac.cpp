@@ -22,6 +22,8 @@ email                : vcloarec at gmail dot com
 #include "reosparameter.h"
 #include "reostimeseries.h"
 #include "reoshydraulicscheme.h"
+#include "reossettings.h"
+#include "reosapplication.h"
 
 #include "reostelemac2dsimulation.h"
 
@@ -42,7 +44,12 @@ class ReosTelemacTesting : public QObject
 
 void ReosTelemacTesting::initTestCase()
 {
+  int argc = 0;
+  QVERIFY( !ReosApplication::initializationReos( argc, nullptr, "reos_tests" ) );
   coreModule = new ReosCoreModule( this );
+  ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
+  ReosSettings settings;
+  settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), -1 );
 }
 
 void ReosTelemacTesting::cleanupTestCase()
@@ -52,7 +59,6 @@ void ReosTelemacTesting::cleanupTestCase()
 
 void ReosTelemacTesting::buildStructure()
 {
-  ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
   QPolygonF domain;
   domain << QPointF( 495537.14930738694965839, 1996798.24522213893942535 );
   domain << QPointF( 495541.044451420661062, 1996649.45072005619294941 );

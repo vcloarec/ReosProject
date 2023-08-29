@@ -132,6 +132,8 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
 {
   ReosSettings settings;
 
+  QTextStream txtStream( stdout );
+
 #if 0
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), QString() );
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), QString() );
@@ -141,15 +143,19 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
 #else
 
 #endif
-
-  QDir telDir = QDir( QString( TELEMAC_PATH ) );
-  if ( !telDir.exists() )
+  const QString appPath = QCoreApplication::applicationDirPath();
+  QDir telDir = QDir( appPath );
+  telDir.cdUp();
+  if ( !telDir.cd( QStringLiteral( "apps/telemac" ) ) )
   {
-    const QString appPath = QCoreApplication::applicationDirPath();
-    telDir = QDir( appPath );
-    telDir.cdUp();
-    if ( !telDir.cd( QStringLiteral( "apps/telemac" ) ) )
+    txtStream << QString( "TELEMAC near application directory not found. Let's try with path set in CMAKE (\"%1\")" ).arg( QString( TELEMAC_PATH ) ) << Qt::endl;
+    QString telemacPath( TELEMAC_PATH );
+    telDir = QDir( telemacPath );
+    if ( telemacPath.isEmpty() || !telDir.exists() )
+    {
+      txtStream << QString( "TELEMAC path not found. Unable to solve TELEMAC settings." ).arg( QString( TELEMAC_PATH ) ) << Qt::endl;;
       return;
+    }
   }
 
   QDir buildsDir( telDir.filePath( "builds" ) );
@@ -159,17 +165,15 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
   if ( scriptsDir.exists() )
     scriptsDir.cd( QStringLiteral( "python3" ) );
 
-  QString configName( TELEMAC_CONFIG_FILE );
-  if ( configName.isEmpty() )
+  QString configName;
+  if ( buildsDir.exists() )
   {
-    if ( buildsDir.exists() )
-    {
-      const QStringList builds = buildsDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
-      if ( !builds.isEmpty() )
-        configName = builds.first();
-    }
+    const QStringList builds = buildsDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+    if ( !builds.isEmpty() )
+      configName = builds.first();
   }
-  if ( configName.isEmpty() )
+
+  if ( !configName.isEmpty() )
     settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), configName );
 
   if ( configFileInfo.exists() )
@@ -195,10 +199,27 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
   if ( scriptsDir.exists() )
     settings.setValue( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ), scriptsDir.filePath( QStringLiteral( "telemac2d.py" ) ) );
 
-  QDir pythonDir( QCoreApplication::applicationDirPath() );
+  QDir pythonDir( appPath );
   pythonDir.cdUp();
-  if ( pythonDir.cd( QStringLiteral( "apps/python" ) ) )
-    settings.setValue( QStringLiteral( "/python_path" ), pythonDir.path() );
+  if ( !pythonDir.cd( QStringLiteral( "apps/Python" ) ) )
+  {
+    const QString pythonPath( TELEMAC_PYTHON_PATH );
+    pythonDir = QDir( pythonPath );
+    txtStream << QStringLiteral( "Python for TELEMAC not found, use the hard coded path: \"%1\"." ).arg( pythonPath ) << Qt::endl;
+  }
+
+  settings.setValue( QStringLiteral( "/python_path" ), pythonDir.path() );
+
+  txtStream << QStringLiteral( "TELEMAC settings resolved." ) << Qt::endl;
+  txtStream << QString( "Current settings are: \n"
+                        "Configuration file: %1\n"
+                        "Configuration name: %2\n"
+                        "Python interpreter path: %3\n"
+                        "Python script path: %4\n" ).arg(
+              configFileInfo.filePath(),
+              configName,
+              pythonDir.path(),
+              scriptsDir.filePath( QStringLiteral( "telemac2d.py" ) ) ) << Qt::endl;;
 }
 
 ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResult2D() const
@@ -1520,34 +1541,59 @@ void ReosTelemac2DSimulationProcess::start()
   mIsSuccessful = false;
   QThread::msleep( 100 ); //just a bit of time to make the connection with the console (TODO: change the logic of process creation to avoid this)
   mProcess = new QProcess();
-  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
   ReosSettings settings;
 
-  env.insert( QStringLiteral( "SYSTELCFG" ), settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
-  env.insert( QStringLiteral( "USETELCFG" ), settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
+  const QString envConfigFile = settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString();
+  const QString envConfigName = settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString();
+  const QString pythonPath = settings.value( QStringLiteral( "/python_path" ) ).toString();
+  const QString telemScripts = settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString();
 
-  QString envPath = env.value( QStringLiteral( "PATH" ) );
+  emit sendInformation( QString( "Current settings are: \n"
+                                 "Configuration file: %1\n"
+                                 "Configuration name: %2\n"
+                                 "Python interpreter path: %3\n"
+                                 "Python script path: %4\n" ).arg(
+                          envConfigFile,
+                          envConfigName,
+                          pythonPath,
+                          telemScripts ) );
 
-  QString telemScripts = settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString();
+
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+  env.insert( QStringLiteral( "SYSTELCFG" ), envConfigFile );
+  env.insert( QStringLiteral( "USETELCFG" ), envConfigName );
+
   if ( telemScripts.isEmpty() )
   {
-    emit sendInformation( tr( "TELEMAC 2D Python script not set. Please verify TELEMAC settings." ) );
+    emit sendInformation( tr( "TELEMAC 2D Python script not set. Please verify TELEMAC settings.\n" ) );
     return;
   }
   QFileInfo telemac2DPythonScript( telemScripts );
+
   if ( !telemac2DPythonScript.exists() )
   {
     emit sendInformation( tr( "TELEMAC 2D Python script not found. Please verify TELEMAC settings." ) );
     return;
   }
 
+  QString envPath = env.value( QStringLiteral( "PATH" ) );
+
 #ifdef _MSC_VER
-  const QString pythonPath = settings.value( QStringLiteral( "/python_path" ) ).toString();
-  env.insert( QStringLiteral( "PYTHONHOME" ), pythonPath );
-  env.insert( QStringLiteral( "PYTHONPATH" ), pythonPath + ';' + telemac2DPythonScript.dir().path() );
-  envPath.append( ';' );
-  envPath.append( env.value( QStringLiteral( "PYTHONPATH" ) ) );
-  envPath.append( ';' );
+  if ( pythonPath.isEmpty() )
+  {
+    emit sendInformation( tr( "Python path not provided." ) );
+  }
+  else
+  {
+    emit sendInformation( tr( "Python path is \"%1\"." ).arg( pythonPath ) );
+    env.insert( QStringLiteral( "PYTHONHOME" ), pythonPath );
+    env.insert( QStringLiteral( "PYTHONPATH" ), pythonPath + ';' + telemac2DPythonScript.dir().path() );
+    envPath.append( ';' );
+    envPath.append( env.value( QStringLiteral( "PYTHONPATH" ) ) );
+    envPath.append( ';' );
+  }
 #else
   if ( envPath.back() != QString( ':' ) )
     envPath.append( ':' );
@@ -1631,6 +1677,24 @@ void ReosTelemac2DSimulationProcess::start()
                               "Error: %2\n"
                               "Check the settings of the Telemac engine." )
                           .arg( mProcess->workingDirectory(), QString::number( mProcess->exitCode() ) ) );
+
+    switch ( mProcess->error() )
+    {
+      case QProcess::FailedToStart:
+        emit sendInformation( tr( "Simulation process failed to start" ) );
+        break;
+      case QProcess::Crashed:
+        emit sendInformation( tr( "Simulation process crashed" ) );
+        break;
+      default:
+        emit sendInformation( tr( "Simulation process does not finished for an unknown error" ) );
+        break;
+    }
+
+    if ( mProcess->exitCode() == 0 )
+      emit sendInformation( mProcess->readAllStandardOutput() );
+    else
+      emit sendInformation( mProcess->readAllStandardError() );
   }
 
   finished = finished && mProcess->exitCode() == 0;
