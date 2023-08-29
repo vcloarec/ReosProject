@@ -183,7 +183,6 @@ void ReosTelemacEngineConfigurationDialog::onAccepted()
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-config-file" ), ui->mTelemacConfigFileLineEdit->text() );
   settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), ui->mLineEditConfig->text() );
   settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), ui->mCPUSpinBox->value() );
-  settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), ui->mCPUSpinBox->value() );
   settings.setValue( QStringLiteral( "/engine/telemac/additional_pathes" ), ui->mDependenciesPathTextEdit->toPlainText() );
   settings.setValue( QStringLiteral( "/python_path" ), ui->mPythonPathLineEdit->text() );
 }

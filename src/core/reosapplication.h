@@ -166,6 +166,8 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
     QPointer<ReosCoreModule> mCoreModule;
     static QString sReosPrefix;
     static QString resolvePath( const QString &subDir );
+
+    static void initApplication(const QString &appName);
 };
 
 
