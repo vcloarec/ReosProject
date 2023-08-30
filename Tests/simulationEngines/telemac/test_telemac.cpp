@@ -50,6 +50,7 @@ void ReosTelemacTesting::initTestCase()
   ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
   ReosSettings settings;
   settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), -1 );
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), QStringLiteral("win_no_mpi") );
 }
 
 void ReosTelemacTesting::cleanupTestCase()
