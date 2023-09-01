@@ -423,6 +423,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
   ReosQgsMapCanvas *canvas = qobject_cast<ReosQgsMapCanvas *>( mCanvas );
   canvas->setExtent( QgsRectangle( 0, 0, 200, 200 ) );
   canvas->setObjectName( "map canvas" );
+  canvas->setProject( QgsProject::instance() );
 
   connect( canvas, &QgsMapCanvas::extentsChanged, this, &ReosMap::extentChanged );
 

@@ -325,7 +325,7 @@ class ReosResultDataset : public QgsMeshDataset
   private:
     ReosMeshDatasetSource *mSimulationResult = nullptr;
     int mGroupIndex = -1;
-    int mfaceSupportActiveFlag = false;
+    bool mfaceSupportActiveFlag = false;
     int mDatasetIndex = -1;
 
 };
