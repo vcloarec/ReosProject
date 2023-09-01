@@ -176,9 +176,9 @@ QgsMeshDataBlock ReosMeshDataProvider_p::datasetValues( QgsMeshDatasetIndex inde
   return ret;
 }
 
-QgsMesh3dDataBlock ReosMeshDataProvider_p::dataset3dValues( QgsMeshDatasetIndex, int, int ) const
+QgsMesh3DDataBlock ReosMeshDataProvider_p::dataset3dValues( QgsMeshDatasetIndex, int, int ) const
 {
-  return QgsMesh3dDataBlock();
+  return QgsMesh3DDataBlock();
 }
 
 bool ReosMeshDataProvider_p::isFaceActive( QgsMeshDatasetIndex, int ) const {return true;}
