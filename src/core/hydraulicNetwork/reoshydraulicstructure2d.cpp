@@ -319,7 +319,7 @@ ReosModule::Message ReosHydraulicStructure2D::exportResultAsMeshInGisProject( Re
     ReosHydraulicSimulation *sim = simulation( scheme );
     if ( sim )
     {
-      std::unique_ptr<ReosHydraulicSimulationResults> results( sim->loadSimulationResults( this, scheme->id() ) );
+      std::unique_ptr<ReosHydraulicSimulationResults> results( sim->loadSimulationResults( scheme->id() ) );
       if ( results )
         message = mMesh->exportSimulationResults( results.get(), meshFileName );
     }
@@ -777,7 +777,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::createSimulationProcess( const 
 
   QPointer<ReosHydraulicSimulation> sim = currentSimulation();
 
-  ReosSimulationProcess *process = mSimulationProcesses.emplace( schemeId, sim->getProcess( this, context ) ).first->second.get();
+  ReosSimulationProcess *process = mSimulationProcesses.emplace( schemeId, sim->getProcess( context ) ).first->second.get();
 
   connect( process, &ReosProcess::finished, sim, [this, sim, schemeId]
   {
@@ -913,7 +913,7 @@ bool ReosHydraulicStructure2D::hasResults() const
 
     ReosHydraulicSimulation *sim = mSimulations.at( simIndex );
 
-    if ( sim->hasResult( this, scheme->id() ) )
+    if ( sim->hasResult( scheme->id() ) )
       return true;
   }
 
@@ -1016,7 +1016,7 @@ void ReosHydraulicStructure2D::removeAllResults()
 
     ReosHydraulicSimulation *sim = mSimulations.at( simIndex );
     if ( sim )
-      sim->removeResults( this, scheme->id() );
+      sim->removeResults( scheme->id() );
 
     updateResults( scheme->id() );
   }
@@ -1039,7 +1039,7 @@ void ReosHydraulicStructure2D::removeResults( const ReosCalculationContext &cont
     if ( scheme )
     {
       ReosHydraulicSimulation *sim = simulation( scheme );
-      sim->removeResults( this, schemeId );
+      sim->removeResults( schemeId );
     }
   }
 }
@@ -1211,7 +1211,7 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
   return process.release();
 }
 
-ReosSimulationData ReosHydraulicStructure2D::simulationData() const
+ReosSimulationData ReosHydraulicStructure2D::simulationData( const QString &schemeId ) const
 {
   ReosSimulationData ret;
 
@@ -1248,6 +1248,17 @@ ReosSimulationData ReosHydraulicStructure2D::simulationData() const
 
   ret.coordinateTransformer = mNetwork->gisEngine()->getCoordinateTransformer();
 
+  ReosHydraulicScheme *scheme = mNetwork->scheme( schemeId );
+  if ( scheme )
+  {
+    ReosHydraulicSimulation *sim = simulation( scheme );
+    if ( sim )
+    {
+
+    }
+  }
+
+
   return ret;
 }
 
@@ -1268,7 +1279,7 @@ void ReosHydraulicStructure2D::onSimulationFinished( ReosHydraulicSimulation *si
   if ( !simulation )
     return;
 
-  simulation->saveSimulationResult( this, schemeId, process, success );
+  simulation->saveSimulationResult( schemeId, process, success );
 
   //! Now we can remove the old one if still presents
   if ( mSimulationResults.contains( schemeId ) )
@@ -1290,7 +1301,7 @@ void ReosHydraulicStructure2D::loadResult( ReosHydraulicSimulation *simulation, 
     mSimulationResults.remove( schemeId );
   }
 
-  ReosHydraulicSimulationResults *simResults = simulation->loadSimulationResults( this, schemeId, this );
+  ReosHydraulicSimulationResults *simResults = simulation->loadSimulationResults( schemeId, this );
   if ( simResults )
     mSimulationResults.insert( schemeId, simResults );
 }
@@ -1375,7 +1386,7 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
 
   if ( !mSimulationResults.contains( schemeId ) &&
        currentSimulation() &&
-       currentSimulation()->hasResult( this, schemeId ) )
+       currentSimulation()->hasResult( schemeId ) )
     loadResult( currentSimulation(), schemeId );
 
   if ( mCurrentResult != mSimulationResults.value( schemeId ) )
@@ -1566,7 +1577,7 @@ QFileInfoList ReosHydraulicStructure2D::cleanScheme( ReosHydraulicScheme *scheme
   QFileInfoList ret;
   for ( ReosHydraulicSimulation *sim : std::as_const( mSimulations ) )
   {
-    ret.append( sim->cleanScheme( this, scheme ) );
+    ret.append( sim->cleanScheme( scheme ) );
   }
 
   return ret;

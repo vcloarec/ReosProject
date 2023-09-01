@@ -132,30 +132,32 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
     Q_DECLARE_FLAGS( Capabilities, Capability )
     Q_FLAG( Capabilities )
 
-    ReosHydraulicSimulation( ReosHydraulicStructure2D *parent = nullptr );
+    ReosHydraulicSimulation( ReosHydraulicStructure2D *hydraulicStructure = nullptr );
 
     virtual bool hasCapability( Capability cap ) const;
 
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0 SIP_SKIP;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0 SIP_SKIP;
+    virtual void prepareSimulationdata( ReosSimulationData &simData ) = 0 SIP_SKIP;
 
-    virtual void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0 SIP_SKIP;
+    virtual void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0 SIP_SKIP;
 
-    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const = 0 SIP_SKIP;
+    virtual void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) = 0 SIP_SKIP;
+
+    virtual ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const = 0 SIP_SKIP;
 
     virtual ReosDuration representativeTimeStep() const = 0;
 
     virtual ReosDuration representative2DTimeStep() const = 0;
 
-    virtual void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const = 0 SIP_SKIP;
+    virtual void saveSimulationResult( const QString &shemeId, ReosSimulationProcess *process, bool success ) const = 0 SIP_SKIP;
 
-    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const = 0 SIP_SKIP;
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( const QString &shemeId, QObject *parent = nullptr ) const = 0 SIP_SKIP;
 
-    virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual bool hasResult( const QString &shemeId ) const = 0;
 
-    virtual void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual void removeResults( const QString &shemeId ) const = 0;
 
     virtual QString engineName() const = 0;
 
@@ -169,7 +171,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
 
     virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const SIP_SKIP;
 
-    virtual QFileInfoList cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme ) SIP_SKIP {return QFileInfoList();};
+    virtual QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) SIP_SKIP {return QFileInfoList();};
 
     virtual void setHotStartSchemeId( const QString &schemeId ) {}
 
@@ -186,7 +188,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
     void onBoundaryConditionRemove( const QString &bcId );
 
   protected:
-    QDir simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const;
+    ReosHydraulicStructure2D *mStructure = nullptr;
+    QDir simulationDir( const QString &schemeId ) const;
     virtual QString directoryName() const {return QString();}
 
 #endif // No SIP_RUN
@@ -297,23 +300,25 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
     virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
 
-    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosSimulationData &, const ReosCalculationContext & ) override {};
+    void prepareSimulationdata( ReosSimulationData & ) override {}
 
-    virtual void prepareInput( ReosHydraulicStructure2D *, const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {};
+    virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext & ) override {};
 
-    virtual ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *structure, const ReosCalculationContext &calculationContext ) const override;;
+    virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {};
+
+    virtual ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;;
 
     virtual ReosDuration representativeTimeStep() const override {return ReosDuration( 5, ReosDuration::minute );}
 
     virtual ReosDuration representative2DTimeStep() const override {return ReosDuration( 5, ReosDuration::minute );}
 
-    virtual void saveSimulationResult( const ReosHydraulicStructure2D *structure, const QString &, ReosSimulationProcess *, bool ) const override;;
+    virtual void saveSimulationResult( const QString &, ReosSimulationProcess *, bool ) const override;;
 
-    virtual ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *, const QString &, QObject *parent ) const override;;
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( const QString &, QObject *parent ) const override;;
 
-    virtual bool hasResult( const ReosHydraulicStructure2D *, const QString &schemeId ) const override;;
+    virtual bool hasResult( const QString &schemeId ) const override;;
 
-    virtual void removeResults( const ReosHydraulicStructure2D *, const QString & ) const override {};
+    virtual void removeResults( const QString & ) const override {};
 
     virtual QString engineName() const override {return QStringLiteral( "dummy" );}
 

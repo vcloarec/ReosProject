@@ -47,10 +47,14 @@ void ReosTelemacTesting::initTestCase()
   int argc = 0;
   QVERIFY( !ReosApplication::initializationReos( argc, nullptr, "reos_tests" ) );
   coreModule = new ReosCoreModule( this );
+  coreModule->gisEngine()->setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
   ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
+
+#ifdef _WIN32
   ReosSettings settings;
-  settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), -1 );
-  settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), QStringLiteral("win_no_mpi") );
+  settings.setValue( QStringLiteral( "/engine/telemac/cpu-usage-count" ), 1 );
+  settings.setValue( QStringLiteral( "/engine/telemac/telemac-configuration" ), QStringLiteral( "win_no_mpi" ) );
+#endif
 }
 
 void ReosTelemacTesting::cleanupTestCase()

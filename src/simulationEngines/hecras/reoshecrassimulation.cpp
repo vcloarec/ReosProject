@@ -251,13 +251,11 @@ bool ReosHecRasStructureImporter::isValid() const { return mIsValid; }
 
 ReosHecRasSimulation::ReosHecRasSimulation( ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
-  , mStructure( parent )
 {
 }
 
 ReosHecRasSimulation::ReosHecRasSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
-  , mStructure( parent )
 {
   ReosDataObject::decode( element );
   QString relativeFileName;
@@ -305,20 +303,18 @@ ReosEncodedElement ReosHecRasSimulation::encode() const
   return element;
 }
 
-void ReosHecRasSimulation::prepareInput(
-  ReosHydraulicStructure2D *hydraulicStructure,
-  const ReosSimulationData &data,
-  const ReosCalculationContext &calculationContext )
+void ReosHecRasSimulation::prepareInput( const ReosSimulationData &data,
+    const ReosCalculationContext &calculationContext )
 {
   const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
   ReosHecRasFlow flow = mProject->flow( currentPlan.flowFile() );
 
-  const QList<ReosHydraulicStructureBoundaryCondition *> bcs = hydraulicStructure->boundaryConditions();
+  const QList<ReosHydraulicStructureBoundaryCondition *> bcs = mStructure->boundaryConditions();
 
   QList<ReosHecRasFlow::BoundaryFlow> boundaryToModify;
   QString dssInputFilePath = mProject->directory().filePath( QStringLiteral( "input_%1.dss" ).arg( mCurrentPlan ) );
 
-  ReosTimeWindow tw = hydraulicStructure->timeWindow();
+  ReosTimeWindow tw = mStructure->timeWindow();
   const QDateTime startTime = tw.start();
   const QDateTime endTime = tw.end();
 
@@ -379,7 +375,7 @@ void ReosHecRasSimulation::prepareInput(
 
   if ( calculationContext.meteorologicModel() )
   {
-    ReosGriddedRainfall *griddedPrecipitation = calculationContext.meteorologicModel()->associatedRainfall( hydraulicStructure );
+    ReosGriddedRainfall *griddedPrecipitation = calculationContext.meteorologicModel()->associatedRainfall( mStructure );
     griddedPrecipitationActive = griddedPrecipitation != nullptr && griddedPrecipitation->gridCount() > 0;
     if ( griddedPrecipitationActive )
     {
@@ -401,11 +397,11 @@ void ReosHecRasSimulation::prepareInput(
         gridPrecipDssFile = mProject->directory().filePath( QStringLiteral( "gridded_precip_%1.dss" ).arg( mCurrentPlan ) );
         ReosDssFile file( gridPrecipDssFile, true );
         gridPrecipDssPath.setGroup( mProject->projectName() );
-        gridPrecipDssPath.setLocation( hydraulicStructure->elementNameParameter()->value() );
+        gridPrecipDssPath.setLocation( mStructure->elementNameParameter()->value() );
         gridPrecipDssPath.setParameter( QStringLiteral( "PRECIP" ) );
         if ( file.isValid() )
         {
-          ReosMapExtent extent = hydraulicStructure->extent();
+          ReosMapExtent extent = mStructure->extent();
           file.writeGriddedData( griddedPrecipitation, gridPrecipDssPath, extent, -1, calculationContext.timeWindow() );
         }
 
@@ -434,11 +430,9 @@ void ReosHecRasSimulation::prepareInput(
     flow.applyBoudaryFlow( boundaryToModify );
 }
 
-ReosSimulationProcess *ReosHecRasSimulation::getProcess(
-  ReosHydraulicStructure2D *hydraulicStructure,
-  const ReosCalculationContext &calculationContext ) const
+ReosSimulationProcess *ReosHecRasSimulation::getProcess( const ReosCalculationContext &calculationContext ) const
 {
-  return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, hydraulicStructure->boundaryConditions() );
+  return new ReosHecRasSimulationProcess( *mProject.get(), mCurrentPlan, calculationContext, mStructure->boundaryConditions() );
 }
 
 ReosDuration ReosHecRasSimulation::representativeTimeStep() const
@@ -451,23 +445,23 @@ ReosDuration ReosHecRasSimulation::representative2DTimeStep() const
   return mMappingInterval;
 }
 
-void ReosHecRasSimulation::saveSimulationResult( const ReosHydraulicStructure2D *, const QString &, ReosSimulationProcess *, bool ) const
+void ReosHecRasSimulation::saveSimulationResult( const QString &, ReosSimulationProcess *, bool ) const
 {
   // for HEC-RAS everything is already save, so nothing to do
 }
 
-ReosHydraulicSimulationResults *ReosHecRasSimulation::loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId, QObject *parent ) const
+ReosHydraulicSimulationResults *ReosHecRasSimulation::loadSimulationResults( const QString &schemeId, QObject *parent ) const
 {
-  if ( hasResult( hydraulicStructure, schemeId ) )
+  if ( hasResult( schemeId ) )
   {
-    ReosHydraulicScheme *scheme = hydraulicStructure->network()->scheme( schemeId );
-    return new ReosHecRasSimulationResults( this, hydraulicStructure->mesh(), scheme, parent );
+    ReosHydraulicScheme *scheme = mStructure->network()->scheme( schemeId );
+    return new ReosHecRasSimulationResults( this, mStructure->mesh(), scheme, parent );
   }
   else
     return nullptr;
 }
 
-bool ReosHecRasSimulation::hasResult( const ReosHydraulicStructure2D *, const QString & ) const
+bool ReosHecRasSimulation::hasResult( const QString & ) const
 {
   const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
 
@@ -484,7 +478,7 @@ bool ReosHecRasSimulation::hasResult( const ReosHydraulicStructure2D *, const QS
   return true;
 }
 
-void ReosHecRasSimulation::removeResults( const ReosHydraulicStructure2D *, const QString & ) const
+void ReosHecRasSimulation::removeResults( const QString & ) const
 {
   const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
   const QString meshFile = currentPlan.fileName() + QStringLiteral( ".hdf" );

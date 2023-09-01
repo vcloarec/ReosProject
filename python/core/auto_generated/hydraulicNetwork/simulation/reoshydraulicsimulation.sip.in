@@ -27,11 +27,12 @@ class ReosHydraulicSimulation : ReosDataObject /Abstract/
     typedef QFlags<ReosHydraulicSimulation::Capability> Capabilities;
 
 
-    ReosHydraulicSimulation( ReosHydraulicStructure2D *parent = 0 );
+    ReosHydraulicSimulation( ReosHydraulicStructure2D *hydraulicStructure = 0 );
 
     virtual bool hasCapability( Capability cap ) const;
 
     virtual QString key() const = 0;
+
 
 
 
@@ -42,9 +43,9 @@ class ReosHydraulicSimulation : ReosDataObject /Abstract/
 
 
 
-    virtual bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual bool hasResult( const QString &shemeId ) const = 0;
 
-    virtual void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const = 0;
+    virtual void removeResults( const QString &shemeId ) const = 0;
 
     virtual QString engineName() const = 0;
 

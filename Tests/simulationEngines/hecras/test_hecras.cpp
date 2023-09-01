@@ -889,8 +889,8 @@ void ReosHecrasTesting::importAndLaunchStructure()
   hecSim->setDetailledInterval( ReosDuration( 1, ReosDuration::minute ) );
   hecSim->setMappingInterval( ReosDuration( 1, ReosDuration::minute ) );
 
-  ReosSimulationData simulationData = structure->simulationData();
-  simulation->prepareInput( structure, simulationData, scheme->calculationContext() );
+  ReosSimulationData simulationData = structure->simulationData( QString() );
+  simulation->prepareInput( simulationData, scheme->calculationContext() );
 
   ReosHecRasProject projectAfterPreparation( path );
   ReosHecRasPlan planAfterPreparation = projectAfterPreparation.currentPlan();
@@ -980,7 +980,7 @@ void ReosHecrasTesting::simulationResults()
   ReosHecRasSimulation *simulation = dynamic_cast<ReosHecRasSimulation *>( structure->currentSimulation() );
   ReosHydraulicScheme *currentScheme = network->currentScheme();
 
-  QVERIFY( simulation->hasResult( structure, currentScheme->id() ) );
+  QVERIFY( simulation->hasResult( currentScheme->id() ) );
 
   ReosTestRenderedObject renderer;
   QVERIFY( renderer.compareRendering(
@@ -1010,7 +1010,7 @@ void ReosHecrasTesting::simulationResults()
              data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
 
 
-  std::unique_ptr<ReosHydraulicSimulationResults> simResult( simulation->loadSimulationResults( structure, scheme->id() ) );
+  std::unique_ptr<ReosHydraulicSimulationResults> simResult( simulation->loadSimulationResults( scheme->id() ) );
 
   QMap<QString, ReosHydrograph *> outputHydrographs = simResult->outputHydrographs();
   QVERIFY( outputHydrographs.count() == 2 );
