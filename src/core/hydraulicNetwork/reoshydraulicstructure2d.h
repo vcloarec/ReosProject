@@ -116,7 +116,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosMeshGeneratorProcess *getGenerateMeshProcess();
 
     //! Returns the data of the structure necessary for simulation
-    ReosSimulationData simulationData() const;
+    ReosSimulationData simulationData( const QString &schemeId ) const;
 
     //! Returns the topography collection
     ReosTopographyCollection *topographyCollecion() const;
@@ -199,7 +199,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosSimulationPreparationProcess *getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error, const QDir &directory );
 
     /**
-     * Creates a new simulation process and returns a pointer to the process, the process is not starting.
+     * Creates a new simulation process and returns a pointer to the process, the process is not started.
      * Caller does NOT take ownership ship and the object is destroyed once finished
      */
     ReosSimulationProcess *createSimulationProcess( const ReosCalculationContext &context, QString &error );

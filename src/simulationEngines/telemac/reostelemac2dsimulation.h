@@ -64,21 +64,22 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
     bool hasCapability( Capability cap ) const override;
-    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) override;
-    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
-    ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
+    void prepareSimulationdata( ReosSimulationData &simData ) override {}
+    void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) override;
+    void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
+    ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;
     ReosDuration representativeTimeStep() const override;
     ReosDuration representative2DTimeStep() const override;
-    bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
-    void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
-    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, QObject *parent = nullptr ) const override;
-    void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
+    bool hasResult( const QString &shemeId ) const override;
+    void saveSimulationResult( const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
+    ReosHydraulicSimulationResults *loadSimulationResults( const QString &shemeId, QObject *parent = nullptr ) const override;
+    void removeResults( const QString &shemeId ) const override;
     ReosTimeWindow externalTimeWindow() const override {return ReosTimeWindow();}
     ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override {return ReosTimeWindow();}
 
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
-    QFileInfoList cleanScheme( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicScheme *scheme ) override;
+    QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) override;
 
     ReosEncodedElement encode() const override;
 
@@ -134,35 +135,29 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     ReosDuration timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const;
 
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles(
-      ReosHydraulicStructure2D *hydraulicStructure,
       const ReosSimulationData &simulationData,
       QVector<int> &verticesPosInBoundary,
       const QDir &directory );
 
-    void createSelafinMeshFrame( ReosHydraulicStructure2D *hydraulicStructure,
-                                 const QVector<int> &verticesPosInBoundary,
+    void createSelafinMeshFrame( const QVector<int> &verticesPosInBoundary,
                                  const QString &fileName );
 
-    void createSelafinBaseFile( ReosHydraulicStructure2D *hydraulicStructure,
-                                const ReosSimulationData &simulationData,
+    void createSelafinBaseFile( const ReosSimulationData &simulationData,
                                 const QVector<int> &verticesPosInBoundary,
                                 const QString &fileName );
 
-    void createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure,
-                                            const ReosSimulationData &simulationData,
+    void createSelafinInitialConditionFile( const ReosSimulationData &simulationData,
                                             const QVector<int> &verticesPosInBoundary,
                                             const ReosHydraulicSimulationResults *result,
                                             int timeStepIndex,
                                             const QDir &directory );
 
-    void createSelafinInitialConditionFile( ReosHydraulicStructure2D *hydraulicStructure,
-                                            const ReosSimulationData &simulationData,
+    void createSelafinInitialConditionFile( const ReosSimulationData &simulationData,
                                             const QVector<int> &verticesPosInBoundary,
                                             const ReosTelemac2DInitialConditionFromInterpolation *interpolation,
                                             const QDir &directory );
 
     void createSelafinInitialConditionFile( const QString &path,
-                                            ReosHydraulicStructure2D *hydraulicStructure,
                                             const ReosSimulationData &simulationData,
                                             const QVector<int> &verticesPosInBoundary,
                                             std::unique_ptr<QgsMeshDatasetGroup> waterLevel,
@@ -175,7 +170,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
       const ReosCalculationContext &context,
       const QDir &directory );
 
-    void createSteeringFile( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &simulationData,
+    void createSteeringFile(const ReosSimulationData &simulationData,
                              const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
                              const QVector<int> &verticesPosInBoundary,
                              const ReosCalculationContext &context,

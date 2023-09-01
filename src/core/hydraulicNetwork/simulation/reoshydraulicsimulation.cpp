@@ -31,7 +31,9 @@
 #include "reostimewindowsettings.h"
 #include "reosapplication.h"
 
-ReosHydraulicSimulation::ReosHydraulicSimulation( ReosHydraulicStructure2D *parent ): ReosDataObject( parent )
+ReosHydraulicSimulation::ReosHydraulicSimulation( ReosHydraulicStructure2D *hydraulicStructure )
+  : ReosDataObject( hydraulicStructure )
+  , mStructure( hydraulicStructure )
 {
 }
 
@@ -46,15 +48,15 @@ ReosHydraulicNetworkElementCompatibilty ReosHydraulicSimulation::checkCompatibli
 }
 
 
-QDir ReosHydraulicSimulation::simulationDir( const ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId ) const
+QDir ReosHydraulicSimulation::simulationDir( const QString &schemeId ) const
 {
-  if ( !hydraulicStructure )
+  if ( !mStructure )
     return QDir();
 
   if ( schemeId.isEmpty() )
     return QDir();
 
-  QDir dir = hydraulicStructure->structureDirectory();
+  QDir dir = mStructure->structureDirectory();
 
   QString schemeDirName = schemeId.split( ':' ).last();
 
@@ -222,7 +224,7 @@ ReosSimulationPreparationProcess::ReosSimulationPreparationProcess(
   const ReosCalculationContext &context )
   : mStructure( hydraulicStructure )
   , mSimulation( simulation )
-  , mSimulationData( hydraulicStructure->simulationData() )
+  , mSimulationData( hydraulicStructure->simulationData( context.schemeId() ) )
   , mContext( context )
   , mHasMesh( mStructure->mesh()->faceCount() != 0 )
 {}
@@ -285,12 +287,12 @@ void ReosSimulationPreparationProcess::start()
   mContext.setTimeWindow( mStructure->timeWindow() );
 
   if ( mDestinationPath.isEmpty() )
-    mSimulation->prepareInput( mStructure, mSimulationData, mContext );
+    mSimulation->prepareInput( mSimulationData, mContext );
   else
   {
     const QDir dir( mDestinationPath );
     if ( dir.exists() )
-      mSimulation->prepareInput( mStructure, mSimulationData, mContext, dir );
+      mSimulation->prepareInput( mSimulationData, mContext, dir );
   }
 
   mIsSuccessful = true;
@@ -406,14 +408,13 @@ const ReosHydrograph *ReosSimulationProcessDummy::output() const
   return &mOuput;
 }
 
-ReosSimulationProcess *ReosHydraulicSimulationDummy::getProcess( ReosHydraulicStructure2D *structure, const ReosCalculationContext &calculationContext ) const
+ReosSimulationProcess *ReosHydraulicSimulationDummy::getProcess( const ReosCalculationContext &calculationContext ) const
 {
   calculationContext.schemeId();
-  return new ReosSimulationProcessDummy( this, calculationContext, structure->boundaryConditions() );
+  return new ReosSimulationProcessDummy( this, calculationContext, mStructure->boundaryConditions() );
 }
 
 void ReosHydraulicSimulationDummy::saveSimulationResult(
-  const ReosHydraulicStructure2D *structure,
   const QString &,
   ReosSimulationProcess *process,
   bool ) const
@@ -422,7 +423,7 @@ void ReosHydraulicSimulationDummy::saveSimulationResult(
   if ( !dummyProcess )
     return;
 
-  const QList<ReosHydraulicStructureBoundaryCondition *> bcs = structure->boundaryConditions();
+  const QList<ReosHydraulicStructureBoundaryCondition *> bcs = mStructure->boundaryConditions();
   for ( ReosHydraulicStructureBoundaryCondition *bc : bcs )
   {
     if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel )
@@ -435,14 +436,13 @@ void ReosHydraulicSimulationDummy::saveSimulationResult(
 }
 
 ReosHydraulicSimulationResults *ReosHydraulicSimulationDummy::loadSimulationResults(
-  ReosHydraulicStructure2D *,
   const QString &,
   QObject *parent ) const
 {
   return new ReosHydraulicSimulationResultsDummy( this, parent );
 }
 
-bool ReosHydraulicSimulationDummy::hasResult( const ReosHydraulicStructure2D *, const QString &schemeId ) const
+bool ReosHydraulicSimulationDummy::hasResult( const QString &schemeId ) const
 {
   return mSchemeIdHasResult.contains( schemeId );
 }

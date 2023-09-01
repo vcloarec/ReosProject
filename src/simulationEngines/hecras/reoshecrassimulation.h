@@ -54,16 +54,18 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 
     QString key() const override;
 
-    void prepareInput( ReosHydraulicStructure2D *hydraulicStructure, const ReosSimulationData &data, const ReosCalculationContext &calculationContext ) override;
-    void prepareInput( ReosHydraulicStructure2D *, const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {}
+    void prepareSimulationdata( ReosSimulationData &simData ) override {}
 
-    ReosSimulationProcess *getProcess( ReosHydraulicStructure2D *hydraulicStructure, const ReosCalculationContext &calculationContext ) const override;
+    void prepareInput( const ReosSimulationData &data, const ReosCalculationContext &calculationContext ) override;
+    void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {}
+
+    ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;
     ReosDuration representativeTimeStep() const override;
     ReosDuration representative2DTimeStep() const override;
-    void saveSimulationResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
-    ReosHydraulicSimulationResults *loadSimulationResults( ReosHydraulicStructure2D *hydraulicStructure, const QString &schemeId, QObject *parent = nullptr ) const override;
-    bool hasResult( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
-    void removeResults( const ReosHydraulicStructure2D *hydraulicStructure, const QString &shemeId ) const override;
+    void saveSimulationResult( const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
+    ReosHydraulicSimulationResults *loadSimulationResults( const QString &schemeId, QObject *parent = nullptr ) const override;
+    bool hasResult( const QString &shemeId ) const override;
+    void removeResults( const QString &shemeId ) const override;
     QString engineName() const override {return tr( "HECRAS" );}
     ReosTimeWindow externalTimeWindow() const override;
     ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const override;
@@ -108,7 +110,6 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
       const QString &planId ) const;
 
   private:
-    ReosHydraulicStructure2D *mStructure = nullptr;
     QString mProjectFileName;
     std::shared_ptr<ReosHecRasProject> mProject;
 
