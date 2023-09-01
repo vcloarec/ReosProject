@@ -574,7 +574,9 @@ ReosHydraulicSimulation *ReosHydraulicStructure2D::simulation( ReosHydraulicSche
   const ReosEncodedElement elem = scheme->restoreElementConfig( id() );
 
   QString simulationId;
-  elem.getData( QStringLiteral( "current-simulation-id" ), simulationId );
+
+  if ( !elem.getData( QStringLiteral( "current-simulation-id" ), simulationId ) )
+    return currentSimulation();
 
   int simIndex = simulationIndexFromId( simulationId );
   if ( simIndex != -1 )
@@ -725,30 +727,33 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
   return QString();
 }
 
-ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, ReosModule::Message &message )
 {
   if ( mMeshNeedToBeGenerated )
   {
-    error = tr( "The mesh need to be regenerated" );
+    message.type = ReosModule::Error;
+    message.addText( tr( "The mesh need to be regenerated" ) );
     return nullptr;
   }
   if ( !currentSimulation() )
   {
-    error = tr( "Current simulation not defined" );
+    message.type = ReosModule::Error;
+    message.addText( tr( "Current simulation not defined" ) );
     return nullptr;
   }
   if ( mNetwork->projectFileName().isEmpty() )
   {
-    error = tr( "Project must be saved at least one time." );
+    message.type = ReosModule::Error;
+    message.addText( tr( "Project must be saved at least one time." ) );
     return nullptr;
   }
 
-  return new ReosSimulationPreparationProcess( this, currentSimulation(), context );
+  return new ReosSimulationPreparationProcess( this, currentSimulation(), context, message );
 }
 
-ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, QString &error, const QDir &directory )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, ReosModule::Message &message, const QDir &directory )
 {
-  std::unique_ptr<ReosSimulationPreparationProcess> ret( getPreparationProcessSimulation( context, error ) );
+  std::unique_ptr<ReosSimulationPreparationProcess> ret( getPreparationProcessSimulation( context, message ) );
   ret->setDestination( directory );
   return ret.release();
 }
@@ -825,7 +830,7 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
   txtStream << tr( "Start running simulation for hydraulic structure \"%1\"" ).arg( elementName() ) << Qt::endl;
   txtStream << QStringLiteral( "*********************************************************************************" ) << Qt::endl;
 
-  QString error;
+  ReosModule::Message message;
 
   removeResults( context );
   updateResults( context.schemeId() );
@@ -842,10 +847,10 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
   }
 
   txtStream << tr( "Start preparation of simulation" ) << Qt::endl;
-  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( getPreparationProcessSimulation( context, error ) );
+  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( getPreparationProcessSimulation( context, message ) );
   if ( !preparationProcess )
   {
-    txtStream << tr( "Simulation did not start for following reason:\n\n%1" ).arg( error ) << Qt::endl;
+    txtStream << tr( "Simulation did not start for following reason:\n\n%1" ).arg( message.text ) << Qt::endl;
     return false;
   }
   std::unique_ptr<QEventLoop> loop( new QEventLoop );
@@ -868,6 +873,7 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
 
   txtStream << QStringLiteral( "*********************************************************************************" ) << Qt::endl;
   txtStream << tr( "Start simulation" ) << Qt::endl;
+  QString error;
   ReosSimulationProcess *process( createSimulationProcess( effCalcContext, error ) );
   if ( !process )
   {
@@ -1211,7 +1217,7 @@ ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
   return process.release();
 }
 
-ReosSimulationData ReosHydraulicStructure2D::simulationData( const QString &schemeId ) const
+ReosSimulationData ReosHydraulicStructure2D::simulationData( const QString &schemeId, ReosModule::Message &message ) const
 {
   ReosSimulationData ret;
 
@@ -1253,11 +1259,13 @@ ReosSimulationData ReosHydraulicStructure2D::simulationData( const QString &sche
   {
     ReosHydraulicSimulation *sim = simulation( scheme );
     if ( sim )
-    {
-
-    }
+      message = sim->prepareSimulationData( ret );
   }
-
+  else
+  {
+    message.type = ReosModule::Error;
+    message.addText( "No hydraulic scheme" );
+  }
 
   return ret;
 }

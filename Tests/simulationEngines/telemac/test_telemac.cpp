@@ -144,6 +144,8 @@ void ReosTelemacTesting::buildStructure()
   hydraulicStructure->mesh()->applyConstantZValue( 0, coreModule->gisEngine()->crsFromEPSG( 32620 ) );
   QCOMPARE( hydraulicStructure->mesh()->vertexElevation( 0 ), 0 );
 
+  ReosHydraulicScheme *scheme = coreModule->hydraulicNetwork()->currentScheme();
+
   // Telemac simulation
   QVERIFY( hydraulicStructure->addSimulation( QStringLiteral( "telemac2D" ) ) );
   ReosTelemac2DSimulation *telemacSim = dynamic_cast<ReosTelemac2DSimulation *>( hydraulicStructure->currentSimulation() );
@@ -153,11 +155,70 @@ void ReosTelemacTesting::buildStructure()
   telemacSim->timeStep()->setValue( ReosDuration( 1.0, ReosDuration::minute ) );
   telemacSim->outputPeriodResult2D()->setValue( 5 );
   telemacSim->outputPeriodResultHydrograph()->setValue( 1 );
+
   telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity );
   qobject_cast<ReosTelemac2DInitialConstantWaterLevel>( telemacSim->initialCondition() ).initialWaterLevel()->setValue( 2.0 );
 
-  coreModule->saveProject( projectDir.filePath( "telemac_model" ) );
+  ReosModule::Message message;
+  ReosSimulationData simData = hydraulicStructure->simulationData( scheme->id(), message );
 
+  QVERIFY( message.type == ReosModule::Simple );
+  QCOMPARE( simData.boundaryVertices.count(), 6 );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::None );
+
+  telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::FromOtherSimulation );
+
+  telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::FromOtherSimulation );
+  simData = hydraulicStructure->simulationData( scheme->id(), message );
+  QVERIFY( message.type == ReosModule::Error );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::None );
+
+  telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::Interpolation );
+  simData = hydraulicStructure->simulationData( scheme->id(), message );
+  QVERIFY( message.type == ReosModule::Error );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::None );
+
+  ReosTelemac2DInitialConditionFromInterpolation *interCi =
+    dynamic_cast<ReosTelemac2DInitialConditionFromInterpolation *>( telemacSim->initialCondition() );
+  interCi->firstValue()->setValue( 4 );
+  interCi->secondValue()->setValue( 3 );
+  QPolygonF interLine;
+  interLine << QPointF( 495593.83, 1996741.39 );
+  interCi->setLine( interLine, coreModule->gisEngine()->crsFromEPSG( 32620 ) );
+  simData = hydraulicStructure->simulationData( scheme->id(), message );
+  QVERIFY( message.type == ReosModule::Error );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::None );
+
+  interLine << QPointF( 495888.53, 1996727.71 );
+  interCi->setLine( interLine, coreModule->gisEngine()->crsFromEPSG( 32620 ) );
+  simData = hydraulicStructure->simulationData( scheme->id(), message );
+  QVERIFY( message.type == ReosModule::Simple );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::Vertex );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::Vertex );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::Vertex );
+  int vertexCount = 86;
+  QCOMPARE( simData.waterLevelIni.count(), vertexCount );
+  QCOMPARE( simData.waterDepthIni.count(), vertexCount );
+  QCOMPARE( simData.velocityIni.count(), vertexCount );
+
+  for ( int vi = 0; vi < vertexCount; ++vi )
+  {
+    QVERIFY( simData.waterLevelIni.at( vi ) <= 4 && simData.waterLevelIni.at( vi ) >= 3 );
+    QVERIFY( simData.waterDepthIni.at( vi ) <= 4 && simData.waterDepthIni.at( vi ) >= 3 );
+    QVERIFY( simData.velocityIni.at( vi ) == 0 );
+  }
+
+  telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity );
+
+  coreModule->saveProject( projectDir.filePath( "telemac_model" ) );
   QVERIFY( hydraulicStructure->runSimulation( coreModule->hydraulicNetwork()->currentScheme()->calculationContext() ) );
 
   QVERIFY( hydraulicStructure->hasResults() );

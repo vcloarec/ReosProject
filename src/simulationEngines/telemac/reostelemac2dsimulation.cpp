@@ -72,6 +72,105 @@ bool ReosTelemac2DSimulation::hasCapability( Capability cap ) const
   return mCapabilities.testFlag( cap );
 }
 
+ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulationData &simData )
+{
+  int vertCount = mStructure->mesh()->vertexCount();
+
+  ReosModule::Message retMes;
+
+  switch ( initialCondition()->initialConditionType() )
+  {
+    case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
+    {
+      ReosTelemac2DInitialConditionFromSimulation *cifs = qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition() );
+      if ( hasResult( cifs->otherSchemeId() ) )
+      {
+        std::unique_ptr<ReosHydraulicSimulationResults> results( loadSimulationResults( cifs->otherSchemeId() ) );
+        int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+        if ( results->datasetCount( waterlevelGroupIndex ) >  cifs->timeStepIndex() )
+        {
+          simData.waterLevelIniLocation = ReosSimulationData::Vertex;
+          simData.waterDepthIniLocation = ReosSimulationData::Vertex;
+          simData.velocityIniLocation = ReosSimulationData::Vertex;
+          int timeStepIndex = 0;
+          if ( cifs->useLastTimeStep() )
+            timeStepIndex = results->timeSteps().count() - 1;
+          else
+            timeStepIndex = cifs->timeStepIndex();
+
+          const QVector<double> waterLevelvalues =
+            results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
+
+          if ( waterLevelvalues.count() == vertCount )
+          {
+            simData.waterLevelIni = waterLevelvalues;
+            simData.waterDepthIni =
+              results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
+            simData.velocityIni =
+              results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
+          }
+          else
+          {
+            retMes.type = ReosModule::Error;
+            retMes.addText( tr( "Other simulation for initial conditions has results incompatible with current mesh." ) );
+          }
+
+        }
+        else
+        {
+          retMes.type = ReosModule::Error;
+          retMes.addText( tr( "Other simulation for initial conditions has results with incompatible time step count." ) );
+        }
+      }
+      else
+      {
+        retMes.type = ReosModule::Error;
+        retMes.addText( tr( "Other simulation for initial conditions does not have results." ) );
+      }
+    }
+    break;
+    case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
+      break;
+    case ReosTelemac2DInitialCondition::Type::Interpolation:
+      ReosTelemac2DInitialConditionFromInterpolation *cifi = qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition() );
+      if ( cifi && cifi->line().count() > 1 )
+      {
+        QPolygonF mInterLine = cifi->line();
+        const QString &crs = cifi->crs();
+        ReosMesh *mesh = mStructure->mesh();
+        simData.coordinateTransformer.transformToCoordinates( crs, mInterLine, mesh->crs() );
+        double length = ReosGeometryUtils::length( mInterLine );
+        double firstValue = cifi->firstValue()->value();
+        double secondValue = cifi->secondValue()->value();
+
+        simData.waterLevelIniLocation = ReosSimulationData::Vertex;
+        simData.waterDepthIniLocation = ReosSimulationData::Vertex;
+        simData.velocityIniLocation = ReosSimulationData::Vertex;
+        simData.waterLevelIni.resize( vertCount );
+        simData.waterDepthIni.resize( vertCount );
+        simData.velocityIni.fill( 0, vertCount );
+        for ( int i = 0; i < vertCount; ++i )
+        {
+          double position = ReosGeometryUtils::projectedPointDistanceFromBegining( mesh->vertexPosition( i ), mInterLine );
+          simData.waterLevelIni[i] = firstValue + ( secondValue - firstValue ) * position / length;
+          double depth = simData.waterLevelIni.at( i ) - mesh->vertexElevation( i );
+          if ( depth > 0 )
+            simData.waterDepthIni[i] = depth;
+          else
+            simData.waterDepthIni[i] = 0;
+        }
+      }
+      else
+      {
+        retMes.type = ReosModule::Error;
+        retMes.addText( tr( "Interpolation line for initial conditions is not defined." ) );
+      }
+      break;
+  }
+
+  return retMes;
+}
+
 ReosEncodedElement ReosTelemac2DSimulation::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "telemac-2d-simulation" ) );
@@ -939,178 +1038,72 @@ void ReosTelemac2DSimulation::createSelafinBaseFile(
   ouputMesh->saveDataset( fileName, 1, QStringLiteral( "SELAFIN" ) );
 }
 
-void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimulationData &simulationData,
-    const QVector<int> &verticesPosInBoundary,
-    const ReosHydraulicSimulationResults *result,
-    int timeStepIndex,
-    const QDir &directory )
+void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimulationData &simulationData, const QVector<int> &verticesPosInBoundary, const QDir &directory )
 {
-  const QString path = directory.filePath( mInitialConditionFile );
+  if ( simulationData.waterLevelIniLocation != ReosSimulationData::Vertex ||
+       simulationData.waterDepthIniLocation != ReosSimulationData::Vertex ||
+       simulationData.velocityIniLocation != ReosSimulationData::Vertex )
+    return;
 
+  const QString path = directory.filePath( mInitialConditionFile );
   const QgsMesh mesh = *static_cast<const QgsMesh *>( simulationData.meshData.data() );
 
   int size = mesh.vertexCount();
 
   // Water level
   std::shared_ptr<QgsMeshMemoryDataset> waterLevelDataset( new QgsMeshMemoryDataset );
-
-  waterLevelDataset->values.resize( mesh.vertexCount() );
-  const QVector<double> waterlevelValue = result->datasetValues( result->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
-
-  if ( waterlevelValue.count() != size )
-    return;
-
-  for ( int i = 0; i < size; ++i )
-    waterLevelDataset->values[i] = waterlevelValue.at( i );
-
-  waterLevelDataset->valid = true;
-  waterLevelDataset->time = 0;
-
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterLevelDatasetGroup( new QgsMeshMemoryDatasetGroup( "FREE SURFACE    M", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  waterLevelDatasetGroup->addDataset( waterLevelDataset );
-  waterLevelDatasetGroup->initialize();
-
-  // Water depth
   std::shared_ptr<QgsMeshMemoryDataset> waterDepthDataset( new QgsMeshMemoryDataset );
-  waterDepthDataset->values.resize( mesh.vertexCount() );
-  const QVector<double> waterDepthValue = result->datasetValues( result->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
-
-  if ( waterDepthValue.count() != size )
-    return;
-
-  for ( int i = 0; i < size; ++i )
-  {
-    if ( std::isnan( waterDepthValue.at( i ) ) )
-      waterDepthDataset->values[i] = 0;
-    else
-      waterDepthDataset->values[i] = waterDepthValue.at( i );
-  }
-
-  waterDepthDataset->valid = true;
-  waterDepthDataset->time = 0;
-
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterDepthDatasetGroup( new QgsMeshMemoryDatasetGroup( QStringLiteral( "WATER DEPTH     M" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  waterDepthDatasetGroup->addDataset( waterDepthDataset );
-  waterDepthDatasetGroup->initialize();
-
-
-  // Velocity
-  std::shared_ptr<QgsMeshMemoryDataset> velocityDatasetU( new QgsMeshMemoryDataset );
-  std::shared_ptr<QgsMeshMemoryDataset> velocityDatasetV( new QgsMeshMemoryDataset );
-  velocityDatasetU->values.resize( mesh.vertexCount() );
-  velocityDatasetV->values.resize( mesh.vertexCount() );
-  const QVector<double>velocityValue = result->datasetValues( result->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
-
-  if ( velocityValue.count() != size * 2 )
-    return;
-
-  for ( int i = 0; i < size; ++i )
-  {
-    if ( std::isnan( velocityValue.at( 2 * i ) ) )
-      velocityDatasetU->values[i] = 0;
-    else
-      velocityDatasetU->values[i] = velocityValue.at( 2 * i );
-
-    if ( std::isnan( velocityValue.at( 2 * i + 1 ) ) )
-      velocityDatasetV->values[i] = 0;
-    else
-      velocityDatasetV->values[i] = velocityValue.at( 2 * i + 1 );
-  }
-
-  velocityDatasetU->valid = true;
-  velocityDatasetU->time = 0;
-  velocityDatasetV->valid = true;
-  velocityDatasetV->time = 0;
-
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> velocityDatasetGroupU( new QgsMeshMemoryDatasetGroup( QStringLiteral( "VELOCITY U      M/S" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> velocityDatasetGroupV( new QgsMeshMemoryDatasetGroup( QStringLiteral( "VELOCITY V      M/S" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  velocityDatasetGroupU->addDataset( velocityDatasetU );
-  velocityDatasetGroupV->addDataset( velocityDatasetV );
-  velocityDatasetGroupU->initialize();
-  velocityDatasetGroupV->initialize();
-
-  createSelafinInitialConditionFile( path,
-                                     simulationData,
-                                     verticesPosInBoundary,
-                                     std::move( waterLevelDatasetGroup ),
-                                     std::move( waterDepthDatasetGroup ),
-                                     std::move( velocityDatasetGroupU ),
-                                     std::move( velocityDatasetGroupV ) );
-}
-
-void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
-  const ReosSimulationData &simulationData,
-  const QVector<int> &verticesPosInBoundary,
-  const ReosTelemac2DInitialConditionFromInterpolation *interpolation,
-  const QDir &directory )
-{
-  const QString path = directory.filePath( mInitialConditionFile );
-  ReosMesh *mesh = mStructure->mesh();
-
-  int size = mStructure->mesh()->vertexCount();
-
-  // Water level
-  std::shared_ptr<QgsMeshMemoryDataset> waterLevelDataset( new QgsMeshMemoryDataset );
-
   waterLevelDataset->values.resize( size );
-
-  QPolygonF mInterLine = interpolation->line();
-  const QString &crs = interpolation->crs();
-
-  simulationData.coordinateTransformer.transformToCoordinates( crs, mInterLine, mesh->crs() );
-  double length = ReosGeometryUtils::length( mInterLine );
-  double firstValue = interpolation->firstValue()->value();
-  double secondValue = interpolation->secondValue()->value();
-
-  for ( int i = 0; i < size; ++i )
-  {
-    double position = ReosGeometryUtils::projectedPointDistanceFromBegining( mesh->vertexPosition( i ), mInterLine );
-    waterLevelDataset->values[i] = firstValue + ( secondValue - firstValue ) * position / length;
-  }
-
-  waterLevelDataset->valid = true;
-  waterLevelDataset->time = 0;
-
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterLevelDatasetGroup( new QgsMeshMemoryDatasetGroup( "FREE SURFACE    M", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  waterLevelDatasetGroup->addDataset( waterLevelDataset );
-  waterLevelDatasetGroup->initialize();
-
-  // Water depth
-  std::shared_ptr<QgsMeshMemoryDataset> waterDepthDataset( new QgsMeshMemoryDataset );
   waterDepthDataset->values.resize( size );
 
-  for ( int i = 0; i < size; ++i )
-  {
-    double depth = waterLevelDataset->values.at( i ).scalar() - mesh->vertexElevation( i );
-    if ( depth > 0 )
-      waterDepthDataset->values[i] = depth;
-    else
-      waterDepthDataset->values[i] = 0;
-  }
-
-  waterDepthDataset->valid = true;
-  waterDepthDataset->time = 0;
-
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterDepthDatasetGroup( new QgsMeshMemoryDatasetGroup( QStringLiteral( "WATER DEPTH     M" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  waterDepthDatasetGroup->addDataset( waterDepthDataset );
-  waterDepthDatasetGroup->initialize();
-
-  // Velocity
   std::shared_ptr<QgsMeshMemoryDataset> velocityDatasetU( new QgsMeshMemoryDataset );
   std::shared_ptr<QgsMeshMemoryDataset> velocityDatasetV( new QgsMeshMemoryDataset );
   velocityDatasetU->values.resize( size );
   velocityDatasetV->values.resize( size );
 
+  if ( simulationData.waterLevelIni.count() != size ||
+       simulationData.waterDepthIni.count() != size ||
+       simulationData.velocityIni.count() * 2 != size )
+    return;
+
   for ( int i = 0; i < size; ++i )
   {
-    velocityDatasetU->values[i] = 0;
-    velocityDatasetV->values[i] = 0;
+    waterLevelDataset->values[i] = simulationData.waterLevelIni.at( i );
+
+    if ( std::isnan( simulationData.waterDepthIni.at( i ) ) )
+      waterDepthDataset->values[i] = 0;
+    else
+      waterDepthDataset->values[i] = simulationData.waterDepthIni.at( i );
+
+    if ( std::isnan( simulationData.velocityIni.at( 2 * i ) ) )
+      velocityDatasetU->values[i] = 0;
+    else
+      velocityDatasetU->values[i] = simulationData.velocityIni.at( 2 * i );
+
+    if ( std::isnan( simulationData.velocityIni.at( 2 * i + 1 ) ) )
+      velocityDatasetV->values[i] = 0;
+    else
+      velocityDatasetV->values[i] = simulationData.velocityIni.at( 2 * i + 1 );
   }
+
+  waterLevelDataset->valid = true;
+  waterLevelDataset->time = 0;
+
+  waterDepthDataset->valid = true;
+  waterDepthDataset->time = 0;
 
   velocityDatasetU->valid = true;
   velocityDatasetU->time = 0;
   velocityDatasetV->valid = true;
   velocityDatasetV->time = 0;
+
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterLevelDatasetGroup( new QgsMeshMemoryDatasetGroup( "FREE SURFACE    M", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  waterLevelDatasetGroup->addDataset( waterLevelDataset );
+  waterLevelDatasetGroup->initialize();
+
+  std::unique_ptr<QgsMeshMemoryDatasetGroup> waterDepthDatasetGroup( new QgsMeshMemoryDatasetGroup( QStringLiteral( "WATER DEPTH     M" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+  waterDepthDatasetGroup->addDataset( waterDepthDataset );
+  waterDepthDatasetGroup->initialize();
 
   std::unique_ptr<QgsMeshMemoryDatasetGroup> velocityDatasetGroupU( new QgsMeshMemoryDatasetGroup( QStringLiteral( "VELOCITY U      M/S" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
   std::unique_ptr<QgsMeshMemoryDatasetGroup> velocityDatasetGroupV( new QgsMeshMemoryDatasetGroup( QStringLiteral( "VELOCITY V      M/S" ), QgsMeshDatasetGroupMetadata::DataOnVertices ) );
@@ -1119,24 +1112,6 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
   velocityDatasetGroupU->initialize();
   velocityDatasetGroupV->initialize();
 
-  createSelafinInitialConditionFile( path,
-                                     simulationData,
-                                     verticesPosInBoundary,
-                                     std::move( waterLevelDatasetGroup ),
-                                     std::move( waterDepthDatasetGroup ),
-                                     std::move( velocityDatasetGroupU ),
-                                     std::move( velocityDatasetGroupV ) );
-}
-
-void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
-  const QString &path,
-  const ReosSimulationData &simulationData,
-  const QVector<int> &verticesPosInBoundary,
-  std::unique_ptr<QgsMeshDatasetGroup> waterLevel,
-  std::unique_ptr<QgsMeshDatasetGroup> depth,
-  std::unique_ptr<QgsMeshDatasetGroup> velocityU,
-  std::unique_ptr<QgsMeshDatasetGroup> velocityV )
-{
   createSelafinBaseFile( simulationData, verticesPosInBoundary, path );
   QgsMeshLayer::LayerOptions options;
   options.loadDefaultStyle = false;
@@ -1146,18 +1121,19 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile(
         QStringLiteral( "mdal" ),
         options );
 
-  ouputMesh->addDatasets( waterLevel.release() );
+  ouputMesh->addDatasets( waterLevelDatasetGroup.release() );
   ouputMesh->saveDataset( path, 2, QStringLiteral( "SELAFIN" ) );
 
-  ouputMesh->addDatasets( depth.release() );
+  ouputMesh->addDatasets( waterDepthDatasetGroup.release() );
   ouputMesh->saveDataset( path, 3, QStringLiteral( "SELAFIN" ) );
 
-  ouputMesh->addDatasets( velocityU.release() );
+  ouputMesh->addDatasets( velocityDatasetGroupU.release() );
   ouputMesh->saveDataset( path, 4, QStringLiteral( "SELAFIN" ) );
-  ouputMesh->addDatasets( velocityV.release() );
+  ouputMesh->addDatasets( velocityDatasetGroupV.release() );
   ouputMesh->saveDataset( path, 5, QStringLiteral( "SELAFIN" ) );
-
 }
+
+
 
 QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation::createBoundaryConditionFiles(
   const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
@@ -1356,25 +1332,9 @@ void ReosTelemac2DSimulation::createSteeringFile(
   switch ( initialCondition()->initialConditionType() )
   {
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
-    {
-      ReosTelemac2DInitialConditionFromSimulation *cifs = qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition() );
-      if ( hasResult( cifs->otherSchemeId() ) )
-      {
-        std::unique_ptr<ReosHydraulicSimulationResults> results( loadSimulationResults( cifs->otherSchemeId() ) );
-        int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
-        if ( results->datasetCount( waterlevelGroupIndex ) >  cifs->timeStepIndex() )
-        {
-          int timeStepIndex = 0;
-          if ( cifs->useLastTimeStep() )
-            timeStepIndex = results->timeSteps().count() - 1;
-          else
-            timeStepIndex = cifs->timeStepIndex();
-
-          createSelafinInitialConditionFile( simulationData, verticesPosInBoundary, results.get(), timeStepIndex, directory );
-        }
-      }
-    }
-    break;
+    case ReosTelemac2DInitialCondition::Type::Interpolation:
+      createSelafinInitialConditionFile( simulationData, verticesPosInBoundary, directory );
+      break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
     {
       stream << QStringLiteral( "INITIAL CONDITIONS : 'CONSTANT ELEVATION'\n" );
@@ -1382,11 +1342,6 @@ void ReosTelemac2DSimulation::createSteeringFile(
       stream << QStringLiteral( "INITIAL ELEVATION : %1\n" ).arg( QString::number( ciwl->initialWaterLevel()->value(), 'f', 2 ) );
     }
     break;
-    case ReosTelemac2DInitialCondition::Type::Interpolation:
-      ReosTelemac2DInitialConditionFromInterpolation *cifi = qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition() );
-      if ( cifi )
-        createSelafinInitialConditionFile( simulationData, verticesPosInBoundary, cifi, directory );
-      break;
   }
 
   //Numerical parameters

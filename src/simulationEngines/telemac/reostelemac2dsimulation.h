@@ -64,7 +64,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
     bool hasCapability( Capability cap ) const override;
-    void prepareSimulationdata( ReosSimulationData &simData ) override {}
+    ReosModule::Message prepareSimulationData( ReosSimulationData &simData ) override;
     void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
     ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;
@@ -148,29 +148,14 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     void createSelafinInitialConditionFile( const ReosSimulationData &simulationData,
                                             const QVector<int> &verticesPosInBoundary,
-                                            const ReosHydraulicSimulationResults *result,
-                                            int timeStepIndex,
                                             const QDir &directory );
-
-    void createSelafinInitialConditionFile( const ReosSimulationData &simulationData,
-                                            const QVector<int> &verticesPosInBoundary,
-                                            const ReosTelemac2DInitialConditionFromInterpolation *interpolation,
-                                            const QDir &directory );
-
-    void createSelafinInitialConditionFile( const QString &path,
-                                            const ReosSimulationData &simulationData,
-                                            const QVector<int> &verticesPosInBoundary,
-                                            std::unique_ptr<QgsMeshDatasetGroup> waterLevel,
-                                            std::unique_ptr<QgsMeshDatasetGroup> depth,
-                                            std::unique_ptr<QgsMeshDatasetGroup> velocityU,
-                                            std::unique_ptr<QgsMeshDatasetGroup> velocityV );
 
     QList<TelemacBoundaryCondition> createBoundaryConditionFiles(
       const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
       const ReosCalculationContext &context,
       const QDir &directory );
 
-    void createSteeringFile(const ReosSimulationData &simulationData,
+    void createSteeringFile( const ReosSimulationData &simulationData,
                              const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
                              const QVector<int> &verticesPosInBoundary,
                              const ReosCalculationContext &context,

@@ -218,13 +218,12 @@ void ReosSimulationEngineRegistery::loadDynamicLibrary()
   }
 }
 
-ReosSimulationPreparationProcess::ReosSimulationPreparationProcess(
-  ReosHydraulicStructure2D *hydraulicStructure,
-  ReosHydraulicSimulation *simulation,
-  const ReosCalculationContext &context )
+ReosSimulationPreparationProcess::ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure,
+    ReosHydraulicSimulation *simulation,
+    const ReosCalculationContext &context, ReosModule::Message &message )
   : mStructure( hydraulicStructure )
   , mSimulation( simulation )
-  , mSimulationData( hydraulicStructure->simulationData( context.schemeId() ) )
+  , mSimulationData( hydraulicStructure->simulationData( context.schemeId(), message ) )
   , mContext( context )
   , mHasMesh( mStructure->mesh()->faceCount() != 0 )
 {}

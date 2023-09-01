@@ -235,9 +235,9 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   std::unique_ptr<ModuleProcessControler> controller = std::make_unique<ModuleProcessControler>( meshProcess.get() );
   controller->waitForFinished();
 
-  QString error;
+  ReosModule::Message message;
   std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess(
-    structure2D->getPreparationProcessSimulation( mNetwork->currentScheme()->calculationContext(), error ) );
+    structure2D->getPreparationProcessSimulation( mNetwork->currentScheme()->calculationContext(), message ) );
   QVERIFY( preparationProcess );
   controller = std::make_unique<ModuleProcessControler>( preparationProcess.get() );
   controller->waitForFinished();
@@ -285,6 +285,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   // we have to wait that upstream calculation is finished
   simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
+  QString error;
   ReosSimulationProcess *simulationProcess =
     structure2D->createSimulationProcess( mNetwork->currentScheme()->calculationContext(), error );
 

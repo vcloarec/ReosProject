@@ -60,6 +60,14 @@ struct ReosSimulationData
   double defaultRoughness = 0.03;
 
   ReosCoordinateSystemTransformer coordinateTransformer;
+
+  enum IniLocation {None, Vertex, Face};
+  QVector<double> waterLevelIni;
+  IniLocation waterLevelIniLocation = None;
+  QVector<double> waterDepthIni;
+  IniLocation waterDepthIniLocation = None;
+  QVector<double> velocityIni;
+  IniLocation velocityIniLocation = None;
 };
 
 class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
@@ -69,7 +77,8 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
 
     ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure,
                                       ReosHydraulicSimulation *simulation,
-                                      const ReosCalculationContext &context );
+                                      const ReosCalculationContext &context,
+                                      ReosModule::Message &message );
 
     void setDestination( const QDir &destination );
     void start() override;
@@ -139,7 +148,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0 SIP_SKIP;
 
-    virtual void prepareSimulationdata( ReosSimulationData &simData ) = 0 SIP_SKIP;
+    virtual ReosModule::Message prepareSimulationData( ReosSimulationData &simData ) = 0 SIP_SKIP;
 
     virtual void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0 SIP_SKIP;
 
@@ -300,7 +309,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
     virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
 
-    void prepareSimulationdata( ReosSimulationData & ) override {}
+    ReosModule::Message  prepareSimulationData( ReosSimulationData & ) override {return ReosModule::Message();}
 
     virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext & ) override {};
 
