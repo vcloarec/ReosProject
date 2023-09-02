@@ -207,7 +207,7 @@ void ReosTelemacTesting::buildStructure()
   int vertexCount = 86;
   QCOMPARE( simData.waterLevelIni.count(), vertexCount );
   QCOMPARE( simData.waterDepthIni.count(), vertexCount );
-  QCOMPARE( simData.velocityIni.count(), vertexCount );
+  QCOMPARE( simData.velocityIni.count(), vertexCount * 2 );
 
   for ( int vi = 0; vi < vertexCount; ++vi )
   {
@@ -216,6 +216,13 @@ void ReosTelemacTesting::buildStructure()
     QVERIFY( simData.velocityIni.at( vi ) == 0 );
   }
 
+  telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::LastTimeStep );
+  simData = hydraulicStructure->simulationData( scheme->id(), message );
+  QVERIFY( message.type == ReosModule::Error );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::None );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::None );
+
   telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity );
 
   coreModule->saveProject( projectDir.filePath( "telemac_model" ) );
@@ -223,6 +230,31 @@ void ReosTelemacTesting::buildStructure()
 
   QVERIFY( hydraulicStructure->hasResults() );
   ReosHydraulicSimulationResults *result = hydraulicStructure->results( coreModule->hydraulicNetwork()->currentScheme() );
+  QVERIFY( result );
+  QCOMPARE( result->groupCount(), 3 );
+  QCOMPARE( result->datasetCount( 0 ), 13 );
+
+  telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::LastTimeStep );
+  simData = hydraulicStructure->simulationData( scheme->id(), message );
+  QVERIFY( message.type == ReosModule::Simple );
+  QCOMPARE( simData.waterDepthIniLocation, ReosSimulationData::Vertex );
+  QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::Vertex );
+  QCOMPARE( simData.velocityIniLocation, ReosSimulationData::Vertex );
+  QCOMPARE( simData.waterLevelIni.count(), vertexCount );
+  QCOMPARE( simData.waterDepthIni.count(), vertexCount );
+  QCOMPARE( simData.velocityIni.count(), vertexCount * 2 );
+  for ( int vi = 0; vi < vertexCount; ++vi )
+  {
+    QVERIFY( simData.waterLevelIni.at( vi ) <= 4 && simData.waterLevelIni.at( vi ) >= 1.95 );
+    QVERIFY( simData.waterDepthIni.at( vi ) <= 4 && simData.waterDepthIni.at( vi ) >= 1.95 );
+    QVERIFY( simData.velocityIni.at( vi ) != 0 );
+  }
+
+  coreModule->saveProject( projectDir.filePath( "telemac_model" ) );
+  QVERIFY( hydraulicStructure->runSimulation( coreModule->hydraulicNetwork()->currentScheme()->calculationContext() ) );
+
+  QVERIFY( hydraulicStructure->hasResults() );
+  result = hydraulicStructure->results( coreModule->hydraulicNetwork()->currentScheme() );
   QVERIFY( result );
   QCOMPARE( result->groupCount(), 3 );
   QCOMPARE( result->datasetCount( 0 ), 13 );

@@ -63,6 +63,9 @@ ReosTelemac2DSimulation::ReosTelemac2DSimulation( const ReosEncodedElement &elem
 
     if ( elem.description() == QStringLiteral( "telemac-2d-initial-condition-water-level-interpolation" ) )
       mInitialConditions.append( new ReosTelemac2DInitialConditionFromInterpolation( elem, this ) );
+
+    if ( elem.description() == QStringLiteral( "telemac-2d-initial-condition-last-time-step" ) )
+      mInitialConditions.append( new ReosTelemac2DInitialConditionUseLastTimeStep( elem, this ) );
   }
   init();
 }
@@ -72,12 +75,13 @@ bool ReosTelemac2DSimulation::hasCapability( Capability cap ) const
   return mCapabilities.testFlag( cap );
 }
 
-ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulationData &simData )
+ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulationData &simData, const QString &schemeId )
 {
   int vertCount = mStructure->mesh()->vertexCount();
 
   ReosModule::Message retMes;
-
+  std::unique_ptr<ReosHydraulicSimulationResults> results;
+  int timeStepIndex = 0;
   switch ( initialCondition()->initialConditionType() )
   {
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
@@ -85,42 +89,11 @@ ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulat
       ReosTelemac2DInitialConditionFromSimulation *cifs = qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition() );
       if ( hasResult( cifs->otherSchemeId() ) )
       {
-        std::unique_ptr<ReosHydraulicSimulationResults> results( loadSimulationResults( cifs->otherSchemeId() ) );
-        int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
-        if ( results->datasetCount( waterlevelGroupIndex ) >  cifs->timeStepIndex() )
-        {
-          simData.waterLevelIniLocation = ReosSimulationData::Vertex;
-          simData.waterDepthIniLocation = ReosSimulationData::Vertex;
-          simData.velocityIniLocation = ReosSimulationData::Vertex;
-          int timeStepIndex = 0;
-          if ( cifs->useLastTimeStep() )
-            timeStepIndex = results->timeSteps().count() - 1;
-          else
-            timeStepIndex = cifs->timeStepIndex();
-
-          const QVector<double> waterLevelvalues =
-            results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
-
-          if ( waterLevelvalues.count() == vertCount )
-          {
-            simData.waterLevelIni = waterLevelvalues;
-            simData.waterDepthIni =
-              results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
-            simData.velocityIni =
-              results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
-          }
-          else
-          {
-            retMes.type = ReosModule::Error;
-            retMes.addText( tr( "Other simulation for initial conditions has results incompatible with current mesh." ) );
-          }
-
-        }
+        results.reset( loadSimulationResults( cifs->otherSchemeId() ) );
+        if ( cifs->useLastTimeStep() )
+          timeStepIndex = results->timeSteps().count() - 1;
         else
-        {
-          retMes.type = ReosModule::Error;
-          retMes.addText( tr( "Other simulation for initial conditions has results with incompatible time step count." ) );
-        }
+          timeStepIndex = cifs->timeStepIndex();
       }
       else
       {
@@ -132,6 +105,7 @@ ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulat
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
       break;
     case ReosTelemac2DInitialCondition::Type::Interpolation:
+    {
       ReosTelemac2DInitialConditionFromInterpolation *cifi = qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition() );
       if ( cifi && cifi->line().count() > 1 )
       {
@@ -148,7 +122,7 @@ ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulat
         simData.velocityIniLocation = ReosSimulationData::Vertex;
         simData.waterLevelIni.resize( vertCount );
         simData.waterDepthIni.resize( vertCount );
-        simData.velocityIni.fill( 0, vertCount );
+        simData.velocityIni.fill( 0, vertCount * 2 );
         for ( int i = 0; i < vertCount; ++i )
         {
           double position = ReosGeometryUtils::projectedPointDistanceFromBegining( mesh->vertexPosition( i ), mInterLine );
@@ -165,7 +139,56 @@ ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulat
         retMes.type = ReosModule::Error;
         retMes.addText( tr( "Interpolation line for initial conditions is not defined." ) );
       }
-      break;
+    }
+    break;
+    case ReosTelemac2DInitialCondition::Type::LastTimeStep:
+    {
+      if ( hasResult( schemeId ) )
+      {
+        results.reset( loadSimulationResults( schemeId ) );
+        timeStepIndex = results->datasetCount( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ) ) - 1;
+      }
+      else
+      {
+        retMes.type = ReosModule::Error;
+        retMes.addText( tr( "Last time step of result for this scheme does not exist." ) );
+      }
+    }
+    break;
+  }
+
+  if ( results )
+  {
+    int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
+    if ( results->datasetCount( waterlevelGroupIndex ) >  timeStepIndex )
+    {
+
+      const QVector<double> waterLevelvalues =
+        results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
+
+      if ( waterLevelvalues.count() == vertCount )
+      {
+        simData.waterLevelIniLocation = ReosSimulationData::Vertex;
+        simData.waterDepthIniLocation = ReosSimulationData::Vertex;
+        simData.velocityIniLocation = ReosSimulationData::Vertex;
+        simData.waterLevelIni = waterLevelvalues;
+        simData.waterDepthIni =
+          results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
+        simData.velocityIni =
+          results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
+      }
+      else
+      {
+        retMes.type = ReosModule::Error;
+        retMes.addText( tr( "Results incompatible with current mesh." ) );
+      }
+
+    }
+    else
+    {
+      retMes.type = ReosModule::Error;
+      retMes.addText( tr( "Results with incompatible time step count." ) );
+    }
   }
 
   return retMes;
@@ -1063,7 +1086,7 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimul
 
   if ( simulationData.waterLevelIni.count() != size ||
        simulationData.waterDepthIni.count() != size ||
-       simulationData.velocityIni.count() * 2 != size )
+       simulationData.velocityIni.count() != size * 2 )
     return;
 
   for ( int i = 0; i < size; ++i )
@@ -1270,6 +1293,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
   {
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
     case ReosTelemac2DInitialCondition::Type::Interpolation:
+    case ReosTelemac2DInitialCondition::Type::LastTimeStep:
       stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
       stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
       break;
@@ -1333,6 +1357,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
   {
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
     case ReosTelemac2DInitialCondition::Type::Interpolation:
+    case ReosTelemac2DInitialCondition::Type::LastTimeStep:
       createSelafinInitialConditionFile( simulationData, verticesPosInBoundary, directory );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
@@ -1429,7 +1454,8 @@ void ReosTelemac2DSimulation::initInitialCondition()
 
   types << ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity
         << ReosTelemac2DInitialCondition::Type::FromOtherSimulation
-        << ReosTelemac2DInitialCondition::Type::Interpolation;
+        << ReosTelemac2DInitialCondition::Type::Interpolation
+        << ReosTelemac2DInitialCondition::Type::LastTimeStep;
 
   for ( ReosTelemac2DInitialCondition::Type type : std::as_const( types ) )
   {
@@ -1453,6 +1479,9 @@ void ReosTelemac2DSimulation::initInitialCondition()
           break;
         case ReosTelemac2DInitialCondition::Type::Interpolation:
           mInitialConditions.append( new ReosTelemac2DInitialConditionFromInterpolation( this ) );
+          break;
+        case ReosTelemac2DInitialCondition::Type::LastTimeStep:
+          mInitialConditions.append( new ReosTelemac2DInitialConditionUseLastTimeStep( this ) );
           break;
       }
     }

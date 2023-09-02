@@ -51,6 +51,8 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
       static_cast<int>( ReosTelemac2DInitialCondition::Type::FromOtherSimulation ) );
   ui->mInitialConditionTypeCombo->addItem( tr( "Interpolation line" ),
       static_cast<int>( ReosTelemac2DInitialCondition::Type::Interpolation ) );
+  ui->mInitialConditionTypeCombo->addItem( tr( "Use last time step of current result" ),
+      static_cast<int>( ReosTelemac2DInitialCondition::Type::LastTimeStep ) );
 
 
   ui->mInitialConditionTypeCombo->setCurrentIndex( ui->mInitialConditionTypeCombo->findData(
@@ -248,6 +250,11 @@ QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget(
       Q_ASSERT( ciinter != nullptr );
       return new  ReosTelemac2DInititalConditionInterpolationWidget(
                qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition ), guiContext );
+    }
+    break;
+    case ReosTelemac2DInitialCondition::Type::LastTimeStep:
+    {
+      return new  QWidget( guiContext.parent() );
     }
     break;
   }

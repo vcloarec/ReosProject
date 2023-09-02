@@ -62,7 +62,6 @@ ReosTelemac2DInitialConstantWaterLevel::ReosTelemac2DInitialConstantWaterLevel( 
   : ReosTelemac2DInitialCondition( element, parent )
 {
   mInitialWaterLevel = new ReosParameterDouble( tr( "Initial water level" ), false, this );
-  ReosDataObject::decode( element );
 }
 
 ReosEncodedElement ReosTelemac2DInitialConstantWaterLevel::encode() const
@@ -80,7 +79,6 @@ ReosTelemac2DInitialConditionFromSimulation::ReosTelemac2DInitialConditionFromSi
 ReosTelemac2DInitialConditionFromSimulation::ReosTelemac2DInitialConditionFromSimulation( const ReosEncodedElement &element, QObject *parent )
   : ReosTelemac2DInitialCondition( parent )
 {
-  ReosDataObject::decode( element );
 }
 
 ReosEncodedElement ReosTelemac2DInitialConditionFromSimulation::encode() const
@@ -152,7 +150,6 @@ ReosTelemac2DInitialConditionFromInterpolation::ReosTelemac2DInitialConditionFro
 {
   mFirstValue = new ReosParameterDouble( tr( "First water level value" ), false, this );
   mSecondValue = new ReosParameterDouble( tr( "Second water level value" ), false, this );
-  ReosDataObject::decode( element );
 }
 
 ReosEncodedElement ReosTelemac2DInitialConditionFromInterpolation::encode() const
@@ -211,4 +208,29 @@ QPolygonF ReosTelemac2DInitialConditionFromInterpolation::line() const
 QString ReosTelemac2DInitialConditionFromInterpolation::crs() const
 {
   return mCrs;
+}
+
+ReosTelemac2DInitialConditionUseLastTimeStep::ReosTelemac2DInitialConditionUseLastTimeStep( QObject *parent )
+  : ReosTelemac2DInitialCondition( parent )
+{
+}
+
+ReosTelemac2DInitialConditionUseLastTimeStep::ReosTelemac2DInitialConditionUseLastTimeStep( const ReosEncodedElement &element, QObject *parent )
+  : ReosTelemac2DInitialCondition( parent )
+{
+}
+
+ReosEncodedElement ReosTelemac2DInitialConditionUseLastTimeStep::encode() const
+{
+  ReosEncodedElement element( QStringLiteral( "telemac-2d-initial-condition-last-time-step" ) );
+  ReosDataObject::encode( element );
+  return element;
+}
+
+void ReosTelemac2DInitialConditionUseLastTimeStep::saveConfiguration( ReosHydraulicScheme * ) const
+{
+}
+
+void ReosTelemac2DInitialConditionUseLastTimeStep::restoreConfiguration( ReosHydraulicScheme * )
+{
 }

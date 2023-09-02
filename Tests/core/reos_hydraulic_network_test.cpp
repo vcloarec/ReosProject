@@ -236,8 +236,9 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   controller->waitForFinished();
 
   ReosModule::Message message;
+  ReosSimulationData simData = structure2D->simulationData( mNetwork->currentSchemeId(), message );
   std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess(
-    structure2D->getPreparationProcessSimulation( mNetwork->currentScheme()->calculationContext(), message ) );
+    structure2D->getPreparationProcessSimulation( simData, mNetwork->currentScheme()->calculationContext(), message ) );
   QVERIFY( preparationProcess );
   controller = std::make_unique<ModuleProcessControler>( preparationProcess.get() );
   controller->waitForFinished();

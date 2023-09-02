@@ -77,8 +77,8 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
 
     ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure,
                                       ReosHydraulicSimulation *simulation,
-                                      const ReosCalculationContext &context,
-                                      ReosModule::Message &message );
+                                      const ReosSimulationData &simData,
+                                      const ReosCalculationContext &context );
 
     void setDestination( const QDir &destination );
     void start() override;
@@ -148,7 +148,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
     virtual QString key() const = 0;
     virtual ReosEncodedElement encode() const = 0 SIP_SKIP;
 
-    virtual ReosModule::Message prepareSimulationData( ReosSimulationData &simData ) = 0 SIP_SKIP;
+    virtual ReosModule::Message prepareSimulationData( ReosSimulationData &simData, const QString &schemeId ) = 0 SIP_SKIP;
 
     virtual void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) = 0 SIP_SKIP;
 
@@ -309,7 +309,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
     virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
 
-    ReosModule::Message  prepareSimulationData( ReosSimulationData & ) override {return ReosModule::Message();}
+    ReosModule::Message  prepareSimulationData( ReosSimulationData &, const QString & ) override {return ReosModule::Message();}
 
     virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext & ) override {};
 
