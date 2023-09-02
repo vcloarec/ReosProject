@@ -54,7 +54,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 
     QString key() const override;
 
-    ReosModule::Message  prepareSimulationData( ReosSimulationData &simData ) override {return ReosModule::Message();}
+    ReosModule::Message  prepareSimulationData( ReosSimulationData &simData, const QString &schemeId ) override {return ReosModule::Message();}
 
     void prepareInput( const ReosSimulationData &data, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {}

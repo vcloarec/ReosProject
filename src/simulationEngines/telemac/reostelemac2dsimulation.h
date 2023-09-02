@@ -64,7 +64,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     QString key() const override {return ReosTelemac2DSimulation::staticKey();}
     bool hasCapability( Capability cap ) const override;
-    ReosModule::Message prepareSimulationData( ReosSimulationData &simData ) override;
+    ReosModule::Message prepareSimulationData( ReosSimulationData &simData, const QString &schemeId ) override;
     void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory ) override;
     ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;

@@ -727,7 +727,7 @@ QString ReosHydraulicStructure2D::meshDatasetName( const QString &id ) const
   return QString();
 }
 
-ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, ReosModule::Message &message )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosSimulationData &simData, const ReosCalculationContext &context, ReosModule::Message &message )
 {
   if ( mMeshNeedToBeGenerated )
   {
@@ -748,12 +748,12 @@ ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProces
     return nullptr;
   }
 
-  return new ReosSimulationPreparationProcess( this, currentSimulation(), context, message );
+  return new ReosSimulationPreparationProcess( this, currentSimulation(), simData, context );
 }
 
-ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosCalculationContext &context, ReosModule::Message &message, const QDir &directory )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosSimulationData &simData, const ReosCalculationContext &context, ReosModule::Message &message, const QDir &directory )
 {
-  std::unique_ptr<ReosSimulationPreparationProcess> ret( getPreparationProcessSimulation( context, message ) );
+  std::unique_ptr<ReosSimulationPreparationProcess> ret( getPreparationProcessSimulation( simData, context, message ) );
   ret->setDestination( directory );
   return ret.release();
 }
@@ -831,6 +831,7 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
   txtStream << QStringLiteral( "*********************************************************************************" ) << Qt::endl;
 
   ReosModule::Message message;
+  const ReosSimulationData simData = simulationData( context.schemeId(), message );
 
   removeResults( context );
   updateResults( context.schemeId() );
@@ -847,7 +848,7 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
   }
 
   txtStream << tr( "Start preparation of simulation" ) << Qt::endl;
-  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( getPreparationProcessSimulation( context, message ) );
+  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( getPreparationProcessSimulation( simData, context, message ) );
   if ( !preparationProcess )
   {
     txtStream << tr( "Simulation did not start for following reason:\n\n%1" ).arg( message.text ) << Qt::endl;
@@ -1259,7 +1260,7 @@ ReosSimulationData ReosHydraulicStructure2D::simulationData( const QString &sche
   {
     ReosHydraulicSimulation *sim = simulation( scheme );
     if ( sim )
-      message = sim->prepareSimulationData( ret );
+      message = sim->prepareSimulationData( ret, schemeId );
   }
   else
   {

@@ -422,6 +422,15 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
       return;
     }
 
+    ReosModule::Message message;
+    const ReosSimulationData simData = mStructure2D->simulationData( mCalculationContext.schemeId(), message );
+
+    if ( message.type == ReosModule::Error )
+    {
+      QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Simulation did not start for following reason:\n\n%1" ).arg( message.text ) );
+      emit mStructure2D->network()->emitMessage( message, false );
+      return;
+    }
 
     mStructure2D->removeResults( mCalculationContext );
     mStructure2D->updateResults( mCalculationContext.schemeId() );
@@ -429,11 +438,12 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
     ReosHydraulicScheme *scheme = mStructure2D->network()->scheme( mCalculationContext.schemeId() );
     mStructure2D->currentSimulation()->saveConfiguration( scheme );
 
-    ReosModule::Message message;
-    std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, message ) );
+
+    std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( simData, mCalculationContext, message ) );
     if ( !preparationProcess )
     {
       QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Simulation did not start for following reason:\n\n%1" ).arg( message.text ) );
+      emit mStructure2D->network()->emitMessage( message, false );
       return;
     }
 
@@ -471,14 +481,22 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
 void ReosHydraulicStructure2DProperties::onExportSimulation()
 {
   const QString dirPath = QFileDialog::getExistingDirectory( this, "Export Simulation File", QString(), QFileDialog::ShowDirsOnly );
-
   const QDir dir( dirPath );
 
   ReosModule::Message message;
-  std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( mCalculationContext, message, dir ) );
+  const ReosSimulationData simData = mStructure2D->simulationData( mCalculationContext.schemeId(), message );
+  if ( message.type == ReosModule::Error )
+  {
+    QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Simulation did not start for following reason:\n\n%1" ).arg( message.text ) );
+    emit mStructure2D->network()->emitMessage( message, false );
+    return;
+  }
+
+  std::unique_ptr<ReosProcess> preparationProcess( mStructure2D->getPreparationProcessSimulation( simData, mCalculationContext, message, dir ) );
   if ( !preparationProcess )
   {
     QMessageBox::warning( this, tr( "Export Simulation" ), tr( "Simulation can't be exported for following reason:\n\n%1" ).arg( message.text ) );
+    emit mStructure2D->network()->emitMessage( message, false );
     return;
   }
   ReosProcessControler *controler = new ReosProcessControler( preparationProcess.get(), this );

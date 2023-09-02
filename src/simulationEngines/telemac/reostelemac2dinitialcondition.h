@@ -30,7 +30,8 @@ class ReosTelemac2DInitialCondition: public ReosDataObject
     {
       FromOtherSimulation,
       ConstantLevelNoVelocity,
-      Interpolation
+      Interpolation,
+      LastTimeStep
     };
 
     ReosTelemac2DInitialCondition( QObject *parent = nullptr );
@@ -114,6 +115,20 @@ class ReosTelemac2DInitialConditionFromInterpolation: public ReosTelemac2DInitia
     ReosParameterDouble *mSecondValue = nullptr;
     QPolygonF mLine;
     QString mCrs;
+};
+
+class ReosTelemac2DInitialConditionUseLastTimeStep: public ReosTelemac2DInitialCondition
+{
+    Q_OBJECT
+  public:
+    ReosTelemac2DInitialConditionUseLastTimeStep( QObject *parent = nullptr );
+    ReosTelemac2DInitialConditionUseLastTimeStep( const ReosEncodedElement &element, QObject *parent = nullptr );
+
+    Type initialConditionType() const override {return Type::LastTimeStep;}
+    ReosEncodedElement encode() const override;
+
+    void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
+    void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
 };
 
 
