@@ -106,7 +106,7 @@ class ReosGriddedRainfallRasterProvider_p : public QgsRasterDataProvider
     QString description() const override {return QString();}
 
     // QgsRasterDataProvider interface
-    QString htmlMetadata() override {return QString();}
+    QString htmlMetadata() const override {return QString();}
     QString lastErrorTitle() override {return QString();}
     QString lastError() override {return QString();}
     Qgis::DataType sourceDataType( int ) const override {return Qgis::DataType::Float64;}
