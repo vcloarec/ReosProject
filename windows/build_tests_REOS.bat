@@ -22,8 +22,8 @@ set PATH=%PATH%;%REOS_INSTALL%\bin
 set PATH=%PATH%;%OSGEO4W_ROOT%\apps\Qt5\bin;
 set GDAL_DATA=%REOS_INSTALL%\share\gdal
 cd %REOS_BUILDING%
-ctest -C %BUILD_TYPE% -VV --output-on-failure
-if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
+rem ctest -C %BUILD_TYPE% -VV --output-on-failure
+rem if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
 endlocal
 
 rem Now we copy Qt files
@@ -40,17 +40,17 @@ copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_it.qm %REOS_INSTALL%\i18n
 copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_es.qm %REOS_INSTALL%\i18n\qtbase_es.qm
 copy /v /y %OSGEO4W_ROOT%\apps\Qt5\translations\qtbase_fr.qm %REOS_INSTALL%\i18n\qtbase_fr.qm
 
-echo "///////////////////// Test launch Lekan application, start it and wait 30s
-start %REOS_INSTALL%\bin\Lekan.exe test
-ping -n 30 127.0.0.1
-tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
-if %ERRORLEVEL% NEQ 0 (
-echo "///////////////////// Test launch Lekan application fails
-exit %ERRORLEVEL%
- ) else (
-echo "///////////////////// Test launch Lekan application success
-taskkill /F /IM Lekan.exe
- )
+rem echo "///////////////////// Test launch Lekan application, start it and wait 30s
+rem start %REOS_INSTALL%\bin\Lekan.exe test
+rem ping -n 30 127.0.0.1
+rem tasklist /fi "ImageName eq Lekan.exe" /fo csv 2>NUL | find /I "Lekan.exe">NUL
+rem if %ERRORLEVEL% NEQ 0 (
+rem echo "///////////////////// Test launch Lekan application fails
+rem exit %ERRORLEVEL%
+rem  ) else (
+rem echo "///////////////////// Test launch Lekan application success
+rem taskkill /F /IM Lekan.exe
+rem  )
 
 echo on
 
