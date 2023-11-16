@@ -141,7 +141,7 @@ bool ReosHecRasProject::parseProjectFile()
       planFile.remove( QStringLiteral( "Plan File=" ) );
       mPlans.insert( planFile, ReosHecRasPlan( projectDir.filePath( mProjectName + '.' + planFile ) ) );
       if ( !mPlans.value( planFile ).isValid() )
-        return false;
+        mPlans.remove( planFile );
     }
 
     if ( line.startsWith( QStringLiteral( "Unsteady File=" ) ) )
@@ -150,7 +150,7 @@ bool ReosHecRasProject::parseProjectFile()
       flowFile.remove( QStringLiteral( "Unsteady File=" ) );
       mFlows.insert( flowFile, ReosHecRasFlow( projectDir.filePath( mProjectName + '.' + flowFile ) ) );
       if ( !mFlows.value( flowFile ).isValid() )
-        return false;
+        mFlows.remove( flowFile );
     }
 
     if ( line.startsWith( QStringLiteral( "Current Plan=" ) ) )
@@ -331,7 +331,13 @@ bool ReosHecRasGeometry::parseGeometryFile()
       if ( mTerrainFileName.contains( QStringLiteral( "\\" ) ) )
         mTerrainFileName.replace( QLatin1String( "\\" ), QString( '/' ) );
 
-      mTerrainFileName = geomFileInfo.dir().filePath( mTerrainFileName );
+      QFileInfo terrainFileInfo( mTerrainFileName );
+      if ( !terrainFileInfo.isFile() || !terrainFileInfo.exists() )
+        mTerrainFileName = geomFileInfo.dir().filePath( mTerrainFileName );
+
+      terrainFileInfo = QFileInfo( mTerrainFileName );
+      if ( !terrainFileInfo.isFile() )
+        mTerrainFileName = geomFileInfo.dir().path() + QStringLiteral( "/Terrain/Terrain.hdf" );
     }
   }
   else
@@ -1364,16 +1370,16 @@ QString ReosHecRasGeometry::BoundaryCondition::id() const
 }
 
 
-ReosDssPath ReosHecRasFlow::BoundaryFlow::buildDssFlowRatePath(const ReosHecRasPlan& plan) const
+ReosDssPath ReosHecRasFlow::BoundaryFlow::buildDssFlowRatePath( const ReosHecRasPlan &plan ) const
 {
-    ReosDssPath path;
-    path.setGroup(QStringLiteral("BCLINE"));
-    path.setVersion(plan.shortIdentifier());
-    path.setParameter(QStringLiteral("FLOW"));
-    path.setTimeInterval(plan.outputInterval());
+  ReosDssPath path;
+  path.setGroup( QStringLiteral( "BCLINE" ) );
+  path.setVersion( plan.shortIdentifier() );
+  path.setParameter( QStringLiteral( "FLOW" ) );
+  path.setTimeInterval( plan.outputInterval() );
 
-    const QString location = area() + QStringLiteral(": ") + boundaryConditionLine();
-    path.setLocation(location);
+  const QString location = area() + QStringLiteral( ": " ) + boundaryConditionLine();
+  path.setLocation( location );
 
-    return path;
+  return path;
 }
