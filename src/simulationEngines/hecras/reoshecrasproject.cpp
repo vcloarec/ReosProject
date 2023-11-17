@@ -1051,6 +1051,8 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
       }
       else if ( inputLine.startsWith( QStringLiteral( "DSS File=" ) ) ||  inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
         continue;
+      else
+        outputStream << inputLine << "\r\n";
 
     }
     else if ( inputLine.startsWith( QStringLiteral( "Precipitation Mode=" ) ) )
