@@ -44,9 +44,8 @@ ogdi.dll
 openjp2.dll
 parquet.dll
 poppler.dll
-proj_9_0.dll
-proj_9_1.dll
 proj_9_2.dll
+proj_9_3.dll
 spatialindex-64.dll
 spatialite.dll
 sqlite3.dll
