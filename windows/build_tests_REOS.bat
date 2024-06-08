@@ -3,8 +3,8 @@ rem batch
 setlocal
 echo off
 set PATH=%WINDIR%\system32;%WINDIR%\system32\WindowsPowerShell\v1.0;%WINDIR%;%WINDIR%\system32\WBem;%CMAKE_PATH%
-set PATH=%PATH%;%OSGEO4W_ROOT%\bin;%OSGEO4W_ROOT%\apps\Python39
-set PATH=%PATH%;%OSGEO4W_ROOT%\apps\Python39
+set PATH=%PATH%;%OSGEO4W_ROOT%\bin;%OSGEO4W_ROOT%\apps\Python312;%OSGEO4W_ROOT%\apps\gdal-dev;%OSGEO4W_ROOT%\apps\gdal-dev\bin
+set PATH=%PATH%;%OSGEO4W_ROOT%\apps\Python312
 for %%f in ("%OSGEO4W_ROOT%\etc\ini\*.bat") do call "%%f"
 
 powershell -Command "%REOS_SOURCE%/windows/build_REOS.ps1"
@@ -21,8 +21,17 @@ set PATH=%WINDIR%\system32;%WINDIR%\system32\WindowsPowerShell\v1.0;%WINDIR%;%WI
 set PATH=%PATH%;%REOS_INSTALL%\bin
 set PATH=%PATH%;%OSGEO4W_ROOT%\apps\Qt5\bin;
 set GDAL_DATA=%REOS_INSTALL%\share\gdal
+
+rem ecCodes needs its definitions and samples folders at runtime. Copy them
+rem into the REOS install tree so the install is self-contained, then point
+rem the eccodes runtime env vars at the copies for the ctest run.
+robocopy %ECCODES_ROOT%\share\eccodes\definitions %REOS_INSTALL%\share\eccodes\definitions /E /S /NFL /NDL /NJH /NJS /nc /ns /np
+robocopy %ECCODES_ROOT%\share\eccodes\samples     %REOS_INSTALL%\share\eccodes\samples     /E /S /NFL /NDL /NJH /NJS /nc /ns /np
+set ECCODES_DEFINITION_PATH=%REOS_INSTALL%\share\eccodes\definitions
+set ECCODES_SAMPLES_PATH=%REOS_INSTALL%\share\eccodes\samples
+
 cd %REOS_BUILDING%
-ctest -C %BUILD_TYPE% -VV --output-on-failure
+ctest -C %BUILD_TYPE% -VV --output-on-failure --output-log "%REOS_BUILDING%\ctest_results.txt"
 if %ERRORLEVEL% NEQ 0 exit %ERRORLEVEL%
 endlocal
 
@@ -53,4 +62,3 @@ taskkill /F /IM Lekan.exe
  )
 
 echo on
-

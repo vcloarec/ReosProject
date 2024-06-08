@@ -62,14 +62,14 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   mActionRainfallManager->setCheckable( true );
   mRainFallManagerWidget->setAction( mActionRainfallManager );
   mRainFallManagerWidget->loadDataFile();
-  connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::changed, this, [this] {mIsRainfallDirty = true;} );
-  connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::saved, this, [this] {mIsRainfallDirty = false;} );
+  connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::changed, this, [this] { mIsRainfallDirty = true; } );
+  connect( ReosRainfallRegistery::instance()->rainfallModel(), &ReosRainfallModel::saved, this, [this] { mIsRainfallDirty = false; } );
 
   mRunoffManagerWidget = new ReosRunoffManager( ReosRunoffModelRegistery::instance()->model(), this );
   mActionRunoffManager->setCheckable( true );
   mRunoffManagerWidget->setAction( mActionRunoffManager );
   mRunoffManagerWidget->loadDataFile();
-  connect( ReosRunoffModelRegistery::instance()->model(), &ReosRunoffModelModel::modelChanged, this, [this] {mIsRunoffDirty = true;} );
+  connect( ReosRunoffModelRegistery::instance()->model(), &ReosRunoffModelModel::modelChanged, this, [this] { mIsRunoffDirty = true; } );
 
   statusBar()->addPermanentWidget( new ReosMapCursorPosition( mMap, this ) );
   centralWidget()->layout()->addWidget( mMap->mapCanvas() );
@@ -88,7 +88,7 @@ LekanMainWindow::LekanMainWindow( ReosCoreModule *core, QWidget *parent )
   mMap->addSelectToolTarget( ReosHydraulicNetworkElement::staticType() );
   addToolBar( mHydraulicNetworkWidget->structure2dToolBar() );
 
-  mDockWatershed = new  ReosWatershedDockWidget( guiContext, mCore->watershedModule(), mCore->hydraulicNetwork() );
+  mDockWatershed = new ReosWatershedDockWidget( guiContext, mCore->watershedModule(), mCore->hydraulicNetwork() );
   mDockWatershed->setObjectName( QStringLiteral( "watershedDock" ) );
 
   mWatershedWidget = mDockWatershed->watershedWidget();
@@ -118,7 +118,7 @@ bool LekanMainWindow::openProject()
   mHydraulicNetworkWidget->unselectCurrentElement();
 
   QString filePath = currentProjectFilePath();
-  if ( ! mCore->openProject( filePath ) )
+  if ( !mCore->openProject( filePath ) )
     return false;
 
   storeProjectPath( filePath );
@@ -131,8 +131,7 @@ void LekanMainWindow::onMapTimeStepChanged()
   ReosDuration ts = mWatershedWidget->mapTimeStep();
 
   ReosDuration hnwTs = mHydraulicNetworkWidget->mapTimeStep();
-  if ( hnwTs != ReosDuration() &&
-       ( ts == ReosDuration() || hnwTs < ts ) )
+  if ( hnwTs != ReosDuration() && ( ts == ReosDuration() || hnwTs < ts ) )
     ts = hnwTs;
 
   mMap->setTimeStep( ts );
@@ -145,7 +144,7 @@ bool LekanMainWindow::saveProject()
   mRainFallManagerWidget->saveRainfallFile();
   mRunoffManagerWidget->save();
 
-  if ( ! mCore->saveProject( filePath ) )
+  if ( !mCore->saveProject( filePath ) )
     return false;
 
   storeProjectPath( filePath );
@@ -246,5 +245,3 @@ QList<QMenu *> LekanMainWindow::specificMenus()
 
   return menusList;
 }
-
-

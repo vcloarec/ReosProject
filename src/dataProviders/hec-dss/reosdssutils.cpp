@@ -2,7 +2,8 @@
 
 #include <QDate>
 
-extern "C" {
+extern "C"
+{
 #include "heclib.h"
 }
 
@@ -16,12 +17,8 @@ ReosDuration ReosDssUtils::dssIntervalToDuration( const QString &dssInterval )
   int interValSeconds = 0;
   int flagDirection = 1;
 
-  if ( !dssInterval.isEmpty() &&
-       ( ztsGetStandardInterval( 7,
-                                 &interValSeconds,
-                                 const_cast<char *>( dssInterval.toStdString().c_str() ),
-                                 static_cast<size_t>( dssInterval.size() + 1 ),
-                                 &flagDirection ) == STATUS_OKAY ) )
+  if ( !dssInterval.isEmpty()
+       && ( ztsGetStandardInterval( 7, &interValSeconds, const_cast<char *>( dssInterval.toStdString().c_str() ), static_cast<size_t>( dssInterval.size() + 1 ), &flagDirection ) == STATUS_OKAY ) )
   {
     return ReosDuration( interValSeconds, ReosDuration::second );
   }
@@ -33,65 +30,35 @@ QString ReosDssUtils::durationToDssInterval( const ReosDuration &interval )
 {
   std::vector<char> strVector;
   strVector.resize( 32 );
-  int interValSeconds = int ( interval.valueSecond() + 0.5 );
+  int interValSeconds = int( interval.valueSecond() + 0.5 );
   int flagDirection = 2;
 
-  if ( ztsGetStandardInterval( 7,
-                               &interValSeconds,
-                               strVector.data(),
-                               32,
-                               &flagDirection ) == STATUS_OKAY )
+  if ( ztsGetStandardInterval( 7, &interValSeconds, strVector.data(), 32, &flagDirection ) == STATUS_OKAY )
   {
     return QString( strVector.data() );
   }
 
   return QString();
-
 }
-QList<ReosDuration> ReosDssUtils::sValidInterval =
-{
-  ReosDuration( 1, ReosDuration::second )
-  , ReosDuration( 2, ReosDuration::second )
-  , ReosDuration( 3, ReosDuration::second )
-  , ReosDuration( 4, ReosDuration::second )
-  , ReosDuration( 5, ReosDuration::second )
-  , ReosDuration( 6, ReosDuration::second )
-  , ReosDuration( 10, ReosDuration::second )
-  , ReosDuration( 15, ReosDuration::second )
-  , ReosDuration( 20, ReosDuration::second )
-  , ReosDuration( 30, ReosDuration::second )
-  , ReosDuration( 1, ReosDuration::minute )
-  , ReosDuration( 2, ReosDuration::minute )
-  , ReosDuration( 3, ReosDuration::minute )
-  , ReosDuration( 4, ReosDuration::minute )
-  , ReosDuration( 5, ReosDuration::minute )
-  , ReosDuration( 6, ReosDuration::minute )
-  , ReosDuration( 10, ReosDuration::minute )
-  , ReosDuration( 12, ReosDuration::minute )
-  , ReosDuration( 15, ReosDuration::minute )
-  , ReosDuration( 20, ReosDuration::minute )
-  , ReosDuration( 30, ReosDuration::minute )
-  , ReosDuration( 1, ReosDuration::hour )
-  , ReosDuration( 2, ReosDuration::hour )
-  , ReosDuration( 3, ReosDuration::hour )
-  , ReosDuration( 4, ReosDuration::hour )
-  , ReosDuration( 6, ReosDuration::hour )
-  , ReosDuration( 8, ReosDuration::hour )
-  , ReosDuration( 12, ReosDuration::hour )
-  , ReosDuration( 1, ReosDuration::day )
-  , ReosDuration( 1, ReosDuration::week )
-  , ReosDuration( 10, ReosDuration::day )
-  , ReosDuration( 15, ReosDuration::day )
-  , ReosDuration( 1, ReosDuration::month )
-  , ReosDuration( 1, ReosDuration::year )
-};
+QList<ReosDuration> ReosDssUtils::sValidInterval = { ReosDuration( 1, ReosDuration::second ),  ReosDuration( 2, ReosDuration::second ),  ReosDuration( 3, ReosDuration::second ),
+                                                     ReosDuration( 4, ReosDuration::second ),  ReosDuration( 5, ReosDuration::second ),  ReosDuration( 6, ReosDuration::second ),
+                                                     ReosDuration( 10, ReosDuration::second ), ReosDuration( 15, ReosDuration::second ), ReosDuration( 20, ReosDuration::second ),
+                                                     ReosDuration( 30, ReosDuration::second ), ReosDuration( 1, ReosDuration::minute ),  ReosDuration( 2, ReosDuration::minute ),
+                                                     ReosDuration( 3, ReosDuration::minute ),  ReosDuration( 4, ReosDuration::minute ),  ReosDuration( 5, ReosDuration::minute ),
+                                                     ReosDuration( 6, ReosDuration::minute ),  ReosDuration( 10, ReosDuration::minute ), ReosDuration( 12, ReosDuration::minute ),
+                                                     ReosDuration( 15, ReosDuration::minute ), ReosDuration( 20, ReosDuration::minute ), ReosDuration( 30, ReosDuration::minute ),
+                                                     ReosDuration( 1, ReosDuration::hour ),    ReosDuration( 2, ReosDuration::hour ),    ReosDuration( 3, ReosDuration::hour ),
+                                                     ReosDuration( 4, ReosDuration::hour ),    ReosDuration( 6, ReosDuration::hour ),    ReosDuration( 8, ReosDuration::hour ),
+                                                     ReosDuration( 12, ReosDuration::hour ),   ReosDuration( 1, ReosDuration::day ),     ReosDuration( 1, ReosDuration::week ),
+                                                     ReosDuration( 10, ReosDuration::day ),    ReosDuration( 15, ReosDuration::day ),    ReosDuration( 1, ReosDuration::month ),
+                                                     ReosDuration( 1, ReosDuration::year ) };
 
 ReosDuration ReosDssUtils::closestValidInterval( const ReosDuration &interval )
 {
   for ( int i = 0; i < sValidInterval.count() - 1; ++i )
   {
-    const ReosDuration &vi1 =  sValidInterval.at( i );
-    const ReosDuration &vi2 =  sValidInterval.at( i + 1 );
+    const ReosDuration &vi1 = sValidInterval.at( i );
+    const ReosDuration &vi2 = sValidInterval.at( i + 1 );
 
     if ( interval <= vi1 )
       return vi1;
@@ -115,8 +82,8 @@ ReosDuration ReosDssUtils::previousValidInterval( const ReosDuration &interval )
 {
   for ( int i = 0; i < sValidInterval.count() - 1; ++i )
   {
-    const ReosDuration &vi1 =  sValidInterval.at( i );
-    const ReosDuration &vi2 =  sValidInterval.at( i + 1 );
+    const ReosDuration &vi1 = sValidInterval.at( i );
+    const ReosDuration &vi2 = sValidInterval.at( i + 1 );
 
     if ( interval <= vi1 )
       return ReosDuration();
@@ -137,8 +104,8 @@ ReosDuration ReosDssUtils::nextValidInterval( const ReosDuration &interval )
 {
   for ( int i = 0; i < sValidInterval.count() - 1; ++i )
   {
-    const ReosDuration &vi1 =  sValidInterval.at( i );
-    const ReosDuration &vi2 =  sValidInterval.at( i + 1 );
+    const ReosDuration &vi1 = sValidInterval.at( i );
+    const ReosDuration &vi2 = sValidInterval.at( i + 1 );
 
     if ( interval < vi1 )
       return vi1;
@@ -163,9 +130,7 @@ QString ReosDssUtils::uri( const QString &filePath, const ReosDssPath &dssPath, 
   QString ret = QStringLiteral( "\"%1\"::%2" ).arg( filePath, dssPath.string() );
 
   if ( timeWindow.isValid() )
-    ret += QStringLiteral( "::%1::%2" )
-           .arg( timeWindow.start().toString( Qt::ISODate ),
-                 timeWindow.end().toString( Qt::ISODate ) );
+    ret += QStringLiteral( "::%1::%2" ).arg( timeWindow.start().toString( Qt::ISODate ), timeWindow.end().toString( Qt::ISODate ) );
   return ret;
 }
 
@@ -176,7 +141,6 @@ const QList<ReosDuration> ReosDssUtils::validIntervals()
 
 QString ReosDssUtils::dateToHecRasDate( const QDate &date )
 {
-
   if ( date.isNull() || !date.isValid() )
     return QString();
 
@@ -199,25 +163,25 @@ QString ReosDssUtils::dateToHecRasDate( const QDate &date )
       monthStr = QStringLiteral( "may" );
       break;
     case 6:
-      monthStr = QStringLiteral( "jun" ) ;
+      monthStr = QStringLiteral( "jun" );
       break;
     case 7:
       monthStr = QStringLiteral( "jul" );
       break;
     case 8:
-      monthStr = QStringLiteral( "aug" ) ;
+      monthStr = QStringLiteral( "aug" );
       break;
     case 9:
       monthStr = QStringLiteral( "sep" );
       break;
     case 10:
-      monthStr = QStringLiteral( "oct" ) ;
+      monthStr = QStringLiteral( "oct" );
       break;
     case 11:
-      monthStr = QStringLiteral( "nov" ) ;
+      monthStr = QStringLiteral( "nov" );
       break;
     case 12:
-      monthStr = QStringLiteral( "dec" ) ;
+      monthStr = QStringLiteral( "dec" );
       break;
   }
 
@@ -278,7 +242,7 @@ QString ReosDssUtils::dssProviderKey()
   return QStringLiteral( "dss" );
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+#if QT_VERSION < QT_VERSION_CHECK( 5, 15, 0 )
 #define skipEmptyPart QString::SkipEmptyParts
 #else
 #define skipEmptyPart Qt::SplitBehaviorFlags::SkipEmptyParts
@@ -327,7 +291,8 @@ ReosTimeWindow ReosDssUtils::timeWindowFromUri( const QString &uri )
   return ReosTimeWindow();
 }
 
-ReosDssIntervalCombo::ReosDssIntervalCombo( QWidget *parent ) : QComboBox( parent )
+ReosDssIntervalCombo::ReosDssIntervalCombo( QWidget *parent )
+  : QComboBox( parent )
 {
   for ( const ReosDuration &interval : ReosDssUtils::validIntervals() )
   {

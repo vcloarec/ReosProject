@@ -40,13 +40,10 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     Q_OBJECT
   public:
     explicit ReosMeteorologicModel( const QString &name, QObject *parent = nullptr );
-    ReosMeteorologicModel( const ReosEncodedElement &element,
-                           ReosWatershedTree *watershedTree,
-                           ReosRainfallRegistery *rainfallregistery,
-                           QObject *parent = nullptr );
+    ReosMeteorologicModel( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery, QObject *parent = nullptr );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "meteorologic-model" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosDataObject::staticType() + ':' + QStringLiteral( "meteorologic-model" ); }
 
     //! Returns a pointer to a copy of \a this
     ReosMeteorologicModel *duplicate( const QString &dupplicateName );
@@ -110,10 +107,10 @@ class REOSCORE_EXPORT ReosMeteorologicModel : public ReosDataObject
     std::unique_ptr<ReosParameterString> mName;
     struct WatershedRainfallAssociation
     {
-      QPointer<ReosWatershed> watershed;
-      QPointer<ReosRainfallDataItem> rainfallDataItem;
-      std::shared_ptr<ReosSeriesRainfall> resultingRainfall;
-      QPointer<ReosHydraulicStructure2D> structure2D;
+        QPointer<ReosWatershed> watershed;
+        QPointer<ReosRainfallDataItem> rainfallDataItem;
+        std::shared_ptr<ReosSeriesRainfall> resultingRainfall;
+        QPointer<ReosHydraulicStructure2D> structure2D;
     };
 
     mutable QList<WatershedRainfallAssociation> mAssociations;
@@ -180,14 +177,13 @@ class REOSCORE_EXPORT ReosMeteorologicModelsCollection : public QAbstractListMod
 
 
 //! Item model class that represents association between watershed and rainfall for a given meteorologic model
-class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
+class REOSCORE_EXPORT ReosMeteorologicItemModel : public QIdentityProxyModel
 {
     Q_OBJECT
   public:
-
     explicit ReosMeteorologicItemModel( ReosWatershedItemModel *watershedModel, QObject *parent = nullptr );
 
-    QVariant data( const QModelIndex &index, int role )  const override;
+    QVariant data( const QModelIndex &index, int role ) const override;
     int columnCount( const QModelIndex & ) const override;
     bool canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const override;
     bool dropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) override;
@@ -210,7 +206,7 @@ class REOSCORE_EXPORT ReosMeteorologicItemModel: public QIdentityProxyModel
     ReosRainfallDataItem *rainfallDataInMeteorologicModel( const QModelIndex &index );
 };
 
-class REOSCORE_EXPORT ReosMeteorologicStructureItemModel: public QAbstractListModel
+class REOSCORE_EXPORT ReosMeteorologicStructureItemModel : public QAbstractListModel
 {
     Q_OBJECT
   public:

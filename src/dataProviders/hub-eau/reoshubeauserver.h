@@ -33,16 +33,16 @@ class ReosHydrograph;
 
 struct ReosHubEauStation
 {
-  QString id;
-  QVariantMap meta;
-  double longitude;
-  double latitude;
+    QString id;
+    QVariantMap meta;
+    double longitude;
+    double latitude;
 };
 
 /**
  * Class that represents a connection to a the hub-eau server through the web API
  */
-class ReosHubEauConnection: public QObject
+class ReosHubEauConnection : public QObject
 {
     Q_OBJECT
   public:
@@ -84,11 +84,10 @@ class ReosHubEauConnection: public QObject
 };
 
 //! Class that represents a controller of the connection to the hub-eau server that is living on another thread.
-class ReosHubEauConnectionControler: public QObject
+class ReosHubEauConnectionControler : public QObject
 {
     Q_OBJECT
   public:
-
     ReosHubEauConnectionControler( QObject *parent = nullptr );
     ~ReosHubEauConnectionControler();
 

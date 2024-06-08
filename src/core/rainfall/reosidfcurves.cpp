@@ -19,9 +19,10 @@
 
 ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::sIdfRegistery = nullptr;
 
-ReosIntensityDurationInterval::ReosIntensityDurationInterval( const ReosDuration &start, const ReosDuration &end, QObject *parent ):
-  QObject( parent )
-  , mStartDuration( new ReosParameterDuration( tr( "start" ), false, this ) ), mEndDuration( new ReosParameterDuration( tr( "end" ), false, this ) )
+ReosIntensityDurationInterval::ReosIntensityDurationInterval( const ReosDuration &start, const ReosDuration &end, QObject *parent )
+  : QObject( parent )
+  , mStartDuration( new ReosParameterDuration( tr( "start" ), false, this ) )
+  , mEndDuration( new ReosParameterDuration( tr( "end" ), false, this ) )
 {
   mStartDuration->setValue( start );
   mEndDuration->setValue( end );
@@ -30,7 +31,9 @@ ReosIntensityDurationInterval::ReosIntensityDurationInterval( const ReosDuration
   connect( mEndDuration, &ReosParameter::valueChanged, this, &ReosIntensityDurationInterval::changed );
 }
 
-ReosIntensityDurationInterval::ReosIntensityDurationInterval( QObject *parent ): QObject( parent ) {}
+ReosIntensityDurationInterval::ReosIntensityDurationInterval( QObject *parent )
+  : QObject( parent )
+{}
 
 bool ReosIntensityDurationInterval::isInInterval( const ReosDuration &duration ) const
 {
@@ -44,20 +47,17 @@ ReosIdfParameters *ReosIntensityDurationInterval::parameters( const QString &for
 
 bool ReosIntensityDurationInterval::operator<( const ReosIntensityDurationInterval &other ) const
 {
-  return mStartDuration->value() < other.mStartDuration->value() &&
-         mEndDuration->value() <= other.mStartDuration->value();
+  return mStartDuration->value() < other.mStartDuration->value() && mEndDuration->value() <= other.mStartDuration->value();
 }
 
 bool ReosIntensityDurationInterval::operator>( const ReosIntensityDurationInterval &other ) const
 {
-  return mStartDuration->value() >= other.mEndDuration->value() &&
-         mEndDuration->value() > other.mEndDuration->value();
+  return mStartDuration->value() >= other.mEndDuration->value() && mEndDuration->value() > other.mEndDuration->value();
 }
 
 bool ReosIntensityDurationInterval::intersect( const ReosIntensityDurationInterval &other ) const
 {
   return !( *this < other || *this > other );
-
 }
 
 ReosDuration ReosIntensityDurationInterval::startDuration() const
@@ -106,7 +106,7 @@ ReosIntensityDurationInterval *ReosIntensityDurationInterval::decode( const Reos
 
   std::unique_ptr<ReosIntensityDurationInterval> ret = std::make_unique<ReosIntensityDurationInterval>( parent );
   ret->mStartDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "start-duration" ) ), false, tr( "start" ), ret.get() );
-  ret->mEndDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "end-duration" ) ), false,  tr( "end" ), ret.get() );
+  ret->mEndDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "end-duration" ) ), false, tr( "end" ), ret.get() );
   if ( ret->mStartDuration )
     connect( ret->mStartDuration, &ReosParameter::valueChanged, ret.get(), &ReosIntensityDurationInterval::changed );
   if ( ret->mEndDuration )
@@ -116,7 +116,6 @@ ReosIntensityDurationInterval *ReosIntensityDurationInterval::decode( const Reos
 
   for ( const ReosEncodedElement &encodedParam : std::as_const( encodedParameters ) )
     ReosIdfParameters::decode( encodedParam, ret.get() );
-
 
 
   return ret.release();
@@ -150,7 +149,10 @@ ReosIdfFormulaRegistery *ReosIdfFormulaRegistery::instance()
   return sIdfRegistery;
 }
 
-bool ReosIdfFormulaRegistery::isInstantiate() {return sIdfRegistery != nullptr;}
+bool ReosIdfFormulaRegistery::isInstantiate()
+{
+  return sIdfRegistery != nullptr;
+}
 
 QStringList ReosIdfFormulaRegistery::formulasList() const
 {
@@ -172,11 +174,12 @@ QPixmap ReosIdfFormulaRegistery::formulaImage( const QString &name ) const
 
 ReosIdfFormulaRegistery::ReosIdfFormulaRegistery( ReosModule *parent )
   : ReosModule( staticName(), parent )
+{}
+
+QString ReosIdfFormulaMontana::name() const
 {
-
+  return QStringLiteral( "Montana" );
 }
-
-QString ReosIdfFormulaMontana::name() const {return QStringLiteral( "Montana" );}
 
 double ReosIdfFormulaMontana::height( const ReosDuration &duration, ReosIdfParameters *parameters ) const
 {
@@ -188,7 +191,7 @@ double ReosIdfFormulaMontana::height( const ReosDuration &duration, ReosIdfParam
   double t = duration.valueUnit( parameters->parameterTimeUnit() );
   double tr = duration.valueUnit( parameters->resutlTimeUnit() );
 
-  return tr * a * pow( t, - b );
+  return tr * a * pow( t, -b );
 }
 
 QStringList ReosIdfFormulaMontana::parametersNames() const
@@ -211,19 +214,22 @@ QPixmap ReosIdfFormulaSherman::formulaImage() const
 }
 
 
-ReosIntensityDurationCurve::ReosIntensityDurationCurve( const ReosDuration &returnPeriod, QObject *parent ):
-  ReosDataObject( parent )
+ReosIntensityDurationCurve::ReosIntensityDurationCurve( const ReosDuration &returnPeriod, QObject *parent )
+  : ReosDataObject( parent )
   , mReturnPeriod( new ReosParameterDuration( tr( "Return period" ), this ) )
 {
   mReturnPeriod->setValue( returnPeriod );
   connect( mReturnPeriod, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosIntensityDurationCurve::ReosIntensityDurationCurve( QObject *parent ):
-  ReosDataObject( parent )
+ReosIntensityDurationCurve::ReosIntensityDurationCurve( QObject *parent )
+  : ReosDataObject( parent )
 {}
 
-ReosParameterDuration *ReosIntensityDurationCurve::returnPeriod() const {return mReturnPeriod;}
+ReosParameterDuration *ReosIntensityDurationCurve::returnPeriod() const
+{
+  return mReturnPeriod;
+}
 
 void ReosIntensityDurationCurve::setCurrentFormula( const QString &formulaName )
 {
@@ -297,8 +303,7 @@ double ReosIntensityDurationCurve::height( const ReosDuration &duration, bool in
 bool ReosIntensityDurationCurve::addInterval( const ReosDuration &start, const ReosDuration &end )
 {
   int pos = 0;
-  std::unique_ptr<ReosIntensityDurationInterval> newInterval =
-    std::make_unique<ReosIntensityDurationInterval>( start, end, this );
+  std::unique_ptr<ReosIntensityDurationInterval> newInterval = std::make_unique<ReosIntensityDurationInterval>( start, end, this );
 
   for ( ; pos < mIntensityDurationIntervals.count(); ++pos )
   {
@@ -323,13 +328,12 @@ bool ReosIntensityDurationCurve::setIntervalValue( int i, const ReosDuration &st
   if ( i >= mIntensityDurationIntervals.count() )
     return false;
 
-  std::unique_ptr<ReosIntensityDurationInterval> newInterval =
-    std::make_unique<ReosIntensityDurationInterval>( start, end, this );
+  std::unique_ptr<ReosIntensityDurationInterval> newInterval = std::make_unique<ReosIntensityDurationInterval>( start, end, this );
 
   if ( i > 0 && newInterval->intersect( *mIntensityDurationIntervals.at( i - 1 ) ) )
     return false;
 
-  if ( i < mIntensityDurationIntervals.count() - 1  && newInterval->intersect( *mIntensityDurationIntervals.at( i + 1 ) ) )
+  if ( i < mIntensityDurationIntervals.count() - 1 && newInterval->intersect( *mIntensityDurationIntervals.at( i + 1 ) ) )
     return false;
 
 
@@ -337,7 +341,6 @@ bool ReosIntensityDurationCurve::setIntervalValue( int i, const ReosDuration &st
   mIntensityDurationIntervals.at( i )->end()->setValue( end );
   emit dataChanged();
   return true;
-
 }
 
 void ReosIntensityDurationCurve::removeInterval( int i )
@@ -354,13 +357,13 @@ QPair<ReosDuration, ReosDuration> ReosIntensityDurationCurve::timeInterval( int 
   if ( i < 0 || i >= mIntensityDurationIntervals.count() )
     return QPair<ReosDuration, ReosDuration>();
 
-  return {mIntensityDurationIntervals.at( i )->startDuration(), mIntensityDurationIntervals.at( i )->endDuration() };
+  return { mIntensityDurationIntervals.at( i )->startDuration(), mIntensityDurationIntervals.at( i )->endDuration() };
 }
 
 double ReosIntensityDurationCurve::firstHeight( int intervalIndex ) const
 {
   if ( intervalIndex < 0 || intervalIndex >= mIntensityDurationIntervals.count() )
-    return - 1.0;
+    return -1.0;
   ReosIntensityDurationInterval *inter = mIntensityDurationIntervals.at( intervalIndex );
   ReosIdfParameters *parameters = inter->parameters( mCurrentFormulaName );
 
@@ -373,7 +376,7 @@ double ReosIntensityDurationCurve::firstHeight( int intervalIndex ) const
 double ReosIntensityDurationCurve::lastHeight( int intervalIndex ) const
 {
   if ( intervalIndex < 0 || intervalIndex >= mIntensityDurationIntervals.count() )
-    return - 1.0;
+    return -1.0;
   ReosIntensityDurationInterval *inter = mIntensityDurationIntervals.at( intervalIndex );
   ReosIdfParameters *parameters = inter->parameters( mCurrentFormulaName );
 
@@ -419,9 +422,7 @@ double ReosIntensityDurationCurve::lastIntensity( int intervalIndex, ReosDuratio
     return -1.0;
 }
 
-ReosIdfParameters *ReosIntensityDurationCurve::createParameters( int i, ReosIdfFormula *formula,
-    ReosDuration::Unit parameterTimeUnit,
-    ReosDuration::Unit resultTimeUnit )
+ReosIdfParameters *ReosIntensityDurationCurve::createParameters( int i, ReosIdfFormula *formula, ReosDuration::Unit parameterTimeUnit, ReosDuration::Unit resultTimeUnit )
 {
   if ( i < 0 || i > mIntensityDurationIntervals.count() )
     return nullptr;
@@ -462,8 +463,8 @@ QRectF ReosIntensityDurationCurve::extent( ReosDuration::Unit timeUnit ) const
   if ( mIntensityDurationIntervals.isEmpty() )
     return QRectF();
 
-  double xMin =  mIntensityDurationIntervals.first()->startDuration().valueUnit( timeUnit );
-  double xMax =  mIntensityDurationIntervals.last()->endDuration().valueUnit( timeUnit );
+  double xMin = mIntensityDurationIntervals.first()->startDuration().valueUnit( timeUnit );
+  double xMax = mIntensityDurationIntervals.last()->endDuration().valueUnit( timeUnit );
 
   double yMin = std::numeric_limits<double>::max();
   double yMax = -std::numeric_limits<double>::max();
@@ -495,7 +496,7 @@ void ReosIntensityDurationCurve::setCurrentParameterTimeUnit( ReosDuration::Unit
   emit dataChanged();
 }
 
-ReosDuration::Unit ReosIntensityDurationCurve::currentParameterTimeUnit( )
+ReosDuration::Unit ReosIntensityDurationCurve::currentParameterTimeUnit()
 {
   if ( mParametersTimesUnit.contains( mCurrentFormulaName ) )
     return mParametersTimesUnit.value( mCurrentFormulaName );
@@ -630,12 +631,10 @@ const ReosIntensityDurationInterval *ReosIntensityDurationCurve::interval( const
   return nullptr;
 }
 
-ReosIdfParameters::ReosIdfParameters( ReosIntensityDurationInterval *interval,
-                                      const QString &formulaName,
-                                      const QStringList parameterNames,
-                                      ReosDuration::Unit parameterTimeUnit,
-                                      ReosDuration::Unit resultTimeUnit ):
-  QObject( interval )
+ReosIdfParameters::ReosIdfParameters(
+  ReosIntensityDurationInterval *interval, const QString &formulaName, const QStringList parameterNames, ReosDuration::Unit parameterTimeUnit, ReosDuration::Unit resultTimeUnit
+)
+  : QObject( interval )
   , formulaName( formulaName )
   , mParameterTimeUnit( parameterTimeUnit )
   , mResultTimeUnit( resultTimeUnit )
@@ -706,13 +705,25 @@ void ReosIdfParameters::decode( const ReosEncodedElement &element, ReosIntensity
   }
 }
 
-ReosDuration::Unit ReosIdfParameters::parameterTimeUnit() {return mParameterTimeUnit;}
+ReosDuration::Unit ReosIdfParameters::parameterTimeUnit()
+{
+  return mParameterTimeUnit;
+}
 
-void ReosIdfParameters::setParameterTimeUnit( ReosDuration::Unit timeUnit ) {mParameterTimeUnit = timeUnit;}
+void ReosIdfParameters::setParameterTimeUnit( ReosDuration::Unit timeUnit )
+{
+  mParameterTimeUnit = timeUnit;
+}
 
-ReosDuration::Unit ReosIdfParameters::resutlTimeUnit() {return mResultTimeUnit;}
+ReosDuration::Unit ReosIdfParameters::resutlTimeUnit()
+{
+  return mResultTimeUnit;
+}
 
-void ReosIdfParameters::setResultTimeUnit( ReosDuration::Unit timeUnit ) {mResultTimeUnit = timeUnit;}
+void ReosIdfParameters::setResultTimeUnit( ReosDuration::Unit timeUnit )
+{
+  mResultTimeUnit = timeUnit;
+}
 
 int ReosIdfParameters::parametersCount()
 {
@@ -740,9 +751,15 @@ ReosIdfParameters *ReosIdfFormula::createParameters( ReosIntensityDurationInterv
   return new ReosIdfParameters( interval, name(), parametersNames(), parameterTimeUnit, resultTimeUnit );
 }
 
-QPixmap ReosIdfFormula::formulaImage() const {return QPixmap();}
+QPixmap ReosIdfFormula::formulaImage() const
+{
+  return QPixmap();
+}
 
-QString ReosIdfFormulaSherman::name() const {return QStringLiteral( "Sherman" );}
+QString ReosIdfFormulaSherman::name() const
+{
+  return QStringLiteral( "Sherman" );
+}
 
 double ReosIdfFormulaSherman::height( const ReosDuration &duration, ReosIdfParameters *parameters ) const
 {
@@ -768,8 +785,8 @@ QStringList ReosIdfFormulaSherman::parametersNames() const
   return param;
 }
 
-ReosIntensityDurationCurveTableModel::ReosIntensityDurationCurveTableModel( ReosIntensityDurationCurve *curve, QObject *parent ):
-  QAbstractTableModel( parent )
+ReosIntensityDurationCurveTableModel::ReosIntensityDurationCurveTableModel( ReosIntensityDurationCurve *curve, QObject *parent )
+  : QAbstractTableModel( parent )
   , mCurve( curve )
 {
   mCurve->setupFormula( ReosIdfFormulaRegistery::instance() );

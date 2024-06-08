@@ -20,30 +20,24 @@
 
 #include "reosparameter.h"
 
-ReosVerticalExaggerationWidget::ReosVerticalExaggerationWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosVerticalExaggerationWidget ),
-  mExaggerationParameter( new ReosParameterDouble( QString(), false, this ) )
+ReosVerticalExaggerationWidget::ReosVerticalExaggerationWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosVerticalExaggerationWidget )
+  , mExaggerationParameter( new ReosParameterDouble( QString(), false, this ) )
 {
-
   ui->setupUi( this );
   mExaggerationParameter->setValue( 1 );
   ui->mExaggerationParameter->setDouble( mExaggerationParameter );
 
-  connect( ui->mSlider, &QSlider::valueChanged, this, [this]( int value )
-  {
-    mExaggeration = exagerationFromSliderValue( value );
-  } );
+  connect( ui->mSlider, &QSlider::valueChanged, this, [this]( int value ) { mExaggeration = exagerationFromSliderValue( value ); } );
 
-  connect( ui->mSlider, &ReosSliderElastic::finalValue, this, [this]( int value )
-  {
+  connect( ui->mSlider, &ReosSliderElastic::finalValue, this, [this]( int value ) {
     mExaggeration = exagerationFromSliderValue( value );
     mPreviousValue = mExaggeration;
   } );
 
 
-  connect( mExaggerationParameter, &ReosParameter::valueChanged, [this]
-  {
+  connect( mExaggerationParameter, &ReosParameter::valueChanged, [this] {
     mExaggeration = mExaggerationParameter->value();
     emit valueChanged( mExaggeration );
   } );
@@ -67,7 +61,7 @@ double ReosVerticalExaggerationWidget::exagerationFromSliderValue( int value ) c
   else
   {
     double old = 1 / mPreviousValue;
-    double newDivisor = old - 4.0 * value / 10.0 ;
+    double newDivisor = old - 4.0 * value / 10.0;
     if ( newDivisor < 1 )
     {
       double remainDivisor = 1 + 4.0 * value / 10.0 - 1 / mPreviousValue;

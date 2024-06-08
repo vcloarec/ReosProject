@@ -96,8 +96,7 @@ bool ReosCoreModule::openProject( const QString &filePath )
   stream >> byteArray;
 
   ReosEncodedElement lekanProject( byteArray );
-  if ( lekanProject.description() != QStringLiteral( "Lekan-project" ) &&
-       lekanProject.description() != QStringLiteral( "reos-project" ) )
+  if ( lekanProject.description() != QStringLiteral( "Lekan-project" ) && lekanProject.description() != QStringLiteral( "reos-project" ) )
     return false;
 
   QByteArray gisEngineData;

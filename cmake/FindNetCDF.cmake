@@ -18,12 +18,18 @@ PKG_CHECK_MODULES(PC_NETCDF QUIET netcdf)
 SET(NETCDF_DEFINITIONS ${PC_NETCDF_CFLAGS_OTHER})
 
 FIND_PATH (NETCDF_INCLUDE_DIR netcdf.h 
-           HINTS $ENV{LIB_DIR}/include ${PC_NETCDF_INCLUDEDIR} ${PC_NETCDF_INCLUDE_DIRS} ${NETCDF_PREFIX}/include
+           HINTS $ENV{LIB_DIR}/include
+                 $ENV{OSGEO4W_ROOT}/include
+                 $ENV{OSGEO4W_ROOT}/apps/gdal-dev/include
+                 ${PC_NETCDF_INCLUDEDIR} ${PC_NETCDF_INCLUDE_DIRS} ${NETCDF_PREFIX}/include
            PATH_SUFFIXES libnetcdf )
            
 FIND_LIBRARY (NETCDF_LIBRARY 
               NAMES netcdf libnetcdf 
-              HINTS $ENV{LIB_DIR}/lib ${PC_NETCDF_LIBDIR} ${PC_NETCDF_LIBRARY_DIRS} ${NETCDF_PREFIX}/lib)
+              HINTS $ENV{LIB_DIR}/lib
+                    $ENV{OSGEO4W_ROOT}/lib
+                    $ENV{OSGEO4W_ROOT}/apps/gdal-dev/lib
+                    ${PC_NETCDF_LIBDIR} ${PC_NETCDF_LIBRARY_DIRS} ${NETCDF_PREFIX}/lib)
 
 INCLUDE (FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS (NetCDF

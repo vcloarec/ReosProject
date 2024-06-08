@@ -70,13 +70,9 @@ class REOSCORE_EXPORT ReosGeometryUtils
     //! Returns the bouding box of \a polygon without take account of NaN value
     static QRectF boundingBox( const QPolygonF &polygon, bool &ok );
 
-    static ReosRasterMemory<double> rasterizePolygon( const QPolygonF &polygon,
-        const ReosRasterExtent &rasterExtent,
-        ReosRasterExtent &finalRasterExtent,
-        int &xOri,
-        int &yOri,
-        bool precise,
-        ReosProcess *process = nullptr );
+    static ReosRasterMemory<double> rasterizePolygon(
+      const QPolygonF &polygon, const ReosRasterExtent &rasterExtent, ReosRasterExtent &finalRasterExtent, int &xOri, int &yOri, bool precise, ReosProcess *process = nullptr
+    );
 
     static QPolygonF convexHull( const QList<QPointF> &points );
 };

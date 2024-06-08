@@ -61,7 +61,6 @@ class REOSCORE_EXPORT ReosTimeSeriesUpdater : public ReosDataUpdater
   private:
     ReosTimeSeries *mTimeSeries = nullptr;
     ReosTimeWindow mLastNewTimeWindow;
-
 };
 
 #endif // REOSDATAUPDATER_H

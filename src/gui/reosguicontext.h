@@ -27,7 +27,8 @@ class ReosMap;
 class ReosMapItem;
 class QWidget;
 class QAction;
-class QToolBar;;
+class QToolBar;
+;
 
 class REOSGUI_EXPORT ReosGuiContext
 {
@@ -57,7 +58,6 @@ class REOSGUI_EXPORT ReosGuiContext
     QStack<ReosMapItem *> mMapItems;
     QList<QAction *> mActions;
     QMap<QString, QToolBar *> mToolBars;
-
 };
 
 #endif // REOSGUICONTEXT_H

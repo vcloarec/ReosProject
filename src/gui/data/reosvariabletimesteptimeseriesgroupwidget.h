@@ -35,7 +35,7 @@ namespace Ui
   class ReosTimeSeriesVariableTimeStepWidget;
 }
 
-class ReosVariableTimeStepTimeSeriesGroupWidget: public ReosStackedPageWidget
+class ReosVariableTimeStepTimeSeriesGroupWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
   public:
@@ -65,7 +65,7 @@ class ReosVariableTimeStepTimeSeriesGroupWidget: public ReosStackedPageWidget
     QAction *mActionRenameSeries = nullptr;
     QWidget *mCurrentProviderSettingsWidget = nullptr;
     QWidget *mCurrenEditingWidget = nullptr;
-//    QMap<QAction *, QString> mProvidersActionToKeys;
+    //    QMap<QAction *, QString> mProvidersActionToKeys;
     QPointer<ReosTimeSeriesVariableTimeStep> mCurrentSeries = nullptr;
     ReosPlotTimeSerieVariableStep *mSeriesPlot = nullptr;
     QToolBar *mToolBarProvider;
@@ -73,8 +73,8 @@ class ReosVariableTimeStepTimeSeriesGroupWidget: public ReosStackedPageWidget
     bool mIsDatasetSelected = false;
     bool mIsDataReady = false;
 
-//    void populateProviderActions();
-//    void showProviderSelector( const QString &providerKey );
+    //    void populateProviderActions();
+    //    void showProviderSelector( const QString &providerKey );
 };
 
 
@@ -94,7 +94,7 @@ class ReosVariableTimeStepSeriesEditingWidget : public ReosFormWidget
 };
 
 
-class ReosVariableTimeStepSeriesEditingWidgetFactory: public ReosFormWidgetDataFactory
+class ReosVariableTimeStepSeriesEditingWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     QString datatype() const override;

@@ -80,13 +80,11 @@ class REOSDSS_EXPORT ReosDssPath
     void stringToData( const QString &str, Part part );
 
     mutable std::string mTempPathString;
-
 };
 
 class REOSDSS_EXPORT ReosDssFile
 {
   public:
-
     explicit ReosDssFile( const QString &filePath, bool create = false );
     ReosDssFile( const ReosDssFile &other ) = delete;
     ReosDssFile( ReosDssFile &&other );
@@ -104,7 +102,7 @@ class REOSDSS_EXPORT ReosDssFile
     bool pathExist( const ReosDssPath &path, bool considerInterval ) const;
 
     bool getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
-    bool getSeries(const ReosDssPath &path, const ReosTimeWindow &timeWindow, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
+    bool getSeries( const ReosDssPath &path, const ReosTimeWindow &timeWindow, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const;
 
     bool gridMinMax( const ReosDssPath &path, double &min, double &max ) const;
 
@@ -117,24 +115,15 @@ class REOSDSS_EXPORT ReosDssFile
     bool createConstantIntervalSeries( const ReosDssPath &path, QString &error );
 
     //! Write constant interval series on the file
-    bool writeConstantIntervalSeries( const ReosDssPath &path,
-                                      const QDateTime &startTime,
-                                      const ReosDuration &timeStep,
-                                      const QVector<double> &values,
-                                      QString &error );
+    bool writeConstantIntervalSeries( const ReosDssPath &path, const QDateTime &startTime, const ReosDuration &timeStep, const QVector<double> &values, QString &error );
 
     /**
     * Writes the rainfall in the DSS file. The extent of the rainfall is asjeted to feet on the way HECRAS handle grid
     * (see https://github.com/HydrologicEngineeringCenter/hec-dss/issues/184)
     */
-    bool writeGriddedData( ReosGriddedRainfall *griddedrainFall,
-                           const ReosDssPath &path );
+    bool writeGriddedData( ReosGriddedRainfall *griddedrainFall, const ReosDssPath &path );
 
-    bool writeGriddedData( ReosGriddedRainfall *griddedrainFall,
-                           const ReosDssPath &path,
-                           const ReosMapExtent &destination,
-                           double resolution = -1,
-                           const ReosTimeWindow &timeWindow = ReosTimeWindow() );
+    bool writeGriddedData( ReosGriddedRainfall *griddedrainFall, const ReosDssPath &path, const ReosMapExtent &destination, double resolution = -1, const ReosTimeWindow &timeWindow = ReosTimeWindow() );
 
     QList<ReosDssPath> searchRecordsPath( const ReosDssPath &path, bool considerInterval ) const;
 
@@ -142,13 +131,13 @@ class REOSDSS_EXPORT ReosDssFile
 
     struct RecordInfo
     {
-      int recordType = -1;
-      int version = 0;
+        int recordType = -1;
+        int version = 0;
     };
 
     RecordInfo recordInformation( const ReosDssPath &path ) const;
 
-    void removeDataset(const ReosDssPath& path);
+    void removeDataset( const ReosDssPath &path );
 
   private:
     std::unique_ptr<std::array<long long, 250>> mIfltab;
@@ -159,19 +148,9 @@ class REOSDSS_EXPORT ReosDssFile
 
     static QString getEPart( const ReosDuration &interval, bool findClosest = false );
     ReosDssPath firstFullPath( const ReosDssPath &path, bool considerInterval ) const;
-    bool writeConstantIntervalSeriesPrivate(
-      const ReosDssPath &path,
-      const QDateTime &startTime,
-      const ReosDuration &timeStep,
-      const QVector<double> &values,
-      QString &error );
+    bool writeConstantIntervalSeriesPrivate( const ReosDssPath &path, const QDateTime &startTime, const ReosDuration &timeStep, const QVector<double> &values, QString &error );
 
-    bool writeGriddedDataPrivate( ReosGriddedRainfall *griddedrainFall,
-                                  const ReosDssPath &path,
-                                  const ReosMapExtent &destination,
-                                  double resolution,
-                                  const ReosTimeWindow &timeWindow,
-                                  bool reduce );
+    bool writeGriddedDataPrivate( ReosGriddedRainfall *griddedrainFall, const ReosDssPath &path, const ReosMapExtent &destination, double resolution, const ReosTimeWindow &timeWindow, bool reduce );
 
     friend class ReosHecrasTesting;
 };

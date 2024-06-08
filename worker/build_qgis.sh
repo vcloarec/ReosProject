@@ -37,7 +37,7 @@ cmake   -S $QGIS_SRC \
 		-D ENABLE_TESTS=FALSE \
 		-D CMAKE_BUILD_TYPE=Release \
 		-D CMAKE_CONFIGURATION_TYPES=Release \
-		-D CMAKE_INSTALL_PREFIX=/app/qgis_built \
+		-D CMAKE_INSTALL_PREFIX=/qgis_built \
 		-D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE \
 
 cmake --build .  --config Release -j20

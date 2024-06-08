@@ -29,9 +29,9 @@
 #include "reosguicontext.h"
 #include "reosstyleregistery.h"
 
-ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *parent ) :
-  ReosActionWidget( parent ),
-  ui( new Ui::ReosRunoffManager )
+ReosRunoffManager::ReosRunoffManager( ReosRunoffModelModel *model, QWidget *parent )
+  : ReosActionWidget( parent )
+  , ui( new Ui::ReosRunoffManager )
   , mRunoffModelModel( model )
 {
   ui->setupUi( this );
@@ -134,9 +134,8 @@ void ReosRunoffManager::onOpenFile()
 
   if ( mRunoffModelModel->hasData() )
   {
-    int ret = QMessageBox::warning( this, tr( "Open Runoff Data File" ),
-                                    tr( "This action will remove the actual runoff model data, do you want to save before?" ),
-                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
+    int ret = QMessageBox::
+      warning( this, tr( "Open Runoff Data File" ), tr( "This action will remove the actual runoff model data, do you want to save before?" ), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
 
     if ( ret == QMessageBox::Cancel )
       return;
@@ -195,9 +194,8 @@ void ReosRunoffManager::onRemoveRunoffModel( ReosRunoffModel *runoffModel )
   if ( !runoffModel )
     return;
 
-  if ( QMessageBox::warning( this, tr( "Remove runoff model" ),
-                             tr( "Remove runoff model %1?" ).arg( runoffModel->name()->value() ),
-                             QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+  if ( QMessageBox::warning( this, tr( "Remove runoff model" ), tr( "Remove runoff model %1?" ).arg( runoffModel->name()->value() ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+       == QMessageBox::Yes )
     mRunoffModelModel->removeRunoffModel( runoffModel );
 }
 
@@ -248,17 +246,11 @@ void ReosRunoffManager::onTreeViewContextMenu( const QPoint &pos )
   if ( runoffType.isEmpty() )
     return;
 
-  menu.addAction( tr( "Add a new model" ), this, [this, runoffType]
-  {
-    onAddNewModel( runoffType );
-  } );
+  menu.addAction( tr( "Add a new model" ), this, [this, runoffType] { onAddNewModel( runoffType ); } );
 
   if ( runoffModel )
   {
-    menu.addAction( tr( "Remove this model" ), this, [this, runoffModel]
-    {
-      onRemoveRunoffModel( runoffModel );
-    } );
+    menu.addAction( tr( "Remove this model" ), this, [this, runoffModel] { onRemoveRunoffModel( runoffModel ); } );
   }
 
   menu.exec( ui->treeView->mapToGlobal( pos ) );
@@ -293,7 +285,10 @@ ReosFormWidget *ReosFormRunoffConstantCoefficientWidgetFactory::createDataWidget
   return form.release();
 }
 
-QString ReosFormRunoffConstantCoefficientWidgetFactory::datatype() const {return ReosRunoffConstantCoefficientModel::staticType();}
+QString ReosFormRunoffConstantCoefficientWidgetFactory::datatype() const
+{
+  return ReosRunoffConstantCoefficientModel::staticType();
+}
 
 ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
@@ -308,7 +303,10 @@ ReosFormWidget *ReosFormRunoffGreenAmptWidgetFactory::createDataWidget( ReosData
   return form.release();
 }
 
-QString ReosFormRunoffGreenAmptWidgetFactory::datatype() const {return ReosRunoffGreenAmptModel::staticType();}
+QString ReosFormRunoffGreenAmptWidgetFactory::datatype() const
+{
+  return ReosRunoffGreenAmptModel::staticType();
+}
 
 ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
@@ -329,20 +327,20 @@ ReosFormWidget *ReosFormRunofCurveNumberWidgetFactory::createDataWidget( ReosDat
   QString textLabelInitialRetention = QObject::tr( "Initial retention: %1 mm" );
   labelInitialRetention->setText( textLabelInitialRetention.arg( ReosParameter::doubleToString( value, 2 ) ) );
 
-  QObject::connect( runoffModel->initialRetentionFromS(), &ReosParameter::valueChanged, form.get(), [iniRet, runoffModel, labelInitialRetention]
-  {
+  QObject::connect( runoffModel->initialRetentionFromS(), &ReosParameter::valueChanged, form.get(), [iniRet, runoffModel, labelInitialRetention] {
     iniRet->setVisible( !runoffModel->initialRetentionFromS()->value() );
     labelInitialRetention->setVisible( runoffModel->initialRetentionFromS()->value() );
   } );
 
-  QObject::connect( runoffModel->curveNumber(), &ReosParameter::valueChanged, form.get(), [textLabelInitialRetention, runoffModel, labelInitialRetention]
-  {
+  QObject::connect( runoffModel->curveNumber(), &ReosParameter::valueChanged, form.get(), [textLabelInitialRetention, runoffModel, labelInitialRetention] {
     double value = ( 25400 / runoffModel->curveNumber()->value() - 254 ) * 0.2;
     labelInitialRetention->setText( textLabelInitialRetention.arg( ReosParameter::doubleToString( value, 2 ) ) );
   } );
 
   return form.release();
-
 }
 
-QString ReosFormRunofCurveNumberWidgetFactory::datatype() const {return ReosRunoffCurveNumberModel::staticType();}
+QString ReosFormRunofCurveNumberWidgetFactory::datatype() const
+{
+  return ReosRunoffCurveNumberModel::staticType();
+}

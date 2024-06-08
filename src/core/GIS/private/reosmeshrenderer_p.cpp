@@ -71,11 +71,12 @@ ReosMeshRendererCache_p::ReosMeshRendererCache_p( ReosMeshFrame_p *mesh, int dat
   QObject::connect( &mTraceController, &ReosMovingTracesController::imageReady, mesh, &ReosRenderedObject::repaintRequested );
 }
 
-ReosMeshRendererCache_p::~ReosMeshRendererCache_p() {}
+ReosMeshRendererCache_p::~ReosMeshRendererCache_p()
+{}
 
 void ReosMeshRendererCache_p::updateCache( QgsMeshLayer *layer, const QgsRenderContext &renderContext )
 {
-  if ( updateDataset( layer, renderContext ) ||  updateExtent( renderContext ) )
+  if ( updateDataset( layer, renderContext ) || updateExtent( renderContext ) )
   {
     mTraceController.resetData( layer, renderContext, mDatasetGroupsIndex, mTracesSettings );
   }
@@ -149,8 +150,7 @@ void ReosMeshRendererCache_p::updateInternalCache( ReosMeshRenderer_p *renderer 
 
 ReosMovingTracesController::ReosMovingTracesController( QObject *parent )
   : QObject( parent )
-{
-}
+{}
 
 ReosMovingTracesController::~ReosMovingTracesController()
 {
@@ -163,11 +163,7 @@ ReosMovingTracesController::~ReosMovingTracesController()
     mRenderer->deleteLater();
 }
 
-void ReosMovingTracesController::resetData(
-  QgsMeshLayer *layer,
-  const QgsRenderContext &context,
-  int vectorDatasetGroupIndex,
-  const DynamicTracesSettings &tracesSettings )
+void ReosMovingTracesController::resetData( QgsMeshLayer *layer, const QgsRenderContext &context, int vectorDatasetGroupIndex, const DynamicTracesSettings &tracesSettings )
 {
   mTracesSettings = tracesSettings;
 
@@ -199,14 +195,7 @@ void ReosMovingTracesController::resetData(
   // populate face active flag
   QgsMeshDataBlock vectorActiveFaceFlagValues = layer->areFacesActive( vectorDatasetIndex, 0, nativeMesh.faces.count() );
 
-  mRenderer = new ReosMovingTracesRenderer(
-    layer,
-    vectorDatasetGroupIndex,
-    context,
-    vectorDatasetValues,
-    vectorActiveFaceFlagValues,
-    vectorDatasetGroupMagMaximum,
-    tracesSettings );
+  mRenderer = new ReosMovingTracesRenderer( layer, vectorDatasetGroupIndex, context, vectorDatasetValues, vectorActiveFaceFlagValues, vectorDatasetGroupMagMaximum, tracesSettings );
   //*****************
 
   mRenderer->moveToThread( &mThread );
@@ -256,7 +245,8 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   const QgsMeshDataBlock &datasetVectorValues,
   const QgsMeshDataBlock &scalarActiveFaceFlagValues,
   double magnitudeMaximum,
-  const DynamicTracesSettings &tracesSettings )
+  const DynamicTracesSettings &tracesSettings
+)
   : mFeedBack( new QgsFeedback )
   , mRenderContext( context )
   , mOutputSize( context.outputSize() )
@@ -271,23 +261,15 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   const QgsMeshDatasetGroupMetadata metadata = layer->datasetGroupMetadata( datasetGroupindex );
 
   mTraceGenerator.reset(
-    new QgsMeshVectorTraceAnimationGenerator(
-      triMesh,
-      datasetVectorValues,
-      scalarActiveFaceFlagValues,
-      metadata.dataType() == QgsMeshDatasetGroupMetadata::DataOnVertices,
-      mRenderContext,
-      layer->extent(),
-      magnitudeMaximum,
-      vectorSettings ) );
+    new QgsMeshVectorTraceAnimationGenerator( triMesh, datasetVectorValues, scalarActiveFaceFlagValues, metadata.dataType() == QgsMeshDatasetGroupMetadata::DataOnVertices, mRenderContext, layer->extent(), magnitudeMaximum, vectorSettings )
+  );
 
   mTraceGenerator->setFPS( tracesSettings.fps );
   mTraceGenerator->setParticlesLifeTime( static_cast<double>( tracesSettings.lifeTime ) );
   mTraceGenerator->setTailFactor( tracesSettings.tailFactor );
   mTraceGenerator->setTailPersitence( tracesSettings.persistence );
   mTraceGenerator->setMaxSpeedPixel( tracesSettings.maxSpeed );
-  mTraceGenerator->setParticlesSize(
-    mRenderContext.convertToPainterUnits( tracesSettings.traceWidth, Qgis::RenderUnit::Millimeters ) );
+  mTraceGenerator->setParticlesSize( mRenderContext.convertToPainterUnits( tracesSettings.traceWidth, Qgis::RenderUnit::Millimeters ) );
 
   mParticulesCount = vectorSettings.tracesSettings().particlesCount();
   mFramePerSeconds = tracesSettings.fps;
@@ -314,8 +296,7 @@ ReosMovingTracesRenderer::ReosMovingTracesRenderer(
   if ( interestZoneExtent != QgsRectangle() )
   {
     QgsRectangle fieldInterestZoneInDeviceCoordinates = QgsMeshLayerUtils::boundingBoxToScreenRectangle( mRenderContext.mapToPixel(), interestZoneExtent );
-    mTopLeft = QPoint( static_cast<int>( std::round( fieldInterestZoneInDeviceCoordinates.xMinimum() ) ),
-                       static_cast<int>( std::round( fieldInterestZoneInDeviceCoordinates.yMinimum() ) ) );
+    mTopLeft = QPoint( static_cast<int>( std::round( fieldInterestZoneInDeviceCoordinates.xMinimum() ) ), static_cast<int>( std::round( fieldInterestZoneInDeviceCoordinates.yMinimum() ) ) );
   }
   //*************************************************
 }
@@ -343,7 +324,7 @@ void ReosMovingTracesRenderer::stop()
 void ReosMovingTracesRenderer::moveParticles()
 {
   QImage img = mTraceGenerator->imageRendered();
-  QImage   output( mOutputSize, QImage::Format_ARGB32 );
+  QImage output( mOutputSize, QImage::Format_ARGB32 );
   if ( !output.isNull() && !img.isNull() )
   {
     output.fill( 0X00000000 );

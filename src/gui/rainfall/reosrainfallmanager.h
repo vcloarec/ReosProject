@@ -165,7 +165,7 @@ class QToolButton;
 class QTreeView;
 class ReosTimeSeriesConstantInterval;
 
-class ReosImportRainfallDialog: public QDialog
+class ReosImportRainfallDialog : public QDialog
 {
     Q_OBJECT
   public:
@@ -187,32 +187,32 @@ class ReosImportRainfallDialog: public QDialog
 };
 
 
-class ReosPlotItemRainfallIntensityDurationFrequencyFactory: public ReosDataPlotItemFactory
+class ReosPlotItemRainfallIntensityDurationFrequencyFactory : public ReosDataPlotItemFactory
 {
   public:
     QString datatype() const override;
     void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
-class ReosPlotItemRainfallIntensityDurationFactory: public ReosDataPlotItemFactory
+class ReosPlotItemRainfallIntensityDurationFactory : public ReosDataPlotItemFactory
 {
   public:
     QString datatype() const override;
     void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
-class ReosPlotItemRainfallSerieFactory: public ReosDataPlotItemFactory
+class ReosPlotItemRainfallSerieFactory : public ReosDataPlotItemFactory
 {
   public:
     QString datatype() const override;
     void buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data ) override;
 };
 
-class ReosSpatialStationWidgetToolbar: public QWidget
+class ReosSpatialStationWidgetToolbar : public QWidget
 {
     Q_OBJECT
   public:
-    ReosSpatialStationWidgetToolbar( ReosMap *map,  ReosMapItem *marker, QWidget *parent = nullptr );
+    ReosSpatialStationWidgetToolbar( ReosMap *map, ReosMapItem *marker, QWidget *parent = nullptr );
     ~ReosSpatialStationWidgetToolbar();
 
     void setCurrentMarker( ReosMapItem *currentMarker );

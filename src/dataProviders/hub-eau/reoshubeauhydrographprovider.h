@@ -90,13 +90,13 @@ class ReosHubEauHydrographProvider : public ReosTimeSerieVariableTimeStepProvide
     QVector<ReosDuration> mCachedTimeValues;
     Status mStatus = Status::Loaded;
     ReosModule::Message mLastMessage;
-
 };
 
-class ReosHubEauHydrographProviderFactory: public ReosDataProviderFactory
+class ReosHubEauHydrographProviderFactory : public ReosDataProviderFactory
 {
   public:
-    ReosTimeSerieProvider *createProvider( const QString &dataType ) const override;;
+    ReosTimeSerieProvider *createProvider( const QString &dataType ) const override;
+    ;
     QString key() const override;
     bool hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const override;
     bool supportType( const QString &dataType ) const override;
@@ -104,10 +104,8 @@ class ReosHubEauHydrographProviderFactory: public ReosDataProviderFactory
     QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
 
   private:
-    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Spatial};
+    ReosDataProvider::Capabilities mCapabilities = { ReosDataProvider::Spatial };
 };
-
-
 
 
 #endif // REOSHUBEAUHYDROGRAPHPROVIDER_H

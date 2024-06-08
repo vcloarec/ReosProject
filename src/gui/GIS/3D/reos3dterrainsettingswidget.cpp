@@ -18,9 +18,9 @@
 
 #include "reos3dmapsettings.h"
 
-Reos3DTerrainSettingsWidget::Reos3DTerrainSettingsWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::Reos3DTerrainSettingsWidget )
+Reos3DTerrainSettingsWidget::Reos3DTerrainSettingsWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::Reos3DTerrainSettingsWidget )
 {
   ui->setupUi( this );
 
@@ -28,19 +28,18 @@ Reos3DTerrainSettingsWidget::Reos3DTerrainSettingsWidget( QWidget *parent ) :
   ui->mRenderingTypeCombo->addItem( tr( "Use terrain color ramp" ), int( Reos3DTerrainSettings::ColorRamp ) );
 
   connect( ui->mTerrainColorButton, &ReosColorButton::colorChanged, this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
-  connect( ui->mRenderingTypeCombo,  QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
+  connect( ui->mRenderingTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
   connect( ui->mWireframeColorButton, &ReosColorButton::colorChanged, this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
   connect( ui->mWireframeCheckBox, &QCheckBox::stateChanged, this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
   connect( ui->mWireframeWidthSlider, &QSlider::valueChanged, this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
   connect( ui->mSmoothedCheckBox, &QCheckBox::stateChanged, this, &Reos3DTerrainSettingsWidget::terrainSettingsChanged );
 
   ui->mTerrainColorButton->setEnabled( ui->mRenderingTypeCombo->currentData().toInt() == Reos3DTerrainSettings::UniqueColor );
-  connect( ui->mRenderingTypeCombo,  QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
+  connect( ui->mRenderingTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {
     ui->mTerrainColorButton->setEnabled( ui->mRenderingTypeCombo->currentData().toInt() == Reos3DTerrainSettings::UniqueColor );
   } );
-  connect( ui->mWireframeCheckBox, &QCheckBox::stateChanged, ui->mWireframeWidthSlider,  &QSlider::setEnabled );
-  connect( ui->mWireframeCheckBox, &QCheckBox::stateChanged, ui->mWireframeColorButton,  &QSlider::setEnabled );
+  connect( ui->mWireframeCheckBox, &QCheckBox::stateChanged, ui->mWireframeWidthSlider, &QSlider::setEnabled );
+  connect( ui->mWireframeCheckBox, &QCheckBox::stateChanged, ui->mWireframeColorButton, &QSlider::setEnabled );
 }
 
 Reos3DTerrainSettingsWidget::~Reos3DTerrainSettingsWidget()
@@ -73,4 +72,3 @@ Reos3DTerrainSettings Reos3DTerrainSettingsWidget::settings() const
 
   return settings;
 }
-

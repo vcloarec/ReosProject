@@ -38,7 +38,6 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
 {
     Q_OBJECT
   public:
-
     enum Type
     {
       Root,
@@ -50,14 +49,14 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     virtual ~ReosRainfallItem();
 
     //! Returns the type of the item
-    virtual Type type() const {return mType;}
+    virtual Type type() const { return mType; }
     //! Returns the name of the item
     virtual QString name() const;
     //! Returns the description of the item
     QString description();
 
     //! Returns the parent of the item, root item hasn't parent (nullptr)
-    ReosRainfallItem *parentItem() const {return mParent;}
+    ReosRainfallItem *parentItem() const { return mParent; }
 
     //! Returns the count of child items
     int childrenCount() const;
@@ -91,7 +90,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     bool isSubItem( ReosRainfallItem *item ) const;
 
     //! Return the icon used to represent this item, default implentation return invalid icon
-    virtual QIcon icone() const {return QIcon();}
+    virtual QIcon icone() const { return QIcon(); }
 
     //! Returns all parameters of this items
     virtual QList<ReosParameter *> parameters() const;
@@ -106,7 +105,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     virtual void clear();
 
     //! Return the data object link to this item, default implementation return nullptr
-    virtual ReosDataObject *data() const {return nullptr;}
+    virtual ReosDataObject *data() const { return nullptr; }
 
     //! Encodes in \a element the base information about the item
     void encodeBase( ReosEncodedElement &element, const ReosEncodeContext &context ) const;
@@ -133,7 +132,7 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
      */
     ReosRainfallItem *takeChild( int pos );
 
-  public slots :
+  public slots:
     //! Setup the data related to the item, default implementation does nothing, must be called before acces to the data of the item
     virtual void setupData() {}
 
@@ -157,39 +156,37 @@ class REOSCORE_EXPORT ReosRainfallItem : public QObject
     ReosParameterString *mName;
     ReosParameterLongString *mDescription;
     QString mUid;
-    Type  mType = Zone;
+    Type mType = Zone;
     ReosRainfallItem *mParent = nullptr;
     std::vector<std::unique_ptr<ReosRainfallItem>> mChildItems;
 };
 
 
-class REOSCORE_EXPORT ReosRainfallDataItem: public ReosRainfallItem
+class REOSCORE_EXPORT ReosRainfallDataItem : public ReosRainfallItem
 {
     Q_OBJECT
   public:
-
     ReosRainfallDataItem( const QString &name, const QString &description );
-    ReosRainfallDataItem( const ReosEncodedElement &elem ): ReosRainfallItem( elem, Data ) {}
+    ReosRainfallDataItem( const ReosEncodedElement &elem )
+      : ReosRainfallItem( elem, Data )
+    {}
 
-    virtual QString information() const {return QString();}
+    virtual QString information() const { return QString(); }
 
-    bool canBeSubItem( const ReosRainfallItem *item, bool ) const
-    {
-      return item && item->type() == ReosRainfallItem::Station;
-    }
+    bool canBeSubItem( const ReosRainfallItem *item, bool ) const { return item && item->type() == ReosRainfallItem::Station; }
 
     virtual QString dataType() const = 0;
 };
 
 //! Class that represent a station item that contains rainfall data
-class REOSCORE_EXPORT ReosStationItem: public ReosRainfallItem
+class REOSCORE_EXPORT ReosStationItem : public ReosRainfallItem
 {
     Q_OBJECT
   public:
     ReosStationItem( const QString &name, const QString &description, const ReosSpatialPosition &position = ReosSpatialPosition() );
     ReosStationItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/station.svg" ) );}
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/station.svg" ) ); }
 
     virtual bool accept( ReosRainfallItem *item, bool acceptSameName = false ) const override;
 
@@ -201,18 +198,17 @@ class REOSCORE_EXPORT ReosStationItem: public ReosRainfallItem
   private:
     bool mIsSpatial = false;
     ReosSpatialPosition mPosition;
-
 };
 
 //! Class that represents a geographical zone item that can contain other zone or rainfall station
-class REOSCORE_EXPORT ReosZoneItem: public ReosRainfallItem
+class REOSCORE_EXPORT ReosZoneItem : public ReosRainfallItem
 {
     Q_OBJECT
   public:
     ReosZoneItem( const QString &name, const QString &descritpion );
     ReosZoneItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/fakeEarth.svg" ) );}
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/fakeEarth.svg" ) ); }
 
     virtual bool accept( ReosRainfallItem *item, bool acceptSameName = false ) const override;
 
@@ -220,19 +216,19 @@ class REOSCORE_EXPORT ReosZoneItem: public ReosRainfallItem
 };
 
 //! Class that represents the root of the tree, can contain only zone item (\see ReosZoneItem)
-class ReosRootItem: public ReosRainfallItem
+class ReosRootItem : public ReosRainfallItem
 {
     Q_OBJECT
   public:
     ReosRootItem();
     ReosRootItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/fakeEarth.svg" ) );}
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/fakeEarth.svg" ) ); }
     virtual bool accept( ReosRainfallItem *item, bool acceptSameName = false ) const override;
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
 };
 
-class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallSerieRainfallItem : public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
@@ -245,17 +241,17 @@ class REOSCORE_EXPORT ReosRainfallSerieRainfallItem: public ReosRainfallDataItem
 };
 
 //! Class that represents time serie data item
-class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem: public ReosRainfallSerieRainfallItem
+class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem : public ReosRainfallSerieRainfallItem
 {
     Q_OBJECT
   public:
     ReosRainfallGaugedRainfallItem( const QString &name, const QString &description, ReosSeriesRainfall *data = nullptr );
     ReosRainfallGaugedRainfallItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
-    QString dataType() const override {return QStringLiteral( "gauged-rainfall" );}
+    QString dataType() const override { return QStringLiteral( "gauged-rainfall" ); }
     ReosSeriesRainfall *data() const override;
 
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/gaugedRainfall.svg" ) );}
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/gaugedRainfall.svg" ) ); }
     virtual bool accept( ReosRainfallItem *, bool = false ) const override;
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
 
@@ -263,7 +259,7 @@ class REOSCORE_EXPORT ReosRainfallGaugedRainfallItem: public ReosRainfallSerieRa
     ReosSeriesRainfall *mData = nullptr;
 };
 
-class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallItem
+class REOSCORE_EXPORT ReosRainfallChicagoItem : public ReosRainfallSerieRainfallItem
 {
     Q_OBJECT
   public:
@@ -271,21 +267,22 @@ class REOSCORE_EXPORT ReosRainfallChicagoItem: public ReosRainfallSerieRainfallI
     ReosRainfallChicagoItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override;
-    ReosChicagoRainfall *data() const override {return mData;}
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/chicagoRainfall.svg" ) );}
-    virtual bool accept( ReosRainfallItem *, bool = false ) const override {return false;}
+    ReosChicagoRainfall *data() const override { return mData; }
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/chicagoRainfall.svg" ) ); }
+    virtual bool accept( ReosRainfallItem *, bool = false ) const override { return false; }
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void setupData() override;
     void resolveDependencies() override;
 
   private slots:
     void setIntensityDurationCurveUniqueId( const QString &uid );
+
   private:
     ReosChicagoRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
 };
 
-class REOSCORE_EXPORT ReosRainfallAlternatingBlockItem: public ReosRainfallSerieRainfallItem
+class REOSCORE_EXPORT ReosRainfallAlternatingBlockItem : public ReosRainfallSerieRainfallItem
 {
     Q_OBJECT
   public:
@@ -293,21 +290,22 @@ class REOSCORE_EXPORT ReosRainfallAlternatingBlockItem: public ReosRainfallSerie
     ReosRainfallAlternatingBlockItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override;
-    ReosAlternatingBlockRainfall *data() const override {return mData;}
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/alternatingBlockRainfall.svg" ) );}
-    virtual bool accept( ReosRainfallItem *, bool = false ) const override {return false;}
+    ReosAlternatingBlockRainfall *data() const override { return mData; }
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/alternatingBlockRainfall.svg" ) ); }
+    virtual bool accept( ReosRainfallItem *, bool = false ) const override { return false; }
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void setupData() override;
     void resolveDependencies() override;
 
   private slots:
     void setIntensityDurationCurveUniqueId( const QString &uid );
+
   private:
     ReosAlternatingBlockRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem;
 };
 
-class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallSerieRainfallItem
+class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem : public ReosRainfallSerieRainfallItem
 {
     Q_OBJECT
   public:
@@ -315,15 +313,16 @@ class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallSerieRa
     ReosRainfallDoubleTriangleItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
     QString dataType() const override;
-    ReosDoubleTriangleRainfall *data() const override {return mData;}
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/doubleTriangleRainfall.svg" ) );}
-    virtual bool accept( ReosRainfallItem *, bool = false ) const override {return false;}
+    ReosDoubleTriangleRainfall *data() const override { return mData; }
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/doubleTriangleRainfall.svg" ) ); }
+    virtual bool accept( ReosRainfallItem *, bool = false ) const override { return false; }
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void setupData() override;
     void resolveDependencies() override;
 
   private slots:
     void setIntensityDurationCurveUniqueIds( const QString &intenseUid, const QString &totalUid );
+
   private:
     ReosDoubleTriangleRainfall *mData = nullptr;
     QPointer<ReosRainfallIntensityDurationCurveItem> mIntenseCurveItem;
@@ -331,15 +330,15 @@ class REOSCORE_EXPORT ReosRainfallDoubleTriangleItem: public ReosRainfallSerieRa
 };
 
 
-class REOSCORE_EXPORT ReosRainfallIdfCurvesItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallIdfCurvesItem : public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
     ReosRainfallIdfCurvesItem( const QString &name, const QString &description );
     ReosRainfallIdfCurvesItem( const ReosEncodedElement &element );
 
-    QString dataType() const override {return QStringLiteral( "idf-curves" );}
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/intensityDurationCurves.svg" ) );}
+    QString dataType() const override { return QStringLiteral( "idf-curves" ); }
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/intensityDurationCurves.svg" ) ); }
     virtual bool accept( ReosRainfallItem *item, bool = false ) const override;
     ReosIntensityDurationFrequencyCurves *data() const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
@@ -353,10 +352,9 @@ class REOSCORE_EXPORT ReosRainfallIdfCurvesItem: public ReosRainfallDataItem
 
   private:
     ReosIntensityDurationFrequencyCurves *mData = nullptr;
-
 };
 
-class REOSCORE_EXPORT ReosRainfallIntensityDurationCurveItem: public ReosRainfallDataItem
+class REOSCORE_EXPORT ReosRainfallIntensityDurationCurveItem : public ReosRainfallDataItem
 {
     Q_OBJECT
   public:
@@ -364,9 +362,9 @@ class REOSCORE_EXPORT ReosRainfallIntensityDurationCurveItem: public ReosRainfal
     ReosRainfallIntensityDurationCurveItem( const ReosEncodedElement &element );
 
     QString name() const override;
-    QString dataType() const override {return QStringLiteral( "id-curve" );}
-    QIcon icone() const override {return QIcon( QStringLiteral( ":/images/intensityDurationCurve.svg" ) );}
-    virtual bool accept( ReosRainfallItem *, bool = false ) const override {return false;}
+    QString dataType() const override { return QStringLiteral( "id-curve" ); }
+    QIcon icone() const override { return QIcon( QStringLiteral( ":/images/intensityDurationCurve.svg" ) ); }
+    virtual bool accept( ReosRainfallItem *, bool = false ) const override { return false; }
     QList<ReosParameter *> parameters() const override;
     ReosIntensityDurationCurve *data() const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;

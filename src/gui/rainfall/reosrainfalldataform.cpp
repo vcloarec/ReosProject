@@ -43,8 +43,8 @@
 #include "reosgriddedrainfallprovider.h"
 
 
-ReosTimeSeriesConstantIntervalWidget::ReosTimeSeriesConstantIntervalWidget( ReosTimeSeriesConstantInterval *timeSerie, QWidget *parent ):
-  ReosFormWidget( parent, Qt::Vertical, false )
+ReosTimeSeriesConstantIntervalWidget::ReosTimeSeriesConstantIntervalWidget( ReosTimeSeriesConstantInterval *timeSerie, QWidget *parent )
+  : ReosFormWidget( parent, Qt::Vertical, false )
   , mModel( new ReosTimeSeriesConstantIntervalModel( this ) )
 {
   mModel->setSerieData( timeSerie );
@@ -77,15 +77,13 @@ ReosTimeSeriesConstantIntervalWidget::ReosTimeSeriesConstantIntervalWidget( Reos
   layoutMode->addWidget( mValueModeComboBox );
   addItem( layoutMode );
 
-  connect( mValueModeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
-  {
+  connect( mValueModeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]() {
     ReosTimeSeriesConstantInterval::ValueMode mode = static_cast<ReosTimeSeriesConstantInterval::ValueMode>( this->mValueModeComboBox->currentData().toInt() );
     timeSerie->setValueMode( mode );
     mIntensityUnitComboBox->setEnabled( mode == ReosTimeSeriesConstantInterval::Intensity );
   } );
 
-  connect( mIntensityUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]()
-  {
+  connect( mIntensityUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), timeSerie, [timeSerie, this]() {
     ReosDuration::Unit unit = static_cast<ReosDuration::Unit>( this->mIntensityUnitComboBox->currentData().toInt() );
     timeSerie->setIntensityTimeUnit( unit );
   } );
@@ -96,28 +94,25 @@ ReosTimeSeriesConstantIntervalWidget::ReosTimeSeriesConstantIntervalWidget( Reos
   view->setModel( mModel );
 
   setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
-
 }
 
 
-ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainfall, QWidget *parent ):
-  ReosTimeSeriesConstantIntervalWidget( rainfall, parent ),
-  mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainfall, QWidget *parent )
+  : ReosTimeSeriesConstantIntervalWidget( rainfall, parent )
+  , mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
 {
   addParameter( rainfall->totalDuration(), 1 );
 
   if ( ReosRainfallRegistery::isInstantiate() )
   {
-    ReosRainfallIntensityDurationCurveItem *curveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUid() ) );
+    ReosRainfallIntensityDurationCurveItem *curveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUid() ) );
     if ( curveItem )
       mIdfWidget->setCurveItem( curveItem );
     else
       mIdfWidget->clearCurveItem();
   }
 
-  connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
-  {
+  connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this] {
     if ( mIdfWidget->curveItem() )
       rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uniqueId() );
   } );
@@ -126,10 +121,10 @@ ReosChicagoRainfallWidget::ReosChicagoRainfallWidget( ReosChicagoRainfall *rainf
   addParameter( rainfall->centerCoefficient() );
 }
 
-ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTriangleRainfall *rainfall, QWidget *parent ):
-  ReosTimeSeriesConstantIntervalWidget( rainfall, parent ),
-  mIntenseIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) ),
-  mTotalIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTriangleRainfall *rainfall, QWidget *parent )
+  : ReosTimeSeriesConstantIntervalWidget( rainfall, parent )
+  , mIntenseIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+  , mTotalIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
 {
   addParameter( rainfall->intenseDuration(), 1 );
   addParameter( rainfall->totalDuration(), 2 );
@@ -139,37 +134,35 @@ ReosDoubleTriangleRainfallWidget::ReosDoubleTriangleRainfallWidget( ReosDoubleTr
 
   if ( ReosRainfallRegistery::isInstantiate() )
   {
-    ReosRainfallIntensityDurationCurveItem *intenseCurveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUniqueIdIntense() ) );
+    ReosRainfallIntensityDurationCurveItem *intenseCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>(
+      ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUniqueIdIntense() )
+    );
     if ( intenseCurveItem )
       mIntenseIdfWidget->setCurveItem( intenseCurveItem );
     else
       mIntenseIdfWidget->clearCurveItem();
 
-    ReosRainfallIntensityDurationCurveItem *totalCurveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUniqueIdTotal() ) );
+    ReosRainfallIntensityDurationCurveItem *totalCurveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>(
+      ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUniqueIdTotal() )
+    );
     if ( totalCurveItem )
       mTotalIdfWidget->setCurveItem( totalCurveItem );
     else
       mTotalIdfWidget->clearCurveItem();
   }
 
-  connect( mIntenseIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
-  {
+  connect( mIntenseIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this] {
     if ( this->mIntenseIdfWidget->curveItem() && this->mTotalIdfWidget->curveItem() )
-      rainfall->setIntensityDurationCurve( this->mIntenseIdfWidget->curveItem()->data(),
-                                           this->mTotalIdfWidget->curveItem()->data(),
-                                           this->mIntenseIdfWidget->curveItem()->uniqueId(),
-                                           this->mTotalIdfWidget->curveItem()->uniqueId() );
+      rainfall->setIntensityDurationCurve(
+        this->mIntenseIdfWidget->curveItem()->data(), this->mTotalIdfWidget->curveItem()->data(), this->mIntenseIdfWidget->curveItem()->uniqueId(), this->mTotalIdfWidget->curveItem()->uniqueId()
+      );
   } );
 
-  connect( mTotalIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
-  {
+  connect( mTotalIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this] {
     if ( this->mIntenseIdfWidget->curveItem() && this->mTotalIdfWidget->curveItem() )
-      rainfall->setIntensityDurationCurve( this->mIntenseIdfWidget->curveItem()->data(),
-                                           this->mTotalIdfWidget->curveItem()->data(),
-                                           this->mIntenseIdfWidget->curveItem()->uniqueId(),
-                                           this->mTotalIdfWidget->curveItem()->uniqueId() );
+      rainfall->setIntensityDurationCurve(
+        this->mIntenseIdfWidget->curveItem()->data(), this->mTotalIdfWidget->curveItem()->data(), this->mIntenseIdfWidget->curveItem()->uniqueId(), this->mTotalIdfWidget->curveItem()->uniqueId()
+      );
   } );
 
   addWidget( mIntenseIdfWidget, 4 );
@@ -187,7 +180,10 @@ ReosFormWidget *ReosFormWidgetTimeSerieConstantIntervalFactory::createDataWidget
   return nullptr;
 }
 
-QString ReosFormWidgetTimeSerieConstantIntervalFactory::datatype() const {return ReosTimeSeriesConstantInterval::staticType();}
+QString ReosFormWidgetTimeSerieConstantIntervalFactory::datatype() const
+{
+  return ReosTimeSeriesConstantInterval::staticType();
+}
 
 
 ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
@@ -199,7 +195,10 @@ ReosFormWidget *ReosFormWidgetChicagoRainfalFactory::createDataWidget( ReosDataO
   return nullptr;
 }
 
-QString ReosFormWidgetChicagoRainfalFactory::datatype() const {return ReosChicagoRainfall::staticType();}
+QString ReosFormWidgetChicagoRainfalFactory::datatype() const
+{
+  return ReosChicagoRainfall::staticType();
+}
 
 ReosFormWidget *ReosFormWidgetDoubleTriangleRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
@@ -210,7 +209,10 @@ ReosFormWidget *ReosFormWidgetDoubleTriangleRainfalFactory::createDataWidget( Re
   return nullptr;
 }
 
-QString ReosFormWidgetDoubleTriangleRainfalFactory::datatype() const {return ReosDoubleTriangleRainfall::staticType();}
+QString ReosFormWidgetDoubleTriangleRainfalFactory::datatype() const
+{
+  return ReosDoubleTriangleRainfall::staticType();
+}
 
 ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
@@ -221,7 +223,10 @@ ReosFormWidget *ReosFormWidgetIntensityDurationCurveFactory::createDataWidget( R
   return nullptr;
 }
 
-QString ReosFormWidgetIntensityDurationCurveFactory::datatype() const {return  ReosIntensityDurationCurve::staticType();}
+QString ReosFormWidgetIntensityDurationCurveFactory::datatype() const
+{
+  return ReosIntensityDurationCurve::staticType();
+}
 
 
 ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
@@ -233,26 +238,27 @@ ReosFormWidget *ReosFormWidgetAlternatingBlockRainfalFactory::createDataWidget( 
   return nullptr;
 }
 
-QString ReosFormWidgetAlternatingBlockRainfalFactory::datatype() const {return ReosAlternatingBlockRainfall::staticType();}
+QString ReosFormWidgetAlternatingBlockRainfalFactory::datatype() const
+{
+  return ReosAlternatingBlockRainfall::staticType();
+}
 
-ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlternatingBlockRainfall *rainfall, QWidget *parent ):
-  ReosTimeSeriesConstantIntervalWidget( rainfall, parent ),
-  mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
+ReosAlternatingBlockRainfallWidget::ReosAlternatingBlockRainfallWidget( ReosAlternatingBlockRainfall *rainfall, QWidget *parent )
+  : ReosTimeSeriesConstantIntervalWidget( rainfall, parent )
+  , mIdfWidget( new ReosIntensityDurationSelectedCurveWidget( this ) )
 {
   addParameter( rainfall->totalDuration(), 1 );
 
   if ( ReosRainfallRegistery::isInstantiate() )
   {
-    ReosRainfallIntensityDurationCurveItem *curveItem =
-      qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUid() ) );
+    ReosRainfallIntensityDurationCurveItem *curveItem = qobject_cast<ReosRainfallIntensityDurationCurveItem *>( ReosRainfallRegistery::instance()->itemByUniqueId( rainfall->intensityDurationUid() ) );
     if ( curveItem )
       mIdfWidget->setCurveItem( curveItem );
     else
       mIdfWidget->clearCurveItem();
   }
 
-  connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this]
-  {
+  connect( mIdfWidget, &ReosIntensityDurationSelectedCurveWidget::curveChanged, rainfall, [rainfall, this] {
     if ( mIdfWidget->curveItem() )
       rainfall->setIntensityDurationCurve( this->mIdfWidget->curveItem()->data(), this->mIdfWidget->curveItem()->uniqueId() );
   } );
@@ -277,8 +283,7 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
   buttonColorSettings->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
   buttonColorSettings->setAutoRaise( true );
 
-  QObject::connect( buttonColorSettings, &QToolButton::clicked, formWidget, [formWidget, griddedRainFall, context]
-  {
+  QObject::connect( buttonColorSettings, &QToolButton::clicked, formWidget, [formWidget, griddedRainFall, context] {
     QDialog *dial = new QDialog( formWidget );
     dial->setLayout( new QVBoxLayout );
     ReosMeshScalarRenderingWidget *colorShaderWidget = new ReosMeshScalarRenderingWidget( griddedRainFall->colorSetting(), ReosGuiContext( context, dial ) );
@@ -300,7 +305,7 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
   buttonShowExtent->setAutoRaise( true );
 
 
-  if ( ReosGriddedRainfallProvider *provider =  griddedRainFall->dataProvider() )
+  if ( ReosGriddedDataProvider *provider = griddedRainFall->dataProvider() )
   {
     QTextBrowser *textbrowser = new QTextBrowser( formWidget );
     textbrowser->setText( provider->htmlDescription() );
@@ -323,15 +328,13 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
     reloadButton->setSizePolicy( QSizePolicy::MinimumExpanding, buttonColorSettings->sizePolicy().verticalPolicy() );
     reloadButton->setAutoRaise( true );
 
-    QObject::connect( reloadButton, &QToolButton::clicked, griddedRainFall, [griddedRainFall, reloadButton]
-    {
+    QObject::connect( reloadButton, &QToolButton::clicked, griddedRainFall, [griddedRainFall, reloadButton] {
       reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextOnly );
       reloadButton->setText( QObject::tr( "Loading..." ) );
       griddedRainFall->updateData();
     } );
 
-    QObject::connect( griddedRainFall, &ReosGriddedRainfall::loadingFinished, reloadButton, [reloadButton, provider, textbrowser]
-    {
+    QObject::connect( griddedRainFall, &ReosGriddedRainfall::loadingFinished, reloadButton, [reloadButton, provider, textbrowser] {
       reloadButton->setIcon( QIcon( QStringLiteral( ":/images/reload.svg" ) ) );
       reloadButton->setText( QObject::tr( "Reload" ) );
       reloadButton->setToolButtonStyle( Qt::ToolButtonStyle::ToolButtonTextBesideIcon );

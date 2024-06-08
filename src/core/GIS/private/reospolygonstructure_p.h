@@ -32,11 +32,10 @@ class ReosPolygonStructureValues_p : public ReosPolygonStructureValues
   public:
     double value( double x, double y, bool acceptClose = false ) const override;
 
-    double defaultValue()  const override;
+    double defaultValue() const override;
     void setDefaultValue( double defVal ) override;
 
   private:
-
     mutable QgsGeometryEngine *mCacheGeom;
     mutable double mCacheValue;
     std::unique_ptr<QgsGeometryEngine> mZoneWithoutPolygon;

@@ -26,13 +26,13 @@
 
 struct VectorSettings
 {
-  QgsMeshRendererVectorSettings qgisSettings;
-  int lifeTime = 15;
-  int tracesFps = 15;
-  int tracesMaxSpeed = 200;
-  double tracesPersistence = 0.2;
-  double tracesTailFactor = 1.0;
-  double traceWidth = 2.0;
+    QgsMeshRendererVectorSettings qgisSettings;
+    int lifeTime = 15;
+    int tracesFps = 15;
+    int tracesMaxSpeed = 200;
+    double tracesPersistence = 0.2;
+    double tracesTailFactor = 1.0;
+    double traceWidth = 2.0;
 };
 
 VectorSettings vectorSettings_( ReosMesh *mesh, const QString &datasetId )
@@ -64,22 +64,23 @@ VectorSettings vectorSettings_( ReosMesh *mesh, const QString &datasetId )
     }
   }
 
-  return ret;;
+  return ret;
+  ;
 }
 
-ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, const QString &datasetId, const ReosGuiContext &guiContext ):
-  ReosStackedPageWidget( guiContext.parent() ),
-  ui( new Ui::ReosMeshVectorRenderingWidget ),
-  mMesh( mesh ),
-  mDatasetId( datasetId ),
-  mGuiContext( guiContext ),
-  mWidthParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mMinimumLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mMaximumLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mMaximumTailLengthParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mTracesTailsPersitenceParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mTracesTailFactorParameter( new ReosParameterDouble( QString(), false, this ) ),
-  mDynamicTraceWidthParameter( new ReosParameterDouble( QString(), false, this ) )
+ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, const QString &datasetId, const ReosGuiContext &guiContext )
+  : ReosStackedPageWidget( guiContext.parent() )
+  , ui( new Ui::ReosMeshVectorRenderingWidget )
+  , mMesh( mesh )
+  , mDatasetId( datasetId )
+  , mGuiContext( guiContext )
+  , mWidthParameter( new ReosParameterDouble( QString(), false, this ) )
+  , mMinimumLengthParameter( new ReosParameterDouble( QString(), false, this ) )
+  , mMaximumLengthParameter( new ReosParameterDouble( QString(), false, this ) )
+  , mMaximumTailLengthParameter( new ReosParameterDouble( QString(), false, this ) )
+  , mTracesTailsPersitenceParameter( new ReosParameterDouble( QString(), false, this ) )
+  , mTracesTailFactorParameter( new ReosParameterDouble( QString(), false, this ) )
+  , mDynamicTraceWidthParameter( new ReosParameterDouble( QString(), false, this ) )
 {
   ui->setupUi( this );
 
@@ -126,8 +127,7 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   ui->mHeadWidthSpinBox->setValue( static_cast<int>( arrowSettings.arrowHeadWidthRatio() * 100 ) );
 
   QgsMeshRendererVectorStreamlineSettings streamLineSettings = qgisSettings.streamLinesSettings();
-  ui->mStreamLineSeedingMethodCombo->setCurrentIndex( ui->mStreamLineSeedingMethodCombo->findData(
-        static_cast<int>( streamLineSettings.seedingMethod() ) ) );
+  ui->mStreamLineSeedingMethodCombo->setCurrentIndex( ui->mStreamLineSeedingMethodCombo->findData( static_cast<int>( streamLineSettings.seedingMethod() ) ) );
   ui->mStreamLineDensitySpinBox->setEnabled( streamLineSettings.seedingMethod() == QgsMeshRendererVectorStreamlineSettings::Random );
   ui->mStreamLineDensitySpinBox->setValue( static_cast<int>( streamLineSettings.seedingDensity() * 100 ) );
 
@@ -167,21 +167,18 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
 
   updateWidget();
 
-  connect( ui->mSymbologyTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
+  connect( ui->mSymbologyTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {
     updateMeshSettings();
     updateWidget();
   } );
 
-  connect( ui->mColorModeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
+  connect( ui->mColorModeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {
     updateMeshSettings();
     updateWidget();
   } );
   connect( ui->mUniqueColorButton, &ReosColorButton::colorChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
 
-  connect( ui->mColorRampToolButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mColorRampToolButton, &QToolButton::clicked, this, [this] {
     addOtherPage( new ReosMeshScalarRenderingWidget( mMesh->vectorColorShaderSettings(), ReosGuiContext( mGuiContext, this ) ), true );
   } );
   connect( ui->mShaftHeadSlider, &QSlider::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
@@ -190,10 +187,10 @@ ReosMeshVectorRenderingWidget::ReosMeshVectorRenderingWidget( ReosMesh *mesh, co
   connect( mMaximumLengthParameter, &ReosParameter::valueChanged, this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
   connect( ui->mHeadWidthSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, &ReosMeshVectorRenderingWidget::updateMeshSettings );
 
-  connect( ui->mStreamLineSeedingMethodCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
-    QgsMeshRendererVectorStreamlineSettings::SeedingStartPointsMethod method =
-    static_cast<QgsMeshRendererVectorStreamlineSettings::SeedingStartPointsMethod>( ui->mStreamLineSeedingMethodCombo->currentData().toInt() );
+  connect( ui->mStreamLineSeedingMethodCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {
+    QgsMeshRendererVectorStreamlineSettings::SeedingStartPointsMethod method = static_cast<QgsMeshRendererVectorStreamlineSettings::SeedingStartPointsMethod>(
+      ui->mStreamLineSeedingMethodCombo->currentData().toInt()
+    );
     ui->mStreamLineDensitySpinBox->setEnabled( method == QgsMeshRendererVectorStreamlineSettings::Random );
 
     updateMeshSettings();
@@ -243,8 +240,7 @@ void ReosMeshVectorRenderingWidget::updateMeshSettings()
   arrowSettings.setArrowHeadWidthRatio( ui->mHeadWidthSpinBox->value() / 100.0 );
 
   QgsMeshRendererVectorStreamlineSettings streamLineSettings = vectSettings.streamLinesSettings();
-  streamLineSettings.setSeedingMethod( static_cast < QgsMeshRendererVectorStreamlineSettings::SeedingStartPointsMethod >(
-                                         ui->mStreamLineSeedingMethodCombo->currentData().toInt() ) );
+  streamLineSettings.setSeedingMethod( static_cast< QgsMeshRendererVectorStreamlineSettings::SeedingStartPointsMethod >( ui->mStreamLineSeedingMethodCombo->currentData().toInt() ) );
   streamLineSettings.setSeedingDensity( ui->mStreamLineDensitySpinBox->value() / 100.0 );
 
   QgsMeshRendererVectorTracesSettings traceSettings = vectSettings.tracesSettings();
@@ -271,7 +267,7 @@ void ReosMeshVectorRenderingWidget::updateMeshSettings()
   vectSettings.setTracesSettings( traceSettings );
 
   QDomDocument doc( QStringLiteral( "dataset-vector-symbology" ) );
-  doc.appendChild( vectSettings.writeXml( doc ) ) ;
+  doc.appendChild( vectSettings.writeXml( doc ) );
 
   ReosEncodedElement encodedElem( QStringLiteral( "dataset-vector-symbology" ) );
   QString docString = doc.toString();

@@ -27,11 +27,11 @@ class ReosMesh;
 
 struct CacheDataset
 {
-  QVector<int> activeFaces;
-  QVector<int> activeVertices;
-  QVector<double> waterDepth;
-  QVector<double> waterLevel;
-  QVector<double> velocity;
+    QVector<int> activeFaces;
+    QVector<int> activeVertices;
+    QVector<double> waterDepth;
+    QVector<double> waterLevel;
+    QVector<double> velocity;
 };
 
 class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
@@ -80,7 +80,6 @@ class ReosTelemac2DSimulationResults : public ReosHydraulicSimulationResults
     void adaptVelocity( QVector<double> &velocity, int datasetIndex ) const;
 
     void dryVertices( int datasetIndex ) const;
-
 };
 
 #endif // REOSTELEMAC2DSIMULATIONRESULTS_H

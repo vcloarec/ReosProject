@@ -46,10 +46,10 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     void load() override;
     QStringList fileSuffixes() const override;
     QDateTime referenceTime() const override;
-    QString valueUnit() const override {return QString();}
+    QString valueUnit() const override { return QString(); }
     int valueCount() const override;
     double value( int i ) const override;
-    double firstValue() const override ;
+    double firstValue() const override;
     double lastValue() const override;
     double *data() override;
     const QVector<double> &constData() const override;
@@ -67,7 +67,7 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
     void removeValues( int from, int count ) override;
     void clear() override;
 
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const {return ReosEncodedElement();}
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const { return ReosEncodedElement(); }
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) {}
 
     bool persistData( QString &error ) override;
@@ -85,25 +85,24 @@ class ReosDssProviderTimeSerieConstantTimeStep : public ReosTimeSerieConstantTim
 class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTimeStepProvider, public ReosDssProviderBase
 {
   public:
-
     // ReosDataProvider interface
     QString key() const override;
     QStringList fileSuffixes() const override;
     // ReosTimeSerieProvider interface
     void load() override;
     QDateTime referenceTime() const override;
-    QString valueUnit() const {return QString();}
+    QString valueUnit() const { return QString(); }
     int valueCount() const override;
     double value( int i ) const override;
     double firstValue() const override;
     double lastValue() const override;
     double *data() override;
     const QVector<double> &constData() const override;
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const {return ReosEncodedElement();}
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const { return ReosEncodedElement(); }
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) {}
 
     // ReosDssProviderBase interface
-    bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const override {return false;}
+    bool createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const override { return false; }
 
     // ReosTimeSerieVariableTimeStepProvider interface
     ReosDuration relativeTimeAt( int i ) const override;
@@ -116,7 +115,6 @@ class ReosDssProviderTimeSerieVariableTimeStep : public ReosTimeSerieVariableTim
     QDateTime mReferenceTime;
     QVector<double> mValues;
     QVector<ReosDuration> mTimeValues;
-
 };
 
 class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, public ReosDssProviderBase
@@ -126,8 +124,8 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     void load() override;
     QString key() const override;
     QStringList fileSuffixes() const override;
-    SupportedGridOrigins supportedOrigin() const override {return ZeroBottomLeft;}
-    bool createNewSerie( const ReosDssPath &, ReosDssFile &, QString & ) const override {return false;}
+    SupportedGridOrigins supportedOrigin() const override { return ZeroBottomLeft; }
+    bool createNewSerie( const ReosDssPath &, ReosDssFile &, QString & ) const override { return false; }
     bool canReadUri( const QString &uri ) const override;
     QString htmlDescription() const override;
 
@@ -144,9 +142,7 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
     bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const override;
-    bool write( ReosGriddedRainfall *rainfall, const QString &uri,
-                const ReosRasterExtent &destination,
-                const ReosTimeWindow &timeWindow ) const override;
+    bool write( ReosGriddedRainfall *rainfall, const QString &uri, const ReosRasterExtent &destination, const ReosTimeWindow &timeWindow ) const override;
 
     static QString dataType();
 
@@ -161,9 +157,9 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
     ReosRasterExtent mExtent;
     struct DssGrid
     {
-      ReosDssPath path;
-      QDateTime startTime;
-      QDateTime endTime;
+        ReosDssPath path;
+        QDateTime startTime;
+        QDateTime endTime;
     };
     QList<DssGrid> mGrids;
 
@@ -175,7 +171,7 @@ class ReosDssProviderGriddedRainfall : public ReosGriddedRainfallProvider, publi
 };
 
 
-class ReosDssProviderFactory: public ReosDataProviderFactory
+class ReosDssProviderFactory : public ReosDataProviderFactory
 {
   public:
     ReosDataProvider *createProvider( const QString &dataType ) const override;
@@ -194,8 +190,6 @@ class ReosDssProviderFactory: public ReosDataProviderFactory
 
     QVariantMap uriParameters( const QString &dataType ) const override;
     QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
-
-
 };
 
 #endif // REOSDSSPROVIDER_H

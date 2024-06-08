@@ -33,16 +33,14 @@ namespace Ui
 {
   class ReosTelemacSimulationEditWidget;
   class ReosTelemacEngineConfigurationDialog;
-}
+} //namespace Ui
 
 class ReosTelemacSimulationEditWidget : public QWidget
 {
     Q_OBJECT
 
   public:
-    explicit ReosTelemacSimulationEditWidget( ReosHydraulicStructure2D *structure,
-        ReosTelemac2DSimulation *simulation,
-        const ReosGuiContext &guiContext );
+    explicit ReosTelemacSimulationEditWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DSimulation *simulation, const ReosGuiContext &guiContext );
     ~ReosTelemacSimulationEditWidget();
 
   private slots:
@@ -76,30 +74,26 @@ class ReosTelemacEngineConfigurationDialog : public QDialog
 class ReosTelemacSimulationEditWidgetFactory : public ReosHydraulicSimulationWidgetFactory
 {
   public:
-    QString key() const override {return ReosTelemac2DSimulation::staticKey();}
+    QString key() const override { return ReosTelemac2DSimulation::staticKey(); }
 
     QWidget *simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const override;
     QDialog *engineConfigurationDialog( QWidget *parent ) const override;
     QWidget *simulationEngineDescription( QWidget *parent ) const override;
-    ReosImportHydraulicStructureWidget *simulationImportWidget( QWidget *parent ) const override { return nullptr;}
+    ReosImportHydraulicStructureWidget *simulationImportWidget( QWidget *parent ) const override { return nullptr; }
 };
 
 
 class ReosTelemac2DInitialConditionWidgetFactory
 {
   public:
-
-    static QWidget *createWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DInitialCondition *initialCondition,  const ReosGuiContext &guiContext );
+    static QWidget *createWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DInitialCondition *initialCondition, const ReosGuiContext &guiContext );
 };
 
 class ReosTelemac2DInititalConditionFromOtherSimulationWidget : public QWidget
 {
     Q_OBJECT
   public:
-    ReosTelemac2DInititalConditionFromOtherSimulationWidget(
-      ReosTelemac2DInitialConditionFromSimulation *initialCondition,
-      ReosHydraulicStructure2D *structure,
-      QWidget *parent );
+    ReosTelemac2DInititalConditionFromOtherSimulationWidget( ReosTelemac2DInitialConditionFromSimulation *initialCondition, ReosHydraulicStructure2D *structure, QWidget *parent );
 
   private slots:
     void onSchemeChange();
@@ -116,12 +110,9 @@ class ReosTelemac2DInititalConditionInterpolationWidget : public QWidget
 {
     Q_OBJECT
   public:
-    ReosTelemac2DInititalConditionInterpolationWidget(
-      ReosTelemac2DInitialConditionFromInterpolation *initialCondition,
-      const ReosGuiContext &guiContext );
+    ReosTelemac2DInititalConditionInterpolationWidget( ReosTelemac2DInitialConditionFromInterpolation *initialCondition, const ReosGuiContext &guiContext );
 
   protected:
-
     void showEvent( QShowEvent *e ) override;
     void hideEvent( QHideEvent *e ) override;
 

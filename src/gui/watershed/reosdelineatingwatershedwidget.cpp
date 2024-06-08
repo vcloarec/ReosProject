@@ -28,24 +28,24 @@ email                : vcloarec at gmail dot com
 #include <QCloseEvent>
 #include <QFileDialog>
 
-ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &context ) :
-  ReosActionWidget( context.parent() ),
-  ui( new Ui::ReosDelineatingWatershedWidget ),
-  mModule( watershedModule ),
-  mMap( context.map() ),
-  mActionDrawDownstreamLine( new QAction( QIcon( QStringLiteral( ":/images/downStreamSelection.svg" ) ), tr( "Draw downstream line" ), this ) ),
-  mActionDrawPredefinedExtent( new QAction( QIcon( QStringLiteral( ":/images/extentWatershedSelection.svg" ) ), tr( "Draw predefined extent" ), this ) ),
-  mActionDrawAddBurningLine( new QAction( QIcon( QStringLiteral( ":/images/burningLine.svg" ) ), tr( "Add a burning line" ), this ) ),
-  mActionRemoveBurningLine( new QAction( QIcon( QStringLiteral( ":/images/removeBurningLine.svg" ) ), tr( "Remove a burning line" ), this ) ),
-  mDownstreamLine( context.map() ),
-  mWatershedExtent( context.map() ),
-  mActionDrawWatershed( new QAction( QIcon( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) ),
-  mActionEditWatershed( new QAction( QIcon( QStringLiteral( ":/images/editWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) ),
-  mActionMoveOutletPoint( new QAction( QIcon( QStringLiteral( ":/images/moveOutlet.svg" ) ), tr( "Move outlet point" ), this ) ),
-  mTemporaryAutomaticWatershed( context.map() ),
-  mTemporaryAutomaticStreamLine( context.map() ),
-  mTemporaryManualWatershed( context.map() ),
-  mTemporaryManualOutletPoint( context.map() )
+ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &context )
+  : ReosActionWidget( context.parent() )
+  , ui( new Ui::ReosDelineatingWatershedWidget )
+  , mModule( watershedModule )
+  , mMap( context.map() )
+  , mActionDrawDownstreamLine( new QAction( QIcon( QStringLiteral( ":/images/downStreamSelection.svg" ) ), tr( "Draw downstream line" ), this ) )
+  , mActionDrawPredefinedExtent( new QAction( QIcon( QStringLiteral( ":/images/extentWatershedSelection.svg" ) ), tr( "Draw predefined extent" ), this ) )
+  , mActionDrawAddBurningLine( new QAction( QIcon( QStringLiteral( ":/images/burningLine.svg" ) ), tr( "Add a burning line" ), this ) )
+  , mActionRemoveBurningLine( new QAction( QIcon( QStringLiteral( ":/images/removeBurningLine.svg" ) ), tr( "Remove a burning line" ), this ) )
+  , mDownstreamLine( context.map() )
+  , mWatershedExtent( context.map() )
+  , mActionDrawWatershed( new QAction( QIcon( QStringLiteral( ":/images/delineateWatershed.svg" ) ), tr( "Draw watershed manually" ), this ) )
+  , mActionEditWatershed( new QAction( QIcon( QStringLiteral( ":/images/editWatershed.svg" ) ), tr( "Edit watershed manually" ), this ) )
+  , mActionMoveOutletPoint( new QAction( QIcon( QStringLiteral( ":/images/moveOutlet.svg" ) ), tr( "Move outlet point" ), this ) )
+  , mTemporaryAutomaticWatershed( context.map() )
+  , mTemporaryAutomaticStreamLine( context.map() )
+  , mTemporaryManualWatershed( context.map() )
+  , mTemporaryManualOutletPoint( context.map() )
 {
   ui->setupUi( this );
   ui->comboBoxDem->setGisEngine( mMap->engine() );
@@ -166,8 +166,7 @@ ReosDelineatingWatershedWidget::ReosDelineatingWatershedWidget( ReosWatershedMod
   if ( settings.contains( QStringLiteral( "DelineatingWidget/averageElevation" ) ) )
     ui->mCheckBoxAverageElevation->setChecked( settings.value( QStringLiteral( "DelineatingWidget/averageElevation" ) ).toBool() );
   mModule->delineatingModule()->setCalculateAverageElevation( ui->mCheckBoxAverageElevation->isChecked() );
-  connect( ui->mCheckBoxAverageElevation, &QCheckBox::toggled, this, [this]
-  {
+  connect( ui->mCheckBoxAverageElevation, &QCheckBox::toggled, this, [this] {
     mModule->delineatingModule()->setCalculateAverageElevation( ui->mCheckBoxAverageElevation->isChecked() );
     ReosSettings settings;
     settings.setValue( QStringLiteral( "DelineatingWidget/averageElevation" ), ui->mCheckBoxAverageElevation->isChecked() );
@@ -276,9 +275,8 @@ void ReosDelineatingWatershedWidget::onLoadRasterDem()
       isDEM = true;
     else
     {
-      if ( QMessageBox::warning( this, tr( "Loading Raster DEM Layer" ),
-                                 tr( "This layer is not recognized as a possible DEM, do you want to load it?" ),
-                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::No )
+      if ( QMessageBox::warning( this, tr( "Loading Raster DEM Layer" ), tr( "This layer is not recognized as a possible DEM, do you want to load it?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes )
+           == QMessageBox::No )
         return;
       isDEM = false;
     }
@@ -326,8 +324,16 @@ void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
   bool adjustIfNeeded = false;
   if ( needAdjusting )
   {
-    QMessageBox::StandardButton answer = QMessageBox::warning( this, tr( "Delineating watershed" ), tr( "This watershed intersects existing watershed(s)\n"
-                                         "Adjust new watershed?" ), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
+    QMessageBox::StandardButton answer = QMessageBox::warning(
+      this,
+      tr( "Delineating watershed" ),
+      tr(
+        "This watershed intersects existing watershed(s)\n"
+        "Adjust new watershed?"
+      ),
+      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+      QMessageBox::Yes
+    );
 
     if ( answer == QMessageBox::Cancel )
       return;
@@ -365,16 +371,23 @@ void ReosDelineatingWatershedWidget::onManualValidateAsked()
 {
   if ( mTemporaryManualOutletPoint.isEmpty() || mTemporaryManualWatershed.mapPolygon().isEmpty() )
     return;
-  std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(),
-                                     mTemporaryManualOutletPoint.mapPoint() ) );
+  std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(), mTemporaryManualOutletPoint.mapPoint() ) );
   bool needAdjusting = mModule->watershedTree()->isWatershedIntersectExisting( ws.get() );
   bool adjustIfNeeded = false;
   mTemporaryManualOutletPoint.resetPoint();
   mTemporaryManualWatershed.resetPolygon();
   if ( needAdjusting )
   {
-    QMessageBox::StandardButton answer = QMessageBox::warning( this, tr( "Delineating watershed" ), tr( "This watershed intersects existing watershed(s)\n"
-                                         "Adjust new watershed?" ), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes );
+    QMessageBox::StandardButton answer = QMessageBox::warning(
+      this,
+      tr( "Delineating watershed" ),
+      tr(
+        "This watershed intersects existing watershed(s)\n"
+        "Adjust new watershed?"
+      ),
+      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+      QMessageBox::Yes
+    );
 
     if ( answer == QMessageBox::Cancel )
       return;
@@ -542,7 +555,6 @@ void ReosDelineatingWatershedWidget::updateBurningLines()
   mModule->delineatingModule()->setBurningLines( list );
 
   mActionRemoveBurningLine->setEnabled( !list.isEmpty() );
-
 }
 
 void ReosDelineatingWatershedWidget::updateManualMapTool()
@@ -552,7 +564,7 @@ void ReosDelineatingWatershedWidget::updateManualMapTool()
   else if ( mTemporaryManualOutletPoint.isEmpty() )
     mCurrentManualMapTool = mMapToolDrawOutletPoint;
 
-  ui->mPushButtonValidateManual->setEnabled( ! mTemporaryManualWatershed.mapPolygon().isEmpty() && !mTemporaryManualOutletPoint.isEmpty() );
+  ui->mPushButtonValidateManual->setEnabled( !mTemporaryManualWatershed.mapPolygon().isEmpty() && !mTemporaryManualOutletPoint.isEmpty() );
 
   if ( mCurrentManualMapTool )
     mCurrentManualMapTool->setCurrentToolInMap();

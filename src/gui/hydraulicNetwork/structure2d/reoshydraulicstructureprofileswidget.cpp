@@ -34,7 +34,7 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   , mActionAddProfile( new QAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add a New Profile" ), this ) )
   , mMapToolAddProfile( new ReosMapToolDrawPolyline( this, guiContext.map() ) )
   , mActionSelectProfile( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Select a Profile" ), this ) )
-  , mMapToolSelectProfile( new ReosMapToolSelectMapItem( guiContext.map(),  QStringLiteral( "hydraulic-structure-profile" ) ) )
+  , mMapToolSelectProfile( new ReosMapToolSelectMapItem( guiContext.map(), QStringLiteral( "hydraulic-structure-profile" ) ) )
   , mActionEditProfile( new QAction( QIcon( QStringLiteral( ":/images/editProfile.svg" ) ), tr( "Edit Current Profile on Map" ), this ) )
   , mMapToolEditProfile( new ReosMapToolEditMapPolyline( this, guiContext.map() ) )
   , mActionRemoveProfile( new QAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Current Profile" ), this ) )
@@ -127,8 +127,7 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   plotActions << mActionDisplayVelocity;
   ui->mPlotWidget->addActions( plotActions );
 
-  connect( mActionDisplayVelocity, &QAction::triggered, this, [this, settingsString]
-  {
+  connect( mActionDisplayVelocity, &QAction::triggered, this, [this, settingsString] {
     ui->mPlotWidget->enableAxeYRight( mActionDisplayVelocity->isChecked() );
     mVelocityProfileCurve->setVisible( mActionDisplayVelocity->isChecked() );
     mVelocityProfileCurve->setLegendActive( mActionDisplayVelocity->isChecked(), true );
@@ -142,8 +141,7 @@ ReosHydraulicStructureProfilesWidget::ReosHydraulicStructureProfilesWidget( Reos
   connect( guiContext.map(), &ReosMap::timeChanged, this, &ReosHydraulicStructureProfilesWidget::onTimeChanged );
   connect( ui->mPlotWidget, &ReosPlotWidget::cursorMoved, this, &ReosHydraulicStructureProfilesWidget::onPlotCursorMove );
 
-  connect( ui->mDetachAttachButton, &QPushButton::clicked, this, [this]
-  {
+  connect( ui->mDetachAttachButton, &QPushButton::clicked, this, [this] {
     if ( !isDetached() )
     {
       detach( mGuiContext.parent() );
@@ -237,10 +235,8 @@ void ReosHydraulicStructureProfilesWidget::onRemoveProfile()
   ReosHydraulicStructureProfile *profile = mStructure->profile( currentIndex );
   if ( !profile )
     return;
-  if ( QMessageBox::warning( this, tr( "Remove Profile" ),
-                             tr( "Do yo want to remove the current profile \"%1\"?" ).arg( profile->name() ),
-                             QMessageBox::Yes | QMessageBox::No,
-                             QMessageBox::No ) == QMessageBox::No )
+  if ( QMessageBox::warning( this, tr( "Remove Profile" ), tr( "Do yo want to remove the current profile \"%1\"?" ).arg( profile->name() ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+       == QMessageBox::No )
     return;
 
   removeMapProfile( profile );
@@ -265,20 +261,15 @@ void ReosHydraulicStructureProfilesWidget::onRenameProfile()
 
   if ( diag->exec() )
     mStructure->renameProfile( currentIndex, name.value() );
-
 }
 
 void ReosHydraulicStructureProfilesWidget::onTimeChanged( const QDateTime &time )
 {
   if ( mCurrentProfile )
   {
-    mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( mStructure->network()->currentScheme(),
-                                    time,
-                                    ReosHydraulicSimulationResults::DatasetType::Velocity ) );
+    mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( mStructure->network()->currentScheme(), time, ReosHydraulicSimulationResults::DatasetType::Velocity ) );
     QPolygonF waterSurface;
-    mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( mStructure->network()->currentScheme(),
-                               time,
-                               waterSurface ) );
+    mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( mStructure->network()->currentScheme(), time, waterSurface ) );
     mWaterLevelProfileCurve->setData( waterSurface );
   }
 }
@@ -386,14 +377,10 @@ void ReosHydraulicStructureProfilesWidget::updateCurrentProfileValues()
 
     if ( mCurrentProfile->hasResults( scheme ) )
     {
-      mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( scheme,
-                                      mGuiContext.map()->currentTime(),
-                                      ReosHydraulicSimulationResults::DatasetType::Velocity ) );
+      mVelocityProfileCurve->setData( mCurrentProfile->resultsProfile( scheme, mGuiContext.map()->currentTime(), ReosHydraulicSimulationResults::DatasetType::Velocity ) );
 
       QPolygonF waterSurface;
-      mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( scheme,
-                                 mGuiContext.map()->currentTime(),
-                                 waterSurface ) );
+      mFilledWater->setPolygons( mCurrentProfile->resultsFilledByWater( scheme, mGuiContext.map()->currentTime(), waterSurface ) );
       mWaterLevelProfileCurve->setData( waterSurface );
     }
     else

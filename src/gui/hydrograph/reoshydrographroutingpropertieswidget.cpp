@@ -26,8 +26,8 @@
 #include "reossettings.h"
 
 ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( ReosHydrographRoutingLink *hydrographRouting, const ReosGuiContext &guiContext )
-  :  ReosHydraulicElementWidget( guiContext.parent() )
-  ,  ui( new Ui::ReosHydrographRoutingPropertiesWidget )
+  : ReosHydraulicElementWidget( guiContext.parent() )
+  , ui( new Ui::ReosHydrographRoutingPropertiesWidget )
   , mRouting( hydrographRouting )
 {
   ui->setupUi( this );
@@ -67,8 +67,7 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
   if ( mRoutingWidget )
     ui->mRoutingParametersWidget->layout()->addWidget( mRoutingWidget );
 
-  connect( ui->mRoutingTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
-           this, &ReosHydrographRoutingPropertiesWidget::onCurrentMethodChange );
+  connect( ui->mRoutingTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydrographRoutingPropertiesWidget::onCurrentMethodChange );
 
   if ( settings.contains( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ) ) )
   {
@@ -78,8 +77,7 @@ ReosHydrographRoutingPropertiesWidget::ReosHydrographRoutingPropertiesWidget( Re
       ui->mTabWidget->setCurrentIndex( 0 );
   }
 
-  connect( ui->mTabWidget, &QTabWidget::currentChanged, this, [this]
-  {
+  connect( ui->mTabWidget, &QTabWidget::currentChanged, this, [this] {
     ReosSettings settings;
     settings.setValue( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ), ui->mTabWidget->currentIndex() == 1 );
   } );
@@ -119,15 +117,14 @@ void ReosHydrographRoutingPropertiesWidget::onCurrentMethodChange()
 
 void ReosHydrographRoutingPropertiesWidget::updateInformation()
 {
-  if ( ! mRouting->outputHydrograph() || mRouting->outputHydrograph()->valueCount() == 0 )
+  if ( !mRouting->outputHydrograph() || mRouting->outputHydrograph()->valueCount() == 0 )
   {
     ui->mLabelPeak->setText( tr( "none" ) );
     ui->mLabelValueCount->setText( QLocale().toString( 0 ) );
   }
   else
   {
-    ui->mLabelPeak->setText( QStringLiteral( "%1 %2" ).arg( QLocale().toString( mRouting->outputHydrograph()->maximum() ),
-                             QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+    ui->mLabelPeak->setText( QStringLiteral( "%1 %2" ).arg( QLocale().toString( mRouting->outputHydrograph()->maximum() ), QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
     ui->mLabelValueCount->setText( QLocale().toString( mRouting->outputHydrograph()->valueCount() ) );
   }
 
@@ -177,8 +174,10 @@ void ReosHydrographRoutingPropertiesWidget::onMethodDescription()
     dial->show();
 
     textBrowser->document()->setTextWidth( 400 );
-    dial->resize( textBrowser->document()->size().width() + dial->contentsMargins().left() + dial->contentsMargins().right() + 20,
-                  textBrowser->document()->size().height() + dial->contentsMargins().top() + dial->contentsMargins().bottom() + 50 );
+    dial->resize(
+      textBrowser->document()->size().width() + dial->contentsMargins().left() + dial->contentsMargins().right() + 20,
+      textBrowser->document()->size().height() + dial->contentsMargins().top() + dial->contentsMargins().bottom() + 50
+    );
   }
 }
 
@@ -250,7 +249,10 @@ ReosHydraulicElementWidget *ReosHydrographRoutingPropertiesWidgetFactory::create
   return new ReosHydrographRoutingPropertiesWidget( routing, context );
 }
 
-QString ReosHydrographRoutingPropertiesWidgetFactory::elementType() {return ReosHydrographRoutingLink::staticType();}
+QString ReosHydrographRoutingPropertiesWidgetFactory::elementType()
+{
+  return ReosHydrographRoutingLink::staticType();
+}
 
 ReosFormWidget *ReosFormHydrographRountingMuskingumWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
@@ -265,7 +267,10 @@ ReosFormWidget *ReosFormHydrographRountingMuskingumWidgetFactory::createDataWidg
   return form;
 }
 
-QString ReosFormHydrographRountingMuskingumWidgetFactory::datatype() const {return ReosHydrographRoutingMethodMuskingum::staticType();}
+QString ReosFormHydrographRountingMuskingumWidgetFactory::datatype() const
+{
+  return ReosHydrographRoutingMethodMuskingum::staticType();
+}
 
 ReosFormWidget *ReosFormHydrographRountingLagWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {

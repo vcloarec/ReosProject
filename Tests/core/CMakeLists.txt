@@ -2,34 +2,35 @@
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 FIND_PACKAGE(Threads REQUIRED)
-FIND_PACKAGE(GTest)
 
-IF (NOT GTEST_FOUND)
+# Determine if GTest/GMock pre-built libraries are available
+IF(TARGET GTest::gmock)
+    SET(GTEST_TARGET GTest::gtest)
+    SET(GMOCK_TARGET GTest::gmock)
+ELSEIF(EXISTS "/usr/src/googletest/CMakeLists.txt")
+    # Source-only install (e.g. libgtest-dev on Ubuntu): build from system sources
+    SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    ADD_SUBDIRECTORY("/usr/src/googletest"
+                     "${CMAKE_BINARY_DIR}/googletest-build"
+                     EXCLUDE_FROM_ALL)
+    SET(GTEST_TARGET gtest)
+    SET(GMOCK_TARGET gmock)
+ELSE()
     # Download and unpack googletest at configure time
     FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
     CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/Tests/GTestCMakeLists.in" "${CMAKE_BINARY_DIR}/googletest-download/CMakeLists.txt")
     EXECUTE_PROCESS(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download" )
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
     EXECUTE_PROCESS(COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download" )
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
 
-    # Prevent GoogleTest from overriding our compiler/linker options
-    # when building with Visual Studio
     SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    # Add googletest directly to our build. This adds
-    # the following targets: gtest, gtest_main, gmock
-    # and gmock_main
     ADD_SUBDIRECTORY("${CMAKE_BINARY_DIR}/googletest-src"
                      "${CMAKE_BINARY_DIR}/googletest-build"
                      EXCLUDE_FROM_ALL)
-
-    INCLUDE_DIRECTORIES("${gtest_SOURCE_DIR}/include"
-                        "${gmock_SOURCE_DIR}/include")
-ELSE(NOT GTEST_FOUND)
-    INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIR})
-ENDIF(NOT GTEST_FOUND)
-
+    SET(GTEST_TARGET gtest)
+    SET(GMOCK_TARGET gmock)
+ENDIF()
 
 MACRO (ADD_REOS_TEST TESTSRC)
   GET_FILENAME_COMPONENT(TESTNAME ${TESTSRC} NAME)
@@ -39,12 +40,13 @@ MACRO (ADD_REOS_TEST TESTSRC)
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Test_LIBRARIES}
                         ${CMAKE_THREAD_LIBS_INIT}
-                        gtest
-                        gmock
+                        ${GTEST_TARGET}
+                        ${GMOCK_TARGET}
                         reosCore)
 
   IF(GDAL_FOUND)
-    TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})
+    TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIR})
+    TARGET_LINK_LIBRARIES(${TESTNAME} ${GDAL_LIBRARIES} )
   ENDIF(GDAL_FOUND)
   ADD_TEST(NAME ${TESTNAME}
            COMMAND "${TESTNAME}"
@@ -70,8 +72,15 @@ SET(TESTS
     reos_hydrograph_transfer_test.cpp
     reos_hydraulic_structure_2D_test.cpp
     reos_hydraulic_network_test.cpp
-    reos_mesh_test.cpp
     )
+
+
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    SET(TESTS
+        ${TESTS}
+        reos_mesh_test.cpp
+        )
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 FOREACH(TESTSRC ${TESTS})
     ADD_REOS_TEST(${TESTSRC})

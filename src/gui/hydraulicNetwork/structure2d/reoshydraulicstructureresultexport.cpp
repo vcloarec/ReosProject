@@ -9,9 +9,9 @@
 #include "reoshydraulicscheme.h"
 #include "reoshydraulicnetwork.h"
 
-ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydraulicStructure2D *structure,  const QString &currentSchemeId, QWidget *parent )
-  : QDialog( parent ),
-    ui( new Ui::ReosHydraulicStructureResultExport )
+ReosHydraulicStructureResultExport::ReosHydraulicStructureResultExport( ReosHydraulicStructure2D *structure, const QString &currentSchemeId, QWidget *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosHydraulicStructureResultExport )
   , mStructure( structure )
   , mNetwork( structure ? structure->network() : nullptr )
 {
@@ -43,8 +43,7 @@ void ReosHydraulicStructureResultExport::accept()
   if ( !scheme )
     return;
 
-  ReosModule::Message message  =
-    mStructure->exportResultAsMeshInGisProject( scheme, ui->mQGISProjectFileLineEdit->text(), ui->mKeepLayer->isChecked() );
+  ReosModule::Message message = mStructure->exportResultAsMeshInGisProject( scheme, ui->mQGISProjectFileLineEdit->text(), ui->mKeepLayer->isChecked() );
 
   switch ( message.type )
   {
@@ -107,10 +106,7 @@ void ReosHydraulicStructureResultExport::onCurrentSchemeChange()
 void ReosHydraulicStructureResultExport::onFileButtonClicked()
 {
   const QString currentFile = ui->mQGISProjectFileLineEdit->text();
-  QString newFile = QFileDialog::getSaveFileName( this,
-                    tr( "QGIS project file" ),
-                    currentFile,
-                    tr( "QGIS Project File (*.qgz)" ) );
+  QString newFile = QFileDialog::getSaveFileName( this, tr( "QGIS project file" ), currentFile, tr( "QGIS Project File (*.qgz)" ) );
 
   if ( newFile == currentFile || newFile.isEmpty() )
     return;

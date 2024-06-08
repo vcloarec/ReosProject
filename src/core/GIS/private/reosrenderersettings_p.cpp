@@ -70,19 +70,24 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
         QgsRectangle extent1 = approxTransform.transformBoundingBox( extent, Qgis::TransformDirection::Reverse );
         QgsRectangle extent2 = approxTransform.transformBoundingBox( extent1, Qgis::TransformDirection::Forward );
 
-        QgsDebugMsgLevel( QStringLiteral( "\n0:%1 %2x%3\n1:%4\n2:%5 %6x%7 (w:%8 h:%9)" )
-                          .arg( extent.toString() ).arg( extent.width() ).arg( extent.height() )
-                          .arg( extent1.toString(), extent2.toString() ).arg( extent2.width() ).arg( extent2.height() )
-                          .arg( std::fabs( 1.0 - extent2.width() / extent.width() ) )
-                          .arg( std::fabs( 1.0 - extent2.height() / extent.height() ) )
-                          , 3 );
+        QgsDebugMsgLevel(
+          QStringLiteral( "\n0:%1 %2x%3\n1:%4\n2:%5 %6x%7 (w:%8 h:%9)" )
+            .arg( extent.toString() )
+            .arg( extent.width() )
+            .arg( extent.height() )
+            .arg( extent1.toString(), extent2.toString() )
+            .arg( extent2.width() )
+            .arg( extent2.height() )
+            .arg( std::fabs( 1.0 - extent2.width() / extent.width() ) )
+            .arg( std::fabs( 1.0 - extent2.height() / extent.height() ) ),
+          3
+        );
 
         // can differ by a maximum of up to 20% of height/width
         if ( qgsDoubleNear( extent2.xMinimum(), extent.xMinimum(), extent.width() * 0.2 )
              && qgsDoubleNear( extent2.xMaximum(), extent.xMaximum(), extent.width() * 0.2 )
              && qgsDoubleNear( extent2.yMinimum(), extent.yMinimum(), extent.height() * 0.2 )
-             && qgsDoubleNear( extent2.yMaximum(), extent.yMaximum(), extent.height() * 0.2 )
-           )
+             && qgsDoubleNear( extent2.yMaximum(), extent.yMaximum(), extent.height() * 0.2 ) )
         {
           extent = extent1;
         }
@@ -95,12 +100,10 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
       else
       {
         // Note: ll = lower left point
-        QgsPointXY ll = approxTransform.transform( extent.xMinimum(), extent.yMinimum(),
-                        Qgis::TransformDirection::Reverse );
+        QgsPointXY ll = approxTransform.transform( extent.xMinimum(), extent.yMinimum(), Qgis::TransformDirection::Reverse );
 
         //   and ur = upper right point
-        QgsPointXY ur = approxTransform.transform( extent.xMaximum(), extent.yMaximum(),
-                        Qgis::TransformDirection::Reverse );
+        QgsPointXY ur = approxTransform.transform( extent.xMaximum(), extent.yMaximum(), Qgis::TransformDirection::Reverse );
 
         QgsDebugMsgLevel( QStringLiteral( "in:%1 (ll:%2 ur:%3)" ).arg( extent.toString(), ll.toString(), ur.toString() ), 4 );
 
@@ -129,13 +132,11 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
     }
     else // can't cross 180
     {
-      if ( approxTransform.destinationCrs().isGeographic() &&
-           ( extent.xMinimum() <= -180 || extent.xMaximum() >= 180 ||
-             extent.yMinimum() <= -90 || extent.yMaximum() >= 90 ) )
-        // Use unlimited rectangle because otherwise we may end up transforming wrong coordinates.
-        // E.g. longitude -200 to +160 would be understood as +40 to +160 due to periodicity.
-        // We could try to clamp coords to (-180,180) for lon resp. (-90,90) for lat,
-        // but this seems like a safer choice.
+      if ( approxTransform.destinationCrs().isGeographic() && ( extent.xMinimum() <= -180 || extent.xMaximum() >= 180 || extent.yMinimum() <= -90 || extent.yMaximum() >= 90 ) )
+      // Use unlimited rectangle because otherwise we may end up transforming wrong coordinates.
+      // E.g. longitude -200 to +160 would be understood as +40 to +160 due to periodicity.
+      // We could try to clamp coords to (-180,180) for lon resp. (-90,90) for lat,
+      // but this seems like a safer choice.
       {
         extent = QgsRectangle( std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max() );
         res = false;
@@ -156,7 +157,7 @@ static bool reprojectToLayerExtent( const QgsMapLayer *ml, const QgsCoordinateTr
 }
 
 ReosQgisLayerRenderer_p::ReosQgisLayerRenderer_p( ReosRendererSettings *settings, QgsMapLayer *layer, ReosRenderedObject *renderedObject )
-  :  ReosObjectRenderer( renderedObject )
+  : ReosObjectRenderer( renderedObject )
   , mFeedback( new QgsFeedback )
 {
   ReosRendererSettings_p *rendererSettings = dynamic_cast<ReosRendererSettings_p *>( settings );
@@ -203,9 +204,7 @@ void ReosQgisLayerRenderer_p::render()
 
 bool ReosQgisLayerRenderer_p::isRenderingStopped() const
 {
-  return mLayerRenderer->renderContext()->renderingStopped() ||
-         isStop() ||
-         ( mFeedback &&  mFeedback->isCanceled() );
+  return mLayerRenderer->renderContext()->renderingStopped() || isStop() || ( mFeedback && mFeedback->isCanceled() );
 }
 
 void ReosQgisLayerRenderer_p::stopRendering()
@@ -223,8 +222,7 @@ QLinearGradient ReosColorShaderSettings_p::gradient() const
   QgsColorRamp *colorRamp = mColorShader.sourceColorRamp();
 
   QLinearGradient gradient;
-  if ( colorRamp &&
-       ( colorRamp->type() == QgsGradientColorRamp::typeString() || colorRamp->type() == QgsCptCityColorRamp::typeString() ) )
+  if ( colorRamp && ( colorRamp->type() == QgsGradientColorRamp::typeString() || colorRamp->type() == QgsCptCityColorRamp::typeString() ) )
   {
     //color ramp gradient
     QgsGradientColorRamp *gradRamp = static_cast<QgsGradientColorRamp *>( colorRamp );
@@ -248,7 +246,7 @@ ReosEncodedElement ReosColorShaderSettings_p::encode() const
   ReosEncodedElement encodedElem( QStringLiteral( "color-shader-settings" ) );
 
   QDomDocument doc( QStringLiteral( "color-ramp-shader" ) );
-  doc.appendChild( mColorShader.writeXml( doc ) ) ;
+  doc.appendChild( mColorShader.writeXml( doc ) );
   QString docString = doc.toString();
   encodedElem.addData( QStringLiteral( "color-ramp-shader" ), docString );
 

@@ -11,3 +11,5 @@ Tests/testData/tmp/*
 .idea/ReosProject.iml
 
 .idea/vcs.xml
+.vs
+build/*

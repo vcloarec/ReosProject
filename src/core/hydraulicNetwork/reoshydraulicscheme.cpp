@@ -24,8 +24,7 @@
 ReosHydraulicScheme::ReosHydraulicScheme( ReosHydraulicSchemeCollection *collection )
   : ReosDataObject( collection )
   , mSchemeName( new ReosParameterString( tr( "Scheme name" ), false, this ) )
-{
-}
+{}
 
 ReosHydraulicScheme::ReosHydraulicScheme( const ReosEncodedElement &element, ReosHydraulicSchemeCollection *collection, const ReosHydraulicNetworkContext &context )
   : ReosDataObject( collection )
@@ -127,8 +126,7 @@ ReosHydraulicScheme *ReosHydraulicScheme::decode( const ReosEncodedElement &elem
 
 ReosHydraulicSchemeCollection::ReosHydraulicSchemeCollection( QObject *parent )
   : QAbstractListModel( parent )
-{
-}
+{}
 
 
 ReosEncodedElement ReosHydraulicSchemeCollection::encode() const
@@ -257,7 +255,6 @@ ReosHydraulicScheme *ReosHydraulicSchemeCollection::scheme( const QString &schem
       return sc;
   }
   return nullptr;
-
 }
 
 ReosHydraulicScheme *ReosHydraulicSchemeCollection::schemeByName( const QString &name ) const
@@ -282,4 +279,3 @@ int ReosHydraulicSchemeCollection::schemeIndex( const QString &schemeId ) const
 
   return -1;
 }
-

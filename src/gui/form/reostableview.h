@@ -21,7 +21,7 @@
 
 class ReosTimeSerieModel;
 
-class ReosHorizontalHeaderView: public QHeaderView
+class ReosHorizontalHeaderView : public QHeaderView
 {
   public:
     ReosHorizontalHeaderView( QWidget *parent = nullptr );
@@ -48,7 +48,6 @@ class ReosTimeSerieTableView : public QTableView
     QList<int> mEditableColumn;
 
     void copySelectedToClipBoard( bool withHeader );
-
 };
 
 #endif // REOSTABLEVIEW_H

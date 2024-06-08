@@ -62,7 +62,7 @@ class ReosStackedPageWidget : public QWidget
     virtual void showBackButton() {};
     virtual void hideBackButton() {};
 
-    virtual bool canBeDetached() const {return false;}
+    virtual bool canBeDetached() const { return false; }
     virtual void switchDetachButton() {};
 
     void setStackedWidget( ReosActionStackedWidget *newStackedWidget );
@@ -105,7 +105,7 @@ class ReosStackedPageWidget : public QWidget
     bool mIsDetached = false;
 };
 
-class ReosActionStackedWidget: public ReosActionWidget
+class ReosActionStackedWidget : public ReosActionWidget
 {
     Q_OBJECT
   public:
@@ -128,7 +128,7 @@ class ReosActionStackedWidget: public ReosActionWidget
 
   private:
     QStackedWidget *mStackedWidget;
-    QList < QPointer<ReosStackedPageWidget>> mDetachedPages;
+    QList< QPointer<ReosStackedPageWidget>> mDetachedPages;
 };
 
 #endif // REOSACTIONWIDGET_H

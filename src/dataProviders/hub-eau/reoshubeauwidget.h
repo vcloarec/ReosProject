@@ -40,7 +40,7 @@ class ReosHubEauStationMarker;
 class ReosHydrograph;
 class ReosPlotTimeSerieVariableStep;
 
-class ReosHubEauStationMarker: public ReosMapMarkerFilledCircle
+class ReosHubEauStationMarker : public ReosMapMarkerFilledCircle
 {
   public:
     ReosHubEauStationMarker( ReosMap *map, const QPointF &point );
@@ -83,7 +83,7 @@ class ReosHubEauWidget : public ReosDataProviderSelectorWidget
     ReosMap *mMap = nullptr;
     ReosHubEauServer *mServer = nullptr;
     QList<ReosHubEauStation> mStations;
-    std::vector < std::unique_ptr<ReosHubEauStationMarker>> mStationsMarker;
+    std::vector< std::unique_ptr<ReosHubEauStationMarker>> mStationsMarker;
     ReosMapToolSelectMapItem *mSelectStation = nullptr;
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
     ReosPlotTimeSerieVariableStep *mHydrographPlot = nullptr;

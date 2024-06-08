@@ -81,8 +81,7 @@ class ReosRendererObjectHandler : public QObject
 };
 
 
-
-class REOSGUI_EXPORT ReosMap: public ReosModule
+class REOSGUI_EXPORT ReosMap : public ReosModule
 {
     Q_OBJECT
   public:
@@ -132,7 +131,7 @@ class REOSGUI_EXPORT ReosMap: public ReosModule
 
     void deactivateCurrentTool();
 
-    static QString staticModuleName() {return QStringLiteral( "map" );}
+    static QString staticModuleName() { return QStringLiteral( "map" ); }
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.

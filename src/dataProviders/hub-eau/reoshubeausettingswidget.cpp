@@ -20,14 +20,13 @@
 #include "reoshubeauhydrographprovider.h"
 
 ReosHubEauSettingsWidget::ReosHubEauSettingsWidget( ReosDataProvider *provider, QWidget *parent )
-  :  ReosDataProviderSettingsWidget( parent )
-  ,  ui( new Ui::ReosHubEauSettingsWidget )
+  : ReosDataProviderSettingsWidget( parent )
+  , ui( new Ui::ReosHubEauSettingsWidget )
   , mProvider( qobject_cast<ReosHubEauHydrographProvider *>( provider ) )
 {
   ui->setupUi( this );
   populateDescription();
-  connect( mProvider, &ReosDataProvider::dataChanged, this, [this]
-  {
+  connect( mProvider, &ReosDataProvider::dataChanged, this, [this] {
     enableLoadButton();
     populateDescription();
   } );
@@ -81,5 +80,4 @@ void ReosHubEauSettingsWidget::enableLoadButton()
     ui->mReloadButton->setEnabled( true );
     ui->mReloadButton->setText( tr( "Reload" ) );
   }
-
 }

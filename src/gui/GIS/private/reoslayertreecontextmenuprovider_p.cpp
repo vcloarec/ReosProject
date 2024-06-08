@@ -23,11 +23,11 @@ email                : vcloarec at gmail dot com
 #include "reosgislayerswidget.h"
 #include "reoslayertreecontextmenuprovider_p.h"
 
-ReosGisLayerTreeContextMenuProvider::ReosGisLayerTreeContextMenuProvider( ReosGisLayersWidget *layerWidget, QgsLayerTreeView *layerTreeView, ReosMap *map ):
-  QgsLayerTreeViewMenuProvider(),
-  mLayerWidget( layerWidget ),
-  mLayerTreeView( layerTreeView ),
-  mMap( map )
+ReosGisLayerTreeContextMenuProvider::ReosGisLayerTreeContextMenuProvider( ReosGisLayersWidget *layerWidget, QgsLayerTreeView *layerTreeView, ReosMap *map )
+  : QgsLayerTreeViewMenuProvider()
+  , mLayerWidget( layerWidget )
+  , mLayerTreeView( layerTreeView )
+  , mMap( map )
 {
   mDefaultAction = new QgsLayerTreeViewDefaultActions( layerTreeView );
 }
@@ -80,8 +80,6 @@ QMenu *ReosGisLayerTreeContextMenuProvider::createContextMenu()
       }
     }
   }
-
-
 
 
   return menu;

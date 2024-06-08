@@ -16,20 +16,25 @@
 #ifndef REOSPLOTPOLYGONS_P_H
 #define REOSPLOTPOLYGONS_P_H
 
+#include <QBrush>
+#include <QList>
+#include <QPen>
+#include <QPolygonF>
+
 #include "qwt_plot_item.h"
 
-class ReosPlotPolygons_p :public QwtPlotItem
+class ReosPlotPolygons_p : public QwtPlotItem
 {
-public:
+  public:
     ReosPlotPolygons_p();
 
-    void draw(QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect) const;
-    void setPolygons(const QList<QPolygonF> &newPolygons);
+    void draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const;
+    void setPolygons( const QList<QPolygonF> &newPolygons );
 
-    void setPen(const QPen &pen);
-    void setBrush(const QBrush &brush);
+    void setPen( const QPen &pen );
+    void setBrush( const QBrush &brush );
 
-private:
+  private:
     QList<QPolygonF> mPolygons;
     QPen mPen;
     QBrush mBrush;

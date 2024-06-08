@@ -20,7 +20,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosgisengine.h"
 
-class ReosDigitalElevationModelComboBox: public QComboBox
+class ReosDigitalElevationModelComboBox : public QComboBox
 {
     Q_OBJECT
   public:

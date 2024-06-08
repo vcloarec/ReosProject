@@ -69,7 +69,6 @@ class ReosFormWidget : public QWidget
     int mParamCount = 0;
     QBoxLayout *mMainLayout = nullptr;
     Qt::Orientation mOrientation = Qt::Vertical;
-
 };
 
 class ReosFormDialog : public QDialog
@@ -79,7 +78,7 @@ class ReosFormDialog : public QDialog
     explicit ReosFormDialog( QWidget *parent = nullptr );
     void addParameter( ReosParameter *parameter );
     void addWidget( QWidget *widget );
-    ReosFormWidget *addData( ReosDataObject *data, const ReosGuiContext  &context );
+    ReosFormWidget *addData( ReosDataObject *data, const ReosGuiContext &context );
     void addText( const QString &text );
 
   private:
@@ -102,7 +101,7 @@ class ReosFormWidgetDataFactory
     std::vector<DataWidgetFactory> mSubDataWidgetFactories;
 };
 
-class REOSGUI_EXPORT ReosFormWidgetFactories: public ReosModule
+class REOSGUI_EXPORT ReosFormWidgetFactories : public ReosModule
 {
   public:
     static void instantiate( ReosModule *parent );
@@ -118,9 +117,6 @@ class REOSGUI_EXPORT ReosFormWidgetFactories: public ReosModule
     using DataWidgetFactory = std::unique_ptr<ReosFormWidgetDataFactory>;
     std::vector<DataWidgetFactory> mDataWidgetFactories;
 };
-
-
-
 
 
 #endif // REOSFORMWIDGET_H

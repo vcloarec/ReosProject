@@ -37,7 +37,6 @@ class ReosRasterCellPos;
 class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
 {
   public:
-
     enum Position
     {
       Center,
@@ -90,7 +89,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     //! Returns the y coordinate before the row i
     double cellYBeforeToMap( int i ) const;
     //! Returns the y coordinate after the row i
-    double cellYAfterToMap( int i )const ;
+    double cellYAfterToMap( int i ) const;
     //! Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
     QPointF cellMinMinCornerToMap( const QPoint &cellPos ) const;
     //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
@@ -119,9 +118,9 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
 
     bool operator!=( const ReosRasterExtent &other ) const;
 
-    ReosEncodedElement encode() const SIP_SKIP;
+    ReosEncodedElement encode() const;
 
-    static ReosRasterExtent decode( const ReosEncodedElement &element ) SIP_SKIP;
+    static ReosRasterExtent decode( const ReosEncodedElement &element );
 
   private:
     bool mIsValid = false;
@@ -187,15 +186,15 @@ class REOSCORE_EXPORT ReosRasterCellPos
 /**
  * Class that stores a raster of type T in memory
  */
-template <typename T>
-class ReosRasterMemory
+template<typename T> class ReosRasterMemory
 {
   public:
     //! Default constructor, empty raster
     ReosRasterMemory() = default;
     //! Constructor with  \a nb_row, and \a nb_col, the row count and the column count, do not reserve memory
-    ReosRasterMemory( int nb_row, int nb_col ) :
-      mRowCount( nb_row ), mColumnCount( nb_col )
+    ReosRasterMemory( int nb_row, int nb_col )
+      : mRowCount( nb_row )
+      , mColumnCount( nb_col )
     {}
     //! Reserves memory with dimension used in constructor, returns true if successful
     bool reserveMemory()
@@ -236,10 +235,7 @@ class ReosRasterMemory
       return mValues.at( row * mColumnCount + col );
     }
     //! Returns the value at position \a pos
-    T value( const ReosRasterCellPos &cellPos ) const
-    {
-      return value( cellPos.row(), cellPos.column() );
-    }
+    T value( const ReosRasterCellPos &cellPos ) const { return value( cellPos.row(), cellPos.column() ); }
     //! Sets the value at position \a i,j
     void setValue( int row, int col, T v )
     {
@@ -247,15 +243,12 @@ class ReosRasterMemory
         mValues[row * mColumnCount + col] = v;
     }
     //! Sets the value at position \a cellPos
-    void setValue( const ReosRasterCellPos &cellPos, T v )
-    {
-      setValue( cellPos.row(), cellPos.column(), v );
-    }
+    void setValue( const ReosRasterCellPos &cellPos, T v ) { setValue( cellPos.row(), cellPos.column(), v ); }
     //! Returns a void pointer to the data
     void *data() { return mValues.data(); }
 
     //! Returns all the values in a 1D array
-    const QVector<T> values() const {return mValues;}
+    const QVector<T> values() const { return mValues; }
 
     /**
      * Sets all values with implicit shared data. The copy is effective only if the count of values is the same as row * columns
@@ -275,9 +268,9 @@ class ReosRasterMemory
     //! Returns the value that is considered as no data
     T noData() const { return mNoData; }
     //! Returns the row count
-    int rowCount() const {return mRowCount;}
+    int rowCount() const { return mRowCount; }
     //! Returns the columns count
-    int columnCount() const {return mColumnCount;}
+    int columnCount() const { return mColumnCount; }
     //! Fill the raster with \a val
     void fill( T val )
     {
@@ -369,10 +362,7 @@ class ReosRasterMemory
     }
 
     //! Returns whether the raster is valid
-    bool isValid() const
-    {
-      return !mValues.empty() && mValues.size() == mRowCount * mColumnCount;
-    }
+    bool isValid() const { return !mValues.empty() && mValues.size() == mRowCount * mColumnCount; }
 
     //! Returns a new raster in memory from \a this with reduced column and row count
     ReosRasterMemory<T> reduceRaster( int rowMin, int rowMax, int columnMin, int columnMax )
@@ -391,10 +381,7 @@ class ReosRasterMemory
       return returnRaster;
     }
 
-    bool isInRaster( const ReosRasterCellPos &pos ) const
-    {
-      return ( pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount );
-    }
+    bool isInRaster( const ReosRasterCellPos &pos ) const { return ( pos.row() >= 0 && pos.column() >= 0 && pos.row() < mRowCount && pos.column() < mColumnCount ); }
 
     bool operator==( const ReosRasterMemory<T> &rhs ) const
     {
@@ -416,7 +403,8 @@ class ReosRasterMemory
 
   private:
     int mRowCount = 0;
-    int mColumnCount = 0;;
+    int mColumnCount = 0;
+    ;
     QVector<T> mValues;
     T mNoData = std::numeric_limits<T>::quiet_NaN();
 };
@@ -425,35 +413,30 @@ class ReosRasterMemory
 /**
  * Convenient class used to navigate in a raster and can hande the raser value at corresponding position
  */
-template <typename T>
-class ReosRasterCellValue: public ReosRasterCellPos
+template<typename T> class ReosRasterCellValue : public ReosRasterCellPos
 {
   public:
-
-    ReosRasterCellValue( ReosRasterMemory<T> &raster ): ReosRasterCellPos( 0, 0 ), mRaster( raster )
+    ReosRasterCellValue( ReosRasterMemory<T> &raster )
+      : ReosRasterCellPos( 0, 0 )
+      , mRaster( raster )
     {}
 
-    ReosRasterCellValue( ReosRasterMemory<T> &raster, int row, int col ): ReosRasterCellPos( row, col ), mRaster( raster )
+    ReosRasterCellValue( ReosRasterMemory<T> &raster, int row, int col )
+      : ReosRasterCellPos( row, col )
+      , mRaster( raster )
     {}
 
-    ReosRasterCellValue( const ReosRasterCellValue<T> &other ):
-      ReosRasterCellPos( other.mRow, other.mColumn ),
-      mRaster( other.mRaster )
-    {
-    }
+    ReosRasterCellValue( const ReosRasterCellValue<T> &other )
+      : ReosRasterCellPos( other.mRow, other.mColumn )
+      , mRaster( other.mRaster )
+    {}
 
-    bool operator<( const ReosRasterCellValue<T> &other ) const
-    {
-      return value() < other.value();
-    }
+    bool operator<( const ReosRasterCellValue<T> &other ) const { return value() < other.value(); }
 
-    bool operator<=( const ReosRasterCellValue<T> &other ) const
-    {
-      return value() <= other.value();
-    }
+    bool operator<=( const ReosRasterCellValue<T> &other ) const { return value() <= other.value(); }
 
-    T value() const {return mRaster.value( mRow, mColumn );}
-    void setValue( T value ) {mRaster.setValue( mRow, mColumn, value );}
+    T value() const { return mRaster.value( mRow, mColumn ); }
+    void setValue( T value ) { mRaster.setValue( mRow, mColumn, value ); }
 
     bool isBorder() const
     {
@@ -469,13 +452,12 @@ class ReosRasterCellValue: public ReosRasterCellPos
       if ( mColumn == mRaster->getColumnCount() - 1 )
         return true;
 
-      return  false;
+      return false;
     }
 
     bool isValid() const override
     {
-
-      if ( ! mRaster.isValid() )
+      if ( !mRaster.isValid() )
         return false;
 
       if ( mRow >= mRaster.rowCount() )
@@ -552,7 +534,7 @@ class REOSCORE_EXPORT ReosRasterTestingCell
     virtual bool testCell( const ReosRasterCellPos &cell ) const;
 };
 
-class REOSCORE_EXPORT ReosRasterTestingCellInPolygon: public ReosRasterTestingCell
+class REOSCORE_EXPORT ReosRasterTestingCellInPolygon : public ReosRasterTestingCell
 {
   public:
     ReosRasterTestingCellInPolygon( ReosRasterExtent emprise, const QPolygonF &polygon );
@@ -570,18 +552,14 @@ class REOSCORE_EXPORT ReosFloat64GridBlock
 {
   public:
     ReosFloat64GridBlock( int rowCount, int colCount );
-    void setValues( const QVector<double> values );
+    void setValues( const QVector<double> &values );
 
     const QVector<double> values() const;
     const QByteArray data() const;
 
   private:
     ReosRasterMemory<double> mMemoryRaster;
-
 };
 
 
 #endif // REOSMEMORYRASTER_H
-
-
-

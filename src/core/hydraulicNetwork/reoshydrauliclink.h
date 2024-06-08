@@ -31,8 +31,8 @@ class REOSCORE_EXPORT ReosHydraulicLink : public ReosHydraulicNetworkElement
   public:
     ReosHydraulicLink( ReosHydraulicNetwork *parent = nullptr );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "link" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "link" ); }
 
     ReosHydraulicNode *firstNode() const;
     ReosHydraulicNode *secondNode() const;
@@ -49,7 +49,7 @@ class REOSCORE_EXPORT ReosHydraulicLink : public ReosHydraulicNetworkElement
     void attachOnSide1( ReosHydraulicNode *node );
     void attachOnSide2( ReosHydraulicNode *node );
 
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext & ) const override;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const override;
 
     QPointer<ReosHydraulicNode> mNode_1;
     QPointer<ReosHydraulicNode> mNode_2;

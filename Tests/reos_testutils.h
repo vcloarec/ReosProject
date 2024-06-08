@@ -39,7 +39,7 @@ bool equal( const QPolygonF &poly1, const QPolygonF &poly2 );
 
 void simulateEventLoop( int durationMs );
 
-class ModuleProcessControler: public QObject
+class ModuleProcessControler : public QObject
 {
   public:
     explicit ModuleProcessControler( ReosProcess *process );

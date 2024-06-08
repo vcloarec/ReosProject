@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 
@@ -20,7 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reosmap.h"
 #include "reosgisengine.h"
 
-class ReosHubEauTest: public QObject
+class ReosHubEauTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -29,24 +29,22 @@ class ReosHubEauTest: public QObject
     void stations();
 
   private:
-
 };
 
 
 void ReosHubEauTest::connection()
 {
-//  ReosHubEauServer server;
-//  QVERIFY( server.testConnection() );
+  //  ReosHubEauServer server;
+  //  QVERIFY( server.testConnection() );
 }
 
 void ReosHubEauTest::stations()
 {
-//  ReosGisEngine gisEngine;
-//  ReosMap map( &gisEngine, nullptr );
-//  ReosHubEauServer server( &map );
-//  ReosMapExtent extent( -5.283, 47.036, -1.7500, 49.0311 );
-//  map.setExtent( extent );
-
+  //  ReosGisEngine gisEngine;
+  //  ReosMap map( &gisEngine, nullptr );
+  //  ReosHubEauServer server( &map );
+  //  ReosMapExtent extent( -5.283, 47.036, -1.7500, 49.0311 );
+  //  map.setExtent( extent );
 }
 
 QTEST_MAIN( ReosHubEauTest )

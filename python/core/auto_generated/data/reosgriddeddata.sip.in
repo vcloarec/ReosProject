@@ -1,0 +1,215 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosgriddeddata.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosGriddedData : ReosRenderedObject
+{
+%Docstring(signature="appended")
+Class that represents gridded data.
+%End
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosGriddedData( QObject *parent = 0 );
+%Docstring
+Constructor.
+%End
+
+    ReosGriddedData( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
+%Docstring
+Constructor with ``datasource`` or ``providerkey``.
+%End
+
+
+    static QString staticType();
+
+
+    bool isValid() const;
+%Docstring
+Returns whether the gridded rainfallis valid
+%End
+
+    int gridCount() const;
+%Docstring
+Returns the count of grids (e.g. time steps)
+%End
+
+    const QVector<double> values( int index ) const;
+%Docstring
+Returns all the values related to ``index``, order of values can be deduced from the sign of sizes dx,dy)
+of the cell contained in the raster extent (see :py:func:`~ReosGriddedData.extent`
+%End
+
+    const QVector<double> valuesAtPositions( int index, const QVector<QPointF> &positions, const QString &destinationCrs ) const;
+%Docstring
+Returns value at position provided by \points for index ``index``
+%End
+
+    const QVector<double> valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
+
+    const QDateTime startTime( int index ) const;
+%Docstring
+Returns the start time related to the grid with ``index``
+%End
+
+    const QDateTime endTime( int index ) const;
+%Docstring
+Returns the end time related to the grif with ``index``
+%End
+
+
+    ReosDuration minimumTimeStep() const;
+%Docstring
+Returns the minimum time step of the gridded series
+%End
+
+    double timeStepRatio( int index, const ReosDuration &timeStep ) const;
+%Docstring
+Returns the time stap ratio for the ``index`` and the time step ``timeStep``.
+This is the ratio to obtain the adjusted value when using a time step different from the native time step of the data.
+This ratio will depends on the ration between the time step provided and the native time step for the ``index``, but also on the type of data.
+For accumulative data, the ration is typically directly the time step ratio, for instantaneous value, the ratio is 1.
+It is the responsbility if the data provider to define this ratio.
+%End
+
+    bool supportExtractSubGrid() const;
+%Docstring
+Returns whether the data support extraction of subgrid
+%End
+
+
+
+    int dataIndex( const QDateTime &time ) const;
+%Docstring
+Returns the index corresponding to ``time``
+%End
+
+    ReosRasterExtent rasterExtent() const;
+%Docstring
+Returns the raster extent of all the grids
+%End
+
+
+
+    void exportToTiff( int index, const QString &fileName ) const;
+%Docstring
+Exports to a TIFF file with path ``fileName`` the grid at position ``index``
+%End
+
+  public slots:
+    virtual void updateData() const;
+
+
+  signals:
+    void loadingFinished();
+
+  protected:
+    void makeConnection();
+
+
+
+};
+
+
+class ReosDataGriddedOnWatershed /Abstract/
+{
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed,
+                                ReosGriddedData *griddeddata,
+                                const ReosDuration &outputTimeStep,
+                                const QString areaDistributionFilePath = QString(),
+                                int areaCount = 0 );
+
+    double calculateValueAt( int index ) const;
+
+    virtual void preCalculate() const = 0;
+
+    QVector<double> valuesForArea( int areaIndex ) const;
+
+  protected:
+
+    virtual void onCalculationFinished() = 0;
+    virtual void onDataChanged() const = 0;
+    virtual QDateTime timeAtIndex( int i ) const = 0;
+    virtual void setDataActualized() const = 0;
+
+    void launchCalculation();
+
+    void initValuesPerArea( int count );
+
+};
+
+
+
+
+class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, ReosDataGriddedOnWatershed
+{
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = 0 );
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed,
+                                          ReosGriddedData *griddedData,
+                                          const ReosDuration &outputTimeStep,
+                                          const QString areaDistributionFilePath = QString(),
+                                          int areaCount = 0,
+                                          QObject *parent = 0 );
+    ~ReosSeriesFromGriddedDataOnWatershed();
+
+    static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) /Factory/;
+%Docstring
+Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Caller takes ownership.
+%End
+
+    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep(
+      ReosWatershed *watershed,
+      ReosGriddedData *griddedData,
+      const ReosDuration &outputTimeStep,
+      const QString areaDistributionFilePath = QString(),
+      int areaCount = 0 ) /Factory/;
+%Docstring
+Returns a new created instance from ``watershed`` and ``gridded`` rainfall with forcing the output time step ``outputTimeStep``. Caller takes ownership.
+%End
+
+    virtual double valueAt( int i ) const;
+
+
+    virtual void preCalculate() const;
+
+%Docstring
+Calculates all values directly.
+%End
+
+  signals:
+    void calculationFinished();
+
+
+};
+
+
+
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosgriddeddata.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

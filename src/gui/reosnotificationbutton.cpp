@@ -19,7 +19,8 @@
 #include <QWidgetAction>
 #include <QMenu>
 
-ReosNotificationButton::ReosNotificationButton( QWidget *parent ): QToolButton( parent )
+ReosNotificationButton::ReosNotificationButton( QWidget *parent )
+  : QToolButton( parent )
 {
   setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
   QMenu *menu = new QMenu( this );

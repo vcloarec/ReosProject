@@ -2,7 +2,7 @@
 
 $starter_path = Get-Location
 
-md $env:CYGWIN_ROOT
+md $env:CYGWIN_ROOT -Force | Out-Null
 
 # Download and install flex and bison
 if (-Not (Test-Path "$env:CYGWIN_ROOT\setup-x86_64.exe" -PathType leaf )) {

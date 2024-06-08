@@ -15,7 +15,9 @@ email                : vcloarec at gmail dot com
 
 #include "reosdigitalelevationmodel.h"
 
-ReosElevationOnPolylineProcess::ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem ): ReosProcess(), mDem( dem )
+ReosElevationOnPolylineProcess::ReosElevationOnPolylineProcess( ReosDigitalElevationModel *dem )
+  : ReosProcess()
+  , mDem( dem )
 {}
 
 void ReosElevationOnPolylineProcess::setEntryPolyline( const QPolygonF &polyline, const QString &destinationCRS )
@@ -43,6 +45,4 @@ void ReosElevationOnPolylineProcess::start()
 }
 
 ReosDigitalElevationModel::~ReosDigitalElevationModel()
-{
-
-}
+{}

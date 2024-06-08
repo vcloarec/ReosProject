@@ -77,6 +77,8 @@ Returns the name of the layer with ``layerId``
 Returns whether the layer exists and is valid
 %End
 
+    ReosMapExtent layerExtent( const QString &layerId ) const;
+
     int layersCount() const;
 %Docstring
 Returns the count of layers in the project
@@ -130,6 +132,8 @@ Sets the coordinate reference system of the GIS project
 %Docstring
 Returns wheter the crs is recognized and valid
 %End
+
+    static QString projStringToWkt( const QString &projString );
 
     void loadQGISProject( const QString &fileName );
 %Docstring
@@ -189,6 +193,11 @@ Clears the GIS project
 
     bool canBeRasterDem( const QString &uri ) const;
 
+
+    static QList<QPolygonF> openPolygonVectorLayerSource( const QString &uri, QString &crs /Out/, const QString &provider = QString(), const ReosMapExtent &mapExtent = ReosMapExtent() );
+%Docstring
+Opens a polygon vector layer from ``uri`` and returns a  list of its polygons and the related ``crs``.
+%End
 
 
 

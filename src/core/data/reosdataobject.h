@@ -23,14 +23,14 @@
 class ReosEncodedElement;
 
 //! Base class uses to be an interface for data
-class REOSCORE_EXPORT ReosDataObject: public QObject
+class REOSCORE_EXPORT ReosDataObject : public QObject
 {
     Q_OBJECT
   public:
     ReosDataObject( QObject *parent = nullptr );
 
     //! Returns the type
-    virtual QString type() const {return staticType();}
+    virtual QString type() const { return staticType(); }
 
     //! Returns the name of the data object
     QString name() const SIP_SKIP;
@@ -44,12 +44,12 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     void decode( const ReosEncodedElement &element ) SIP_SKIP;
 
     //! Static method that return the type of this class
-    static QString staticType() SIP_SKIP {return QStringLiteral( "data" );}
+    static QString staticType() SIP_SKIP { return QStringLiteral( "data" ); }
 
   public slots:
     //! Sets the name of the data object
     void setName( const QString &name ) SIP_SKIP;
-    virtual void updateData() const  SIP_SKIP {}; //TODO to set pure virtual
+    virtual void updateData() const SIP_SKIP {}; //TODO to set pure virtual
 
   signals:
     void dataChanged() const;
@@ -72,7 +72,7 @@ class REOSCORE_EXPORT ReosDataObject: public QObject
     mutable bool mIsObsolete = true;
     mutable bool mIsUpdated = false;
 
-//*** for tests
+    //*** for tests
     friend class ReosRainfallTest;
     friend class ReosWatersehdTest;
 };

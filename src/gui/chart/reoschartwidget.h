@@ -43,7 +43,6 @@ class ReosChartWidget : public QWidget
 
   private:
     Ui::ReosChartWidget *ui;
-
 };
 
 #endif // REOSCHARTWIDGET_H

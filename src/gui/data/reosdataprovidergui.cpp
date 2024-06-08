@@ -95,7 +95,7 @@ ReosDataProviderUriWidget *ReosDataProviderGuiRegistery::createUriWidget( const 
   return nullptr;
 }
 
-bool ReosDataProviderGuiRegistery::hasCapability( const  QString &providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const
+bool ReosDataProviderGuiRegistery::hasCapability( const QString &providerKey, ReosDataProviderGuiFactory::GuiCapability capability ) const
 {
   ReosDataProviderGuiFactory *fact = guiFactory( providerKey );
   if ( !fact )
@@ -165,15 +165,15 @@ void ReosDataProviderGuiRegistery::loadDynamicProvider()
   providerDir.setSorting( QDir::Name | QDir::IgnoreCase );
   providerDir.setFilter( QDir::Files | QDir::NoSymLinks );
 
-#if defined(Q_OS_WIN) || defined(__CYGWIN__)
+#if defined( Q_OS_WIN ) || defined( __CYGWIN__ )
   providerDir.setNameFilters( QStringList( "*.dll" ) );
-#elif defined(ANDROID)
+#elif defined( ANDROID )
   providerDir.setNameFilters( QStringList( "*provider.so" ) );
 #else
   providerDir.setNameFilters( QStringList( QStringLiteral( "*.so" ) ) );
 #endif
 
-  typedef ReosDataProviderGuiFactory *factory_function( );
+  typedef ReosDataProviderGuiFactory *factory_function();
 
   const QFileInfoList files = providerDir.entryInfoList();
   for ( const QFileInfo &file : files )
@@ -195,15 +195,25 @@ void ReosDataProviderGuiRegistery::loadDynamicProvider()
   }
 }
 
-ReosDataObject *ReosDataProviderSelectorWidget::createData( QObject * ) const {return nullptr;}
+ReosDataObject *ReosDataProviderSelectorWidget::createData( QObject * ) const
+{
+  return nullptr;
+}
 
-ReosDataObject *ReosDataProviderSelectorWidget::selectedData() const {return nullptr;}
+ReosDataObject *ReosDataProviderSelectorWidget::selectedData() const
+{
+  return nullptr;
+}
 
 QVariantMap ReosDataProviderSelectorWidget::selectedMetadata() const
 {
   return QVariantMap();
 }
 
-ReosDataProviderSettingsWidget::ReosDataProviderSettingsWidget( QWidget *parent ): QWidget( parent ) {}
+ReosDataProviderSettingsWidget::ReosDataProviderSettingsWidget( QWidget *parent )
+  : QWidget( parent )
+{}
 
-ReosDataProviderUriWidget::ReosDataProviderUriWidget( QWidget *parent ): QWidget( parent ) {}
+ReosDataProviderUriWidget::ReosDataProviderUriWidget( QWidget *parent )
+  : QWidget( parent )
+{}

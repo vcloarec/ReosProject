@@ -21,10 +21,13 @@
 #include "reostimeseries.h"
 #include "reosprocess.h"
 #include "reosmemoryraster.h"
+#include "reosgriddeddata.h"
 
 class ReosWatershed;
 class ReosGriddedRainfall;
+class ReosGriddedData;
 class ReosGriddedRainfallProvider;
+class ReosGriddedDataProvider;
 
 class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
 {
@@ -32,7 +35,7 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
   public:
     ReosSeriesRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return staticType();}
+    QString type() const override { return staticType(); }
 
 #ifndef SIP_RUN
 
@@ -47,11 +50,9 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
 #endif // No SIP_RUN
   private:
     void setupData();
-
 };
 
-
-class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeriesRainfall
+class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeriesRainfall, public ReosDataGriddedOnWatershed
 {
     Q_OBJECT
   public:
@@ -63,48 +64,24 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
 
     double valueAt( int i ) const override;
 
+    void preCalculate() const override;
+
   signals:
     void calculationFinished();
 
 #ifndef SIP_RUN
-
   protected:
     void updateData() const override;
-
+    void onCalculationFinished() override;
+    void onDataChanged() const override;
+    QDateTime timeAtIndex( int i ) const override;
+    void setDataActualized() const override;
 #endif // No SIP_RUN
 
   private slots:
     void onWatershedGeometryChanged();
+
   private:
-
-    class AverageCalculation : public ReosProcess
-    {
-      public:
-        std::unique_ptr<ReosGriddedRainfallProvider> griddedRainfallProvider;
-        QPolygonF watershedPolygon;
-        ReosDuration timeStep;
-        bool usePrecision = false;
-        void start() override;
-
-        ReosRasterMemory<double> rasterizedWatershed;
-        ReosRasterExtent rasterizedExtent;
-        int xOri = -1;
-        int yOri = -1;
-    };
-
-    mutable AverageCalculation *mCurrentCalculation = nullptr;
-
-    QPointer<ReosWatershed> mWatershed;
-    QPointer<ReosGriddedRainfall> mGriddedRainfall;
-
-    ReosRasterMemory<double> mRasterizedWatershed;
-    ReosRasterExtent mRasterizedExtent;
-    int mXOri = -1;
-    int mYOri = -1;
-
-    void launchCalculation();
-    AverageCalculation *getCalculationProcess() const;
-
 };
 
 

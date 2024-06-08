@@ -15,10 +15,11 @@ email                : vcloarec at gmail dot com
 
 #include "reosprocess.h"
 #include <QMutexLocker>
-#include<QFutureWatcher>
+#include <QFutureWatcher>
 #include <QtConcurrent>
 
-ReosProcess::~ReosProcess() {}
+ReosProcess::~ReosProcess()
+{}
 
 int ReosProcess::maxProgression() const
 {
@@ -71,7 +72,7 @@ void ReosProcess::startOnOtherThread()
   QFutureWatcher<void> *watcher = new QFutureWatcher<void>( this );
   connect( watcher, &QFutureWatcher<void>::finished, this, &ReosProcess::finish );
   connect( watcher, &QFutureWatcher<void>::finished, watcher, &QObject::deleteLater );
-  QFuture<void> future = QtConcurrent::run( this, &ReosProcess::start );//https://doc.qt.io/qt-5/qtconcurrentrun.html#using-member-functions
+  QFuture<void> future = QtConcurrent::run( this, &ReosProcess::start ); //https://doc.qt.io/qt-5/qtconcurrentrun.html#using-member-functions
   watcher->setFuture( future );
 }
 

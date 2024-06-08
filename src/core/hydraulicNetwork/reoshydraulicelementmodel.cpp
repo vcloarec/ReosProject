@@ -75,8 +75,7 @@ void ReosHydraulicElementModel::updateElements()
   beginResetModel();
 
   mElements = mNetwork->hydraulicNetworkElements();
-  std::sort( mElements.begin(), mElements.end(), []( ReosHydraulicNetworkElement * elem1, ReosHydraulicNetworkElement * elem2 )->bool
-  {
+  std::sort( mElements.begin(), mElements.end(), []( ReosHydraulicNetworkElement *elem1, ReosHydraulicNetworkElement *elem2 ) -> bool {
     return elem1->elementNameParameter()->value() < elem2->elementNameParameter()->value();
   } );
 

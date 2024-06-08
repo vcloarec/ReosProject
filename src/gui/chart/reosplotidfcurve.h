@@ -21,7 +21,7 @@
 
 class ReosIdfPlot_p;
 
-class ReosPlotIdfCurve: public ReosPlotItem
+class ReosPlotIdfCurve : public ReosPlotItem
 {
     Q_OBJECT
   public:
@@ -32,7 +32,6 @@ class ReosPlotIdfCurve: public ReosPlotItem
 
   private:
     ReosIdfPlot_p *item();
-
 };
 
 #endif // REOSPLOTIDFCURVE_H

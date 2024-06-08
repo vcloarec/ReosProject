@@ -21,7 +21,7 @@
 
 
 //! Widget that can be uses to display/edits paramters of a ReosTimeSerieConstantInterval
-class ReosTimeSeriesConstantIntervalWidget: public ReosFormWidget
+class ReosTimeSeriesConstantIntervalWidget : public ReosFormWidget
 {
     Q_OBJECT
   public:
@@ -48,7 +48,7 @@ class ReosFormWidgetTimeSerieConstantIntervalFactory : public ReosFormWidgetData
 };
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
-class ReosChicagoRainfallWidget: public ReosTimeSeriesConstantIntervalWidget
+class ReosChicagoRainfallWidget : public ReosTimeSeriesConstantIntervalWidget
 {
     Q_OBJECT
   public:
@@ -66,7 +66,7 @@ class ReosFormWidgetChicagoRainfalFactory : public ReosFormWidgetDataFactory
 };
 
 //! Widget that can be uses to display/edits paramters of a alternating block rainfall
-class ReosAlternatingBlockRainfallWidget: public ReosTimeSeriesConstantIntervalWidget
+class ReosAlternatingBlockRainfallWidget : public ReosTimeSeriesConstantIntervalWidget
 {
     Q_OBJECT
   public:
@@ -84,7 +84,7 @@ class ReosFormWidgetAlternatingBlockRainfalFactory : public ReosFormWidgetDataFa
 };
 
 //! Widget that can be uses to display/edits paramters of a Chicago rainfall
-class ReosDoubleTriangleRainfallWidget: public ReosTimeSeriesConstantIntervalWidget
+class ReosDoubleTriangleRainfallWidget : public ReosTimeSeriesConstantIntervalWidget
 {
     Q_OBJECT
   public:
@@ -108,7 +108,6 @@ class ReosFormWidgetGriddedRainfalFactory : public ReosFormWidgetDataFactory
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context ) override;
     QString datatype() const override;
 };
-
 
 
 #endif // REOSRAINFALLDATAFORM_H

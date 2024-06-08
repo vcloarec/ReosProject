@@ -21,10 +21,12 @@ ReosTime::ReosTime()
   mDateTime = QDateTime( QDate::currentDate(), QTime( 0, 0, 0, 0 ) );
 }
 
-ReosTime::ReosTime( QDate date, QTime time ): mDateTime( date, time )
+ReosTime::ReosTime( QDate date, QTime time )
+  : mDateTime( date, time )
 {}
 
-ReosTime::ReosTime( QDateTime dateTime ): mDateTime( dateTime )
+ReosTime::ReosTime( QDateTime dateTime )
+  : mDateTime( dateTime )
 {}
 
 ReosTime::ReosTime( const ReosEncodedElement &encoded )
@@ -77,7 +79,7 @@ ReosTime ReosTime::operator-( const ReosDuration &duree ) const
   return ReosTime( mDateTime.addSecs( 0 - qint64( duree.getValueSeconde() ) ) );
 }
 
-QString ReosTime::toString(const QString &format) const
+QString ReosTime::toString( const QString &format ) const
 {
   QString retour = mDateTime.toString( format );
   return retour;
@@ -95,4 +97,3 @@ QByteArray ReosTime::encode() const
 
   return encoded.encode();
 }
-

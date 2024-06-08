@@ -12,7 +12,7 @@ Write-Host "=== OSGEO:"
 $OSGEO_DIR
 ls $OSGEO_DIR
 ls $OSGEO_DIR\apps
-ls $OSGEO_DIR\apps\Python39
+ls $OSGEO_DIR\apps\Python312
 
 Write-Host "=== MDAL"
 $env:MDAL_ROOT
@@ -54,18 +54,71 @@ if (Test-Path -Path $REOS_BUILD)
 
 cd $REOS_BUILD
 
+$cpuCount = [Environment]::ProcessorCount
+Write-Host "=== Building REOS with $cpuCount parallel jobs"
+
+# Propagate to child cmake processes spawned via EXECUTE_PROCESS
+# (e.g. Tests/core/CMakeLists.txt fetches GoogleTest via a nested cmake call
+# that does not inherit our -D flags).
+$env:CMAKE_POLICY_VERSION_MINIMUM = "3.5"
+
 Write-Host "===================================== Current PATH:"
 $env:Path
 
+function Get-FirstExistingPath( [string[]]$candidates )
+{
+    foreach ( $candidate in $candidates )
+    {
+        if ( Test-Path $candidate )
+        {
+            return $candidate
+        }
+    }
+
+    return $null
+}
+
+$ECCODES_INCLUDE = Get-FirstExistingPath @(
+    "$env:ECCODES_ROOT/include",
+    "$env:ECCODES_ROOT\include"
+)
+$ECCODES_LIB = Get-FirstExistingPath @(
+    "$env:ECCODES_ROOT/lib/eccodes.lib",
+    "$env:ECCODES_ROOT/bin/eccodes.lib",
+    "$env:ECCODES_ROOT/eccodes.lib"
+)
+
+$MDAL_INCLUDE_DIR = Get-FirstExistingPath @(
+    "$env:MDAL_ROOT/include",
+    "$env:MDAL_ROOT\include"
+)
+
+$MDAL_LIB = Get-FirstExistingPath @(
+    "$env:MDAL_ROOT/lib/mdal.lib",
+    "$env:MDAL_ROOT/bin/mdal.lib",
+    "$env:MDAL_ROOT/mdal.lib"
+)
+if ( -not $MDAL_LIB )
+{
+    $mdalLibSearch = Get-ChildItem -Path $env:MDAL_ROOT -Filter mdal.lib -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ( $mdalLibSearch )
+    {
+        $MDAL_LIB = $mdalLibSearch.FullName
+    }
+}
 
 cmake   -S $env:REOS_SOURCE `
 		-B . `
-        -D BUILD_GMOCK=ON `
-        -D BUILD_TESTING=ON `
+		"-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
+		"-DCMAKE_C_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+		"-DCMAKE_CXX_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+		-D BUILD_GMOCK=ON `
+		-D BUILD_TESTING=ON `
         -D CMAKE_INSTALL_PREFIX=$REOS_INSTALL `
         -D ENABLE_TESTS=TRUE `
         -D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
         -D GDAL_LIBRARY=$env:GDAL_ROOT/lib/gdal_i.lib `
+        -D HDF5_ROOT=$OSGEO_DIR/apps/gdal-dev `
         -D QGIS_INCLUDE_DIR=$QGIS_INSTALL/include `
         -D QGIS_3D_LIB=$QGIS_INSTALL/lib/qgis_3d.lib `
         -D QGIS_ANALYSIS_LIB=$QGIS_INSTALL/lib/qgis_analysis.lib `
@@ -79,8 +132,10 @@ cmake   -S $env:REOS_SOURCE `
 		-D PYTHON_DIR=$OSGEO_DIR/apps/Python39 `
         -D GTest_DIR=GTest_DIR-NOTFOUND `
         -D INSTALL_GTEST=ON `
-        -D MDAL_INCLUDE_DIR=$env:MDAL_ROOT/include `
-        -D MDAL_LIB=$env:MDAL_ROOT/lib/mdal.lib `
+        -D MDAL_INCLUDE_DIR=$MDAL_INCLUDE_DIR `
+        -D MDAL_LIB=$MDAL_LIB `
+        -D ECCODES_INCLUDE_DIR=$ECCODES_INCLUDE `
+        -D ECCODES_LIB=$ECCODES_LIB `
         -D Qt5_DIR=$OSGEO_DIR/apps/Qt5/lib/cmake/Qt5 `
         -D QT_QMAKE_EXECUTABLE=$OSGEO_DIR/apps/Qt5/bin/qmake `
         -D QCA_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/QtCrypto `
@@ -101,7 +156,12 @@ cmake   -S $env:REOS_SOURCE `
         -D TELEMAC_CONFIG_NAME=win `
         -D TELEMAC_PYTHON_PATH=$REOS_INSTALL\apps\python
 
-cmake --build .  --config $env:BUILD_TYPE --parallel
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to configure Reos"
+    exit $LASTEXITCODE
+}
+
+cmake --build . --config $env:BUILD_TYPE --parallel $cpuCount
 
 #cmake -G Ninja -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
 

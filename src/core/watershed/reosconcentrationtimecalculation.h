@@ -40,11 +40,11 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormula
     //! Paramaters for the concentration time calculation
     struct Parameters
     {
-      double slope = 0; //!< in meters/meters
-      ReosArea area = ReosArea();
-      double drop = 0; //!< in meters
-      double length = 0; //!< in meters
-      double relativeAverageElevation = 0; //!< in meters
+        double slope = 0; //!< in meters/meters
+        ReosArea area = ReosArea();
+        double drop = 0;                     //!< in meters
+        double length = 0;                   //!< in meters
+        double relativeAverageElevation = 0; //!< in meters
     };
 
     //! Returns the name if the formula
@@ -103,67 +103,67 @@ class REOSCORE_EXPORT ReosConcentrationTimeFormulasRegistery
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaKirpich : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Kirpich" );}
+    QString name() const override { return QStringLiteral( "Kirpich" ); }
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeKirpich.svg" ) );}
+    virtual QPixmap formulaImage() const override { return QPixmap( QStringLiteral( ":/formulas/concentrationTimeKirpich.svg" ) ); }
 };
 
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaPassini : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Passini" );}
+    QString name() const override { return QStringLiteral( "Passini" ); }
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimePassini.svg" ) );}
+    virtual QPixmap formulaImage() const override { return QPixmap( QStringLiteral( ":/formulas/concentrationTimePassini.svg" ) ); }
 };
 
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaVentura : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Ventura" );}
+    QString name() const override { return QStringLiteral( "Ventura" ); }
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters & ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVentura.svg" ) );}
+    virtual QPixmap formulaImage() const override { return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVentura.svg" ) ); }
 };
 
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaVenTeChow : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Ven te Chow" );}
+    QString name() const override { return QStringLiteral( "Ven te Chow" ); }
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters & ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVenTeChow.svg" ) );}
+    virtual QPixmap formulaImage() const override { return QPixmap( QStringLiteral( ":/formulas/concentrationTimeVenTeChow.svg" ) ); }
 };
 
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaJohnstone : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Johnstone" );}
+    QString name() const override { return QStringLiteral( "Johnstone" ); }
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeJohnstone.svg" ) );}
+    virtual QPixmap formulaImage() const override { return QPixmap( QStringLiteral( ":/formulas/concentrationTimeJohnstone.svg" ) ); }
 };
 
 class REOSCORE_EXPORT ReosConcentrationTimeFormulaGiandotti : public ReosConcentrationTimeFormula
 {
   public:
-    QString name() const override {return QStringLiteral( "Giandotti" );}
+    QString name() const override { return QStringLiteral( "Giandotti" ); }
     ReosDuration concentrationTime( const Parameters &parameters ) const override;
     bool isInValidityDomain( const Parameters &parameters ) const override;
     bool canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const override;
 
-    virtual QPixmap formulaImage() const override {return QPixmap( QStringLiteral( ":/formulas/concentrationTimeGiandotti.svg" ) );}
+    virtual QPixmap formulaImage() const override { return QPixmap( QStringLiteral( ":/formulas/concentrationTimeGiandotti.svg" ) ); }
 };
 
 //********************************************************************
@@ -176,9 +176,9 @@ class REOSCORE_EXPORT ReosConcentrationTimeCalculation
   public:
     enum UsedMethod
     {
-      Maximum, //!< use the maximum value among the active formulas
-      Minimum, //!< use the minimum value among the active formulas
-      Average, //!< use the maximum the average value od active formulas
+      Maximum,           //!< use the maximum value among the active formulas
+      Minimum,           //!< use the minimum value among the active formulas
+      Average,           //!< use the maximum the average value od active formulas
       UserChoosenFormula //!< use a specific formula (see userChoosenMethod())
     };
 

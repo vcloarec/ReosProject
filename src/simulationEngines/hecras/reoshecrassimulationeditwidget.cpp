@@ -64,13 +64,18 @@ void ReosHecRasSimulationEditWidget::onPlanChanged()
   if ( !compatibility.isCompatible )
   {
     ReosGuiContext context( this );
-    ReosNetworkCompatibilityDialog *diag =
-      new ReosNetworkCompatibilityDialog( tr( "The selected HEC-RAS plan is incompatible with the state"
-                                          " of the hydraulic network for the following reason(s):" ),
-                                          compatibility,
-                                          tr( "If you continue, some elements of the network could be altered or removed definitively.\n"
-                                              "Do you want to continue ?" ),
-                                          context );
+    ReosNetworkCompatibilityDialog *diag = new ReosNetworkCompatibilityDialog(
+      tr(
+        "The selected HEC-RAS plan is incompatible with the state"
+        " of the hydraulic network for the following reason(s):"
+      ),
+      compatibility,
+      tr(
+        "If you continue, some elements of the network could be altered or removed definitively.\n"
+        "Do you want to continue ?"
+      ),
+      context
+    );
     if ( !diag->exec() )
     {
       ui->mPlansComboBox->blockSignals( true );
@@ -104,7 +109,10 @@ ReosImportHydraulicStructureWidget *ReosHecRasSimulationEditWidgetFactory::simul
   return new ReosHecRasSimulationImportWidget( parent );
 }
 
-QString ReosHecRasSimulationEditWidgetFactory::key() const { return ReosHecRasSimulation::staticKey(); }
+QString ReosHecRasSimulationEditWidgetFactory::key() const
+{
+  return ReosHecRasSimulation::staticKey();
+}
 
 QWidget *ReosHecRasSimulationEditWidgetFactory::simulationSettingsWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext ) const
 {
@@ -138,8 +146,7 @@ ReosHecrasConfigurationEngineDialog::ReosHecrasConfigurationEngineDialog( QWidge
   {
     ui->mComboVersion->addItems( versions );
     ReosSettings settings;
-    int currentIndex = ui->mComboVersion->findText(
-                         settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString() );
+    int currentIndex = ui->mComboVersion->findText( settings.value( QStringLiteral( "/engine/hecras/version" ) ).toString() );
 
     if ( currentIndex == -1 )
       ui->mComboVersion->setCurrentIndex( versions.count() - 1 );
@@ -159,7 +166,8 @@ void ReosHecrasConfigurationEngineDialog::onAccepted()
   settings.setValue( QStringLiteral( "/engine/hecras/version" ), ui->mComboVersion->currentText() );
 }
 
-ReosHecRasIntervalComputationCombo::ReosHecRasIntervalComputationCombo( QWidget *parent ) : QComboBox( parent )
+ReosHecRasIntervalComputationCombo::ReosHecRasIntervalComputationCombo( QWidget *parent )
+  : QComboBox( parent )
 {
   const QList<ReosDuration> durations = ReosHecRasPlan::computationIntervals().keys();
   for ( int i = 0; i < durations.count(); ++i )
@@ -169,7 +177,7 @@ ReosHecRasIntervalComputationCombo::ReosHecRasIntervalComputationCombo( QWidget 
 void ReosHecRasIntervalComputationCombo::setConfig( Configuration config )
 {
   clear();
-  int start = 0 ;
+  int start = 0;
   int end = 0;
   const QList<ReosDuration> durations = ReosHecRasPlan::computationIntervals().keys();
   switch ( config )

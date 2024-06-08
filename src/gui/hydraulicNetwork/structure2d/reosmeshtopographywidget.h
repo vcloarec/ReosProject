@@ -30,15 +30,12 @@ namespace Ui
   class ReosMeshTopographyWidget;
 }
 
-class ReosMeshTopographyWidget: public ReosStackedPageWidget
+class ReosMeshTopographyWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
 
   public:
-    ReosMeshTopographyWidget( ReosMesh *mesh,
-                              ReosTopographyCollection *topographyCollection,
-                              const QString &topographyDatasetId,
-                              const ReosGuiContext &guiContext );
+    ReosMeshTopographyWidget( ReosMesh *mesh, ReosTopographyCollection *topographyCollection, const QString &topographyDatasetId, const ReosGuiContext &guiContext );
 
   public slots:
     void applyDem();
@@ -56,7 +53,6 @@ class ReosMeshTopographyWidget: public ReosStackedPageWidget
     ReosGuiContext mGuiContext;
     ReosTopographyCollection *mTopographyCollection = nullptr;
     ReosTopographyCollectionListModel *mCollectionModel = nullptr;
-
 };
 
 
@@ -66,7 +62,6 @@ class ReosMeshTopographyStackedWidget : public ReosActionStackedWidget
 
   public:
     explicit ReosMeshTopographyStackedWidget( ReosMesh *mesh, ReosTopographyCollection *topographyCollection, const QString &topographyDatasetId, const ReosGuiContext &guiContext );
-
 };
 
 #endif // REOSMESHTOPOGRAPHYWIDGET_H

@@ -16,9 +16,7 @@
 #include "reoscalculationcontext.h"
 
 ReosCalculationContext::ReosCalculationContext()
-{
-
-}
+{}
 
 ReosMeteorologicModel *ReosCalculationContext::meteorologicModel() const
 {

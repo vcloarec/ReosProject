@@ -34,7 +34,7 @@ class ReosDssGriddedRainfallSelector : public ReosGriddedRainDataProviderSelecto
     explicit ReosDssGriddedRainfallSelector( QWidget *parent = nullptr );
     ~ReosDssGriddedRainfallSelector();
 
-    ReosGriddedRainfall *createData( QObject *parent = nullptr )  const override;
+    ReosGriddedRainfall *createData( QObject *parent = nullptr ) const override;
 
     virtual QVariantMap selectedMetadata() const override;
 

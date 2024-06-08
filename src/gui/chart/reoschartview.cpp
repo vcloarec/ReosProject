@@ -17,7 +17,8 @@
 #include <memory>
 #include <QLineSeries>
 
-ReosChartView::ReosChartView( QWidget *parent ): QChartView( new QChart, parent )
+ReosChartView::ReosChartView( QWidget *parent )
+  : QChartView( new QChart, parent )
 {
   setCursor( Qt::CrossCursor );
 
@@ -32,7 +33,6 @@ void ReosChartView::setUniqueXYSeries( const QPolygonF &polyline )
   profileSerie->append( polyline.toList() );
   chart()->addSeries( profileSerie.release() );
   chart()->createDefaultAxes();
-
 }
 
 void ReosChartView::mouseMoveEvent( QMouseEvent *event )

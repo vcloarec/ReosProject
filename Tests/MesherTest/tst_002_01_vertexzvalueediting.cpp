@@ -8,14 +8,11 @@
 #include "../../Mesher/ReosMesh/reosmeshgenerator.h"
 
 
-
 using namespace testing;
 
-class VertexZSpecifierTesting: public Test
+class VertexZSpecifierTesting : public Test
 {
   public:
-
-
     VertexBasic vert1 = VertexBasic( 0, 0 );
     VertexBasic vert2 = VertexBasic( 5, 0 );
     VertexBasic vert3 = VertexBasic( 0, 5 );
@@ -66,15 +63,12 @@ class VertexZSpecifierTesting: public Test
 
 
       ASSERT_THAT( abs( vert1.z() - 11 ), Lt( std::numeric_limits<double>::min() ) );
-
     }
-
 };
 
 
 TEST_F( VertexZSpecifierTesting, verticesDistance )
 {
-
   auto vertA = VertexBasic( 0, 0 );
   auto vertB = VertexBasic( 3, 4 );
 
@@ -83,7 +77,6 @@ TEST_F( VertexZSpecifierTesting, verticesDistance )
 
 TEST_F( VertexZSpecifierTesting, createSimpleSpecifierDefault )
 {
-
   vert1.setZSpecifier( simpleZSpecifierFactory );
 
   ASSERT_THAT( vert1.z(), Eq( 5 ) );
@@ -91,8 +84,6 @@ TEST_F( VertexZSpecifierTesting, createSimpleSpecifierDefault )
 
 TEST_F( VertexZSpecifierTesting, createSimpleSpecifierWithValue )
 {
-
-
   simpleZSpecifierFactory.setZValue( 5 );
   vert1.setZSpecifier( simpleZSpecifierFactory );
 
@@ -101,44 +92,36 @@ TEST_F( VertexZSpecifierTesting, createSimpleSpecifierWithValue )
 
 TEST_F( VertexZSpecifierTesting, createVertexSlopeSpecifier )
 {
-
   TEST_createVertexSlopeSpecifier();
-
 }
 
 TEST_F( VertexZSpecifierTesting, slopeSpecifier_changeOtherVertexZValue )
 {
-
   TEST_createVertexSlopeSpecifier();
 
   simpleZSpecifierFactory.setZValue( 10 );
   vert1.setZSpecifier( simpleZSpecifierFactory );
 
   ASSERT_THAT( abs( vert2.z() - 10.25 ), Lt( std::numeric_limits<double>::min() ) );
-
 }
 
 TEST_F( VertexZSpecifierTesting, slopeSpecifier_changeOtherVertexPosition )
 {
-
   TEST_createVertexSlopeSpecifier();
 
   vert1.setPosition( 4, 0 );
 
   ASSERT_THAT( abs( vert2.z() - 5.05 ), Lt( std::numeric_limits<double>::min() ) );
-
 }
 
 TEST_F( VertexZSpecifierTesting, createVertexGapSpecifier )
 {
-
   TEST_createVertexGapSpecifier();
 }
 
 
 TEST_F( VertexZSpecifierTesting, createVertexGapSpecifier_changeOtherVertexZValue )
 {
-
   TEST_createVertexGapSpecifier();
 
   simpleZSpecifierFactory.setZValue( 10 );
@@ -149,7 +132,6 @@ TEST_F( VertexZSpecifierTesting, createVertexGapSpecifier_changeOtherVertexZValu
 
 TEST_F( VertexZSpecifierTesting, createVertexGapSpecifier_compatibility )
 {
-
   TEST_createVertexGapSpecifier();
 
   gapZSpecifierFactory.setOtherVertex( &vert2 );
@@ -161,14 +143,12 @@ TEST_F( VertexZSpecifierTesting, createVertexGapSpecifier_compatibility )
 
 TEST_F( VertexZSpecifierTesting, createInterpolatorSpecifier )
 {
-
   TEST_createVertexInterpolationSpecifier();
 }
 
 
 TEST_F( VertexZSpecifierTesting, selfInterpolateVertex )
 {
-
   simpleZSpecifierFactory.setZValue( 18 );
   vert2.setZSpecifier( simpleZSpecifierFactory );
 
@@ -180,7 +160,6 @@ TEST_F( VertexZSpecifierTesting, selfInterpolateVertex )
 
 
   ASSERT_THAT( abs( vert1.z() - 10 ), Lt( std::numeric_limits<double>::min() ) );
-
 }
 
 TEST_F( VertexZSpecifierTesting, removeInterpolateVertices )
@@ -202,7 +181,7 @@ TEST_F( VertexZSpecifierTesting, removeInterpolateVertices )
 
   for ( size_t i = 0; i < count; ++i )
   {
-    verticesInterpolated.push_back( new VertexBasic( 0, ( i + 1 )*step ) );
+    verticesInterpolated.push_back( new VertexBasic( 0, ( i + 1 ) * step ) );
     verticesInterpolated[i]->setZSpecifier( interpolationZSpecifierFactory );
   }
 
@@ -218,7 +197,6 @@ TEST_F( VertexZSpecifierTesting, removeInterpolateVertices )
 
 TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
 {
-
   double z1 = 4;
   simpleZSpecifierFactory.setZValue( z1 );
   vert1.setZSpecifier( simpleZSpecifierFactory );
@@ -239,7 +217,7 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
 
   for ( size_t i = 0; i < count; ++i )
   {
-    verticesInterpolated.push_back( new VertexBasic( 0, ( i + 1 )*step ) );
+    verticesInterpolated.push_back( new VertexBasic( 0, ( i + 1 ) * step ) );
     verticesInterpolated[i]->setZSpecifier( interpolationZSpecifierFactory );
   }
 
@@ -261,7 +239,7 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
 
   for ( size_t i = 0; i < count; ++i )
   {
-    EXPECT_TRUE( equality( verticesInterpolated[i]->z(), ( z1 + ( i + 1 )*gapPerStep ) ) );
+    EXPECT_TRUE( equality( verticesInterpolated[i]->z(), ( z1 + ( i + 1 ) * gapPerStep ) ) );
   }
 
   //move one of the point which interpolation is base on
@@ -345,7 +323,7 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
    *Zi                 7.0    7.0    7.0    7.0          11.25  15.5   19.75
    * */
 
-  EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 19.75 ) ) ;
+  EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 19.75 ) );
   EXPECT_TRUE( equality( verticesInterpolated[2]->z(), 7 ) );
 
   //compatibility with combinaison with new gapAndVertexZSpecifier
@@ -353,7 +331,7 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
   EXPECT_FALSE( verticesInterpolated[3]->isSpecifierIsCompatible( gapZSpecifierFactory ) );
   EXPECT_FALSE( verticesInterpolated[4]->isSpecifierIsCompatible( gapZSpecifierFactory ) );
   EXPECT_FALSE( verticesInterpolated[5]->isSpecifierIsCompatible( gapZSpecifierFactory ) ); //is not a interpolated point anymore
-  EXPECT_TRUE( verticesInterpolated[6]->isSpecifierIsCompatible( gapZSpecifierFactory ) ); //a interpolated point that doesn't depend from the sames vertices ast the [2]
+  EXPECT_TRUE( verticesInterpolated[6]->isSpecifierIsCompatible( gapZSpecifierFactory ) );  //a interpolated point that doesn't depend from the sames vertices ast the [2]
   EXPECT_TRUE( vert.isSpecifierIsCompatible( gapZSpecifierFactory ) );
 
   //remove one interplated point
@@ -383,13 +361,10 @@ TEST_F( VertexZSpecifierTesting, manyInterpolateVertices )
    * */
 
   EXPECT_TRUE( equality( verticesInterpolated[8]->z(), 19.75 ) );
-
-
 }
 
 TEST_F( VertexZSpecifierTesting, InterpolateVertices_compatibility )
 {
-
   vert1.setZValue( 2 );
   slopeZSpecifierFactory.setOtherVertex( &vert1 );
   slopeZSpecifierFactory.setSlope( 0.01 );
@@ -408,7 +383,6 @@ TEST_F( VertexZSpecifierTesting, InterpolateVertices_compatibility )
   vert1.hasToBeRemoved();
   vert2.hasToBeRemoved();
   EXPECT_TRUE( equality( vert4.z(), 2.025 ) );
-
 }
 
 
@@ -465,11 +439,4 @@ TEST_F( VertexZSpecifierTesting, returningData )
   EXPECT_THAT( data.otherVertices[1], Eq( &vert4 ) );
   EXPECT_THAT( data.otherVertices[2], Eq( &vert2 ) );
   EXPECT_THAT( data.otherVertices[3], Eq( nullptr ) );
-
-
 }
-
-
-
-
-

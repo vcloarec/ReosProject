@@ -20,7 +20,7 @@
 
 #include "reosformwidget.h"
 
-class ReosFormGmshGeneratorWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormGmshGeneratorWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );

@@ -33,31 +33,15 @@ class UIMeshEditorTesting : public Test
       return active;
     }
 
-    void removeVertex( VertexPointer vert )
-    {
-      uiEditor->removeVertex( vert );
-    }
+    void removeVertex( VertexPointer vert ) { uiEditor->removeVertex( vert ); }
 
-    void removeSegment( VertexPointer v1, VertexPointer v2 )
-    {
-      uiEditor->removeHardLine( v1, v2 );
-    }
+    void removeSegment( VertexPointer v1, VertexPointer v2 ) { uiEditor->removeHardLine( v1, v2 ); }
 
-    int editorVertexCount()
-    {
-      return uiEditor->mTIN->verticesCount();
+    int editorVertexCount() { return uiEditor->mTIN->verticesCount(); }
 
-    }
+    int editorFaceCount() { return uiEditor->mTIN->facesCount(); }
 
-    int editorFaceCount()
-    {
-      return uiEditor->mTIN->facesCount();
-    }
-
-    QgsDataProvider *getProvider()
-    {
-      return uiEditor->mMeshLayer->dataProvider();
-    }
+    QgsDataProvider *getProvider() { return uiEditor->mMeshLayer->dataProvider(); }
 
     bool reloadMeshLayer()
     {
@@ -74,7 +58,6 @@ class UIMeshEditorTesting : public Test
 
     void TEST_NEW_TIN( QString fileName )
     {
-
       QFileInfo fileInfo( fileName );
 
       if ( fileInfo.exists() )
@@ -110,7 +93,6 @@ class UIMeshEditorTesting : public Test
       delete uiEditor;
       //delete  meshLayer;
     }
-
 };
 
 
@@ -122,7 +104,6 @@ TEST_F( UIMeshEditorTesting, newTIN )
 
 TEST_F( UIMeshEditorTesting, saveTIN )
 {
-
   TEST_NEW_TIN( "TinUi.tin" );
 
 
@@ -160,7 +141,6 @@ TEST_F( UIMeshEditorTesting, openTIN )
   ASSERT_TRUE( reloadMeshLayer() );
 
   ASSERT_THAT( getProvider()->crs(), Eq( QgsCoordinateReferenceSystem( "EPSG:32620" ) ) );
-
 }
 
 TEST_F( UIMeshEditorTesting, actionsAreDisable )
@@ -192,14 +172,13 @@ TEST_F( UIMeshEditorTesting, addVertex )
   ASSERT_THAT( provider->vertexCount(), Eq( 1 ) );
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 1 ) );
 
-//    uiEditor->undo();
-//    ASSERT_THAT(provider->vertexCount(),Eq(0));
-//    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(0));
+  //    uiEditor->undo();
+  //    ASSERT_THAT(provider->vertexCount(),Eq(0));
+  //    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(0));
 
   uiEditor->redo();
   ASSERT_THAT( provider->vertexCount(), Eq( 1 ) );
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 1 ) );
-
 }
 
 TEST_F( UIMeshEditorTesting, addVertexToVoidEditor )
@@ -225,7 +204,8 @@ TEST_F( UIMeshEditorTesting, addDuplicateVertices )
 
   /*    uiEditor->undo();
       ASSERT_THAT(provider->vertexCount(),Eq(1));
-      ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(1))*/;
+      ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(1))*/
+  ;
 
   uiEditor->redo();
   ASSERT_THAT( provider->vertexCount(), Eq( 2 ) );
@@ -250,9 +230,9 @@ TEST_F( UIMeshEditorTesting, addSegments )
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 1 ) );
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 4 ) );
 
-//    uiEditor->undo();
-//    ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(0));
-//    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(3));
+  //    uiEditor->undo();
+  //    ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(0));
+  //    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(3));
 
   uiEditor->redo();
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 1 ) );
@@ -266,9 +246,9 @@ TEST_F( UIMeshEditorTesting, addSegments )
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 2 ) );
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 4 ) );
 
-//    uiEditor->undo();
-//    ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(1));
-//    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(4));
+  //    uiEditor->undo();
+  //    ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(1));
+  //    ASSERT_THAT(uiEditor->domain()->verticesCount(),Eq(4));
 
   uiEditor->redo();
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 2 ) );
@@ -276,10 +256,8 @@ TEST_F( UIMeshEditorTesting, addSegments )
 }
 
 
-
 TEST_F( UIMeshEditorTesting, addIntersectedSegments )
 {
-
   uiEditor->setMeshLayer( meshLayer );
 
   uiEditor->newVertex( QPointF( 2, 10 ) );
@@ -336,29 +314,28 @@ TEST_F( UIMeshEditorTesting, addIntersectedSegments )
   ASSERT_THAT( vert6->segmentsCount(), Eq( 1 ) );
 
   //undo not available still potential CGAL issue nor resolved.
-//    uiEditor->undo();
-//    ASSERT_THAT(vert1->segmentsCount(),Eq(0));
-//    ASSERT_THAT(vert2->segmentsCount(),Eq(0));
-//    ASSERT_THAT(vert3->segmentsCount(),Eq(1));
-//    ASSERT_THAT(vert4->segmentsCount(),Eq(0));
-//    ASSERT_THAT(vert5->segmentsCount(),Eq(0));
-//    ASSERT_THAT(vert6->segmentsCount(),Eq(1));
-//    ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(1));
+  //    uiEditor->undo();
+  //    ASSERT_THAT(vert1->segmentsCount(),Eq(0));
+  //    ASSERT_THAT(vert2->segmentsCount(),Eq(0));
+  //    ASSERT_THAT(vert3->segmentsCount(),Eq(1));
+  //    ASSERT_THAT(vert4->segmentsCount(),Eq(0));
+  //    ASSERT_THAT(vert5->segmentsCount(),Eq(0));
+  //    ASSERT_THAT(vert6->segmentsCount(),Eq(1));
+  //    ASSERT_THAT(uiEditor->domain()->segmentCount(),Eq(1));
 
 
-
-//    //-------(0)----------(2)-------(4)-------------(6)-------------
-//    // (10)                1         2
-//    // (9)                  *       *
-//    // (8)                   *     *
-//    // (7)                    *   *
-//    // (6)                     * *
-//    // (5)    6*****************7********************3
-//    // (4)                     * *
-//    // (3)                    *   *
-//    // (2)                   *     *
-//    // (1)                  *       *
-//    // (0)                 5         4
+  //    //-------(0)----------(2)-------(4)-------------(6)-------------
+  //    // (10)                1         2
+  //    // (9)                  *       *
+  //    // (8)                   *     *
+  //    // (7)                    *   *
+  //    // (6)                     * *
+  //    // (5)    6*****************7********************3
+  //    // (4)                     * *
+  //    // (3)                    *   *
+  //    // (2)                   *     *
+  //    // (1)                  *       *
+  //    // (0)                 5         4
 
   uiEditor->newSegment( vert5, vert2 );
   ASSERT_THAT( vert1->segmentsCount(), Eq( 1 ) );
@@ -369,18 +346,18 @@ TEST_F( UIMeshEditorTesting, addIntersectedSegments )
   ASSERT_THAT( vert6->segmentsCount(), Eq( 1 ) );
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 6 ) );
 
-//    //-------(0)----------(2)-------(4)--------(6)-------------
-//    // (10)                1         2
-//    // (9)                 **       *
-//    // (8)                 * *     *
-//    // (7)                 *  *   *
-//    // (6)                 *   * *
-//    // (5)    6************8****7********************3
-//    // (4)                 *   * *
-//    // (3)                 *  *   *
-//    // (2)                 * *     *
-//    // (1)                 **       *
-//    // (0)                 5         4
+  //    //-------(0)----------(2)-------(4)--------(6)-------------
+  //    // (10)                1         2
+  //    // (9)                 **       *
+  //    // (8)                 * *     *
+  //    // (7)                 *  *   *
+  //    // (6)                 *   * *
+  //    // (5)    6************8****7********************3
+  //    // (4)                 *   * *
+  //    // (3)                 *  *   *
+  //    // (2)                 * *     *
+  //    // (1)                 **       *
+  //    // (0)                 5         4
 
   uiEditor->newSegment( vert5, vert1 );
   uiEditor->newSegment( vert6, vert3 );
@@ -393,18 +370,18 @@ TEST_F( UIMeshEditorTesting, addIntersectedSegments )
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 9 ) );
 
 
-//    //-------(0)----------(2)-------(4)-------------(6)-------------
-//    // (10)                1         2
-//    // (9)                 *   ******
-//    // (8)                *9*10    *
-//    // (7)           ***** *  *   *
-//    // (6)      *****      *   * *
-//    // (5)    6************8****7********************3
-//    // (4)                 *   * *
-//    // (3)                 *  *   *
-//    // (2)                 * *     *
-//    // (1)                 **       *
-//    // (0)                 5         4
+  //    //-------(0)----------(2)-------(4)-------------(6)-------------
+  //    // (10)                1         2
+  //    // (9)                 *   ******
+  //    // (8)                *9*10    *
+  //    // (7)           ***** *  *   *
+  //    // (6)      *****      *   * *
+  //    // (5)    6************8****7********************3
+  //    // (4)                 *   * *
+  //    // (3)                 *  *   *
+  //    // (2)                 * *     *
+  //    // (1)                 **       *
+  //    // (0)                 5         4
 
   uiEditor->newSegment( vert5, vert1 );
   uiEditor->newSegment( vert3, vert6 );
@@ -417,19 +394,18 @@ TEST_F( UIMeshEditorTesting, addIntersectedSegments )
   ASSERT_THAT( vert6->segmentsCount(), Eq( 2 ) );
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 14 ) );
 
-//    //-------(0)----(1)---(2)-------(4)---(5)-------(6)-------------
-//    // (10)                1         2
-//    // (9)                 *   ******
-//    // (8)                *9*10    *
-//    // (7)           ***** *  *   *
-//    // (6)      *****      *   * *
-//    // (5)    6*****11*****8****7**********12********3
-//    // (4)                 *   * *
-//    // (3)                 *  *   *
-//    // (2)                 * *     *
-//    // (1)                 **       *
-//    // (0)                 5         4
-
+  //    //-------(0)----(1)---(2)-------(4)---(5)-------(6)-------------
+  //    // (10)                1         2
+  //    // (9)                 *   ******
+  //    // (8)                *9*10    *
+  //    // (7)           ***** *  *   *
+  //    // (6)      *****      *   * *
+  //    // (5)    6*****11*****8****7**********12********3
+  //    // (4)                 *   * *
+  //    // (3)                 *  *   *
+  //    // (2)                 * *     *
+  //    // (1)                 **       *
+  //    // (0)                 5         4
 
 
   uiEditor->newVertex( QPointF( 1, 5 ) );
@@ -443,7 +419,6 @@ TEST_F( UIMeshEditorTesting, addIntersectedSegments )
   uiEditor->newSegment( vert11, vert12 );
 
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 16 ) ); //segment 11-12 intersects and is on the segments 11-8, 8-7, 7-12
-
 }
 
 TEST_F( UIMeshEditorTesting, removeVertex )
@@ -497,7 +472,6 @@ TEST_F( UIMeshEditorTesting, removeVertex )
   //vert6 is on a hardline, so can't be removed before the hardline was removed
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 7 ) );
   ASSERT_THAT( uiEditor->domain()->segmentCount(), Eq( 6 ) );
-
 }
 
 

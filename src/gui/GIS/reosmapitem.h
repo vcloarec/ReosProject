@@ -84,11 +84,13 @@ class REOSGUI_EXPORT ReosMapItem
     ReosMapItem_p *d_ = nullptr;
 };
 
-class REOSGUI_EXPORT ReosMapMarker:  public ReosMapItem
+class REOSGUI_EXPORT ReosMapMarker : public ReosMapItem
 {
   public:
     ReosMapMarker() {}
-    ReosMapMarker( ReosMap *map ): ReosMapItem( map ) {}
+    ReosMapMarker( ReosMap *map )
+      : ReosMapItem( map )
+    {}
 
     //! Resets the marker with \a point
     void resetPoint( const QPointF &point );
@@ -173,7 +175,7 @@ class REOSGUI_EXPORT ReosMapPolygon : public ReosMapItem
     void movePoint( int pointIndex, const QPointF &p );
 };
 
-class REOSGUI_EXPORT ReosMapPolyline: public ReosMapItem
+class REOSGUI_EXPORT ReosMapPolyline : public ReosMapItem
 {
   public:
     //! Constructor
@@ -207,7 +209,9 @@ class REOSGUI_EXPORT ReosMapPolyline: public ReosMapItem
 class ReosMapPolylineStructure : public ReosMapItem
 {
   public:
-    ReosMapPolylineStructure(): ReosMapItem() {}
+    ReosMapPolylineStructure()
+      : ReosMapItem()
+    {}
     ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure );
     ~ReosMapPolylineStructure();
 
@@ -217,7 +221,9 @@ class ReosMapPolylineStructure : public ReosMapItem
 class ReosMapPolygonStructure : public ReosMapItem
 {
   public:
-    ReosMapPolygonStructure(): ReosMapItem() {}
+    ReosMapPolygonStructure()
+      : ReosMapItem()
+    {}
     ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure );
     ~ReosMapPolygonStructure();
 };
@@ -260,10 +266,7 @@ class ReosMapPolylineFormater
     Qt::PenStyle mStyle = Qt::SolidLine;
     double mZ = 0;
     QString mDescription;
-
 };
-
-
 
 
 #endif // REOSMAPITEM_H

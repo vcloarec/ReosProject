@@ -43,7 +43,7 @@ class ReosHydrographEditingWidget : public ReosFormWidget
 };
 
 
-class ReosHydrographEditingWidgetFactory: public ReosFormWidgetDataFactory
+class ReosHydrographEditingWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     QString datatype() const override;

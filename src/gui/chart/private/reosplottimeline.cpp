@@ -15,13 +15,17 @@
  ***************************************************************************/
 #include "reosplottimeline.h"
 
+#include <QPainter>
+#include <QPen>
+
 #include <qwt_date.h>
 #include <qwt_plot.h>
 #include <qwt_scale_map.h>
 
 #include "reosstyleregistery.h"
 
-ReosPlotTimeLine::ReosPlotTimeLine() : QwtPlotItem()
+ReosPlotTimeLine::ReosPlotTimeLine()
+  : QwtPlotItem()
 {
   setZ( 150 );
 }

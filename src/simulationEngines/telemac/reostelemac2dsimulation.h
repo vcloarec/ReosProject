@@ -49,20 +49,19 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     struct TelemacBoundaryCondition
     {
-      int rank = -1;
-      QString header;
-      QString unit;
-      ReosTimeSeriesVariableTimeStep *timeSeries = nullptr;
-      QString boundaryId;
-      ReosHydraulicStructureBoundaryCondition::Type type;
-
+        int rank = -1;
+        QString header;
+        QString unit;
+        ReosTimeSeriesVariableTimeStep *timeSeries = nullptr;
+        QString boundaryId;
+        ReosHydraulicStructureBoundaryCondition::Type type;
     };
 
     ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent = nullptr );
     explicit ReosTelemac2DSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent = nullptr );
-    static QString staticKey() {return QStringLiteral( "telemac2D" );}
+    static QString staticKey() { return QStringLiteral( "telemac2D" ); }
 
-    QString key() const override {return ReosTelemac2DSimulation::staticKey();}
+    QString key() const override { return ReosTelemac2DSimulation::staticKey(); }
     bool hasCapability( Capability cap ) const override;
     ReosModule::Message prepareSimulationData( ReosSimulationData &simData, const QString &schemeId ) override;
     void prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext ) override;
@@ -74,8 +73,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     void saveSimulationResult( const QString &shemeId, ReosSimulationProcess *process, bool success ) const override;
     ReosHydraulicSimulationResults *loadSimulationResults( const QString &shemeId, QObject *parent = nullptr ) const override;
     void removeResults( const QString &shemeId ) const override;
-    ReosTimeWindow externalTimeWindow() const override {return ReosTimeWindow();}
-    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override {return ReosTimeWindow();}
+    ReosTimeWindow externalTimeWindow() const override { return ReosTimeWindow(); }
+    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override { return ReosTimeWindow(); }
 
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
@@ -107,7 +106,7 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     QString engineName() const override;
 
   protected:
-    QString directoryName() const override {return  QStringLiteral( "TELEMAC" );}
+    QString directoryName() const override { return QStringLiteral( "TELEMAC" ); }
 
   private:
     //****** config
@@ -134,32 +133,23 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     ReosDuration timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const;
 
-    QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles(
+    QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles( const ReosSimulationData &simulationData, QVector<int> &verticesPosInBoundary, const QDir &directory );
+
+    void createSelafinMeshFrame( const QVector<int> &verticesPosInBoundary, const QString &fileName );
+
+    void createSelafinBaseFile( const ReosSimulationData &simulationData, const QVector<int> &verticesPosInBoundary, const QString &fileName );
+
+    void createSelafinInitialConditionFile( const ReosSimulationData &simulationData, const QVector<int> &verticesPosInBoundary, const QDir &directory );
+
+    QList<TelemacBoundaryCondition> createBoundaryConditionFiles( const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions, const ReosCalculationContext &context, const QDir &directory );
+
+    void createSteeringFile(
       const ReosSimulationData &simulationData,
-      QVector<int> &verticesPosInBoundary,
-      const QDir &directory );
-
-    void createSelafinMeshFrame( const QVector<int> &verticesPosInBoundary,
-                                 const QString &fileName );
-
-    void createSelafinBaseFile( const ReosSimulationData &simulationData,
-                                const QVector<int> &verticesPosInBoundary,
-                                const QString &fileName );
-
-    void createSelafinInitialConditionFile( const ReosSimulationData &simulationData,
-                                            const QVector<int> &verticesPosInBoundary,
-                                            const QDir &directory );
-
-    QList<TelemacBoundaryCondition> createBoundaryConditionFiles(
       const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
+      const QVector<int> &verticesPosInBoundary,
       const ReosCalculationContext &context,
-      const QDir &directory );
-
-    void createSteeringFile( const ReosSimulationData &simulationData,
-                             const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
-                             const QVector<int> &verticesPosInBoundary,
-                             const ReosCalculationContext &context,
-                             const QDir &directory );
+      const QDir &directory
+    );
 
     void init();
     void initInitialCondition();
@@ -178,7 +168,8 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
       const ReosDuration &timeStep,
       const QString &simulationfilePath,
       const QList<ReosHydraulicStructureBoundaryCondition *> &boundElem,
-      const QMap<int, BoundaryCondition> &boundaries );
+      const QMap<int, BoundaryCondition> &boundaries
+    );
 
     void start() override;
     void stop( bool b ) override;
@@ -215,9 +206,9 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
     virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const override;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const override;
 
-    virtual QString key() const override {return ReosTelemac2DSimulation::staticKey();}
-    QString displayName() const override {return QObject::tr( "TELEMAC 2D Simulation" );}
-    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
+    virtual QString key() const override { return ReosTelemac2DSimulation::staticKey(); }
+    QString displayName() const override { return QObject::tr( "TELEMAC 2D Simulation" ); }
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override { return nullptr; }
 
     void initializeSettings() override;
 

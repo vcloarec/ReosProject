@@ -53,7 +53,7 @@
 #include "reossavegriddedrainfallasdialog.h"
 
 
-class ReosStationMapMarker: public ReosMapMarkerSvg
+class ReosStationMapMarker : public ReosMapMarkerSvg
 {
   public:
     ReosStationMapMarker( ReosMap *map, ReosStationItem *item )
@@ -65,11 +65,11 @@ class ReosStationMapMarker: public ReosMapMarkerSvg
 
     ReosStationItem *item = nullptr;
 
-    static QString staticDescritpion() {return QStringLiteral( "rainfall-station" );}
+    static QString staticDescritpion() { return QStringLiteral( "rainfall-station" ); }
 };
 
-ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainfallmodel, QWidget *parent ) :
-  ReosActionWidget( parent )
+ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainfallmodel, QWidget *parent )
+  : ReosActionWidget( parent )
   , ui( new Ui::ReosRainfallManager )
   , mMap( map )
   , mModel( rainfallmodel )
@@ -116,18 +116,17 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
   mMapToolAddStationOnMap = new ReosMapToolDrawPoint( this, map );
-  mMapToolAddStationOnMap->setCursor( QCursor( QStringLiteral( ":/images/station.svg" ), 12, 12 ) ) ;
+  mMapToolAddStationOnMap->setCursor( QCursor( QStringLiteral( ":/images/station.svg" ), 12, 12 ) );
   mMapToolAddStationOnMap->setAction( mActionAddStationFromMap );
   mActionAddStationFromMap->setCheckable( true );
-  connect( mMapToolAddStationOnMap, &ReosMapTool::activated, this, [this] {ui->mTreeView->setEnabled( false );} );
-  connect( mMapToolAddStationOnMap, &ReosMapTool::deactivated, this, [this] {ui->mTreeView->setEnabled( true );} );
+  connect( mMapToolAddStationOnMap, &ReosMapTool::activated, this, [this] { ui->mTreeView->setEnabled( false ); } );
+  connect( mMapToolAddStationOnMap, &ReosMapTool::deactivated, this, [this] { ui->mTreeView->setEnabled( true ); } );
 
   mMapToolSelectStation = new ReosMapToolSelectMapItem( map, ReosStationMapMarker::staticDescritpion() );
   mMapToolSelectStation->setAction( mActionSelectStationFromMap );
   mActionSelectStationFromMap->setCheckable( true );
   mMapToolSelectStation->setCursor( Qt::ArrowCursor );
-  connect( mMapToolSelectStation, &ReosMapToolSelectMapItem::found, this, [this]( ReosMapItem * mapItem, const QPointF & )
-  {
+  connect( mMapToolSelectStation, &ReosMapToolSelectMapItem::found, this, [this]( ReosMapItem *mapItem, const QPointF & ) {
     if ( !mapItem || mapItem->description() != ReosStationMapMarker::staticDescritpion() )
       return;
 
@@ -143,12 +142,9 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   connect( mActionSaveAsRainfallDataFile, &QAction::triggered, this, &ReosRainfallManager::onSaveAsRainfallFile );
   connect( mActionImportFromTextFile, &QAction::triggered, this, &ReosRainfallManager::onImportFromTextFile );
 
-  mActionsAddSyntheticRainfall << mActionAddChicagoRainfall
-                               << mActionAddDoubleTriangleRainfall
-                               << mActionAddAlternatingBlockRainfall;
+  mActionsAddSyntheticRainfall << mActionAddChicagoRainfall << mActionAddDoubleTriangleRainfall << mActionAddAlternatingBlockRainfall;
 
-  mActionsAddStations << mActionAddStation
-                      << mActionAddStationFromMap;
+  mActionsAddStations << mActionAddStation << mActionAddStationFromMap;
 
   mActionsAddGaugedRainfall << mActionAddGaugedRainfall;
 
@@ -171,23 +167,16 @@ ReosRainfallManager::ReosRainfallManager( ReosMap *map, ReosRainfallModel *rainf
   connect( ui->mTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ReosRainfallManager::onCurrentTreeIndexChanged );
   connect( ui->mTreeView, &QWidget::customContextMenuRequested, this, &ReosRainfallManager::onTreeViewContextMenu );
 
-  connect( this, &ReosActionWidget::opened, this, [this] {setMarkersVisible( true );} );
-  connect( this, &ReosActionWidget::closed, this, [this]
-  {
+  connect( this, &ReosActionWidget::opened, this, [this] { setMarkersVisible( true ); } );
+  connect( this, &ReosActionWidget::closed, this, [this] {
     if ( ui->stackedWidget->currentIndex() == 1 )
       backToMainIndex();
     setMarkersVisible( false );
   } );
 
   connect( ui->mProviderBackButton, &QPushButton::clicked, this, &ReosRainfallManager::backToMainIndex );
-  connect( ui->mProviderAddButton, &QPushButton::clicked, this, [this]
-  {
-    addDataFromProvider( false );
-  } );
-  connect( ui->mProviderAddCopyButton, &QPushButton::clicked, this, [this]
-  {
-    addDataFromProvider( true );
-  } );
+  connect( ui->mProviderAddButton, &QPushButton::clicked, this, [this] { addDataFromProvider( false ); } );
+  connect( ui->mProviderAddCopyButton, &QPushButton::clicked, this, [this] { addDataFromProvider( true ); } );
 
   connect( mActionExportGriddedRainFall, &QAction::triggered, this, &ReosRainfallManager::onExportGriddedRainfall );
 
@@ -237,9 +226,8 @@ void ReosRainfallManager::onOpenRainfallFile()
 {
   if ( mModel->rootZoneCount() > 0 )
   {
-    int ret = QMessageBox::warning( this, tr( "Open Rainfall Data File" ),
-                                    tr( "This action will remove the actual rainfall data, do you want to save before?" ),
-                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
+    int ret = QMessageBox::
+      warning( this, tr( "Open Rainfall Data File" ), tr( "This action will remove the actual rainfall data, do you want to save before?" ), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
 
     if ( ret == QMessageBox::Cancel )
       return;
@@ -329,8 +317,7 @@ void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
     const QString dataType = ReosSeriesRainfall::staticType();
     ReosDataProviderGuiRegistery *registery = ReosDataProviderGuiRegistery::instance();
 
-    const QStringList providers =
-      registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+    const QStringList providers = registery->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
 
     for ( const QString &providerKey : providers )
     {
@@ -339,28 +326,19 @@ void ReosRainfallManager::populateProviderActions( QToolBar *toolBar )
         QAction *actionAddStation = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
         mActionsAddStations.append( actionAddStation );
 
-        connect( actionAddStation, &QAction::triggered, this, [this, providerKey, dataType]
-        {
-          showProviderSelector( providerKey, dataType );
-        } );
+        connect( actionAddStation, &QAction::triggered, this, [this, providerKey, dataType] { showProviderSelector( providerKey, dataType ); } );
       }
 
       QAction *actionAddRainfall = new QAction( registery->providerIcon( providerKey ), tr( "From %1" ).arg( registery->providerDisplayText( providerKey ) ) );
       mActionsAddGaugedRainfall.append( actionAddRainfall );
-      connect( actionAddRainfall, &QAction::triggered, this, [this, providerKey, dataType]
-      {
-        showProviderSelector( providerKey, dataType );
-      } );
+      connect( actionAddRainfall, &QAction::triggered, this, [this, providerKey, dataType] { showProviderSelector( providerKey, dataType ); } );
     }
   }
 
   {
     // gridded rainfall
     const QString dataType = ReosGriddedRainfall::staticType();
-    connect( mActionAddGriddedRainfall, &QAction::triggered, this, [this]
-    {
-      showProviderSelector( QString(), ReosGriddedRainfall::staticType() );
-    } );
+    connect( mActionAddGriddedRainfall, &QAction::triggered, this, [this] { showProviderSelector( QString(), ReosGriddedRainfall::staticType() ); } );
   }
 }
 
@@ -395,22 +373,17 @@ void ReosRainfallManager::showProviderSelector( const QString &providerKey, cons
   ui->mProviderAddButton->setEnabled( false );
   ui->mProviderAddCopyButton->setEnabled( false );
 
-  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool dataSelected )
-  {
+  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool dataSelected ) {
     ui->mProviderAddButton->setEnabled( dataSelected );
     ui->mProviderAddCopyButton->setEnabled( dataSelected );
   } );
 
-  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this]
-  {
+  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this] {
     ui->mProviderAddButton->setEnabled( true );
     ui->mProviderAddCopyButton->setEnabled( false );
   } );
 
-  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataIsReady, this, [this]
-  {
-    ui->mProviderAddCopyButton->setEnabled( true );
-  } );
+  connect( mCurrentProviderSelector, &ReosDataProviderSelectorWidget::dataIsReady, this, [this] { ui->mProviderAddCopyButton->setEnabled( true ); } );
 }
 
 
@@ -445,7 +418,7 @@ void ReosRainfallManager::addDataFromProvider( bool copy )
   {
     switch ( item->type() )
     {
-        break;
+      break;
       case ReosRainfallItem::Zone:
         addRainfallFromProvider( qobject_cast<ReosZoneItem *>( item ), meta, copy );
         break;
@@ -479,11 +452,17 @@ void ReosRainfallManager::addRainfallFromProvider( ReosZoneItem *destination, co
       continue;
     if ( otherStation->name() == stationName )
     {
-      switch ( QMessageBox::warning( this,
-                                     tr( "Add a station from %1" ).arg( providerName ),
-                                     tr( "The zone \"%1\" has already a station with name %2. Do you want to add the rainfall in this station?\n"
-                                         "If not, another station will be created" ).arg( destination->name(), stationName ),
-                                     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel ) )
+      switch ( QMessageBox::warning(
+        this,
+        tr( "Add a station from %1" ).arg( providerName ),
+        tr(
+          "The zone \"%1\" has already a station with name %2. Do you want to add the rainfall in this station?\n"
+          "If not, another station will be created"
+        )
+          .arg( destination->name(), stationName ),
+        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+        QMessageBox::Cancel
+      ) )
       {
         case QMessageBox::Yes:
           addRainfallFromProvider( otherStation, meta, copy );
@@ -505,15 +484,12 @@ void ReosRainfallManager::addRainfallFromProvider( ReosZoneItem *destination, co
           break;
         default:
           break;
-
       }
     }
   }
 
   ReosSpatialPosition position;
-  if ( meta.contains( QStringLiteral( "x-coord" ) ) &&
-       meta.contains( QStringLiteral( "y-coord" ) ) &&
-       meta.contains( QStringLiteral( "crs" ) ) )
+  if ( meta.contains( QStringLiteral( "x-coord" ) ) && meta.contains( QStringLiteral( "y-coord" ) ) && meta.contains( QStringLiteral( "crs" ) ) )
   {
     bool okX = false;
     bool okY = false;
@@ -529,7 +505,6 @@ void ReosRainfallManager::addRainfallFromProvider( ReosZoneItem *destination, co
   addRainfallFromProvider( newStationItem, meta, copy );
 
   ui->mTreeView->expand( mModel->itemToIndex( newStationItem ) );
-
 }
 
 void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem, const QVariantMap &meta, bool copy )
@@ -538,11 +513,9 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
     return;
 
   QString dateFormat = QLocale().dateFormat( QLocale::ShortFormat );
-  QString rainfallName = tr( "From %1 to %2" ).arg( meta.value( "start" ).toDateTime().toString( dateFormat ),
-                         meta.value( "end" ).toDateTime().toString( dateFormat ) );
+  QString rainfallName = tr( "From %1 to %2" ).arg( meta.value( "start" ).toDateTime().toString( dateFormat ), meta.value( "end" ).toDateTime().toString( dateFormat ) );
 
   addRainfallFromProvider( stationItem, rainfallName, copy );
-
 }
 
 void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem, const QString &rainfallName, bool copy )
@@ -554,10 +527,13 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
 
   if ( stationItem->hasChildItemName( rainfallName ) )
   {
-    switch ( QMessageBox::warning( this,
-                                   tr( "Add a Rainfall" ),
-                                   tr( "The station \"%1\" has already a rainfall with name \"%2\". Do you want to add the rainfall with another name?" ).arg( stationItem->name(), rainfallName ),
-                                   QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel ) )
+    switch ( QMessageBox::warning(
+      this,
+      tr( "Add a Rainfall" ),
+      tr( "The station \"%1\" has already a rainfall with name \"%2\". Do you want to add the rainfall with another name?" ).arg( stationItem->name(), rainfallName ),
+      QMessageBox::Yes | QMessageBox::Cancel,
+      QMessageBox::Cancel
+    ) )
     {
       case QMessageBox::Yes:
       {
@@ -575,7 +551,6 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
         break;
       default:
         break;
-
     }
   }
 
@@ -588,13 +563,10 @@ void ReosRainfallManager::addRainfallFromProvider( ReosStationItem *stationItem,
   }
   else
   {
-    newRainfall.reset( qobject_cast<ReosSeriesRainfall *>( mCurrentProviderSelector->createData() ) ) ;
+    newRainfall.reset( qobject_cast<ReosSeriesRainfall *>( mCurrentProviderSelector->createData() ) );
   }
 
-  selectItem( mModel->addGaugedRainfall( rainfallName,
-                                         description,
-                                         mModel->itemToIndex( stationItem ),
-                                         newRainfall.release() ) );
+  selectItem( mModel->addGaugedRainfall( rainfallName, description, mModel->itemToIndex( stationItem ), newRainfall.release() ) );
 }
 
 void ReosRainfallManager::addGriddedRainFallFromProvider( ReosZoneItem *destination, bool copy )
@@ -613,16 +585,13 @@ void ReosRainfallManager::addGriddedRainFallFromProvider( ReosZoneItem *destinat
   }
   else
   {
-    newGriddedRainfall.reset( qobject_cast<ReosGriddedRainfall *>( mCurrentProviderSelector->createData() ) ) ;
+    newGriddedRainfall.reset( qobject_cast<ReosGriddedRainfall *>( mCurrentProviderSelector->createData() ) );
   }
 
   if ( newGriddedRainfall )
   {
     const QString name = newGriddedRainfall->name();
-    selectItem( mModel->addGriddedRainfall( name,
-                                            QString(),
-                                            mModel->itemToIndex( destination ),
-                                            newGriddedRainfall.release() ) );
+    selectItem( mModel->addGriddedRainfall( name, QString(), mModel->itemToIndex( destination ), newGriddedRainfall.release() ) );
   }
 }
 
@@ -716,7 +685,7 @@ void ReosRainfallManager::addStation( const QPointF &point, bool isSpattial )
   }
 }
 
-ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map,  ReosMapItem *marker, QWidget *parent )
+ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, ReosMapItem *marker, QWidget *parent )
   : QWidget( parent )
   , mCurrentMarker( marker )
 {
@@ -735,8 +704,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   mSetPositionTool->setAction( mActionSetPosition );
   mActionSetPosition->setCheckable( true );
 
-  connect( mSetPositionTool, &ReosMapToolDrawPoint::drawn, this, [map, this]( const QPointF & point )
-  {
+  connect( mSetPositionTool, &ReosMapToolDrawPoint::drawn, this, [map, this]( const QPointF &point ) {
     ReosSpatialPosition position( point, map->engine()->crs() );
     emit setMarker( position );
     mSetPositionTool->quitMap();
@@ -748,16 +716,13 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   mActionMovePosition->setCheckable( true );
   mMovePositionTool->setCurrentMapItem( marker );
 
-  connect( mMovePositionTool, &ReosMapToolMoveMapItem::itemMoved, this, [map, this]( ReosMapItem * item )
-  {
+  connect( mMovePositionTool, &ReosMapToolMoveMapItem::itemMoved, this, [map, this]( ReosMapItem *item ) {
     ReosSpatialPosition position( static_cast<ReosMapMarker *>( item )->mapPoint(), map->engine()->crs() );
     emit movePosition( position );
   } );
 
-  connect( mActiontRemovePosition, &QAction::triggered, this, [this]
-  {
-    if ( QMessageBox::warning( this, tr( "Remove spatial position of a rainfall station" ),
-                               tr( "Do you want to remove the spatial position of the station?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+  connect( mActiontRemovePosition, &QAction::triggered, this, [this] {
+    if ( QMessageBox::warning( this, tr( "Remove spatial position of a rainfall station" ), tr( "Do you want to remove the spatial position of the station?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
          == QMessageBox::Yes )
     {
       mCurrentMarker = nullptr;
@@ -766,10 +731,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
     }
   } );
 
-  connect( mActionMapOnStation, &QAction::triggered, this, [this]
-  {
-    emit mapOnMarker();
-  } );
+  connect( mActionMapOnStation, &QAction::triggered, this, [this] { emit mapOnMarker(); } );
 
   updateTools();
 }
@@ -806,7 +768,7 @@ ReosFormWidget *ReosRainfallManager::createForm( ReosRainfallItem *item )
 
   ReosGuiContext context( this );
   context.setMap( mMap );
-  if ( !item->data() ||  !form->addData( item->data(), context ) )
+  if ( !item->data() || !form->addData( item->data(), context ) )
   {
     form->addItem( new QSpacerItem( 20, 40, QSizePolicy::Ignored, QSizePolicy::Expanding ) );
   }
@@ -828,31 +790,24 @@ void ReosRainfallManager::setupFormForStation( ReosFormWidget *form, ReosStation
   form->addWidget( stationWidget );
   form->addLine();
 
-  connect( stationWidget, &ReosSpatialStationWidgetToolbar::removeMarker, this, [this, stationItem]
-  {
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::removeMarker, this, [this, stationItem] {
     stationItem->setPosition( ReosSpatialPosition() );
     removeMarker( stationItem );
     updateCurrentMapItemMarker( stationItem );
   } );
 
-  connect( stationWidget, &ReosSpatialStationWidgetToolbar::mapOnMarker, this, [this, stationItem]
-  {
-    mMap->setCenter( stationItem->position() );
-  } );
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::mapOnMarker, this, [this, stationItem] { mMap->setCenter( stationItem->position() ); } );
 
-  connect( stationWidget, &ReosSpatialStationWidgetToolbar::movePosition, this, [this, stationItem]( const ReosSpatialPosition & position )
-  {
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::movePosition, this, [this, stationItem]( const ReosSpatialPosition &position ) {
     stationItem->setPosition( position );
     updateCurrentMapItemMarker( stationItem );
   } );
 
-  connect( stationWidget, &ReosSpatialStationWidgetToolbar::setMarker, this, [this, stationItem, stationWidget]( const ReosSpatialPosition & position )
-  {
+  connect( stationWidget, &ReosSpatialStationWidgetToolbar::setMarker, this, [this, stationItem, stationWidget]( const ReosSpatialPosition &position ) {
     stationItem->setPosition( position );
     stationWidget->setCurrentMarker( addMapItem( stationItem ) );
     updateCurrentMapItemMarker( stationItem );
   } );
-
 }
 
 void ReosRainfallManager::updateCurrentMapItemMarker( ReosRainfallItem *item )
@@ -872,13 +827,12 @@ void ReosRainfallManager::updateCurrentMapItemMarker( ReosRainfallItem *item )
 
   if ( stationItem && stationItem->position().isValid() )
   {
-    mCurrentStationMarker.reset( new  ReosMapMarkerEmptyCircle( mMap, stationItem->position() ) );
+    mCurrentStationMarker.reset( new ReosMapMarkerEmptyCircle( mMap, stationItem->position() ) );
     mCurrentStationMarker->setWidth( 24 );
     mCurrentStationMarker->setColor( Qt::red );
     mCurrentStationMarker->setExternalColor( Qt::white );
     mCurrentStationMarker->setExternalWidth( 32 );
   }
-
 }
 
 void ReosRainfallManager::onAddStationOnMap( const QPointF &point )
@@ -1069,8 +1023,7 @@ void ReosRainfallManager::onCurrentTreeIndexChanged()
           ReosGriddedRainfall *griddedRainfall = griddedRainItem->data();
           ReosDataVizMapWidget *griddedRainWidget = new ReosDataVizMapWidget( this );
 
-          connect( griddedRainfall, &ReosDataObject::dataReset, griddedRainWidget, [griddedRainfall, griddedRainWidget]
-          {
+          connect( griddedRainfall, &ReosDataObject::dataReset, griddedRainWidget, [griddedRainfall, griddedRainWidget] {
             griddedRainWidget->setTimeExtent( griddedRainfall->timeExtent().first, griddedRainfall->timeExtent().second );
             griddedRainWidget->setTimeStep( griddedRainfall->minimumTimeStep() );
             emit griddedRainfall->repaintRequested();
@@ -1231,14 +1184,13 @@ void ReosRainfallManager::onExportGriddedRainfall()
 
 ReosMapItem *ReosRainfallManager::addMapItem( ReosRainfallItem *item )
 {
-  ReosStationItem *stationItem = qobject_cast < ReosStationItem *> ( item );
+  ReosStationItem *stationItem = qobject_cast< ReosStationItem *>( item );
   if ( stationItem )
   {
     if ( !stationItem->position().isValid() )
       return nullptr;
 
-    std::pair< std::map<ReosStationItem *, std::unique_ptr<ReosStationMapMarker>>::iterator, bool> res =
-          mStationsMarker.emplace( stationItem, std::make_unique<ReosStationMapMarker>( mMap, stationItem ) );
+    std::pair< std::map<ReosStationItem *, std::unique_ptr<ReosStationMapMarker>>::iterator, bool> res = mStationsMarker.emplace( stationItem, std::make_unique<ReosStationMapMarker>( mMap, stationItem ) );
     if ( res.second )
       return res.first->second.get();
   }
@@ -1323,15 +1275,14 @@ void ReosRainfallManager::selectItem( ReosRainfallItem *item )
 }
 
 
-ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QWidget *parent ):
-  QDialog( parent )
+ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QWidget *parent )
+  : QDialog( parent )
   , mModel( model )
   , mTextFile( new ReosTextFileData( this ) )
   , mImportedRainfall( new ReosSeriesRainfall )
   , mName( new ReosParameterString( tr( "name" ), false, this ) )
   , mDescription( new ReosParameterString( tr( "Description" ), false, this ) )
 {
-
   setWindowTitle( tr( "Import Rainfall" ) );
   ReosTextFileData mtextFile;
 
@@ -1398,7 +1349,7 @@ ReosImportRainfallDialog::ReosImportRainfallDialog( ReosRainfallModel *model, QW
 
 void ReosImportRainfallDialog::onImportButton()
 {
-  int index  = mComboSelectedField->currentIndex();
+  int index = mComboSelectedField->currentIndex();
   QVector<QString> stringValues = mTextFile->columnValues( index );
 
   if ( stringValues.isEmpty() )
@@ -1416,7 +1367,6 @@ void ReosImportRainfallDialog::onImportButton()
   }
 
   mSelectStationButton->setEnabled( true );
-
 }
 
 void ReosImportRainfallDialog::onSelectStationButton()
@@ -1438,7 +1388,10 @@ void ReosImportRainfallDialog::onSelectStationButton()
 }
 
 
-QString ReosPlotItemRainfallIntensityDurationFrequencyFactory::datatype() const {return ReosIntensityDurationFrequencyCurves::staticType();}
+QString ReosPlotItemRainfallIntensityDurationFrequencyFactory::datatype() const
+{
+  return ReosIntensityDurationFrequencyCurves::staticType();
+}
 
 void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {
@@ -1472,7 +1425,10 @@ void ReosPlotItemRainfallIntensityDurationFrequencyFactory::buildPlotItemsAndSet
   }
 }
 
-QString ReosPlotItemRainfallIntensityDurationFactory::datatype() const {return ReosIntensityDurationCurve::staticType();}
+QString ReosPlotItemRainfallIntensityDurationFactory::datatype() const
+{
+  return ReosIntensityDurationCurve::staticType();
+}
 
 void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {
@@ -1489,7 +1445,10 @@ void ReosPlotItemRainfallIntensityDurationFactory::buildPlotItemsAndSetup( ReosP
   plotWidget->enableScaleTypeChoice( true );
 }
 
-QString ReosPlotItemRainfallSerieFactory::datatype() const {return ReosSeriesRainfall::staticType();}
+QString ReosPlotItemRainfallSerieFactory::datatype() const
+{
+  return ReosSeriesRainfall::staticType();
+}
 
 void ReosPlotItemRainfallSerieFactory::buildPlotItemsAndSetup( ReosPlotWidget *plotWidget, ReosDataObject *data )
 {

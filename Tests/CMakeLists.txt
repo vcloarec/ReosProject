@@ -22,11 +22,25 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/gui/GIS
 )
 
+IF(WITH_GUI)
+    include_directories(
+      ${CMAKE_SOURCE_DIR}/src/gui
+      ${CMAKE_SOURCE_DIR}/src/gui/GIS
+    )
+ENDIF(WITH_GUI)
+
 
 add_subdirectory(core)
-add_subdirectory(gui)
+IF(WITH_GUI)
+    add_subdirectory(gui)
+ENDIF(WITH_GUI)
+
 add_subdirectory(dataProviders)
-add_subdirectory(simulationEngines)
+
+if(WITH_HYDRAULIC_MODEL_SUPPORT)
+    add_subdirectory(simulationEngines)
+endif(WITH_HYDRAULIC_MODEL_SUPPORT)
+
 
 if(INTERN_PYTHON_TESTS_ENABLE)
     add_subdirectory(python)

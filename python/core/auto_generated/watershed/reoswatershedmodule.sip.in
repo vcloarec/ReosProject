@@ -19,6 +19,16 @@ class ReosWatershedModule : ReosModule
     ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
     ~ReosWatershedModule();
 
+    ReosWatershed *addWatershed( const QPolygonF &delineating, const QPointF &ouletPoint );
+%Docstring
+Adds a watershed from ``delinating`` polygon and ``outletPoint``
+%End
+
+    void removeWaterhsed( ReosWatershed *watershed );
+%Docstring
+Removes the ``watershed``
+%End
+
     ReosWatershedDelineating *delineatingModule() const;
 
 

@@ -58,8 +58,17 @@ class REOSCORE_EXPORT ReosTimeWindow
 class REOSCORE_EXPORT ReosDuration
 {
   public:
-
-    enum Unit {millisecond, second, minute, hour, day, week, month, year};
+    enum Unit
+    {
+      millisecond,
+      second,
+      minute,
+      hour,
+      day,
+      week,
+      month,
+      year
+    };
 
     explicit ReosDuration( double value = 0.0 );
     explicit ReosDuration( qint64 milliseconds );
@@ -113,7 +122,6 @@ class REOSCORE_EXPORT ReosDuration
   private:
     Unit mUnit = second;
     qint64 mValue = 0; //milliseconds
-
 };
 
 #endif //REOSDURATION_H

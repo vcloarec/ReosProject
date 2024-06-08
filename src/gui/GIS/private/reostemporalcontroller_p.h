@@ -31,7 +31,7 @@ class ReosTemporalController_p : public QgsTemporalController
     {
       Forward, //!< Animation is playing forward.
       Reverse, //!< Animation is playing in reverse.
-      Idle, //!< Animation is paused.
+      Idle,    //!< Animation is paused.
     };
 
     ReosTemporalController_p( QObject *parent = nullptr );

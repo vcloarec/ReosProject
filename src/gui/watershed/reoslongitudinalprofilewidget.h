@@ -31,7 +31,7 @@ namespace QtCharts
 {
   class QChartView;
   class QChart;
-}
+} //namespace QtCharts
 
 class QAction;
 class ReosWatershed;

@@ -34,7 +34,7 @@ class ReosMapToolHydraulicElement
     ReosHydraulicNetwork *mNetwork = nullptr;
 };
 
-class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool, public ReosMapToolHydraulicElement
+class ReosMapToolDrawHydraulicNetworkLink : public ReosMapTool, public ReosMapToolHydraulicElement
 {
     Q_OBJECT
   public:
@@ -54,17 +54,17 @@ class ReosMapToolDrawHydraulicNetworkLink: public ReosMapTool, public ReosMapToo
 
   protected:
     //! This method can be reimplemented in derived class to select items that can be linked or not. Default implementation returns true.
-    virtual bool acceptItem( ReosMapItem * ) {return true;}
+    virtual bool acceptItem( ReosMapItem * ) { return true; }
 
     //! This method can be reimplemented in derived class to test if the drawing is finished. Default implementation returns false.
-    virtual bool isFinished() const {return false;}
+    virtual bool isFinished() const { return false; }
 
   private:
     QPointer<ReosMapToolDrawHydraulicNetworkLink_p> d;
     ReosMapTool_p *tool_p() const;
 };
 
-class ReosMapToolDrawHydrographRouting: public ReosMapToolDrawHydraulicNetworkLink
+class ReosMapToolDrawHydrographRouting : public ReosMapToolDrawHydraulicNetworkLink
 {
     Q_OBJECT
   public:
@@ -90,7 +90,7 @@ class ReosMapToolMoveHydraulicNetworkElement : public ReosMapTool, public ReosMa
 };
 
 
-class ReosMapToolNewStructure2D: public ReosMapToolDrawPolygon, public ReosMapToolHydraulicElement
+class ReosMapToolNewStructure2D : public ReosMapToolDrawPolygon, public ReosMapToolHydraulicElement
 {
     Q_OBJECT
   public:

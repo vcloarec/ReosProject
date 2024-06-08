@@ -1,6 +1,9 @@
 $starter_path = Get-Location
 
-git clone https://gitlab.onelab.info/gmsh/gmsh.git
+if ( -not (Test-Path 'gmsh/.git') )
+{
+    git clone https://gitlab.onelab.info/gmsh/gmsh.git
+}
 
 cd gmsh
 git checkout tags/gmsh_4_11_1
@@ -9,15 +12,21 @@ cd ..
 $GMSH_SRC = Join-Path $starter_path gmsh
 $GMSH_INSTALL=Join-Path $starter_path GMSH_Built
 
-md gmsh_building
+md gmsh_building -Force | Out-Null
 cd gmsh_building
 
 $gmsh_building_path = Get-Location
 
+$cpuCount = [Environment]::ProcessorCount
+Write-Host "=== Building GMSH with $cpuCount parallel jobs"
+
 cmake   -S $GMSH_SRC `
 		-B . `
-        -DCMAKE_BUILD_TYPE:STRING=Release `
-        -DCMAKE_INSTALL_PREFIX:PATH=$GMSH_INSTALL `
+		"-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
+		"-DCMAKE_C_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+		"-DCMAKE_CXX_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+		-DCMAKE_BUILD_TYPE:STRING=Release `
+		-DCMAKE_INSTALL_PREFIX:PATH=$GMSH_INSTALL `
         -DENABLE_3M:BOOL=OFF `
         -DENABLE_ALGLIB:BOOL=OFF `
         -DENABLE_ANN:BOOL=OFF `
@@ -93,9 +102,23 @@ cmake   -S $GMSH_SRC `
         -DENABLE_WRAP_JAVA:BOOL=OFF `
         -DENABLE_WRAP_PYTHON:BOOL=OFF `
         -DENABLE_ZIPPER:BOOL=OFF
-        
-cmake --build .  --config Release
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "GMSH CMake configure failed with exit code $LASTEXITCODE."
+    exit 1
+}
+
+cmake --build . --config Release --parallel $cpuCount
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "GMSH build failed with exit code $LASTEXITCODE."
+    exit 1
+}
+
 cmake --install .
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "GMSH install failed with exit code $LASTEXITCODE."
+    exit 1
+}
 
 Set-Location $starter_path
 

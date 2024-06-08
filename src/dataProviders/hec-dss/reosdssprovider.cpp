@@ -27,15 +27,12 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
 }
 
 ReosDssProviderBase::ReosDssProviderBase()
-{
-
-}
+{}
 
 QString ReosDssProviderBase::staticKey()
 {
   return ReosDssUtils::dssProviderKey();
 }
-
 
 
 ReosDssProviderBase::~ReosDssProviderBase() = default;
@@ -102,7 +99,10 @@ QDateTime ReosDssProviderTimeSerieConstantTimeStep::referenceTime() const
   return mReferenceTime;
 }
 
-int ReosDssProviderTimeSerieConstantTimeStep::valueCount() const {return mValues.count();}
+int ReosDssProviderTimeSerieConstantTimeStep::valueCount() const
+{
+  return mValues.count();
+}
 
 double ReosDssProviderTimeSerieConstantTimeStep::value( int i ) const
 {
@@ -128,9 +128,15 @@ double ReosDssProviderTimeSerieConstantTimeStep::lastValue() const
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-double *ReosDssProviderTimeSerieConstantTimeStep::data() {return mValues.data();}
+double *ReosDssProviderTimeSerieConstantTimeStep::data()
+{
+  return mValues.data();
+}
 
-const QVector<double> &ReosDssProviderTimeSerieConstantTimeStep::constData() const {return mValues;}
+const QVector<double> &ReosDssProviderTimeSerieConstantTimeStep::constData() const
+{
+  return mValues;
+}
 
 bool ReosDssProviderTimeSerieConstantTimeStep::createNewSerie( const ReosDssPath &path, ReosDssFile &dssFile, QString &error ) const
 {
@@ -292,10 +298,10 @@ bool ReosDssProviderFactory::hasCapabilities( const QString &dataType, ReosDataP
 {
   ReosDataProvider::Capabilities cap;
   if ( dataType.contains( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) )
-    cap = ReosDataProvider::File ;
+    cap = ReosDataProvider::File;
 
   if ( dataType.contains( ReosDssProviderTimeSerieVariableTimeStep::dataType() ) )
-    cap = ReosDataProvider::File ;
+    cap = ReosDataProvider::File;
 
   if ( dataType.contains( ReosDssProviderGriddedRainfall::dataType() ) )
     cap = ReosDataProvider::Capabilities( ReosDataProvider::File | ReosDataProvider::CanWrite | ReosDataProvider::Spatial );
@@ -305,9 +311,7 @@ bool ReosDssProviderFactory::hasCapabilities( const QString &dataType, ReosDataP
 
 bool ReosDssProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosGriddedRainfall::staticType() ) ||
-         dataType.contains( ReosTimeSeriesConstantInterval::staticType() ) ||
-         dataType.contains( ReosTimeSeriesVariableTimeStep::staticType() );
+  return dataType.contains( ReosGriddedRainfall::staticType() ) || dataType.contains( ReosTimeSeriesConstantInterval::staticType() ) || dataType.contains( ReosTimeSeriesVariableTimeStep::staticType() );
 }
 
 QVariantMap ReosDssProviderFactory::uriParameters( const QString &dataType ) const
@@ -325,9 +329,7 @@ QVariantMap ReosDssProviderFactory::uriParameters( const QString &dataType ) con
 
 QString ReosDssProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
 {
-  if ( supportType( dataType ) &&
-       parameters.contains( QStringLiteral( "file-path" ) ) &&
-       parameters.contains( QStringLiteral( "dss-path" ) ) )
+  if ( supportType( dataType ) && parameters.contains( QStringLiteral( "file-path" ) ) && parameters.contains( QStringLiteral( "dss-path" ) ) )
   {
     const QString filePath = parameters.value( QStringLiteral( "file-path" ) ).toString();
     const QString dssPathString = parameters.value( QStringLiteral( "dss-path" ) ).toString();
@@ -492,10 +494,7 @@ void ReosDssProviderGriddedRainfall::load()
   }
   mExtent = mFile->gridExtent( recordPathes.at( 0 ) );
 
-  std::sort( mGrids.begin(), mGrids.end(), []( const DssGrid & f1, const DssGrid & f2 )->bool
-  {
-    return f1.startTime < f2.startTime;
-  } );
+  std::sort( mGrids.begin(), mGrids.end(), []( const DssGrid &f1, const DssGrid &f2 ) -> bool { return f1.startTime < f2.startTime; } );
 
   emit dataReset();
   emit loadingFinished();
@@ -534,26 +533,26 @@ QString ReosDssProviderGriddedRainfall::htmlDescription() const
   htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + QStringLiteral( "HEC DSS" ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) )
+              + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "HEC DSS" )
+              + QStringLiteral( "</td></tr>\n" );
 
-  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
-              + mFilePath + QStringLiteral( "</td></tr>\n" );
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" ) + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" ) + mFilePath + QStringLiteral( "</td></tr>\n" );
 
-  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "DSS Path" ) ) + QStringLiteral( "</td><td>" )
-              + mPath.string() + QStringLiteral( "</td></tr>\n" );
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" ) + QStringLiteral( "<b>%1</b>" ).arg( tr( "DSS Path" ) ) + QStringLiteral( "</td><td>" ) + mPath.string() + QStringLiteral( "</td></tr>\n" );
 
   if ( count() > 0 )
   {
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) )
+                + QStringLiteral( "</td><td>" )
                 + startTime( 0 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) )
+                + QStringLiteral( "</td><td>" )
                 + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -696,7 +695,7 @@ QList<ReosDssPath> ReosDssProviderGriddedRainfall::griddedRainfallPathes( const 
       }
       if ( !isPresent )
       {
-        ReosDssPath  effPath = path;
+        ReosDssPath effPath = path;
         effPath.setStartDate( QString() );
         effPath.setTimeInterval( QString() );
         ret.append( effPath );
@@ -736,7 +735,7 @@ void ReosDssProviderGriddedRainfall::calculateMinMax( double &min, double &max )
     return;
   mMin = std::numeric_limits<double>::max();
   mMax = -std::numeric_limits<double>::max();
-  for ( const  DssGrid &gridInfo : mGrids )
+  for ( const DssGrid &gridInfo : mGrids )
   {
     double m = 0;
     double M = 0;
@@ -783,17 +782,14 @@ bool ReosDssProviderGriddedRainfall::hasData( const QString &uri, const ReosTime
   if ( timeWindows.isEmpty() )
     return false;
 
-  std::sort( timeWindows.begin(), timeWindows.end(), []( const ReosTimeWindow & tw1, const ReosTimeWindow & tw2 )
-  {
-    return tw1.start() < tw2.start();
-  } );
+  std::sort( timeWindows.begin(), timeWindows.end(), []( const ReosTimeWindow &tw1, const ReosTimeWindow &tw2 ) { return tw1.start() < tw2.start(); } );
 
   int i = 1;
   while ( i < timeWindows.count() )
   {
     if ( timeWindows.at( i - 1 ).end() == timeWindows.at( i ).start() )
     {
-      ReosTimeWindow &tw1 = timeWindows[i - 1 ];
+      ReosTimeWindow &tw1 = timeWindows[i - 1];
       tw1.setEnd( timeWindows.at( i ).end() );
       timeWindows.removeAt( i );
     }

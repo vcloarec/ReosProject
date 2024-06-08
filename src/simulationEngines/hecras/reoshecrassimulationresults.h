@@ -25,11 +25,11 @@ class ReosHecRasSimulation;
 
 struct CacheDataset
 {
-  QVector<int> activeFaces;
-  QVector<double> waterDepth;
-  QVector<double> waterLevel;
-  QVector<double> velocity;
-  QPair<double, double> minMaxDepth = {std::numeric_limits<double>::max(), 0};
+    QVector<int> activeFaces;
+    QVector<double> waterDepth;
+    QVector<double> waterLevel;
+    QVector<double> velocity;
+    QPair<double, double> minMaxDepth = { std::numeric_limits<double>::max(), 0 };
 };
 
 class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
@@ -57,7 +57,7 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
 
     QDateTime runDateTime() const override;
 
-    QString unitString( DatasetType dataType ) const override {return QString();}
+    QString unitString( DatasetType dataType ) const override { return QString(); }
 
   private:
     const ReosHecRasProject mProject;
@@ -73,7 +73,7 @@ class ReosHecRasSimulationResults : public ReosHydraulicSimulationResults
     QVector<QVector<int>> mFaces;
     mutable QVector<CacheDataset> mCache;
 
-    mutable QPair<double, double> mMinMaxWaterDepth = {std::numeric_limits<double>::max(), 0};
+    mutable QPair<double, double> mMinMaxWaterDepth = { std::numeric_limits<double>::max(), 0 };
 
     QMap<DatasetType, int> mTypeToSourceGroupIndex;
 

@@ -25,8 +25,8 @@
 #include "reosrainfallmodel.h"
 #include "reosrainfallregistery.h"
 
-ReosRainfallItemSelectionDialog::ReosRainfallItemSelectionDialog( QWidget *parent ):
-  QDialog( parent )
+ReosRainfallItemSelectionDialog::ReosRainfallItemSelectionDialog( QWidget *parent )
+  : QDialog( parent )
   , mTreeView( new QTreeView( this ) )
   , mTextLabel( new QLabel( this ) )
 {
@@ -85,9 +85,9 @@ void ReosRainfallItemSelectionDialog::onSelectionChange()
   mButtonBox->button( QDialogButtonBox::Ok )->setEnabled( selectionIsGood );
 }
 
-ReosIntensityDurationSelectedCurveWidget::ReosIntensityDurationSelectedCurveWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosIntensityDurationSelectedCurveWidget )
+ReosIntensityDurationSelectedCurveWidget::ReosIntensityDurationSelectedCurveWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosIntensityDurationSelectedCurveWidget )
 {
   ui->setupUi( this );
   connect( ui->toolButtonCurve, &QToolButton::clicked, this, &ReosIntensityDurationSelectedCurveWidget::onToolButtonCurve );

@@ -40,15 +40,12 @@ const QPolygonF &ReosHydraulicStructureProfile::geometry() const
   return mGeometry;
 }
 
-QPolygonF ReosHydraulicStructureProfile::terrainProfile( ) const
+QPolygonF ReosHydraulicStructureProfile::terrainProfile() const
 {
   if ( mPointValues.empty() )
     buildProfile();
 
-  std::function<double( ReosMeshPointValue )> terrainValue = [this]( const ReosMeshPointValue & points )
-  {
-    return points.terrainElevation( mStructure->mesh() );
-  };
+  std::function<double( ReosMeshPointValue )> terrainValue = [this]( const ReosMeshPointValue &points ) { return points.terrainElevation( mStructure->mesh() ); };
 
   return extractValue( terrainValue );
 }
@@ -70,10 +67,7 @@ QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *sc
   if ( results )
   {
     int groupIndex = results->groupIndex( resultType );
-    std::function<double( ReosMeshPointValue )> resultValue = [results, groupIndex, datasetIndex]( const ReosMeshPointValue & points )
-    {
-      return points.value( results, groupIndex, datasetIndex );
-    };
+    std::function<double( ReosMeshPointValue )> resultValue = [results, groupIndex, datasetIndex]( const ReosMeshPointValue &points ) { return points.value( results, groupIndex, datasetIndex ); };
 
     return extractValue( resultValue );
   }
@@ -92,7 +86,6 @@ QPolygonF ReosHydraulicStructureProfile::resultsProfile( ReosHydraulicScheme *sc
   }
 
   return QPolygon();
-
 }
 
 static QPolygonF mergeWaterlevelWithTerrain( const QPolygonF &waterLevel, const QPolygonF &terrain, QPolygonF &correctedWaterSurface )
@@ -156,15 +149,9 @@ QList<QPolygonF> ReosHydraulicStructureProfile::resultsFilledByWater( ReosHydrau
 
   totalWaterSurface.clear();
 
-  std::function<double( ReosMeshPointValue )> waterLevelValue = [results, groupIndex, datasetindex]( const ReosMeshPointValue & points )
-  {
-    return points.value( results, groupIndex, datasetindex );
-  };
+  std::function<double( ReosMeshPointValue )> waterLevelValue = [results, groupIndex, datasetindex]( const ReosMeshPointValue &points ) { return points.value( results, groupIndex, datasetindex ); };
 
-  std::function<double( ReosMeshPointValue )> terrainValue = [this]( const ReosMeshPointValue & points )
-  {
-    return points.terrainElevation( mStructure->mesh() );
-  };
+  std::function<double( ReosMeshPointValue )> terrainValue = [this]( const ReosMeshPointValue &points ) { return points.terrainElevation( mStructure->mesh() ); };
 
   const QString &crs = mStructure->mesh()->crs();
   for ( auto it = mPointValues.constBegin(); it != mPointValues.constEnd(); ++it )
@@ -298,7 +285,6 @@ QList<QPolygonF> ReosHydraulicStructureProfile::resultsFilledByWater( ReosHydrau
             }
           }
         }
-
       }
 
       posInLine0 = posInLine;
@@ -340,7 +326,6 @@ QRectF ReosHydraulicStructureProfile::elevationExtent( ReosHydraulicScheme *sche
           ret = ret.united( wsExt );
       }
     }
-
   }
 
   return ret;
@@ -430,7 +415,7 @@ void ReosHydraulicStructureProfile::initParts() const
         for ( int i = 0; i < hole.size(); ++i )
         {
           int index = holeIndex.at( i );
-          hole[i] = vertices.at( internalLines.at( index ).first() ) ;
+          hole[i] = vertices.at( internalLines.at( index ).first() );
         }
 
         QVector<double> holeDistanceFromBegining;
@@ -459,7 +444,7 @@ void ReosHydraulicStructureProfile::buildProfile() const
   mTerrainExtent = ReosGeometryUtils::boundingBox( terrainProfile(), ok );
 }
 
-QPolygonF ReosHydraulicStructureProfile::extractValue( const std::function<double ( ReosMeshPointValue )> &func ) const
+QPolygonF ReosHydraulicStructureProfile::extractValue( const std::function<double( ReosMeshPointValue )> &func ) const
 {
   QPolygonF ret;
   const QString &crs = mStructure->mesh()->crs();
@@ -491,13 +476,11 @@ QRectF ReosHydraulicStructureProfile::terrainExtent() const
     buildProfile();
 
   return mTerrainExtent;
-
 }
 
-ReosHydraulicStructureProfilesCollection::ReosHydraulicStructureProfilesCollection( QObject *parent ): QAbstractListModel( parent )
-{
-
-}
+ReosHydraulicStructureProfilesCollection::ReosHydraulicStructureProfilesCollection( QObject *parent )
+  : QAbstractListModel( parent )
+{}
 
 QModelIndex ReosHydraulicStructureProfilesCollection::index( int row, int column, const QModelIndex & ) const
 {
@@ -505,7 +488,9 @@ QModelIndex ReosHydraulicStructureProfilesCollection::index( int row, int column
 }
 
 QModelIndex ReosHydraulicStructureProfilesCollection::parent( const QModelIndex & ) const
-{return QModelIndex(); }
+{
+  return QModelIndex();
+}
 
 int ReosHydraulicStructureProfilesCollection::rowCount( const QModelIndex & ) const
 {

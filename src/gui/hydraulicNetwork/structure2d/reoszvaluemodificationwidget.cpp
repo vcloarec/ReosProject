@@ -21,7 +21,7 @@
 
 ReosZValueModificationWidget::ModificationType ReosZValueModificationWidget::modificationType() const
 {
-  ModificationType type =  static_cast<ModificationType>( ui->mTypeComboBox->currentData().toInt() );
+  ModificationType type = static_cast<ModificationType>( ui->mTypeComboBox->currentData().toInt() );
 
   ReosSettings setting;
   setting.setValue( QStringLiteral( "ZValueModification/type" ), type );

@@ -31,7 +31,7 @@
 
 ReosMeteoFranceApi::ReosMeteoFranceApi( const QString &keyFileName )
 {
-  mAromeService.reset( new  ReosMeteoFranceApiArome( keyFileName ) );
+  mAromeService.reset( new ReosMeteoFranceApiArome( keyFileName ) );
 }
 
 QString ReosMeteoFranceApi::name() const
@@ -45,15 +45,14 @@ ReosMeteoFranceApiArome *ReosMeteoFranceApi::aromeService() const
 }
 
 
-QList<ReosMeteoFranceApiArome::Model>  ReosMeteoFranceApiArome::sAvailableModels =
-{
-  Model( {QStringLiteral( "FRANCE" ), QStringLiteral( "001" )} ),
-  Model( {QStringLiteral( "FRANCE" ), QStringLiteral( "0025" )} ),
-  Model( {QStringLiteral( "NCALED" ), QStringLiteral( "0025" )} ),
-  Model( {QStringLiteral( "INDIEN" ), QStringLiteral( "0025" )} ),
-  Model( {QStringLiteral( "GUYANE" ), QStringLiteral( "0025" )} ),
-  Model( {QStringLiteral( "ANTIL" ), QStringLiteral( "0025" )} ),
-  Model( {QStringLiteral( "POLYN" ), QStringLiteral( "0025" )} )
+QList<ReosMeteoFranceApiArome::Model> ReosMeteoFranceApiArome::sAvailableModels = {
+  Model( { QStringLiteral( "FRANCE" ), QStringLiteral( "001" ) } ),
+  Model( { QStringLiteral( "FRANCE" ), QStringLiteral( "0025" ) } ),
+  Model( { QStringLiteral( "NCALED" ), QStringLiteral( "0025" ) } ),
+  Model( { QStringLiteral( "INDIEN" ), QStringLiteral( "0025" ) } ),
+  Model( { QStringLiteral( "GUYANE" ), QStringLiteral( "0025" ) } ),
+  Model( { QStringLiteral( "ANTIL" ), QStringLiteral( "0025" ) } ),
+  Model( { QStringLiteral( "POLYN" ), QStringLiteral( "0025" ) } )
 };
 
 bool ReosMeteoFranceApiArome::hasKey() const
@@ -91,8 +90,7 @@ void ReosMeteoFranceApiArome::connectToService( const Model &model, QString &err
   const QString strUrl = baseUrl( model ) + capabilitiesRequest();
   QNetworkReply *reply = networkRequest( strUrl, error );
 
-  connect( reply, &QNetworkReply::finished, this, [reply, this]
-  {
+  connect( reply, &QNetworkReply::finished, this, [reply, this] {
     onConnectionReply( reply->readAll(), mLastError );
     reply->deleteLater();
   } );
@@ -131,8 +129,7 @@ bool ReosMeteoFranceApiArome::onConnectionReply( const QByteArray &bytes, QStrin
   {
     const QDomElement coverageIdElem = coverageSummary.firstChildElement( QStringLiteral( "wcs:CoverageId" ) );
     QString idText = coverageIdElem.text();
-    if ( idText.startsWith( QStringLiteral( "TOTAL_PRECIPITATION__GROUND_OR_WATER_SURFACE___" ) ) &&
-         idText.endsWith( QStringLiteral( "_PT1H" ) ) )
+    if ( idText.startsWith( QStringLiteral( "TOTAL_PRECIPITATION__GROUND_OR_WATER_SURFACE___" ) ) && idText.endsWith( QStringLiteral( "_PT1H" ) ) )
     {
       QString isoDate = idText;
       isoDate.remove( QStringLiteral( "TOTAL_PRECIPITATION__GROUND_OR_WATER_SURFACE___" ) );
@@ -181,8 +178,7 @@ void ReosMeteoFranceApiArome::requestRunInfo( const QDateTime &run, QString &err
 
   const QString strUrl = baseUrl( mModel ) + describeCoverageRequest( run );
   QNetworkReply *reply = networkRequest( strUrl, error );
-  connect( reply, &QNetworkReply::finished, this, [this, reply, run]
-  {
+  connect( reply, &QNetworkReply::finished, this, [this, reply, run] {
     emit runInfoReady( reply->readAll(), run );
     reply->deleteLater();
   } );
@@ -284,8 +280,7 @@ void ReosMeteoFranceApiArome::requestFrame( const ReosMapExtent &extent, const Q
   QString error;
   QNetworkReply *reply = networkRequest( strUrl, error );
 
-  connect( reply, &QNetworkReply::finished, this, [ this, reply, frameIndex, extent, run ]
-  {
+  connect( reply, &QNetworkReply::finished, this, [this, reply, frameIndex, extent, run] {
     bool throttled = false;
     QByteArray bytes = preventThrottling( reply, throttled );
     if ( !throttled )
@@ -301,10 +296,7 @@ void ReosMeteoFranceApiArome::requestFrame( const ReosMapExtent &extent, const Q
 
 void ReosMeteoFranceApiArome::requestFrameDeffered( const ReosMapExtent &extent, const QDateTime &run, int frameIndex, int delay )
 {
-  QTimer::singleShot( delay, this, [this, extent, run, frameIndex]
-  {
-    requestFrame( extent, run, frameIndex );
-  } );
+  QTimer::singleShot( delay, this, [this, extent, run, frameIndex] { requestFrame( extent, run, frameIndex ); } );
 }
 
 QStringList ReosMeteoFranceApiArome::extentToLonLatList( const ReosMapExtent &extent, int precision )
@@ -316,7 +308,7 @@ QStringList ReosMeteoFranceApiArome::extentToLonLatList( const ReosMapExtent &ex
   const QString lonMax = QString::number( lonLat.xMapMax(), 'f', precision );
 
   QStringList ret;
-  ret  << lonMin << lonMax << latMin << latMax;
+  ret << lonMin << lonMax << latMin << latMax;
 
   return ret;
 }
@@ -344,14 +336,14 @@ QByteArray ReosMeteoFranceApiArome::preventThrottling( QNetworkReply *reply, boo
 
 QString ReosMeteoFranceApiArome::capabilitiesRequest() const
 {
-  return QStringLiteral( "GetCapabilities?service=%1&version=%2&language=%3&apikey=%4" ).arg(
-           mVersion.service.toUpper(), mVersion.version, mVersion.language, QString::fromUtf8( QUrl::toPercentEncoding( mKeyApi ) ) );
+  return QStringLiteral( "GetCapabilities?service=%1&version=%2&language=%3&apikey=%4" )
+    .arg( mVersion.service.toUpper(), mVersion.version, mVersion.language, QString::fromUtf8( QUrl::toPercentEncoding( mKeyApi ) ) );
 }
 
 QString ReosMeteoFranceApiArome::describeCoverageRequest( const QDateTime &run ) const
 {
-  return QStringLiteral( "DescribeCoverage?service=%1&version=%2&language=%3&coverageID=%4&apikey=%5" ).arg(
-           mVersion.service.toUpper(), mVersion.version, mVersion.language, mCoverageIds.value( run ), QString::fromUtf8( QUrl::toPercentEncoding( mKeyApi ) ) );
+  return QStringLiteral( "DescribeCoverage?service=%1&version=%2&language=%3&coverageID=%4&apikey=%5" )
+    .arg( mVersion.service.toUpper(), mVersion.version, mVersion.language, mCoverageIds.value( run ), QString::fromUtf8( QUrl::toPercentEncoding( mKeyApi ) ) );
 }
 
 QString ReosMeteoFranceApiArome::coverageRequest( const QDateTime &run, int frameIndex, const ReosMapExtent &extent ) const
@@ -362,14 +354,7 @@ QString ReosMeteoFranceApiArome::coverageRequest( const QDateTime &run, int fram
 
 
   return QStringLiteral( "GetCoverage?service=%1&version=%2&coverageid=%3&subset=time(%4)&subset=lat(%5,%6)&subset=long(%7,%8)&format=" )
-         .arg( mVersion.service.toUpper(),
-               mVersion.version,
-               mCoverageIds.value( run ),
-               isoDate,
-               extentString.at( 2 ),
-               extentString.at( 3 ),
-               extentString.at( 0 ),
-               extentString.at( 1 ) )
+           .arg( mVersion.service.toUpper(), mVersion.version, mCoverageIds.value( run ), isoDate, extentString.at( 2 ), extentString.at( 3 ), extentString.at( 0 ), extentString.at( 1 ) )
          + QString::fromUtf8( QUrl::toPercentEncoding( QStringLiteral( "application/wmo-grib" ) ) )
          + QStringLiteral( "&apikey=%1" ).arg( QString::fromUtf8( QUrl::toPercentEncoding( mKeyApi ) ) );
 }
@@ -450,9 +435,7 @@ bool ReosMeteoFranceApiArome::setKey( const QString &fileName )
 
 QString ReosMeteoFranceApiArome::baseUrl( const Model &model ) const
 {
-  return mServerUrl + QStringLiteral( "/%1/MF-NWP-HIGHRES-AROME%5-%2-%3-%4/" ).
-         arg( mVersion.service.toLower(), model.resol, model.zone, mVersion.service,
-              model.zone != QStringLiteral( "FRANCE" ) ? QStringLiteral( "-OM" ) : QString() );
+  return mServerUrl
+         + QStringLiteral( "/%1/MF-NWP-HIGHRES-AROME%5-%2-%3-%4/" )
+             .arg( mVersion.service.toLower(), model.resol, model.zone, mVersion.service, model.zone != QStringLiteral( "FRANCE" ) ? QStringLiteral( "-OM" ) : QString() );
 }
-
-

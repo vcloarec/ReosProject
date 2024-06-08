@@ -30,7 +30,9 @@ class REOSGUI_EXPORT ReosDataProviderSelectorWidget : public QWidget
 {
     Q_OBJECT
   public:
-    ReosDataProviderSelectorWidget( QWidget *parent = nullptr ): QWidget( parent ) {}
+    ReosDataProviderSelectorWidget( QWidget *parent = nullptr )
+      : QWidget( parent )
+    {}
 
     /**
      * Creates an return a pointer to a new data object with the current selected data,
@@ -94,8 +96,8 @@ class REOSGUI_EXPORT ReosDataProviderGuiFactory
   public:
     enum class GuiCapability
     {
-      DataSelector = 1 << 0, //!< If the provider have a gui data selector
-      ProviderSettings = 1 << 1, //!< If the provider have a settings widget
+      DataSelector = 1 << 0,          //!< If the provider have a gui data selector
+      ProviderSettings = 1 << 1,      //!< If the provider have a settings widget
       StationIdentification = 1 << 2, //! If the provider can identify station
     };
 
@@ -129,7 +131,7 @@ class REOSGUI_EXPORT ReosDataProviderGuiFactory
     virtual QIcon icon() const;
 
     //! Returns a text representing this data provider
-    virtual QString displayText() const {return QString();}
+    virtual QString displayText() const { return QString(); }
 };
 
 /**

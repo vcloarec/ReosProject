@@ -13,8 +13,8 @@
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reoshydraulicscheme.h"
 
-ReosHecRasProject::ReosHecRasProject( const QString &fileName ):
-  mFileName( fileName )
+ReosHecRasProject::ReosHecRasProject( const QString &fileName )
+  : mFileName( fileName )
 {
   mIsValid = parseProjectFile();
   if ( mIsValid )
@@ -106,7 +106,6 @@ ReosHecRasFlow ReosHecRasProject::currentFlow() const
 
 bool ReosHecRasProject::parseProjectFile()
 {
-
   QFileInfo fileInfo( mFileName );
   if ( !fileInfo.exists() )
     return false;
@@ -232,7 +231,7 @@ ReosMesh *ReosHecRasGeometry::createMesh( const QString &destinationCrs, ReosMod
   std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( mFileName + QStringLiteral( ".hdf" ), destinationCrs, message ) );
 
   QString demFile = terrainVrtFile();
-  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::createRasterDigitalElevationModel( demFile ) );
+  std::unique_ptr<ReosDigitalElevationModel> dem( ReosGisEngine::createRasterDigitalElevationModel( demFile ) );
   if ( !dem )
   {
     message.text = QObject::tr( "Unable to load the vrt file corresponding to the terrain." );
@@ -254,7 +253,7 @@ void ReosHecRasGeometry::resetMesh( ReosMesh *mesh, const QString &destinationCr
   mesh->resetMeshFrameFromeFile( meshFileName, destinationCrs, message );
   QString demFile = terrainVrtFile();
 
-  std::unique_ptr<ReosDigitalElevationModel>  dem( ReosGisEngine::createRasterDigitalElevationModel( demFile ) );
+  std::unique_ptr<ReosDigitalElevationModel> dem( ReosGisEngine::createRasterDigitalElevationModel( demFile ) );
 
   if ( !dem )
   {
@@ -383,12 +382,11 @@ void ReosHecRasGeometry::parseStorageArea( QTextStream &stream, const QString &s
 
     if ( line.isEmpty() )
       break;
-
   }
 
   if ( is2D )
   {
-    mAreas2D.append( {storageName, surface} );
+    mAreas2D.append( { storageName, surface } );
   }
 }
 
@@ -432,7 +430,6 @@ void ReosHecRasGeometry::parseBoundaryCondition( QTextStream &stream, const QStr
     bcs << bc;
     mBoundariesConditions.insert( location, bcs );
   }
-
 }
 
 QString ReosHecRasGeometry::terrainVrtFile() const
@@ -509,25 +506,24 @@ void ReosHecRasPlan::changeSimulationTimeInFile( const QDateTime &startTime, con
     QString inputLine = stream.readLine();
     if ( inputLine.startsWith( "Simulation Date=" ) )
     {
-      outputStream << QStringLiteral( "Simulation Date=%1,%2,%3,%4" ).
-                   arg( ReosHecRasProject::dateToHecRasDate( startTime.date() ),
-                        startTime.time().toString( QStringLiteral( "HH:mm" ) ),
-                        ReosHecRasProject::dateToHecRasDate( endTime.date() ),
-                        endTime.time().toString( QStringLiteral( "HH:mm" ) ) )
-                   << "\r\n";
+      outputStream
+        << QStringLiteral( "Simulation Date=%1,%2,%3,%4" )
+             .arg(
+               ReosHecRasProject::dateToHecRasDate( startTime.date() ),
+               startTime.time().toString( QStringLiteral( "HH:mm" ) ),
+               ReosHecRasProject::dateToHecRasDate( endTime.date() ),
+               endTime.time().toString( QStringLiteral( "HH:mm" ) )
+             )
+        << "\r\n";
     }
     else if ( inputLine.startsWith( "Computation Interval=" ) )
-      outputStream << QStringLiteral( "Computation Interval=%1" ).
-                   arg( durationToComputationInterval( simulation->computeInterval() ) ) << "\r\n";
+      outputStream << QStringLiteral( "Computation Interval=%1" ).arg( durationToComputationInterval( simulation->computeInterval() ) ) << "\r\n";
     else if ( inputLine.startsWith( "Output Interval=" ) )
-      outputStream << QStringLiteral( "Output Interval=%1" ).
-                   arg( durationToComputationInterval( simulation->outputInterval() ) ) << "\r\n";
+      outputStream << QStringLiteral( "Output Interval=%1" ).arg( durationToComputationInterval( simulation->outputInterval() ) ) << "\r\n";
     else if ( inputLine.startsWith( "Instantaneous Interval=" ) )
-      outputStream << QStringLiteral( "Instantaneous Interval=%1" ).
-                   arg( durationToComputationInterval( simulation->detailedInterval() ) ) << "\r\n";
+      outputStream << QStringLiteral( "Instantaneous Interval=%1" ).arg( durationToComputationInterval( simulation->detailedInterval() ) ) << "\r\n";
     else if ( inputLine.startsWith( "Mapping Interval=" ) )
-      outputStream << QStringLiteral( "Mapping Interval=%1" ).
-                   arg( durationToComputationInterval( simulation->mappingInterval() ) ) << "\r\n";
+      outputStream << QStringLiteral( "Mapping Interval=%1" ).arg( durationToComputationInterval( simulation->mappingInterval() ) ) << "\r\n";
     else
       outputStream << inputLine << "\r\n";
   }
@@ -660,46 +656,45 @@ bool ReosHecRasPlan::parsePlanFile()
 }
 
 
-QMap<ReosDuration, QString> ReosHecRasPlan::sIntervals =
-{
-  {ReosDuration( 100, ReosDuration::millisecond ), "0.1SEC"}
-  , { ReosDuration( 200, ReosDuration::millisecond ), "0.2SEC"}
-  , { ReosDuration( 300, ReosDuration::millisecond ), "0.3SEC"}
-  , {ReosDuration( 400, ReosDuration::millisecond ), "0.4SEC"}
-  , {ReosDuration( 500, ReosDuration::millisecond ), "0.5SEC"}
-  , {ReosDuration( 1, ReosDuration::second ), "1SEC"}
-  , {ReosDuration( 2, ReosDuration::second ), "2SEC"}
-  , {ReosDuration( 3, ReosDuration::second ), "3SEC"}
-  , {ReosDuration( 4, ReosDuration::second ), "4SEC"}
-  , {ReosDuration( 5, ReosDuration::second ), "5SEC"}
-  , {ReosDuration( 6, ReosDuration::second ), "6SEC"}
-  , {ReosDuration( 10, ReosDuration::second ), "10SEC"}
-  , { ReosDuration( 12, ReosDuration::second ), "12SEC"}
-  , {ReosDuration( 15, ReosDuration::second ), "15SEC"}
-  , {ReosDuration( 20, ReosDuration::second ), "20SEC"}
-  , {ReosDuration( 30, ReosDuration::second ), "30SEC"}
-  , {ReosDuration( 1, ReosDuration::minute ), "1MIN"}
-  , {ReosDuration( 2, ReosDuration::minute ), "2MIN"}
-  , {ReosDuration( 3, ReosDuration::minute ), "3MIN"}
-  , {ReosDuration( 4, ReosDuration::minute ), "4MIN"}
-  , {ReosDuration( 5, ReosDuration::minute ), "5MIN"}
-  , {ReosDuration( 6, ReosDuration::minute ), "6MIN"}
-  , {ReosDuration( 10, ReosDuration::minute ), "10MIN"}
-  , {ReosDuration( 12, ReosDuration::minute ), "12MIN"}
-  , {ReosDuration( 15, ReosDuration::minute ), "15MIN"}
-  , {ReosDuration( 20, ReosDuration::minute ), "20MIN"}
-  , {ReosDuration( 30, ReosDuration::minute ), "30MIN"}
-  , {ReosDuration( 1, ReosDuration::hour ), "1HOUR"}
-  , {ReosDuration( 2, ReosDuration::hour ), "2HOUR"}
-  , {ReosDuration( 3, ReosDuration::hour ), "3HOUR"}
-  , {ReosDuration( 4, ReosDuration::hour ), "4HOUR"}
-  , {ReosDuration( 6, ReosDuration::hour ), "6HOUR"}
-  , {ReosDuration( 8, ReosDuration::hour ), "8HOUR"}
-  , {ReosDuration( 12, ReosDuration::hour ), "12HOUR"}
-  , {ReosDuration( 1, ReosDuration::day ), "1DAY"}
-  , {ReosDuration( 1, ReosDuration::week ), "1WEEK"}
-  , {ReosDuration( 1, ReosDuration::month ), "1MONTH"}
-  , {ReosDuration( 1, ReosDuration::year ), "1YEAR"}
+QMap<ReosDuration, QString> ReosHecRasPlan::sIntervals = {
+  { ReosDuration( 100, ReosDuration::millisecond ), "0.1SEC" },
+  { ReosDuration( 200, ReosDuration::millisecond ), "0.2SEC" },
+  { ReosDuration( 300, ReosDuration::millisecond ), "0.3SEC" },
+  { ReosDuration( 400, ReosDuration::millisecond ), "0.4SEC" },
+  { ReosDuration( 500, ReosDuration::millisecond ), "0.5SEC" },
+  { ReosDuration( 1, ReosDuration::second ), "1SEC" },
+  { ReosDuration( 2, ReosDuration::second ), "2SEC" },
+  { ReosDuration( 3, ReosDuration::second ), "3SEC" },
+  { ReosDuration( 4, ReosDuration::second ), "4SEC" },
+  { ReosDuration( 5, ReosDuration::second ), "5SEC" },
+  { ReosDuration( 6, ReosDuration::second ), "6SEC" },
+  { ReosDuration( 10, ReosDuration::second ), "10SEC" },
+  { ReosDuration( 12, ReosDuration::second ), "12SEC" },
+  { ReosDuration( 15, ReosDuration::second ), "15SEC" },
+  { ReosDuration( 20, ReosDuration::second ), "20SEC" },
+  { ReosDuration( 30, ReosDuration::second ), "30SEC" },
+  { ReosDuration( 1, ReosDuration::minute ), "1MIN" },
+  { ReosDuration( 2, ReosDuration::minute ), "2MIN" },
+  { ReosDuration( 3, ReosDuration::minute ), "3MIN" },
+  { ReosDuration( 4, ReosDuration::minute ), "4MIN" },
+  { ReosDuration( 5, ReosDuration::minute ), "5MIN" },
+  { ReosDuration( 6, ReosDuration::minute ), "6MIN" },
+  { ReosDuration( 10, ReosDuration::minute ), "10MIN" },
+  { ReosDuration( 12, ReosDuration::minute ), "12MIN" },
+  { ReosDuration( 15, ReosDuration::minute ), "15MIN" },
+  { ReosDuration( 20, ReosDuration::minute ), "20MIN" },
+  { ReosDuration( 30, ReosDuration::minute ), "30MIN" },
+  { ReosDuration( 1, ReosDuration::hour ), "1HOUR" },
+  { ReosDuration( 2, ReosDuration::hour ), "2HOUR" },
+  { ReosDuration( 3, ReosDuration::hour ), "3HOUR" },
+  { ReosDuration( 4, ReosDuration::hour ), "4HOUR" },
+  { ReosDuration( 6, ReosDuration::hour ), "6HOUR" },
+  { ReosDuration( 8, ReosDuration::hour ), "8HOUR" },
+  { ReosDuration( 12, ReosDuration::hour ), "12HOUR" },
+  { ReosDuration( 1, ReosDuration::day ), "1DAY" },
+  { ReosDuration( 1, ReosDuration::week ), "1WEEK" },
+  { ReosDuration( 1, ReosDuration::month ), "1MONTH" },
+  { ReosDuration( 1, ReosDuration::year ), "1YEAR" }
 };
 
 const QMap<ReosDuration, QString> &ReosHecRasPlan::computationIntervals()
@@ -764,7 +759,6 @@ QDate ReosHecRasProject::hecRasDateToDate( const QString &hecrasDate )
 
 QString ReosHecRasProject::dateToHecRasDate( const QDate &date )
 {
-
   if ( date.isNull() || !date.isValid() )
     return QString();
 
@@ -787,25 +781,25 @@ QString ReosHecRasProject::dateToHecRasDate( const QDate &date )
       monthStr = QStringLiteral( "may" );
       break;
     case 6:
-      monthStr = QStringLiteral( "jun" ) ;
+      monthStr = QStringLiteral( "jun" );
       break;
     case 7:
       monthStr = QStringLiteral( "jul" );
       break;
     case 8:
-      monthStr = QStringLiteral( "aug" ) ;
+      monthStr = QStringLiteral( "aug" );
       break;
     case 9:
       monthStr = QStringLiteral( "sep" );
       break;
     case 10:
-      monthStr = QStringLiteral( "oct" ) ;
+      monthStr = QStringLiteral( "oct" );
       break;
     case 11:
-      monthStr = QStringLiteral( "nov" ) ;
+      monthStr = QStringLiteral( "nov" );
       break;
     case 12:
-      monthStr = QStringLiteral( "dec" ) ;
+      monthStr = QStringLiteral( "dec" );
       break;
   }
 
@@ -845,10 +839,7 @@ void ReosHecRasProject::setCurrentPlan( const QString &newCurrentPlan )
     mCurrentPlan = newCurrentPlan;
 }
 
-ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
-  const QString &planId,
-  ReosHydraulicStructure2D *structure,
-  ReosHydraulicScheme *scheme ) const
+ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility( const QString &planId, ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme ) const
 {
   ReosHydraulicNetworkElementCompatibilty ret;
   ret.isCompatible = true;
@@ -859,7 +850,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
   const QList<ReosHecRasGeometry::BoundaryCondition> &hecBc = geometry.allBoundariesConditions();
   const QList<ReosHydraulicStructureBoundaryCondition *> &reosBc = structure->boundaryConditions();
 
-  QMap < QString, int> idToHecBc;
+  QMap< QString, int> idToHecBc;
   QMap<QString, int> idToReosBc;
 
   for ( int i = 0; i < hecBc.count(); ++i )
@@ -884,18 +875,19 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasProject::checkCompatibility(
       if ( bc->defaultConditionType( scheme ) != ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally )
       {
         ret.isCompatible = false;
-        ret.incompatibilityReasons.append(
-          QObject::tr( "Boundary condition \"%1\", modified in %2, is not present in the plan \"%3\"" ).arg( bc->elementNameParameter()->value(), schemeRef, planName ) );
+        ret.incompatibilityReasons.append( QObject::tr( "Boundary condition \"%1\", modified in %2, is not present in the plan \"%3\"" ).arg( bc->elementNameParameter()->value(), schemeRef, planName ) );
       }
 
-      if ( ! bc->linksBySide1().isEmpty() ||
-           ! bc->linksBySide2().isEmpty() )
+      if ( !bc->linksBySide1().isEmpty() || !bc->linksBySide2().isEmpty() )
       {
         ret.isCompatible = false;
-        QString message =
-          QObject::tr( "Boundary condition \"%1\", not present in the plan \"%2\","
-                       " is linked to %n element(s) in project:", "", bc->linksBySide1().count() + bc->linksBySide2().count() )
-          .arg( bc->elementNameParameter()->value(), planName );
+        QString message = QObject::tr(
+                            "Boundary condition \"%1\", not present in the plan \"%2\","
+                            " is linked to %n element(s) in project:",
+                            "",
+                            bc->linksBySide1().count() + bc->linksBySide2().count()
+        )
+                            .arg( bc->elementNameParameter()->value(), planName );
 
         QList<ReosHydraulicLink *> elems = bc->linksBySide1();
         for ( ReosHydraulicNetworkElement *elem : std::as_const( elems ) )
@@ -972,8 +964,7 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
   tempFile.open();
   QTextStream outputStream( &tempFile );
 
-  auto foundFlow = [&]( const QString & area, const QString & boundaryLine, bool & found ) -> const BoundaryFlow
-  {
+  auto foundFlow = [&]( const QString &area, const QString &boundaryLine, bool &found ) -> const BoundaryFlow {
     found = false;
     for ( const BoundaryFlow &bf : flows )
     {
@@ -1022,8 +1013,7 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
     }
     else if ( isInBoundaryToTreat )
     {
-      if ( ( inputLine.startsWith( QStringLiteral( "Flow Hydrograph=" ) ) ||
-             inputLine.startsWith( QStringLiteral( "Stage Hydrograph=" ) ) ) )
+      if ( ( inputLine.startsWith( QStringLiteral( "Flow Hydrograph=" ) ) || inputLine.startsWith( QStringLiteral( "Stage Hydrograph=" ) ) ) )
       {
         int valueCount = 0;
         QStringList part = inputLine.split( '=' );
@@ -1049,16 +1039,14 @@ bool ReosHecRasFlow::applyBoudaryFlow( const QList<BoundaryFlow> &flows )
         outputStream << QStringLiteral( "DSS Path=%1" ).arg( currentFlow.dssPath ) << "\r\n";
         outputStream << QStringLiteral( "Use DSS=True" ) << "\r\n";
       }
-      else if ( inputLine.startsWith( QStringLiteral( "DSS File=" ) ) ||  inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
+      else if ( inputLine.startsWith( QStringLiteral( "DSS File=" ) ) || inputLine.startsWith( QStringLiteral( "Use DSS=" ) ) )
         continue;
       else
         outputStream << inputLine << "\r\n";
-
     }
     else if ( inputLine.startsWith( QStringLiteral( "Precipitation Mode=" ) ) )
     {
-      outputStream << QStringLiteral( "Precipitation Mode=%1" ).arg(
-                     mGriddedPrecipitationActivated ? QStringLiteral( "Enable" ) : QStringLiteral( "Disable" ) ) << "\r\n";
+      outputStream << QStringLiteral( "Precipitation Mode=%1" ).arg( mGriddedPrecipitationActivated ? QStringLiteral( "Enable" ) : QStringLiteral( "Disable" ) ) << "\r\n";
     }
     else if ( mGriddedPrecipitationActivated && !griddedPrecipTreated && inputLine.startsWith( QStringLiteral( "Met BC=Precipitation|" ) ) )
     {
@@ -1145,8 +1133,7 @@ QString ReosHecRasFlow::parseBoundary( QTextStream &stream, const QString &first
   {
     line = stream.readLine();
 
-    if ( line.startsWith( QStringLiteral( "Boundary Location=" ) ) ||
-         line.startsWith( QStringLiteral( "Met Point Raster Parameters=" ) ) ) //supposed to be the line after just after the last boundary
+    if ( line.startsWith( QStringLiteral( "Boundary Location=" ) ) || line.startsWith( QStringLiteral( "Met Point Raster Parameters=" ) ) ) //supposed to be the line after just after the last boundary
       break;
 
     if ( line.startsWith( QStringLiteral( "Interval=" ) ) )
@@ -1252,7 +1239,6 @@ QVector<double> ReosHecRasFlow::parseValues( QTextStream &stream, const QString 
   }
 
   return ret;
-
 }
 
 bool ReosHecRasFlow::parseLocation( const QString &locationLine, QString &area, QString &boundaryLine ) const
@@ -1291,15 +1277,11 @@ static QString doubleToString( double value, int stringSize )
 ReosHecRasBoundaryConditionId::ReosHecRasBoundaryConditionId( const QString &location, const QString &name )
   : mLocation( location )
   , mName( name )
-{
-}
+{}
 
 ReosHecRasBoundaryConditionId::ReosHecRasBoundaryConditionId( const QString &id )
 {
-  if ( !id.isEmpty() &&
-       id.contains( QStringLiteral( "\"::\"" ) ) &&
-       id.at( 0 ) == QStringLiteral( "\"" ) &&
-       id.at( id.size() - 1 ) == QStringLiteral( "\"" ) )
+  if ( !id.isEmpty() && id.contains( QStringLiteral( "\"::\"" ) ) && id.at( 0 ) == QStringLiteral( "\"" ) && id.at( id.size() - 1 ) == QStringLiteral( "\"" ) )
   {
     QStringList parts = id.split( QStringLiteral( "\"::\"" ) );
     if ( parts.count() == 2 )
@@ -1308,14 +1290,11 @@ ReosHecRasBoundaryConditionId::ReosHecRasBoundaryConditionId( const QString &id 
       mName = parts.at( 1 ).left( parts.at( 1 ).size() - 1 );
     }
   }
-
 }
 
 QString ReosHecRasBoundaryConditionId::id() const
 {
-  return QStringLiteral( "\"" ) + mLocation + QStringLiteral( "\"" ) +
-         QStringLiteral( "::" ) +
-         QStringLiteral( "\"" ) + mName + QStringLiteral( "\"" );
+  return QStringLiteral( "\"" ) + mLocation + QStringLiteral( "\"" ) + QStringLiteral( "::" ) + QStringLiteral( "\"" ) + mName + QStringLiteral( "\"" );
 }
 
 const QString &ReosHecRasBoundaryConditionId::location() const
@@ -1334,8 +1313,7 @@ ReosHecRasFlow::BoundaryFlow::BoundaryFlow()
 
 ReosHecRasFlow::BoundaryFlow::BoundaryFlow( const QString &location, const QString &name )
   : mId( location, name )
-{
-}
+{}
 
 const QString &ReosHecRasFlow::BoundaryFlow::area() const
 {
