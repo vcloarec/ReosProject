@@ -22,9 +22,7 @@ ReosAddHydrographNodeFromWidget::ReosAddHydrographNodeFromWidget( ReosHydraulicN
   const QStringList providerKeys = ReosDataProviderRegistery::instance()->withCapabilities( ReosHydrograph::staticType(), ReosDataProvider::Spatial );
 
   for ( const QString &key : providerKeys )
-    ui->mProviderComboBox->addItem( ReosDataProviderGuiRegistery::instance()->providerIcon( key ),
-                                    ReosDataProviderGuiRegistery::instance()->providerDisplayText( key ),
-                                    key );
+    ui->mProviderComboBox->addItem( ReosDataProviderGuiRegistery::instance()->providerIcon( key ), ReosDataProviderGuiRegistery::instance()->providerDisplayText( key ), key );
 
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "/add-hydrograph-from/provider" ) ) )
@@ -34,15 +32,14 @@ ReosAddHydrographNodeFromWidget::ReosAddHydrographNodeFromWidget( ReosHydraulicN
       ui->mProviderComboBox->setCurrentIndex( index );
   }
 
-  connect( ui->mProviderComboBox,  QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosAddHydrographNodeFromWidget::onProviderChanged );
+  connect( ui->mProviderComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosAddHydrographNodeFromWidget::onProviderChanged );
 
   connect( ui->mCloseButton, &QPushButton::clicked, this, &ReosActionWidget::close );
   connect( ui->mAddNode, &QPushButton::clicked, this, &ReosAddHydrographNodeFromWidget::onAddNode );
   connect( ui->mAddNodeCopy, &QPushButton::clicked, this, &ReosAddHydrographNodeFromWidget::onAddNodeCopy );
 
   connect( this, &ReosActionWidget::opened, this, &ReosAddHydrographNodeFromWidget::onProviderChanged );
-  connect( this, &ReosActionWidget::closed, this, [this]
-  {
+  connect( this, &ReosActionWidget::closed, this, [this] {
     mCurrentWidget->deleteLater();
     mCurrentWidget = nullptr;
   } );
@@ -73,8 +70,7 @@ void ReosAddHydrographNodeFromWidget::onProviderChanged()
   {
     ui->mProviderLayout->addWidget( mCurrentWidget );
 
-    connect( mCurrentWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this ]( bool isDataSelected )
-    {
+    connect( mCurrentWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this]( bool isDataSelected ) {
       mIsDatasetSelected = isDataSelected;
       ui->mAddNode->setEnabled( isDataSelected );
       if ( !isDataSelected )
@@ -86,27 +82,24 @@ void ReosAddHydrographNodeFromWidget::onProviderChanged()
     } );
 
     // connect loading
-    connect( mCurrentWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this]
-    {
+    connect( mCurrentWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this] {
       mIsDataReady = false;
       ui->mAddNodeCopy->setEnabled( false );
     } );
 
     // connect data is ready
-    connect( mCurrentWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this]
-    {
+    connect( mCurrentWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this] {
       mIsDataReady = true;
       ui->mAddNodeCopy->setEnabled( true );
     } );
 
     mCurrentWidget->onOpened();
   }
-
 }
 
 void ReosAddHydrographNodeFromWidget::onAddNodeCopy()
 {
-  if ( ! mCurrentWidget )
+  if ( !mCurrentWidget )
     return;
   std::unique_ptr<ReosHydrograph> copyHyd = std::make_unique<ReosHydrograph>();
   ReosHydrograph *providerHydrograph = qobject_cast<ReosHydrograph *>( mCurrentWidget->selectedData() );
@@ -127,7 +120,7 @@ void ReosAddHydrographNodeFromWidget::onAddNodeCopy()
 
 void ReosAddHydrographNodeFromWidget::onAddNode()
 {
-  if ( ! mCurrentWidget )
+  if ( !mCurrentWidget )
     return;
 
   std::unique_ptr<ReosHydrograph> hyd;
@@ -152,8 +145,7 @@ void ReosAddHydrographNodeFromWidget::addNode( const QVariantMap &metadata, Reos
       QString crs = metadata.value( QStringLiteral( "crs" ) ).toString();
       ReosSpatialPosition position( xCoord, yCoord, crs );
 
-      std::unique_ptr<ReosHydrographJunction> junctionNode =
-        std::make_unique<ReosHydrographJunction>( position, mNetWork );
+      std::unique_ptr<ReosHydrographJunction> junctionNode = std::make_unique<ReosHydrographJunction>( position, mNetWork );
 
       int hydIndex = junctionNode->gaugedHydrographsStore()->hydrographCount();
       junctionNode->elementNameParameter()->setValue( metadata.value( QStringLiteral( "station" ) ).toString() );
@@ -167,7 +159,12 @@ void ReosAddHydrographNodeFromWidget::addNode( const QVariantMap &metadata, Reos
     }
   }
 
-  QMessageBox::warning( this, tr( "Unable to Add Node" ),
-                        tr( "Position associated with this hydrograh is invalid.\n"
-                            "Unable to add a node." ) );
+  QMessageBox::warning(
+    this,
+    tr( "Unable to Add Node" ),
+    tr(
+      "Position associated with this hydrograh is invalid.\n"
+      "Unable to add a node."
+    )
+  );
 }

@@ -36,7 +36,7 @@ class REOSCORE_EXPORT ReosNetworkAccessManager : public QNetworkAccessManager
     static ReosNetworkAccessManager *instance();
 
     //! Makes a GET request and wait for reply, the thread is blocked until the reply is finished
-    QNetworkReply *getBlocking( const QNetworkRequest &request,  QString &error, int timeOut = 0 );
+    QNetworkReply *getBlocking( const QNetworkRequest &request, QString &error, int timeOut = 0 );
 
   private:
     static QThreadStorage<ReosNetworkAccessManager> sInstances;

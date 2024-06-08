@@ -21,12 +21,18 @@ ReosHydraulicNode::ReosHydraulicNode( ReosHydraulicNetwork *parent )
   : ReosHydraulicNetworkElement( parent )
 {}
 
-QString ReosHydraulicNode::type() const {return staticType();}
+QString ReosHydraulicNode::type() const
+{
+  return staticType();
+}
 
-QString ReosHydraulicNode::staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "node" );}
+QString ReosHydraulicNode::staticType()
+{
+  return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "node" );
+}
 
 ReosHydraulicNode::ReosHydraulicNode( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
-    : ReosHydraulicNetworkElement( encodedElement, parent )
+  : ReosHydraulicNetworkElement( encodedElement, parent )
 {}
 
 void ReosHydraulicNode::attachBySide1( ReosHydraulicLink *link )
@@ -64,7 +70,6 @@ QList<ReosHydraulicLink *> ReosHydraulicNode::links() const
   ret.append( linksBySide2() );
 
   return ret;
-
 }
 
 QList<ReosHydraulicLink *> ReosHydraulicNode::linksBySide1() const
@@ -89,7 +94,10 @@ QList<ReosHydraulicLink *> ReosHydraulicNode::linksBySide2() const
   return ret;
 }
 
-bool ReosHydraulicNode::canAcceptLink( const QString &, int ) {return false;}
+bool ReosHydraulicNode::canAcceptLink( const QString &, int )
+{
+  return false;
+}
 
 ReosMapExtent ReosHydraulicNode::extent() const
 {
@@ -97,4 +105,3 @@ ReosMapExtent ReosHydraulicNode::extent() const
 }
 
 ReosHydraulicNode::~ReosHydraulicNode() = default;
-

@@ -36,7 +36,7 @@ class ReosTransferFunction;
 class ReosSeriesRainfall;
 class ReosHydrograph;
 
-class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
+class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
 {
     Q_OBJECT
   public:
@@ -54,33 +54,38 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     /**
      * Constructor of manual delineating watershed with \a delineating polygon and the \a outlet point.
      */
-    ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint );
+    ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs = QString() );
 
 #ifndef SIP_RUN
 
     //! Constructor used with automatic delineating with direction data containded in the upstream watershed
-    ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint,
-                   Type type,
-                   const QPolygonF &downstreamLine,
-                   const QPolygonF &streamPath,
-                   const ReosRasterWatershed::Watershed &rasterizedWatershed,
-                   const ReosRasterExtent &rasterizedWatershedExtent,
-                   const QString &refLayerId );
+    ReosWatershed(
+      const QPolygonF &delineating,
+      const QPointF &outletPoint,
+      Type type,
+      const QPolygonF &downstreamLine,
+      const QPolygonF &streamPath,
+      const ReosRasterWatershed::Watershed &rasterizedWatershed,
+      const ReosRasterExtent &rasterizedWatershedExtent,
+      const QString &refLayerId,
+      const QString &crs = QString()
+    );
 
     //! Constructor used with automatic delineating with direction data
-    ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint,
-                   Type type,
-                   const QPolygonF &downstreamLine,
-                   const QPolygonF &streamPath,
-                   const ReosRasterWatershed::Directions &direction,
-                   const ReosRasterWatershed::Watershed &rasterizedWatershed,
-                   const ReosRasterExtent &rasterExtent,
-                   const QString &refLayerId );
+    ReosWatershed(
+      const QPolygonF &delineating,
+      const QPointF &outletPoint,
+      Type type,
+      const QPolygonF &downstreamLine,
+      const QPolygonF &streamPath,
+      const ReosRasterWatershed::Directions &direction,
+      const ReosRasterWatershed::Watershed &rasterizedWatershed,
+      const ReosRasterExtent &rasterExtent,
+      const QString &refLayerId,
+      const QString &crs = QString()
+    );
 
-    Type watershedType() const {return mType;}
+    Type watershedType() const { return mType; }
 
     //! Returns the name of the watershed
     ReosParameterString *watershedName() const;
@@ -266,9 +271,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
     void calculateAverageElevation();
 
   private:
-    ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint,
-                   Type type );
+    ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, Type type );
 
     Type mType = None;
 
@@ -290,18 +293,19 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
     //! Return mGisEngine or the one of the parent watershed if nullptr
     ReosGisEngine *geographicalContext() const;
+    QString mWktCrs;
 
     struct DirectionData
     {
-      ReosRasterByteCompressed directionRaster;
-      ReosRasterExtent directionExtent;
+        ReosRasterByteCompressed directionRaster;
+        ReosRasterExtent directionExtent;
     };
     std::map<QString, DirectionData> mDirectionData;
 
     struct RasterizedWatershedData
     {
-      ReosRasterByteCompressed rasterizedWatershed;
-      ReosRasterExtent rasterizedWatershedExtent;
+        ReosRasterByteCompressed rasterizedWatershed;
+        ReosRasterExtent rasterizedWatershedExtent;
     };
     std::map<QString, RasterizedWatershedData> mRasterizedWatershedData;
 

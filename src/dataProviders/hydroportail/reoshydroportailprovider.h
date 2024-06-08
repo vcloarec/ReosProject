@@ -29,7 +29,7 @@ class ReosHydroportailProvider : public ReosTimeSerieVariableTimeStepProvider
     void load() override;
 
     QDateTime referenceTime() const override;
-    QString valueUnit() const  override {return QString();}
+    QString valueUnit() const override { return QString(); }
     int valueCount() const override;
     double value( int i ) const override;
     double firstValue() const override;
@@ -50,7 +50,6 @@ class ReosHydroportailProvider : public ReosTimeSerieVariableTimeStepProvider
     QDateTime mReferenceTime;
     QVector<ReosDuration> mTimes;
     QVector<double> mValues;
-
 };
 
 
@@ -64,7 +63,7 @@ class ReosHydroportailProviderFactory : public ReosDataProviderFactory
     QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const;
 
   private:
-    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::File};
+    ReosDataProvider::Capabilities mCapabilities = { ReosDataProvider::File };
 };
 
 #endif // REOSHYDROPORTAILPROVIDER_H

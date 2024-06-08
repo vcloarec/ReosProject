@@ -1,0 +1,47 @@
+{
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/home/cloarec/dev/building/reos_debug/",
+        "/home/cloarec/dev/built/eccodes/include",
+        "/usr/include/gdal",
+        "/home/cloarec/dev/built/GMSH_debug/include",
+        "/home/cloarec/dev/built/MDAL/include",
+        "/usr/include",
+        "/usr/include/Qca-qt5/QtCrypto",
+        "/home/cloarec/dev/sources/QGIS/src",
+        "/home/cloarec/dev/built/QGIS_debug/include/qgis",
+        "/usr/include/qt5keychain",
+        "/usr/include/qwt",
+        "/usr/include/python3.14",
+        "/usr/include/hdf5/serial"
+      ],
+      "browse": {
+        "path": [
+          "${workspaceFolder}",
+          "/home/cloarec/dev/building/reos_debug/",
+          "/home/cloarec/dev/built/eccodes/include",
+          "/usr/include/gdal",
+          "/home/cloarec/dev/built/GMSH_debug/include",
+          "/home/cloarec/dev/built/MDAL/include",
+          "/usr/include",
+          "/usr/include/Qca-qt5/QtCrypto",
+          "/home/cloarec/dev/sources/QGIS/src",
+          "/home/cloarec/dev/built/QGIS_debug/include/qgis",
+          "/usr/include/qt5keychain",
+          "/usr/include/qwt",
+          "/usr/include/python3.14",
+          "/usr/include/hdf5/serial"
+        ],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": ""
+      },
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "linux-gcc-x64"
+    }
+  ],
+  "version": 4
+}

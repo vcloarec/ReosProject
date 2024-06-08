@@ -25,15 +25,11 @@ class ReosDssPath;
 class ReosHecRasController;
 class ReosHecRasStructureImporterSource;
 
-class ReosHecRasSimulationProcess: public ReosSimulationProcess
+class ReosHecRasSimulationProcess : public ReosSimulationProcess
 {
     Q_OBJECT
   public:
-    ReosHecRasSimulationProcess(
-      const ReosHecRasProject &hecRasProject,
-      const QString &planId,
-      const ReosCalculationContext &context,
-      const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
+    ReosHecRasSimulationProcess( const ReosHecRasProject &hecRasProject, const QString &planId, const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
 
     void start();
 
@@ -54,7 +50,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
 
     QString key() const override;
 
-    ReosModule::Message  prepareSimulationData( ReosSimulationData &simData, const QString &schemeId ) override {return ReosModule::Message();}
+    ReosModule::Message prepareSimulationData( ReosSimulationData &simData, const QString &schemeId ) override { return ReosModule::Message(); }
 
     void prepareInput( const ReosSimulationData &data, const ReosCalculationContext &calculationContext ) override;
     void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {}
@@ -66,7 +62,7 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosHydraulicSimulationResults *loadSimulationResults( const QString &schemeId, QObject *parent = nullptr ) const override;
     bool hasResult( const QString &shemeId ) const override;
     void removeResults( const QString &shemeId ) const override;
-    QString engineName() const override {return tr( "HECRAS" );}
+    QString engineName() const override { return tr( "HECRAS" ); }
     ReosTimeWindow externalTimeWindow() const override;
     ReosTimeWindow externalBoundaryConditionTimeWindow( const QString &boundaryId ) const override;
     ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override;
@@ -97,17 +93,13 @@ class ReosHecRasSimulation : public ReosHydraulicSimulation
     ReosDuration mappingInterval( ReosHydraulicScheme *scheme = nullptr ) const;
     void setMappingInterval( const ReosDuration &newMappingInterval, ReosHydraulicScheme *scheme = nullptr );
 
-    static void updateBoundaryConditions( ReosHecRasProject *project,
-                                          const QSet<QString> &currentBoundaryId,
-                                          ReosHydraulicStructure2D *structure,
-                                          const ReosHydraulicNetworkContext &context );
+    static void updateBoundaryConditions( ReosHecRasProject *project, const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context );
 
     /**
      * Checks the compatibility if the HEC-RAS plan with \a planId of this simulation
      * considering the complete hydraulic network (for all schemes)
      */
-    ReosHydraulicNetworkElementCompatibilty checkPlanCompability(
-      const QString &planId ) const;
+    ReosHydraulicNetworkElementCompatibilty checkPlanCompability( const QString &planId ) const;
 
   private:
     QString mProjectFileName;
@@ -142,8 +134,7 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
     ReosHecRasSimulationEngineFactory();
 
     //! Create a new simulation, for HEC-RAS model, it is not possible to create new one, there is only one simulation per model, so this method returns nullptr
-    ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D * ) const override
-    { return nullptr; }
+    ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D * ) const override { return nullptr; }
 
     //! Create a simulation from an encoded element.
     ReosHecRasSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const override;
@@ -160,14 +151,13 @@ class ReosHecRasSimulationEngineFactory : public ReosSimulationEngineFactory
  * Class that is used to iport HEC-RAS model. This importer is rely to a HEC-RAC project file (*.prj) and is responsible to provide all elements
  * necessary to the hydraulic structure (mesh, simulation instance, boundary condition,...)
  */
-class ReosHecRasStructureImporter: public ReosStructureImporter
+class ReosHecRasStructureImporter : public ReosStructureImporter
 {
   public:
-
     struct CreationOptions
     {
-      bool createSchemeWithPlan = false;
-      bool removePreviousScheme = false;
+        bool createSchemeWithPlan = false;
+        bool removePreviousScheme = false;
     };
 
     ReosHecRasStructureImporter( const QString &file, const ReosHydraulicNetworkContext &context, const ReosHecRasStructureImporterSource *source );
@@ -185,9 +175,7 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
 
     QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const override;
 
-    void updateBoundaryConditions( const QSet<QString> &currentBoundaryId,
-                                   ReosHydraulicStructure2D *structure,
-                                   const ReosHydraulicNetworkContext &context ) const override;
+    void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
 
     bool isValid() const override;
 
@@ -209,7 +197,7 @@ class ReosHecRasStructureImporter: public ReosStructureImporter
     void init( const QString &mFileName );
 };
 
-class ReosHecRasStructureImporterSource: public ReosStructureImporterSource
+class ReosHecRasStructureImporterSource : public ReosStructureImporterSource
 {
   public:
     ReosHecRasStructureImporterSource( const QString &file, const ReosHydraulicNetworkContext &context );

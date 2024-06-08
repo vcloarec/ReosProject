@@ -26,71 +26,71 @@ email                :   projetreos@gmail.com
 
 class ReosRainfallIntensityDuration
 {
-public:
-    enum UnitTime{minute,hour};
-    enum EquationType {montana,talbot};
+  public:
+    enum UnitTime
+    {
+      minute,
+      hour
+    };
+    enum EquationType
+    {
+      montana,
+      talbot
+    };
 
-    ReosRainfallIntensityDuration(ReosDuration periode=ReosDuration(10,ReosDuration::year),UniteTemps un=hour);
+    ReosRainfallIntensityDuration( ReosDuration periode = ReosDuration( 10, ReosDuration::year ), UniteTemps un = hour );
 
-    ReosRainfallIntensityDuration(const ReosIntensityDuration* other);
+    ReosRainfallIntensityDuration( const ReosIntensityDuration *other );
 
 
-    virtual ReosRainfallIntensityDuration* clone() const =0;
+    virtual ReosRainfallIntensityDuration *clone() const = 0;
 
     virtual ~ReosRainfallIntensityDuration();
 
-    virtual double intensity(const ReosDuration &time) const =0;
-    virtual EquationType type() const =0;
-    virtual double getHauteur(ReosDuration temps) const;
+    virtual double intensity( const ReosDuration &time ) const = 0;
+    virtual EquationType type() const = 0;
+    virtual double getHauteur( ReosDuration temps ) const;
 
-    void setReturnPeriod(const ReosDuration &returnPeriod);
+    void setReturnPeriod( const ReosDuration &returnPeriod );
     ReosDuration returnPeriod() const;
 
     UnitTime unitTime() const;
-    void setUnitTime(const UnitTime &unite)
+    void setUnitTime( const UnitTime &unite )
 
-    unsigned int getNumberCoef() const;
-    double getCoefA(unsigned int i) const;
-    double getCoefB(unsigned int i) const;
-    std::vector<ReosDuration> getIntervalle(unsigned int i) const;
+      unsigned int getNumberCoef() const;
+    double getCoefA( unsigned int i ) const;
+    double getCoefB( unsigned int i ) const;
+    std::vector<ReosDuration> getIntervalle( unsigned int i ) const;
     ReosDuration getDureeMin() const;
     ReosDuration getDureeMax() const;
-    HlgIntensiteDuree& operator<<(ReosDuration duree);
+    HlgIntensiteDuree &operator<<( ReosDuration duree );
 
-    void insertDuree(ReosDuration duree);
-    void removeDuree(unsigned int i);
+    void insertDuree( ReosDuration duree );
+    void removeDuree( unsigned int i );
     void clear();
-;
-    bool setCoef(unsigned int i, double a, double b);
-    bool setCoef(unsigned int i, unsigned int j,double v);
-    void setA(unsigned int i, double a);
-    void setB(unsigned int i, double b);
-    void setCoefficients(const std::vector<std::vector<double>> &coef);
-    void setPasTemps(const std::vector<ReosDuration> &pdt);
+    ;
+    bool setCoef( unsigned int i, double a, double b );
+    bool setCoef( unsigned int i, unsigned int j, double v );
+    void setA( unsigned int i, double a );
+    void setB( unsigned int i, double b );
+    void setCoefficients( const std::vector<std::vector<double>> &coef );
+    void setPasTemps( const std::vector<ReosDuration> &pdt );
 
     QByteArray encodage() const;
 
     QByteArray encode() const;
 
-protected:
-
-    unsigned int getIndex(ReosDuration &duree) const;
+  protected:
+    unsigned int getIndex( ReosDuration &duree ) const;
     std::vector<std::vector<double>> coefficient;
     std::vector<ReosDuration> pasTemps;
 
-private:
-
+  private:
     ReosDuration mReturnPeriod;
     UnitTime mUnitTime;
-
-
 };
 
-HlgIntensiteDuree* decodeIDF(const QByteArray &byteArray);
-
-
-
-
+HlgIntensiteDuree *decodeIDF( const QByteArray &byteArray );
 
 
 #endif // HlgIntensiteDuree_H

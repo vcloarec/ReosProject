@@ -23,7 +23,7 @@ class ReosIntensityDurationCurveTableModel;
 class QComboBox;
 
 
-class ReosRainfallIntensityDurationWidget: public ReosFormWidget
+class ReosRainfallIntensityDurationWidget : public ReosFormWidget
 {
     Q_OBJECT
   public:

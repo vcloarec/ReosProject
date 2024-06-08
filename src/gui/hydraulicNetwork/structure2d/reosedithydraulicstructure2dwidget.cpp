@@ -75,15 +75,15 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
     structureWidget->setInformationWidget( new ReosStructureInformationWidget( structure2D, structureWidget ) );
     structureWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
     ui->pageMeshStructure->layout()->addWidget( structureWidget );
-    connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] {mMapStructureItem.updatePosition(); } );
+    connect( structureWidget, &ReosEditPolylineStructureWidget::boundaryConditionSelectionChanged, this, [this] { mMapStructureItem.updatePosition(); } );
 
     mResolutionWidget = new ReosGmshResolutionControllerWidget( structure2D, ReosGuiContext( context, this ) );
     mResolutionWidget->addToolBarActions( meshGenerationToolBarActions );
     mResolutionWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
     ui->pageMeshResolution->layout()->addWidget( mResolutionWidget );
 
-    ReosMeshTopographyStackedWidget *topographyWidget =
-      new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
+    ReosMeshTopographyStackedWidget *topographyWidget
+      = new ReosMeshTopographyStackedWidget( structure2D->mesh(), structure2D->topographyCollecion(), structure2D->terrainMeshDatasetId(), ReosGuiContext( context, this ) );
     ui->pageTopography->layout()->addWidget( topographyWidget );
     topographyWidget->setEnabled( mStructure2D->hasCapability( ReosHydraulicStructure2D::GeometryEditable ) );
 
@@ -109,24 +109,19 @@ ReosEditHydraulicStructure2DWidget::ReosEditHydraulicStructure2DWidget( ReosHydr
 
   Reoshydraulicstructure2dTimeWindowWidget *timeWindowWidget = new Reoshydraulicstructure2dTimeWindowWidget( structure2D->timeWindowSettings(), this );
 
-  timeWindowWidget->setExternallyDefinedEnable(
-    mStructure2D->hasCapability( ReosHydraulicStructure2D::DefinedExternally ) );
+  timeWindowWidget->setExternallyDefinedEnable( mStructure2D->hasCapability( ReosHydraulicStructure2D::DefinedExternally ) );
 
   ui->pageTimeWindow->layout()->addWidget( timeWindowWidget );
 
   mInitialMapStructureItem = context.mapItems( ReosHydraulicStructure2D::staticType() );
-  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this]
-  {
+  connect( structure2D->geometryStructure(), &ReosDataObject::dataChanged, this, [this] {
     mMapStructureItem.updatePosition();
     mInitialMapStructureItem->updatePosition();
   } );
 
   connect( backButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
   connect( ui->mOptionListWidget, &QListWidget::currentRowChanged, this, &ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged );
-  connect( structure2D, &ReosDataObject::dataChanged, this, [this]
-  {
-    mMap->refreshCanvas();
-  } );
+  connect( structure2D, &ReosDataObject::dataChanged, this, [this] { mMap->refreshCanvas(); } );
 
   ReosSettings settings;
   ui->mOptionListWidget->setCurrentRow( settings.value( QStringLiteral( "/hydraulic-structure/edit-widget/current-row" ) ).toInt() );
@@ -176,15 +171,21 @@ void ReosEditHydraulicStructure2DWidget::onMeshOptionListChanged( int row )
 
 void ReosEditHydraulicStructure2DWidget::generateMesh()
 {
-
   if ( mStructure2D->hasResults() )
   {
-    if ( QMessageBox::warning( this, tr( "Generate Mesh" ),
-                               tr( "If you generate a new mesh, existing results will not be compatible\n"
-                                   "anymore and will be removed.\n"
-                                   "\n"
-                                   "Do you want to continue?" ),
-                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+    if ( QMessageBox::warning(
+           this,
+           tr( "Generate Mesh" ),
+           tr(
+             "If you generate a new mesh, existing results will not be compatible\n"
+             "anymore and will be removed.\n"
+             "\n"
+             "Do you want to continue?"
+           ),
+           QMessageBox::Yes | QMessageBox::No,
+           QMessageBox::No
+         )
+         == QMessageBox::No )
     {
       return;
     }
@@ -224,12 +225,19 @@ void ReosEditHydraulicStructure2DWidget::hideEvent( QHideEvent *e )
 
     if ( mStructure2D->mesh()->isFrameModified() && mStructure2D->hasResults() )
     {
-      if ( QMessageBox::warning( this, tr( "Model Structure Modified" ),
-                                 tr( "As the frame of the mesh has been modified, if you keep these changes,\n"
-                                     " existing results will not be compatible anymore and will be removed.\n"
-                                     "\n"
-                                     "Do you want to keep the mesh modification and remove results?" ),
-                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+      if ( QMessageBox::warning(
+             this,
+             tr( "Model Structure Modified" ),
+             tr(
+               "As the frame of the mesh has been modified, if you keep these changes,\n"
+               " existing results will not be compatible anymore and will be removed.\n"
+               "\n"
+               "Do you want to keep the mesh modification and remove results?"
+             ),
+             QMessageBox::Yes | QMessageBox::No,
+             QMessageBox::No
+           )
+           == QMessageBox::Yes )
       {
         QApplication::setOverrideCursor( Qt::WaitCursor );
         mStructure2D->removeAllResults();

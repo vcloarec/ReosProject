@@ -139,9 +139,8 @@ void ReosGaugedHydrographWidget::onRemoveHydrograph()
   if ( !hydrographToReMove )
     return;
 
-  if ( QMessageBox::warning( this, tr( "Remove Gauged Hydrograph" ),
-                             tr( "Do you want to remove the hydrograph '%1'?" ).arg( hydrographToReMove->name() ),
-                             QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+  if ( QMessageBox::warning( this, tr( "Remove Gauged Hydrograph" ), tr( "Do you want to remove the hydrograph '%1'?" ).arg( hydrographToReMove->name() ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+       == QMessageBox::Yes )
   {
     mHydrographStore->removeHydrograph( currentIndex );
     ui->mComboBoxHydrographName->removeItem( currentIndex );
@@ -214,8 +213,7 @@ void ReosGaugedHydrographWidget::onCurrentHydrographChanged()
 
   if ( !mCurrentHydrograph.isNull() )
   {
-    newSettingsProviderWidget.reset(
-      ReosDataProviderGuiRegistery::instance()->createProviderSettingsWidget( mCurrentHydrograph->dataProvider() ) );
+    newSettingsProviderWidget.reset( ReosDataProviderGuiRegistery::instance()->createProviderSettingsWidget( mCurrentHydrograph->dataProvider() ) );
     newEditingWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentHydrograph ) );
     connect( mCurrentHydrograph, &ReosDataObject::dataChanged, this, &ReosGaugedHydrographWidget::updatePlotExtent );
   }
@@ -259,23 +257,16 @@ void ReosGaugedHydrographWidget::populateProviderActions()
 {
   const QString dataType = ReosHydrograph::staticType();
 
-  const QStringList providers =
-    ReosDataProviderGuiRegistery::instance()->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
+  const QStringList providers = ReosDataProviderGuiRegistery::instance()->providers( dataType, ReosDataProviderGuiFactory::GuiCapability::DataSelector );
 
   for ( const QString &provider : providers )
   {
-    QAction *action = new QAction(
-      ReosDataProviderGuiRegistery::instance()->providerIcon( provider ),
-      ReosDataProviderGuiRegistery::instance()->providerDisplayText( provider ), this );
+    QAction *action = new QAction( ReosDataProviderGuiRegistery::instance()->providerIcon( provider ), ReosDataProviderGuiRegistery::instance()->providerDisplayText( provider ), this );
     mProvidersActionToKeys.insert( action, provider );
     mToolBarProvider->addAction( action );
 
-    connect( action, &QAction::triggered, this, [this, provider]
-    {
-      showProviderSelector( provider );
-    } );
+    connect( action, &QAction::triggered, this, [this, provider] { showProviderSelector( provider ); } );
   }
-
 }
 
 void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKey )
@@ -294,9 +285,7 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
   QSpacerItem *headerSpacer = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   buttonLayout->addSpacerItem( headerSpacer );
 
-  headerSpacer->changeSize( headerSpacer->geometry().width(),
-                            ui->mainHeaderLayout->sizeHint().height(),
-                            QSizePolicy::Expanding );
+  headerSpacer->changeSize( headerSpacer->geometry().width(), ui->mainHeaderLayout->sizeHint().height(), QSizePolicy::Expanding );
 
   QPushButton *addButton = new QPushButton( tr( "Add" ), providerPage.get() );
   QPushButton *addCopyButton = new QPushButton( tr( "Add Copy" ), providerPage.get() );
@@ -313,8 +302,7 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
   mainLayout->addItem( buttonLayout );
   mainLayout->addWidget( line );
 
-  ReosDataProviderSelectorWidget *currentDataSelectorWidget =
-    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, dataType, mMap, providerPage.get() );
+  ReosDataProviderSelectorWidget *currentDataSelectorWidget = ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( providerKey, dataType, mMap, providerPage.get() );
 
   mainLayout->addWidget( currentDataSelectorWidget );
 
@@ -322,8 +310,7 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
 
   connect( buttonBack, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
 
-  connect( addButton, &QPushButton::clicked, this, [this, currentDataSelectorWidget]
-  {
+  connect( addButton, &QPushButton::clicked, this, [this, currentDataSelectorWidget] {
     if ( !currentDataSelectorWidget )
       return;
     std::unique_ptr<ReosHydrograph> hyd;
@@ -336,8 +323,7 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
     ui->mComboBoxHydrographName->setCurrentIndex( ui->mComboBoxHydrographName->count() - 1 );
   } );
 
-  connect( addCopyButton, &QPushButton::clicked, this, [this, currentDataSelectorWidget]
-  {
+  connect( addCopyButton, &QPushButton::clicked, this, [this, currentDataSelectorWidget] {
     if ( !currentDataSelectorWidget )
       return;
     std::unique_ptr<ReosHydrograph> copyHyd = std::make_unique<ReosHydrograph>();
@@ -359,10 +345,9 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
 
   if ( currentDataSelectorWidget )
   {
-    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this, addButton, addCopyButton]( bool isDataSelected )
-    {
+    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataSelectionChanged, this, [this, addButton, addCopyButton]( bool isDataSelected ) {
       mIsDatasetSelected = isDataSelected;
-      addButton->setEnabled( isDataSelected  && mHydrographStore );
+      addButton->setEnabled( isDataSelected && mHydrographStore );
       if ( !isDataSelected )
       {
         mIsDataReady = false;
@@ -372,15 +357,13 @@ void ReosGaugedHydrographWidget::showProviderSelector( const QString &providerKe
     } );
 
     // connect loading
-    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this, addCopyButton]
-    {
+    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsLoading, this, [this, addCopyButton] {
       mIsDataReady = false;
       addCopyButton->setEnabled( false );
     } );
 
     // connect data is ready
-    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this, addCopyButton]
-    {
+    connect( currentDataSelectorWidget, &ReosDataProviderSelectorWidget::dataIsReady, this, [this, addCopyButton] {
       mIsDataReady = true;
       addCopyButton->setEnabled( mHydrographStore != nullptr );
     } );

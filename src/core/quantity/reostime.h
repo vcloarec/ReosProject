@@ -47,7 +47,6 @@ class ReosTime
 
   private:
     QDateTime mDateTime;
-
 };
 
 #endif //REOSTIME_H

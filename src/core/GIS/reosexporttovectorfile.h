@@ -38,16 +38,13 @@ class REOSCORE_EXPORT ReosExportToVectorFile
 
     struct Field
     {
-      QString name;
-      QVariant::Type type;
-      QString typeName;
-      int length;
+        QString name;
+        QMetaType::Type type;
+        QString typeName;
+        int length;
     };
 
-    ReosExportToVectorFile( const QString &fileName,
-                            const QList<Field> fields,
-                            GeometryType geometryType,
-                            const QString &crs );
+    ReosExportToVectorFile( const QString &fileName, const QList<Field> fields, GeometryType geometryType, const QString &crs );
     ~ReosExportToVectorFile();
 
     //! Adds a polygon to export, does nothing if the type of this instance is not a polygon type

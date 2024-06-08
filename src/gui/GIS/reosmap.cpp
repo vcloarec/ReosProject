@@ -41,7 +41,6 @@ email                : vcloarec at gmail dot com
 
 class ReosRendererObjectHandler_p
 {
-
   public:
     explicit ReosRendererObjectHandler_p( QgsMapCanvas *canvas )
       : mCanvas( canvas )
@@ -49,25 +48,25 @@ class ReosRendererObjectHandler_p
 
     struct CacheRenderedObject
     {
-      QImage image;
-      QRectF extent;
-      std::shared_ptr<ReosRendererObjectMapTimeStamp> mapTimeStamp;
-      QgsMapToPixel mapToPixel;
-      qint64 timeStamp;
-      bool obsolete = false;
+        QImage image;
+        QRectF extent;
+        std::shared_ptr<ReosRendererObjectMapTimeStamp> mapTimeStamp;
+        QgsMapToPixel mapToPixel;
+        qint64 timeStamp;
+        bool obsolete = false;
     };
 
     struct CurrentProcessing
     {
-      ReosObjectRenderer *renderer = nullptr;
-      QRectF extent;
-      bool obsolete = false;
+        ReosObjectRenderer *renderer = nullptr;
+        QRectF extent;
+        bool obsolete = false;
     };
 
     struct CurrentProcessingQueue
     {
-      CurrentProcessing firstToRender;
-      CurrentProcessing lastStarted;
+        CurrentProcessing firstToRender;
+        CurrentProcessing lastStarted;
     };
 
     QHash<ReosRenderedObject *, CacheRenderedObject> mCacheRenderings;
@@ -83,9 +82,8 @@ class ReosRendererObjectHandler_p
 
 
 ReosRendererObjectHandler::ReosRendererObjectHandler( QGraphicsView *view )
-  : d( new ReosRendererObjectHandler_p( qobject_cast<QgsMapCanvas*>( view ) ) )
-{
-}
+  : d( new ReosRendererObjectHandler_p( qobject_cast<QgsMapCanvas *>( view ) ) )
+{}
 
 ReosRendererObjectHandler::~ReosRendererObjectHandler()
 {
@@ -148,17 +146,11 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
     if ( d->mProcessingQueues.contains( renderedObject ) )
     {
       const auto curProc1 = d->mProcessingQueues[renderedObject].firstToRender;
-      if ( curProc1.renderer &&
-           !curProc1.obsolete &&
-           extent == curProc1.extent &&
-           mapTimeStamp->equal( curProc1.renderer->mapTimeStamp() ) )
+      if ( curProc1.renderer && !curProc1.obsolete && extent == curProc1.extent && mapTimeStamp->equal( curProc1.renderer->mapTimeStamp() ) )
         return;
 
       const auto curProc2 = d->mProcessingQueues[renderedObject].lastStarted;
-      if ( curProc2.renderer &&
-           !curProc2.obsolete &&
-           extent == curProc2.extent &&
-           mapTimeStamp->equal( curProc2.renderer->mapTimeStamp() ) )
+      if ( curProc2.renderer && !curProc2.obsolete && extent == curProc2.extent && mapTimeStamp->equal( curProc2.renderer->mapTimeStamp() ) )
         return;
     }
 
@@ -205,7 +197,7 @@ void ReosRendererObjectHandler::startRender( ReosRenderedObject *renderedObject 
       curProc.extent = extent;
       curProc.renderer = renderer.release();
       curProc.obsolete = false;
-      d->mProcessingQueues.insert( renderedObject, {curProc, ReosRendererObjectHandler_p::CurrentProcessing()} );
+      d->mProcessingQueues.insert( renderedObject, { curProc, ReosRendererObjectHandler_p::CurrentProcessing() } );
 
       rendererToStart = curProc.renderer;
     }
@@ -221,9 +213,7 @@ bool ReosRendererObjectHandler::hasUpToDateCache( ReosRenderedObject *renderedOb
 
   if ( it != d->mCacheRenderings.end() )
   {
-    return it->extent == d->mCurrentExtent &&
-           ( !mapTimeStamp || it->mapTimeStamp->equal( mapTimeStamp ) ) &&
-           !it->obsolete;
+    return it->extent == d->mCurrentExtent && ( !mapTimeStamp || it->mapTimeStamp->equal( mapTimeStamp ) ) && !it->obsolete;
   }
 
   return false;
@@ -285,8 +275,8 @@ QImage ReosRendererObjectHandler::transformImage( ReosRenderedObject *renderedOb
     const QRectF targetRect( ulT.x(), ulT.y(), lrT.x() - ulT.x(), lrT.y() - ulT.y() );
 
     // Calculate source rect
-    const QPointF ulS = transform_( it->mapToPixel, QgsPointXY( intersection.xMinimum(), intersection.yMaximum() ),  it->image.devicePixelRatio() );
-    const QPointF lrS = transform_( it->mapToPixel, QgsPointXY( intersection.xMaximum(), intersection.yMinimum() ),  it->image.devicePixelRatio() );
+    const QPointF ulS = transform_( it->mapToPixel, QgsPointXY( intersection.xMinimum(), intersection.yMaximum() ), it->image.devicePixelRatio() );
+    const QPointF lrS = transform_( it->mapToPixel, QgsPointXY( intersection.xMaximum(), intersection.yMinimum() ), it->image.devicePixelRatio() );
     const QRectF sourceRect( ulS.x(), ulS.y(), lrS.x() - ulS.x(), lrS.y() - ulS.y() );
 
 
@@ -347,13 +337,8 @@ void ReosRendererObjectHandler::onRendererFinished()
     {
       std::shared_ptr<ReosRendererObjectMapTimeStamp> timeStamp;
       timeStamp.reset( renderer->releaseMapTimeStamp() );
-      d->mCacheRenderings.insert( object, ReosRendererObjectHandler_p::CacheRenderedObject(
-      {
-        renderer->image(),
-        renderedExtent,
-        timeStamp,
-        d->mMapToPixels.value( renderer ),
-        d->mTimeStamps.value( renderer )} ) );
+      d->mCacheRenderings
+        .insert( object, ReosRendererObjectHandler_p::CacheRenderedObject( { renderer->image(), renderedExtent, timeStamp, d->mMapToPixels.value( renderer ), d->mTimeStamps.value( renderer ) } ) );
 
       object->updateInternalCache( renderer );
     }
@@ -403,8 +388,8 @@ class ReosQgsMapCanvas : public QgsMapCanvas
     }
 };
 
-ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
-  ReosModule( staticModuleName(), parentWidget )
+ReosMap::ReosMap( ReosGisEngine *gisEngine, QWidget *parentWidget )
+  : ReosModule( staticModuleName(), parentWidget )
   , mEngine( gisEngine )
   , mCanvas( new ReosQgsMapCanvas( parentWidget ) )
   , mActionNeutral( new QAction( QIcon( QStringLiteral( ":/images/neutral.svg" ) ), tr( "Deactivate Tool" ), this ) )
@@ -439,8 +424,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
     //connect( QgsProject::instance(), &QgsProject::readProject, this, &ReosMap::readProject );
 
     //connect( this, &ReosMap::readProject, [this, bridge]( const QDomDocument & doc )
-    connect( QgsProject::instance(), &QgsProject::readProject, [this, bridge]( const QDomDocument & doc )
-    {
+    connect( QgsProject::instance(), &QgsProject::readProject, [this, bridge]( const QDomDocument &doc ) {
       bool autoSetupOnFirstLayer = bridge->autoSetupOnFirstLayer();
       bridge->setAutoSetupOnFirstLayer( false );
       bridge->setCanvasLayers();
@@ -453,10 +437,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
     } );
   }
 
-  connect( canvas, &QgsMapCanvas::xyCoordinates, this, [this]( const QgsPointXY & p )
-  {
-    emit cursorMoved( p.toQPointF() );
-  } );
+  connect( canvas, &QgsMapCanvas::xyCoordinates, this, [this]( const QgsPointXY &p ) { emit cursorMoved( p.toQPointF() ); } );
 
   if ( mEngine )
     connect( mEngine, &ReosGisEngine::crsChanged, this, &ReosMap::setCrs );
@@ -473,20 +454,11 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
   mZoomMapTool->setCursor( QCursor( QStringLiteral( ":/cursors/zoomInExtent.svg" ), 5, 5 ) );
   mActionZoom->setCheckable( true );
 
-  connect( mZoomMapTool, &ReosMapToolDrawExtent::extentDrawn, this, [this]( const QRectF & extent )
-  {
-    this->setExtent( extent );
-  } );
+  connect( mZoomMapTool, &ReosMapToolDrawExtent::extentDrawn, this, [this]( const QRectF &extent ) { this->setExtent( extent ); } );
 
-  connect( mActionZoomIn, &QAction::triggered, this, [canvas]
-  {
-    canvas->zoomByFactor( 0.5 );
-  } );
+  connect( mActionZoomIn, &QAction::triggered, this, [canvas] { canvas->zoomByFactor( 0.5 ); } );
 
-  connect( mActionZoomOut, &QAction::triggered, this, [canvas]
-  {
-    canvas->zoomByFactor( 2 );
-  } );
+  connect( mActionZoomOut, &QAction::triggered, this, [canvas] { canvas->zoomByFactor( 2 ); } );
 
   connect( mActionPreviousZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToPreviousExtent );
   connect( mActionNextZoom, &QAction::triggered, canvas, &QgsMapCanvas::zoomToNextExtent );
@@ -499,8 +471,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
   QgsMapToolPan *panMapTool = new QgsMapToolPan( canvas );
   mActionPan->setCheckable( true );
   panMapTool->setAction( mActionPan );
-  connect( mActionPan, &QAction::toggled, canvas, [this, canvas, panMapTool]
-  {
+  connect( mActionPan, &QAction::toggled, canvas, [this, canvas, panMapTool] {
     if ( mActionPan->isChecked() )
       canvas->setMapTool( panMapTool );
   } );
@@ -517,12 +488,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
   mTemporalControllerAction = mTemporalDockWidget->toggleViewAction();
   mTemporalControllerAction->setIcon( QIcon( QStringLiteral( ":/images/temporal.svg" ) ) );
 
-  connect( mTemporalControler,
-           &ReosTemporalController_p::updateTemporalRange, this,
-           [this]( const QgsDateTimeRange & timeRange )
-  {
-    emit timeChanged( timeRange.begin() );
-  } );
+  connect( mTemporalControler, &ReosTemporalController_p::updateTemporalRange, this, [this]( const QgsDateTimeRange &timeRange ) { emit timeChanged( timeRange.begin() ); } );
 
   if ( mEngine )
     connect( mEngine, &ReosGisEngine::temporalRangeChanged, mTemporalControler, &ReosTemporalController_p::setTemporalExtent );
@@ -542,8 +508,7 @@ ReosMap::ReosMap( ReosGisEngine *gisEngine,  QWidget *parentWidget ):
   connect( mDefaultMapTool, &ReosMapToolSelectMapItem::foundDoubleClick, this, &ReosMap::mapItemFoundDoubleClick );
 
   mActionEnableLegend->setCheckable( true );
-  connect( mActionEnableLegend, &QAction::toggled, this, [this]( bool checked )
-  {
+  connect( mActionEnableLegend, &QAction::toggled, this, [this]( bool checked ) {
     const QList<ReosColorRampMapLegendItem *> items = mColorRampLegendSettings.values();
     for ( ReosColorRampMapLegendItem *item : items )
       item->setVisible( checked );
@@ -593,7 +558,7 @@ ReosGisEngine *ReosMap::engine() const
 QString ReosMap::mapCrs() const
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
-  return canvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return canvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 void ReosMap::setDefaultMapTool()
@@ -627,7 +592,7 @@ void ReosMap::setCenter( const QPointF &center )
 void ReosMap::setCenter( const ReosSpatialPosition &center )
 {
   if ( mEngine && center.isValid() )
-    setCenter( mEngine->transformToProjectCoordinates( center ) ) ;
+    setCenter( mEngine->transformToProjectCoordinates( center ) );
 }
 
 ReosMapExtent ReosMap::extent() const
@@ -806,10 +771,8 @@ void ReosMap::activateOpenStreetMap()
   {
     QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
 
-    QgsRasterLayer *osmLayer = new QgsRasterLayer(
-      QStringLiteral( "type=xyz&url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=19&zmin=0&http-header:r" ),
-      tr( "Open Street Map" ),
-      QStringLiteral( "wms" ) );
+    QgsRasterLayer *osmLayer
+      = new QgsRasterLayer( QStringLiteral( "type=xyz&url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=19&zmin=0&http-header:r" ), tr( "Open Street Map" ), QStringLiteral( "wms" ) );
 
     osmLayer->setParent( this );
 
@@ -921,8 +884,8 @@ void ReosMap::deactivateCurrentTool()
     currentTool->deactivate();
 }
 
-ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):
-  QWidget( parent )
+ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent )
+  : QWidget( parent )
   , mCoordinates( new QLabel( this ) )
   , mCrs( new QLabel( this ) )
 {
@@ -944,10 +907,9 @@ ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent ):
 }
 
 ReosMapCursorPosition::~ReosMapCursorPosition()
-{
-}
+{}
 
-void ReosMapCursorPosition::setPosition( const  QPointF &p )
+void ReosMapCursorPosition::setPosition( const QPointF &p )
 {
   QString position = tr( "Map Coordinate : " );
   position.append( ReosParameter::doubleToString( p.x(), 2 ) );
@@ -966,8 +928,7 @@ void ReosMapCursorPosition::setCrs( const QString &crs )
 void ReosRendererObjectHandler::init()
 {
   QObject::connect( d->mCanvas, &QgsMapCanvas::extentsChanged, this, &ReosRendererObjectHandler::updateViewParameter );
-  connect( d->mCanvas->temporalController(), &QgsTemporalController::updateTemporalRange,
-           this, &ReosRendererObjectHandler::updateViewParameter );
+  connect( d->mCanvas->temporalController(), &QgsTemporalController::updateTemporalRange, this, &ReosRendererObjectHandler::updateViewParameter );
 }
 
 ReosDataVizMapWidget::ReosDataVizMapWidget( QWidget *parent )

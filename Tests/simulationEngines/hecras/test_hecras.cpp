@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 #include <filesystem>
 
@@ -250,8 +250,7 @@ void ReosHecrasTesting::manipulateDssFile()
 
   values.clear();
   startTime = QDateTime();
-  ReosTimeWindow timeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 00, 00 ), Qt::UTC ),
-                             QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 30, 00 ), Qt::UTC ) );
+  ReosTimeWindow timeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 00, 00 ), Qt::UTC ), QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 30, 00 ), Qt::UTC ) );
   QVERIFY( dssFile->getSeries( pathSeries, timeWindow, values, timeStep, startTime ) );
   QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 06, 00, 00 ), Qt::UTC ) );
   QCOMPARE( values.count(), 7 );
@@ -260,8 +259,7 @@ void ReosHecrasTesting::manipulateDssFile()
 
   values.clear();
   startTime = QDateTime();
-  timeWindow = ReosTimeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 04, 00, 00 ), Qt::UTC ),
-                               QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 45, 00 ), Qt::UTC ) );
+  timeWindow = ReosTimeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 04, 00, 00 ), Qt::UTC ), QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 45, 00 ), Qt::UTC ) );
   QVERIFY( dssFile->getSeries( pathSeries, timeWindow, values, timeStep, startTime ) );
   QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 05, 00, 00 ), Qt::UTC ) );
   QCOMPARE( values.count(), 10 );
@@ -270,8 +268,7 @@ void ReosHecrasTesting::manipulateDssFile()
 
   values.clear();
   startTime = QDateTime();
-  timeWindow = ReosTimeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 14, 00, 00 ), Qt::UTC ),
-                               QDateTime( QDate( 2020, 02, 02 ), QTime( 15, 30, 00 ), Qt::UTC ) );
+  timeWindow = ReosTimeWindow( QDateTime( QDate( 2020, 02, 02 ), QTime( 14, 00, 00 ), Qt::UTC ), QDateTime( QDate( 2020, 02, 02 ), QTime( 15, 30, 00 ), Qt::UTC ) );
   QVERIFY( dssFile->getSeries( pathSeries, timeWindow, values, timeStep, startTime ) );
   QCOMPARE( startTime, QDateTime( QDate( 2020, 02, 02 ), QTime( 14, 00, 00 ), Qt::UTC ) );
   QCOMPARE( values.count(), 12 );
@@ -280,11 +277,9 @@ void ReosHecrasTesting::manipulateDssFile()
 
   dssFile.reset();
 
-  std::unique_ptr<ReosHydrograph> hydrograph( new ReosHydrograph(
-        nullptr, QStringLiteral( "dss" ),
-        "\"" + newDssFile + QStringLiteral( ".dss" ) +
-        "\"::/group1/location1/FLOW/02Feb2020/5Minute/version1/" + "::" +
-        "2020:02:02T06:00:00Z::2020:02:02T08:00:00Z" ) );
+  std::unique_ptr<ReosHydrograph> hydrograph(
+    new ReosHydrograph( nullptr, QStringLiteral( "dss" ), "\"" + newDssFile + QStringLiteral( ".dss" ) + "\"::/group1/location1/FLOW/02Feb2020/5Minute/version1/" + "::" + "2020:02:02T06:00:00Z::2020:02:02T08:00:00Z" )
+  );
 
   QCOMPARE( hydrograph->valueCount(), 25 );
   QCOMPARE( hydrograph->referenceTime(), QDateTime( QDate( 2020, 02, 02 ), QTime( 6, 00, 00 ), Qt::UTC ) );
@@ -292,11 +287,9 @@ void ReosHecrasTesting::manipulateDssFile()
   for ( int i = 0; i < 25; ++i )
     QCOMPARE( hydrograph->valueAt( i ), static_cast<double>( ( i + 12 ) * 2 ) );
 
-  hydrograph.reset( new ReosHydrograph(
-                      nullptr, QStringLiteral( "dss" ),
-                      "\"" + newDssFile + QStringLiteral( ".dss" ) +
-                      "\"::/group1/location1/FLOW/02Feb2020/5Minute/version1/" + "::" +
-                      "2020:02:02T02:00:00Z::2020:02:02T07:00:00Z" ) );
+  hydrograph.reset(
+    new ReosHydrograph( nullptr, QStringLiteral( "dss" ), "\"" + newDssFile + QStringLiteral( ".dss" ) + "\"::/group1/location1/FLOW/02Feb2020/5Minute/version1/" + "::" + "2020:02:02T02:00:00Z::2020:02:02T07:00:00Z" )
+  );
 
   QCOMPARE( hydrograph->valueCount(), 25 );
   QCOMPARE( hydrograph->timeExtent().first, QDateTime( QDate( 2020, 02, 02 ), QTime( 5, 00, 00 ), Qt::UTC ) );
@@ -325,7 +318,8 @@ void ReosHecrasTesting::createTimeSerie()
   QVERIFY( res );
 
   std::unique_ptr<ReosTimeSerieConstantTimeStepProvider> provider(
-    static_cast<ReosTimeSerieConstantTimeStepProvider *>( providerFactory.createProvider( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) ) );
+    static_cast<ReosTimeSerieConstantTimeStepProvider *>( providerFactory.createProvider( ReosDssProviderTimeSerieConstantTimeStep::dataType() ) )
+  );
   provider->setDataSource( "\"" + filePath + ".dss\"::" + path.string() );
 
   QCOMPARE( provider->valueCount(), 0 );
@@ -383,10 +377,9 @@ void ReosHecrasTesting::createTimeSerie()
 
 void ReosHecrasTesting::writeGridInDss()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
-  QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
-  std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( QStringLiteral( "\"%1\"::%2::%3" ).arg( gribFile, variable, "cumulative" ), QStringLiteral( "grib::gridded-precipitation" ) ) );
+  QString filePath = testFile( QStringLiteral( "/grib/arome-antilles/" ) );
+  QString variableName = QStringLiteral( "Total Precipitation" );
+  std::unique_ptr<ReosGriddedRainfall> rainfall( new ReosGriddedRainfall( filePath + "::" + "grib-keys=name:" + variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr ) );
 
   QString projCrs = ReosGisEngine::crsFromEPSG( 32620 );
   rainfall->overrideCrs( ReosGisEngine::crsFromEPSG( 4326 ) );
@@ -427,9 +420,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
         frame1.setValue( 28 + i, j, 20 );
       }
 
-    memoryRainfallProvider.addFrame( frame1,
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ),
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+    memoryRainfallProvider.addFrame( frame1, QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
 
     ReosRasterMemory<double> frame2( 30, 30 );
     frame2.reserveMemory();
@@ -437,9 +428,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
     for ( int i = 5; i < 25; ++i )
       for ( int j = 5; j < 25; j++ )
         frame2.setValue( i, j, std::abs( 15 - std::max( i, j ) ) );
-    memoryRainfallProvider.addFrame( frame2,
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ),
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+    memoryRainfallProvider.addFrame( frame2, QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
 
     ReosRasterMemory<double> frame3( 30, 30 );
     frame3.reserveMemory();
@@ -447,15 +436,14 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
     for ( int i = 5; i < 25; ++i )
       for ( int j = 5; j < 25; j++ )
         frame3.setValue( i, j, std::abs( 10 - std::max( i, j ) ) );
-    memoryRainfallProvider.addFrame( frame3,
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ),
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
+    memoryRainfallProvider.addFrame( frame3, QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
 
     QPolygonF polyExtent;
-    polyExtent << QPointF( 652991.48222804930992424, 1796819.82771771727129817 )
-               << QPointF( 652991.48222804884426296, 1797504.95862683397717774 )
-               << QPointF( 653726.54979237192310393, 1797504.95862683444283903 )
-               << QPointF( 653726.54979237180668861, 1796819.82771771727129817 );
+    polyExtent
+      << QPointF( 652991.48222804930992424, 1796819.82771771727129817 )
+      << QPointF( 652991.48222804884426296, 1797504.95862683397717774 )
+      << QPointF( 653726.54979237192310393, 1797504.95862683444283903 )
+      << QPointF( 653726.54979237180668861, 1796819.82771771727129817 );
 
     ReosMapExtent extent( polyExtent, ReosGisEngine::crsFromEPSG( 32620 ) );
 
@@ -489,9 +477,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
         frame1.setValue( 28 + i, j, 70 );
       }
 
-    memoryRainfallProvider.addFrame( frame1,
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ),
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+    memoryRainfallProvider.addFrame( frame1, QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
 
     ReosRasterMemory<double> frame2( 30, 30 );
     frame2.reserveMemory();
@@ -499,15 +485,14 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
     for ( int i = 5; i < 25; ++i )
       for ( int j = 5; j < 25; j++ )
         frame2.setValue( i, j, std::abs( 15 - std::max( i, j ) ) );
-    memoryRainfallProvider.addFrame( frame2,
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ),
-                                     QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+    memoryRainfallProvider.addFrame( frame2, QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
 
     QPolygonF polyExtent;
-    polyExtent << QPointF( 652991.48222804930992424, 1796819.82771771727129817 )
-               << QPointF( 652991.48222804884426296, 1797504.95862683397717774 )
-               << QPointF( 653726.54979237192310393, 1797504.95862683444283903 )
-               << QPointF( 653726.54979237180668861, 1796819.82771771727129817 );
+    polyExtent
+      << QPointF( 652991.48222804930992424, 1796819.82771771727129817 )
+      << QPointF( 652991.48222804884426296, 1797504.95862683397717774 )
+      << QPointF( 653726.54979237192310393, 1797504.95862683444283903 )
+      << QPointF( 653726.54979237180668861, 1796819.82771771727129817 );
 
     ReosMapExtent extent( polyExtent, ReosGisEngine::crsFromEPSG( 32620 ) );
 
@@ -525,8 +510,7 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
   std::unique_ptr<ReosDssProviderGriddedRainfall> dssProvider = std::make_unique<ReosDssProviderGriddedRainfall>();
   QVERIFY( dssProvider->canReadUri( filePath ) );
 
-  dssProvider.reset( static_cast<ReosDssProviderGriddedRainfall *>(
-                       ReosDataProviderRegistery::instance()->createCompatibleProvider( filePath, ReosGriddedRainfall::staticType() ) ) );
+  dssProvider.reset( static_cast<ReosDssProviderGriddedRainfall *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( filePath, ReosGriddedRainfall::staticType() ) ) );
 
   QVERIFY( dssProvider );
   ReosModule::Message message;
@@ -550,12 +534,12 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
 
   QCOMPARE( griddedPrecipitation->gridCount(), 3 );
 
-  QCOMPARE( griddedPrecipitation->startTime( 0 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ) );
-  QCOMPARE( griddedPrecipitation->endTime( 0 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
-  QCOMPARE( griddedPrecipitation->startTime( 1 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
-  QCOMPARE( griddedPrecipitation->endTime( 1 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
-  QCOMPARE( griddedPrecipitation->startTime( 2 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
-  QCOMPARE( griddedPrecipitation->endTime( 2 ),  QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->startTime( 0 ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 30, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->endTime( 0 ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->startTime( 1 ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 35, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->endTime( 1 ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->startTime( 2 ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 40, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedPrecipitation->endTime( 2 ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 45, 0 ), Qt::UTC ) );
 
   ReosRasterExtent griddedExtent = griddedPrecipitation->rasterExtent();
 
@@ -579,22 +563,13 @@ void ReosHecrasTesting::createAndWriteGridFromScratch()
 
   QVERIFY( dssProvider->hasData( uri ) );
 
-  QVERIFY( dssProvider->hasData( uri, ReosTimeWindow(
-                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 00, 0 ), Qt::UTC ),
-                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 32, 0 ), Qt::UTC ) ) ) );
+  QVERIFY( dssProvider->hasData( uri, ReosTimeWindow( QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 00, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 32, 0 ), Qt::UTC ) ) ) );
 
-  QVERIFY( dssProvider->hasData( uri, ReosTimeWindow(
-                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 32, 0 ), Qt::UTC ),
-                                   QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 42, 0 ), Qt::UTC ) ) ) );
+  QVERIFY( dssProvider->hasData( uri, ReosTimeWindow( QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 32, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 42, 0 ), Qt::UTC ) ) ) );
 
-  QVERIFY( !dssProvider->hasData( uri, ReosTimeWindow(
-                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 00, 0 ), Qt::UTC ),
-                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 28, 0 ), Qt::UTC ) ) ) );
+  QVERIFY( !dssProvider->hasData( uri, ReosTimeWindow( QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 00, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 28, 0 ), Qt::UTC ) ) ) );
 
-  QVERIFY( !dssProvider->hasData( uri, ReosTimeWindow(
-                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 50, 0 ), Qt::UTC ),
-                                    QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 51, 0 ), Qt::UTC ) ) ) );
-
+  QVERIFY( !dssProvider->hasData( uri, ReosTimeWindow( QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 50, 0 ), Qt::UTC ), QDateTime( QDate( 2005, 05, 01 ), QTime( 12, 51, 0 ), Qt::UTC ) ) ) );
 }
 
 void ReosHecrasTesting::hecRasDate()
@@ -645,14 +620,16 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( geometry.title(), QStringLiteral( "simple_2D_geometry" ) );
   QCOMPARE( geometry.area2dCount(), 1 );
 
-  QCOMPARE( geometry.crs(), "PROJCS[\"WGS_1984_UTM_Zone_20N\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-63.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]" );
+  QCOMPARE(
+    geometry.crs(),
+    "PROJCS[\"WGS_1984_UTM_Zone_20N\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],"
+    "PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-63.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER["
+    "\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]"
+  );
   ReosGisEngine::crsIsValid( geometry.crs() );
 
   QPolygonF domain;
-  domain << QPointF( 653204.178513767, 1797219.8459956 )
-         << QPointF( 653499.89032075, 1797219.72312258 )
-         << QPointF( 653499.500009407, 1797130.63683779 )
-         << QPointF( 653203.35825702, 1797130.98806042 );
+  domain << QPointF( 653204.178513767, 1797219.8459956 ) << QPointF( 653499.89032075, 1797219.72312258 ) << QPointF( 653499.500009407, 1797130.63683779 ) << QPointF( 653203.35825702, 1797130.98806042 );
 
   QCOMPARE( domain, geometry.domain() );
 
@@ -677,12 +654,13 @@ void ReosHecrasTesting::exploreProject()
   QCOMPARE( geometry.area2dCount(), 2 );
 
   domain.clear();
-  domain << QPointF( 653202.534063554, 1797130.66817971 )
-         << QPointF( 653202.050994364, 1797219.71445612 )
-         << QPointF( 653306.971839022, 1797219.72312258 )
-         << QPointF( 653490.227515079, 1797213.58963957 )
-         << QPointF( 653490.227515079, 1797137.18285738 )
-         << QPointF( 653307.021942612, 1797131.13594369 );
+  domain
+    << QPointF( 653202.534063554, 1797130.66817971 )
+    << QPointF( 653202.050994364, 1797219.71445612 )
+    << QPointF( 653306.971839022, 1797219.72312258 )
+    << QPointF( 653490.227515079, 1797213.58963957 )
+    << QPointF( 653490.227515079, 1797137.18285738 )
+    << QPointF( 653307.021942612, 1797131.13594369 );
 
   QPolygonF actualDomain = geometry.domain();
   QCOMPARE( geometry.domain(), domain );
@@ -753,10 +731,10 @@ void ReosHecrasTesting::dssInterval()
   QVERIFY( ReosDuration( 6, ReosDuration::minute ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "6MINUTES" ) ) );
   QVERIFY( ReosDuration( 1, ReosDuration::day ) == ReosDssUtils::dssIntervalToDuration( QStringLiteral( "1DAY" ) ) );
 
-  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 1, ReosDuration::hour ) ), QStringLiteral( "1Hour" ) ) ;
-  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 1, ReosDuration::minute ) ), QStringLiteral( "1Minute" ) ) ;
-  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 6, ReosDuration::minute ) ), QStringLiteral( "6Minute" ) ) ;
-  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 1, ReosDuration::day ) ), QStringLiteral( "1Day" ) ) ;
+  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 1, ReosDuration::hour ) ), QStringLiteral( "1Hour" ) );
+  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 1, ReosDuration::minute ) ), QStringLiteral( "1Minute" ) );
+  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 6, ReosDuration::minute ) ), QStringLiteral( "6Minute" ) );
+  QCOMPARE( ReosDssUtils::durationToDssInterval( ReosDuration( 1, ReosDuration::day ) ), QStringLiteral( "1Day" ) );
 
   QVERIFY( ReosDuration( 1, ReosDuration::minute ) == ReosDssUtils::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ) );
   QVERIFY( ReosDuration::minute == ReosDssUtils::closestValidInterval( ReosDuration( 62, ReosDuration::second ) ).unit() );
@@ -800,15 +778,12 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QCOMPARE( structure->mesh()->vertexCount(), 1900 );
   QCOMPARE( structure->mesh()->faceCount(), 1746 );
   QPolygonF domain_1;
-  domain_1 << QPointF( 653204.178513767, 1797219.8459956 )
-           << QPointF( 653499.89032075, 1797219.72312258 )
-           << QPointF( 653499.500009407, 1797130.63683779 )
-           << QPointF( 653203.35825702, 1797130.98806042 );
+  domain_1 << QPointF( 653204.178513767, 1797219.8459956 ) << QPointF( 653499.89032075, 1797219.72312258 ) << QPointF( 653499.500009407, 1797130.63683779 ) << QPointF( 653203.35825702, 1797130.98806042 );
   QCOMPARE( structure->domain(), domain_1 );
 
   ReosHydraulicSimulation *simulation = structure->currentSimulation();
   QVERIFY( simulation );
-  ReosHecRasSimulation *hecSim = qobject_cast <ReosHecRasSimulation *>( simulation );
+  ReosHecRasSimulation *hecSim = qobject_cast<ReosHecRasSimulation *>( simulation );
   QVERIFY( hecSim );
   QCOMPARE( hecSim->currentPlan(), QStringLiteral( "p01" ) );
   QCOMPARE( hecSim->computeInterval(), ReosDuration( 60.0, ReosDuration::second ) );
@@ -871,10 +846,8 @@ void ReosHecrasTesting::importAndLaunchStructure()
   QVERIFY( upstreamBc->outputHydrograph()->valueCount() == 7 );
 
   // Setup a gridded precipitation
-  QString rainUri =  QStringLiteral( "\"" ) + QString( data_path() ) + "/hecras/dss/gridded_jarry.dss" +
-                     QStringLiteral( "\"::/HOME_MADE/JARRY/PRECIP///VCL/" );
-  std::unique_ptr<ReosGriddedRainItem> griddedItem(
-    new ReosGriddedRainItem( "gridded precipitaton", "", new ReosGriddedRainfall( rainUri, "dss" ) ) );
+  QString rainUri = QStringLiteral( "\"" ) + QString( data_path() ) + "/hecras/dss/gridded_jarry.dss" + QStringLiteral( "\"::/HOME_MADE/JARRY/PRECIP///VCL/" );
+  std::unique_ptr<ReosGriddedRainItem> griddedItem( new ReosGriddedRainItem( "gridded precipitaton", "", new ReosGriddedRainfall( rainUri, "dss" ) ) );
   scheme->meteoModel()->associate( structure, griddedItem.get() );
   ReosGriddedRainfall *rain = scheme->meteoModel()->associatedRainfall( structure );
   QVERIFY( rain );
@@ -984,31 +957,26 @@ void ReosHecrasTesting::simulationResults()
   QVERIFY( simulation->hasResult( currentScheme->id() ) );
 
   ReosTestRenderedObject renderer;
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), structure->timeWindow().start(),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_terrrain.png" ) ) );
+  QVERIFY( renderer.compareRendering( structure->mesh(), structure->timeWindow().start(), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_terrrain.png" ) ) );
 
   QStringList datasetIds = structure->mesh()->datasetIds();
   QCOMPARE( datasetIds.count(), 4 );
   structure->activateResultDatasetGroup( datasetIds.at( 1 ) );
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_ws.png" ) ) );
+  QVERIFY(
+    renderer.compareRendering( structure->mesh(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_ws.png" ) )
+  );
 
   ReosSpatialPosition position( 653361, 1797175 );
-  double value = structure->resultsValueAt( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ),
-                 position,
-                 ReosHydraulicSimulationResults::DatasetType::WaterLevel,
-                 currentScheme->id() );
+  double value = structure->resultsValueAt( QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ), position, ReosHydraulicSimulationResults::DatasetType::WaterLevel, currentScheme->id() );
 
   QVERIFY( equal( value, 2.00, 0.001 ) );
 
   structure->deactivateMeshScalar();
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
+  QVERIFY(
+    renderer.compareRendering( structure->mesh(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 )
+  );
 
 
   std::unique_ptr<ReosHydraulicSimulationResults> simResult( simulation->loadSimulationResults( scheme->id() ) );
@@ -1032,13 +1000,13 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( simResult->groupIsScalar( 0 ), true );
   QCOMPARE( simResult->groupIsScalar( 1 ), true );
   QCOMPARE( simResult->groupIsScalar( 2 ), false );
-  QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 ) ;
-  QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 ) ;
-  QCOMPARE( simResult->datasetValues( 1, 0 ).at( 1258 ), 0.0704100131989 ) ;
-  QCOMPARE( simResult->datasetValues( 2, 0 ).at( 1258 ), 0.0 ) ;
-  QCOMPARE( simResult->datasetValues( 0, 1 ).at( 1258 ), 1.0190500020980835 ) ;
-  QCOMPARE( simResult->datasetValues( 1, 1 ).at( 1258 ), 0.08105674386024475 ) ;
-  QCOMPARE( simResult->datasetValues( 2, 1 ).at( 1258 ), 0.5631286203861237 ) ;
+  QCOMPARE( simResult->datasetValuesCount( 0, 0 ), 1746 );
+  QCOMPARE( simResult->datasetValues( 0, 0 ).at( 1258 ), 2.000097513198853 );
+  QCOMPARE( simResult->datasetValues( 1, 0 ).at( 1258 ), 0.0704100131989 );
+  QCOMPARE( simResult->datasetValues( 2, 0 ).at( 1258 ), 0.0 );
+  QCOMPARE( simResult->datasetValues( 0, 1 ).at( 1258 ), 1.0190500020980835 );
+  QCOMPARE( simResult->datasetValues( 1, 1 ).at( 1258 ), 0.08105674386024475 );
+  QCOMPARE( simResult->datasetValues( 2, 1 ).at( 1258 ), 0.5631286203861237 );
 
   simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
@@ -1049,47 +1017,37 @@ void ReosHecrasTesting::simulationResults()
 
   simulation->setCurrentPlan( "p02" );
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), structure->timeWindow().start(),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_void.png" ) ) );
+  QVERIFY( renderer.compareRendering( structure->mesh(), structure->timeWindow().start(), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_void.png" ) ) );
 
   datasetIds = structure->mesh()->datasetIds();
   QCOMPARE( datasetIds.count(), 1 );
   structure->activateResultDatasetGroup( datasetIds.at( 0 ) );
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), structure->timeWindow().start(),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_terrain.png" ) ) );
+  QVERIFY( renderer.compareRendering( structure->mesh(), structure->timeWindow().start(), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_terrain.png" ) ) );
 
   boundaries = structure->boundaryConditions();
   QCOMPARE( boundaries.count(), 1 );
 
   ReosEncodedElement simEncoded = simulation->encode();
-  ReosEncodedElement encodedNetwork = network->encode( QFileInfo( projectPath ).dir().path(),  "project.lkn" );
+  ReosEncodedElement encodedNetwork = network->encode( QFileInfo( projectPath ).dir().path(), "project.lkn" );
 
   structure->deactivateMeshScalar();
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), structure->timeWindow().start(),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_void.png" ) ) );
+  QVERIFY( renderer.compareRendering( structure->mesh(), structure->timeWindow().start(), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan2_void.png" ) ) );
 
   simulation->setCurrentPlan( "p01" );
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), structure->timeWindow().start(),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
+  QVERIFY( renderer.compareRendering( structure->mesh(), structure->timeWindow().start(), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_void.png" ), 50 ) );
 
   datasetIds = structure->mesh()->datasetIds();
   QCOMPARE( datasetIds.count(), 4 );
   structure->activateResultDatasetGroup( datasetIds.at( 1 ) );
 
-  QVERIFY( renderer.compareRendering(
-             structure->mesh(), structure->timeWindow().start(),
-             data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_ws.png" ) ) );
+  QVERIFY( renderer.compareRendering( structure->mesh(), structure->timeWindow().start(), data_path() + QStringLiteral( "/hecras/simple/control_images/simple_plan1_ws.png" ) ) );
 
   //*********************** project clear and reloaded
   network->clear();
-  network->decode( encodedNetwork, QFileInfo( projectPath ).dir().path(),  "project.lkn" );
+  network->decode( encodedNetwork, QFileInfo( projectPath ).dir().path(), "project.lkn" );
 
   QList<ReosHydraulicNetworkElement *> elements = network->hydraulicNetworkElements( ReosHydraulicStructure2D::staticType() );
   QCOMPARE( elements.count(), 1 );
@@ -1126,7 +1084,6 @@ void ReosHecrasTesting::simulationResults()
   QCOMPARE( tw.start(), QDateTime( QDate( 2000, 01, 01 ), QTime( 10, 0, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2000, 01, 01 ), QTime( 13, 0, 0 ), Qt::UTC ) );
   QVERIFY( tw == mGisEngine->mapTimeWindow() );
-
 }
 
 void ReosHecrasTesting::planCompatibility()
@@ -1233,7 +1190,7 @@ void ReosHecrasTesting::planCompatibility()
   QCOMPARE( boundaries.count(), 2 );
 
   network->changeScheme( 2 ); //First time this scheme is current, so it take config of previous scheme
-  network->changeScheme( 1 );//First time this scheme is current, so it take config of previous scheme
+  network->changeScheme( 1 ); //First time this scheme is current, so it take config of previous scheme
 
   QVERIFY( network->checkSchemeCompatibility( scheme_1 ).isCompatible );
   QVERIFY( network->checkSchemeCompatibility( scheme_2 ).isCompatible );
@@ -1263,7 +1220,7 @@ void ReosHecrasTesting::importCreatingScheme()
     std::unique_ptr<ReosHecRasStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
     std::unique_ptr<ReosHecRasStructureImporter> importer( importerSource->createImporter() );
     QVERIFY( importer );
-    importer->setCreationOption( {true, false} );
+    importer->setCreationOption( { true, false } );
     ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
     QVERIFY( structure );
 
@@ -1298,7 +1255,7 @@ void ReosHecrasTesting::importCreatingScheme()
     std::unique_ptr<ReosHecRasStructureImporterSource> importerSource( new ReosHecRasStructureImporterSource( projectPath, network->context() ) );
     std::unique_ptr<ReosHecRasStructureImporter> importer( importerSource->createImporter() );
     QVERIFY( importer );
-    importer->setCreationOption( {true, true} );
+    importer->setCreationOption( { true, true } );
     ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), network->context() );
     QVERIFY( structure );
 

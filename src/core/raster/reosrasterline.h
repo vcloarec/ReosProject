@@ -54,7 +54,8 @@ class REOSCORE_EXPORT ReosRasterLine
     std::vector<ReosRasterCellPos> mCells;
     int mRowMin = std::numeric_limits<int>::max();
     int mRowMax = 0;
-    int mColMin = std::numeric_limits<int>::max();;
+    int mColMin = std::numeric_limits<int>::max();
+    ;
     int mColMax = 0;
 
     void addCell( int row, int column );

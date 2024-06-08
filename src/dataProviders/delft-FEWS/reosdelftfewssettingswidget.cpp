@@ -19,9 +19,9 @@
 #include "reosdelftfewsxmlprovider.h"
 #include "reosapplication.h"
 
-ReosDelftFewsSettingsWidget::ReosDelftFewsSettingsWidget( ReosDataProvider *provider, QWidget *parent ) :
-  ReosDataProviderSettingsWidget( parent ),
-  ui( new Ui::ReosDelftFewsSettingsWidget )
+ReosDelftFewsSettingsWidget::ReosDelftFewsSettingsWidget( ReosDataProvider *provider, QWidget *parent )
+  : ReosDataProviderSettingsWidget( parent )
+  , ui( new Ui::ReosDelftFewsSettingsWidget )
 {
   ui->setupUi( this );
   if ( provider )

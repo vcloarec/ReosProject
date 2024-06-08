@@ -50,8 +50,7 @@ ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D,
   mToolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
   mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
-  connect( mStructure->structure(), &ReosDataObject::dataChanged, this, [this]
-  {
+  connect( mStructure->structure(), &ReosDataObject::dataChanged, this, [this] {
     mMapStructureItem.updatePosition();
     mMap->refreshCanvas();
   } );
@@ -61,9 +60,7 @@ ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D,
 
   connect( ui->mAddButton, &QToolButton::clicked, this, &ReosRoughnessWidget::addRougness );
   connect( ui->mRemoveButton, &QToolButton::clicked, this, &ReosRoughnessWidget::removeCurrentRoughness );
-  connect( ui->mRoughnessListView->selectionModel(), &QItemSelectionModel::currentChanged, mMapToolEditResolutionPolygon,
-           [this]( const QModelIndex & current, const QModelIndex & )
-  {
+  connect( ui->mRoughnessListView->selectionModel(), &QItemSelectionModel::currentChanged, mMapToolEditResolutionPolygon, [this]( const QModelIndex &current, const QModelIndex & ) {
     QString classId;
     if ( current.isValid() )
     {
@@ -127,7 +124,6 @@ void ReosRoughnessWidget::addRougness()
       mStructure->structure()->addClass( classId, paramValue.value() );
       ui->mRoughnessListView->setCurrentIndex( mModel->classToindex( classId ) );
     }
-
   }
 
   dial->deleteLater();

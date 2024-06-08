@@ -16,21 +16,18 @@
 #include "reosparameter.h"
 #include <QLocale>
 
-ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *parent ):
-  QObject( parent )
+ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *parent )
+  : QObject( parent )
   , mIsDerived( derivable )
   , mName( name )
   , mIsDerivable( derivable )
-{
+{}
 
-}
-
-ReosParameter::ReosParameter( const QString &name, QObject *parent ):
-  QObject( parent )
+ReosParameter::ReosParameter( const QString &name, QObject *parent )
+  : QObject( parent )
   , mName( name )
   , mIsDerivable( false )
-{
-}
+{}
 
 QString ReosParameter::name() const
 {
@@ -95,12 +92,12 @@ void ReosParameter::setEditable( bool isEditable )
 }
 
 
-ReosParameterArea::ReosParameterArea( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+ReosParameterArea::ReosParameterArea( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
 {}
 
-ReosParameterArea::ReosParameterArea( const QString &name, QObject *parent ):
-  ReosParameter( name, false, parent )
+ReosParameterArea::ReosParameterArea( const QString &name, QObject *parent )
+  : ReosParameter( name, false, parent )
 {}
 
 void ReosParameterArea::setValue( const ReosArea &area )
@@ -170,12 +167,12 @@ void ReosParameter::setDerivable( bool b )
   mIsDerivable = b;
 }
 
-ReosParameterSlope::ReosParameterSlope( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+ReosParameterSlope::ReosParameterSlope( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
 {}
 
-ReosParameterSlope::ReosParameterSlope( const QString &name, QObject *parent ):
-  ReosParameter( name, parent )
+ReosParameterSlope::ReosParameterSlope( const QString &name, QObject *parent )
+  : ReosParameter( name, parent )
 {}
 
 void ReosParameterSlope::setValue( double slope )
@@ -199,9 +196,9 @@ QString ReosParameterSlope::toString( int precision ) const
   if ( isValid() )
   {
     if ( int( mSlope * 1000 ) == 0 )
-      return ReosParameter::doubleToString( mSlope * 1000, precision ) + QString( ' ' ) + QChar( 0x2030 ) ;
+      return ReosParameter::doubleToString( mSlope * 1000, precision ) + QString( ' ' ) + QChar( 0x2030 );
     else
-      return ReosParameter::doubleToString( mSlope * 1000, precision ) + QString( ' ' ) + QString( '%' ) ;
+      return ReosParameter::doubleToString( mSlope * 1000, precision ) + QString( ' ' ) + QString( '%' );
   }
   else
     return QString( '-' );
@@ -239,16 +236,13 @@ ReosParameterSlope *ReosParameterSlope::decode( const ReosEncodedElement &elemen
   return ret;
 }
 
-ReosParameterString::ReosParameterString( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
-{
-}
+ReosParameterString::ReosParameterString( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
+{}
 
-ReosParameterString::ReosParameterString( const QString &name, QObject *parent ):
-  ReosParameter( name, false, parent )
-{
-
-}
+ReosParameterString::ReosParameterString( const QString &name, QObject *parent )
+  : ReosParameter( name, false, parent )
+{}
 
 void ReosParameterString::setValue( const QString &string )
 {
@@ -299,12 +293,12 @@ ReosParameterString *ReosParameterString::decode( const ReosEncodedElement &elem
   return ret;
 }
 
-ReosParameterDuration::ReosParameterDuration( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+ReosParameterDuration::ReosParameterDuration( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
 {}
 
-ReosParameterDuration::ReosParameterDuration( const QString &name, QObject *parent ):
-  ReosParameter( name,  parent )
+ReosParameterDuration::ReosParameterDuration( const QString &name, QObject *parent )
+  : ReosParameter( name, parent )
 {}
 
 void ReosParameterDuration::setValue( const ReosDuration &duration )
@@ -329,7 +323,10 @@ void ReosParameterDuration::changeUnit( ReosDuration::Unit unit )
   emit unitChanged();
 }
 
-ReosDuration ReosParameterDuration::value() const {return mDuration;}
+ReosDuration ReosParameterDuration::value() const
+{
+  return mDuration;
+}
 
 QString ReosParameterDuration::toString( int precision ) const
 {
@@ -373,8 +370,8 @@ ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &
   return ret;
 }
 
-ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent ):
-  ReosParameter( name, parent )
+ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent )
+  : ReosParameter( name, parent )
 {
   mDateTime = QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
   mIsValid = true;
@@ -440,12 +437,12 @@ ReosParameterDateTime *ReosParameterDateTime::decode( const ReosEncodedElement &
   return ret;
 }
 
-ReosParameterDouble::ReosParameterDouble( const QString &name,  bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+ReosParameterDouble::ReosParameterDouble( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
 {}
 
-ReosParameterDouble::ReosParameterDouble( const QString &name, QObject *parent ):
-  ReosParameter( name, false, parent )
+ReosParameterDouble::ReosParameterDouble( const QString &name, QObject *parent )
+  : ReosParameter( name, false, parent )
 {}
 
 
@@ -565,12 +562,12 @@ bool ReosParameter::isValid() const
   return mIsValid;
 }
 
-ReosParameterBoolean::ReosParameterBoolean( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+ReosParameterBoolean::ReosParameterBoolean( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
 {}
 
-ReosParameterBoolean::ReosParameterBoolean( const QString &name, QObject *parent ):
-  ReosParameter( name, false, parent )
+ReosParameterBoolean::ReosParameterBoolean( const QString &name, QObject *parent )
+  : ReosParameter( name, false, parent )
 {}
 
 QString ReosParameterBoolean::toString( int ) const
@@ -633,12 +630,12 @@ ReosParameterBoolean *ReosParameterBoolean::decode( const ReosEncodedElement &el
   return ret;
 }
 
-ReosParameterLongString::ReosParameterLongString( const QString &name, bool derivable, QObject *parent ):
-  ReosParameterString( name, derivable, parent )
+ReosParameterLongString::ReosParameterLongString( const QString &name, bool derivable, QObject *parent )
+  : ReosParameterString( name, derivable, parent )
 {}
 
-ReosParameterLongString::ReosParameterLongString( const QString &name, QObject *parent ):
-  ReosParameterString( name, parent )
+ReosParameterLongString::ReosParameterLongString( const QString &name, QObject *parent )
+  : ReosParameterString( name, parent )
 {}
 
 ReosEncodedElement ReosParameterLongString::encode() const
@@ -655,8 +652,7 @@ ReosParameterLongString *ReosParameterLongString::decode( const ReosEncodedEleme
 {
   ReosParameterLongString *ret = new ReosParameterLongString( QString(), parent );
 
-  if ( element.description() != QStringLiteral( "long-string-parameter" ) &&
-       element.description() != QStringLiteral( "string-parameter" ) )
+  if ( element.description() != QStringLiteral( "long-string-parameter" ) && element.description() != QStringLiteral( "string-parameter" ) )
     return ret;
 
   ret->ReosParameter::decode( element, isDerivable );
@@ -674,12 +670,12 @@ ReosParameterLongString *ReosParameterLongString::decode( const ReosEncodedEleme
   return ret;
 }
 
-ReosParameterInteger::ReosParameterInteger( const QString &name, bool derivable, QObject *parent ):
-  ReosParameter( name, derivable, parent )
+ReosParameterInteger::ReosParameterInteger( const QString &name, bool derivable, QObject *parent )
+  : ReosParameter( name, derivable, parent )
 {}
 
-ReosParameterInteger::ReosParameterInteger( const QString &name, QObject *parent ):
-  ReosParameter( name, false, parent )
+ReosParameterInteger::ReosParameterInteger( const QString &name, QObject *parent )
+  : ReosParameter( name, false, parent )
 {}
 
 void ReosParameterInteger::setValue( int value )

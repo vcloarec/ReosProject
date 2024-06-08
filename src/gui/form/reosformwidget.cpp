@@ -36,16 +36,17 @@
 #include "reosintensitydurationselectedcurvewidget.h"
 #include "reosrainfallregistery.h"
 
-ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bool withSpacer ) : QWidget( parent )
+ReosFormWidget::ReosFormWidget( QWidget *parent, Qt::Orientation orientation, bool withSpacer )
+  : QWidget( parent )
 {
   setLayout( new QVBoxLayout );
   switch ( orientation )
   {
     case Qt::Horizontal:
-      mMainLayout = new QHBoxLayout( );
+      mMainLayout = new QHBoxLayout();
       break;
     case Qt::Vertical:
-      mMainLayout = new QVBoxLayout( );
+      mMainLayout = new QVBoxLayout();
       break;
   }
   mMainLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -138,8 +139,8 @@ int ReosFormWidget::count() const
   return mMainLayout->count();
 }
 
-ReosFormDialog::ReosFormDialog( QWidget *parent ):
-  QDialog( parent )
+ReosFormDialog::ReosFormDialog( QWidget *parent )
+  : QDialog( parent )
   , mForm( new ReosFormWidget( this ) )
 {
   setLayout( new QVBoxLayout );
@@ -215,7 +216,6 @@ void ReosFormWidgetFactories::addDataWidgetFactory( ReosFormWidgetDataFactory *f
     }
 
   mDataWidgetFactories.emplace_back( fact );
-
 }
 
 ReosFormWidget *ReosFormWidgetFactories::createDataFormWidget( ReosDataObject *dataObject, const ReosGuiContext &guiContext ) const

@@ -20,11 +20,7 @@
 #include "reoshydraulicnetwork.h"
 #include "reosapplication.h"
 
-ReosNetworkCompatibilityDialog::ReosNetworkCompatibilityDialog(
-  const QString &introText,
-  const ReosHydraulicNetworkElementCompatibilty compatibility,
-  const QString &finalText,
-  const ReosGuiContext &context )
+ReosNetworkCompatibilityDialog::ReosNetworkCompatibilityDialog( const QString &introText, const ReosHydraulicNetworkElementCompatibilty compatibility, const QString &finalText, const ReosGuiContext &context )
   : QDialog( context.parent() )
   , ui( new Ui::ReosNetworkCompatibilityDialog )
 {

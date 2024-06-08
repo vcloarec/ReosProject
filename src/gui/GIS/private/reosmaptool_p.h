@@ -31,14 +31,14 @@ email                : vcloarec at gmail dot com
 #include "reosmappolygon_p.h"
 
 
-class ReosMapTool_p: public QgsMapTool
+class ReosMapTool_p : public QgsMapTool
 {
     Q_OBJECT
   public:
     ReosMapTool_p( QgsMapCanvas *canvas );
     void activate() override;
     void deactivate() override;
-    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *e ) override;
+    bool populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *e ) override;
 
     //! Sets context menu populator, take ownership
     void setContextMenuPopulator( ReosMenuPopulator *populator );
@@ -94,7 +94,7 @@ class ReosMapTool_p: public QgsMapTool
     bool isRecognized( const QString &candidateDescription ) const;
 };
 
-class ReosMapToolDrawPoint_p: public ReosMapTool_p
+class ReosMapToolDrawPoint_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -110,7 +110,7 @@ class ReosMapToolDrawPoint_p: public ReosMapTool_p
     std::unique_ptr<QgsSnapIndicator> mSnapIndicator;
 };
 
-class ReosMapToolDrawPolyline_p: public ReosMapTool_p
+class ReosMapToolDrawPolyline_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -138,11 +138,10 @@ class ReosMapToolDrawPolyline_p: public ReosMapTool_p
 
     bool selfIntersect( bool complete = true ) const;
     void updateColor();
-
 };
 
 
-class ReosMapToolDrawExtent_p: public ReosMapTool_p
+class ReosMapToolDrawExtent_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -160,17 +159,15 @@ class ReosMapToolDrawExtent_p: public ReosMapTool_p
     void extentDrawn( const QRectF &rectangularExtent );
 
   private:
-
     bool mIsDrawing = false;
 
     QgsPointXY mStartPoint;
     QgsPointXY mEndPoint;
 
     void drawExtent();
-
 };
 
-class ReosMapToolSelectMapItem_p: public ReosMapTool_p
+class ReosMapToolSelectMapItem_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -178,7 +175,7 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
 
     void canvasReleaseEvent( QgsMapMouseEvent *e ) override;
     void canvasDoubleClickEvent( QgsMapMouseEvent *e ) override;
-    bool populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *event ) override;
+    bool populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *event ) override;
 
     Flags flags() const override { return ShowContextMenu; }
 
@@ -190,7 +187,7 @@ class ReosMapToolSelectMapItem_p: public ReosMapTool_p
     int mTargetType = -1;
 };
 
-class ReosMapToolEditPolygon_p: public ReosMapTool_p
+class ReosMapToolEditPolygon_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -218,7 +215,7 @@ class ReosMapToolEditPolygon_p: public ReosMapTool_p
     bool mIsEdited = false;
 };
 
-class ReosMapToolMoveItem_p: public ReosMapTool_p
+class ReosMapToolMoveItem_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -246,7 +243,7 @@ class ReosMapToolMoveItem_p: public ReosMapTool_p
 };
 
 
-class ReosMapToolDrawHydraulicNetworkLink_p: public ReosMapTool_p
+class ReosMapToolDrawHydraulicNetworkLink_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
@@ -266,14 +263,16 @@ class ReosMapToolDrawHydraulicNetworkLink_p: public ReosMapTool_p
 };
 
 
-class ReosMapToolMoveHydraulicNetworkNode_p: public ReosMapTool_p
+class ReosMapToolMoveHydraulicNetworkNode_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:
-    ReosMapToolMoveHydraulicNetworkNode_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+    ReosMapToolMoveHydraulicNetworkNode_p( QgsMapCanvas *map )
+      : ReosMapTool_p( map )
     {}
 
     void setCurrentItem( ReosMapItem_p *item );
+
   protected:
     void canvasPressEvent( QgsMapMouseEvent *event ) override
     {

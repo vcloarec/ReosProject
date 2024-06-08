@@ -23,20 +23,20 @@
 #include "reosparameter.h"
 #include "reosversion.h"
 
-#define  FILE_MAGIC_NUMBER 1909201402
+#define FILE_MAGIC_NUMBER 1909201402
 
-ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent ):
-  ReosDataObject( parent )
+ReosRunoffModel::ReosRunoffModel( const QString &name, QObject *parent )
+  : ReosDataObject( parent )
   , mName( new ReosParameterString( QObject::tr( "Name" ), false, this ) )
 {
   mName->setValue( name );
   mUniqueId = QUuid::createUuid().toString();
 }
 
-ReosRunoffModel::ReosRunoffModel( const ReosEncodedElement &element, QObject *parent ):
-  ReosDataObject( parent )
+ReosRunoffModel::ReosRunoffModel( const ReosEncodedElement &element, QObject *parent )
+  : ReosDataObject( parent )
 {
-  mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false,  QObject::tr( "Name" ), this );
+  mName = ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, QObject::tr( "Name" ), this );
   element.getData( QStringLiteral( "unique-id" ), mUniqueId );
   if ( mUniqueId.isEmpty() )
     mUniqueId = QUuid::createUuid().toString();
@@ -65,8 +65,8 @@ void ReosRunoffModel::encodeBase( ReosEncodedElement &element ) const
   element.addData( QStringLiteral( "unique-id" ), mUniqueId );
 }
 
-ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSeriesConstantInterval *rainfall, QObject *parent ):
-  ReosDataObject( parent )
+ReosRunoff::ReosRunoff( ReosRunoffModelsGroup *runoffModels, ReosTimeSeriesConstantInterval *rainfall, QObject *parent )
+  : ReosDataObject( parent )
   , mRainfall( rainfall )
   , mRunoffModelsGroups( runoffModels )
   , mData( new ReosTimeSeriesConstantInterval( this ) )
@@ -144,7 +144,7 @@ void ReosRunoff::updateValues() const
 
   setActualized();
   emit dataChanged();
-  return ;
+  return;
 }
 
 ReosTimeSeriesConstantInterval *ReosRunoff::data() const
@@ -153,17 +153,17 @@ ReosTimeSeriesConstantInterval *ReosRunoff::data() const
   return mData;
 }
 
-ReosRunoffConstantCoefficientModel::ReosRunoffConstantCoefficientModel( const QString &name, QObject *parent ):
-  ReosRunoffModel( name, parent ),
-  mCoefficient( new ReosParameterDouble( QObject::tr( "Coefficient" ), false, this ) )
+ReosRunoffConstantCoefficientModel::ReosRunoffConstantCoefficientModel( const QString &name, QObject *parent )
+  : ReosRunoffModel( name, parent )
+  , mCoefficient( new ReosParameterDouble( QObject::tr( "Coefficient" ), false, this ) )
 {
   mCoefficient->setValue( 0.2 );
   connectParameters();
 }
 
 
-ReosRunoffConstantCoefficientModel::ReosRunoffConstantCoefficientModel( const ReosEncodedElement &element, QObject *parent ):
-  ReosRunoffModel( element, parent )
+ReosRunoffConstantCoefficientModel::ReosRunoffConstantCoefficientModel( const ReosEncodedElement &element, QObject *parent )
+  : ReosRunoffModel( element, parent )
 {
   mCoefficient = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "coefficient" ) ), false, QObject::tr( "Coefficient" ), this );
   connectParameters();
@@ -201,8 +201,8 @@ bool ReosRunoffConstantCoefficientModel::addRunoffModel( ReosTimeSeriesConstantI
   double *rain = rainfall->data();
   double *runoff = runoffResult->data();
 
-  for ( int i = 0; i < rainfall->valueCount() ; ++i )
-    runoff[i] +=  rain[i] * coef * factor;
+  for ( int i = 0; i < rainfall->valueCount(); ++i )
+    runoff[i] += rain[i] * coef * factor;
 
   return true;
 }
@@ -230,7 +230,8 @@ ReosRunoffConstantCoefficientModel *ReosRunoffConstantCoefficientModel::create( 
   return new ReosRunoffConstantCoefficientModel( element, parent );
 }
 
-ReosRunoffModelModel::ReosRunoffModelModel( QObject *parent ): QAbstractItemModel( parent )
+ReosRunoffModelModel::ReosRunoffModelModel( QObject *parent )
+  : QAbstractItemModel( parent )
 {}
 
 QModelIndex ReosRunoffModelModel::index( int row, int column, const QModelIndex &parent ) const
@@ -249,7 +250,6 @@ QModelIndex ReosRunoffModelModel::index( int row, int column, const QModelIndex 
       return QModelIndex();
 
     return createIndex( row, column, runoffColletion.runoffModel( row ) );
-
   }
 
   return createIndex( row, column, nullptr );
@@ -356,8 +356,7 @@ void ReosRunoffModelModel::removeRunoffModel( ReosRunoffModel *runoffModel )
   QString type = runoffModel->runoffType();
   QModelIndex parent = typeToIndex( type );
 
-  if ( mRunoffCollections.contains( type ) &&
-       mRunoffCollections[type].containsModelRunoff( runoffModel->name()->value() ) )
+  if ( mRunoffCollections.contains( type ) && mRunoffCollections[type].containsModelRunoff( runoffModel->name()->value() ) )
   {
     int pos = mRunoffCollections[type].index( runoffModel );
     if ( pos < 0 )
@@ -435,7 +434,7 @@ QList<ReosEncodedElement> ReosRunoffModelModel::encodeModels() const
   QList<ReosEncodedElement> ret;
   for ( const ReosRunoffModelCollection &roCol : mRunoffCollections )
   {
-    for ( int i = 0; i < roCol.runoffModelsCount() ; ++i )
+    for ( int i = 0; i < roCol.runoffModelsCount(); ++i )
       ret.append( roCol.runoffModel( i )->encode() );
   }
 
@@ -490,7 +489,10 @@ void ReosRunoffModelRegistery::instantiate( ReosModule *parent )
     sRegisteryInstance = new ReosRunoffModelRegistery( parent );
 }
 
-bool ReosRunoffModelRegistery::isInstantiate() {return sRegisteryInstance != nullptr;}
+bool ReosRunoffModelRegistery::isInstantiate()
+{
+  return sRegisteryInstance != nullptr;
+}
 
 ReosRunoffModelRegistery *ReosRunoffModelRegistery::instance()
 {
@@ -549,7 +551,10 @@ ReosRunoffModel *ReosRunoffModelRegistery::createModel( const ReosEncodedElement
     return nullptr;
 }
 
-ReosRunoffModelModel *ReosRunoffModelRegistery::model() const {return mModel;}
+ReosRunoffModelModel *ReosRunoffModelRegistery::model() const
+{
+  return mModel;
+}
 
 QString ReosRunoffModelRegistery::createRunoffModelName( const QString &type )
 {
@@ -702,43 +707,42 @@ ReosRunoffModelCollection ReosRunoffModelRegistery::runoffModelCollection( const
   return mModel->runoffModelCollection( type );
 }
 
-ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent ):
-  ReosModule( QStringLiteral( "runoff-model-registery" ), parent )
+ReosRunoffModelRegistery::ReosRunoffModelRegistery( QObject *parent )
+  : ReosModule( QStringLiteral( "runoff-model-registery" ), parent )
   , mModel( new ReosRunoffModelModel( this ) )
 {
-  addModelCollection( QStringLiteral( "constant-coefficient" ),
-                      tr( "Constant coefficient" ),
-                      QIcon( QStringLiteral( ":/images/runoffConstantCoefficient.svg" ) ) );
+  addModelCollection( QStringLiteral( "constant-coefficient" ), tr( "Constant coefficient" ), QIcon( QStringLiteral( ":/images/runoffConstantCoefficient.svg" ) ) );
 
 
+  addModelCollection( QStringLiteral( "green-ampt" ), tr( "Green Ampt" ), QIcon( QStringLiteral( ":/images/runoffGreenAmpt.svg" ) ) );
 
-  addModelCollection( QStringLiteral( "green-ampt" ),
-                      tr( "Green Ampt" ),
-                      QIcon( QStringLiteral( ":/images/runoffGreenAmpt.svg" ) ) );
-
-  addModelCollection( QStringLiteral( "curve-number" ),
-                      tr( "Curve Number" ),
-                      QIcon( QStringLiteral( ":/images/runoffCurveNumber.svg" ) ) );
+  addModelCollection( QStringLiteral( "curve-number" ), tr( "Curve Number" ), QIcon( QStringLiteral( ":/images/runoffCurveNumber.svg" ) ) );
 
   addDescription( QStringLiteral( "constant-coefficient" ), tr( "A constant coefficient between 0 and 1\nis applied on the rainfall" ) );
   addDescription( QStringLiteral( "green-ampt" ), tr( "The Green Ampt approach for runoff" ) );
   addDescription( QStringLiteral( "curve-number" ), tr( "Curve Number runoff" ) );
 }
 
-ReosRunoffModelCollection::ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QIcon &icon ):
-  mType( type )
+ReosRunoffModelCollection::ReosRunoffModelCollection( const QString &type, const QString &displayedText, const QIcon &icon )
+  : mType( type )
   , mDisplayedText( displayedText )
   , mIcon( icon )
 {}
 
-QString ReosRunoffModelCollection::type() const {return mType;}
+QString ReosRunoffModelCollection::type() const
+{
+  return mType;
+}
 
 QString ReosRunoffModelCollection::displayedText() const
 {
   return mDisplayedText;
 }
 
-int ReosRunoffModelCollection::runoffModelsCount() const {return mRunoffModels.count();}
+int ReosRunoffModelCollection::runoffModelsCount() const
+{
+  return mRunoffModels.count();
+}
 
 void ReosRunoffModelCollection::addModel( ReosRunoffModel *runoffModel )
 {
@@ -792,14 +796,15 @@ QList<ReosRunoffModel *> ReosRunoffModelCollection::models() const
   return mRunoffModels;
 }
 
-ReosRunoffModelsGroup::ReosRunoffModelsGroup( QObject *parent ):
-  ReosDataObject( parent ) {}
+ReosRunoffModelsGroup::ReosRunoffModelsGroup( QObject *parent )
+  : ReosDataObject( parent )
+{}
 
 void ReosRunoffModelsGroup::addRunoffModel( ReosRunoffModel *runoffModel )
 {
   ReosParameterDouble *paramPortion = new ReosParameterDouble( tr( "Portion" ), false, this );
   paramPortion->setValue( sharePortion() );
-  mRunoffModels.append( {QPointer<ReosRunoffModel>( runoffModel ), paramPortion, false} );
+  mRunoffModels.append( { QPointer<ReosRunoffModel>( runoffModel ), paramPortion, false } );
 
   connectModel( mRunoffModels.count() - 1 );
 
@@ -817,7 +822,10 @@ void ReosRunoffModelsGroup::replaceRunnofModel( int i, ReosRunoffModel *runoffMo
   emit dataChanged();
 }
 
-int ReosRunoffModelsGroup::runoffModelCount() const {return mRunoffModels.count();}
+int ReosRunoffModelsGroup::runoffModelCount() const
+{
+  return mRunoffModels.count();
+}
 
 void ReosRunoffModelsGroup::removeRunoffModel( int i )
 {
@@ -860,7 +868,6 @@ ReosRunoffModel *ReosRunoffModelsGroup::runoffModel( int i ) const
 
 ReosParameterDouble *ReosRunoffModelsGroup::coefficient( int i ) const
 {
-
   if ( i < 0 || i >= mRunoffModels.count() )
     return nullptr;
 
@@ -927,7 +934,7 @@ void ReosRunoffModelsGroup::decode( const ReosEncodedElement &element )
       int l = 0;
       elem.getData( QStringLiteral( "locked" ), l );
       ReosParameterDouble *paramPortion = ReosParameterDouble::decode( elem.getEncodedData( "watershed-portion" ), false, tr( "Portion" ), this );
-      mRunoffModels.append( {QPointer<ReosRunoffModel>( ro ), paramPortion, l == 1} );
+      mRunoffModels.append( { QPointer<ReosRunoffModel>( ro ), paramPortion, l == 1 } );
       connectModel( mRunoffModels.count() - 1 );
     }
   }
@@ -996,8 +1003,8 @@ void ReosRunoffModelsGroup::disconnectModel( int i )
   disconnect( coefficient( i ), &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const QString &name, QObject *parent ):
-  ReosRunoffModel( name, parent )
+ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const QString &name, QObject *parent )
+  : ReosRunoffModel( name, parent )
   , mInitialRetentionParameter( new ReosParameterDouble( tr( "Initial retention (mm)" ), false, this ) )
   , mSaturatedPermeabilityParameter( new ReosParameterDouble( tr( "Saturated permeability (mm/h)" ), false, this ) )
   , mSoilPorosityParameter( new ReosParameterDouble( tr( "Soil porosity (vol/vol)" ), false, this ) )
@@ -1036,8 +1043,7 @@ double static resolveFpEquation( double T, double SM, double K )
     X1 = X2;
     X2 = X1 - ( X1 - log( 1 + X1 ) - K / SM * T ) / ( 1 - 1 / ( 1 + X1 ) );
     it++;
-  }
-  while ( fabs( ( X2 - X1 ) / X2 ) > 0.001 && it < 100 );
+  } while ( fabs( ( X2 - X1 ) / X2 ) > 0.001 && it < 100 );
 
   return X2 * SM;
 }
@@ -1058,7 +1064,7 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSeriesConstantInterval *r
   double P = 0;
   double Rprev = 0;
   double R = 0;
-//  double rm = 0;
+  //  double rm = 0;
   double F = 0;
   double Fp = 0;
   double I = 0;
@@ -1085,7 +1091,7 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSeriesConstantInterval *r
   }
 
 
-  for ( int i = 0; i < rainfall->valueCount() ; ++i )
+  for ( int i = 0; i < rainfall->valueCount(); ++i )
   {
     double dP = rain[i];
     Rprev = R;
@@ -1111,7 +1117,8 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSeriesConstantInterval *r
 
       if ( ( !pondingInitial ) && ( pondingTerminal ) )
       {
-        double dt = ( KSMIK - P + dP + R ) / I;;
+        double dt = ( KSMIK - P + dP + R ) / I;
+        ;
         if ( dt < 0 )
           dt = 0;
 
@@ -1136,19 +1143,19 @@ bool ReosRunoffGreenAmptModel::addRunoffModel( ReosTimeSeriesConstantInterval *r
             R = P - Fp - Ia;
           }
         }
-//        else
-//        {
-//          F = P - R;
-//        }
+        //        else
+        //        {
+        //          F = P - R;
+        //        }
       }
-//      if ( !pondingInitial && !pondingTerminal )
-//      {
-//        F = P - R;
-//      }
+      //      if ( !pondingInitial && !pondingTerminal )
+      //      {
+      //        F = P - R;
+      //      }
     }
     else
     {
-//      F = P - R;
+      //      F = P - R;
       pondingTerminal = false;
     }
 
@@ -1181,8 +1188,8 @@ ReosRunoffGreenAmptModel *ReosRunoffGreenAmptModel::create( const ReosEncodedEle
   return new ReosRunoffGreenAmptModel( element, parent );
 }
 
-ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const ReosEncodedElement &element, QObject *parent ):
-  ReosRunoffModel( element, parent )
+ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const ReosEncodedElement &element, QObject *parent )
+  : ReosRunoffModel( element, parent )
 {
   mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, tr( "Initial retention (mm)" ), this );
   mSaturatedPermeabilityParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "saturated-permeability" ) ), false, tr( "Saturated permeability (mm/h)" ), this );
@@ -1192,8 +1199,8 @@ ReosRunoffGreenAmptModel::ReosRunoffGreenAmptModel( const ReosEncodedElement &el
   connectParameters();
 }
 
-ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const QString &name, QObject *parent ):
-  ReosRunoffModel( name, parent )
+ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const QString &name, QObject *parent )
+  : ReosRunoffModel( name, parent )
   , mCurveNumberParameter( new ReosParameterDouble( tr( "Curve number" ), false, this ) )
   , mInitialRetentionParameter( new ReosParameterDouble( tr( "Initial retention (mm)" ), false, this ) )
   , mInitialRetentionFromS( new ReosParameterBoolean( tr( "Initial retention : 0.2 x S" ) ) )
@@ -1292,8 +1299,8 @@ ReosParameterDouble *ReosRunoffCurveNumberModel::initialRetention() const
   return mInitialRetentionParameter;
 }
 
-ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const ReosEncodedElement &element, QObject *parent ):
-  ReosRunoffModel( element, parent )
+ReosRunoffCurveNumberModel::ReosRunoffCurveNumberModel( const ReosEncodedElement &element, QObject *parent )
+  : ReosRunoffModel( element, parent )
 {
   mCurveNumberParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "curve-number" ) ), false, tr( "Curve number" ), this );
   mInitialRetentionParameter = ReosParameterDouble::decode( element.getEncodedData( QStringLiteral( "initial-retention" ) ), false, tr( "Initial retention (mm)" ), this );

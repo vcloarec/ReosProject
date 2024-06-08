@@ -1,8 +1,6 @@
 # Reos licence GPL version 2
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
-FIND_PACKAGE(GDAL REQUIRED)
-
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
   reosencodedelement.cpp
@@ -79,8 +77,10 @@ SET(REOS_CORE_SOURCES
   data/reosdataobject.cpp
   data/reosdataprovider.cpp
   data/reostimeseriesgroup.cpp
+  data/reosgriddeddata.cpp
   data/reosgriddedrainfallprovider.cpp
   data/reosdataupdater.cpp
+  data/reosgriddeddata.cpp
 
   hydrograph/reoshydrograph.cpp
   hydrograph/reoshydrographsource.cpp
@@ -100,11 +100,17 @@ SET(REOS_CORE_SOURCES
   hydraulicNetwork/simulation/reoshydraulicstructureprofile.cpp
 
   mesh/reosmeshgenerator.cpp
-  mesh/reosgmshgenerator.cpp
   mesh/reosmeshdatasetsource.cpp
 
   network/reosnetworkaccessmanager.cpp
 )
+
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    SET(REOS_CORE_SOURCES
+        ${REOS_CORE_SOURCES}
+         mesh/gmsh/reosgmshgenerator.cpp
+      )
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 SET(REOS_CORE_HEADERS
     reoscore.h
@@ -174,8 +180,10 @@ SET(REOS_CORE_HEADERS
     data/reosdataobject.h
     data/reosdataprovider.h
     data/reostimeseriesgroup.h
+    data/reosgriddeddata.h
     data/reosgriddedrainfallprovider.h
     data/reosdataupdater.h
+    data/reosgriddeddata.h
 
     hydrograph/reoshydrograph.h
     hydrograph/reoshydrographsource.h
@@ -195,11 +203,16 @@ SET(REOS_CORE_HEADERS
     hydraulicNetwork/simulation/reoshydraulicstructureprofile.h
 
     mesh/reosmeshgenerator.h
-    mesh/reosgmshgenerator.h
     mesh/reosmeshdatasetsource.h
-
     network/reosnetworkaccessmanager.h
 )
+
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    SET(REOS_CORE_HEADERS
+        ${REOS_CORE_HEADERS}
+         mesh/gmsh/reosgmshgenerator.h
+      )
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 SET(REOS_CORE_HDRS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
@@ -276,19 +289,24 @@ TARGET_LINK_LIBRARIES(reosCore PUBLIC
         ${Qt5Concurrent_LIBRARIES}
         ${QGIS_CORE_LIB}
         ${QGIS_ANALYSIS_LIB}
-        ${QGIS_3D_LIB}
-        ${QGIS_GUI_LIB}
-        ${GMSH_LIB}
         ${NETCDF_LIBRARY}
 )
+
+IF(WITH_3D)
+    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${QGIS_3D_LIB})
+ENDIF(WITH_3D)
+
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GMSH_LIB})
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 TARGET_INCLUDE_DIRECTORIES(reosCore SYSTEM PUBLIC
     ${QCA_INCLUDE_DIR}
     ${QTKEYCHAIN_INCLUDE_DIR})
 
 IF(GDAL_FOUND)
-    TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIRS})
-    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARIES} )
+    TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIR})
+    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARY} )
 ENDIF(GDAL_FOUND)
 
 FIND_PACKAGE(HDF5 REQUIRED)
@@ -332,11 +350,20 @@ TARGET_INCLUDE_DIRECTORIES( reosCore PUBLIC
 
 INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}
-    ${GMSH_INCLUDE_DIR}
 )
+
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    INCLUDE_DIRECTORIES(
+        ${GMSH_INCLUDE_DIR}
+    )
+TARGET_INCLUDE_DIRECTORIES( reosCore PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/core/gmsh
+)
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 include_directories(${CMAKE_SOURCE_DIR}/external/poly2tri)
 
 ADD_DEFINITIONS(-DQGIS_PLUGINS="${QGIS_PROVIDERS_PATH}")
+ADD_DEFINITIONS(-DQGIS_PREFIX="${QGIS_PREFIX}")
 
 

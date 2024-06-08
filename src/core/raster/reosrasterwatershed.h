@@ -35,22 +35,28 @@ namespace ReosRasterWatershed
 {
   typedef ReosRasterMemory<unsigned char> Directions;
   typedef ReosRasterMemory<unsigned char> Watershed;
+  typedef ReosRasterMemory<float> DistanceFromOutlet;
+  typedef ReosRasterMemory<unsigned char> DistanceClasses;
   typedef ReosRasterMemory<float> Dem;
 
   struct Climber
   {
-    Climber() = default;
-    Climber( const ReosRasterCellPos &p ): pos( p )
-    {}
-    Climber( const ReosRasterCellPos &p, double length ): pos( p ), lengthPath( length ) {}
-    ReosRasterCellPos pos;
-    double lengthPath = 0;
+      Climber() = default;
+      Climber( const ReosRasterCellPos &p )
+        : pos( p )
+      {}
+      Climber( const ReosRasterCellPos &p, double length )
+        : pos( p )
+        , lengthPath( length )
+      {}
+      ReosRasterCellPos pos;
+      double lengthPath = 0;
   };
-}
+} //namespace ReosRasterWatershed
 
 class ReosRasterWatershedFromDirectionAndDownStreamLine;
 
-class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation : public ReosProcess
 {
   public:
     ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem );
@@ -64,10 +70,10 @@ class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation: public ReosProces
 
     struct Job
     {
-      int startRow;
-      int endRow;
-      ReosRasterWatershed::Dem *dem;
-      ReosRasterWatershed::Directions *directions;
+        int startRow;
+        int endRow;
+        ReosRasterWatershed::Dem *dem;
+        ReosRasterWatershed::Directions *directions;
     };
 
     static void calculateDirection( Job job );
@@ -80,7 +86,6 @@ class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation: public ReosProces
     std::vector<std::thread> mThreads;
 
     QFuture<void> mFuture;
-
 };
 
 /**
@@ -95,15 +100,17 @@ class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation: public ReosProces
  *
  */
 
-class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection : public ReosProcess
 {
   public:
-
-    ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
-                                            const ReosRasterWatershed::Climber &initialClimb,
-                                            const ReosRasterWatershed::Directions &directions,
-                                            ReosRasterWatershed::Watershed &watershed,
-                                            const ReosRasterLine &excludedCell );
+    ReosRasterWatershedMarkerFromDirection(
+      ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
+      const ReosRasterWatershed::Climber &initialClimb,
+      const ReosRasterWatershed::Directions &directions,
+      ReosRasterWatershed::Watershed &watershed,
+      ReosRasterWatershed::DistanceFromOutlet &distanceFromOutlet,
+      const ReosRasterLine &excludedCell
+    );
 
     //! Set a dem for
 
@@ -113,6 +120,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
     ReosRasterWatershedFromDirectionAndDownStreamLine *mParent;
     const ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed &mWatershed;
+    ReosRasterWatershed::DistanceFromOutlet &mDistanceFromOutlet;
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
     size_t mMaxClimberStored = 100;
@@ -121,23 +129,18 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 /**
  * Class that produce a raster defining a watershed with unique value from a direction raster and a downstream line
  */
-class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine : public ReosProcess
 {
   public:
     //! Constructor with \a rasterDirection and downstream \a line
-    ReosRasterWatershedFromDirectionAndDownStreamLine(
-      const ReosRasterWatershed::Directions &rasterDirection,
-      const ReosRasterLine &line );
+    ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection, const ReosRasterLine &line );
 
-    ReosRasterWatershedFromDirectionAndDownStreamLine(
-      const ReosRasterWatershed::Directions &rasterDirection,
-      const ReosRasterLine &line,
-      ReosRasterTestingCell *testingCell );
+    ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection, const ReosRasterLine &line, ReosRasterTestingCell *testingCell );
 
     void start() override;
     void stop( bool b ) override;
 
-    //! Returns the raster watershed defined by this class after calculation
+    //! Returns the raster watershed defined by this instance after calculation
     ReosRasterWatershed::Watershed watershed() const;
 
     //! Returns the first defined cells, that is on the middle of the downstream line
@@ -145,9 +148,12 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public 
     //! Returns the cells at the end of the longer path
     ReosRasterCellPos endOfLongerPath() const;
 
+    ReosRasterWatershed::DistanceClasses distanceClasses( unsigned char classCount ) const;
+
   private:
     ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed mWatershed;
+    ReosRasterWatershed::DistanceFromOutlet mDistanceFromOutlet;
     ReosRasterLine mDownstreamLine;
     std::list<ReosRasterWatershed::Climber> mPoolCellsToTreat;
     int mCounter;
@@ -171,13 +177,10 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public 
     friend class ReosRasterWatershedMarkerFromDirection;
 };
 
-class REOSCORE_EXPORT ReosRasterWatershedToVector: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedToVector : public ReosProcess
 {
   public:
-
-    ReosRasterWatershedToVector( ReosRasterWatershed::Watershed rasterWatershed,
-                                 const ReosRasterExtent &extent,
-                                 const ReosRasterCellPos &cellInWatershed );
+    ReosRasterWatershedToVector( ReosRasterWatershed::Watershed rasterWatershed, const ReosRasterExtent &extent, const ReosRasterCellPos &cellInWatershed );
     void start() override;
 
     const QPolygonF watershed() const;
@@ -189,33 +192,25 @@ class REOSCORE_EXPORT ReosRasterWatershedToVector: public ReosProcess
     QList<QPoint> mEliminationPoint;
 };
 
-class REOSCORE_EXPORT ReosRasterWatershedTraceDownstream: public ReosProcess
+class REOSCORE_EXPORT ReosRasterWatershedTraceDownstream : public ReosProcess
 {
   public:
     //! Constructor with the \a directionRaster, the \a stopLine, the \a extent of the raster in the map and the position of the starting point \a startPos
-    ReosRasterWatershedTraceDownstream(
-      ReosRasterWatershed::Directions directionRaster,
-      const ReosRasterLine stopLine,
-      const ReosRasterExtent &extent,
-      const ReosRasterCellPos &startPos );
+    ReosRasterWatershedTraceDownstream( ReosRasterWatershed::Directions directionRaster, const ReosRasterLine stopLine, const ReosRasterExtent &extent, const ReosRasterCellPos &startPos );
 
     /**
      * Constructor with the \a directionRaster, the polygon limit \a polyLimit, the \a extent of the raster in the map and the position of the startinpoint \a startPos
      *
      * \note the tracing start in polyLimit and will stop when the tracing comes out this limit
      */
-    ReosRasterWatershedTraceDownstream(
-      ReosRasterWatershed::Directions directionRaster,
-      const QPolygonF &polyLimit,
-      const ReosRasterExtent &extent,
-      const ReosRasterCellPos &startPos );
+    ReosRasterWatershedTraceDownstream( ReosRasterWatershed::Directions directionRaster, const QPolygonF &polyLimit, const ReosRasterExtent &extent, const ReosRasterCellPos &startPos );
 
     void start() override;
 
     //! Returns the resulting polyline
     QPolygonF resultPolyline() const;
-  private:
 
+  private:
     ReosRasterWatershed::Directions mDirectionRaster;
     ReosRasterLine mStopLine;
     ReosRasterExtent mEmpriseRaster;
@@ -225,14 +220,14 @@ class REOSCORE_EXPORT ReosRasterWatershedTraceDownstream: public ReosProcess
     QPolygonF mPolyLimit;
 };
 
-class REOSCORE_EXPORT ReosRasterAverageValueInPolygon: public ReosProcess
+class REOSCORE_EXPORT ReosRasterAverageValueInPolygon : public ReosProcess
 {
     Q_OBJECT
   public:
-    ReosRasterAverageValueInPolygon( const ReosRasterMemory<float> &entryRaster,
-                                     ReosRasterExtent &rasterExtent,
-                                     const QPolygonF &polygon ):
-      mEntryRaster( entryRaster ), mRasterExtent( rasterExtent ), mPolygon( polygon )
+    ReosRasterAverageValueInPolygon( const ReosRasterMemory<float> &entryRaster, ReosRasterExtent &rasterExtent, const QPolygonF &polygon )
+      : mEntryRaster( entryRaster )
+      , mRasterExtent( rasterExtent )
+      , mPolygon( polygon )
     {}
 
     void start() override;
@@ -240,27 +235,22 @@ class REOSCORE_EXPORT ReosRasterAverageValueInPolygon: public ReosProcess
 
     struct Job
     {
-      int startRow;
-      int endRow;
-      ReosRasterMemory<float> *entryRaster;
-      ReosRasterMemory<char> *rasterizedPolygon;
-      int valueCount;
-      double sum;
+        int startRow;
+        int endRow;
+        ReosRasterMemory<float> *entryRaster;
+        ReosRasterMemory<char> *rasterizedPolygon;
+        int valueCount;
+        double sum;
     };
 
   private:
-
     ReosRasterMemory<float> mEntryRaster;
     ReosRasterExtent mRasterExtent;
     const QPolygonF mPolygon;
     float mResult;
-
 };
 
 static void averageOnJob( typename ReosRasterAverageValueInPolygon::Job &job );
-
-
-
 
 
 #endif // HDRASTERWATERSHED_H

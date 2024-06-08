@@ -28,7 +28,7 @@ email                : vcloarec at gmail dot com
 class QPolygonF;
 class ReosGisEngine;
 
-class REOSCORE_EXPORT ReosWatershedTree: public QObject
+class REOSCORE_EXPORT ReosWatershedTree : public QObject
 {
     Q_OBJECT
   public:
@@ -41,7 +41,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
      * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its sub watershed).
      * Take ownership and returns a pointer to the added watershed
      */
-    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false ) SIP_SKIP;
+    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
@@ -117,7 +117,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
 
 #ifndef SIP_RUN
 
-class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
+class REOSCORE_EXPORT ReosWatershedItemModel : public QAbstractItemModel
 {
     Q_OBJECT
   public:

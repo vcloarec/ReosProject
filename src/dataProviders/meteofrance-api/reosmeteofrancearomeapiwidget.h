@@ -27,7 +27,7 @@ namespace Ui
   class ReosMeteoFranceAromeApiWidget;
 }
 
-class ReosMeteoFranceAromeApiWidget :  public ReosGriddedRainDataProviderSelectorWidget
+class ReosMeteoFranceAromeApiWidget : public ReosGriddedRainDataProviderSelectorWidget
 {
     Q_OBJECT
 
@@ -67,7 +67,7 @@ class ReosMeteoFranceAromeApiWidget :  public ReosGriddedRainDataProviderSelecto
 };
 
 
-class  ReosMeteoFranceAromeApiGuiFactory : public ReosDataProviderGuiFactory
+class ReosMeteoFranceAromeApiGuiFactory : public ReosDataProviderGuiFactory
 {
   public:
     GuiCapabilities capabilities() const override;

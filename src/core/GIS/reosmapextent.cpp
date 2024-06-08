@@ -25,8 +25,11 @@ ReosMapExtent::ReosMapExtent( const QRectF &extent )
   mYMax = normalizedExtent.bottom();
 }
 
-ReosMapExtent::ReosMapExtent( double xMin, double yMin, double xMax, double yMax ):
-  mXMin( xMin ), mXMax( xMax ), mYMin( yMin ), mYMax( yMax )
+ReosMapExtent::ReosMapExtent( double xMin, double yMin, double xMax, double yMax )
+  : mXMin( xMin )
+  , mXMax( xMax )
+  , mYMin( yMin )
+  , mYMax( yMax )
 {}
 
 ReosMapExtent::ReosMapExtent( const QPolygonF &polygon, const QString &crs )
@@ -51,24 +54,39 @@ ReosMapExtent::ReosMapExtent( const ReosSpatialPosition &pos1, const ReosSpatial
 }
 
 double ReosMapExtent::width() const
-{return mXMax - mXMin;}
+{
+  return mXMax - mXMin;
+}
 
 double ReosMapExtent::height() const
-{return mYMax - mYMin;}
+{
+  return mYMax - mYMin;
+}
 
-double ReosMapExtent::xMapMin() const {return mXMin;}
+double ReosMapExtent::xMapMin() const
+{
+  return mXMin;
+}
 
-double ReosMapExtent::xMapMax() const {return mXMax;}
+double ReosMapExtent::xMapMax() const
+{
+  return mXMax;
+}
 
-double ReosMapExtent::yMapMin() const {return mYMin;}
+double ReosMapExtent::yMapMin() const
+{
+  return mYMin;
+}
 
-double ReosMapExtent::yMapMax() const {return mYMax;}
+double ReosMapExtent::yMapMax() const
+{
+  return mYMax;
+}
 
 
 bool ReosMapExtent::operator==( const ReosMapExtent &other ) const
 {
   return mXMin == other.mXMin && mXMax == other.mXMax && mYMin == other.mYMin && mYMax == other.mYMax;
-
 }
 
 bool ReosMapExtent::operator!=( const ReosMapExtent &other ) const
@@ -89,7 +107,6 @@ ReosMapExtent ReosMapExtent::operator*( const ReosMapExtent &other ) const
     return ReosMapExtent();
 
   return ret;
-
 }
 
 QPolygonF ReosMapExtent::toPolygon() const
@@ -154,12 +171,12 @@ ReosEncodedElement ReosMapExtent::encode() const
 
 bool ReosMapExtent::isValid() const
 {
-    return mXMax >= mXMin && mYMax > mYMin;
+  return mXMax >= mXMin && mYMax > mYMin;
 }
 
 QString ReosMapExtent::crs() const
 {
-    return mCrs;
+  return mCrs;
 }
 
 void ReosMapExtent::setCrs( const QString &crs )
@@ -169,8 +186,7 @@ void ReosMapExtent::setCrs( const QString &crs )
 
 bool ReosMapExtent::contains( const QPointF &point ) const
 {
-  return point.x() >= mXMin && point.x() <= mXMax &&
-         point.y() >= mYMin && point.y() <= mYMax;
+  return point.x() >= mXMin && point.x() <= mXMax && point.y() >= mYMin && point.y() <= mYMax;
 }
 
 bool ReosMapExtent::containsPartialy( const QPolygonF &line ) const
@@ -199,16 +215,24 @@ void ReosMapExtent::extendWithExtent( const ReosMapExtent &other )
   if ( mCrs.isEmpty() )
     mCrs = other.crs();
 
-  ReosSpatialPosition otherCornerMin( other.xMapMin(), other.yMapMin(), other.crs() );
-  ReosSpatialPosition otherCornerMax( other.xMapMax(), other.yMapMax(), other.crs() );
+  const ReosSpatialPosition otherCornerMin( other.xMapMin(), other.yMapMin(), other.crs() );
+  const ReosSpatialPosition otherCornerMax( other.xMapMax(), other.yMapMax(), other.crs() );
 
-  QPointF otherCornerMinInCrs = ReosGisEngine::transformToCoordinates( otherCornerMin, mCrs );
-  QPointF otherCornerMaxInCrs = ReosGisEngine::transformToCoordinates( otherCornerMax, mCrs );
+  const QPointF otherCornerMinInCrs = ReosGisEngine::transformToCoordinates( otherCornerMin, mCrs );
+  const QPointF otherCornerMaxInCrs = ReosGisEngine::transformToCoordinates( otherCornerMax, mCrs );
 
   mXMin = std::min( mXMin, std::min( otherCornerMinInCrs.x(), otherCornerMaxInCrs.x() ) );
   mXMax = std::max( mXMax, std::max( otherCornerMinInCrs.x(), otherCornerMaxInCrs.x() ) );
   mYMin = std::min( mYMin, std::min( otherCornerMinInCrs.y(), otherCornerMaxInCrs.y() ) );
   mYMax = std::max( mYMax, std::max( otherCornerMinInCrs.y(), otherCornerMaxInCrs.y() ) );
+}
+
+void ReosMapExtent::extendByBuffer( double buffer )
+{
+  mXMin = mXMin - buffer;
+  mXMax = mXMax + buffer;
+  mYMin = mYMin - buffer;
+  mYMax = mYMax + buffer;
 }
 
 ReosSpatialPosition::ReosSpatialPosition( const QPointF &position, const QString &crs )
@@ -218,7 +242,8 @@ ReosSpatialPosition::ReosSpatialPosition( const QPointF &position, const QString
   mIsValid = true;
 }
 
-ReosSpatialPosition::ReosSpatialPosition( double x, double y, const QString &crs ): ReosSpatialPosition( QPointF( x, y ), crs )
+ReosSpatialPosition::ReosSpatialPosition( double x, double y, const QString &crs )
+  : ReosSpatialPosition( QPointF( x, y ), crs )
 {}
 
 QPointF ReosSpatialPosition::position() const
@@ -243,8 +268,7 @@ ReosSpatialPosition ReosSpatialPosition::decode( const ReosEncodedElement &eleme
   if ( element.description() != QStringLiteral( "spatial-position" ) )
     return ret;
 
-  ret.mIsValid = ( element.getData( QStringLiteral( "position" ), ret.mPosition ) &&
-                   element.getData( QStringLiteral( "crs" ), ret.mCrs ) );
+  ret.mIsValid = ( element.getData( QStringLiteral( "position" ), ret.mPosition ) && element.getData( QStringLiteral( "crs" ), ret.mCrs ) );
 
   if ( ret.mIsValid )
   {
@@ -259,10 +283,10 @@ ReosEncodedElement ReosSpatialPosition::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "spatial-position" ) );
 
-  element.addData( QStringLiteral( "position" ), mPosition );;
+  element.addData( QStringLiteral( "position" ), mPosition );
+  ;
   element.addData( QStringLiteral( "crs" ), mCrs );
   element.addData( QStringLiteral( "is-valid" ), mIsValid );
 
   return element;
 }
-

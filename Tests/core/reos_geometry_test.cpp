@@ -12,14 +12,16 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reosgeometryutils.h"
 #include "reosgisengine.h"
+#include "reosgdalutils.h"
 #include "reos_testutils.h"
 
-class ReosGeometryTest: public QObject
+
+class ReosGeometryTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -30,11 +32,13 @@ class ReosGeometryTest: public QObject
     void gridReprojection();
 
     void rasterizePolygon();
+    void areaWithCrs();
+
+    void clipGdalDataSet();
 
   private:
     ReosModule mRootModule;
     ReosGisEngine *mGisEngine = nullptr;
-
 };
 void ReosGeometryTest::initTestCase()
 {
@@ -99,8 +103,7 @@ void ReosGeometryTest::gridReprojection()
   ReosMapExtent destinationExtent = ReosGisEngine::transformExtent( geoExtent, projCrs );
   ReosRasterExtent projExtent;
   bool success;
-  ReosRasterMemory<QList<QPair<double, QPoint>>> result =
-    ReosGisEngine::transformRasterExtent( geoExtent, destinationExtent, 2000, 2000, projExtent, success );
+  ReosRasterMemory<QList<QPair<double, QPoint>>> result = ReosGisEngine::transformRasterExtent( geoExtent, destinationExtent, 2000, 2000, projExtent, success );
 
   QCOMPARE( result.rowCount(), 104 );
   QCOMPARE( result.columnCount(), 114 );
@@ -176,7 +179,7 @@ void ReosGeometryTest::rasterizePolygon()
 
   rasterExtent = ReosRasterExtent( 100, 0, 100, 100, 1, -1 );
 
-/// Attempt with a raster extent taht do not ontersect the polygon
+  /// Attempt with a raster extent taht do not ontersect the polygon
   rasterized = ReosGeometryUtils::rasterizePolygon( poly, rasterExtent, finalExtent, xOri, yOri, false );
   QCOMPARE( finalExtent.xCellCount(), 1 );
   QCOMPARE( finalExtent.yCellCount(), 1 );
@@ -207,6 +210,37 @@ void ReosGeometryTest::rasterizePolygon()
   QCOMPARE( partialCount, 0 );
 }
 
+void ReosGeometryTest::areaWithCrs()
+{
+  QPolygonF poly;
+  poly
+    << QPointF( 2.90597431093595349, 42.84514842886782304 )
+    << QPointF( 2.50835984091437414, 42.51569643942136878 )
+    << QPointF( 3.08774092580296111, 42.34907704245994609 )
+    << QPointF( 3.15969021085448487, 42.67095542295360389 );
+
+  ReosArea area = ReosGisEngine::polygonAreaWithCrs( poly, ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  QCOMPARE( area.valueM2(), 1601745947.813 );
+}
+
+void ReosGeometryTest::clipGdalDataSet()
+{
+  ReosGdalDataset dataset( testFile( QStringLiteral( "DEM_for_watershed.tif" ) ) );
+
+  const ReosRasterExtent extent = dataset.extent();
+
+  ReosMapExtent newRawMapExtent( extent.xMapMin() + 2.2, extent.yMapMin() + 5.9, extent.xMapMax() - 5, extent.yMapMax() );
+
+  int width = 100;
+  double pixelSize = newRawMapExtent.width() / width;
+  int height = width * pixelSize;
+
+  ReosMapExtent newMapExtent( newRawMapExtent.xMapMin(), newRawMapExtent.yMapMin(), newRawMapExtent.xMapMin() + width * pixelSize, newRawMapExtent.yMapMax() + height * pixelSize );
+
+
+  dataset.resample( ReosRasterExtent( newMapExtent, width, height ) );
+}
 
 QTEST_MAIN( ReosGeometryTest )
 #include "reos_geometry_test.moc"

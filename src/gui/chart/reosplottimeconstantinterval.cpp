@@ -17,11 +17,15 @@
 #include "reostimeseries.h"
 #include "reosplot_p.h"
 
+#include <QBrush>
+#include <QPainter>
+#include <QPen>
+
 #include <qwt_plot_histogram.h>
 #include <qwt_plot_curve.h>
 
-ReosPlotTimeHistogram::ReosPlotTimeHistogram( const QString &name, bool masterItem ):
-  ReosPlotItem()
+ReosPlotTimeHistogram::ReosPlotTimeHistogram( const QString &name, bool masterItem )
+  : ReosPlotItem()
 {
   mPlotItem = new ReosPlotHistogramItem_p( name );
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
@@ -51,8 +55,7 @@ void ReosPlotTimeHistogram::setSettings()
 
     if ( histogram()->plot() && mMasterItem )
     {
-      histogram()->plot()->setAxisTitle( QwtPlot::yLeft,
-                                         mTimeSeries->data()->unitStringCurrentMode() );
+      histogram()->plot()->setAxisTitle( QwtPlot::yLeft, mTimeSeries->data()->unitStringCurrentMode() );
     }
   }
 }
@@ -140,7 +143,8 @@ QwtPlotCurve *ReosPlotTimeCumulativeCurve::curve()
 
 ReosPlotTimeSerieVariableStep::ReosPlotTimeSerieVariableStep( const QString &name )
 {
-  QwtPlotCurve *curve = new QwtPlotCurve( name );;
+  QwtPlotCurve *curve = new QwtPlotCurve( name );
+  ;
   mPlotItem = curve;
   mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
   mPlotItem->setItemAttribute( QwtPlotItem::AutoScale, true );
@@ -186,8 +190,7 @@ void ReosPlotTimeSerieVariableStep::setSettings()
 
   if ( mTimeSeries && curve()->plot() && mMasterItem )
   {
-    curve()->plot()->setAxisTitle( QwtPlot::yLeft,
-                                   mTimeSeries->data()->unitString() );
+    curve()->plot()->setAxisTitle( QwtPlot::yLeft, mTimeSeries->data()->unitString() );
   }
 
   if ( mTimeSeries && mTimeSeries->data() )

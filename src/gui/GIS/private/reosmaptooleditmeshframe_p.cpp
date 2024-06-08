@@ -33,14 +33,14 @@
 ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCanvas *canvas )
   : ReosMapTool_p( canvas )
   , mReosMesh( mesh )
-  , mMeshLayer( qobject_cast<QgsMeshLayer*>( mesh->data() ) )
+  , mMeshLayer( qobject_cast<QgsMeshLayer *>( mesh->data() ) )
   , mMainActions( new QActionGroup( this ) )
 {
   mActionEditMesh = new QAction( QIcon( QStringLiteral( ":/images/editMeshElement.svg" ) ), tr( "Edit Element" ), this );
   mActionEditMesh->setCheckable( true );
   mActionEditMesh->setChecked( true );
   mMainActions->addAction( mActionEditMesh );
-  mActionSelectElementByPolygon = new QAction( QIcon( QStringLiteral( ":/images/selectMeshElement.svg" ) ),  tr( "Select element by polygon" ), this );
+  mActionSelectElementByPolygon = new QAction( QIcon( QStringLiteral( ":/images/selectMeshElement.svg" ) ), tr( "Select element by polygon" ), this );
   mActionSelectElementByPolygon->setCheckable( true );
   mMainActions->addAction( mActionSelectElementByPolygon );
 
@@ -132,7 +132,6 @@ ReosMapToolEditMeshFrame_p::ReosMapToolEditMeshFrame_p( ReosMesh *mesh, QgsMapCa
 
   mMovingEdgesRubberband = new QgsRubberBand( mCanvas, Qgis::GeometryType::Line );
   mMovingFacesRubberband = new QgsRubberBand( mCanvas, Qgis::GeometryType::Polygon );
-
 }
 
 ReosMapToolEditMeshFrame_p::~ReosMapToolEditMeshFrame_p()
@@ -193,8 +192,7 @@ QgsMapTool::Flags ReosMapToolEditMeshFrame_p::flags() const
       return Flags();
       break;
     case ReosMapToolEditMeshFrame_p::SelectingByPolygon:
-      if ( mSelectionBand->numberOfVertices() > 2 ||
-           hasFeatureOnMap( ( mCurrentPosition.toQPointF() ) ) )
+      if ( mSelectionBand->numberOfVertices() > 2 || hasFeatureOnMap( ( mCurrentPosition.toQPointF() ) ) )
         return Flags();
       else
         return ShowContextMenu;
@@ -216,7 +214,6 @@ bool ReosMapToolEditMeshFrame_p::populateContextMenuWithEvent( QMenu *menu, QgsM
     case Digitizing:
     case SelectingByPolygon:
     {
-
       if ( !mSelectedVertices.isEmpty() )
       {
         newActions << mActionChangeZValue << mActionRemoveVertices;
@@ -312,7 +309,6 @@ void ReosMapToolEditMeshFrame_p::canvasPressEvent( QgsMapMouseEvent *e )
       }
       break;
   }
-
 }
 
 void ReosMapToolEditMeshFrame_p::canvasReleaseEvent( QgsMapMouseEvent *e )
@@ -332,25 +328,22 @@ void ReosMapToolEditMeshFrame_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     case Digitizing:
       if ( e->button() == Qt::LeftButton )
       {
-        if ( mDoubleClicks &&
-             ( mCurrentFaceIndex != -1 || mCurrentEdge != Edge{-1, -1} ) ) //double clicks --> add a vertex onlky iw we are on a edge or face
+        if ( mDoubleClicks && ( mCurrentFaceIndex != -1 || mCurrentEdge != Edge { -1, -1 } ) ) //double clicks --> add a vertex onlky iw we are on a edge or face
         {
           addVertex( mapPoint, e->mapPointMatch() );
         }
-        else if ( isSelectionGrapped( mapPoint )  && //click on a selected vertex, an edge or face box
-                  !( e->modifiers() &Qt::ControlModifier ) ) // without control modifier that is used to remove from the selection
+        else if ( isSelectionGrapped( mapPoint ) &&           //click on a selected vertex, an edge or face box
+                  !( e->modifiers() & Qt::ControlModifier ) ) // without control modifier that is used to remove from the selection
         {
           mCurrentState = MovingSelection;
           mStartMovingPoint = mapPoint;
         }
-        else if ( mFlipEdgeMarker->isVisible() &&
-                  e->mapPoint().distance( mFlipEdgeMarker->center() ) < tolerance &&
-                  mCurrentEdge.first != -1 && mCurrentEdge.second != -1 )  // flip edge
+        else if ( mFlipEdgeMarker->isVisible() && e->mapPoint().distance( mFlipEdgeMarker->center() ) < tolerance && mCurrentEdge.first != -1 && mCurrentEdge.second != -1 ) // flip edge
         {
           clearSelection();
           QVector<int> edgeVert = edgeVertices( mCurrentEdge );
           mMeshEditor->flipEdge( edgeVert.at( 0 ), edgeVert.at( 1 ) );
-          mCurrentEdge = {-1, -1};
+          mCurrentEdge = { -1, -1 };
           highLight( mapPoint );
         }
         else
@@ -372,10 +365,8 @@ void ReosMapToolEditMeshFrame_p::canvasReleaseEvent( QgsMapMouseEvent *e )
         QList<QgsPointXY> newPosition;
         newPosition.reserve( verticesIndexes.count() );
 
-        const QgsMeshVertex &mapPointInNativeCoordinate =
-          mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( mapPoint.x(), mapPoint.y() ) );
-        const QgsMeshVertex &startingPointInNativeCoordinate =
-          mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( mStartMovingPoint.x(), mStartMovingPoint.y() ) );
+        const QgsMeshVertex &mapPointInNativeCoordinate = mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( mapPoint.x(), mapPoint.y() ) );
+        const QgsMeshVertex &startingPointInNativeCoordinate = mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( mStartMovingPoint.x(), mStartMovingPoint.y() ) );
         const QgsVector &translationInLayerCoordinate = mapPointInNativeCoordinate - startingPointInNativeCoordinate;
 
         const QgsMesh &mesh = *mMeshLayer->nativeMesh();
@@ -389,21 +380,15 @@ void ReosMapToolEditMeshFrame_p::canvasReleaseEvent( QgsMapMouseEvent *e )
         else
         {
           //only one vertex, change also the Z value if snap on a 3D vector layer
-          if ( e->mapPointMatch().isValid() &&
-               QgsWkbTypes::hasZ( e->mapPointMatch().layer()->wkbType() ) )
+          if ( e->mapPointMatch().isValid() && QgsWkbTypes::hasZ( e->mapPointMatch().layer()->wkbType() ) )
           {
-            const QgsMeshVertex mapPointInMapCoordinate =
-              QgsMeshVertex( mapPoint.x(), mapPoint.y(), e->mapPointMatch().interpolatedPoint( mCanvas->mapSettings().destinationCrs() ).z() );
+            const QgsMeshVertex mapPointInMapCoordinate = QgsMeshVertex( mapPoint.x(), mapPoint.y(), e->mapPointMatch().interpolatedPoint( mCanvas->mapSettings().destinationCrs() ).z() );
 
-            const QgsMeshVertex &mapPointInNativeCoordinate =
-              mMeshLayer->triangularMesh()->triangularToNativeCoordinates( mapPointInMapCoordinate ) ;
-            mMeshEditor->changeCoordinates( verticesIndexes,
-                                            QList<QgsPoint>()
-                                            << mapPointInNativeCoordinate ) ;
+            const QgsMeshVertex &mapPointInNativeCoordinate = mMeshLayer->triangularMesh()->triangularToNativeCoordinates( mapPointInMapCoordinate );
+            mMeshEditor->changeCoordinates( verticesIndexes, QList<QgsPoint>() << mapPointInNativeCoordinate );
           }
           else
-            mMeshEditor->changeXYValues( verticesIndexes, QList<QgsPointXY>()
-                                         << QgsPointXY( mesh.vertex( verticesIndexes.at( 0 ) ) ) + translationInLayerCoordinate );
+            mMeshEditor->changeXYValues( verticesIndexes, QList<QgsPointXY>() << QgsPointXY( mesh.vertex( verticesIndexes.at( 0 ) ) ) + translationInLayerCoordinate );
         }
       }
       updateSelectecVerticesMarker();
@@ -478,7 +463,7 @@ void ReosMapToolEditMeshFrame_p::highlightCurrentHoveredFace( const QgsPointXY &
 
 void ReosMapToolEditMeshFrame_p::searchEdge( const QgsPointXY &mapPoint )
 {
-  mCurrentEdge = {-1, -1};
+  mCurrentEdge = { -1, -1 };
   double tolerance = QgsTolerance::vertexSearchRadius( canvas()->mapSettings() );
 
   QList<int> candidateFaceIndexes;
@@ -510,7 +495,7 @@ void ReosMapToolEditMeshFrame_p::searchEdge( const QgsPointXY &mapPoint )
       double distance = sqrt( mapPoint.sqrDistToSegment( pt1.x(), pt1.y(), pt2.x(), pt2.y(), pointOneEdge ) );
       if ( distance < tolerance && distance < minimumDistance && edgeCanBeInteractive( iv1, iv2 ) )
       {
-        mCurrentEdge = {faceIndex, iv2};
+        mCurrentEdge = { faceIndex, iv2 };
         minimumDistance = distance;
       }
     }
@@ -543,7 +528,7 @@ int ReosMapToolEditMeshFrame_p::closeVertex( const QgsPointXY &mapPoint ) const
 
   double tolerance = QgsTolerance::vertexSearchRadius( canvas()->mapSettings() );
 
-  if ( mCurrentEdge.first != -1 && mCurrentEdge.second  != -1 )
+  if ( mCurrentEdge.first != -1 && mCurrentEdge.second != -1 )
   {
     const QVector<int> &edge = edgeVertices( mCurrentEdge );
 
@@ -606,7 +591,7 @@ void ReosMapToolEditMeshFrame_p::highlightCloseEdge( const QgsPointXY &mapPoint 
   mEdgeBand->reset();
   mFlipEdgeMarker->setVisible( false );
   mSelectEdgeMarker->setVisible( false );
-  if ( mCurrentEdge.first != -1 && mCurrentEdge.second != -1 &&  mCurrentState == Digitizing )
+  if ( mCurrentEdge.first != -1 && mCurrentEdge.second != -1 && mCurrentState == Digitizing )
   {
     const QVector<QgsPointXY> &edgeGeom = edgeGeometry( mCurrentEdge );
     mEdgeBand->addPoint( edgeGeom.at( 0 ) );
@@ -661,7 +646,6 @@ void ReosMapToolEditMeshFrame_p::highlightCloseEdge( const QgsPointXY &mapPoint 
     }
     else
       mFlipEdgeMarker->setVisible( false );
-
   }
 }
 
@@ -686,14 +670,12 @@ void ReosMapToolEditMeshFrame_p::highlightCloseVertex( const QgsPointXY &mapPoin
     mCurrentVertexIndex = -1;
     mVertexBand->reset( Qgis::GeometryType::Point );
 
-    if ( closeVert >= 0 &&
-         !( mReosMesh->vertexIsOnBoundary( closeVert )  || mReosMesh->vertexIsOnHoleBorder( closeVert ) ) )
+    if ( closeVert >= 0 && !( mReosMesh->vertexIsOnBoundary( closeVert ) || mReosMesh->vertexIsOnHoleBorder( closeVert ) ) )
     {
       mCurrentVertexIndex = closeVert;
       mVertexBand->addPoint( mapVertexXY( closeVert ) );
     }
   }
-
 }
 
 QgsPointSequence ReosMapToolEditMeshFrame_p::nativeFaceGeometry( int faceIndex ) const
@@ -709,7 +691,7 @@ QgsPointSequence ReosMapToolEditMeshFrame_p::nativeFaceGeometry( int faceIndex )
 
 const QgsMeshVertex ReosMapToolEditMeshFrame_p::mapVertex( int index ) const
 {
-  if ( mMeshLayer.isNull() || ! mMeshLayer->triangularMesh() )
+  if ( mMeshLayer.isNull() || !mMeshLayer->triangularMesh() )
     return QgsMeshVertex();
 
   return mMeshLayer->triangularMesh()->vertices().at( index );
@@ -724,12 +706,12 @@ const QgsPointXY ReosMapToolEditMeshFrame_p::mapVertexXY( int index ) const
 QVector<QgsPointXY> ReosMapToolEditMeshFrame_p::edgeGeometry( const Edge &edge ) const
 {
   const QVector<int> &vertexIndexes = edgeVertices( edge );
-  return {mapVertexXY( vertexIndexes.at( 0 ) ), mapVertexXY( vertexIndexes.at( 1 ) )};
+  return { mapVertexXY( vertexIndexes.at( 0 ) ), mapVertexXY( vertexIndexes.at( 1 ) ) };
 }
 
 const QgsMeshFace ReosMapToolEditMeshFrame_p::nativeFace( int index ) const
 {
-  if ( mMeshLayer.isNull() || ! mMeshLayer->nativeMesh() )
+  if ( mMeshLayer.isNull() || !mMeshLayer->nativeMesh() )
     return QgsMeshFace();
 
   return mMeshLayer->nativeMesh()->face( index );
@@ -741,7 +723,7 @@ QVector<int> ReosMapToolEditMeshFrame_p::edgeVertices( const ReosMapToolEditMesh
   int faceSize = face.count();
   int posInface = ( face.indexOf( edge.second ) + faceSize - 1 ) % faceSize;
 
-  return {face.at( posInface ), edge.second};
+  return { face.at( posInface ), edge.second };
 }
 
 void ReosMapToolEditMeshFrame_p::startMeshEditing()
@@ -801,7 +783,6 @@ void ReosMapToolEditMeshFrame_p::canvasDoubleClickEvent( QgsMapMouseEvent *e )
   Q_UNUSED( e )
   //canvasReleseaseEvent() will be called just after the last click, so just flag the double clicks
   mDoubleClicks = true;
-
 }
 
 void ReosMapToolEditMeshFrame_p::keyPressEvent( QKeyEvent *e )
@@ -873,7 +854,7 @@ void ReosMapToolEditMeshFrame_p::addVertex( const QgsPointXY &mapPoint, const Qg
     const QgsMeshVertex &v3 = triangularMesh.vertices().at( triangleFace.at( 2 ) );
     zValue = QgsMeshLayerUtils::interpolateFromVerticesData( v1, v2, v3, v1.z(), v2.z(), v3.z(), mapPoint );
   }
-  else if ( mCurrentEdge.first != -1 && mCurrentEdge.second  != -1 )
+  else if ( mCurrentEdge.first != -1 && mCurrentEdge.second != -1 )
   {
     const QVector<int> &edge = edgeVertices( mCurrentEdge );
     const QgsMeshVertex v1 = mMeshLayer->triangularMesh()->vertices().at( edge.at( 0 ) );
@@ -903,24 +884,19 @@ bool ReosMapToolEditMeshFrame_p::isSelectionGrapped( QgsPointXY &grappedPoint ) 
 
   double tolerance = QgsTolerance::vertexSearchRadius( canvas()->mapSettings() );
 
-  if ( mCurrentEdge.first != -1 && mCurrentEdge.second != -1  &&
-       mSelectEdgeMarker->isVisible() &&
-       grappedPoint.distance( mSelectEdgeMarker->center() ) < tolerance )
+  if ( mCurrentEdge.first != -1 && mCurrentEdge.second != -1 && mSelectEdgeMarker->isVisible() && grappedPoint.distance( mSelectEdgeMarker->center() ) < tolerance )
   {
     const QVector<int> vertices = edgeVertices( mCurrentEdge );
     if ( mSelectedVertices.contains( vertices.at( 0 ) ) && mSelectedVertices.contains( vertices.at( 1 ) ) )
     {
       const QgsPointXY &point1 = mapVertexXY( vertices.at( 0 ) );
       const QgsPointXY &point2 = mapVertexXY( vertices.at( 1 ) );
-      grappedPoint =  QgsPointXY( point1.x() + point2.x(), point1.y() + point2.y() ) / 2;
+      grappedPoint = QgsPointXY( point1.x() + point2.x(), point1.y() + point2.y() ) / 2;
       return true;
     }
   }
 
-  if ( ( mSelectFaceMarker->isVisible() &&
-         grappedPoint.distance( mSelectFaceMarker->center() ) < tolerance
-         && mCurrentFaceIndex >= 0
-         && mSelectedFaces.contains( mCurrentFaceIndex ) ) )
+  if ( ( mSelectFaceMarker->isVisible() && grappedPoint.distance( mSelectFaceMarker->center() ) < tolerance && mCurrentFaceIndex >= 0 && mSelectedFaces.contains( mCurrentFaceIndex ) ) )
   {
     grappedPoint = mMeshLayer->triangularMesh()->faceCentroids().at( mCurrentFaceIndex );
     return true;
@@ -985,22 +961,21 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
     {
       int oppositeVertex = circulator.oppositeVertexClockwise();
       if ( mSelectedVertices.contains( oppositeVertex ) )
-        vertexData.borderEdges.append( {circulator.currentFaceIndex(), oppositeVertex} );
+        vertexData.borderEdges.append( { circulator.currentFaceIndex(), oppositeVertex } );
       else
-        vertexData.meshFixedEdges.append( {circulator.currentFaceIndex(), oppositeVertex} );
+        vertexData.meshFixedEdges.append( { circulator.currentFaceIndex(), oppositeVertex } );
 
       mConcernedFaceBySelection.insert( circulator.currentFaceIndex() );
-    }
-    while ( circulator.turnCounterClockwise() != firstface && circulator.currentFaceIndex() != -1 );
+    } while ( circulator.turnCounterClockwise() != firstface && circulator.currentFaceIndex() != -1 );
 
     if ( circulator.currentFaceIndex() == -1 )
     {
       circulator.turnClockwise();
       int oppositeVertex = circulator.oppositeVertexCounterClockwise();
       if ( mSelectedVertices.contains( oppositeVertex ) )
-        vertexData.borderEdges.append( {-1, oppositeVertex} );
+        vertexData.borderEdges.append( { -1, oppositeVertex } );
       else
-        vertexData.meshFixedEdges.append( {-1, oppositeVertex} );
+        vertexData.meshFixedEdges.append( { -1, oppositeVertex } );
     }
   }
 
@@ -1077,7 +1052,6 @@ void ReosMapToolEditMeshFrame_p::prepareSelection()
       mActionRemoveVertices->setText( tr( "Selected vertex can't be removed", nullptr, mSelectedVertices.count() ) );
       mActionRemoveVertices->setEnabled( false );
     }
-
   }
   else if ( mSelectedVertices.count() > 1 )
   {
@@ -1114,9 +1088,7 @@ void ReosMapToolEditMeshFrame_p::select( const QgsPointXY &mapPoint, Qt::Keyboar
 
   QgsPointXY currentPoint = mapPoint;
 
-  if ( mSelectFaceMarker->isVisible() &&
-       mapPoint.distance( mSelectFaceMarker->center() ) < tolerance
-       && mCurrentFaceIndex >= 0 )
+  if ( mSelectFaceMarker->isVisible() && mapPoint.distance( mSelectFaceMarker->center() ) < tolerance && mCurrentFaceIndex >= 0 )
   {
     setSelectedVertices( nativeFace( mCurrentFaceIndex ).toList(), behavior );
     currentPoint = mMeshLayer->triangularMesh()->faceCentroids().at( mCurrentFaceIndex );
@@ -1126,9 +1098,7 @@ void ReosMapToolEditMeshFrame_p::select( const QgsPointXY &mapPoint, Qt::Keyboar
     setSelectedVertices( QList<int>() << mCurrentVertexIndex, behavior );
     currentPoint = mMeshLayer->triangularMesh()->vertices().at( mCurrentVertexIndex );
   }
-  else if ( mSelectEdgeMarker->isVisible() &&
-            mapPoint.distance( mSelectEdgeMarker->center() ) < tolerance &&
-            mCurrentEdge.first != -1 && mCurrentEdge.second != -1 )
+  else if ( mSelectEdgeMarker->isVisible() && mapPoint.distance( mSelectEdgeMarker->center() ) < tolerance && mCurrentEdge.first != -1 && mCurrentEdge.second != -1 )
   {
     QVector<int> edgeVert = edgeVertices( mCurrentEdge );
     setSelectedVertices( edgeVert.toList(), behavior );
@@ -1137,7 +1107,7 @@ void ReosMapToolEditMeshFrame_p::select( const QgsPointXY &mapPoint, Qt::Keyboar
     currentPoint = QgsPointXY( ( v1.x() + v2.x() ) / 2, ( v1.y() + v2.y() ) / 2 );
   }
   else
-    setSelectedVertices( QList<int>(),  behavior );
+    setSelectedVertices( QList<int>(), behavior );
 }
 
 void ReosMapToolEditMeshFrame_p::setSelectedVertices( const QList<int> newSelectedVertices, Qgis::SelectBehavior behavior )
@@ -1167,9 +1137,9 @@ void ReosMapToolEditMeshFrame_p::setSelectedVertices( const QList<int> newSelect
   for ( const int vertexIndex : newSelectedVertices )
   {
     bool contained = mSelectedVertices.contains( vertexIndex );
-    if ( contained &&  removeVertices )
+    if ( contained && removeVertices )
       removeFromSelection( vertexIndex );
-    else if ( ! removeVertices && !contained )
+    else if ( !removeVertices && !contained )
       addNewSelectedVertex( vertexIndex );
   }
 
@@ -1282,7 +1252,7 @@ void ReosMapToolEditMeshFrame_p::moveSelection( const QgsPointXY &destinationPoi
     for ( int i = 0; i < vertexData.meshFixedEdges.count(); ++i )
     {
       const QgsPointXY point2 = mapVertexXY( vertexData.meshFixedEdges.at( i ).second );
-      QgsGeometry edge( new QgsLineString( {point1, point2} ) );
+      QgsGeometry edge( new QgsLineString( { point1, point2 } ) );
       mMovingEdgesRubberband->addGeometry( edge );
       int associateFace = vertexData.meshFixedEdges.at( i ).first;
       if ( associateFace != -1 )
@@ -1292,19 +1262,16 @@ void ReosMapToolEditMeshFrame_p::moveSelection( const QgsPointXY &destinationPoi
     for ( int i = 0; i < vertexData.borderEdges.count(); ++i )
     {
       const QgsPointXY point2 = mapVertexXY( vertexData.borderEdges.at( i ).second ) + translation;
-      const QgsGeometry edge( new QgsLineString( {point1, point2} ) );
+      const QgsGeometry edge( new QgsLineString( { point1, point2 } ) );
       mMovingEdgesRubberband->addGeometry( edge );
     }
   }
 
-  const QgsMeshVertex &mapPointInNativeCoordinate =
-    mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( destinationPoint.x(), destinationPoint.y() ) );
-  const QgsMeshVertex &startingPointInNativeCoordinate =
-    mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( mStartMovingPoint.x(), mStartMovingPoint.y() ) );
+  const QgsMeshVertex &mapPointInNativeCoordinate = mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( destinationPoint.x(), destinationPoint.y() ) );
+  const QgsMeshVertex &startingPointInNativeCoordinate = mMeshLayer->triangularMesh()->triangularToNativeCoordinates( QgsMeshVertex( mStartMovingPoint.x(), mStartMovingPoint.y() ) );
   const QgsVector &translationInLayerCoordinate = mapPointInNativeCoordinate - startingPointInNativeCoordinate;
 
-  auto transformFunction = [translationInLayerCoordinate, this ]( int vi )-> const QgsMeshVertex
-  {
+  auto transformFunction = [translationInLayerCoordinate, this]( int vi ) -> const QgsMeshVertex {
     if ( mSelectedVertices.contains( vi ) )
       return mMeshLayer->nativeMesh()->vertex( vi ) + translationInLayerCoordinate;
     else
@@ -1406,7 +1373,7 @@ void ReosMapToolEditMeshFrame_p::onEdit()
 
 void ReosMapToolEditMeshFrame_p::clearEdgeHelpers()
 {
-  mCurrentEdge = {-1, -1};
+  mCurrentEdge = { -1, -1 };
   mEdgeBand->reset();
   mSelectEdgeMarker->setVisible( false );
   mFlipEdgeMarker->setVisible( false );

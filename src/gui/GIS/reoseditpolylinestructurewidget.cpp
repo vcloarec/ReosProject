@@ -64,8 +64,7 @@ ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesS
   mActionRemoveBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
   mActionZoomOnBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
   mActionRenameBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
-  connect( ui->mBoundaryListView->selectionModel(), &QItemSelectionModel::currentChanged, this, [this]
-  {
+  connect( ui->mBoundaryListView->selectionModel(), &QItemSelectionModel::currentChanged, this, [this] {
     mActionRemoveBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
     mActionZoomOnBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );
     mActionRenameBoundary->setEnabled( ui->mBoundaryListView->currentIndex().isValid() );

@@ -23,7 +23,7 @@
 class QgsMapCanvas;
 class ReosMapToolEditPolygonStructure_p;
 
-class ReosEditPolygonStructureMenuPopulator: public ReosMenuPopulator
+class ReosEditPolygonStructureMenuPopulator : public ReosMenuPopulator
 {
   public:
     ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonStructure_p *toolMap );
@@ -32,7 +32,6 @@ class ReosEditPolygonStructureMenuPopulator: public ReosMenuPopulator
 
   private:
     ReosMapToolEditPolygonStructure_p *mToolMap = nullptr;
-
 };
 
 class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
@@ -83,7 +82,6 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
     QList<QPointer<ReosGeometryStructure>> mHelperStructure;
 
     friend class ReosEditPolygonStructureMenuPopulator;
-
 };
 
 #endif // REOSMAPTOOLEDITPOLYGONSTRUCTURE_P_H

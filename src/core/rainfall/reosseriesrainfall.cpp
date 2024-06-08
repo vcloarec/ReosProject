@@ -22,15 +22,19 @@
 #include "reoswatershed.h"
 #include "reosgisengine.h"
 #include "reosgriddedrainfallprovider.h"
+#include "reosgriddeddata.h"
 
 
-ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource ):
-  ReosTimeSeriesConstantInterval( parent, providerKey, dataSource )
+ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource )
+  : ReosTimeSeriesConstantInterval( parent, providerKey, dataSource )
 {
   setupData();
 }
 
-QString ReosSeriesRainfall::staticType() {return ReosTimeSeriesConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );}
+QString ReosSeriesRainfall::staticType()
+{
+  return ReosTimeSeriesConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );
+}
 
 ReosEncodedElement ReosSeriesRainfall::encode( const ReosEncodeContext &context ) const
 {
@@ -45,8 +49,8 @@ ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &elemen
   return new ReosSeriesRainfall( element, context, parent );
 }
 
-ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
-  ReosTimeSeriesConstantInterval( element, context, parent )
+ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
+  : ReosTimeSeriesConstantInterval( element, context, parent )
 {
   setupData();
 }
@@ -62,13 +66,9 @@ void ReosSeriesRainfall::setupData()
   setValueModeColor( ReosTimeSeriesConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
 }
 
-ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatershed(
-  ReosWatershed *watershed,
-  ReosGriddedRainfall *griddedRainfall,
-  QObject *parent )
+ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent )
   : ReosSeriesRainfall( parent )
-  , mWatershed( watershed )
-  , mGriddedRainfall( griddedRainfall )
+  , ReosDataGriddedOnWatershed( watershed, griddedRainfall, griddedRainfall->minimumTimeStep() )
 {
   connect( watershed, &ReosWatershed::geometryChanged, this, &ReosSeriesRainfallFromGriddedOnWatershed::onWatershedGeometryChanged );
   registerUpstreamData( griddedRainfall );
@@ -85,8 +85,7 @@ ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatersh
 }
 
 ReosSeriesRainfallFromGriddedOnWatershed::~ReosSeriesRainfallFromGriddedOnWatershed()
-{
-}
+{}
 
 ReosSeriesRainfallFromGriddedOnWatershed *ReosSeriesRainfallFromGriddedOnWatershed::create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall )
 {
@@ -104,52 +103,22 @@ double ReosSeriesRainfallFromGriddedOnWatershed::valueAt( int i ) const
   if ( !std::isnan( val ) )
     return val;
 
-  ReosRasterExtent rainExtent = mGriddedRainfall->rasterExtent();
+  val = calculateValueAt( i );
 
-  int rasterizedXCount = mRasterizedExtent.xCellCount();
-  int rasterizedYCount = mRasterizedExtent.yCellCount();
+  constantTimeStepDataProvider()->setValue( i, val );
 
-  ReosRasterMemory<double> rainValues;
-  int griddedIndex = mGriddedRainfall->dataIndex( timeAt( i ) );
+  return val;
+}
 
-  int effXori;
-  int effYOri;
-
-  if ( mGriddedRainfall->supportExtractSubGrid() )
+void ReosSeriesRainfallFromGriddedOnWatershed::preCalculate() const
+{
+  int count = valueCount();
+  for ( int i = 0; i < count; ++i )
   {
-    effXori = 0;
-    effYOri = 0;
-    rainValues = ReosRasterMemory<double>( rasterizedYCount, rasterizedXCount );
-    rainValues.setValues( mGriddedRainfall->intensityValuesInGridExtent(
-                            griddedIndex, mYOri, mYOri + rasterizedYCount - 1, mXOri, mXOri + rasterizedXCount - 1 ) );
+    valueAt( i );
+    if ( i % 100 == 0 )
+      std::cout << "Timestep: " << i << " / " << count << std::endl;
   }
-  else
-  {
-    effXori = mXOri;
-    effYOri = mYOri;
-    rainValues = ReosRasterMemory<double>( rainExtent.yCellCount(), rainExtent.xCellCount() );
-    rainValues.setValues( mGriddedRainfall->intensityValues( griddedIndex ) );
-  }
-
-  double averageIntensity = 0;
-  double totalSurf = 0;
-  for ( int xi = 0; xi < rasterizedXCount; ++xi )
-  {
-    for ( int yi = 0; yi < rasterizedYCount; ++yi )
-    {
-      double surf = mRasterizedWatershed.value( yi, xi );
-      double rv = rainValues.value( yi + effYOri, xi + effXori );
-      if ( !std::isnan( rv ) )
-        averageIntensity += surf * rv;
-      totalSurf += mRasterizedWatershed.value( yi, xi );
-    }
-  }
-  averageIntensity = averageIntensity / totalSurf;
-
-  constantTimeStepDataProvider()->setValue( i, averageIntensity * timeStep().valueHour() );
-
-  return averageIntensity;
-
 }
 
 void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const
@@ -160,84 +129,31 @@ void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const
   }
 }
 
+void ReosSeriesRainfallFromGriddedOnWatershed::onCalculationFinished()
+{
+  initValuesPerArea( valueCount() );
+  emit calculationFinished();
+}
+
+void ReosSeriesRainfallFromGriddedOnWatershed::onDataChanged() const
+{
+  emit dataChanged();
+}
+
+QDateTime ReosSeriesRainfallFromGriddedOnWatershed::timeAtIndex( int i ) const
+{
+  return ReosSeriesRainfall::timeAt( i );
+}
+
+void ReosSeriesRainfallFromGriddedOnWatershed::setDataActualized() const
+{
+  setActualized();
+}
+
 
 void ReosSeriesRainfallFromGriddedOnWatershed::onWatershedGeometryChanged()
 {
   for ( int i = 0; i < valueCount(); ++i )
     setValueAt( i, std::numeric_limits<double>::quiet_NaN() );
   setObsolete();
-}
-
-void ReosSeriesRainfallFromGriddedOnWatershed::launchCalculation()
-{
-  AverageCalculation *newCalc = getCalculationProcess();
-
-  connect( newCalc, &ReosProcess::finished, newCalc, [newCalc, this]
-  {
-    if ( mCurrentCalculation == newCalc )
-    {
-      if ( newCalc->isSuccessful() )
-      {
-        mRasterizedExtent = mCurrentCalculation->rasterizedExtent;
-        mRasterizedWatershed = mCurrentCalculation->rasterizedWatershed;
-        mXOri = mCurrentCalculation->xOri;
-        mYOri = mCurrentCalculation->yOri;
-        mCurrentCalculation = nullptr;
-        emit calculationFinished();
-      }
-    }
-    newCalc->deleteLater();
-  } );
-  setActualized();
-  mCurrentCalculation = newCalc;
-
-  newCalc->startOnOtherThread();
-}
-
-ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation *ReosSeriesRainfallFromGriddedOnWatershed::getCalculationProcess() const
-{
-  if ( mCurrentCalculation )
-    mCurrentCalculation->stop( true );
-
-  if ( mWatershed.isNull()
-       || mGriddedRainfall.isNull()
-       || mGriddedRainfall->gridCount() == 0 )
-  {
-    setActualized();
-    emit dataChanged();
-    return nullptr;
-  }
-
-  ReosArea watershedArea = mWatershed->areaParameter()->value();
-  ReosRasterExtent rainExtent = mGriddedRainfall->rasterExtent();
-  QRectF cellRect( rainExtent.xMapOrigin(),
-                   rainExtent.yMapOrigin(),
-                   std::fabs( rainExtent.xCellSize() ),
-                   std::fabs( rainExtent.yCellSize() ) );
-  ReosArea cellArea = ReosGisEngine::polygonAreaWithCrs( cellRect, rainExtent.crs() );
-
-  std::unique_ptr<AverageCalculation> newCalc( new AverageCalculation );
-
-  newCalc->griddedRainfallProvider.reset( mGriddedRainfall->dataProvider()->clone() );
-  newCalc->timeStep = mGriddedRainfall->minimumTimeStep();
-  newCalc->usePrecision = watershedArea < cellArea * 30;
-  newCalc->watershedPolygon = ReosGisEngine::transformToCoordinates( mWatershed->crs(), mWatershed->delineating(), rainExtent.crs() );
-
-  return newCalc.release();
-}
-
-void ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation::start()
-{
-  mIsSuccessful = false;
-  QElapsedTimer timer;
-  timer.start();
-
-  ReosRasterExtent rainExtent = griddedRainfallProvider->extent();
-
-  rasterizedWatershed = ReosGeometryUtils::rasterizePolygon(
-                          watershedPolygon, rainExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
-
-  mIsSuccessful = true;
-
-  qDebug() << QString( "average gridded precipitation %1 on watershed:" ).arg( usePrecision ? "with precision" : "without precition" ) << timer.elapsed();
 }

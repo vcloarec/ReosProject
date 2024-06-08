@@ -18,14 +18,12 @@ email                : vcloarec at gmail dot com
 
 ReosVersion ReosVersion::sCurrentApplicationVersion = ReosVersion();
 
-ReosVersion::ReosVersion( const QString &name, int major, int minor, int sub ):
-  mSoftName( name ),
-  mMajor( major ),
-  mMinor( minor ),
-  mSub( sub )
-{
-
-}
+ReosVersion::ReosVersion( const QString &name, int major, int minor, int sub )
+  : mSoftName( name )
+  , mMajor( major )
+  , mMinor( minor )
+  , mSub( sub )
+{}
 
 ReosVersion::ReosVersion( const QByteArray &bytes, QDataStream::Version v )
 {
@@ -36,7 +34,7 @@ ReosVersion::ReosVersion( const QByteArray &bytes, QDataStream::Version v )
   mSoftName = QString::fromLatin1( latin1Name );
   stream >> mMajor;
   stream >> mMinor;
-  stream >>  mSub;
+  stream >> mSub;
 }
 
 bool ReosVersion::operator==( const ReosVersion &other )
@@ -102,7 +100,7 @@ QByteArray ReosVersion::bytesVersion() const
   stream << mSoftName.toLatin1();
   stream << mMajor;
   stream << mMinor;
-  stream <<  mSub;
+  stream << mSub;
   return ret;
 }
 

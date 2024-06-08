@@ -34,15 +34,11 @@ class ReosIntensityDurationInterval;
  *  Class that contains double parameters needed by a formula that calculates rainfall height depending of its duration
  *  The parameters count depends of the formula
  */
-class REOSCORE_EXPORT ReosIdfParameters: public QObject
+class REOSCORE_EXPORT ReosIdfParameters : public QObject
 {
     Q_OBJECT
   public:
-    ReosIdfParameters( ReosIntensityDurationInterval *interval,
-                       const QString  &formulaName,
-                       const QStringList parameterNames,
-                       ReosDuration::Unit parameterTimeUnit,
-                       ReosDuration::Unit resultTimeUnit );
+    ReosIdfParameters( ReosIntensityDurationInterval *interval, const QString &formulaName, const QStringList parameterNames, ReosDuration::Unit parameterTimeUnit, ReosDuration::Unit resultTimeUnit );
 
     //! Returns the parameters count
     int parametersCount();
@@ -78,7 +74,6 @@ class REOSCORE_EXPORT ReosIdfParameters: public QObject
     QVector<ReosParameterDouble *> mParameters;
     ReosDuration::Unit mParameterTimeUnit = ReosDuration::minute;
     ReosDuration::Unit mResultTimeUnit = ReosDuration::hour;
-
 };
 
 //! Class that represents an intensity duration formula
@@ -103,7 +98,7 @@ class REOSCORE_EXPORT ReosIdfFormula
 };
 
 //! Class that register rainfall intensity duration formula. It is a singleton class that can be called everywhere
-class REOSCORE_EXPORT ReosIdfFormulaRegistery: public ReosModule
+class REOSCORE_EXPORT ReosIdfFormulaRegistery : public ReosModule
 {
   public:
     //! Return a pointer to the formula with \a name, return nullptr if not exists
@@ -123,7 +118,7 @@ class REOSCORE_EXPORT ReosIdfFormulaRegistery: public ReosModule
 
     QPixmap formulaImage( const QString &name ) const;
 
-    static QString staticName() {return QStringLiteral( "idf-formula-registery" );}
+    static QString staticName() { return QStringLiteral( "idf-formula-registery" ); }
 
   private:
     ReosIdfFormulaRegistery( ReosModule *parent = nullptr );
@@ -136,7 +131,7 @@ class REOSCORE_EXPORT ReosIdfFormulaRegistery: public ReosModule
 };
 
 //! Montana Formula
-class REOSCORE_EXPORT ReosIdfFormulaMontana: public ReosIdfFormula
+class REOSCORE_EXPORT ReosIdfFormulaMontana : public ReosIdfFormula
 {
   public:
     QString name() const override;
@@ -146,7 +141,7 @@ class REOSCORE_EXPORT ReosIdfFormulaMontana: public ReosIdfFormula
 };
 
 //! Sherman Formula
-class REOSCORE_EXPORT ReosIdfFormulaSherman: public ReosIdfFormula
+class REOSCORE_EXPORT ReosIdfFormulaSherman : public ReosIdfFormula
 {
   public:
     QString name() const override;
@@ -159,7 +154,7 @@ class REOSCORE_EXPORT ReosIdfFormulaSherman: public ReosIdfFormula
  * Class that represents an interval of a Intensity/duration curve.
  * An instance of this class can contain parameters for several formulas
  */
-class ReosIntensityDurationInterval: public QObject
+class ReosIntensityDurationInterval : public QObject
 {
     Q_OBJECT
   public:
@@ -180,9 +175,9 @@ class ReosIntensityDurationInterval: public QObject
     bool intersect( const ReosIntensityDurationInterval &other ) const;
 
     //! Returns the parameter corresponding to the start duration of this interval
-    ReosParameterDuration *start() const {return mStartDuration;}
+    ReosParameterDuration *start() const { return mStartDuration; }
     //! Returns the parameter corresponding to the end duration of this interval
-    ReosParameterDuration *end() const {return mEndDuration;}
+    ReosParameterDuration *end() const { return mEndDuration; }
 
     //! Returns the value duration corresponding to the start of this interval
     ReosDuration startDuration() const;
@@ -200,7 +195,6 @@ class ReosIntensityDurationInterval: public QObject
     void changed();
 
   private:
-
     ReosParameterDuration *mStartDuration = nullptr;
     ReosParameterDuration *mEndDuration = nullptr;
 
@@ -211,15 +205,15 @@ class ReosIntensityDurationInterval: public QObject
  * Class that represents a intensity duration curve.
  * An instance of this class can represent several formulas
  */
-class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
+class REOSCORE_EXPORT ReosIntensityDurationCurve : public ReosDataObject
 {
     Q_OBJECT
   public:
     ReosIntensityDurationCurve( const ReosDuration &returnPeriod, QObject *parent = nullptr );
     ReosIntensityDurationCurve( QObject *parent = nullptr );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "intensity-duration-curve" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosDataObject::staticType() + ':' + QStringLiteral( "intensity-duration-curve" ); }
 
     //! Returns the parametes corresponding to the return period of this curve
     ReosParameterDuration *returnPeriod() const;
@@ -228,16 +222,16 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     void setCurrentFormula( const QString &formulaName );
 
     //! Returns the current formula name that will be used to return height/intensity rainfall
-    QString currentFormula() const {return mCurrentFormulaName;}
+    QString currentFormula() const { return mCurrentFormulaName; }
 
     //! Mounts the formula from the \a registery
     void setupFormula( ReosIdfFormulaRegistery *registery );
 
     //! Return whether the current formula is valid
-    bool isFormulaValid() const {return mCurrentFormula != nullptr;}
+    bool isFormulaValid() const { return mCurrentFormula != nullptr; }
 
     //! Returns the interval count in this curve
-    int intervalCount() const {return mIntensityDurationIntervals.count();}
+    int intervalCount() const { return mIntensityDurationIntervals.count(); }
 
     /**
      * Adds an interval to this curve, returns false if interval can't be added (new one intersects existent one)
@@ -268,9 +262,7 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
     double lastIntensity( int intervalIndex, ReosDuration::Unit unit = ReosDuration::hour ) const;
 
     //! Sets parameters for the interval at position \a i and for the \a formula
-    ReosIdfParameters *createParameters( int i, ReosIdfFormula *formula,
-                                         ReosDuration::Unit parameterTimeUnit = ReosDuration::minute,
-                                         ReosDuration::Unit resultTimeUnit = ReosDuration::hour );
+    ReosIdfParameters *createParameters( int i, ReosIdfFormula *formula, ReosDuration::Unit parameterTimeUnit = ReosDuration::minute, ReosDuration::Unit resultTimeUnit = ReosDuration::hour );
 
     //! Returns the parameters for interval at position \a i and for the current formula
     ReosIdfParameters *currentParameters( int i );
@@ -317,14 +309,14 @@ class REOSCORE_EXPORT ReosIntensityDurationCurve: public ReosDataObject
 /**
  * Model representing a intensity/duration curve
  */
-class REOSCORE_EXPORT ReosIntensityDurationCurveTableModel:  public QAbstractTableModel
+class REOSCORE_EXPORT ReosIntensityDurationCurveTableModel : public QAbstractTableModel
 {
     Q_OBJECT
   public:
     ReosIntensityDurationCurveTableModel( ReosIntensityDurationCurve *curve, QObject *parent );
 
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
-    QModelIndex parent( const QModelIndex & ) const override {return QModelIndex();}
+    QModelIndex parent( const QModelIndex & ) const override { return QModelIndex(); }
     int rowCount( const QModelIndex & ) const override;
     int columnCount( const QModelIndex & ) const override;
     QVariant data( const QModelIndex &index, int role ) const override;
@@ -354,11 +346,12 @@ class REOSCORE_EXPORT ReosIntensityDurationCurveTableModel:  public QAbstractTab
 class REOSCORE_EXPORT ReosIntensityDurationFrequencyCurves : public ReosDataObject
 {
   public:
-    ReosIntensityDurationFrequencyCurves( QObject *parent = nullptr ): ReosDataObject( parent )
+    ReosIntensityDurationFrequencyCurves( QObject *parent = nullptr )
+      : ReosDataObject( parent )
     {}
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "intensity-duration-curves" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosDataObject::staticType() + ':' + QStringLiteral( "intensity-duration-curves" ); }
 
     //! Adds an intensity-duration curve
     void addCurve( ReosIntensityDurationCurve *curve, QString name );

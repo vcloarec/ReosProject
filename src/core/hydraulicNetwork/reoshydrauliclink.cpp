@@ -49,7 +49,7 @@ QPair<QString, QString> ReosHydraulicLink::decodeNodesId( const ReosEncodedEleme
   element.getData( QStringLiteral( "id-node-1" ), idNode1 );
   element.getData( QStringLiteral( "id-node-2" ), idNode2 );
 
-  return {idNode1, idNode2};
+  return { idNode1, idNode2 };
 }
 
 void ReosHydraulicLink::destroy()
@@ -91,7 +91,6 @@ void ReosHydraulicLink::attachOnSide2( ReosHydraulicNode *node )
 
     setObsolete();
   }
-
 }
 
 void ReosHydraulicLink::encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const

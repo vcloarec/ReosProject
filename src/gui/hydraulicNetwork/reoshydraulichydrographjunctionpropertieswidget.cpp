@@ -87,8 +87,7 @@ ReosHydraulicHydrographJunctionPropertiesWidget::ReosHydraulicHydrographJunction
       ui->mTabResult->setCurrentIndex( 0 );
   }
 
-  connect( ui->mTabResult, &QTabWidget::currentChanged, this, [this]
-  {
+  connect( ui->mTabResult, &QTabWidget::currentChanged, this, [this] {
     ReosSettings settings;
     settings.setValue( QStringLiteral( "hydraulic-network-properties-widget/table-visible" ), ui->mTabResult->currentIndex() == 1 );
   } );
@@ -125,7 +124,7 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
   mHydrographPlotButton->clear();
 
   ReosHydrograph *internalHyd = mJunctionNode->internalHydrograph();
-  QList<ReosHydrographRoutingLink *> upstreamRoutingList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink> ( mJunctionNode );
+  QList<ReosHydrographRoutingLink *> upstreamRoutingList = ReosHydraulicNetworkUtils::upstreamLinkOfType<ReosHydrographRoutingLink>( mJunctionNode );
 
   hydrographs.append( mJunctionNode->outputHydrograph() );
   qDebug() << QString( "********** Hydrograph junction %1" ).arg( mJunctionNode->elementNameParameter()->value() ) << QString( " with %1 values" ).arg( mJunctionNode->outputHydrograph()->valueCount() );
@@ -151,15 +150,14 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::populateHydrographs()
 
 void ReosHydraulicHydrographJunctionPropertiesWidget::updateInformation()
 {
-  if ( ! mJunctionNode->outputHydrograph() || mJunctionNode->outputHydrograph()->valueCount() == 0 )
+  if ( !mJunctionNode->outputHydrograph() || mJunctionNode->outputHydrograph()->valueCount() == 0 )
   {
     ui->mLabelPeak->setText( tr( "none" ) );
     ui->mLabelValueCount->setText( QLocale().toString( 0 ) );
   }
   else
   {
-    ui->mLabelPeak->setText( QStringLiteral( "%1 %2" ).arg( QLocale().toString( mJunctionNode->outputHydrograph()->maximum() ),
-                             QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
+    ui->mLabelPeak->setText( QStringLiteral( "%1 %2" ).arg( QLocale().toString( mJunctionNode->outputHydrograph()->maximum() ), QString( "m%1/s" ).arg( QChar( 0x00B3 ) ) ) );
     ui->mLabelValueCount->setText( QLocale().toString( mJunctionNode->outputHydrograph()->valueCount() ) );
   }
 }
@@ -191,7 +189,8 @@ void ReosHydraulicHydrographJunctionPropertiesWidget::updateGaugedHydrograph()
 }
 
 ReosHydraulicHydrographNodePropertiesWidgetFactory::ReosHydraulicHydrographNodePropertiesWidgetFactory( QObject *parent )
-  : ReosHydraulicElementWidgetFactory( parent ) {}
+  : ReosHydraulicElementWidgetFactory( parent )
+{}
 
 ReosHydraulicElementWidget *ReosHydraulicHydrographNodePropertiesWidgetFactory::createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context )
 {
@@ -257,7 +256,7 @@ ReosFormWatershedNodeWidget::ReosFormWatershedNodeWidget( ReosHydrographNodeWate
   originChange();
 
   connect( mGaugedHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), mNode, &ReosHydrographNodeWatershed::setGaugedHydrographIndex );
-  connect( mOriginCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this,  &ReosFormWatershedNodeWidget::originChange );
+  connect( mOriginCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosFormWatershedNodeWidget::originChange );
 
   connect( mNode, &ReosDataObject::dataChanged, this, &ReosFormWatershedNodeWidget::syncToNode );
   connect( mNode->gaugedHydrographsStore(), &ReosDataObject::dataChanged, this, &ReosFormWatershedNodeWidget::updateGaugedHydrograph );
@@ -271,8 +270,7 @@ ReosHydrographJunction *ReosFormWatershedNodeWidget::node() const
 
 void ReosFormWatershedNodeWidget::originChange()
 {
-  ReosHydrographNodeWatershed::InternalHydrographOrigin origin =
-    static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( mOriginCombo->currentData().toInt() );
+  ReosHydrographNodeWatershed::InternalHydrographOrigin origin = static_cast<ReosHydrographNodeWatershed::InternalHydrographOrigin>( mOriginCombo->currentData().toInt() );
 
   mNode->setInternalHydrographOrigin( origin );
   updateGaugedHydrograph();
@@ -290,10 +288,7 @@ ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJu
   addParameter( junction->useForceOutputTimeStep(), -1, ReosParameterWidget::SpacerAfter );
   ReosParameterWidget *otsw = addParameter( junction->forceOutputTimeStep(), -1, ReosParameterWidget::SpacerAfter );
   otsw->setVisible( junction->useForceOutputTimeStep()->value() );
-  connect( junction->useForceOutputTimeStep(), &ReosParameter::valueChanged, otsw, [otsw, junction]
-  {
-    otsw->setVisible( junction->useForceOutputTimeStep()->value() );
-  } );
+  connect( junction->useForceOutputTimeStep(), &ReosParameter::valueChanged, otsw, [otsw, junction] { otsw->setVisible( junction->useForceOutputTimeStep()->value() ); } );
 
   QToolButton *gaugedButton = new QToolButton( this );
   gaugedButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
@@ -303,8 +298,7 @@ ReosFormBaseJunctionNodeWidget::ReosFormBaseJunctionNodeWidget( ReosHydrographJu
   gaugedButton->setIconSize( QSize( 20, 20 ) );
   addWidget( gaugedButton );
 
-  connect( gaugedButton, &QToolButton::clicked, this, [this, context, junction]
-  {
+  connect( gaugedButton, &QToolButton::clicked, this, [this, context, junction] {
     ReosGaugedHydrographWidget *gaugedWidget = new ReosGaugedHydrographWidget( ReosGuiContext( context, this ) );
     gaugedWidget->setHydrographStore( junction->gaugedHydrographsStore() );
     emit stackedPageWidgetOpened( gaugedWidget, true );
@@ -361,7 +355,7 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
   addWidget( mCheckBoxGauged, 0 );
 
   QWidget *gaugedWidget = new QWidget( this );
-  QHBoxLayout *gaugedLayout = new QHBoxLayout ;
+  QHBoxLayout *gaugedLayout = new QHBoxLayout;
   gaugedLayout->setContentsMargins( 0, 0, 0, 0 );
   gaugedWidget->setLayout( gaugedLayout );
   gaugedWidget->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
@@ -376,8 +370,7 @@ ReosFormJunctionNodeWidget::ReosFormJunctionNodeWidget( ReosHydrographJunction *
 
   addLine( 2 );
 
-  connect( mCheckBoxGauged, &QCheckBox::toggled, this, [this]
-  {
+  connect( mCheckBoxGauged, &QCheckBox::toggled, this, [this] {
     mJunctioNode->setInternalHydrographOrigin( mCheckBoxGauged->isChecked() ? ReosHydrographJunction::GaugedHydrograph : ReosHydrographJunction::None );
     updateGaugedHydrograph();
   } );
@@ -458,10 +451,7 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
   mWaterLevelSeriesWidget->layout()->addWidget( new QLabel( tr( "Water level series" ), this ) );
   mWaterLevelCombo = new QComboBox( this );
   mWaterLevelSeriesWidget->layout()->addWidget( mWaterLevelCombo );
-  connect( mWaterLevelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
-    mNode->setWaterLevelSeriesIndex( mWaterLevelCombo->currentIndex() );
-  } );
+  connect( mWaterLevelCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] { mNode->setWaterLevelSeriesIndex( mWaterLevelCombo->currentIndex() ); } );
 
   addWidget( mWaterLevelSeriesWidget, 3 );
 
@@ -476,17 +466,15 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
 
   mConstantLevel->setVisible( boundary->isWaterLevelConstant()->value() );
   mButtonWaterLevelSeries->setVisible( !mNode->isWaterLevelConstant()->value() );
-  connect( boundary->isWaterLevelConstant(), &ReosParameter::valueChanged, mConstantLevel, [this]
-  {
+  connect( boundary->isWaterLevelConstant(), &ReosParameter::valueChanged, mConstantLevel, [this] {
     mConstantLevel->setVisible( mNode->isWaterLevelConstant()->value() );
     mButtonWaterLevelSeries->setVisible( !mNode->isWaterLevelConstant()->value() );
     mWaterLevelSeriesWidget->setVisible( !mNode->isWaterLevelConstant()->value() );
   } );
 
-  connect( mButtonWaterLevelSeries, &QToolButton::clicked, this, [this, context]
-  {
-    ReosVariableTimeStepTimeSeriesGroupWidget *waterLevelWidget =
-    new ReosVariableTimeStepTimeSeriesGroupWidget( ReosGuiContext( context, this ), tr( "Water Level Series" ), tr( "meter" ), mNode->waterLevelSeriesIndex() );
+  connect( mButtonWaterLevelSeries, &QToolButton::clicked, this, [this, context] {
+    ReosVariableTimeStepTimeSeriesGroupWidget *waterLevelWidget
+      = new ReosVariableTimeStepTimeSeriesGroupWidget( ReosGuiContext( context, this ), tr( "Water Level Series" ), tr( "meter" ), mNode->waterLevelSeriesIndex() );
     waterLevelWidget->setTimeSeriesGroup( mNode->waterLevelSeriesGroup() );
     emit stackedPageWidgetOpened( waterLevelWidget, true );
   } );
@@ -498,16 +486,12 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
   mHydrographComboWidget->layout()->addWidget( new QLabel( tr( "Hydrograph" ), this ) );
   mHydrographCombo = new QComboBox( this );
   mHydrographComboWidget->layout()->addWidget( mHydrographCombo );
-  connect( mHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
-    mNode->setGaugedHydrographIndex( mHydrographCombo->currentIndex() );
-  } );
+  connect( mHydrographCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] { mNode->setGaugedHydrographIndex( mHydrographCombo->currentIndex() ); } );
   addWidget( mHydrographComboWidget, 5 );
 
   addLine( 6 );
 
-  connect( mTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
+  connect( mTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {
     if ( mTypeCombo->currentData() == FlowRate )
     {
       mNode->setDefaultConditionType( ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
@@ -534,15 +518,14 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
 }
 
 ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget(
-  ReosHydraulicStructureBoundaryCondition *boundary,
-  ReosFormJunctionBoundaryConditionWidget::Type type,
-  const ReosGuiContext &context )
+  ReosHydraulicStructureBoundaryCondition *boundary, ReosFormJunctionBoundaryConditionWidget::Type type, const ReosGuiContext &context
+)
   : ReosFormJunctionBoundaryConditionWidget( boundary, context )
 {
   int i = 0;
   while ( i < mTypeCombo->count() )
   {
-    if ( mTypeCombo->itemData( i ) != type &&  mTypeCombo->itemData( i ) != DefinedExternally )
+    if ( mTypeCombo->itemData( i ) != type && mTypeCombo->itemData( i ) != DefinedExternally )
     {
       if ( mTypeCombo->currentIndex() == i )
       {
@@ -553,7 +536,6 @@ ReosFormJunctionBoundaryConditionWidget::ReosFormJunctionBoundaryConditionWidget
     else
       ++i;
   }
-
 }
 
 void ReosFormJunctionBoundaryConditionWidget::syncToNode()
@@ -630,4 +612,3 @@ ReosHydrographJunction *ReosFormJunctionBoundaryConditionWidget::node() const
 {
   return mNode;
 }
-

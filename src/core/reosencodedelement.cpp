@@ -17,6 +17,10 @@ email                : vcloarec@gmail.com
 
 QDataStream::Version ReosEncodedElement::sVersion = QDataStream::Qt_DefaultCompiledVersion;
 
+ReosEncodedElement::ReosEncodedElement( const QString &description )
+  : mDescription( description )
+{}
+
 ReosEncodedElement::ReosEncodedElement( const QByteArray &byteArray )
 {
   QDataStream stream( byteArray );

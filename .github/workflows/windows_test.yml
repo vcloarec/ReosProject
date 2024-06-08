@@ -2,7 +2,7 @@ name: Build Test Package Windows
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "vortexio" ]
   pull_request:
     branches: [ "master" ]
 
@@ -12,7 +12,7 @@ env:
   CMAKE_PATH: C:\Program Files\CMake\bin
 jobs:
   build-test-package:
-    runs-on: windows-2019
+    runs-on: windows-2022
     
     steps:
     - uses: actions/checkout@v3
@@ -22,6 +22,7 @@ jobs:
           echo "CYGWIN_ROOT=${{github.workspace}}\cygwin64" >> $env:GITHUB_ENV
           echo "OSGEO4W_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
           echo "GDAL_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
+          echo "ECCODES_ROOT=${{github.workspace}}\ECCODES_Install" >> $env:GITHUB_ENV
           echo "MDAL_ROOT=${{github.workspace}}\MDAL_Install" >> $env:GITHUB_ENV
           echo "GMSH_BUILT=${{github.workspace}}\GMSH_Built" >> $env:GITHUB_ENV
           echo "QGIS_SRC=${{github.workspace}}\QGIS" >> $env:GITHUB_ENV
@@ -32,6 +33,8 @@ jobs:
           echo "REOS_INSTALL=${{github.workspace}}\REOS_Install" >> $env:GITHUB_ENV
           echo "NSI_DESTINATION=${{github.workspace}}" >> $env:GITHUB_ENV
           echo "LEKAN_EXPERIMENTAL_VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+
+          git lfs pull
       
     - name: Cache CYGWIN
       id: cache-cygwin
@@ -42,6 +45,7 @@ jobs:
         
     - name: load CYGWIN
       if: steps.cache-cygwin.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/load_cygwin.ps1
       
     - name: Cache OSGEO
@@ -53,23 +57,38 @@ jobs:
         
     - name: load OSGEO dependencies
       if: steps.cache-osgeo.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/load_osgeo.ps1
+
+    - name: Cache ECCODES
+      id: cache-eccodes
+      uses: actions/cache@v3
+      with:
+        path: ${{env.ECCODES_ROOT}}
+        key: ${{ runner.os }}-eccodes
+
+    - name: build ECCODES
+      if: steps.cache-eccodes.outputs.cache-hit != 'true'
+      run: ./windows/build_ecCodes.ps1
       
     - name: clone QGIS
+      continue-on-error: true
       uses: actions/checkout@v3
       with:
-        repository: vcloarec/QGIS
+        repository: qgis/QGIS
         path: QGIS
-        ref: forLekanMaster
+        ref: final-3_44_11
     
     - name: check QGIS hash
       id: getQgisHash
+      continue-on-error: true
       run: |
           cd QGIS
           $QGIS_HASH=git rev-parse HEAD
           echo "qgis_hash=$QGIS_HASH" >> $env:GITHUB_ENV
           
     - name: clone MDAL
+      continue-on-error: true
       uses: actions/checkout@v3
       with:
         repository: lutraconsulting/MDAL
@@ -77,6 +96,7 @@ jobs:
     
     - name: check MDAL hash
       id: getMdalHash
+      continue-on-error: true
       run: |
           cd MDAL
           $MDAL_HASH=git rev-parse HEAD
@@ -133,18 +153,24 @@ jobs:
       run:  ./windows/build_tests_REOS.bat
           
     - name: Create installer
+      if: always()
+      continue-on-error: true
       uses: joncloud/makensis-action@v3.7
       with:
           script-file: ${{github.workspace}}/package/ms-windows/nsi/lekan_exp.nsi
           arguments: "/V4"
           
     - name: Check installer
+      if: always()
+      continue-on-error: true
       run:  |
           ls
           ls ${{env.NSI_DESTINATION}}
           
     - name: Archive installer
-      uses: actions/upload-artifact@v3
+      if: always()
+      continue-on-error: true
+      uses: actions/upload-artifact@v4
       with:
         name: Lekan Windows Installer
         path: ${{env.NSI_DESTINATION}}\Lekan-${{env.LEKAN_EXPERIMENTAL_VERSION}}-install-win64.exe

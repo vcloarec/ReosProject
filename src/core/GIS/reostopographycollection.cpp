@@ -119,8 +119,7 @@ ReosTopographyCollection::ReosTopographyCollection( ReosGisEngine *gisEngine, QO
   mAutoApply->setValue( false );
   if ( mGisEngine )
   {
-    connect( gisEngine, &ReosGisEngine::layerRemoved, this, [this]( const QString & layerId )
-    {
+    connect( gisEngine, &ReosGisEngine::layerRemoved, this, [this]( const QString &layerId ) {
       if ( mTopographyIds.contains( layerId ) )
       {
         mTopographyIds.removeOne( layerId );
@@ -128,7 +127,6 @@ ReosTopographyCollection::ReosTopographyCollection( ReosGisEngine *gisEngine, QO
       }
     } );
   }
-
 }
 
 ReosTopographyCollection::ReosTopographyCollection( const ReosEncodedElement &element, ReosGisEngine *gisEngine, QObject *parent )
@@ -155,7 +153,7 @@ ReosTopographyCollection::ReosTopographyCollection( const ReosEncodedElement &el
 
 ReosGisEngine *ReosTopographyCollection::gisEngine() const
 {
-    return mGisEngine;
+  return mGisEngine;
 }
 
 ReosParameterBoolean *ReosTopographyCollection::autoApply() const

@@ -35,10 +35,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosWatershedWidget( const ReosGuiContext &guiContext,
-                                  ReosWatershedModule *module,
-                                  ReosHydraulicNetwork *hydraulicNetwork = nullptr,
-                                  ReosDockWidget *parent = nullptr );
+    explicit ReosWatershedWidget( const ReosGuiContext &guiContext, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr, ReosDockWidget *parent = nullptr );
     ~ReosWatershedWidget();
 
     ReosTimeWindow timeWindow() const;
@@ -107,13 +104,13 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     struct MapWatershed
     {
-      MapWatershed() {}
-      MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt );
+        MapWatershed() {}
+        MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt );
 
-      void setVisible( bool b );
+        void setVisible( bool b );
 
-      std::shared_ptr<ReosMapPolygon> delineating;
-      std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
+        std::shared_ptr<ReosMapPolygon> delineating;
+        std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
     };
 
     using MapWatersheds = QHash<ReosWatershed *, MapWatershed>;
@@ -142,11 +139,12 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void setVisibleMapItems( bool visible );
 };
 
-class REOSGUI_EXPORT ReosWatershedDockWidget: public ReosDockWidget
+class REOSGUI_EXPORT ReosWatershedDockWidget : public ReosDockWidget
 {
     Q_OBJECT
   public:
-    ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );;
+    ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );
+    ;
 
     ReosWatershedWidget *watershedWidget() const;
     QAction *actionToggle() const;

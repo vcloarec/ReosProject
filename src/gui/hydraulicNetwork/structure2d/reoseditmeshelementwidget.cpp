@@ -58,8 +58,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   ReosParameterBooleanWidget *checkBoxTopography = new ReosParameterBooleanWidget( this );
   checkBoxTopography->setBooleanParameter( mDisplayTopograhy );
   mToolBar->addWidget( checkBoxTopography );
-  connect( mDisplayTopograhy, &ReosParameterBoolean::valueChanged, this, [this]
-  {
+  connect( mDisplayTopograhy, &ReosParameterBoolean::valueChanged, this, [this] {
     if ( mDisplayTopograhy->value() )
       mMesh->activateDataset( mMesh->verticesElevationDatasetId() );
     else
@@ -85,14 +84,15 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   ui->mParameterMaximumAreaChange->setDouble( mesh->qualityMeshParameters().maximumAreaChange );
   ui->mParameterMaximumAreaChange->enableSpacer( ReosParameterAreaWidget::SpacerInMiddle );
 
-  mParamWidgets << ui->mParameterMinimumAngle
-                << ui->mParameterMaximumAngle
-                << ui->mParameterConnectionCount
-                << ui->mParameterConnectionBoundary
-                << ui->mParameterMaximumSlope
-                << ui->mParameterMinimumArea
-                << ui->mParameterMaximumArea
-                << ui->mParameterMaximumAreaChange;
+  mParamWidgets
+    << ui->mParameterMinimumAngle
+    << ui->mParameterMaximumAngle
+    << ui->mParameterConnectionCount
+    << ui->mParameterConnectionBoundary
+    << ui->mParameterMaximumSlope
+    << ui->mParameterMinimumArea
+    << ui->mParameterMaximumArea
+    << ui->mParameterMaximumAreaChange;
 
 
   if ( settings.contains( QStringLiteral( "/edit-mesh-element/minimum-angle-color" ) ) )
@@ -135,23 +135,25 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
   else
     ui->mColorMaximumAreaChange->setColor( ReosStyleRegistery::instance()->fillColor() );
 
-  mColorButton << ui->mColorMinimumAngle
-               << ui->mColorMaximumAngle
-               << ui->mColorConnectionCount
-               << ui->mColorConnectionBoundary
-               << ui->mColorMaximumSlope
-               << ui->mColorMinimumArea
-               << ui->mColorMaximumArea
-               << ui->mColorMaximumAreaChange;
+  mColorButton
+    << ui->mColorMinimumAngle
+    << ui->mColorMaximumAngle
+    << ui->mColorConnectionCount
+    << ui->mColorConnectionBoundary
+    << ui->mColorMaximumSlope
+    << ui->mColorMinimumArea
+    << ui->mColorMaximumArea
+    << ui->mColorMaximumAreaChange;
 
-  mCheckBoxes << ui->mCheckBoxMinimumAngle <<
-              ui->mCheckBoxMaximumAngle <<
-              ui->mCheckBoxConnectionCount <<
-              ui->mCheckBoxConnectionBoundary <<
-              ui->mCheckBoxMaximumSlope <<
-              ui->mCheckBoxMinimumArea <<
-              ui->mCheckBoxMaximumArea <<
-              ui->mCheckBoxMaximumAreaChange;
+  mCheckBoxes
+    << ui->mCheckBoxMinimumAngle
+    << ui->mCheckBoxMaximumAngle
+    << ui->mCheckBoxConnectionCount
+    << ui->mCheckBoxConnectionBoundary
+    << ui->mCheckBoxMaximumSlope
+    << ui->mCheckBoxMinimumArea
+    << ui->mCheckBoxMaximumArea
+    << ui->mCheckBoxMaximumAreaChange;
 
   ui->mAutoUpdateCheckBox->setChecked( settings.value( QStringLiteral( "/edit-mesh-element/auto-update-check" ) ).toBool() );
   ui->mCheckBoxMinimumAngle->setChecked( settings.value( QStringLiteral( "/edit-mesh-element/minimum-angle-check" ) ).toBool() );
@@ -182,30 +184,23 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
     mMaximumAreaBand = new QgsRubberBand( mapCanvas );
     mMaximumAreaChangeBand = new QgsRubberBand( mapCanvas );
 
-    mRubberBands << mMinimumAngleRubberBand
-                 << mMaximumAngleRubberBand
-                 << mConnectionCountBand
-                 << mConnectionBoundaryBand
-                 << mMaximumSlopeBand
-                 << mMinimumAreaBand
-                 << mMaximumAreaBand
-                 << mMaximumAreaChangeBand;
+    mRubberBands << mMinimumAngleRubberBand << mMaximumAngleRubberBand << mConnectionCountBand << mConnectionBoundaryBand << mMaximumSlopeBand << mMinimumAreaBand << mMaximumAreaBand << mMaximumAreaChangeBand;
 
 
-    mOnMapButtons << ui->mOnMapButtonMinimumAngle <<
-                  ui->mOnMapButtonMaximumAngle <<
-                  ui->mOnMapButtonConnectionCount <<
-                  ui->mOnMapButtonConnectionBoundary <<
-                  ui->mOnMapButtonMaximumSlope <<
-                  ui->mOnMapButtonMinimumArea <<
-                  ui->mOnMapButtonMaximumArea <<
-                  ui->mOnMapButtonMaximumAreaChange;
+    mOnMapButtons
+      << ui->mOnMapButtonMinimumAngle
+      << ui->mOnMapButtonMaximumAngle
+      << ui->mOnMapButtonConnectionCount
+      << ui->mOnMapButtonConnectionBoundary
+      << ui->mOnMapButtonMaximumSlope
+      << ui->mOnMapButtonMinimumArea
+      << ui->mOnMapButtonMaximumArea
+      << ui->mOnMapButtonMaximumAreaChange;
 
     for ( int i = 0; i < mRubberBands.count(); ++i )
     {
       QgsRubberBand *band = mRubberBands.at( i );
-      connect( mOnMapButtons.at( i ), &QToolButton::clicked, this, [band, mapCanvas]
-      {
+      connect( mOnMapButtons.at( i ), &QToolButton::clicked, this, [band, mapCanvas] {
         mapCanvas->setExtent( band->asGeometry().boundingBox() );
         mapCanvas->refresh();
       } );
@@ -214,8 +209,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
       QColor bandColor = colorButton->color();
       bandColor.setAlpha( 150 );
       band->setColor( bandColor );
-      connect( colorButton, &ReosColorButton::colorChanged, this, [band, this]( const QColor & color )
-      {
+      connect( colorButton, &ReosColorButton::colorChanged, this, [band, this]( const QColor &color ) {
         onQualityCheckColorChanged();
         QColor bandColor( color );
         bandColor.setAlpha( 150 );
@@ -226,8 +220,7 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
       QCheckBox *cb = mCheckBoxes.at( i );
       band->setVisible( cb->isChecked() );
       QToolButton *mp = mOnMapButtons.at( i );
-      connect( cb, &QCheckBox::stateChanged, this, [cb, band, mp, this]
-      {
+      connect( cb, &QCheckBox::stateChanged, this, [cb, band, mp, this] {
         onQualityCheckBoxChanged( cb->isChecked() );
         band->setVisible( cb->isChecked() );
         mp->setEnabled( cb->isChecked() );
@@ -240,12 +233,10 @@ ReosEditMeshElementWidget::ReosEditMeshElementWidget( ReosMesh *mesh, const Reos
 
   for ( int i = 0; i < mRubberBands.count(); ++i )
     mRubberBands.at( i )->setVisible( ui->mQualityGroupBox->isChecked() && mCheckBoxes.at( i )->isChecked() );
-  connect( ui->mQualityGroupBox, &QGroupBox::clicked, this, [this]
-  {
+  connect( ui->mQualityGroupBox, &QGroupBox::clicked, this, [this] {
     for ( int i = 0; i < mRubberBands.count(); ++i )
       mRubberBands.at( i )->setVisible( ui->mQualityGroupBox->isChecked() && mCheckBoxes.at( i )->isChecked() );
   } );
-
 }
 
 ReosEditMeshElementWidget::~ReosEditMeshElementWidget()
@@ -295,29 +286,21 @@ void ReosEditMeshElementWidget::showEvent( QShowEvent *e )
 void ReosEditMeshElementWidget::onQualityCheckColorChanged()
 {
   ReosSettings settings;
-  settings.setValue( QStringLiteral( "/edit-mesh-element/minimum-angle-color" ),
-                     ui->mColorMinimumAngle->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/minimum-angle-color" ), ui->mColorMinimumAngle->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-angle-color" ),
-                     ui->mColorMaximumAngle->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-angle-color" ), ui->mColorMaximumAngle->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/connection-count" ),
-                     ui->mColorConnectionCount->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/connection-count" ), ui->mColorConnectionCount->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/connection-boundary" ),
-                     ui->mColorConnectionBoundary->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/connection-boundary" ), ui->mColorConnectionBoundary->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-slope" ),
-                     ui->mColorMaximumSlope->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-slope" ), ui->mColorMaximumSlope->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/minimum-area" ),
-                     ui->mColorMinimumArea->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/minimum-area" ), ui->mColorMinimumArea->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-area" ),
-                     ui->mColorMaximumArea->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-area" ), ui->mColorMaximumArea->color() );
 
-  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-area-change" ),
-                     ui->mColorMaximumAreaChange->color() );
+  settings.setValue( QStringLiteral( "/edit-mesh-element/maximum-area-change" ), ui->mColorMaximumAreaChange->color() );
 }
 
 void ReosEditMeshElementWidget::onQualityCheckBoxChanged( bool isChecked )
@@ -399,7 +382,6 @@ void ReosEditMeshElementWidget::startCheckQuality( bool controled )
   }
   else
     mChecker->startOnOtherThread();
-
 }
 
 void ReosEditMeshElementWidget::checkQualityFinished()
@@ -411,13 +393,14 @@ void ReosEditMeshElementWidget::checkQualityFinished()
     ReosApplication::setOverrideCursor( Qt::WaitCursor );
 
     //! check quality rendered as polygons
-    typedef QPair<int, QList<QPolygonF>> Polys  ;
+    typedef QPair<int, QList<QPolygonF>> Polys;
     QList<Polys> polyList;
-    polyList << Polys( mRubberBands.indexOf( mMinimumAngleRubberBand ), mChecker->result().minimumAngle )
-             << Polys( mRubberBands.indexOf( mMaximumAngleRubberBand ), mChecker->result().maximumAngle )
-             << Polys( mRubberBands.indexOf( mMinimumAreaBand ), mChecker->result().minimumArea )
-             << Polys( mRubberBands.indexOf( mMaximumAreaBand ), mChecker->result().maximumArea )
-             << Polys( mRubberBands.indexOf( mMaximumAreaChangeBand ), mChecker->result().maximumAreaChange );
+    polyList
+      << Polys( mRubberBands.indexOf( mMinimumAngleRubberBand ), mChecker->result().minimumAngle )
+      << Polys( mRubberBands.indexOf( mMaximumAngleRubberBand ), mChecker->result().maximumAngle )
+      << Polys( mRubberBands.indexOf( mMinimumAreaBand ), mChecker->result().minimumArea )
+      << Polys( mRubberBands.indexOf( mMaximumAreaBand ), mChecker->result().maximumArea )
+      << Polys( mRubberBands.indexOf( mMaximumAreaChangeBand ), mChecker->result().maximumAreaChange );
 
 
     for ( auto &poly : std::as_const( polyList ) )
@@ -455,7 +438,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
     //! check quality rendered as lines
     typedef QPair<int, QList<QLineF>> Lines;
     QList<Lines> linesList;
-    linesList << Lines( {mRubberBands.indexOf( mMaximumSlopeBand ), mChecker->result().maximumSlope} );
+    linesList << Lines( { mRubberBands.indexOf( mMaximumSlopeBand ), mChecker->result().maximumSlope } );
     for ( auto &lines : std::as_const( linesList ) )
     {
       int lineIndex = lines.first;
@@ -465,7 +448,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
       {
         mOnMapButtons.at( lineIndex )->setEnabled( true );
         const QLineF &l = mapLines.at( 0 );
-        QgsGeometry lineGeometrie = QgsGeometry::fromPolyline( {QgsPoint( l.p1() ), QgsPoint( l.p2() ) } );
+        QgsGeometry lineGeometrie = QgsGeometry::fromPolyline( { QgsPoint( l.p1() ), QgsPoint( l.p2() ) } );
         if ( mapLines.count() == 1 )
         {
           mRubberBands.at( lineIndex )->setToGeometry( lineGeometrie );
@@ -479,7 +462,7 @@ void ReosEditMeshElementWidget::checkQualityFinished()
           for ( int i = 0; i < mapLines.count(); ++i )
           {
             const QLineF &ol = mapLines.at( i );
-            otherLines[i] = QgsGeometry::fromPolyline( {QgsPoint( ol.p1() ), QgsPoint( ol.p2() ) } );
+            otherLines[i] = QgsGeometry::fromPolyline( { QgsPoint( ol.p1() ), QgsPoint( ol.p2() ) } );
           }
           QString error;
           const QgsGeometry allLines( geomEngine->combine( otherLines, &error ) );
@@ -495,8 +478,9 @@ void ReosEditMeshElementWidget::checkQualityFinished()
     //! check quality rendered as points
     typedef QPair<int, QList<QPointF>> Points;
     QList<Points> pointsList;
-    pointsList << Points( {mRubberBands.indexOf( mConnectionCountBand ), mChecker->result().connectionCount} )
-               << Points( {mRubberBands.indexOf( mConnectionBoundaryBand ), mChecker->result().connectionCountBoundary} );
+    pointsList
+      << Points( { mRubberBands.indexOf( mConnectionCountBand ), mChecker->result().connectionCount } )
+      << Points( { mRubberBands.indexOf( mConnectionBoundaryBand ), mChecker->result().connectionCountBoundary } );
 
     for ( auto &points : std::as_const( pointsList ) )
     {

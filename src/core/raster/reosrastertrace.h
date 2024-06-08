@@ -47,19 +47,15 @@ class REOSCORE_EXPORT ReosRasterTraceBetweenCells
     bool isStopped();
 
   protected:
-
-    ReosRasterTraceBetweenCells( const QPoint &start,
-                                 const QPoint &origin,
-                                 const QVector<QPoint> &stopLine,
-                                 QList<QPoint> &elimination );
+    ReosRasterTraceBetweenCells( const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination );
 
     virtual ~ReosRasterTraceBetweenCells();
 
     void savePosition( bool saveBetweePosition );
     void move( bool forceSaving );
     void move();
-    QPoint position() const {return mPosition;}
-    QPoint direction() const {return mDirection;}
+    QPoint position() const { return mPosition; }
+    QPoint direction() const { return mDirection; }
     int testPosition( const QPoint &p, const QPoint &dir, int cellCount );
 
     //! Return the index of p in the stop line if dir is the direction of the line, return - if not or if p is not in the stop line
@@ -67,25 +63,17 @@ class REOSCORE_EXPORT ReosRasterTraceBetweenCells
 
     virtual void setToBeEliminated( const QPoint &p );
     virtual bool hasToBeEliminated( const QPoint &p ) const;
-    void verticalSegments( QList<QPoint> &sv ) {sv = mVerticalSegments;}
-    void horizontalSegments( QList<QPoint> &sv ) {sv = mHorizontalSegments;}
+    void verticalSegments( QList<QPoint> &sv ) { sv = mVerticalSegments; }
+    void horizontalSegments( QList<QPoint> &sv ) { sv = mHorizontalSegments; }
 
-    void addVerticalSegments( QList<QPoint> &sv ) {sv << mVerticalSegments;}
-    void addHorizontalSegments( QList<QPoint> &sh ) {sh << mHorizontalSegments;}
+    void addVerticalSegments( QList<QPoint> &sv ) { sv << mVerticalSegments; }
+    void addHorizontalSegments( QList<QPoint> &sh ) { sh << mHorizontalSegments; }
 
 
     virtual void defineDirection( QList<QPoint> &listDir ) const = 0;
     virtual void eliminateDirection( QList<QPoint> &listDir );
 
-    virtual bool startNewTrace( const QPoint &dep,
-                                const QPoint &orig,
-                                QList<QPoint> &elim,
-                                int &erreur,
-                                QPolygon &newTrace,
-                                QPoint &resPos,
-                                QPoint &resDir,
-                                QList<QPoint> &sv,
-                                QList<QPoint> &sh ) = 0;
+    virtual bool startNewTrace( const QPoint &dep, const QPoint &orig, QList<QPoint> &elim, int &erreur, QPolygon &newTrace, QPoint &resPos, QPoint &resDir, QList<QPoint> &sv, QList<QPoint> &sh ) = 0;
 
     virtual ReosRasterTraceBetweenCells *newTrace( const QPoint &dep, const QPoint &Orig, QList<QPoint> &elim ) = 0;
 
@@ -127,8 +115,7 @@ class REOSCORE_EXPORT ReosRasterTraceBetweenCells
 /**
  * A class that create trace between cells in a raster, tracing is done following a unique value in the raster
  */
-template<typename T>
-class ReosRasterTraceBetweenCellsUniqueValue: public ReosRasterTraceBetweenCells
+template<typename T> class ReosRasterTraceBetweenCellsUniqueValue : public ReosRasterTraceBetweenCells
 {
   public:
     /**
@@ -141,24 +128,11 @@ class ReosRasterTraceBetweenCellsUniqueValue: public ReosRasterTraceBetweenCells
      * @param stopLine a line where the tracing will stop when the tracing will meet
      * @param elimination a ist of point to not consider during tracing, could be void and will be filled when tracing
      */
-    ReosRasterTraceBetweenCellsUniqueValue(
-      ReosRasterMemory<T> raster,
-      T value,
-      const QPoint &start,
-      const QPoint &origin,
-      const QVector<QPoint> &stopLine,
-      QList<QPoint> &elimination );
+    ReosRasterTraceBetweenCellsUniqueValue( ReosRasterMemory<T> raster, T value, const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination );
 
   protected:
     virtual void defineDirection( QList<QPoint> &listDir ) const;
-    virtual bool startNewTrace( const QPoint &dep,
-                                const QPoint &orig,
-                                QList<QPoint> &elim,
-                                int &erreur,
-                                QPolygon &newTrace,
-                                QPoint &resPos,
-                                QPoint &resDir,
-                                QList<QPoint> &sv, QList<QPoint> &sh ) override;
+    virtual bool startNewTrace( const QPoint &dep, const QPoint &orig, QList<QPoint> &elim, int &erreur, QPolygon &newTrace, QPoint &resPos, QPoint &resDir, QList<QPoint> &sv, QList<QPoint> &sh ) override;
 
     virtual ReosRasterTraceBetweenCells *newTrace( const QPoint &start, const QPoint &ori, QList<QPoint> &elim ) override;
 
@@ -169,15 +143,15 @@ class ReosRasterTraceBetweenCellsUniqueValue: public ReosRasterTraceBetweenCells
     ReosRasterMemory<T> mRaster;
 };
 
-template<typename T>
-ReosRasterTraceBetweenCellsUniqueValue<T>::ReosRasterTraceBetweenCellsUniqueValue( ReosRasterMemory<T> raster, T value, const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination ):
-  ReosRasterTraceBetweenCells( start, origin, stopLine, elimination ),
-  mValue( value ),
-  mRaster( raster )
+template<typename T> ReosRasterTraceBetweenCellsUniqueValue<T>::ReosRasterTraceBetweenCellsUniqueValue(
+  ReosRasterMemory<T> raster, T value, const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination
+)
+  : ReosRasterTraceBetweenCells( start, origin, stopLine, elimination )
+  , mValue( value )
+  , mRaster( raster )
 {}
 
-template<typename T>
-void ReosRasterTraceBetweenCellsUniqueValue<T>::defineDirection( QList<QPoint> &listDir ) const
+template<typename T> void ReosRasterTraceBetweenCellsUniqueValue<T>::defineDirection( QList<QPoint> &listDir ) const
 {
   int i = 0;
   while ( i < listDir.count() )
@@ -196,17 +170,9 @@ void ReosRasterTraceBetweenCellsUniqueValue<T>::defineDirection( QList<QPoint> &
   }
 }
 
-template<typename T>
-bool ReosRasterTraceBetweenCellsUniqueValue<T>::startNewTrace(
-  const QPoint &dep,
-  const QPoint &orig,
-  QList<QPoint> &elim,
-  int &erreur,
-  QPolygon &newTrace,
-  QPoint &resPos,
-  QPoint &resDir,
-  QList<QPoint> &sv,
-  QList<QPoint> &sh )
+template<typename T> bool ReosRasterTraceBetweenCellsUniqueValue<T>::startNewTrace(
+  const QPoint &dep, const QPoint &orig, QList<QPoint> &elim, int &erreur, QPolygon &newTrace, QPoint &resPos, QPoint &resDir, QList<QPoint> &sv, QList<QPoint> &sh
+)
 {
   ReosRasterTraceBetweenCellsUniqueValue otherTrace( mRaster, mValue, dep, orig, mStopLine, elim );
   int result = otherTrace.startTracing();
@@ -219,14 +185,12 @@ bool ReosRasterTraceBetweenCellsUniqueValue<T>::startNewTrace(
   return result;
 }
 
-template<typename T>
-ReosRasterTraceBetweenCells *ReosRasterTraceBetweenCellsUniqueValue<T>::newTrace( const QPoint &start, const QPoint &ori, QList<QPoint> &elim )
+template<typename T> ReosRasterTraceBetweenCells *ReosRasterTraceBetweenCellsUniqueValue<T>::newTrace( const QPoint &start, const QPoint &ori, QList<QPoint> &elim )
 {
   return new ReosRasterTraceBetweenCellsUniqueValue( mRaster, mValue, start, ori, mStopLine, elim );
 }
 
-template<typename T>
-bool ReosRasterTraceBetweenCellsUniqueValue<T>::isValid() const
+template<typename T> bool ReosRasterTraceBetweenCellsUniqueValue<T>::isValid() const
 {
   return ( mRaster.isValid() );
 }

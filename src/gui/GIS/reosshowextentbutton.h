@@ -35,6 +35,7 @@ class ReosShowExtentButton : public QToolButton
   private:
     void onPressed();
     void onReleased();
+
   private:
     ReosMap *mMap = nullptr;
     std::unique_ptr<ReosMapPolygon> mMapExtent;

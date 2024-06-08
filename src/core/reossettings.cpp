@@ -17,9 +17,7 @@ email                : vcloarec at gmail dot com
 
 
 ReosSettings::ReosSettings()
-{
-
-}
+{}
 
 void ReosSettings::setPath( QString path )
 {

@@ -32,7 +32,7 @@ class QgsMeshLayer;
 class ReosColorShaderSettings;
 
 
-class ReosMeshScalarRenderingWidget: public ReosStackedPageWidget
+class ReosMeshScalarRenderingWidget : public ReosStackedPageWidget
 {
     Q_OBJECT
   public:

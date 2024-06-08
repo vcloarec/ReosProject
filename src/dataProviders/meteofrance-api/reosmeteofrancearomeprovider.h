@@ -22,7 +22,7 @@
 #include "reosgriddedrainfallprovider.h"
 #include "reosmeteofranceapi.h"
 
-#define AROME_KEY QStringLiteral("meteofrance-api-arome")
+#define AROME_KEY QStringLiteral( "meteofrance-api-arome" )
 
 
 class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
@@ -34,8 +34,8 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
 
     ReosGriddedRainfallProvider *clone() const override;
     void load() override;
-    QStringList fileSuffixes() const override {return QStringList();}
-    QString key() const override {return staticKey();}
+    QStringList fileSuffixes() const override { return QStringList(); }
+    QString key() const override { return staticKey(); }
     QString htmlDescription() const override;
 
     FileDetails details( const QString &, ReosModule::Message & ) const override;
@@ -48,7 +48,7 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     const QVector<double> data( int index ) const override;
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
-    bool isLoading() const override {return mIsLoading;}
+    bool isLoading() const override { return mIsLoading; }
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
@@ -84,7 +84,7 @@ class ReosMeteoFranceAromeApiProvider : public ReosGriddedRainfallProvider
     QSet<int> mReceivedFrames;
 };
 
-class ReosMeteoFranceAromeApiProviderFactory: public ReosDataProviderFactory
+class ReosMeteoFranceAromeApiProviderFactory : public ReosDataProviderFactory
 {
   public:
     ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
@@ -96,7 +96,7 @@ class ReosMeteoFranceAromeApiProviderFactory: public ReosDataProviderFactory
     QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
 
   private:
-    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Net | ReosDataProvider::Spatial};
+    ReosDataProvider::Capabilities mCapabilities = { ReosDataProvider::Net | ReosDataProvider::Spatial };
 };
 
 

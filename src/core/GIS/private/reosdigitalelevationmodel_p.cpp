@@ -28,10 +28,8 @@ email                : vcloarec at gmail dot com
 #include <qgsproviderregistry.h>
 #include <qgsunittypes.h>
 
-ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
-  QgsRasterLayer *rasterLayer,
-  const QgsCoordinateTransformContext &transformContext ):
-  mTransformContext( transformContext )
+ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster( QgsRasterLayer *rasterLayer, const QgsCoordinateTransformContext &transformContext )
+  : mTransformContext( transformContext )
 {
   if ( rasterLayer )
   {
@@ -40,13 +38,12 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
     mSourceId = rasterLayer->id();
     QgsRectangle qgsRasterExtent = mDataProvider->extent();
     mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
+    mExtent.setCrs( mCrs.toWkt() );
   }
 }
 
-ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
-  const QString &uri,
-  const QgsCoordinateTransformContext &transformContext ):
-  mTransformContext( transformContext )
+ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster( const QString &uri, const QgsCoordinateTransformContext &transformContext )
+  : mTransformContext( transformContext )
 {
   mDataProvider.reset( qobject_cast<QgsRasterDataProvider *>( QgsProviderRegistry::instance()->createProvider( "gdal", uri ) ) );
   if ( mDataProvider )
@@ -54,6 +51,7 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
     mCrs = mDataProvider->crs();
     QgsRectangle qgsRasterExtent = mDataProvider->extent();
     mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
+    mExtent.setCrs( mCrs.toWkt() );
   }
 }
 
@@ -129,7 +127,7 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     if ( process )
       process->setInformation( QObject::tr( "Read DEM for segment %1/%2" ).arg( i + 1 ).arg( polyline.count() - 1 ) );
     float maxValue = 0;
-    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent,  maxValue, polylineCrs, process );
+    ReosRasterMemory<float> segmentDEM = extractMemoryRasterSimplePrecision( segmentExtent, rasterExtent, maxValue, polylineCrs, process );
 
     if ( process && !process->isSuccessful() )
       return ret;
@@ -189,7 +187,6 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
     process->setSuccesful( process->isSuccessful() && !process->isStop() );
 
   return ret;
-
 }
 
 double ReosDigitalElevationModelRaster::averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const
@@ -222,14 +219,11 @@ double ReosDigitalElevationModelRaster::averageElevationInPolygon( const QPolygo
     }
   }
 
-  QMap<QgsZonalStatistics::Statistic, QVariant> result = QgsZonalStatistics::calculateStatistics( mDataProvider.get(),
-      geometry,
-      fabs( mExtent.xCellSize() ),
-      fabs( mExtent.yCellSize() ),
-      1,
-      QgsZonalStatistics::Mean );
 
-  return result.value( QgsZonalStatistics::Mean ).toDouble();
+  QMap<Qgis::ZonalStatistic, QVariant> result
+    = QgsZonalStatistics::calculateStatistics( mDataProvider.get(), geometry, fabs( mExtent.xCellSize() ), fabs( mExtent.yCellSize() ), 1, Qgis::ZonalStatistic::Mean );
+
+  return result.value( Qgis::ZonalStatistic::Mean ).toDouble();
 }
 
 
@@ -238,14 +232,14 @@ double ReosDigitalElevationModelRaster::averageElevationInPolygon( const QPolygo
 #if MULTI_THREAD
 struct AverageElevationJob
 {
-  int *count;
-  double *sum;
-  int rowStart;
-  int rowEnd;
-  bool noDataValueExist;
-  double noDataValue;
-  const ReosRasterMemory<unsigned char> *grid;
-  ReosRasterMemory<float> *demGrid;
+    int *count;
+    double *sum;
+    int rowStart;
+    int rowEnd;
+    bool noDataValueExist;
+    double noDataValue;
+    const ReosRasterMemory<unsigned char> *grid;
+    ReosRasterMemory<float> *demGrid;
 };
 
 static void calculateAverageElevation( const AverageElevationJob &job )
@@ -305,7 +299,7 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
     rowPerJob = totalRowsCount / numThread;
   else
   {
-    rowPerJob = totalRowsCount /  numThread + 1;
+    rowPerJob = totalRowsCount / numThread + 1;
   }
 
   std::vector<std::thread> threads;
@@ -317,7 +311,7 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
 
     if ( end >= start )
     {
-      AverageElevationJob job( { & ( counts[t] ), &( sums[t] ), start, end, noDataValueExist, noDataValue, &grid, &demGrid} );
+      AverageElevationJob job( { &( counts[t] ), &( sums[t] ), start, end, noDataValueExist, noDataValue, &grid, &demGrid } );
       threads.emplace_back( calculateAverageElevation, job );
     }
   }
@@ -337,9 +331,8 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
     if ( end >= start )
     {
       //jobs.append( { & ( counts[t] ), &( sums[t] ), start, end, noDataValueExist, noDataValue, &grid, &demGrid} );
-      AverageElevationJob job( { & ( counts[t] ), &( sums[t] ), 0, totalRowsCount - 1, noDataValueExist, noDataValue, &grid, &demGrid} );
+      AverageElevationJob job( { &( counts[t] ), &( sums[t] ), 0, totalRowsCount - 1, noDataValueExist, noDataValue, &grid, &demGrid } );
       threads.emplace_back( calculateAverageElevation, job );
-
     }
   }
 
@@ -363,7 +356,7 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
         double value = demGrid.value( row, col );
         if ( !noDataValueExist || value != noDataValue )
         {
-          sum  += value;
+          sum += value;
           valueCount += 1;
         }
       }
@@ -384,19 +377,13 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
 }
 
 ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision(
-  const ReosMapExtent &destinationExtent,
-  ReosRasterExtent &outputRasterExtent,
-  float &maxValue,
-  const QString &destinationCrs,
-  ReosProcess *process ) const
+  const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, float &maxValue, const QString &destinationCrs, ReosProcess *process
+) const
 {
   QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationCrs.isEmpty() ? destinationExtent.crs() : destinationCrs );
   QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
 
-  QgsRectangle destExtent( destinationExtent.xMapMin(),
-                           destinationExtent.yMapMin(),
-                           destinationExtent.xMapMax(),
-                           destinationExtent.yMapMax() );
+  QgsRectangle destExtent( destinationExtent.xMapMin(), destinationExtent.yMapMin(), destinationExtent.xMapMax(), destinationExtent.yMapMax() );
 
   QgsRectangle extentInDEMCoordinates;
   if ( transform.isValid() )
@@ -418,10 +405,8 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   int xPixCount = outputRasterExtentInDemCoorindates.xCellCount();
   int yPixCount = outputRasterExtentInDemCoorindates.yCellCount();
 
-  QgsRectangle adjustedExtent( outputRasterExtentInDemCoorindates.xMapMin(),
-                               outputRasterExtentInDemCoorindates.yMapMin(),
-                               outputRasterExtentInDemCoorindates.xMapMax(),
-                               outputRasterExtentInDemCoorindates.yMapMax() );
+  QgsRectangle
+    adjustedExtent( outputRasterExtentInDemCoorindates.xMapMin(), outputRasterExtentInDemCoorindates.yMapMin(), outputRasterExtentInDemCoorindates.xMapMax(), outputRasterExtentInDemCoorindates.yMapMax() );
 
   if ( transform.isValid() )
   {
@@ -435,16 +420,21 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
       adjustedExtentInDestinationCoordinates = adjustedExtent;
     }
 
-    outputRasterExtent =      ReosRasterExtent(
-                                ReosMapExtent( adjustedExtentInDestinationCoordinates.xMinimum(),
-                                    adjustedExtentInDestinationCoordinates.yMinimum(),
-                                    adjustedExtentInDestinationCoordinates.xMaximum(),
-                                    adjustedExtentInDestinationCoordinates.yMaximum() ),
-                                xPixCount, yPixCount );
+    outputRasterExtent = ReosRasterExtent(
+      ReosMapExtent(
+        adjustedExtentInDestinationCoordinates.xMinimum(),
+        adjustedExtentInDestinationCoordinates.yMinimum(),
+        adjustedExtentInDestinationCoordinates.xMaximum(),
+        adjustedExtentInDestinationCoordinates.yMaximum()
+      ),
+      xPixCount,
+      yPixCount
+    );
   }
   else
     outputRasterExtent = outputRasterExtentInDemCoorindates;
 
+  outputRasterExtent.setCrs( destCrs.toWkt( Qgis::CrsWktVariant::PreferredGdal ) );
 
   ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
 
@@ -475,7 +465,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   {
     for ( int j = 0; j < xPixCount; ++j )
     {
-      float value =   float( block->value( i, j ) );
+      float value = float( block->value( i, j ) );
       if ( value != ret.noData() && std::fabs( value ) > maxValue )
         maxValue = std::fabs( value );
 
@@ -496,7 +486,6 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
     process->setSuccesful( true );
 
   return ret;
-
 }
 
 ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision( const ReosRasterExtent &destinationRasterExtent, ReosProcess *process ) const
@@ -504,10 +493,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   QgsCoordinateReferenceSystem destCrs = QgsCoordinateReferenceSystem::fromWkt( destinationRasterExtent.crs() );
   QgsCoordinateTransform transform( mCrs, destCrs, mTransformContext );
 
-  QgsRectangle destExtent( destinationRasterExtent.xMapMin(),
-                           destinationRasterExtent.yMapMin(),
-                           destinationRasterExtent.xMapMax(),
-                           destinationRasterExtent.yMapMax() );
+  QgsRectangle destExtent( destinationRasterExtent.xMapMin(), destinationRasterExtent.yMapMin(), destinationRasterExtent.xMapMax(), destinationRasterExtent.yMapMax() );
 
   QgsRectangle extentInDEMCoordinates;
   if ( transform.isValid() )
@@ -568,7 +554,6 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
     process->setSuccesful( true );
 
   return ret;
-
 }
 
 QString ReosDigitalElevationModelRaster::source() const
@@ -595,12 +580,13 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   double xPixelSize;
   double yPixelSize;
 
-  if ( mDataProvider->capabilities() & QgsRasterInterface::Size )
+  if ( mDataProvider->capabilities() & Qgis::RasterInterfaceCapability::Size )
   {
     int xCount = mDataProvider->xSize();
     int yCount = mDataProvider->ySize();
 
-    xPixelSize = sourceRasterExtent.width() / xCount;;
+    xPixelSize = sourceRasterExtent.width() / xCount;
+    ;
     yPixelSize = sourceRasterExtent.height() / yCount;
   }
   else
@@ -609,11 +595,10 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   }
 
 
-
   if ( originalExtent.xMinimum() < sourceRasterExtent.xMinimum() )
     xmin = sourceRasterExtent.xMinimum();
   else
-    xmin =  int( ( originalExtent.xMinimum() - sourceRasterExtent.xMinimum() ) / xPixelSize ) * xPixelSize + sourceRasterExtent.xMinimum();
+    xmin = int( ( originalExtent.xMinimum() - sourceRasterExtent.xMinimum() ) / xPixelSize ) * xPixelSize + sourceRasterExtent.xMinimum();
 
   if ( originalExtent.yMinimum() < sourceRasterExtent.yMinimum() )
     ymin = sourceRasterExtent.yMinimum();

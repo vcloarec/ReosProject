@@ -18,8 +18,8 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reoswatershedtree.h"
 
-ReosWatershedTree::ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent ):
-  QObject( parent )
+ReosWatershedTree::ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent )
+  : QObject( parent )
   , mGisEngine( gisEngine )
 {}
 
@@ -55,12 +55,10 @@ bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWat
   }
 
   return false;
-
 }
 
 ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, bool adaptDelineating )
 {
-
   std::unique_ptr<ReosWatershed> ws( watershedToAdd );
   if ( !ws )
     return nullptr;
@@ -299,9 +297,9 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncode
   emit treeReset();
 }
 
-ReosWatershedItemModel::ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent ):
-  QAbstractItemModel( parent ),
-  mWatershedTree( watershedTree )
+ReosWatershedItemModel::ReosWatershedItemModel( ReosWatershedTree *watershedTree, QObject *parent )
+  : QAbstractItemModel( parent )
+  , mWatershedTree( watershedTree )
 {
   connect( watershedTree, &ReosWatershedTree::watershedWillBeAdded, this, &ReosWatershedItemModel::onWatershedWillBeAdded );
   connect( watershedTree, &ReosWatershedTree::watershedAdded, this, &ReosWatershedItemModel::onWatershedAdded );
@@ -323,11 +321,9 @@ QModelIndex ReosWatershedItemModel::index( int row, int column, const QModelInde
 
   ReosWatershed *watershed = indexToWatershed( parent );
   if ( !watershed )
-    return
-      QModelIndex();
+    return QModelIndex();
 
   return createIndex( row, column, watershed->directUpstreamWatershed( row ) );
-
 }
 
 QModelIndex ReosWatershedItemModel::parent( const QModelIndex &child ) const
@@ -425,7 +421,6 @@ void ReosWatershedItemModel::onWatershedChanged()
     QModelIndex ind = watershedToIndex( ws );
     emit dataChanged( ind, ind );
   }
-
 }
 
 void ReosWatershedItemModel::onTreeWillBeReset()
@@ -472,7 +467,6 @@ void ReosWatershedItemModel::removeWatershed( const QModelIndex &index )
   if ( !ws )
     return;
   std::unique_ptr<ReosWatershed> removed( mWatershedTree->extractWatershed( ws ) );
-
 }
 
 ReosWatershed *ReosWatershedItemModel::uriToWatershed( const QString &uri ) const

@@ -110,20 +110,21 @@ class ReosHydraulicStructure2DProperties : public ReosHydraulicElementWidget
 
     QString mCurrentDatasetId;
     QString mCurrentVectorDatasetId;
-
 };
 
 
 class ReosHydraulicStructure2DPropertiesWidgetFactory : public ReosHydraulicElementWidgetFactory
 {
   public:
-    ReosHydraulicStructure2DPropertiesWidgetFactory( QObject *parent = nullptr ): ReosHydraulicElementWidgetFactory( parent ) {}
+    ReosHydraulicStructure2DPropertiesWidgetFactory( QObject *parent = nullptr )
+      : ReosHydraulicElementWidgetFactory( parent )
+    {}
     virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
-    virtual QString elementType() {return ReosHydraulicStructure2D::staticType();}
+    virtual QString elementType() { return ReosHydraulicStructure2D::staticType(); }
 };
 
 
-class ReosMeshWireframeSettingsWidget: public QWidget
+class ReosMeshWireframeSettingsWidget : public QWidget
 {
     Q_OBJECT
   public:

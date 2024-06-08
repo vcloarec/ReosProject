@@ -41,7 +41,7 @@ class ReosMeshTerrainColorShaderSettings_p;
 
 class ReosMeshRendererCache_p;
 
-class ReosRendererMeshMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
+class ReosRendererMeshMapTimeStamp_p : public ReosRendererObjectMapTimeStamp
 {
   public:
     ReosRendererMeshMapTimeStamp_p( const QgsMeshDatasetIndex &scalarIndex, const QgsMeshDatasetIndex &vectorIndex, quint64 tracesAges );
@@ -58,14 +58,10 @@ class ReosMeshData_ : public ReosMeshData::Data
   public:
     ReosMeshData_( const QgsMesh &mesh )
       : mMesh( mesh )
-    {
-    }
+    {}
 
     ~ReosMeshData_();
-    const void *data() const
-    {
-      return static_cast<const void *>( &mMesh );
-    }
+    const void *data() const { return static_cast<const void *>( &mMesh ); }
 
   private:
     QgsMesh mMesh;
@@ -139,7 +135,7 @@ class ReosMeshFrame_p : public ReosMesh
     QString currentdScalarDatasetId() const override;
     QString currentdVectorDatasetId() const override;
     void update3DRenderer() override;
-    WireFrameSettings wireFrameSettings() const override ;
+    WireFrameSettings wireFrameSettings() const override;
     void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update ) override;
     double interpolateDatasetValueOnPoint( const ReosMeshDatasetSource *datasetSource, const ReosSpatialPosition &position, int sourceGroupindex, int datasetIndex ) const override;
     bool rasterizeDatasetValue( const QString &fileName, const QString &groupId, int datasetIndex, QString detinationCrs, double resolution ) const override;
@@ -199,7 +195,7 @@ class ReosMeshColorShaderSettings_p : public ReosColorShaderSettings_p
   public:
     ReosMeshColorShaderSettings_p( ReosMeshFrame_p *mesh );
 
-    ReosMeshColorShaderSettings_p *clone() const override {return nullptr;}
+    ReosMeshColorShaderSettings_p *clone() const override { return nullptr; }
     double classificationMinimum() const override;
     void setClassificationMinimum( double newClassificationMinimum ) override;
     double classificationMaximum() const override;
@@ -237,7 +233,6 @@ class ReosMeshVectorColorShaderSettings_p : public ReosMeshColorShaderSettings_p
     bool isValid() const override;
     bool getDirectSourceMinMax( double &min, double &max ) const override;
     void onSettingsUpdated() override;
-
 };
 
 class ReosMeshTerrainColorShaderSettings_p : public ReosMeshColorShaderSettings_p
@@ -262,12 +257,7 @@ class ReosMeshQualityChecker_p : public ReosMeshQualityChecker
 {
     Q_OBJECT
   public:
-
-    ReosMeshQualityChecker_p( const QgsMesh &mesh,
-                              ReosMesh::QualityMeshParameters params,
-                              const QgsDistanceArea &distanceArea,
-                              ReosMesh::QualityMeshChecks checks,
-                              const QgsCoordinateTransform &transform );
+    ReosMeshQualityChecker_p( const QgsMesh &mesh, ReosMesh::QualityMeshParameters params, const QgsDistanceArea &distanceArea, ReosMesh::QualityMeshChecks checks, const QgsCoordinateTransform &transform );
 
     void start() override;
     QualityMeshResults result() const override;
@@ -300,7 +290,7 @@ class ReosResultDatasetGroup : public QgsMeshDatasetGroup
 
     QgsMeshDataset *dataset( int index ) const;
     QgsMeshDatasetGroup::Type type() const;
-    QDomElement writeXml( QDomDocument &doc, const QgsReadWriteContext &context ) const {return QDomElement();}
+    QDomElement writeXml( QDomDocument &doc, const QgsReadWriteContext &context ) const { return QDomElement(); }
 
   private:
     ReosMeshDatasetSource *mSimulationResult = nullptr;
@@ -327,7 +317,6 @@ class ReosResultDataset : public QgsMeshDataset
     int mGroupIndex = -1;
     bool mfaceSupportActiveFlag = false;
     int mDatasetIndex = -1;
-
 };
 
 #endif // REOSMESH_P_H

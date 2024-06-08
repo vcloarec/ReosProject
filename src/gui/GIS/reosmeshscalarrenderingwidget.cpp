@@ -52,24 +52,21 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSet
   connect( mColorRampShaderWidget, &QgsColorRampShaderWidget::widgetChanged, this, &ReosMeshScalarRenderingWidget::onColorRampChanged );
   connect( ui->mBackButton, &QPushButton::clicked, this, &ReosStackedPageWidget::backToPreviousPage );
 
-  connect( ui->mOpacitySpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value )
-  {
+  connect( ui->mOpacitySpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value ) {
     ui->mOpacitySlider->blockSignals( true );
     ui->mOpacitySlider->setValue( value );
     ui->mOpacitySlider->blockSignals( false );
     updateSettings();
   } );
 
-  connect( ui->mOpacitySlider, &QSlider::valueChanged, this, [this]( int value )
-  {
+  connect( ui->mOpacitySlider, &QSlider::valueChanged, this, [this]( int value ) {
     ui->mOpacitySpinBox->blockSignals( true );
     ui->mOpacitySpinBox->setValue( value );
     ui->mOpacitySpinBox->blockSignals( false );
     updateSettings();
   } );
 
-  connect( ui->mReloadButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mReloadButton, &QToolButton::clicked, this, [this] {
     double min = 0;
     double max = 0;
 
@@ -77,12 +74,18 @@ ReosMeshScalarRenderingWidget::ReosMeshScalarRenderingWidget( ReosColorShaderSet
     {
       if ( !mSettings->getDirectSourceMinMax( min, max ) )
       {
-        if ( QMessageBox::warning( this,
-                                   tr( "Calculate Minimum and Maximum" ),
-                                   tr( "Data source does not provide minimum and maximum values.\n"
-                                       "To obtain minimum and maximum, it is necessary to calculate them from source.\n"
-                                       "Depending of the data, this operation could take some time.\n\n"
-                                       "Do you want to proceed?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes )
+        if ( QMessageBox::warning(
+               this,
+               tr( "Calculate Minimum and Maximum" ),
+               tr(
+                 "Data source does not provide minimum and maximum values.\n"
+                 "To obtain minimum and maximum, it is necessary to calculate them from source.\n"
+                 "Depending of the data, this operation could take some time.\n\n"
+                 "Do you want to proceed?"
+               ),
+               QMessageBox::Yes | QMessageBox::No,
+               QMessageBox::Yes
+             )
              == QMessageBox::No )
           return;
         ReosOverrideCursor overrideCursor;

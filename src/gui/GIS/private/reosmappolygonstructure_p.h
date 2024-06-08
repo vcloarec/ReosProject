@@ -39,8 +39,6 @@ class ReosMapPolygonStructure_p : public ReosMapItem_p
     void paint( QPainter *painter );
     QPointer<ReosPolygonStructure> mStructure;
     QRectF mBBox;
-
-
 };
 
 #endif // REOSMAPPOLYGONSTRUCTURE_P_H

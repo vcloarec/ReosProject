@@ -21,9 +21,9 @@ email                : vcloarec at gmail dot com
 
 #include "reosapplication.h"
 
-ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( const QLocale &localeLanguage, const QLocale &globalLocale, QWidget *parent ) :
-  QDialog( parent ),
-  ui( new Ui::ReosLanguageSelectionWidget )
+ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( const QLocale &localeLanguage, const QLocale &globalLocale, QWidget *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosLanguageSelectionWidget )
 {
   ui->setupUi( this );
   ui->comboBoxLanguage->addItem( tr( "System language" ), QLocale::system() );
@@ -39,11 +39,9 @@ ReosLanguageSelectionWidget::ReosLanguageSelectionWidget( const QLocale &localeL
   {
     QLocale l = QLocale( formatName );
     ui->comboBoxNumberFormat->addItem( QStringLiteral( "%1 %2 (%3)" ).arg( QLocale::languageToString( l.language() ), QLocale::countryToString( l.country() ), l.name() ), l );
-
   }
 
   ui->comboBoxNumberFormat->setCurrentIndex( ui->comboBoxNumberFormat->findData( globalLocale ) );
-
 }
 
 ReosLanguageSelectionWidget::~ReosLanguageSelectionWidget()
@@ -81,7 +79,8 @@ QStringList ReosLanguageSelectionWidget::availableLanguages() const
     QString myFileName = myIterator.next();
 
     // Ignore the 'en' translation file, already added as 'en_US'.
-    if ( myFileName.compare( QLatin1String( "reos_en.qm" ) ) == 0 ) continue;
+    if ( myFileName.compare( QLatin1String( "reos_en.qm" ) ) == 0 )
+      continue;
 
     languageList << myFileName.remove( QStringLiteral( "reos_" ) ).remove( QStringLiteral( ".qm" ) );
   }
@@ -91,17 +90,14 @@ QStringList ReosLanguageSelectionWidget::availableLanguages() const
 QStringList ReosLanguageSelectionWidget::availableNumberLocal() const
 {
   //From QGIS, QgsOptions
-  const QList<QLocale> allLocales = QLocale::matchingLocales(
-                                      QLocale::AnyLanguage,
-                                      QLocale::AnyScript,
-                                      QLocale::AnyCountry );
+  const QList<QLocale> allLocales = QLocale::matchingLocales( QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry );
 
   QSet<QString> addedLocales;
   QStringList globalLocales;
   for ( const auto &l : allLocales )
   {
     // Do not add duplicates (like en_US)
-    if ( ! addedLocales.contains( l.name() ) )
+    if ( !addedLocales.contains( l.name() ) )
     {
       globalLocales.append( l.name() );
       addedLocales.insert( l.name() );

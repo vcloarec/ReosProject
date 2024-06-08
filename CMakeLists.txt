@@ -1,7 +1,7 @@
 # Reos licence GPL version 2
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.23)
 
 SET(CMAKE_AUTORCC ON)
 
@@ -34,6 +34,7 @@ set (SYSTEM_APP_NAME "reossystem")
 SET(CMAKE_CXX_STANDARD 17)
 IF(MSVC)
   SET(CMAKE_GENERATOR_PLATFORM x64)
+  add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
 ENDIF(MSVC)
 SET(CMAKE_AUTOMOC ON)
 
@@ -51,8 +52,12 @@ ADD_DEFINITIONS(-DREOS_PROVIDERS="${REOS_PROVIDERS_DIR}")
 ADD_DEFINITIONS(-DREOS_SIMULATION_ENGINES="${REOS_ENGINES_DIR}")
 ADD_DEFINITIONS(-DREOS_BUILDING_OUTPUT="${REOS_OUTPUT_DIRECTORY}")
 
+SET(WITH_GUI TRUE CACHE BOOL "With Graphic User Interface (LEKAN)")
+SET(WITH_3D TRUE CACHE BOOL "With Graphic User Interface (LEKAN)")
+
 SET(WITH_QTWEBKIT FALSE CACHE BOOL "With QtWebKit")
 SET(QGIS_PROVIDERS_PATH CACHE PATH "Path to the folder containing the data providers of QGIS. Only necessary for dev and tests.")
+SET(QGIS_PREFIX CACHE PATH "Path to built QGIS")
 SET(QGIS_INCLUDE_DIR CACHE PATH "Path to the include dir of QGIS")
 SET(QGIS_CORE_LIB CACHE FILEPATH "Path to QGIS core lib")
 SET(QGIS_GUI_LIB CACHE FILEPATH "Path to QGIS gui lib")
@@ -62,14 +67,18 @@ SET(QGIS_APP_LIB CACHE FILEPATH "Path to QGIS app lib")
 SET(QGIS_APP_INCLUDE CACHE PATH "Path to QGIS app header files (in source)")
 SET(QGIS_LIBS ${QGIS_CORE_LIB} ${QGIS_GUI_LIB} ${QGIS_ANALYSIS_LIB} ${QGIS_3D_LIB})
 SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
-SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
-SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
-SET(TELEMAC_PATH CACHE PATH "Path to TELEMAC.")
-SET(TELEMAC_CONFIG_NAME CACHE STRING "Configuration name of TELEMAC.")
-SET(TELEMAC_CONFIG_FILE CACHE FILEPATH "Configuration file of TELEMAC.")
-SET(TELEMAC_PYTHON_PATH CACHE FILEPATH "Python interpreter path to use for TELEMAC.")
+
 
 SET(ENABLE_HEC_DSS TRUE CACHE BOOL "Enable hec-dss")
+
+IF(WITH_3D)
+    add_definitions(-DENABLE_3D)
+ENDIF(WITH_3D)
+
+IF(WITH_GUI)
+    add_definitions(-DENABLE_GUI)
+ENDIF(WITH_GUI)
+
 IF(ENABLE_HEC_DSS)
     SET (HEC_DSS_LIBS_PATH CACHE PATH "Path to the hec-dss libraries")
     SET (HEC_DSS_INCLUDE CACHE PATH "Path to the hec-dss include dir")
@@ -96,8 +105,32 @@ IF(ENABLE_HEC_DSS)
     ENDIF(MSVC)
 ENDIF(ENABLE_HEC_DSS)
 
-SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
-SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
+SET(WITH_HYDRAULIC_MODEL_SUPPORT TRUE CACHE BOOL "Enable Hydraulic Model support")
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    add_definitions(-DWITH_GMSH)
+    SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
+    SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
+
+    SET(WITH_TELEMAC_SUPPORT TRUE CACHE BOOL "Enable TELEMAC Model support")
+    IF(WITH_TELEMAC_SUPPORT)
+        SET(TELEMAC_PATH CACHE PATH "Path to TELEMAC.")
+        SET(TELEMAC_CONFIG_NAME CACHE STRING "Configuration name of TELEMAC.")
+        SET(TELEMAC_CONFIG_FILE CACHE FILEPATH "Configuration file of TELEMAC.")
+        SET(TELEMAC_PYTHON_PATH CACHE FILEPATH "Python interpreter path to use for TELEMAC.")
+    ENDIF(WITH_TELEMAC_SUPPORT)
+
+    SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
+    SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
+
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
+
+SET(ENABLE_ECCODES_READER TRUE CACHE BOOL "Enable ecCodes reader for grib format")
+
+IF(ENABLE_ECCODES_READER)
+    SET(HAS_ECCODES TRUE)
+    SET(ECCODES_INCLUDE_DIR CACHE PATH "Path to ecCodes headers.")
+    SET(ECCODES_LIB CACHE FILEPATH "Path to ecCodes lib.")
+ENDIF(ENABLE_ECCODES_READER)
 
 
 set(QT_MIN_VERSION 5.14.0)
@@ -107,7 +140,10 @@ set(HAS_KDE_QT5_PDF_TRANSFORM_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork wit
 set(HAS_KDE_QT5_SMALL_CAPS_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont::SmallCaps fix")
 set(HAS_KDE_QT5_FONT_STRETCH_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont stretch fix")
 
-FIND_PACKAGE(NetCDF REQUIRED)
+find_package(NetCDF REQUIRED)
+find_package(GDAL REQUIRED)
+MESSAGE("GDAL_INCLUDE_DIR=${GDAL_INCLUDE_DIR}")
+MESSAGE("GDAL_LIBRARY=${GDAL_LIBRARY}")
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 
@@ -123,13 +159,14 @@ if(NOT MSVC)
   FIND_QCAOSSL_PLUGIN_CPP(ENABLE_TESTS)
 endif()
 
-IF (WITH_QTWEBKIT)
-  FIND_PACKAGE(Qt5 COMPONENTS WebKit WebKitWidgets REQUIRED)
-ENDIF(WITH_QTWEBKIT)
+IF(WITH_GUI)
+    IF (WITH_QTWEBKIT)
+      FIND_PACKAGE(Qt5 COMPONENTS WebKit WebKitWidgets REQUIRED)
+    ENDIF(WITH_QTWEBKIT)
 
-SET(QWT_LIB CACHE FILEPATH "Path to qwt LIB")
-SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
-
+    SET(QWT_LIB CACHE FILEPATH "Path to qwt LIB")
+    SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
+ENDIF(WITH_GUI)
 
 
 #############################################################
@@ -142,7 +179,7 @@ set(Python_FIND_FRAMEWORK "LAST")
 
 if(PYTHON_DIR)
     set(Python_FIND_STRATEGY "LOCATION")
-	set(Python_ROOT_DIR "${PYTHON_DIR}")
+        set(Python_ROOT_DIR "${PYTHON_DIR}")
 endif()
 
 if (WITH_BINDINGS)
@@ -179,6 +216,7 @@ if (WITH_BINDINGS)
     set(PYQT_MOD_DIR ${PYQT5_MOD_DIR})
   endif()
   separate_arguments(PYQT_SIP_FLAGS) # convert space separated values to a list
+  message("-- PyQt dir: ${PYQT_SIP_DIR}")
 
   #find_package(Qsci REQUIRED)
   include(PythonMacros)
@@ -196,7 +234,9 @@ endif()
 
 ADD_SUBDIRECTORY(images)
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(i18n)
+IF(WITH_GUI)
+    ADD_SUBDIRECTORY(i18n)
+ENDIF(WITH_GUI)
 
 if (WITH_BINDINGS)
     ADD_SUBDIRECTORY(python)
@@ -206,6 +246,9 @@ endif()
 IF (ENABLE_TESTS)
 
   set(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
+  set(ERA5_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for ERA5 gridded data, some specific files are necessary.")
+  set(GRIB_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for GRIB gridded data, some specific files are necessary.")
+  set(HDF5_METEO_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for HDF5 meteo gridded data, some specific files are necessary.")
   set(METEOFRANCEAPI_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Meteo France, a file containing a API key is necessary")
   set(INTERN_PYTHON_TESTS_ENABLE FALSE CACHE BOOL "Enable tests related calling python from Reos")
 
@@ -216,3 +259,7 @@ IF (ENABLE_TESTS)
 
 ENDIF(ENABLE_TESTS)
 
+# write a marker with source directory path into the output's bin directory
+# if run from the build directory Reos will detect it and alter the paths
+set (REOS_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+file(WRITE ${REOS_OUTPUT_DIRECTORY}/reosbuildpath.txt "${CMAKE_SOURCE_DIR}\n${REOS_OUTPUT_DIRECTORY}")

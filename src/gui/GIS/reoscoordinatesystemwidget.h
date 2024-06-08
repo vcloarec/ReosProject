@@ -36,7 +36,6 @@ class ReosCoordinateSystemWidget : public QWidget
     void crsChanged();
 
   private:
-
     QgsProjectionSelectionWidget *mQgsWidget = nullptr;
 };
 

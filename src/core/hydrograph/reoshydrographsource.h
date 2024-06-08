@@ -38,9 +38,7 @@ class ReosMeteorologicModelsCollection;
 class ReosHydraulicNetworkUtils
 {
   public:
-
-    template<typename T>
-    static QList<T *> upstreamLinkOfType( const ReosHydraulicNode *node )
+    template<typename T> static QList<T *> upstreamLinkOfType( const ReosHydraulicNode *node )
     {
       QList<T *> ret;
       for ( ReosHydraulicLink *link : node->linksBySide2() )
@@ -53,8 +51,7 @@ class ReosHydraulicNetworkUtils
       return ret;
     }
 
-    template<typename T>
-    static QList<T *> downstreamLinkOfType( const ReosHydraulicNode *node )
+    template<typename T> static QList<T *> downstreamLinkOfType( const ReosHydraulicNode *node )
     {
       QList<T *> ret;
       for ( ReosHydraulicLink *link : node->linksBySide1() )
@@ -76,11 +73,11 @@ class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode SIP_ABSTRACT
   public:
     ReosHydrographNode( ReosHydraulicNetwork *parent = nullptr );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydraulicNode::staticType() + QString( ':' ) + QStringLiteral( "hydrograph" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydraulicNode::staticType() + QString( ':' ) + QStringLiteral( "hydrograph" ); }
 
-    QPointF position( const QString & ) const override  {return QPointF();}
-    ReosSpatialPosition spatialPosition() const override {return ReosSpatialPosition();}
+    QPointF position( const QString & ) const override { return QPointF(); }
+    ReosSpatialPosition spatialPosition() const override { return ReosSpatialPosition(); }
 
 #ifndef SIP_RUN
 
@@ -104,8 +101,8 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode SIP_ABSTR
 
     virtual ReosHydrograph *outputHydrograph() const = 0;
 
-    QString type() const override {return staticType(); }
-    static QString staticType() {return ReosHydrographNode::staticType() + QString( ':' ) + QStringLiteral( "source" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydrographNode::staticType() + QString( ':' ) + QStringLiteral( "source" ); }
 
 #ifndef SIP_RUN
     ReosHydrographRoutingLink *outputHydrographTransfer() const;
@@ -117,7 +114,7 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode SIP_ABSTR
 
   protected:
     ReosHydrographSource( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext & ) const override;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext & ) const override;
 
     ReosParameterBoolean *mUseForceOutputTimeStep = nullptr;
     ReosParameterDuration *mForceOutputTimeStep = nullptr;
@@ -127,7 +124,7 @@ class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode SIP_ABSTR
 
 #ifndef SIP_RUN
 //! Class that represent an hydrograph source with a fixed hydrograph
-class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
+class REOSCORE_EXPORT ReosHydrographSourceFixed : public ReosHydrographSource
 {
     Q_OBJECT
   public:
@@ -135,8 +132,8 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
 
     ReosHydrograph *outputHydrograph() const override;
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "fixed" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "fixed" ); }
 
     void setPosition( const ReosSpatialPosition & ) override {};
 
@@ -147,8 +144,9 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
     void updateCalculationContextFromUpstream( const ReosCalculationContext &, ReosHydraulicNetworkElement *, bool ) override;
 
   public slots:
-    void updateCalculationContext( const ReosCalculationContext &context ) override;;
-    void onUpstreamRoutingUpdated( const QString & )  override {}
+    void updateCalculationContext( const ReosCalculationContext &context ) override;
+    ;
+    void onUpstreamRoutingUpdated( const QString & ) override {}
 
   protected:
     ReosHydrographSourceFixed( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
@@ -156,7 +154,7 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed: public ReosHydrographSource
   private:
     ReosHydrograph *mHydrograph = nullptr;
 
-    void encodeData( ReosEncodedElement &,  const ReosHydraulicNetworkContext & ) const override {}
+    void encodeData( ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {}
 };
 
 #endif //No SIP_RUN
@@ -179,18 +177,18 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 
     ReosHydrograph *outputHydrograph() const override;
 
-    QString type() const override {return staticType(); }
-    static QString staticType() {return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "junction" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydrographSource::staticType() + QString( ':' ) + QStringLiteral( "junction" ); }
 
     QPointF position( const QString &destinationCrs ) const override;
     ReosSpatialPosition spatialPosition() const override;
     void setPosition( const ReosSpatialPosition &pos ) override;
-    QString defaultDisplayName() const override {return tr( "Junction node" );}
+    QString defaultDisplayName() const override { return tr( "Junction node" ); }
     bool calculationInProgress() const override;
     int calculationMaxProgression() const override;
     int calculationProgression() const override;
     ReosTimeWindow timeWindow() const override;
-    QIcon icon() const override {return QIcon( ":/images/hydrographJunction.svg" );}
+    QIcon icon() const override { return QIcon( ":/images/hydrographJunction.svg" ); }
 
 #ifndef SIP_RUN
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
@@ -241,7 +239,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     bool mNeedCalculation = true;
 
     ReosHydrographJunction( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
 
     bool setCurrentInternalHydrograph( ReosHydrograph *newHydrograph );
     virtual bool updateInternalHydrograph();
@@ -253,7 +251,7 @@ class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
     QSet<QString> mWaitingForUpstreamElementUpdated;
     bool mCalculationIsInProgress = false;
 
-    class HydrographSumCalculation: public ReosHydrographCalculation
+    class HydrographSumCalculation : public ReosHydrographCalculation
     {
       public:
         //! Constructor
@@ -302,14 +300,14 @@ class REOSCORE_EXPORT ReosHydrographNodeWatershed : public ReosHydrographJunctio
     //! Constructor with \a watershed
     ReosHydrographNodeWatershed( ReosWatershed *watershed, ReosMeteorologicModelsCollection *meteoModelCollection, ReosHydraulicNetwork *parent = nullptr );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "watershed" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "watershed" ); }
 
     QPointF position( const QString &destinationCrs ) const override;
     ReosSpatialPosition spatialPosition() const override;
     void setPosition( const ReosSpatialPosition & ) override {}; // position of this node can't be set because this is the outlet of the watershed
-    QString defaultDisplayName() const override {return tr( "Watershed node" );}
-    QIcon icon() const override {return QIcon( ":/images/watershedNode.svg" );}
+    QString defaultDisplayName() const override { return tr( "Watershed node" ); }
+    QIcon icon() const override { return QIcon( ":/images/watershedNode.svg" ); }
 
     ReosWatershed *watershed() const;
 
@@ -317,7 +315,7 @@ class REOSCORE_EXPORT ReosHydrographNodeWatershed : public ReosHydrographJunctio
 
   public slots:
   protected:
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
     ReosHydrographNodeWatershed( const ReosEncodedElement &encodedElement, ReosWatershed *watershed, ReosMeteorologicModelsCollection *meteoModelCollection, ReosHydraulicNetwork *parent = nullptr );
 
   private:

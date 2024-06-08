@@ -18,15 +18,14 @@
 
 ReosObjectRenderer::ReosObjectRenderer( ReosRenderedObject *object )
   : mObject( object )
-{
-}
+{}
 
 ReosObjectRenderer::~ReosObjectRenderer()
 {}
 
 void ReosObjectRenderer::start()
 {
-    render();
+  render();
 }
 
 void ReosObjectRenderer::stop( bool stop )
@@ -71,7 +70,9 @@ ReosRenderedObject *ReosObjectRenderer::object()
   return mObject;
 }
 
-ReosRenderedObject::ReosRenderedObject( QObject *parent ) : ReosDataObject( parent ) {}
+ReosRenderedObject::ReosRenderedObject( QObject *parent )
+  : ReosDataObject( parent )
+{}
 
 
 std::unique_ptr<ReosRendererSettings> ReosRenderedObject::createRenderSettings( const void *settings )

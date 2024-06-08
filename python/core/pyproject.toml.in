@@ -1,14 +1,17 @@
-# Specify the build system.
 [build-system]
-requires = ["sip >=5.0.0, <7", "PyQt-builder >=1.6, <2"]
+requires = ["sip >=6.6.2, <7", "PyQt-builder >=1.6, <2"]
 build-backend = "sipbuild.api"
 
 # Specify the PEP 566 metadata for the project.
-[tool.sip.metadata]
+[project]
 name = "REOS"
 version = "@COMPLETE_API_VERSION@"
-summary = "Python bindings for REOS System"
-home-page = "https://www.reos.site"
-author = "Vincent Cloarec"
-license = "GPL v2"
-requires-dist = "PyQt5"
+description = "Python bindings for REOS System"
+urls = { "Homepage" = "https://www.reos.site" }
+authors = [{name = "Vincent Cloarec", email = "your-email@example.com"}]
+dependencies = ["PyQt5"]
+
+# Optional: Explicitly list all required Qt modules for SIP
+[tool.sip]
+qt-modules = ["QtCore", "QtWidgets", "QtNetwork", "QtXml", "QtSql", "QtPrintSupport", "QtPositioning"]
+

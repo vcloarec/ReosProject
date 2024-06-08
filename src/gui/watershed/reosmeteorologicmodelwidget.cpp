@@ -34,11 +34,9 @@
 
 
 ReosMeteorologicModelWidget::ReosMeteorologicModelWidget(
-  ReosWatershedItemModel *watershedModel,
-  ReosHydraulicNetwork *hydraulicNetwork,
-  ReosMeteorologicModelsCollection *meteoModelsCollection,
-  const ReosGuiContext &guiContext ) :
-  ReosActionWidget( guiContext.parent() )
+  ReosWatershedItemModel *watershedModel, ReosHydraulicNetwork *hydraulicNetwork, ReosMeteorologicModelsCollection *meteoModelsCollection, const ReosGuiContext &guiContext
+)
+  : ReosActionWidget( guiContext.parent() )
   , mMeteorologicItemModel( new ReosMeteorologicItemModel( watershedModel, this ) )
   , mMeteorologicStructureModel( new ReosMeteorologicStructureItemModel( hydraulicNetwork, this ) )
   , mHydraulicNetwork( hydraulicNetwork )
@@ -83,7 +81,8 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget(
   ui->widgetToolBar->layout()->addWidget( toolBar );
 
   mActionAddMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onAddMeteoModel );
-  mActionDuplicateMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/duplicateMeteoModel.svg" ) ), tr( "Duplicate Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onDuplicateMeteoModel );
+  mActionDuplicateMeteoModel
+    = toolBar->addAction( QIcon( QStringLiteral( ":/images/duplicateMeteoModel.svg" ) ), tr( "Duplicate Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onDuplicateMeteoModel );
   mActionRemoveMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Remove Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onRemoveMeteoModel );
   mActionRenameMeteoModel = toolBar->addAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename Meteorologic Model" ), this, &ReosMeteorologicModelWidget::onRenameMeteoModel );
 
@@ -91,15 +90,13 @@ ReosMeteorologicModelWidget::ReosMeteorologicModelWidget(
   onCurrentModelChanged();
   connect( mActionDisplayGriddedOnMap, &QAction::toggled, this, &ReosMeteorologicModelWidget::displayRenderedObject );
 
-  connect( mHydraulicNetwork, &ReosHydraulicNetwork::schemeChanged, this, [this]
-  {
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::schemeChanged, this, [this] {
     if ( mHydraulicNetwork->currentScheme() )
     {
       int mmIndex = mModelsCollections->modelIndex( mHydraulicNetwork->currentScheme()->meteoModel() );
       if ( mmIndex >= 0 )
         ui->comboBoxCurrentModel->setCurrentIndex( mmIndex );
     }
-
   } );
 
   handleRenderedObject();
@@ -180,9 +177,8 @@ void ReosMeteorologicModelWidget::onRemoveMeteoModel()
   if ( !modelToRemove )
     return;
 
-  if ( QMessageBox::warning( this, tr( "Remove Meteo Model" ),
-                             tr( "Do you want to remove the model '%1'?" ).arg( modelToRemove->name()->value() ),
-                             QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+  if ( QMessageBox::warning( this, tr( "Remove Meteo Model" ), tr( "Do you want to remove the model '%1'?" ).arg( modelToRemove->name()->value() ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+       == QMessageBox::Yes )
   {
     mModelsCollections->removeMeteorologicModel( ui->comboBoxCurrentModel->currentIndex() );
   }
@@ -249,10 +245,7 @@ void ReosMeteorologicModelWidget::onMeteoTreeViewContextMenu( const QPoint &pos 
   if ( !index.isValid() )
     return;
   QMenu menu;
-  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, index]
-  {
-    mMeteorologicItemModel->removeAssociation( index );
-  } );
+  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, index] { mMeteorologicItemModel->removeAssociation( index ); } );
 
   menu.exec( ui->treeViewMeteorologicModel->mapToGlobal( pos ) );
 }
@@ -263,10 +256,7 @@ void ReosMeteorologicModelWidget::onMeteoStructureTreeViewContextMenu( const QPo
   if ( !index.isValid() )
     return;
   QMenu menu;
-  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, index]
-  {
-    mMeteorologicStructureModel->removeAssociation( index );
-  } );
+  menu.addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Disassociate rainfall" ), &menu, [this, index] { mMeteorologicStructureModel->removeAssociation( index ); } );
 
   menu.exec( ui->treeViewHydraulicNetwork->mapToGlobal( pos ) );
 }
@@ -294,7 +284,7 @@ void ReosMeteorologicModelWidget::handleRenderedObject()
       }
     }
 
-    for ( const QString &id  : std::as_const( renderedObjectToRemove ) )
+    for ( const QString &id : std::as_const( renderedObjectToRemove ) )
     {
       ReosRenderedObject *obj = mActiveRenderedObject.value( id );
       mActiveRenderedObject.remove( id );
@@ -337,5 +327,3 @@ void ReosMeteorologicModelWidget::displayRenderedObject( bool display )
       mMap->removeExtraRenderedObject( objCurrent );
   }
 }
-
-

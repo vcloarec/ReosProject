@@ -109,7 +109,7 @@ void ReosTelemac2DSimulationResults::groupMinMax( int groupIndex, double &minimu
   minimum = std::numeric_limits<double>::quiet_NaN();
   maximum = std::numeric_limits<double>::quiet_NaN();
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
 
   if ( !group )
     return;
@@ -125,14 +125,14 @@ QDateTime ReosTelemac2DSimulationResults::groupReferenceTime( int groupIndex ) c
   if ( mReferenceTime.isValid() )
     return mReferenceTime;
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
 
   if ( !group )
     return QDateTime();
 
   QString referenceTimeString( MDAL_G_referenceTime( group ) );
   if ( !referenceTimeString.isEmpty() )
-    referenceTimeString.append( 'Z' );//For now provider doesn't support time zone and return always in local time, force UTC
+    referenceTimeString.append( 'Z' ); //For now provider doesn't support time zone and return always in local time, force UTC
 
   mReferenceTime = QDateTime::fromString( referenceTimeString, Qt::ISODate );
   return mReferenceTime;
@@ -154,7 +154,7 @@ bool ReosTelemac2DSimulationResults::datasetIsValid( int groupIndex, int dataset
   if ( groupIndex < 0 || groupIndex >= groupCount() )
     return false;
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
 
   if ( !group )
     return false;
@@ -174,7 +174,7 @@ void ReosTelemac2DSimulationResults::datasetMinMax( int groupIndex, int datasetI
   min = std::numeric_limits<double>::quiet_NaN();
   max = std::numeric_limits<double>::quiet_NaN();
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
 
   if ( !group )
     return;
@@ -188,7 +188,7 @@ void ReosTelemac2DSimulationResults::datasetMinMax( int groupIndex, int datasetI
 
 int ReosTelemac2DSimulationResults::datasetValuesCount( int groupIndex, int datasetIndex ) const
 {
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
   MDAL_DatasetH ds = MDAL_G_dataset( group, datasetIndex );
 
   return MDAL_D_valueCount( ds );
@@ -231,7 +231,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
       break;
   }
 
-  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH,  groupIndexToSourceIndex( groupIndex ) );
+  MDAL_DatasetGroupH group = MDAL_M_datasetGroup( mMeshH, groupIndexToSourceIndex( groupIndex ) );
 
   if ( !group )
     return QVector<double>();
@@ -246,11 +246,7 @@ QVector<double> ReosTelemac2DSimulationResults::datasetValues( int groupIndex, i
   QVector<double> ret;
   ret.resize( valueCount * ( isScalar ? 1 : 2 ) );
 
-  int effectiveValueCount = MDAL_D_data( dataset,
-                                         0,
-                                         valueCount,
-                                         isScalar ? MDAL_DataType::SCALAR_DOUBLE : MDAL_DataType::VECTOR_2D_DOUBLE,
-                                         ret.data() );
+  int effectiveValueCount = MDAL_D_data( dataset, 0, valueCount, isScalar ? MDAL_DataType::SCALAR_DOUBLE : MDAL_DataType::VECTOR_2D_DOUBLE, ret.data() );
 
   Q_ASSERT( valueCount == effectiveValueCount );
 
@@ -420,7 +416,6 @@ void ReosTelemac2DSimulationResults::adaptWaterLevel( QVector<double> &waterLeve
         waterLevel[i] = value;
     }
   }
-
 }
 
 void ReosTelemac2DSimulationResults::adaptWaterDepth( QVector<double> &waterDepth, int datasetIndex ) const
@@ -475,7 +470,7 @@ void ReosTelemac2DSimulationResults::dryVertices( int datasetIndex ) const
     active[i] = 0;
     for ( int f : face )
     {
-      if ( !std::isnan( waterLevel.at( f ) )  && ( waterLevel.at( f ) - mBottomValues.at( f ) > mDryDepthValue ) )
+      if ( !std::isnan( waterLevel.at( f ) ) && ( waterLevel.at( f ) - mBottomValues.at( f ) > mDryDepthValue ) )
       {
         active[i] = 1;
         break;
@@ -489,4 +484,3 @@ void ReosTelemac2DSimulationResults::dryVertices( int datasetIndex ) const
     }
   }
 }
-

@@ -41,8 +41,7 @@ ReosHydraulic2DSimulationWidget::ReosHydraulic2DSimulationWidget( ReosHydraulicS
   ui->mAddSimulationButton->setEnabled( structure->hasCapability( ReosHydraulicStructure2D::MultiSimulation ) );
   ui->mRemoveSimulationButton->setEnabled( structure->hasCapability( ReosHydraulicStructure2D::MultiSimulation ) );
 
-  connect( mStructure, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
-  {
+  connect( mStructure, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this] {
     ui->mExistingSimulationCombo->blockSignals( true );
     ui->mExistingSimulationCombo->setCurrentIndex( mStructure->currentSimulationIndex() );
     ui->mExistingSimulationCombo->blockSignals( false );
@@ -60,8 +59,7 @@ void ReosHydraulic2DSimulationWidget::onAddSimulation()
   ReosFormDialog *dial = new ReosFormDialog( this );
 
   QComboBox *engineCombo = new QComboBox;
-  QMap<QString, QString> engines =
-    ReosSimulationEngineRegistery::instance()->availableEngine( ReosSimulationEngineFactory::CanBeCreated );
+  QMap<QString, QString> engines = ReosSimulationEngineRegistery::instance()->availableEngine( ReosSimulationEngineFactory::CanBeCreated );
   for ( auto it = engines.begin(); it != engines.end(); ++it )
     engineCombo->addItem( it.value(), it.key() );
 
@@ -92,9 +90,7 @@ void ReosHydraulic2DSimulationWidget::onAddSimulation()
 void ReosHydraulic2DSimulationWidget::onRemovedSimulation()
 {
   QString simName = mStructure->currentSimulation()->name();
-  if ( QMessageBox::warning( this, tr( "Remove simulation" ),
-                             tr( "Do you want to remove the simulation \"%1\"?" ).arg( simName ), QMessageBox::Yes | QMessageBox::No )
-       == QMessageBox::Yes )
+  if ( QMessageBox::warning( this, tr( "Remove simulation" ), tr( "Do you want to remove the simulation \"%1\"?" ).arg( simName ), QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
   {
     mStructure->removeSimulation( ui->mExistingSimulationCombo->currentIndex() );
     updateSimulationCombo();
@@ -125,15 +121,12 @@ void ReosHydraulic2DSimulationWidget::updateSimulationCombo()
   ui->mExistingSimulationCombo->clear();
   ui->mExistingSimulationCombo->addItems( mStructure->simulationNames() );
   ui->mExistingSimulationCombo->setCurrentIndex( mStructure->currentSimulationIndex() );
-
 }
 
 ReosHydraulicSimulationWidgetRegistery *ReosHydraulicSimulationWidgetRegistery::sInstance = nullptr;
 
 ReosHydraulicSimulationWidgetRegistery::ReosHydraulicSimulationWidgetRegistery()
-{
-
-}
+{}
 
 QWidget *ReosHydraulicSimulationWidgetRegistery::createEditingWidget( ReosHydraulicStructure2D *structure, ReosHydraulicSimulation *simulation, const ReosGuiContext &guiContext )
 {
@@ -215,13 +208,13 @@ void ReosHydraulicSimulationWidgetRegistery::loadDynamicLibrary()
   enginesDir.setSorting( QDir::Name | QDir::IgnoreCase );
   enginesDir.setFilter( QDir::Files | QDir::NoSymLinks );
 
-#if defined(Q_OS_WIN) || defined(__CYGWIN__)
+#if defined( Q_OS_WIN ) || defined( __CYGWIN__ )
   enginesDir.setNameFilters( QStringList( "*.dll" ) );
 #else
   enginesDir.setNameFilters( QStringList( QStringLiteral( "*.so" ) ) );
 #endif
 
-  typedef ReosHydraulicSimulationWidgetFactory *factory_function( );
+  typedef ReosHydraulicSimulationWidgetFactory *factory_function();
 
   const QFileInfoList files = enginesDir.entryInfoList();
   for ( const QFileInfo &file : files )

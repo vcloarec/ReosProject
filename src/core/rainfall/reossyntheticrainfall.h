@@ -64,7 +64,6 @@ class REOSCORE_EXPORT ReosUniqueIdfCurveSyntheticRainfall : public ReosSeriesRai
   private:
     void init();
     virtual void updateRainfall() const = 0;
-
 };
 
 class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRainfall
@@ -73,8 +72,8 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRa
   public:
     ReosChicagoRainfall( QObject *parent = nullptr );
 
-    static QString staticType() {return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "chicago" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "chicago" ); }
+    QString type() const override { return staticType(); }
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
     //! Creates new instance from the encoded element
@@ -84,8 +83,7 @@ class REOSCORE_EXPORT ReosChicagoRainfall : public ReosUniqueIdfCurveSyntheticRa
     explicit ReosChicagoRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
   private:
-    void updateRainfall() const override ;
-
+    void updateRainfall() const override;
 };
 
 
@@ -95,8 +93,8 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
   public:
     ReosAlternatingBlockRainfall( QObject *parent = nullptr );
 
-    static QString staticType() {return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "alternating-block" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "alternating-block" ); }
+    QString type() const override { return staticType(); }
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
     //! Creates new instance from the encoded element
@@ -106,7 +104,7 @@ class REOSCORE_EXPORT ReosAlternatingBlockRainfall : public ReosUniqueIdfCurveSy
     explicit ReosAlternatingBlockRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
 
   private:
-    void updateRainfall() const override ;
+    void updateRainfall() const override;
 };
 
 class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSeriesRainfall
@@ -115,8 +113,8 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSeriesRainfall
   public:
     ReosDoubleTriangleRainfall( QObject *parent = nullptr );
 
-    static QString staticType() {return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "double-triangle" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosSeriesRainfall::staticType() + ':' + QStringLiteral( "double-triangle" ); }
+    QString type() const override { return staticType(); }
 
     ReosParameterDuration *totalDuration();
     ReosParameterDuration *intenseDuration();
@@ -125,10 +123,12 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSeriesRainfall
     ReosIntensityDurationCurve *intensityDurationCurveTotal() const;
 
     //! Sets the intensity duration curves and their unique id, emit signal with uids if not empty, so be careful to not used it with uid from signal receiver
-    void setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurveIntense,
-                                    ReosIntensityDurationCurve *intensityDurationCurveTotal,
-                                    const QString &intensityDurationUniqueIdIntense = QString(),
-                                    const QString &intensityDurationUniqueIdTotal = QString() );
+    void setIntensityDurationCurve(
+      ReosIntensityDurationCurve *intensityDurationCurveIntense,
+      ReosIntensityDurationCurve *intensityDurationCurveTotal,
+      const QString &intensityDurationUniqueIdIntense = QString(),
+      const QString &intensityDurationUniqueIdTotal = QString()
+    );
 
     //! Sets only the uids of the intensity duration curves, then the uid can be used to retrieve the source of the curve
     void setIntensityDurationUniqueId( const QString &intenseUid, const QString &totalUid );
@@ -161,7 +161,6 @@ class REOSCORE_EXPORT ReosDoubleTriangleRainfall : public ReosSeriesRainfall
     void connectParameters();
     void updateRainfall() const;
 };
-
 
 
 #endif // REOSSYNTHETICRAINFALL_H

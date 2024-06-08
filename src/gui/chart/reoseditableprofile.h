@@ -24,7 +24,7 @@ class ReosPlotPicker_p;
 class ReosPlotPickerEditPoint_p;
 class ReosPlotPickerDrawLines_p;
 
-class ReosEditableProfileModel: public QAbstractTableModel
+class ReosEditableProfileModel : public QAbstractTableModel
 {
     Q_OBJECT
   public:
@@ -73,11 +73,10 @@ class ReosEditableProfileModel: public QAbstractTableModel
 
     QString mTemporaryNewX;
     QString mTemporaryNewY;
-
 };
 
 
-class ReosEditableProfile: public ReosPlotItem
+class ReosEditableProfile : public ReosPlotItem
 {
     Q_OBJECT
   public:

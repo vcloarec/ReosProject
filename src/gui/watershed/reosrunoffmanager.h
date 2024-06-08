@@ -62,21 +62,21 @@ class REOSGUI_EXPORT ReosRunoffManager : public ReosActionWidget
     void selectRunoffModel( ReosRunoffModel *runoffModel );
 };
 
-class ReosFormRunoffConstantCoefficientWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormRunoffConstantCoefficientWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context );
     virtual QString datatype() const;
 };
 
-class ReosFormRunoffGreenAmptWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormRunoffGreenAmptWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context );
     virtual QString datatype() const;
 };
 
-class ReosFormRunofCurveNumberWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormRunofCurveNumberWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context );

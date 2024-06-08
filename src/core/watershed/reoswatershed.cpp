@@ -33,12 +33,14 @@ ReosWatershed::ReosWatershed()
   init();
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint )
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs )
   : ReosWatershed( delineating, outletPoint, ReosWatershed::Manual )
-{}
+{
+  mWktCrs = wktCrs;
+}
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type ):
-  mType( type )
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type )
+  : mType( type )
   , mExtent( delineating )
   , mDelineating( delineating )
   , mOutletPoint( outletPoint )
@@ -46,50 +48,58 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
   init();
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating,
-                              const QPointF &outletPoint,
-                              ReosWatershed::Type type,
-                              const QPolygonF &downstreamLine,
-                              const QPolygonF &streamPath,
-                              const ReosRasterWatershed::Watershed &rasterizedWatershed,
-                              const ReosRasterExtent &rasterizedWatershedExtent,
-                              const QString &refLayerId ):
-  mType( type ),
-  mExtent( delineating ),
-  mDelineating( delineating ),
-  mDelineatingReferenceLayer( refLayerId ),
-  mOutletPoint( outletPoint ),
-  mDownstreamLine( downstreamLine ),
-  mStreamPath( streamPath )
+ReosWatershed::ReosWatershed(
+  const QPolygonF &delineating,
+  const QPointF &outletPoint,
+  ReosWatershed::Type type,
+  const QPolygonF &downstreamLine,
+  const QPolygonF &streamPath,
+  const ReosRasterWatershed::Watershed &rasterizedWatershed,
+  const ReosRasterExtent &rasterizedWatershedExtent,
+  const QString &refLayerId,
+  const QString &crs
+)
+  : mType( type )
+  , mExtent( delineating )
+  , mDelineating( delineating )
+  , mDelineatingReferenceLayer( refLayerId )
+  , mOutletPoint( outletPoint )
+  , mDownstreamLine( downstreamLine )
+  , mStreamPath( streamPath )
+  , mWktCrs( crs )
 {
   init();
-  RasterizedWatershedData rw{rasterizedWatershed, rasterizedWatershedExtent};
-  mRasterizedWatershedData.insert( {refLayerId, rw} );
+  RasterizedWatershedData rw { rasterizedWatershed, rasterizedWatershedExtent };
+  mRasterizedWatershedData.insert( { refLayerId, rw } );
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating,
-                              const QPointF &outletPoint,
-                              ReosWatershed::Type type,
-                              const QPolygonF &downstreamLine,
-                              const QPolygonF &streamPath,
-                              const ReosRasterWatershed::Directions &direction,
-                              const ReosRasterWatershed::Watershed &rasterizedWatershed,
-                              const ReosRasterExtent &rasterExtent,
-                              const QString &refLayerId ):
-  mType( type ),
-  mExtent( delineating ),
-  mDelineating( delineating ),
-  mDelineatingReferenceLayer( refLayerId ),
-  mOutletPoint( outletPoint ),
-  mDownstreamLine( downstreamLine ),
-  mStreamPath( streamPath )
+ReosWatershed::ReosWatershed(
+  const QPolygonF &delineating,
+  const QPointF &outletPoint,
+  ReosWatershed::Type type,
+  const QPolygonF &downstreamLine,
+  const QPolygonF &streamPath,
+  const ReosRasterWatershed::Directions &direction,
+  const ReosRasterWatershed::Watershed &rasterizedWatershed,
+  const ReosRasterExtent &rasterExtent,
+  const QString &refLayerId,
+  const QString &crs
+)
+  : mType( type )
+  , mExtent( delineating )
+  , mDelineating( delineating )
+  , mDelineatingReferenceLayer( refLayerId )
+  , mOutletPoint( outletPoint )
+  , mDownstreamLine( downstreamLine )
+  , mStreamPath( streamPath )
+  , mWktCrs( crs )
 {
   init();
-  DirectionData dir {direction, rasterExtent};
-  mDirectionData.insert( {refLayerId, dir} );
+  DirectionData dir { direction, rasterExtent };
+  mDirectionData.insert( { refLayerId, dir } );
 
-  RasterizedWatershedData rw{rasterizedWatershed, rasterExtent};
-  mRasterizedWatershedData.insert( {refLayerId, rw} );
+  RasterizedWatershedData rw { rasterizedWatershed, rasterExtent };
+  mRasterizedWatershedData.insert( { refLayerId, rw } );
 }
 
 ReosParameterString *ReosWatershed::watershedName() const
@@ -123,13 +133,13 @@ ReosInclusionType ReosWatershed::contain( const QPolygonF &line ) const
 
 bool ReosWatershed::hasDirectiondata( const QString &layerId ) const
 {
-  bool localDirectionPresent =  mDirectionData.find( layerId ) != mDirectionData.end();
+  bool localDirectionPresent = mDirectionData.find( layerId ) != mDirectionData.end();
   return localDirectionPresent || ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( layerId ) );
 }
 
 ReosRasterWatershed::Directions ReosWatershed::directions( const QString &layerId ) const
 {
-  std::map<QString, DirectionData>::const_iterator it =  mDirectionData.find( layerId );
+  std::map<QString, DirectionData>::const_iterator it = mDirectionData.find( layerId );
 
   if ( it != mDirectionData.end() )
     return it->second.directionRaster.uncompressRaster();
@@ -142,7 +152,7 @@ ReosRasterWatershed::Directions ReosWatershed::directions( const QString &layerI
 
 ReosRasterExtent ReosWatershed::directionExtent( const QString &layerId ) const
 {
-  std::map<QString, DirectionData>::const_iterator it =  mDirectionData.find( layerId );
+  std::map<QString, DirectionData>::const_iterator it = mDirectionData.find( layerId );
 
   if ( it != mDirectionData.end() )
     return it->second.directionExtent;
@@ -153,7 +163,10 @@ ReosRasterExtent ReosWatershed::directionExtent( const QString &layerId ) const
   return ReosRasterExtent();
 }
 
-QPolygonF ReosWatershed::delineating() const {return mDelineating;}
+QPolygonF ReosWatershed::delineating() const
+{
+  return mDelineating;
+}
 
 void ReosWatershed::setDelineating( const QPolygonF &del )
 {
@@ -368,7 +381,6 @@ int ReosWatershed::positionInDownstreamWatershed() const
   }
 
   return -1;
-
 }
 
 QList<ReosWatershed *> ReosWatershed::allUpstreamWatershedsFromUSToDS() const
@@ -616,16 +628,14 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element, const R
   directionDataPresent &= element.getData( QStringLiteral( "direction-extents" ), directionExtents );
   directionDataPresent &= element.getData( QStringLiteral( "direction-data" ), directionData );
 
-  directionDataPresent &= ( directionKeys.count() == directionExtents.count() &&
-                            directionExtents.count() == directionData.count() );
+  directionDataPresent &= ( directionKeys.count() == directionExtents.count() && directionExtents.count() == directionData.count() );
 
   if ( directionDataPresent )
   {
     for ( int i = 0; i < directionKeys.count(); ++i )
     {
-      DirectionData dirData{ReosRasterByteCompressed::decode( ReosEncodedElement( directionData.at( i ) ) ),
-                            ReosRasterExtent::decode( ReosEncodedElement( directionExtents.at( i ) ) )};
-      ws->mDirectionData.insert( {directionKeys.at( i ), dirData} );
+      DirectionData dirData { ReosRasterByteCompressed::decode( ReosEncodedElement( directionData.at( i ) ) ), ReosRasterExtent::decode( ReosEncodedElement( directionExtents.at( i ) ) ) };
+      ws->mDirectionData.insert( { directionKeys.at( i ), dirData } );
     }
   }
 
@@ -637,16 +647,14 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element, const R
   rasterizedDataPresent &= element.getData( QStringLiteral( "rasterized-extents" ), rasterizedExtents );
   rasterizedDataPresent &= element.getData( QStringLiteral( "rasterized-data" ), rasterizedData );
 
-  rasterizedDataPresent &= ( rasterizedKeys.count() == rasterizedExtents.count() &&
-                             rasterizedExtents.count() == rasterizedData.count() );
+  rasterizedDataPresent &= ( rasterizedKeys.count() == rasterizedExtents.count() && rasterizedExtents.count() == rasterizedData.count() );
 
   if ( rasterizedDataPresent )
   {
     for ( int i = 0; i < rasterizedKeys.count(); ++i )
     {
-      RasterizedWatershedData rasterWsData{ReosRasterByteCompressed::decode( ReosEncodedElement( rasterizedData.at( i ) ) ),
-                                           ReosRasterExtent::decode( ReosEncodedElement( rasterizedExtents.at( i ) ) )};
-      ws->mRasterizedWatershedData.insert( {rasterizedKeys.at( i ), rasterWsData} );
+      RasterizedWatershedData rasterWsData { ReosRasterByteCompressed::decode( ReosEncodedElement( rasterizedData.at( i ) ) ), ReosRasterExtent::decode( ReosEncodedElement( rasterizedExtents.at( i ) ) ) };
+      ws->mRasterizedWatershedData.insert( { rasterizedKeys.at( i ), rasterWsData } );
     }
   }
 
@@ -850,7 +858,7 @@ void ReosWatershed::updateResidual()
   if ( mUpstreamWatersheds.empty() )
     return;
 
-  if ( mUpstreamWatersheds.size() == 1 &&  mUpstreamWatersheds.at( 0 )->watershedType() == ReosWatershed::Residual )
+  if ( mUpstreamWatersheds.size() == 1 && mUpstreamWatersheds.at( 0 )->watershedType() == ReosWatershed::Residual )
   {
     mUpstreamWatersheds.clear(); //only one, the residual completly alone --> remove
     return;
@@ -864,7 +872,7 @@ void ReosWatershed::updateResidual()
 
   //Calculate the residual delineating
   QList<QPolygonF> upstreamDelineatings;
-  for ( size_t i = 1 ; i < mUpstreamWatersheds.size(); ++i )
+  for ( size_t i = 1; i < mUpstreamWatersheds.size(); ++i )
     upstreamDelineatings.append( mUpstreamWatersheds[i]->delineating() );
 
   QPolygonF residualDelineating = ReosGeometryUtils::polygonCutByPolygons( mDelineating, upstreamDelineatings );
@@ -884,9 +892,14 @@ void ReosWatershed::calculateArea()
 {
   ReosGisEngine *engine = geographicalContext();
   if ( engine )
-    mArea->setDerivedValue( engine->polygonArea( mDelineating ) );
+    mArea->setDerivedValue( engine->polygonArea( mDelineating, mWktCrs ) );
   else
-    mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
+  {
+    if ( mWktCrs.isEmpty() )
+      mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
+    else
+      mArea->setDerivedValue( ReosGisEngine::polygonAreaWithCrs( mDelineating, mWktCrs ) );
+  }
 }
 
 void ReosWatershed::calculateSlope()
@@ -1067,13 +1080,24 @@ ReosHydrographsStore *ReosWatershed::gaugedHydrographs() const
 QString ReosWatershed::crs() const
 {
   /// TODO : we need to make the watershed crs independant from the general crs.
-  if ( mGisEngine )
-    return mGisEngine->crs();
 
-  if ( mDownstreamWatershed )
-    return mDownstreamWatershed->geographicalContext()->crs();
+  if ( mWktCrs.isEmpty() )
+  {
+    if ( mDownstreamWatershed )
+    {
+      const QString dsCrs = mDownstreamWatershed->crs();
+      if ( !dsCrs.isEmpty() )
+        return mDownstreamWatershed->crs();
+    }
 
-  return QString();
+    if ( mGisEngine )
+      return mGisEngine->crs();
+
+    if ( mDownstreamWatershed )
+      return mDownstreamWatershed->geographicalContext()->crs();
+  }
+
+  return mWktCrs;
 }
 
 ReosDuration ReosWatershed::timeStepForOutputHydrograph() const

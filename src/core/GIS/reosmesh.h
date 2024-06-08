@@ -19,15 +19,15 @@
 #define SIP_NO_FILE
 
 #include <QPointF>
-#include <QVector>
 #include <QPointer>
 #include <QSet>
+#include <QVector>
 
 #include "reoscore.h"
-#include "reosrenderedobject.h"
+#include "reosduration.h"
 #include "reosencodedelement.h"
 #include "reosmeshdatasetsource.h"
-#include "reosduration.h"
+#include "reosrenderedobject.h"
 
 class ReosMeshGenerator;
 struct ReosMeshFrameData;
@@ -44,24 +44,23 @@ class ReosMeshDatasetSource;
 class ReosMesh;
 class ReosColorShaderSettings;
 
-
 class ReosMeshQualityChecker : public ReosProcess
 {
   public:
     virtual ~ReosMeshQualityChecker() {}
     struct QualityMeshResults
     {
-      QString error;
-      int errorVertex = -1;
-      int errorFace = -1;
-      QList<QPolygonF> minimumAngle;
-      QList<QPolygonF> maximumAngle;;
-      QList<QPointF> connectionCount;
-      QList<QPointF> connectionCountBoundary;
-      QList<QLineF> maximumSlope;
-      QList<QPolygonF> minimumArea;
-      QList<QPolygonF> maximumArea;
-      QList<QPolygonF> maximumAreaChange;
+        QString error;
+        int errorVertex = -1;
+        int errorFace = -1;
+        QList<QPolygonF> minimumAngle;
+        QList<QPolygonF> maximumAngle;
+        QList<QPointF> connectionCount;
+        QList<QPointF> connectionCountBoundary;
+        QList<QLineF> maximumSlope;
+        QList<QPolygonF> minimumArea;
+        QList<QPolygonF> maximumArea;
+        QList<QPolygonF> maximumAreaChange;
     };
 
     virtual QualityMeshResults result() const = 0;
@@ -69,8 +68,6 @@ class ReosMeshQualityChecker : public ReosProcess
   protected:
     mutable QualityMeshResults mResult;
 };
-
-
 
 class ReosMeshPointValue_p
 {
@@ -132,10 +129,9 @@ class ReosMeshPointValueOnVertex : public ReosMeshPointValue_p
   private:
     int mVertexIndex = -1;
     int mFaceIndex = -1;
-
 };
 
-class ReosMeshPointValueOnEdge: public ReosMeshPointValue_p
+class ReosMeshPointValueOnEdge : public ReosMeshPointValue_p
 {
   public:
     ReosMeshPointValueOnEdge( int vertexIndex1, int vertexIndex2, int face1, int face2, double posInEdge, const QPointF &point );
@@ -156,17 +152,12 @@ class ReosMeshPointValueOnEdge: public ReosMeshPointValue_p
     int mFace1 = -1;
     int mFace2 = -1;
     double mPosInEdge = 0;
-
 };
 
-class ReosMeshPointValueOnFace: public ReosMeshPointValue_p
+class ReosMeshPointValueOnFace : public ReosMeshPointValue_p
 {
   public:
-    ReosMeshPointValueOnFace( int vertexIndex1, int vertexIndex2, int vertexIndex3,
-                              int face,
-                              double lam1, double lam2, double lam3,
-                              const QPointF &point );
-
+    ReosMeshPointValueOnFace( int vertexIndex1, int vertexIndex2, int vertexIndex3, int face, double lam1, double lam2, double lam3, const QPointF &point );
 
   protected:
     double interpolateValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const override;
@@ -186,9 +177,9 @@ class ReosMeshPointValueOnFace: public ReosMeshPointValue_p
 };
 
 /**
- * Class dedicaded to embed any specific mesh data derived from ReosMeshData::Data.
- * The derived class must return a pointer to this specific data and caller
- * of ReosMeshData::data() must know the type to cast it.
+ * Class dedicaded to embed any specific mesh data derived from
+ * ReosMeshData::Data. The derived class must return a pointer to this specific
+ * data and caller of ReosMeshData::data() must know the type to cast it.
  */
 class REOSCORE_EXPORT ReosMeshData
 {
@@ -209,24 +200,23 @@ class REOSCORE_EXPORT ReosMeshData
     std::shared_ptr<Data> mData;
 };
 
-class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
+class REOSCORE_EXPORT ReosMesh : public ReosRenderedObject
 {
     Q_OBJECT
   public:
-
     struct QualityMeshParameters
     {
-      ReosParameterDouble *minimumAngle = nullptr;
-      ReosParameterDouble *maximumAngle = nullptr;
-      ReosParameterInteger *connectionCount = nullptr;
-      ReosParameterInteger *connectionCountBoundary = nullptr;
-      ReosParameterSlope *maximumSlope = nullptr;
-      ReosParameterArea *minimumArea = nullptr;
-      ReosParameterArea *maximumArea = nullptr;
-      ReosParameterDouble *maximumAreaChange = nullptr;
+        ReosParameterDouble *minimumAngle = nullptr;
+        ReosParameterDouble *maximumAngle = nullptr;
+        ReosParameterInteger *connectionCount = nullptr;
+        ReosParameterInteger *connectionCountBoundary = nullptr;
+        ReosParameterSlope *maximumSlope = nullptr;
+        ReosParameterArea *minimumArea = nullptr;
+        ReosParameterArea *maximumArea = nullptr;
+        ReosParameterDouble *maximumAreaChange = nullptr;
 
-      ReosEncodedElement encode() const;
-      void decode( const ReosEncodedElement &element, QObject *parent );
+        ReosEncodedElement encode() const;
+        void decode( const ReosEncodedElement &element, QObject *parent );
     };
 
     enum QualityMeshCheck
@@ -246,9 +236,9 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     struct WireFrameSettings
     {
-      bool enabled = false;
-      QColor color;
-      double width = 0.2;
+        bool enabled = false;
+        QColor color;
+        double width = 0.2;
     };
 
     //! Creates a new void mesh in memory
@@ -277,23 +267,25 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
 
     virtual QVector<QVector<int>> faces() const = 0;
 
-    virtual QVector<int> face( int faceIndex ) const = 0 ;
+    virtual QVector<int> face( int faceIndex ) const = 0;
 
     virtual QPointF vertexPosition( int vertexIndex, const QString &destinationCrs = QString() ) const = 0;
 
-    virtual double vertexElevation( int vertexIndex ) const = 0 ;
+    virtual double vertexElevation( int vertexIndex ) const = 0;
 
     virtual QObject *data() const = 0;
 
-    //! Returns a new instance of ReosMeshData that contains data related to the mesh frame
+    //! Returns a new instance of ReosMeshData that contains data related to the
+    //! mesh frame
     virtual ReosMeshData meshDataFrame() const = 0;
 
     //! Returns the faces that intersect the \a polyline in map coordinates
     virtual QList<ReosMeshPointValue> drapePolyline( const QPolygonF &polyline, double tolerance ) const = 0;
 
     /**
-     * Activate vertices elevation as a dataset group with \a name, returns a unique id of this dataset group.
-     */
+   * Activate vertices elevation as a dataset group with \a name, returns a
+   * unique id of this dataset group.
+   */
     virtual QString enableVertexElevationDataset( const QString &name ) = 0;
 
     //! Returns the vertices elevation dataset id
@@ -323,7 +315,8 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Returns whether the mesh has a dataset group with \a id
     virtual bool hasDatasetGroupIndex( const QString &id ) const = 0;
 
-    //! Returns a process that apply the topography collection on the mesh, caller take ownership
+    //! Returns a process that apply the topography collection on the mesh, caller
+    //! take ownership
     virtual ReosProcess *applyTopographyOnVertices( ReosTopographyCollection *topographyCollection ) = 0;
 
     //! Apply the dem on the mesh
@@ -332,10 +325,12 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Apply a constant Z value on vertices
     virtual void applyConstantZValue( double zValue, const QString &destinationCrs ) = 0;
 
-    //! Returns the value of dataset \a datasetId at position \a pos in map coordinates
+    //! Returns the value of dataset \a datasetId at position \a pos in map
+    //! coordinates
     virtual double datasetScalarValueAt( const QString &datasetId, const QPointF &pos ) const = 0;
 
-    //! Returns by reference the min max for the dataset group corresponding to \a id
+    //! Returns by reference the min max for the dataset group corresponding to \a
+    //! id
     virtual void datasetGroupMinimumMaximum( const QString &datasetId, double &min, double &max ) const = 0;
 
     //! Save the mesh frame on UGRID file with path \a dataPath
@@ -366,13 +361,14 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     //! Return the mesh frame symbology with encoded format
     virtual ReosEncodedElement wireFrameSymbology() const = 0;
 
-    virtual WireFrameSettings wireFrameSettings() const = 0 ;
+    virtual WireFrameSettings wireFrameSettings() const = 0;
 
     virtual void setWireFrameSettings( const WireFrameSettings &wireFrameSettings, bool update = true ) = 0;
 
     virtual void update3DRenderer() = 0;
 
-    //! Returns a process that check the quality of the mesh, caller take ownership
+    //! Returns a process that check the quality of the mesh, caller take
+    //! ownership
     virtual ReosMeshQualityChecker *getQualityChecker( QualityMeshChecks qualitiChecks, const QString &destinatonCrs ) const = 0;
 
     virtual void setSimulationResults( ReosHydraulicSimulationResults *result, const QString &destinationCrs ) = 0;
@@ -384,8 +380,8 @@ class REOSCORE_EXPORT ReosMesh: public ReosRenderedObject
     QualityMeshParameters qualityMeshParameters() const;
     void setQualityMeshParameter( const ReosEncodedElement &element );
 
-    void setBoundariesVertices( const QVector<QVector<int> > &vertices );
-    void setHolesVertices( const QVector<QVector<QVector<int> > > &vertices );
+    void setBoundariesVertices( const QVector<QVector<int>> &vertices );
+    void setHolesVertices( const QVector<QVector<QVector<int>>> &vertices );
 
     bool vertexIsOnBoundary( int vertexIndex ) const;
     bool vertexIsOnHoleBorder( int vertexIndex ) const;

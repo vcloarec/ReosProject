@@ -21,7 +21,8 @@
 #include "reospolygonstructure.h"
 #include "qgsmaplayerrenderer.h"
 
-ReosMapPolygonStructure_p::ReosMapPolygonStructure_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+ReosMapPolygonStructure_p::ReosMapPolygonStructure_p( QgsMapCanvas *canvas )
+  : ReosMapItem_p( canvas )
 {}
 
 ReosMapItem_p *ReosMapPolygonStructure_p::clone()
@@ -50,7 +51,7 @@ void ReosMapPolygonStructure_p::updatePosition()
 
   mBBox = QRectF( tl, br );
   mBBox = mBBox.normalized();
-  mBBox = mBBox.adjusted( - 5, -5, 5, 5 );
+  mBBox = mBBox.adjusted( -5, -5, 5, 5 );
 }
 
 QRectF ReosMapPolygonStructure_p::boundingRect() const

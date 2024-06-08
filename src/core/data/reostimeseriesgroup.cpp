@@ -17,10 +17,9 @@
 
 #include "reostimeseries.h"
 
-ReosTimeSeriesVariableTimeStepGroup::ReosTimeSeriesVariableTimeStepGroup( QObject *parent ): ReosDataObject( parent )
-{
-
-}
+ReosTimeSeriesVariableTimeStepGroup::ReosTimeSeriesVariableTimeStepGroup( QObject *parent )
+  : ReosDataObject( parent )
+{}
 
 int ReosTimeSeriesVariableTimeStepGroup::addTimeSeries( ReosTimeSeriesVariableTimeStep *timeSeries )
 {

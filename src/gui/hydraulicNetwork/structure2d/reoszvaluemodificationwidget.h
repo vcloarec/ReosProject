@@ -30,7 +30,6 @@ class ReosZValueModificationWidget : public QDialog
     Q_OBJECT
 
   public:
-
     enum ModificationType
     {
       NewValue,

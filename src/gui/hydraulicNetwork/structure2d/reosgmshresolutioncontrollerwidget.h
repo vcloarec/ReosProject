@@ -18,7 +18,7 @@
 
 #include <QWidget>
 
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 #include "reosmapitem.h"
 
 class ReosMapToolEditPolygonStructure;
@@ -40,7 +40,7 @@ class ReosGmshResolutionControllerWidget : public QWidget
     explicit ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext );
     ~ReosGmshResolutionControllerWidget();
 
-    void addToolBarActions(const QList<QAction *> &actions );
+    void addToolBarActions( const QList<QAction *> &actions );
 
   public slots:
     void updateParameters();

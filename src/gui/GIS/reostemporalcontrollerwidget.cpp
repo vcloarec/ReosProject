@@ -24,9 +24,9 @@
 #include "reossettings.h"
 
 
-ReosTemporalControllerWidget::ReosTemporalControllerWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosTemporalControllerWidget )
+ReosTemporalControllerWidget::ReosTemporalControllerWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosTemporalControllerWidget )
 {
   ui->setupUi( this );
 
@@ -46,37 +46,29 @@ ReosTemporalControllerWidget::ReosTemporalControllerWidget( QWidget *parent ) :
 
   speedWidget->setSpeedFactor( mTemporalController->speedFactor() );
 
-  connect( mTemporalController, &ReosTemporalController_p::updateTemporalRange, this, [this]( const QgsDateTimeRange & range )
-  {
-    setCurrentTime( range.begin() );
-  } );
+  connect( mTemporalController, &ReosTemporalController_p::updateTemporalRange, this, [this]( const QgsDateTimeRange &range ) { setCurrentTime( range.begin() ); } );
 
-  connect( mTemporalController, &ReosTemporalController_p::timeStepChanged, this, [this]
-  {
+  connect( mTemporalController, &ReosTemporalController_p::timeStepChanged, this, [this] {
     ui->mNextToolButton->setEnabled( mTemporalController->timeStep() != ReosDuration() );
     ui->mPreviousToolButton->setEnabled( mTemporalController->timeStep() != ReosDuration() );
   } );
 
-  connect( mTemporalController, &ReosTemporalController_p::stopped, this, [this]
-  {
+  connect( mTemporalController, &ReosTemporalController_p::stopped, this, [this] {
     ui->mPauseButton->setChecked( true );
     activatePause();
   } );
 
-  connect( ui->mPlayForwardButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mPlayForwardButton, &QToolButton::clicked, this, [this] {
     if ( ui->mPlayForwardButton->isChecked() )
       activatePlay();
   } );
 
-  connect( ui->mPlayBackButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mPlayBackButton, &QToolButton::clicked, this, [this] {
     if ( ui->mPlayBackButton->isChecked() )
       activatePlayBack();
   } );
 
-  connect( ui->mPauseButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mPauseButton, &QToolButton::clicked, this, [this] {
     if ( ui->mPauseButton->isChecked() )
       activatePause();
   } );

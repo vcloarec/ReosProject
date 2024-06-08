@@ -31,11 +31,13 @@ class ReosParameterDuration;
 class ReosParameterBoolean;
 
 
-class ReosTimeSeriesVariableTimeStepReadOnlyModel: public QAbstractTableModel
+class ReosTimeSeriesVariableTimeStepReadOnlyModel : public QAbstractTableModel
 {
     Q_OBJECT
   public:
-    ReosTimeSeriesVariableTimeStepReadOnlyModel( QObject *parent = nullptr ): QAbstractTableModel( parent ) {}
+    ReosTimeSeriesVariableTimeStepReadOnlyModel( QObject *parent = nullptr )
+      : QAbstractTableModel( parent )
+    {}
     QModelIndex index( int row, int column, const QModelIndex & ) const override;
     QModelIndex parent( const QModelIndex & ) const override;
     int rowCount( const QModelIndex & ) const override;
@@ -99,8 +101,7 @@ class ReosTimeSeriesVariableTimeStepReadOnlyTablesView : public QWidget
   public:
     ReosTimeSeriesVariableTimeStepReadOnlyTablesView( QWidget *parent = nullptr );
 
-    void setConstantTimeStepParameter( ReosParameterDuration *constantTimeSepParamater,
-                                       ReosParameterBoolean *useConstantTimeStepParameter );
+    void setConstantTimeStepParameter( ReosParameterDuration *constantTimeSepParamater, ReosParameterBoolean *useConstantTimeStepParameter );
 
     void setSeries( QList<ReosTimeSeriesVariableTimeStep *> series, const QString &unit );
     void clearSeries();

@@ -45,9 +45,10 @@ Returns wheher the instance has a registered DEM to operate
 Sets the DEM to operate
 %End
 
-    bool setDownstreamLine( const QPolygonF &downstreamLine );
+    bool setDownstreamLine( const QPolygonF &downstreamLine, const QString &lineCrs = QString() );
 %Docstring
-Sets the downstream line, return true if sucessful
+Sets the downstream line and its crs, return true if sucessful.
+If the crs is not provided, it is supposed the crs is the same than other inputs (extent or at least DEM crs)
 %End
 
     bool setPreDefinedExtent( const ReosMapExtent &extent );
@@ -130,6 +131,31 @@ Clears all the data from the delineating tool
 %End
 
     static QString staticName();
+
+    struct DelineateResult
+    {
+      ReosRasterExtent outputRasterExtent;
+      QPolygonF delineateWatershed;
+      QPolygonF streamLine;
+      double averageElevation;
+      QVector<int> distanceArea;
+    };
+
+    static DelineateResult delineateWatershed(
+      const QString &demLayerId,
+      const QString &directionFile,
+      const QPolygonF &downstreamLine,
+      const QString &dsLineCrs,
+      ReosGisEngine *gisEngine,
+      const QString &distanceClassesOutputFile = QString() );
+
+    static bool directionFromDem( const QString &demLayerId,
+                                  const ReosMapExtent &extent,
+                                  ReosGisEngine *gisEngine,
+                                  const QString &fileName,
+                                  const QString &burningLinesLayerUri = QString(),
+                                  const QString &burningLinesLayerProvider = QString() );
+
 
   signals:
     void hasBeenReset();

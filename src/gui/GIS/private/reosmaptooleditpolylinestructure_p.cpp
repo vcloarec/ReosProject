@@ -26,7 +26,7 @@
 
 
 ReosMapToolEditPolylineStructure_p::ReosMapToolEditPolylineStructure_p( QgsMapCanvas *map )
-  :  ReosMapTool_p( map )
+  : ReosMapTool_p( map )
   , mMainActions( new QActionGroup( this ) )
   , mActionAddLines( new QAction( QIcon( QStringLiteral( ":/images/addStructureLines.svg" ) ), tr( "Add Lines" ), this ) )
   , mActionAddHole( new QAction( QIcon( QStringLiteral( ":/images/addHole.svg" ) ), tr( "Add Hole" ), this ) )
@@ -279,7 +279,6 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
             mSelectLinesVertexBand->addPoint( lines.at( i ), false );
           mSelectLinesVertexBand->addPoint( lines.last(), false );
         }
-
       }
     }
     break;
@@ -328,7 +327,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
 
         if ( mActionAddBoundary->isChecked() )
         {
-          if ( mCurrentVertex  && mStructure->canBoundaryConditionBeAdded( mCurrentVertex ) )
+          if ( mCurrentVertex && mStructure->canBoundaryConditionBeAdded( mCurrentVertex ) )
           {
             mCurrentState = SelectLinesByExtremity;
             mFirstSelectedVertex = mCurrentVertex;
@@ -399,8 +398,7 @@ void ReosMapToolEditPolylineStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
     break;
     case SelectLinesByExtremity:
     {
-      if ( mFirstSelectedVertex && mCurrentVertex &&
-           mStructure->canBoundaryConditionBeAdded( mFirstSelectedVertex, mCurrentVertex ) )
+      if ( mFirstSelectedVertex && mCurrentVertex && mStructure->canBoundaryConditionBeAdded( mFirstSelectedVertex, mCurrentVertex ) )
       {
         ReosFormDialog *dial = new ReosFormDialog( mCanvas );
         ReosParameterString stringParam( tr( "Boundary condition name" ), false );
@@ -504,7 +502,7 @@ void ReosMapToolEditPolylineStructure_p::updateMovingVertexRubberBand( const Qgs
 
   for ( const QPointF &np : std::as_const( mNeighborPosition ) )
   {
-    const QgsGeometry geom( new QgsLineString( {movingPosition, QgsPointXY( np )} ) );
+    const QgsGeometry geom( new QgsLineString( { movingPosition, QgsPointXY( np ) } ) );
     mLineRubberBand->addGeometry( geom, QgsCoordinateReferenceSystem(), false );
     mVertexRubberBand->addPoint( np, false );
   }
@@ -657,10 +655,7 @@ void ReosEditPolylineStructureMenuPopulator::populateVertexAction( ReosGeometryS
   {
     menu->addAction( mToolMap->mActionRemoveVertex );
     mToolMap->mActionRemoveVertex->setEnabled( mToolMap->mStructure->vertexCanBeRemoved( vertex ) );
-    QObject::connect( mToolMap->mActionRemoveVertex, &QAction::triggered, menu, [this, vertex]
-    {
-      mToolMap->removeVertex( vertex );
-    } );
+    QObject::connect( mToolMap->mActionRemoveVertex, &QAction::triggered, menu, [this, vertex] { mToolMap->removeVertex( vertex ); } );
   }
 }
 
@@ -668,24 +663,15 @@ void ReosEditPolylineStructureMenuPopulator::populateLineAction( QgsFeatureId id
 {
   menu->addAction( mToolMap->mActionInsertVertex );
 
-  QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, point, id]
-  {
-    mToolMap->insertVertex( point, id );
-  } );
+  QObject::connect( mToolMap->mActionInsertVertex, &QAction::triggered, menu, [this, point, id] { mToolMap->insertVertex( point, id ); } );
 
   menu->addAction( mToolMap->mActionRemoveLine );
   mToolMap->mActionRemoveLine->setEnabled( mToolMap->mStructure->lineCanBeRemoved( id ) );
-  QObject::connect( mToolMap->mActionRemoveLine, &QAction::triggered, menu, [this, id]
-  {
-    mToolMap->removeLine( id );
-  } );
+  QObject::connect( mToolMap->mActionRemoveLine, &QAction::triggered, menu, [this, id] { mToolMap->removeLine( id ); } );
 }
 
 void ReosEditPolylineStructureMenuPopulator::populateHoleAction( int holeIndex, QMenu *menu )
 {
   menu->addAction( mToolMap->mActionRemoveHole );
-  QObject::connect( mToolMap->mActionRemoveHole, &QAction::triggered, menu, [this, holeIndex]
-  {
-    mToolMap->mStructure->removeHolePoint( holeIndex );
-  } );
+  QObject::connect( mToolMap->mActionRemoveHole, &QAction::triggered, menu, [this, holeIndex] { mToolMap->mStructure->removeHolePoint( holeIndex ); } );
 }

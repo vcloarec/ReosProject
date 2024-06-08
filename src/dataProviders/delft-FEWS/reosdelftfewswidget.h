@@ -19,7 +19,7 @@
 #include <QWidget>
 #include <QAbstractListModel>
 #include <QDomElement>
-#include<QPointer>
+#include <QPointer>
 
 #include "reosdataprovidergui.h"
 #include "reoshydrograph.h"
@@ -38,7 +38,7 @@ namespace Ui
   class ReosDelftFewsWidget;
 }
 
-class ReosDelftFewsStationMarker: public ReosMapMarkerFilledCircle
+class ReosDelftFewsStationMarker : public ReosMapMarkerFilledCircle
 {
   public:
     ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point );
@@ -47,12 +47,12 @@ class ReosDelftFewsStationMarker: public ReosMapMarkerFilledCircle
 
 struct ReosDelftFewsStation
 {
-  int index;
-  QString dataType() const;
-  QVariantMap meta;
+    int index;
+    QString dataType() const;
+    QVariantMap meta;
 };
 
-class ReosDelftFewsStationsModel: public QAbstractListModel
+class ReosDelftFewsStationsModel : public QAbstractListModel
 {
   public:
     ReosDelftFewsStationsModel( const QString &dataType, QObject *parent );
@@ -100,7 +100,7 @@ class ReosDelftFewsWidget : public ReosDataProviderSelectorWidget
     QString mDataType;
     ReosMapToolSelectMapItem *mMapToolSelectOnMap = nullptr;
     QAction *mActionSelectOnMap = nullptr;
-    std::vector < std::unique_ptr<ReosDelftFewsStationMarker>> mStationsMarker;
+    std::vector< std::unique_ptr<ReosDelftFewsStationMarker>> mStationsMarker;
     ReosDelftFewsStationsModel *mStationsModel = nullptr;
     QPointer<ReosHydrograph> mCurrentHydrograph = nullptr;
     QPointer<ReosSeriesRainfall> mCurrentRainfall = nullptr;

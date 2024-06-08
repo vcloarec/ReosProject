@@ -63,8 +63,7 @@ ReosTimeWindow ReosTimeWindowSettings::timeWindow( const ReosTimeWindow &input )
         endOrigin = input.end();
         break;
     }
-    return ReosTimeWindow( startOrigin.addMSecs( mStartOffset->value().valueMilliSecond() )
-                           , endOrigin.addMSecs( mEndOffset->value().valueMilliSecond() ) );
+    return ReosTimeWindow( startOrigin.addMSecs( mStartOffset->value().valueMilliSecond() ), endOrigin.addMSecs( mEndOffset->value().valueMilliSecond() ) );
   }
   else
   {

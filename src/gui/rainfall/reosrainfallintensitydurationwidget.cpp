@@ -28,8 +28,8 @@
 #include <QLayout>
 #include <QToolButton>
 
-ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIntensityDurationCurve *curve, QWidget *parent ):
-  ReosFormWidget( parent, Qt::Vertical, false )
+ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIntensityDurationCurve *curve, QWidget *parent )
+  : ReosFormWidget( parent, Qt::Vertical, false )
   , mComboFormula( new QComboBox( this ) )
   , mButtonDisplayFormula( new QToolButton( this ) )
   , mModel( new ReosIntensityDurationCurveTableModel( curve, this ) )
@@ -71,7 +71,7 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   connect( mView->verticalHeader(), &QHeaderView::sectionDoubleClicked, this, &ReosRainfallIntensityDurationWidget::onVerticalHeaderDoubleClicked );
 
   connect( mView, &QWidget::customContextMenuRequested, this, &ReosRainfallIntensityDurationWidget::onTableViewContextMenu );
-  connect( mView->verticalHeader(), &QWidget::customContextMenuRequested, this,  &ReosRainfallIntensityDurationWidget::onVerticalHeaderViewContextMenu );
+  connect( mView->verticalHeader(), &QWidget::customContextMenuRequested, this, &ReosRainfallIntensityDurationWidget::onVerticalHeaderViewContextMenu );
 
   connect( mParameterTimeUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRainfallIntensityDurationWidget::onParameterTimeUnitChanged );
   connect( mResultTimeUnitComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosRainfallIntensityDurationWidget::onResultTimeUnitChanged );
@@ -79,17 +79,15 @@ ReosRainfallIntensityDurationWidget::ReosRainfallIntensityDurationWidget( ReosIn
   mModel->setCurrentFormula( mComboFormula->currentText() );
   if ( curve )
   {
-    mParameterTimeUnitComboBox->setCurrentUnit( curve->currentParameterTimeUnit() ) ;
+    mParameterTimeUnitComboBox->setCurrentUnit( curve->currentParameterTimeUnit() );
     mResultTimeUnitComboBox->setCurrentUnit( curve->currentResultTimeUnit() );
   }
 
   connect( mButtonDisplayFormula, &QToolButton::clicked, this, &ReosRainfallIntensityDurationWidget::onDisplayingFormula );
-
 }
 
 void ReosRainfallIntensityDurationWidget::onVerticalHeaderDoubleClicked( int section )
 {
-
   QString text;
 
   std::unique_ptr<ReosParameterDuration> startParameter = std::make_unique<ReosParameterDuration>( tr( "Interval duration start:" ) );
@@ -122,12 +120,12 @@ void ReosRainfallIntensityDurationWidget::onVerticalHeaderDoubleClicked( int sec
   dial->addParameter( startParameter.get() );
   dial->addParameter( endParameter.get() );
 
-  if ( ! dial->exec() )
+  if ( !dial->exec() )
     return;
 
   bool result = false;
   if ( newInterval )
-    result = mModel->curve()->addInterval( startParameter->value(), endParameter->value() ) ;
+    result = mModel->curve()->addInterval( startParameter->value(), endParameter->value() );
   else
     result = mModel->curve()->setIntervalValue( section, startParameter->value(), endParameter->value() );
 
@@ -152,7 +150,6 @@ void ReosRainfallIntensityDurationWidget::onParameterTimeUnitChanged()
 {
   if ( mModel->curve() )
     mModel->curve()->setCurrentParameterTimeUnit( mParameterTimeUnitComboBox->currentUnit() );
-
 }
 
 void ReosRainfallIntensityDurationWidget::onResultTimeUnitChanged()
@@ -198,17 +195,13 @@ void ReosRainfallIntensityDurationWidget::contextMenu( const QPoint &globalPos, 
   if ( row >= 0 && row < mModel->curve()->intervalCount() )
   {
     QMenu contextMenu;
-    contextMenu.addAction( tr( "Remove interval" ), &contextMenu, [this, row]
-    {
-      if ( QMessageBox::warning( this, tr( "Remove interval" ), tr( "Do you want to remove the interval?" ), QMessageBox::No | QMessageBox::Yes, QMessageBox::No ) ==
-           QMessageBox::Yes )
+    contextMenu.addAction( tr( "Remove interval" ), &contextMenu, [this, row] {
+      if ( QMessageBox::warning( this, tr( "Remove interval" ), tr( "Do you want to remove the interval?" ), QMessageBox::No | QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes )
       {
         mModel->curve()->removeInterval( row );
       }
-
     } );
 
     contextMenu.exec( globalPos );
   }
 }
-

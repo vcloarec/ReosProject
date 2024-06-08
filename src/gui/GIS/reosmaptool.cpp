@@ -22,11 +22,12 @@ email                : vcloarec at gmail dot com
 #include "reosmappolygon_p.h"
 #include "reosapplication.h"
 
-ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map ): ReosMapToolDrawPolyline( map, map )
-{
-}
+ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( ReosMap *map )
+  : ReosMapToolDrawPolyline( map, map )
+{}
 
-ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, false )
+ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( QObject *parent, ReosMap *map )
+  : ReosMapToolDrawPolyRubberBand( parent, map, false )
 {
   d->setCursor( QCursor( QStringLiteral( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolyline::drawn );
@@ -35,10 +36,12 @@ ReosMapToolDrawPolyline::ReosMapToolDrawPolyline( QObject *parent, ReosMap *map 
 }
 
 
-ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( ReosMap *map ): ReosMapToolDrawPolygon( map, map )
+ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( ReosMap *map )
+  : ReosMapToolDrawPolygon( map, map )
 {}
 
-ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( QObject *parent, ReosMap *map ): ReosMapToolDrawPolyRubberBand( parent, map, true )
+ReosMapToolDrawPolygon::ReosMapToolDrawPolygon( QObject *parent, ReosMap *map )
+  : ReosMapToolDrawPolyRubberBand( parent, map, true )
 {
   d->setCursor( QCursor( QStringLiteral( ":/cursors/linearDrawing.png" ), 3, 3 ) );
   connect( d, &ReosMapToolDrawPolyline_p::polylineDrawn, this, &ReosMapToolDrawPolygon::drawn );
@@ -72,7 +75,7 @@ bool ReosMapTool::isCurrentToolInMap() const
 void ReosMapTool::setAction( QAction *action )
 {
   tool_p()->setAction( action );
-  connect( action, &QAction::triggered, this, [this]() {setCurrentToolInMap();} );
+  connect( action, &QAction::triggered, this, [this]() { setCurrentToolInMap(); } );
 }
 
 void ReosMapTool::setCursor( const QCursor &cursor )
@@ -100,7 +103,8 @@ void ReosMapTool::setSearchItemWhenMoving( bool b )
   tool_p()->setSeachWhenMoving( b );
 }
 
-ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( QObject *parent, ReosMap *map, bool closed ): ReosMapTool( parent, map )
+ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( QObject *parent, ReosMap *map, bool closed )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPolyline_p( canvas, closed );
@@ -108,7 +112,8 @@ ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( QObject *parent, R
   setUp();
 }
 
-ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed ): ReosMapToolDrawPolyRubberBand( map, map, closed )
+ReosMapToolDrawPolyRubberBand::ReosMapToolDrawPolyRubberBand( ReosMap *map, bool closed )
+  : ReosMapToolDrawPolyRubberBand( map, map, closed )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPolyline_p( canvas, closed );
@@ -205,10 +210,12 @@ QString ReosMapTool::crs() const
 }
 
 
-ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map ): ReosMapToolDrawExtent( map, map )
+ReosMapToolDrawExtent::ReosMapToolDrawExtent( ReosMap *map )
+  : ReosMapToolDrawExtent( map, map )
 {}
 
-ReosMapToolDrawExtent::ReosMapToolDrawExtent( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolDrawExtent::ReosMapToolDrawExtent( QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawExtent_p( canvas );
@@ -286,7 +293,8 @@ ReosMapTool_p *ReosMapToolSelectMapItem::tool_p() const
   return d;
 }
 
-ReosMapToolDrawPoint::ReosMapToolDrawPoint( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolDrawPoint::ReosMapToolDrawPoint( QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawPoint_p( canvas );
@@ -295,7 +303,8 @@ ReosMapToolDrawPoint::ReosMapToolDrawPoint( QObject *parent, ReosMap *map ): Reo
   setUp();
 }
 
-ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map ): ReosMapToolDrawPoint( map, map )
+ReosMapToolDrawPoint::ReosMapToolDrawPoint( ReosMap *map )
+  : ReosMapToolDrawPoint( map, map )
 {}
 
 ReosMapToolDrawPoint::~ReosMapToolDrawPoint()
@@ -309,11 +318,12 @@ ReosMapTool_p *ReosMapToolDrawPoint::tool_p() const
   return d;
 }
 
-ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map ): ReosMapToolNeutral( map, map )
-{
-}
+ReosMapToolNeutral::ReosMapToolNeutral( ReosMap *map )
+  : ReosMapToolNeutral( map, map )
+{}
 
-ReosMapToolNeutral::ReosMapToolNeutral( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolNeutral::ReosMapToolNeutral( QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapTool_p( canvas );
@@ -331,10 +341,12 @@ ReosMapTool_p *ReosMapToolNeutral::tool_p() const
   return d;
 }
 
-ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map ): ReosMapToolEditMapPolyline( map, map )
+ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( ReosMap *map )
+  : ReosMapToolEditMapPolyline( map, map )
 {}
 
-ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolEditMapPolyline::ReosMapToolEditMapPolyline( QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolygon_p( canvas );
@@ -366,10 +378,12 @@ ReosMapTool_p *ReosMapToolEditMapPolyline::tool_p() const
   return d;
 }
 
-ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map ): ReosMapToolEditMapPolygon( map, map )
+ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( ReosMap *map )
+  : ReosMapToolEditMapPolygon( map, map )
 {}
 
-ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolEditMapPolygon::ReosMapToolEditMapPolygon( QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolEditPolygon_p( canvas );
@@ -401,10 +415,12 @@ ReosMapTool_p *ReosMapToolEditMapPolygon::tool_p() const
   return d;
 }
 
-ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( ReosMap *map ): ReosMapToolMoveMapItem( map, map )
+ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( ReosMap *map )
+  : ReosMapToolMoveMapItem( map, map )
 {}
 
-ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( QObject *parent, ReosMap *map ): ReosMapTool( parent, map )
+ReosMapToolMoveMapItem::ReosMapToolMoveMapItem( QObject *parent, ReosMap *map )
+  : ReosMapTool( parent, map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolMoveItem_p( canvas );

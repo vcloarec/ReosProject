@@ -64,12 +64,12 @@ class ReosPositiveMagnifier : public ReosNormalMagnifier
 
 class ReosDateScaleDraw_p : public QwtDateScaleDraw
 {
-  public :
+  public:
     ReosDateScaleDraw_p( Qt::TimeSpec timeSpec = Qt::LocalTime );
     void drawLabel( QPainter *painter, double value ) const override; //Method override because bad align center with qwt
 };
 
-class ReosPlot_p: public QwtPlot
+class ReosPlot_p : public QwtPlot
 {
     Q_OBJECT
   public:
@@ -130,7 +130,7 @@ class ReosPlot_p: public QwtPlot
 };
 
 
-class ReosPlotConstantIntervalTimeIntervalSerie: public QwtSeriesData<QwtIntervalSample>
+class ReosPlotConstantIntervalTimeIntervalSerie : public QwtSeriesData<QwtIntervalSample>
 {
   public:
     ReosPlotConstantIntervalTimeIntervalSerie( ReosTimeSeriesConstantInterval *timeSeries );
@@ -146,7 +146,7 @@ class ReosPlotConstantIntervalTimeIntervalSerie: public QwtSeriesData<QwtInterva
 };
 
 
-class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
+class ReosPlotConstantIntervalTimePointSerie : public QwtSeriesData<QPointF>
 {
   public:
     ReosPlotConstantIntervalTimePointSerie( ReosTimeSeriesConstantInterval *timeSeries );
@@ -161,10 +161,10 @@ class ReosPlotConstantIntervalTimePointSerie: public QwtSeriesData<QPointF>
   private:
     QPointer<ReosTimeSeriesConstantInterval> mTimeSerie;
     bool mIsCumulative = false;
-    ReosTimeSeriesConstantInterval::ValueMode mValueMode = ReosTimeSeriesConstantInterval::Value ;
+    ReosTimeSeriesConstantInterval::ValueMode mValueMode = ReosTimeSeriesConstantInterval::Value;
 };
 
-class ReosPlotVariableStepTimeSerie: public  QwtSeriesData<QPointF>
+class ReosPlotVariableStepTimeSerie : public QwtSeriesData<QPointF>
 {
   public:
     ReosPlotVariableStepTimeSerie( ReosTimeSeriesVariableTimeStep *timeSeries );
@@ -180,10 +180,12 @@ class ReosPlotVariableStepTimeSerie: public  QwtSeriesData<QPointF>
 };
 
 
-class ReosPlotHistogramItem_p: public QwtPlotHistogram
+class ReosPlotHistogramItem_p : public QwtPlotHistogram
 {
   public:
-    ReosPlotHistogramItem_p( const QString &title ): QwtPlotHistogram( title ) {}
+    ReosPlotHistogramItem_p( const QString &title )
+      : QwtPlotHistogram( title )
+    {}
     QwtGraphic legendIcon( int, const QSizeF &size ) const override;
 };
 

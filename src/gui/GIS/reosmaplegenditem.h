@@ -41,7 +41,6 @@ class ReosColorRampMapLegendItem : public QGraphicsItem
     double mRampBoxWidth = 4.0;
     double mDistLabelFromItem = 5.0;
     QRectF mBoundingRect;
-
 };
 
 #endif // REOSMAPLEGENDITEM_H

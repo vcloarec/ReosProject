@@ -38,7 +38,7 @@ class ReosRendererObjectMapTimeStamp
     virtual bool equal( ReosRendererObjectMapTimeStamp *other ) = 0;
 };
 
-class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
+class REOSCORE_EXPORT ReosObjectRenderer : public ReosProcess
 {
     Q_OBJECT
   public:
@@ -76,18 +76,16 @@ class REOSCORE_EXPORT ReosObjectRenderer: public ReosProcess
     QPointer<ReosRenderedObject> mObject;
     QRectF mExtent;
     std::unique_ptr<ReosRendererObjectMapTimeStamp> mMapTimeStamp;
-
 };
 #endif //SIP_RUN
 
 /**
  * Base classe of data object rendered on the map (for example mesh)
  */
-class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject  SIP_ABSTRACT
+class REOSCORE_EXPORT ReosRenderedObject : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
-
     //! Constructor
     ReosRenderedObject( QObject *parent = nullptr );
 
@@ -101,18 +99,18 @@ class REOSCORE_EXPORT ReosRenderedObject: public ReosDataObject  SIP_ABSTRACT
      * Creates an instance of a map time stamp that is used to recognize identical time step rendering for the specific rendered object
      * The caller takes ownership of the instance.
      */
-    virtual ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const  SIP_SKIP = 0;
+    virtual ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const SIP_SKIP = 0;
 
     /**
      * Creates an instance of an onject renderer, caller take ownership of the new instance.
      */
-    virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings )  SIP_SKIP = 0;
+    virtual ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) SIP_SKIP = 0;
 
     //! Returns all the color shader settings handled by this object
-    virtual QList<ReosColorShaderSettings *> colorShaderSettings() const  SIP_SKIP = 0;
+    virtual QList<ReosColorShaderSettings *> colorShaderSettings() const SIP_SKIP = 0;
 
     //! Returns the extent of the rendered object
-    virtual ReosMapExtent extent() const  SIP_SKIP = 0;
+    virtual ReosMapExtent extent() const SIP_SKIP = 0;
 
     //! Updates internal cache
     virtual void updateInternalCache( ReosObjectRenderer *renderer ) SIP_SKIP {}

@@ -68,7 +68,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
 
     QPointer<ReosMesh> mReosMesh;
     QPointer<QgsMeshLayer> mMeshLayer;
-    QPointer < QgsMeshEditor> mMeshEditor;
+    QPointer< QgsMeshEditor> mMeshEditor;
     QActionGroup *mMainActions = nullptr;
     QAction *mActionEditMesh = nullptr;
     QAction *mActionSelectElementByPolygon = nullptr;
@@ -80,7 +80,7 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
 
     int mCurrentFaceIndex = -1;
     int mCurrentVertexIndex = -1;
-    Edge mCurrentEdge = {-1, -1};
+    Edge mCurrentEdge = { -1, -1 };
     double mUserZValue = 0;
 
     void highLight( const QgsPointXY &mapPoint );
@@ -122,14 +122,14 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     bool mLeftButtonPressed = false;
     bool mDoubleClicks = false;
 
-    double currentZValue() {return 0;}
+    double currentZValue() { return 0; }
     void addVertex( const QgsPointXY &mapPoint, const QgsPointLocator::Match &mapPointMatch );
 
     struct SelectedVertexData
     {
-      //Here edges are the indexes of the face where the following vertices (ccw) is the other extremity of the edge
-      QList<Edge> meshFixedEdges; // that have one extremity not on the selection
-      QList<Edge> borderEdges; // that are on the border of the selection
+        //Here edges are the indexes of the face where the following vertices (ccw) is the other extremity of the edge
+        QList<Edge> meshFixedEdges; // that have one extremity not on the selection
+        QList<Edge> borderEdges;    // that are on the border of the selection
     };
 
     QMap<int, SelectedVertexData> mSelectedVertices;
@@ -154,7 +154,6 @@ class ReosMapToolEditMeshFrame_p : public ReosMapTool_p
     void clearEdgeHelpers();
 
     void startMeshEditing();
-
 };
 
 #endif // REOSMAPTOOLEDITMESHFRAME_P_H

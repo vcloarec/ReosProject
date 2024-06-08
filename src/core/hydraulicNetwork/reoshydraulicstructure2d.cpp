@@ -15,7 +15,10 @@
  ***************************************************************************/
 #include "reoshydraulicstructure2d.h"
 #include "reosmeshgenerator.h"
-#include "reosgmshgenerator.h"
+#include "reospolygonstructure.h"
+#ifdef WITH_GMSH
+#include "gmsh/reosgmshgenerator.h"
+#endif //WITH_GMSH
 #include "reostopographycollection.h"
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructureboundarycondition.h"
@@ -37,7 +40,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mCapabilities( GeometryEditable | MultiSimulation )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
+#ifdef WITH_GMSH
   , mMeshGenerator( new ReosGmshGenerator( this ) )
+#endif //WITH_GMSH
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
@@ -47,9 +52,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   initConnection();
 }
 
-ReosHydraulicStructure2D::ReosHydraulicStructure2D(
-  const ReosEncodedElement &encodedElement,
-  const ReosHydraulicNetworkContext &context )
+ReosHydraulicStructure2D::ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( encodedElement, context.network() )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
@@ -58,7 +61,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
 {
   // Before all, load cababilities
   if ( !encodedElement.getData( QStringLiteral( "capabilities" ), mCapabilities ) )
-    mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation ) ;
+    mCapabilities = Structure2DCapabilities( GeometryEditable | MultiSimulation );
 
   std::unique_ptr<ReosStructureImporter> importer;
   // Load base geometry (structure line  + mesh)
@@ -67,8 +70,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
     if ( encodedElement.hasEncodedData( QStringLiteral( "structure-importer" ) ) )
     {
       mStructureImporterSource.reset(
-        ReosSimulationEngineRegistery::instance()->createStructureImporterSource(
-          encodedElement.getEncodedData( QStringLiteral( "structure-importer" ) ), mNetwork->context() ) );
+        ReosSimulationEngineRegistery::instance()->createStructureImporterSource( encodedElement.getEncodedData( QStringLiteral( "structure-importer" ) ), mNetwork->context() )
+      );
 
       importer.reset( mStructureImporterSource->createImporter() );
     }
@@ -98,11 +101,14 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-generator" ) ) )
     mMeshGenerator = ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this );
   else if ( hasCapability( GeometryEditable ) )
+#ifdef WITH_GMSH
     mMeshGenerator = new ReosGmshGenerator( this );
+#else
+    mMeshGenerator = nullptr;
+#endif // WITH_GMSH
 
   if ( encodedElement.hasEncodedData( QStringLiteral( "topography-collection" ) ) )
-    mTopographyCollection = ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ),
-                            context.network()->gisEngine(), this );
+    mTopographyCollection = ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ), context.network()->gisEngine(), this );
   else if ( hasCapability( GeometryEditable ) )
     mTopographyCollection = ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this );
 
@@ -182,7 +188,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   mMesh->activateVectorDataset( currentActivatedVectorMeshDataset, true );
 
   if ( !encodedElement.getData( QStringLiteral( "mesh-need-to-be-generated" ), mMeshNeedToBeGenerated ) )
-    mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );;
+    mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
+  ;
 
   mProfilesCollection->decode( encodedElement.getEncodedData( "profiles-collection" ), this );
 }
@@ -361,20 +368,11 @@ ReosModule::Message ReosHydraulicStructure2D::exportResultAsMeshInGisProject( Re
     return message;
   }
 
-  mNetwork->gisEngine()->addMeshLayerToExistingProject(
-    fileName,
-    meshName,
-    meshFileName,
-    mMesh->wireFrameSymbology(),
-    scalarSymbologies,
-    vectorSymbologies,
-    timeStep,
-    message );
+  mNetwork->gisEngine()->addMeshLayerToExistingProject( fileName, meshName, meshFileName, mMesh->wireFrameSymbology(), scalarSymbologies, vectorSymbologies, timeStep, message );
 
   if ( message.type == ReosModule::Simple )
   {
-    message.addText( tr( "Hydraulic scheme \"%1\" of hydraulic structure \"%2\" successfully exported." ).
-                     arg( scheme->schemeName()->value(), elementNameParameter()->value() ) );
+    message.addText( tr( "Hydraulic scheme \"%1\" of hydraulic structure \"%2\" successfully exported." ).arg( scheme->schemeName()->value(), elementNameParameter()->value() ) );
   }
   mNetwork->message( message, false );
   return message;
@@ -391,7 +389,7 @@ QString ReosHydraulicStructure2D::currentActivatedVectorMeshDataset() const
 {
   if ( !mMesh )
     return QString();
-  return  mMesh->currentdVectorDatasetId();
+  return mMesh->currentdVectorDatasetId();
 }
 
 ReosHydraulicSimulationResults::DatasetType ReosHydraulicStructure2D::currentActivatedDatasetResultType() const
@@ -516,7 +514,6 @@ ReosHydraulicSimulation *ReosHydraulicStructure2D::currentSimulation() const
     return nullptr;
 
   return mSimulations.at( mCurrentSimulationIndex );
-
 }
 
 int ReosHydraulicStructure2D::currentSimulationIndex() const
@@ -751,7 +748,9 @@ ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProces
   return new ReosSimulationPreparationProcess( this, currentSimulation(), simData, context );
 }
 
-ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation( const ReosSimulationData &simData, const ReosCalculationContext &context, ReosModule::Message &message, const QDir &directory )
+ReosSimulationPreparationProcess *ReosHydraulicStructure2D::getPreparationProcessSimulation(
+  const ReosSimulationData &simData, const ReosCalculationContext &context, ReosModule::Message &message, const QDir &directory
+)
 {
   std::unique_ptr<ReosSimulationPreparationProcess> ret( getPreparationProcessSimulation( simData, context, message ) );
   ret->setDestination( directory );
@@ -784,8 +783,7 @@ ReosSimulationProcess *ReosHydraulicStructure2D::createSimulationProcess( const 
 
   ReosSimulationProcess *process = mSimulationProcesses.emplace( schemeId, sim->getProcess( context ) ).first->second.get();
 
-  connect( process, &ReosProcess::finished, sim, [this, sim, schemeId]
-  {
+  connect( process, &ReosProcess::finished, sim, [this, sim, schemeId] {
     auto it = mSimulationProcesses.find( schemeId );
     if ( it != mSimulationProcesses.end() )
     {
@@ -798,7 +796,6 @@ ReosSimulationProcess *ReosHydraulicStructure2D::createSimulationProcess( const 
 
       emit simulationFinished( success );
     }
-
   } );
 
   return process;
@@ -856,10 +853,7 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
   }
   std::unique_ptr<QEventLoop> loop( new QEventLoop );
   connect( preparationProcess.get(), &ReosProcess::finished, loop.get(), &QEventLoop::quit );
-  connect( preparationProcess.get(), &ReosProcess::sendInformation, this, [&]( const QString & mess )
-  {
-    txtStream << mess << Qt::endl;
-  } );
+  connect( preparationProcess.get(), &ReosProcess::sendInformation, this, [&]( const QString &mess ) { txtStream << mess << Qt::endl; } );
   preparationProcess->startOnOtherThread();
   loop->exec();
 
@@ -884,15 +878,11 @@ bool ReosHydraulicStructure2D::runSimulation( const ReosCalculationContext &cont
 
   loop.reset( new QEventLoop );
   bool isSuccess;
-  connect( this, &ReosHydraulicStructure2D::simulationFinished, loop.get(), [&]( bool success )
-  {
+  connect( this, &ReosHydraulicStructure2D::simulationFinished, loop.get(), [&]( bool success ) {
     isSuccess = success;
     loop->quit();
   } );
-  connect( process, &ReosProcess::sendInformation, this, [&]( const QString & mess )
-  {
-    txtStream << mess << Qt::endl;
-  } );
+  connect( process, &ReosProcess::sendInformation, this, [&]( const QString &mess ) { txtStream << mess << Qt::endl; } );
 
   process->startOnOtherThread();
   loop->exec();
@@ -960,10 +950,7 @@ int ReosHydraulicStructure2D::resultsTimeStepCount( const QString &schemeId ) co
   return 0;
 }
 
-double ReosHydraulicStructure2D::resultsValueAt( const QDateTime &time,
-    const ReosSpatialPosition &position,
-    ReosHydraulicSimulationResults::DatasetType datasetType,
-    const QString &schemeId )
+double ReosHydraulicStructure2D::resultsValueAt( const QDateTime &time, const ReosSpatialPosition &position, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId )
 {
   if ( mSimulationResults.contains( schemeId ) )
   {
@@ -984,12 +971,8 @@ QString ReosHydraulicStructure2D::resultsUnits( ReosHydraulicSimulationResults::
 }
 
 bool ReosHydraulicStructure2D::rasterizeResult(
-  const QDateTime &time,
-  ReosHydraulicSimulationResults::DatasetType datasetType,
-  const QString &schemeId,
-  const QString &fileName,
-  const QString &destinationCrs,
-  double resolution )
+  const QDateTime &time, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId, const QString &fileName, const QString &destinationCrs, double resolution
+)
 {
   if ( mSimulationResults.contains( schemeId ) )
   {
@@ -1089,8 +1072,7 @@ void ReosHydraulicStructure2D::initConnection()
     mMesh->setVerticaleSCale( m3dMapSettings.verticalExaggeration() );
   }
 
-  connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this]
-  {
+  connect( mPolylinesStructures.get(), &ReosDataObject::dataChanged, this, [this] {
     mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
     if ( mMeshGenerator && mMeshGenerator->autoUpdateParameter()->value() )
       generateMeshInPlace();
@@ -1101,8 +1083,7 @@ void ReosHydraulicStructure2D::initConnection()
 
   if ( mMeshResolutionController )
   {
-    connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this]
-    {
+    connect( mMeshResolutionController, &ReosDataObject::dataChanged, this, [this] {
       mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
       if ( mMeshGenerator && mMeshGenerator->autoUpdateParameter()->value() )
         generateMeshInPlace();
@@ -1111,8 +1092,7 @@ void ReosHydraulicStructure2D::initConnection()
 
   if ( mMeshGenerator )
   {
-    connect( mMeshGenerator, &ReosDataObject::dataChanged, this, [this]
-    {
+    connect( mMeshGenerator, &ReosDataObject::dataChanged, this, [this] {
       if ( mMeshGenerator->autoUpdateParameter()->value() )
         generateMeshInPlace();
     } );
@@ -1120,8 +1100,7 @@ void ReosHydraulicStructure2D::initConnection()
 
   if ( mMesh && mTopographyCollection )
   {
-    connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollection, [this]
-    {
+    connect( this, &ReosHydraulicStructure2D::meshGenerated, mTopographyCollection, [this] {
       if ( mTopographyCollection->autoApply()->value() )
       {
         std::unique_ptr<ReosProcess> process( mMesh->applyTopographyOnVertices( mTopographyCollection ) );
@@ -1173,8 +1152,7 @@ ReosMeshGenerator *ReosHydraulicStructure2D::meshGenerator() const
 
 void ReosHydraulicStructure2D::generateMesh()
 {
-  std::unique_ptr<ReosMeshGeneratorProcess> process(
-    mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController, mMesh->crs() ) );
+  std::unique_ptr<ReosMeshGeneratorProcess> process( mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController, mMesh->crs() ) );
   process->start();
   removeAllResults();
   onMeshGenerated( process->meshResult() );
@@ -1202,12 +1180,10 @@ ReosMesh *ReosHydraulicStructure2D::mesh() const
 
 ReosMeshGeneratorProcess *ReosHydraulicStructure2D::getGenerateMeshProcess()
 {
-  std::unique_ptr<ReosMeshGeneratorProcess> process(
-    mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController, mMesh->crs() ) );
+  std::unique_ptr<ReosMeshGeneratorProcess> process( mMeshGenerator->getGenerateMeshProcess( mPolylinesStructures.get(), mMeshResolutionController, mMesh->crs() ) );
   ReosMeshGeneratorProcess *processP = process.get();
 
-  connect( processP, &ReosProcess::finished, this, [this, processP]
-  {
+  connect( processP, &ReosProcess::finished, this, [this, processP] {
     if ( mMesh && processP->isSuccessful() )
     {
       removeAllResults();
@@ -1226,9 +1202,8 @@ ReosSimulationData ReosHydraulicStructure2D::simulationData( const QString &sche
 
   if ( !mBoundaryVertices.isEmpty() )
   {
-
     int boundarySegCount = mPolylinesStructures->boundary().count();
-    Q_ASSERT( mBoundaryVertices.count() ==  boundarySegCount );
+    Q_ASSERT( mBoundaryVertices.count() == boundarySegCount );
 
     QVector<ReosSimulationData::BoundaryVertices> vertexToCondition( boundarySegCount );
 
@@ -1372,8 +1347,7 @@ void ReosHydraulicStructure2D::setResultsOnStructure( ReosHydraulicSimulationRes
 
     for ( ReosHydraulicStructureBoundaryCondition *bc : boundaries )
     {
-      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel ||
-           bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally )
+      if ( bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::OutputLevel || bc->conditionType() == ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally )
       {
         bc->outputHydrograph()->clear();
         if ( outputHydrographs.contains( bc->boundaryConditionId() ) )
@@ -1393,9 +1367,7 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
   QElapsedTimer timer;
   timer.start();
 
-  if ( !mSimulationResults.contains( schemeId ) &&
-       currentSimulation() &&
-       currentSimulation()->hasResult( schemeId ) )
+  if ( !mSimulationResults.contains( schemeId ) && currentSimulation() && currentSimulation()->hasResult( schemeId ) )
     loadResult( currentSimulation(), schemeId );
 
   if ( mCurrentResult != mSimulationResults.value( schemeId ) )
@@ -1403,7 +1375,6 @@ void ReosHydraulicStructure2D::updateResults( const QString &schemeId )
     mCurrentResult = mSimulationResults.value( schemeId );
     setResultsOnStructure( mCurrentResult );
   }
-
 }
 
 ReosSimulationProcess *ReosHydraulicStructure2D::processFromScheme( const QString &schemeId ) const
@@ -1454,8 +1425,7 @@ ReosHydraulicStructure2D *ReosHydraulicStructure2D::create( ReosStructureImporte
   }
 
   ReosGisEngine *gisEngine = context.network()->gisEngine();
-  bool takeCrs = context.network()->elementsCount() == 0 &&
-                 gisEngine->layersCount() == 0;
+  bool takeCrs = context.network()->elementsCount() == 0 && gisEngine->layersCount() == 0;
 
   std::unique_ptr<ReosHydraulicStructure2D> elem( new ReosHydraulicStructure2D( structureImporter, context ) );
   context.network()->addElement( elem.get(), true );
@@ -1521,7 +1491,7 @@ ReosDuration ReosHydraulicStructure2D::currentElementTimeStep() const
 {
   if ( mCurrentSimulationIndex >= 0 && mSimulations.at( mCurrentSimulationIndex ) )
   {
-    return  mSimulations.at( mCurrentSimulationIndex )->representativeTimeStep();
+    return mSimulations.at( mCurrentSimulationIndex )->representativeTimeStep();
   }
 
   return ReosDuration( qint64( 0 ) );
@@ -1531,7 +1501,7 @@ ReosDuration ReosHydraulicStructure2D::mapTimeStep() const
 {
   if ( mCurrentSimulationIndex >= 0 && mSimulations.at( mCurrentSimulationIndex ) )
   {
-    return  mSimulations.at( mCurrentSimulationIndex )->representative2DTimeStep();
+    return mSimulations.at( mCurrentSimulationIndex )->representative2DTimeStep();
   }
 
   return ReosDuration();
@@ -1541,9 +1511,7 @@ ReosTimeWindow ReosHydraulicStructure2D::timeWindow() const
 {
   ReosTimeWindow tw;
 
-  if ( hasCapability( ReosHydraulicStructure2D::DefinedExternally ) &&
-       mTimeWindowSettings->useExternalDefinedTimeWindow()->value() &&
-       mCurrentSimulationIndex >= 0 )
+  if ( hasCapability( ReosHydraulicStructure2D::DefinedExternally ) && mTimeWindowSettings->useExternalDefinedTimeWindow()->value() && mCurrentSimulationIndex >= 0 )
   {
     return mSimulations.at( mCurrentSimulationIndex )->externalTimeWindow();
   }
@@ -1632,4 +1600,3 @@ ReosPolygonStructure *ReosRoughnessStructure::structure() const
 {
   return mStructure.get();
 }
-

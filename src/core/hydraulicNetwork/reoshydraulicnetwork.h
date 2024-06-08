@@ -17,7 +17,7 @@
 #define REOSHYDRAULICNETWORK_H
 
 
-#include<memory>
+#include <memory>
 #include <QPointer>
 #include <QHash>
 
@@ -42,14 +42,14 @@ class ReosMeteorologicModel;
 
 struct REOSCORE_EXPORT ReosHydraulicNetworkElementCompatibilty
 {
-  bool isCompatible = true;
-  QStringList incompatibilityReasons;
+    bool isCompatible = true;
+    QStringList incompatibilityReasons;
 
-  void combine( const ReosHydraulicNetworkElementCompatibilty &other )
-  {
-    incompatibilityReasons.append( other.incompatibilityReasons );
-    isCompatible &= other.isCompatible;
-  }
+    void combine( const ReosHydraulicNetworkElementCompatibilty &other )
+    {
+      incompatibilityReasons.append( other.incompatibilityReasons );
+      isCompatible &= other.isCompatible;
+    }
 };
 
 #endif //No SIP_RUN
@@ -76,7 +76,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
         sipType = sipType_ReosHydrographJunction;
       }
     }
-    SIP_END
+  SIP_END
 #endif
 
   public:
@@ -88,8 +88,8 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     ReosHydraulicNetworkElement( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr ) SIP_SKIP;
     virtual ~ReosHydraulicNetworkElement();
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return QStringLiteral( "hydraulicNetwork" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return QStringLiteral( "hydraulicNetwork" ); }
 
     //! Returns the element name parameter
     ReosParameterString *elementNameParameter() const SIP_SKIP;
@@ -98,7 +98,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     QString elementName() const;
 
     //! Returns the defautl base name of the element
-    virtual QString defaultDisplayName() const {return type();}
+    virtual QString defaultDisplayName() const { return type(); }
 
     //! Destroy the element (the instance will be deleted later).
     virtual void destroy();
@@ -113,13 +113,13 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     ReosParameterBoolean *useConstantTimeStepInTable() const SIP_SKIP;
 
     //! Returns whether calculation is in progress, default implementation returns false
-    virtual bool calculationInProgress() const {return false;}
+    virtual bool calculationInProgress() const { return false; }
 
     //! Returns the maximum progression of calculation
-    virtual int calculationMaxProgression() const {return 0;}
+    virtual int calculationMaxProgression() const { return 0; }
 
     //! Returns the progression of calculation
-    virtual int calculationProgression() const {return 0;}
+    virtual int calculationProgression() const { return 0; }
 
     ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const SIP_SKIP;
 
@@ -130,10 +130,10 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     ReosModule::Message lastMessage() const;
 
     //! Returns whether the element is auto selectable on a map
-    virtual bool isAutoSelectable() const {return true;}
+    virtual bool isAutoSelectable() const { return true; }
 
     //! Returns whether the element us removable
-    virtual bool isRemovable() const {return true;}
+    virtual bool isRemovable() const { return true; }
 
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const SIP_SKIP;
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) SIP_SKIP;
@@ -157,7 +157,7 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     virtual ReosMapExtent extent() const = 0;
 
     //! Returns a icon representing the element
-    virtual QIcon icon() const {return QIcon();}
+    virtual QIcon icon() const { return QIcon(); }
 
     //! Returns information about the compatibilty of this element with the \a scheme
     virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const SIP_SKIP;
@@ -174,10 +174,9 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     void mapTimeStepChanged();
 
   protected:
-
 #ifndef SIP_RUN
     QPointer<ReosHydraulicNetwork> mNetwork = nullptr;
-    virtual void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const = 0;
+    virtual void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const = 0;
     void calculationUpdated();
 
 #endif //No SIP_RUN
@@ -195,7 +194,6 @@ class REOSCORE_EXPORT ReosHydraulicNetworkElement : public ReosDataObject SIP_AB
     ReosModule::Message mLastMessage;
 
     void init();
-
 };
 
 class REOSCORE_EXPORT ReosHydraulicNetworkContext
@@ -215,14 +213,12 @@ class REOSCORE_EXPORT ReosHydraulicNetworkContext
     QString currentSchemeId() const;
 
   private:
-
     ReosHydraulicNetwork *mNetwork = nullptr;
     ReosWatershedModule *mWatershedModule = nullptr;
     QString mProjectPath;
     QString mProjectName;
 
     friend class ReosHydraulicNetwork;
-
 };
 
 #ifndef SIP_RUN
@@ -255,7 +251,8 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     //! Returns a list of elements of \a type. Returns all element if type is empty or not prvided
     QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
 
-    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem, bool select = true ) SIP_SKIP;;
+    ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem, bool select = true ) SIP_SKIP;
+    ;
 
     //! Removes the element \a elem. The element is destoyed by calling this method.
     void removeElement( ReosHydraulicNetworkElement *elem );
@@ -334,7 +331,7 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     ReosHydraulicNetworkElementCompatibilty checkSchemeCompatibility( ReosHydraulicScheme *scheme ) const SIP_SKIP;
 
-    static QString staticName() {return QStringLiteral( "hydraulic-network" );}
+    static QString staticName() { return QStringLiteral( "hydraulic-network" ); }
 
   signals:
     void elementAdded( ReosHydraulicNetworkElement *elem, bool select );
@@ -372,7 +369,6 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
 
     std::map<QString, std::unique_ptr<ReosHydraulicNetworkElementFactory>> mElementFactories;
     void addEncodedElement( const ReosEncodedElement &element );
-
 };
 
 #endif // REOSHYDRAULICNETWORK_H
