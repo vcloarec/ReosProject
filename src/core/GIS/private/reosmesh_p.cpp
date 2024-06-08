@@ -1369,7 +1369,7 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 
 QString ReosMeshFrame_p::crs() const
 {
-  return mMeshDataProvider->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mMeshDataProvider->crs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 QObject *ReosMeshFrame_p::data() const
@@ -1387,7 +1387,7 @@ ReosMapExtent ReosMeshFrame_p::extent() const
   if ( mMeshLayer )
   {
     ReosMapExtent ret( mMeshLayer->extent().toRectF() );
-    ret.setCrs( mMeshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
+    ret.setCrs( mMeshLayer->crs().toWkt( Qgis::CrsWktVariant::Preferred ) );
 
     return ret;
   }

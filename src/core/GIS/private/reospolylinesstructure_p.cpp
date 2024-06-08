@@ -120,7 +120,7 @@ QgsRectangle ReosGeometryStructure_p::layerZone( const ReosMapExtent &zone ) con
 
 QString ReosGeometryStructure_p::crs() const
 {
-  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
 
@@ -1976,7 +1976,7 @@ double ReosPolylineStructureVectorLayer::tolerance( const QString &wktCrs ) cons
 
 QString ReosPolylineStructureVectorLayer::crs() const
 {
-  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
 bool ReosPolylineStructureVectorLayer::isOnBoundary( const Segment &seg ) const

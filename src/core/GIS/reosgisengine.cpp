@@ -309,17 +309,17 @@ QString ReosGisEngine::meshLayerFilters() const
 
 QString ReosGisEngine::crs() const
 {
-  return QgsProject::instance()->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 QString ReosGisEngine::crsFromEPSG( int epsgCode )
 {
-  return QgsCoordinateReferenceSystem::fromEpsgId( epsgCode ).toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return QgsCoordinateReferenceSystem::fromEpsgId( epsgCode ).toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 QString ReosGisEngine::crsFromProj( const QString &projtring )
 {
-  return QgsCoordinateReferenceSystem::fromProj( projtring ).toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );;
+  return QgsCoordinateReferenceSystem::fromProj( projtring ).toWkt( Qgis::CrsWktVariant::Preferred );;
 }
 
 QString ReosGisEngine::crsWkt1( const QString &crs )
@@ -330,7 +330,7 @@ QString ReosGisEngine::crsWkt1( const QString &crs )
 
 QString ReosGisEngine::crsEsriWkt( const QString &crs )
 {
-  return QgsCoordinateReferenceSystem( crs ).toWkt( QgsCoordinateReferenceSystem::WKT1_ESRI );
+  return QgsCoordinateReferenceSystem( crs ).toWkt( Qgis::CrsWktVariant::Wkt1Esri );
 }
 
 void ReosGisEngine::setCrs( const QString &crsString )
@@ -620,7 +620,7 @@ ReosMapExtent ReosGisEngine::transformExtent( const ReosMapExtent &extent, const
 
 ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &extent ) const
 {
-  return transformExtent( extent, QgsProject::instance()->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
+  return transformExtent( extent, QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred ) );
 }
 
 ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const

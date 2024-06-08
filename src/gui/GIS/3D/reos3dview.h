@@ -63,6 +63,7 @@ class Reos3dView : public ReosActionWidget
   private:
     Ui::Reos3dView *ui;
     QPointer<ReosMesh> mMeshTerrain;
+    QWidget *mContainer = nullptr;
     Qgs3DMapCanvas *mCanvas = nullptr;
     QAction *mActionZoomExtent = nullptr;
     ReosLightWidget *mLightWidget = nullptr;
