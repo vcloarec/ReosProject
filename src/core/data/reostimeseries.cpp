@@ -1061,6 +1061,18 @@ const QVector<ReosDuration> ReosTimeSeriesVariableTimeStep::relativeTimesData() 
   return QVector<ReosDuration>();
 }
 
+const QVector<int> ReosTimeSeriesVariableTimeStep::relativeTimesDataSeconds() const
+{
+  const QVector<ReosDuration> &times = relativeTimesData();
+  QVector<int> ret( times.size() );
+
+  for ( int i = 0; i < times.size(); ++i )
+    ret[i] = ( times.at( i ) ).valueSecond();
+
+  return ret;
+
+}
+
 void ReosTimeSeriesVariableTimeStep::setValue( const ReosDuration &relativeTime, double value )
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
@@ -1110,14 +1122,14 @@ void ReosTimeSeriesVariableTimeStep::setValue( const QDateTime &time, double val
 
 }
 
-double ReosTimeSeriesVariableTimeStep::valueAtTime( const ReosDuration &relativeTime ) const
+double ReosTimeSeriesVariableTimeStep::valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval ) const
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
 
   if ( !dataProv )
     return 0;
 
-  return dataProv->valueAtTime( relativeTime );
+  return dataProv->valueAtTime( relativeTime, maxInterval );
 }
 
 double ReosTimeSeriesVariableTimeStep::valueAtTime( const QDateTime &time ) const
@@ -1218,11 +1230,14 @@ void ReosTimeSeriesVariableTimeStep::copyFrom( const ReosTimeSeriesVariableTimeS
   variableTimeStepDataProvider()->copy( other->variableTimeStepDataProvider() );
 }
 
-ReosFloat64GridBlock ReosTimeSeriesVariableTimeStep::toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime ) const
+ReosFloat64GridBlock ReosTimeSeriesVariableTimeStep::toConstantTimeStep(
+  const ReosDuration &timeStep,
+  const QDateTime &startTime,
+  const ReosDuration &maxVoidInter ) const
 {
   QVector<double> vals( totalDuration().numberOfFullyContainedIntervals( timeStep ), 0 );
 
-  QDateTime refTime = referenceTime();
+  const QDateTime &refTime = referenceTime();
   ReosDuration offset;
   if ( startTime.isValid() )
     offset = ReosDuration( startTime.msecsTo( refTime ) );

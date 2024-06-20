@@ -509,8 +509,8 @@ void ReosGribGriddedRainfallProvider::parseFile(
         continue;
       if ( mReferenceTime == -1 )
         referenceTime = refTime;
-      else if ( refTime != mReferenceTime )
-        continue;
+      // else if ( refTime != mReferenceTime )
+      //   continue;
 
       QString strValidTime = metadata.value( QStringLiteral( "GRIB_VALID_TIME" ) );
       if ( strValidTime.isEmpty() )

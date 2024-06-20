@@ -299,6 +299,11 @@ Sets the relative time ``relativeTime`` at postion ``i`` regardless of the value
 Returns the relative times from the reference time
 %End
 
+    const QVector<int> relativeTimesDataSeconds() const;
+%Docstring
+Returns the relative times from the reference time in miliseconds, convenient for storing elsewhere.
+%End
+
     ReosDuration totalDuration() const;
 %Docstring
 Return the total durarion of the serie
@@ -314,9 +319,11 @@ Sets the value at ``relative`` time with ``value``, if the ``relative`` time is 
 Sets the value at ``time`` with ``value``, if the ``time`` is not present insert a new couple (time, value)
 %End
 
-    double valueAtTime( const ReosDuration &relativeTime ) const;
+    double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;
 %Docstring
-Returns the value at relative time ``relative`` time, interpolate if relative time is between two time values, return 0 if before first one or after last one
+Returns the value at relative time ``relative`` time, interpolate if relative time is between two time values,
+return 0 if before first one or after last one.
+The argument ``maxInteval`` can be used to avoid interpolation between interval of time creater than this value.
 %End
 
     double valueAtTime( const QDateTime &time ) const;
@@ -351,7 +358,7 @@ Sets the color used to render the time serie
 
     void copyFrom( const ReosTimeSeriesVariableTimeStep *other );
 
-    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime() ) const;
+    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime(), const ReosDuration &maxVoidInter = ReosDuration() ) const;
 %Docstring
 Returns a 1D blocl of discretized hydrograph with a time step ``timeStep``.
 If start time is not valid, discretization start and is centered at the first value of the hydrograph.

@@ -56,6 +56,8 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
 
     QString formatKey( const QString &rawKey ) const override SIP_SKIP;
 
+    bool isValid() const;
+
   protected:
     ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr )  SIP_SKIP;
     void updateData() const override SIP_SKIP;

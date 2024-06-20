@@ -39,6 +39,8 @@ The caller take ownership.
 
 
 
+    bool isValid() const;
+
   protected:
 
 };

@@ -522,7 +522,7 @@ ReosFloat64GridBlock::ReosFloat64GridBlock( int rowCount, int colCount )
   mMemoryRaster = ReosRasterMemory<double>( rowCount, colCount );
 }
 
-void ReosFloat64GridBlock::setValues( const QVector<double> values )
+void ReosFloat64GridBlock::setValues(const QVector<double> &values )
 {
   mMemoryRaster.setValues( values );
 }
