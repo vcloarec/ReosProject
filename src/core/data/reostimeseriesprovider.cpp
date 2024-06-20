@@ -264,7 +264,7 @@ int ReosTimeSerieVariableTimeStepProvider::timeValueIndex( const ReosDuration &t
   }
 }
 
-double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &relativeTime ) const
+double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval ) const
 {
   bool exact = false;
   int index = timeValueIndex( relativeTime, exact );
@@ -273,10 +273,13 @@ double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &r
     return value( index );
 
   if ( index < 0 || index >= valueCount() - 1 )
-    return 0;
+    return 0.0;
 
   const ReosDuration time1 = relativeTimeAt( index );
   const ReosDuration time2 = relativeTimeAt( index + 1 );
+
+  if ( maxInterval != ReosDuration() && time2 - time1 > maxInterval )
+    return std::numeric_limits<double>::quiet_NaN();
 
   double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
 

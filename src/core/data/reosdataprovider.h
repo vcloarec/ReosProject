@@ -59,10 +59,15 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 
     virtual bool isLoading() const  {return false;}
 
+    bool isValid() const {return mIsValid;}
+
   signals:
     void dataChanged();
     void dataReset();
     void loadingFinished();
+
+  protected:
+    bool mIsValid = true;
 };
 
 class REOSCORE_EXPORT ReosDataProviderFactory

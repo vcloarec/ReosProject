@@ -570,7 +570,7 @@ class REOSCORE_EXPORT ReosFloat64GridBlock
 {
   public:
     ReosFloat64GridBlock( int rowCount, int colCount );
-    void setValues( const QVector<double> values );
+    void setValues( const QVector<double> &values );
 
     const QVector<double> values() const;
     const QByteArray data() const;

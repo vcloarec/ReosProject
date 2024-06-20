@@ -79,6 +79,11 @@ QString ReosHydrograph::formatKey( const QString &rawKey ) const
   return rawKey + QStringLiteral( "::" ) + ReosHydrograph::staticType();
 }
 
+bool ReosHydrograph::isValid() const
+{
+  return mProvider != nullptr && mProvider->isValid();
+}
+
 ReosHydrographsStore::ReosHydrographsStore( QObject *parent ): ReosHydrographGroup( parent ) {}
 
 void ReosHydrographsStore::addHydrograph( ReosHydrograph *hydrograph )

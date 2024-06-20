@@ -125,7 +125,7 @@ class REOSCORE_EXPORT ReosTimeSerieVariableTimeStepProvider : public ReosTimeSer
     virtual bool writeSeries( ReosTimeSeriesVariableTimeStep *series, const QString &uri );
 
     int timeValueIndex( const ReosDuration &time, bool &exact ) const;
-    double valueAtTime( const ReosDuration &relativeTime ) const;
+    double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;
 };
 
 
@@ -136,7 +136,7 @@ class ReosTimeSerieConstantTimeStepMemoryProvider : public ReosTimeSerieConstant
     Q_OBJECT
   public:
     ReosTimeSerieConstantTimeStepMemoryProvider() = default;
-    ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values );
+    explicit ReosTimeSerieConstantTimeStepMemoryProvider( const QVector<double> &values );
 
     QString key() const override;
     QStringList fileSuffixes() const override {return QStringList();}

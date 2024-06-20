@@ -301,6 +301,9 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
     //! Returns the relative times from the reference time
     const QVector<ReosDuration> relativeTimesData() const;
 
+    //! Returns the relative times from the reference time in miliseconds, convenient for storing elsewhere.
+    const QVector<int> relativeTimesDataSeconds() const;
+
     //! Return the total durarion of the serie
     ReosDuration totalDuration() const;
 
@@ -310,8 +313,12 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
     //! Sets the value at \a time with \a value, if the \a time is not present insert a new couple (time, value)
     void setValue( const QDateTime &time, double value );
 
-    //! Returns the value at relative time \a relative time, interpolate if relative time is between two time values, return 0 if before first one or after last one
-    double valueAtTime( const ReosDuration &relativeTime ) const;
+    /**
+     * Returns the value at relative time \a relative time, interpolate if relative time is between two time values,
+     * return 0 if before first one or after last one.
+     * The argument \a maxInteval can be used to avoid interpolation between interval of time creater than this value.
+     */
+    double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;
 
     //! Returns the value at time \a time, interpolate if time is between two time values, return 0 if before first one or after last one
     double valueAtTime( const QDateTime &time ) const;
@@ -337,7 +344,7 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
      * Returns a 1D blocl of discretized hydrograph with a time step \a timeStep.
      * If start time is not valid, discretization start and is centered at the first value of the hydrograph.
      */
-    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime() ) const;
+    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime(), const ReosDuration &maxVoidInter = ReosDuration() ) const;
 
     bool operator==( const ReosTimeSeriesVariableTimeStep &other ) const;
 
