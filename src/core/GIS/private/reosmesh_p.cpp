@@ -21,7 +21,6 @@
 #include <qgsrendercontext.h>
 #include <qgsproviderregistry.h>
 #include <qgsmeshlayertemporalproperties.h>
-#include <qgsmeshlayer3drenderer.h>
 #include <qgsgeometryengine.h>
 #include <qgsgeometryutils.h>
 #include <qgsunittypes.h>
