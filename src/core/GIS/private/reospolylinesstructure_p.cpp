@@ -157,7 +157,7 @@ void ReosPolylineStructureVectorLayer::init()
   mVectorLayer->undoStack()->blockSignals( true );
 
   QgsField field;
-  field.setType( QVariant::String );
+  field.setType( QMetaType::Type::QString );
   field.setName( QStringLiteral( "classId" ) );
   mVectorLayer->addAttribute( field );
   mVectorLayer->commitChanges( false );

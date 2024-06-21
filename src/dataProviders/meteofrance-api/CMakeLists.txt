@@ -4,14 +4,22 @@
 SET(REOS_MF_API_SOURCES
     reosmeteofranceapi.cpp
     reosmeteofrancearomeprovider.cpp
-    reosmeteofrancearomeapiwidget.cpp
 )
 
 SET(REOS_MF_API_HEADERS
  reosmeteofranceapi.h
  reosmeteofrancearomeprovider.h
- reosmeteofrancearomeapiwidget.h
 )
+
+IF(WITH_GUI)
+    SET(REOS_MF_API_SOURCES
+        reosmeteofrancearomeapiwidget.cpp
+    )
+
+    SET(REOS_MF_API_HEADERS
+     reosmeteofrancearomeapiwidget.h
+    )
+ENDIF(WITH_GUI)
 
 #SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/hub-eau/hub-eau-images.qrc)
 
@@ -30,9 +38,13 @@ TARGET_LINK_LIBRARIES(provider_mf_api
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        reosGui
         reosCore
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(provider_mf_api
+            reosGui)
+ENDIF(WITH_GUI)
 
 set_target_properties(provider_mf_api
     PROPERTIES
@@ -41,14 +53,6 @@ set_target_properties(provider_mf_api
     )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/src/ui
-    ${CMAKE_SOURCE_DIR}/src/gui
-    ${CMAKE_SOURCE_DIR}/src/gui/chart
-    ${CMAKE_SOURCE_DIR}/src/gui/form
-    ${CMAKE_SOURCE_DIR}/src/gui/data
-    ${CMAKE_SOURCE_DIR}/src/gui/GIS
-    ${CMAKE_SOURCE_DIR}/src/gui/watershed
-    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -61,6 +65,19 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${CMAKE_SOURCE_DIR}/src/core/network
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    )
+ENDIF(WITH_GUI)
 
 
 INSTALL(TARGETS provider_mf_api
