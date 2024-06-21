@@ -24,9 +24,14 @@ TARGET_LINK_LIBRARIES(test_telemac
                       ${Qt5Test_LIBRARIES}
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
-                      reosGui
                       ${MDAL_LIB}
 )
+
+IF (WITH_GUI)
+    TARGET_LINK_LIBRARIES(test_telemac
+                          reosGui
+    )
+ENDIF(WITH_GUI)
 
 IF(GDAL_FOUND)
   TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE ${GDAL_INCLUDE_DIRS})

@@ -753,6 +753,7 @@ ReosEncodedElement ReosMeshFrame_p::datasetGroupVectorSymbologyfromLayer( const 
 
 void ReosMeshFrame_p::update3DRenderer()
 {
+#ifdef ENABLE_3D
   if ( !mMeshLayer )
     return;
 
@@ -801,6 +802,8 @@ void ReosMeshFrame_p::update3DRenderer()
     renderer->setSymbol( symbol.release() );
 
   mMeshLayer->setRenderer3D( renderer.release() );
+
+#endif //ENABLE_3D
 }
 
 

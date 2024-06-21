@@ -3,14 +3,20 @@
 
 SET(REOS_GRIB_SOURCES
     reosgribprovider.cpp
-    reosgribprecipitationwidget.cpp
 )
 
 SET(REOS_GRIB_HEADERS
     reosgribprovider.h
-    reosgribprecipitationwidget.h
 )
 
+IF(WITH_GUI)
+    SET(REOS_GRIB_SOURCES
+        reosgribprecipitationwidget.cpp
+    )
+    SET(REOS_GRIB_SOURCES
+        reosgribprecipitationwidget.h
+    )
+ENDIF(WITH_GUI)
 
 ADD_LIBRARY(provider_grib MODULE
     ${REOS_GRIB_SOURCES}
@@ -28,9 +34,13 @@ TARGET_LINK_LIBRARIES(provider_grib
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        reosGui
         reosCore
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(provider_grib
+            reosGui)
+ENDIF(WITH_GUI)
 
 
 set_target_properties(provider_grib
@@ -40,14 +50,6 @@ set_target_properties(provider_grib
     )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/src/ui
-    ${CMAKE_SOURCE_DIR}/src/gui
-    ${CMAKE_SOURCE_DIR}/src/gui/chart
-    ${CMAKE_SOURCE_DIR}/src/gui/form
-    ${CMAKE_SOURCE_DIR}/src/gui/data
-    ${CMAKE_SOURCE_DIR}/src/gui/GIS
-    ${CMAKE_SOURCE_DIR}/src/gui/watershed
-    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -59,6 +61,19 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    )
+ENDIF(WITH_GUI)
 
 
 

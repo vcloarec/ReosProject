@@ -5,19 +5,28 @@ SET(REOS_HECRAS_SOURCES
     reoshecrascontroller.cpp
     reoshecrassimulation.cpp
     reoshecrassimulationresults.cpp
-    reoshecrassimulationimportwidget.cpp
     reoshecrasproject.cpp
-    reoshecrassimulationeditwidget.cpp
 )
 
 SET(REOS_HECRAS_HEADERS
     reoshecrascontroller.h
     reoshecrassimulation.h
     reoshecrassimulationresults.h
-    reoshecrassimulationimportwidget.h
     reoshecrasproject.h
+)
+
+IF(WITH_GUI)
+SET(REOS_HECRAS_SOURCES
+    reoshecrassimulationimportwidget.cpp
+    reoshecrassimulationeditwidget.cpp
+)
+
+SET(REOS_HECRAS_HEADERS
+    reoshecrassimulationimportwidget.h
     reoshecrassimulationeditwidget.h
 )
+ENDIF(WITH_GUI)
+
 
 ADD_LIBRARY(hecras_engine MODULE
     ${REOS_HECRAS_SOURCES}
@@ -35,11 +44,14 @@ TARGET_LINK_LIBRARIES(hecras_engine
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${MDAL_LIB}
-        reosGui
         reosCore
         reosHecDss
 )
 
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(hecras_engine
+            reosGui)
+ENDIF(WITH_GUI)
 
 set_target_properties(hecras_engine
     PROPERTIES
@@ -52,16 +64,6 @@ IF (MSVC)
 ENDIF (MSVC)
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/src/ui
-    ${CMAKE_SOURCE_DIR}/src/gui
-    ${CMAKE_SOURCE_DIR}/src/gui/chart
-    ${CMAKE_SOURCE_DIR}/src/gui/form
-    ${CMAKE_SOURCE_DIR}/src/gui/data
-    ${CMAKE_SOURCE_DIR}/src/gui/GIS
-    ${CMAKE_SOURCE_DIR}/src/gui/watershed
-    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
-    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
-    ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -82,6 +84,24 @@ INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}
     ${MDAL_INCLUDE_DIR}
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+        ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
+        ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
+
+        ${QGIS_INCLUDE_DIR}
+        ${MDAL_INCLUDE_DIR}
+        )
+ENDIF(WITH_GUI)
 
 INSTALL(TARGETS hecras_engine
   RUNTIME DESTINATION bin/${REOS_ENGINES_DIR}
