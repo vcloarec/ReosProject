@@ -36,7 +36,11 @@ IF(WITH_GUI)
 ENDIF(WITH_GUI)
 
 add_subdirectory(dataProviders)
-add_subdirectory(simulationEngines)
+
+if(WITH_HYDRAULIC_MODEL_SUPPORT)
+    add_subdirectory(simulationEngines)
+endif(WITH_HYDRAULIC_MODEL_SUPPORT)
+
 
 if(INTERN_PYTHON_TESTS_ENABLE)
     add_subdirectory(python)
