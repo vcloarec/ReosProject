@@ -18,7 +18,6 @@
 #include <qgsproject.h>
 #include <qgsmesheditor.h>
 #include <qgsmeshlayerrenderer.h>
-#include <qgsmapcanvas.h>
 #include <qgsrendercontext.h>
 #include <qgsproviderregistry.h>
 #include <qgsmeshlayertemporalproperties.h>
