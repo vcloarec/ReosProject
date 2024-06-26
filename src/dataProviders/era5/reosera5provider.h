@@ -21,49 +21,23 @@
 #include "reosgriddedrainfallprovider.h"
 #include "reosnetcdfutils.h"
 
-#define COMEPHORES_KEY QStringLiteral("comephore")
+#define ERA5_KEY QStringLiteral("era5")
 
-class ReosComephoreFilesReader
+class ReosEra5FilesReader
 {
   public:
-    virtual  ~ReosComephoreFilesReader() = default;
+    virtual  ~ReosEra5FilesReader() = default;
 
-    virtual ReosComephoreFilesReader *clone() const = 0;
+    virtual ReosEra5FilesReader *clone() const = 0;
     virtual int frameCount() const = 0;
     virtual QDateTime time( int i ) const = 0;
-    virtual QVector<int> data( int index, bool &readLine ) const = 0;
-    virtual QVector<int> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const {return QVector<int>();}
+    virtual QVector<double> data( int index, bool &readLine ) const = 0;
+    virtual QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const {return QVector<double>();}
     virtual bool supportGridExtent() const {return false;}
     virtual ReosRasterExtent extent() const = 0;
     virtual bool getDirectMinMax( double &min, double &max ) const = 0;
     virtual bool hasQualif() const = 0;
     virtual QVector<int> qualifData( int index, bool &readLine ) const = 0;
-};
-
-class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
-{
-  public:
-
-    explicit ReosComephoreTiffFilesReader( const QString &folderPath );
-    ~ReosComephoreTiffFilesReader();
-
-    ReosComephoreFilesReader *clone() const override;
-
-    int frameCount() const override;
-    QDateTime time( int i ) const override;
-    QVector<int> data( int index, bool &readLine ) const override;
-    ReosRasterExtent extent() const override;
-    bool getDirectMinMax( double &min, double &max ) const override;
-    bool hasQualif() const override {return false;}
-    QVector<int> qualifData( int, bool & ) const override {return QVector<int>();}
-
-    static bool canReadFile( const QString &uri );
-    static ReosGriddedRainfallProvider::FileDetails details( const QString &source, bool *ok );
-
-  private:
-    ReosComephoreTiffFilesReader() = default;
-    QMap<QDateTime, QString> mFilesNames;
-    QList<QDateTime> mTimes;
 };
 
 
@@ -72,47 +46,54 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
  * Specification of this format: https://www7.obs-mip.fr/wp-content-aeris/uploads/sites/59/2020/02/radar_produit_comephore.pdf
  * In the file, NetCDF dimensions are (time,X,Y). When reading data, as the last dimension is varying fastest, data are read by column.
  */
-class ReosComephoreNetCdfFilesReader : public ReosComephoreFilesReader
+class ReosEra5NetCdfFilesReader : public ReosEra5FilesReader
 {
   public:
-    explicit ReosComephoreNetCdfFilesReader( const QString &filePath );
+    explicit ReosEra5NetCdfFilesReader( const QString &fileName, const QString &varName );
 
-    ReosComephoreFilesReader *clone() const override;
-    int frameCount() const override;
-    QDateTime time( int i ) const override;
-    QVector<int> data( int index, bool &readLine ) const override;
-    QVector<int> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const override;
-    bool supportGridExtent() const override {return true;}
-    ReosRasterExtent extent() const override;
-    bool getDirectMinMax( double &min, double &max ) const override;
-    bool hasQualif() const override {return true;}
-    QVector<int> qualifData( int index, bool &readLine ) const override;
+    ReosEra5NetCdfFilesReader *clone() const;
+    int frameCount() const ;
+    QDateTime time( int i ) const;
+    QVector<double> data( int index, bool &readLine ) const;
+    QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const;
+    bool supportGridExtent() const  {return true;}
+    ReosRasterExtent extent() const ;
+    bool getDirectMinMax( double &min, double &max ) const;
+    bool hasQualif() const  {return true;}
+    QVector<int> qualifData( int index, bool &readLine ) const ;
 
     static bool canReadFile( const QString &uri );
 
     void reset();
 
   private:
-    ReosComephoreNetCdfFilesReader() = default;
+    ReosEra5NetCdfFilesReader() = default;
     mutable std::unique_ptr<ReosNetCdfFile> mFile;
     QString mFileName;
+    QString mVarName;
     ReosRasterExtent mExtent;
     QList<QDateTime> mTimes;
-    QMap<int, int> mRainIndexToFileIndex;
+    QMap<int, int> mDataIndexToFileIndex;
+    double mScalefactor = std::numeric_limits<double>::quiet_NaN();
+    double mAddOffset = std::numeric_limits<double>::quiet_NaN();
+    qint16 mFillingValue = 0;
+    qint16 mMissingValue = 0;
+
+    QVector<double> treatRawData( const QVector<qint16> &rawData ) const;
 };
 
 
 
-class ReosComephoreNetCdfFolderReader : public ReosComephoreFilesReader
+class ReosEra5NetCdfFolderReader: public ReosEra5FilesReader
 {
   public:
-    explicit ReosComephoreNetCdfFolderReader( const QString &folderPath );
+    explicit ReosEra5NetCdfFolderReader( const QString &folderPath, const QString &varName );
 
-    ReosComephoreFilesReader *clone() const override;
+    ReosEra5FilesReader *clone() const override;
     int frameCount() const override;
     QDateTime time( int i ) const override;
-    QVector<int> data( int index, bool &readLine ) const override;
-    QVector<int> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const override;
+    QVector<double> data( int index, bool &readLine ) const override;
+    QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const override;
     bool supportGridExtent() const override {return true;}
     ReosRasterExtent extent() const override;
     bool getDirectMinMax( double &min, double &max ) const override;
@@ -123,7 +104,8 @@ class ReosComephoreNetCdfFolderReader : public ReosComephoreFilesReader
 
   private:
     QString mFolderPath;
-    std::vector<std::unique_ptr<ReosComephoreNetCdfFilesReader>> mFileReaders;
+    QString mVarName;
+    std::vector<std::unique_ptr<ReosEra5NetCdfFilesReader>> mFileReaders;
     mutable size_t mLastFileIndex = -1;
     ReosRasterExtent mExtent;
     struct InternalIndex
@@ -133,21 +115,21 @@ class ReosComephoreNetCdfFolderReader : public ReosComephoreFilesReader
     };
     QMap<int, InternalIndex> mGlobalIndexToReaderIndex;
 
-    ReosComephoreNetCdfFilesReader *fileReader( int index, int &interINdex ) const;
+    ReosEra5NetCdfFilesReader *fileReader( int index, int &interINdex ) const;
 };
 
-class ReosComephoreProvider : public ReosGriddedRainfallProvider
+class ReosEra5Provider : public ReosGriddedDataProvider
 {
   public:
-    ReosComephoreProvider();
-    ~ReosComephoreProvider();
-    ReosGriddedRainfallProvider *clone() const override;
+    ReosEra5Provider();
+    ~ReosEra5Provider();
+    ReosGriddedDataProvider *clone() const override;
     void load() override;
 
     QString key() const override {return staticKey();}
     QStringList fileSuffixes() const override;
     QString htmlDescription() const override;
-    bool hasCapability( GridCapability capability )  const override;
+
 
     bool isValid() const override;
     int count() const override;
@@ -155,31 +137,36 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     QDateTime endTime( int index ) const override;
     const QVector<double> data( int index ) const override;
     const QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const override;
-    const QVector<double> qualifData( int index ) const override;
+
     ReosRasterExtent extent() const override;
     bool canReadUri( const QString &uri ) const override;
     FileDetails details( const QString &source, ReosModule::Message &message ) const override;
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
-    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
+
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
 
     static QString staticKey();
     static QString dataType();
 
+    static  QVariantMap decodeUri( const QString &uri, bool &ok ) ;
+    static  QString buildUri( const QVariantMap &parameters, bool &ok );
+    static  QString buildUri( const QString &filePath, const QString &varName );
+    static QString pathFromUri( const QString &uri, bool &ok );
+    static QString varNameFromUri( const QString &uri, bool &ok );
+
   private:
     bool mIsValid = false;
-    std::unique_ptr<ReosComephoreFilesReader> mFileReader;
+    std::unique_ptr<ReosEra5FilesReader> mFileReader;
     ReosRasterExtent mExtent;
     mutable QCache<int, QVector<double>> mCache;
     GridCapabilities mCapabilities = {SubGridExtract | QualificationValue};
 
 };
 
-class ReosComephoresProviderFactory: public ReosDataProviderFactory
+class ReosEra5ProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
+    ReosGriddedDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
     bool supportType( const QString &dataType ) const override;
     QVariantMap uriParameters( const QString &dataType ) const override;

@@ -31,6 +31,8 @@ class REOSCORE_EXPORT ReosNetCdfFile
     bool isValid() const;
     bool hasVariable( const QString &variableName );
 
+    bool hasVariableByLongName( const QString &variableName );
+
     int variableDimensionCount( const QString &variableName ) const;
 
     int dimensionLength( const QString &dimensionName ) const;
@@ -40,9 +42,19 @@ class REOSCORE_EXPORT ReosNetCdfFile
     double globalDoubleAttributeValue( const QString &attribureName ) const;
     QString globalStringAttributeValue( const QString &attribureName ) const;
 
+    double doubleAttributeValue( const QString &variableName, const QString &attributeName ) const;
+    qint16 shortAttributeValue( const QString &variableName, const QString &attributeName ) const;
+
     QVector<qint64> getInt64Array( const QString &variableName, int size );
 
-    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts );
+    QVector<int> getIntArray( const QString &variableName, int size ) const;
+    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const ;
+
+    QVector<double > getDoubleArray( const QString &variableName, int size );
+    QVector<double > getDoubleArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const ;
+
+
+    QVector<qint16 > getShortArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts )const;
 
   private:
     bool mIsValid = false;
@@ -52,6 +64,7 @@ class REOSCORE_EXPORT ReosNetCdfFile
     int mGlobalAttCOunt = -1;
     int mUnlimitDimId = -1;
     QMap<QString, int> mVarNameToVarId;
+    QMap<QString, int> mVarLongNameToVarId;
 };
 
 #endif // REOSNETCDFUTILS_H

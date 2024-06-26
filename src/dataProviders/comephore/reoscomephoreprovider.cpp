@@ -112,7 +112,7 @@ QString ReosComephoreProvider::htmlDescription() const
   return htmlText;
 }
 
-bool ReosComephoreProvider::hasPrecipitationCapability( PrecipitationGridCapability capability ) const
+bool ReosComephoreProvider::hasCapability( GridCapability capability ) const
 {
   return mCapabilities.testFlag( capability );
 }
@@ -664,6 +664,11 @@ bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
   return dimensionNames.contains( QStringLiteral( "X" ) ) && dimensionNames.contains( QStringLiteral( "Y" ) );
 }
 
+void ReosComephoreNetCdfFilesReader::reset()
+{
+  mFile.reset();
+}
+
 ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString &folderPath )
   : mFolderPath( folderPath )
 {
@@ -705,6 +710,8 @@ ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString 
       count++;
     }
   }
+
+  mLastFileIndex = mFileReaders.size();
 }
 
 ReosComephoreFilesReader *ReosComephoreNetCdfFolderReader::clone() const
@@ -726,20 +733,43 @@ QDateTime ReosComephoreNetCdfFolderReader::time( int i ) const
   return QDateTime();
 }
 
-QVector<int> ReosComephoreNetCdfFolderReader::data( int index, bool &readLine ) const
+ReosComephoreNetCdfFilesReader *ReosComephoreNetCdfFolderReader::fileReader( int index, int &interIndex ) const
 {
   auto it = mGlobalIndexToReaderIndex.find( index );
   if ( it != mGlobalIndexToReaderIndex.constEnd() )
-    return mFileReaders.at( it.value().fileIndex )->data( it.value().internIndex, readLine );
+  {
+    size_t fileIndex = it.value().internIndex;
+    ReosComephoreNetCdfFilesReader *ret = mFileReaders.at( it.value().fileIndex ).get();
+    interIndex = it.value().internIndex;
+    if ( mLastFileIndex != mFileReaders.size() && mLastFileIndex != fileIndex )
+    {
+      mFileReaders.at( mLastFileIndex )->reset();
+      mLastFileIndex = fileIndex;
+    }
+
+    return ret;
+  }
+
+  return nullptr;
+}
+
+
+QVector<int> ReosComephoreNetCdfFolderReader::data( int index, bool &readLine ) const
+{
+  int interIndex = -1;
+  ReosComephoreNetCdfFilesReader *fr = fileReader( index, interIndex );
+  if ( fr )
+    return fr->data( interIndex, readLine );
 
   return QVector<int>();
 }
 
 QVector<int> ReosComephoreNetCdfFolderReader::dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const
 {
-  auto it = mGlobalIndexToReaderIndex.find( index );
-  if ( it != mGlobalIndexToReaderIndex.constEnd() )
-    return mFileReaders.at( it.value().fileIndex )->dataInGridExtent( it.value().internIndex, rowMin, rowMax, colMin, colMax, readLine );
+  int interIndex = -1;
+  ReosComephoreNetCdfFilesReader *fr = fileReader( index, interIndex );
+  if ( fr )
+    return fr->dataInGridExtent( interIndex, rowMin, rowMax, colMin, colMax, readLine );
 
   return QVector<int>();
 }
@@ -781,3 +811,4 @@ bool ReosComephoreNetCdfFolderReader::canReadFile( const QString &uri )
 
   return false;
 }
+

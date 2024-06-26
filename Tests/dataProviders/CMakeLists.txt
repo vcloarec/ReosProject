@@ -6,6 +6,7 @@
 
 add_subdirectory(grib)
 add_subdirectory(hydroportail)
+add_subdirectory(era5)
 
 if (COMEPHORE_TESTS_ENABLE)
     add_subdirectory(comephore)
