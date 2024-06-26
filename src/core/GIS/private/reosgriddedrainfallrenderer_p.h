@@ -42,7 +42,7 @@ class ReosRendererGriddedRainfallMapTimeStamp_p: public ReosRendererObjectMapTim
 class ReosGriddedRainfallRendererFactory_p : public ReosGriddedRainfallRendererFactory
 {
   public:
-    ReosGriddedRainfallRendererFactory_p( ReosGriddedRainfall *rainfall );
+    ReosGriddedRainfallRendererFactory_p( ReosGriddedData *rainfall );
     ReosGriddedRainfallRendererFactory_p( const ReosEncodedElement &element, ReosGriddedRainfall *rainfall );
 
     ReosObjectRenderer *createRasterRenderer( ReosRendererSettings *settings ) override;
