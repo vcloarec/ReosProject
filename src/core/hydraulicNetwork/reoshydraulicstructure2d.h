@@ -22,7 +22,7 @@
 #include "reospolylinesstructure.h"
 #include "reoshydraulicsimulation.h"
 #ifdef WITH_GMSH
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 #endif //WITH GMSH
 #include "reosmeshgenerator.h"
 #include "reosmesh.h"

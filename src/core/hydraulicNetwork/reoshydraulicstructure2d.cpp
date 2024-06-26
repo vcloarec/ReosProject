@@ -17,7 +17,7 @@
 #include "reosmeshgenerator.h"
 #include "reospolygonstructure.h"
 #ifdef WITH_GMSH
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 #endif //WITH_GMSH
 #include "reostopographycollection.h"
 #include "reoshydraulicsimulation.h"
