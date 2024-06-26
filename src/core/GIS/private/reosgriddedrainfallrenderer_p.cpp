@@ -28,7 +28,7 @@
 
 
 
-ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( ReosGriddedRainfall *rainfall )
+ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( ReosGriddedData *rainfall )
   : ReosGriddedRainfallRendererFactory( rainfall )
   , mColorRampSettings( new ReosGriddedRainfallColorShaderSettings_p( this ) )
 {
@@ -58,7 +58,7 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
 
 void ReosGriddedRainfallRendererFactory_p::init()
 {
-  ReosMapExtent extent = mRainfall->rasterExtent();
+  ReosMapExtent extent = mGriddedData->rasterExtent();
   QgsRectangle qgsExt = extent.toRectF();
   qgsExt.normalize();
   QString uri( QStringLiteral( "%1::%2" ).arg( qgsExt.asWktPolygon(), extent.crs() ) );
@@ -66,7 +66,7 @@ void ReosGriddedRainfallRendererFactory_p::init()
   mRasterLayer.reset( new QgsRasterLayer( uri, QString(), QStringLiteral( "gridded-precipitation" ) ) );
   mDataProvider = qobject_cast<ReosGriddedRainfallRasterProvider_p *>( mRasterLayer->dataProvider() );
 
-  QObject::connect( mColorRampSettings.get(), &ReosColorShaderSettings::changed, mRainfall, &ReosRenderedObject::repaintRequested );
+  QObject::connect( mColorRampSettings.get(), &ReosColorShaderSettings::changed, mGriddedData, &ReosRenderedObject::repaintRequested );
 }
 
 
@@ -97,10 +97,10 @@ ReosObjectRenderer *ReosGriddedRainfallRendererFactory_p::createRasterRenderer( 
   ReosRendererSettings_p *rendererSettings = dynamic_cast<ReosRendererSettings_p *>( settings );
   const QDateTime time = rendererSettings->settings().temporalRange().begin();
 
-  int index = mRainfall->dataIndex( time );
-  mDataProvider->setData( mRainfall->intensityValues( index ) );
-  mDataProvider->setExtent( mRainfall->rasterExtent() );
-  std::unique_ptr<ReosQgisLayerRenderer_p> objectRenderer( new ReosQgisLayerRenderer_p( settings, mRasterLayer.get(), mRainfall ) );
+  int index = mGriddedData->dataIndex( time );
+  mDataProvider->setData( mGriddedData->values( index ) );
+  mDataProvider->setExtent( mGriddedData->rasterExtent() );
+  std::unique_ptr<ReosQgisLayerRenderer_p> objectRenderer( new ReosQgisLayerRenderer_p( settings, mRasterLayer.get(), mGriddedData ) );
 
   return objectRenderer.release();
 }
@@ -118,7 +118,7 @@ void ReosGriddedRainfallRendererFactory_p::setColorRampShaderSettings( ReosColor
     mColorRampSettings.reset( newColorSettings );
     mColorRampSettings->mRendererfactory = this;
     setColorRampShader( newColorSettings->mColorShader );
-    QObject::connect( mColorRampSettings.get(), &ReosColorShaderSettings::changed, mRainfall, &ReosRenderedObject::repaintRequested );
+    QObject::connect( mColorRampSettings.get(), &ReosColorShaderSettings::changed, mGriddedData, &ReosRenderedObject::repaintRequested );
   }
   else //not the good type, we have to destruct it because we take the ownership
     delete colorSettings;
@@ -321,26 +321,26 @@ void ReosGriddedRainfallColorShaderSettings_p::setOpacity( double )
 
 bool ReosGriddedRainfallColorShaderSettings_p::getDirectSourceMinMax( double &min, double &max ) const
 {
-  if ( !mRendererfactory || !mRendererfactory->mRainfall )
+  if ( !mRendererfactory || !mRendererfactory->mGriddedData )
   {
     min = std::numeric_limits<double>::quiet_NaN();
     max = std::numeric_limits<double>::quiet_NaN();
     return false;
   }
 
-  return mRendererfactory->mRainfall->getDirectMinMaxValue( min, max );
+  return mRendererfactory->mGriddedData->getDirectMinMaxValue( min, max );
 }
 
 void ReosGriddedRainfallColorShaderSettings_p::calculateSourceMinMax( double &min, double &max ) const
 {
-  if ( !mRendererfactory || !mRendererfactory->mRainfall )
+  if ( !mRendererfactory || !mRendererfactory->mGriddedData )
   {
     min = std::numeric_limits<double>::quiet_NaN();
     max = std::numeric_limits<double>::quiet_NaN();
     return;
   }
 
-  mRendererfactory->mRainfall->calculateMinMaxValue( min, max );
+  mRendererfactory->mGriddedData->calculateMinMaxValue( min, max );
 }
 
 void ReosGriddedRainfallColorShaderSettings_p::onSettingsUpdated()
@@ -351,7 +351,7 @@ void ReosGriddedRainfallColorShaderSettings_p::onSettingsUpdated()
 
 QString ReosGriddedRainfallColorShaderSettings_p::title() const
 {
-  if ( mRendererfactory && mRendererfactory->rainfall() )
-    return mRendererfactory->rainfall()->name();
+  if ( mRendererfactory && mRendererfactory->griddedData() )
+    return mRendererfactory->griddedData()->name();
   return QString();
 }

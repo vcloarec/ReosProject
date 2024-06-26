@@ -16,35 +16,45 @@
 #include "reosgriddedrainfallprovider.h"
 #include "reosgriddedrainitem.h"
 
-ReosGriddedRainfallProvider::~ReosGriddedRainfallProvider()
-{}
-
-QString ReosGriddedRainfallProvider::dataSource() const
+QString ReosGriddedDataProvider::dataSource() const
 {
   return mDataSource;
 }
 
-void ReosGriddedRainfallProvider::setDataSource( const QString &uri )
+void ReosGriddedDataProvider::setDataSource( const QString &uri )
 {
   mDataSource = uri;
   load();
 }
 
-ReosDuration ReosGriddedRainfallProvider::intervalDuration( int index ) const
+ReosDuration ReosGriddedDataProvider::intervalDuration( int index ) const
 {
   return ReosDuration( startTime( index ), endTime( index ) );
 }
 
-bool ReosGriddedRainfallProvider::hasPrecipitationCapability( PrecipitationGridCapability )  const {return false;}
+bool ReosGriddedDataProvider::hasCapability( GridCapability )  const {return false;}
 
-const QVector<double> ReosGriddedRainfallProvider::qualifData( int ) const {return QVector<double>();}
-
-int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
+int ReosGriddedDataProvider::dataIndex( const QDateTime &time ) const
 {
   int frameCount = count();
 
   if ( frameCount == 0 )
     return -1;
+
+  if ( mLastFrameIndex != -1 )
+  {
+    if ( time >= startTime( mLastFrameIndex )
+         && time < endTime( mLastFrameIndex ) )
+      return  mLastFrameIndex;
+
+
+    if ( time >= startTime( mLastFrameIndex + 1 ) &&
+         time < endTime( mLastFrameIndex + 1 ) )
+    {
+      mLastFrameIndex = mLastFrameIndex + 1;
+      return  mLastFrameIndex;
+    }
+  }
 
   for ( int i = 0; i < frameCount; ++i )
   {
@@ -59,21 +69,7 @@ int ReosGriddedRainfallProvider::dataIndex( const QDateTime &time ) const
   return  -1;
 }
 
-bool ReosGriddedRainfallProvider::hasData( const QString &, const ReosTimeWindow & ) const {return false;}
-
-bool ReosGriddedRainfallProvider::write( ReosGriddedRainfall *, const QString &, const ReosRasterExtent &, const ReosTimeWindow & ) const {return false;}
-
-
-ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
-{
-  std::unique_ptr<ReosGriddedRainfallMemoryProvider> other = std::make_unique<ReosGriddedRainfallMemoryProvider>();
-
-  other->mExtent = mExtent;
-  other->mRasters = mRasters;
-  other->mSourceValueType = mSourceValueType;
-  other->setDataSource( dataSource() );
-  return other.release();
-}
+bool ReosGriddedDataProvider::hasData( const QString &, const ReosTimeWindow & ) const {return false;}
 
 QString ReosGriddedRainfallMemoryProvider::key() const
 {
@@ -132,7 +128,7 @@ void ReosGriddedRainfallMemoryProvider::setExtent( const ReosRasterExtent &newEx
   mExtent = newExtent;
 }
 
-void ReosGriddedRainfallMemoryProvider::copyFrom( ReosGriddedRainfallProvider *other )
+void ReosGriddedRainfallMemoryProvider::copyFrom( ReosGriddedDataProvider *other )
 {
   mExtent = ReosRasterExtent();
   mRasters.clear();
@@ -158,15 +154,37 @@ void ReosGriddedRainfallMemoryProvider::copyFrom( ReosGriddedRainfallProvider *o
   }
 }
 
+QString ReosGriddedRainfallMemoryProviderFactory::key() const
+{
+  return ReosGriddedRainfallMemoryProvider::staticKey();
+}
+
+ReosGriddedRainfallProvider::~ReosGriddedRainfallProvider()
+{}
+
+const QVector<double> ReosGriddedRainfallProvider::qualifData( int ) const {return QVector<double>();}
+
+ReosGriddedDataProvider::~ReosGriddedDataProvider()
+{}
+
+bool ReosGriddedRainfallProvider::write( ReosGriddedRainfall *, const QString &, const ReosRasterExtent &, const ReosTimeWindow & ) const {return false;}
+
+
+ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
+{
+  std::unique_ptr<ReosGriddedRainfallMemoryProvider> other = std::make_unique<ReosGriddedRainfallMemoryProvider>();
+
+  other->mExtent = mExtent;
+  other->mRasters = mRasters;
+  other->mSourceValueType = mSourceValueType;
+  other->setDataSource( dataSource() );
+  return other.release();
+}
+
 ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProviderFactory::createProvider( const QString &dataType ) const
 {
   if ( dataType == ReosGriddedRainfallMemoryProvider::dataType() )
     return new ReosGriddedRainfallMemoryProvider;
 
   return nullptr;
-}
-
-QString ReosGriddedRainfallMemoryProviderFactory::key() const
-{
-  return ReosGriddedRainfallMemoryProvider::staticKey();
 }

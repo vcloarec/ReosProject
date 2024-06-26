@@ -28,17 +28,10 @@ class ReosDuration;
 class ReosGriddedRainfall;
 
 
-class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
+class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
 {
     Q_OBJECT
   public:
-    enum class ValueType
-    {
-      Intensity,
-      Height,
-      CumulativeHeight
-    };
-
     enum SupportedGridOrigin
     {
       TopLeft = 1 << 0,
@@ -51,14 +44,14 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     Q_DECLARE_FLAGS( SupportedGridOrigins, SupportedGridOrigin )
     Q_FLAG( SupportedGridOrigins )
 
-    enum PrecipitationGridCapability
+    enum GridCapability
     {
       SubGridExtract = 1 << 0,
       QualificationValue = 1 << 1,
     };
-    Q_ENUM( PrecipitationGridCapability )
-    Q_DECLARE_FLAGS( PrecipitationGridCapabilities, PrecipitationGridCapability )
-    Q_FLAG( PrecipitationGridCapabilities )
+    Q_ENUM( GridCapability )
+    Q_DECLARE_FLAGS( GridCapabilities, GridCapability )
+    Q_FLAG( GridCapabilities )
 
     struct FileDetails
     {
@@ -68,9 +61,9 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
       QString deducedName;
     };
 
-    ~ReosGriddedRainfallProvider();
+    ~ReosGriddedDataProvider();
 
-    virtual ReosGriddedRainfallProvider *clone() const = 0;
+    virtual ReosGriddedDataProvider *clone() const = 0;
 
     virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
 
@@ -88,22 +81,15 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual QDateTime endTime( int index ) const = 0;
     ReosDuration intervalDuration( int index ) const;
 
-    virtual const QVector<double> data( int index ) const = 0;
+    virtual int dataIndex( const QDateTime &time ) const;
 
-    virtual bool hasPrecipitationCapability( PrecipitationGridCapability capability ) const;
+    virtual const QVector<double> data( int index ) const = 0;
 
     virtual const QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const {return QVector<double>();}
 
-    virtual const QVector<double> qualifData( int index ) const;
-
     virtual ReosRasterExtent extent() const = 0;
 
-    virtual void copyFrom( ReosGriddedRainfallProvider * ) {};
-
-    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
-    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
-
-    virtual int dataIndex( const QDateTime &time ) const;
+    virtual void copyFrom( ReosGriddedDataProvider * ) {};
 
     virtual bool getDirectMinMax( double &, double & ) const {return false;}
 
@@ -111,17 +97,47 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
 
     virtual bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const;
 
+    virtual bool hasCapability( GridCapability capability ) const;
+
+  protected:
+    QString mDataSource;
+
+    mutable int mLastFrameIndex = -1;
+
+
+};
+
+
+class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosGriddedDataProvider
+{
+    Q_OBJECT
+  public:
+    enum class ValueType
+    {
+      Intensity,
+      Height,
+      CumulativeHeight
+    };
+
+    ~ReosGriddedRainfallProvider();
+
+    virtual ReosGriddedRainfallProvider *clone() const = 0;
+
+    virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
+
+    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
+    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
+
     virtual bool write(
       ReosGriddedRainfall *rainfall,
       const QString &uri,
       const ReosRasterExtent &destination,
       const ReosTimeWindow &timeWindow ) const;
+    virtual const QVector<double> qualifData( int ) const;
 
   protected:
     ValueType mSourceValueType = ValueType::Height;
 
-  private:
-    QString mDataSource;
 };
 
 class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
@@ -150,7 +166,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRain
 
     void setExtent( const ReosRasterExtent &newExtent );
 
-    void copyFrom( ReosGriddedRainfallProvider *other ) override;
+    void copyFrom( ReosGriddedDataProvider *other ) override;
 
   private:
     struct Frame

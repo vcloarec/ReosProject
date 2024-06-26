@@ -9,7 +9,7 @@
 
 
 
-class ReosGriddedRainfall : ReosRenderedObject
+class ReosGriddedRainfall : ReosGriddedData
 {
 %Docstring(signature="appended")
 *************************************************************************
@@ -37,32 +37,11 @@ the Free Software Foundation; either version 2 of the License, or     *
     ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
     ~ReosGriddedRainfall();
 
-
     static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
 
 
     static QString staticType();
 
-    int gridCount() const;
-%Docstring
-Returns the count of grids (e.g. time steps)
-%End
-
-    const QDateTime startTime( int index ) const;
-%Docstring
-Returns the start time related to the grid with ``index``
-%End
-
-    const QDateTime endTime( int index ) const;
-%Docstring
-Returns the end time related to the grif with ``index``
-%End
-
-
-    ReosDuration minimumTimeStep() const;
-%Docstring
-Returns the minimum time step of the gridded series
-%End
 
     const QVector<double> intensityValues( int index ) const;
 %Docstring
@@ -96,11 +75,6 @@ Returns the part of values that are not null for the ``index``. Returns value ar
 Returns the part of qualification values that are not null for the ``index``. Returns value are between 0.0 and 1.0.
 %End
 
-    bool supportExtractSubGrid() const;
-%Docstring
-Returns whether the data support extraction of subgrid
-%End
-
 
     ReosFloat64GridBlock intensityGridBlock( int index ) const;
 %Docstring
@@ -110,16 +84,6 @@ Returns a grid block containing all the data for the ``index``
     ReosFloat64GridBlock qualificationGridBloc( int index ) const;
 %Docstring
 Returns a grid block containing all the qualification data for the ``index``
-%End
-
-    int dataIndex( const QDateTime &time ) const;
-%Docstring
-Returns the index corresponding to ``time``
-%End
-
-    ReosRasterExtent rasterExtent() const;
-%Docstring
-Returns the raster extent of all the grids
 %End
 
     bool isValid() const;
@@ -137,18 +101,6 @@ for each time steps intersecting ``timeWindow`` (all time step if timeWindow is 
 
 
 
-
-
-
-
-
-
-  public slots:
-    virtual void updateData() const;
-
-
-  signals:
-    void loadingFinished();
 
 };
 

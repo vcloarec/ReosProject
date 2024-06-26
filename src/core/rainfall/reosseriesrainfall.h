@@ -63,6 +63,8 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
 
     double valueAt( int i ) const override;
 
+    void preCalculate() const;
+
   signals:
     void calculationFinished();
 

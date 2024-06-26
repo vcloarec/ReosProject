@@ -58,6 +58,8 @@ Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Call
     virtual double valueAt( int i ) const;
 
 
+    void preCalculate() const;
+
   signals:
     void calculationFinished();
 

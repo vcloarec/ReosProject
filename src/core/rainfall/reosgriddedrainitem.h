@@ -19,15 +19,17 @@
 #include "reosmemoryraster.h"
 #include "reosrainfallitem.h"
 #include "reosrenderedobject.h"
+#include "reosgriddeddata.h"
 #include "reos_sip.h"
 
 
 class ReosRasterExtent;
 class ReosGriddedRainfallProvider;
+class ReosGriddedDataProvider;
 class ReosGriddedRainfallRendererFactory;
 class ReosColorShaderSettings;
 
-class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
+class REOSCORE_EXPORT ReosGriddedRainfall : public ReosGriddedData
 {
     Q_OBJECT
   public:
@@ -35,31 +37,12 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
     ~ReosGriddedRainfall();
 
-    QString type() const override SIP_SKIP;
-    ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override SIP_SKIP ;
-    ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override SIP_SKIP;
-    ReosMapExtent extent() const override SIP_SKIP;
-
     static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
 
     ReosGriddedRainfallProvider *dataProvider() const SIP_SKIP;
 
     static QString staticType();
 
-    //! Returns the count of grids (e.g. time steps)
-    int gridCount() const;
-
-    //! Returns the start time related to the grid with \a index
-    const QDateTime startTime( int index ) const;
-
-    //! Returns the end time related to the grif with \a index
-    const QDateTime endTime( int index ) const;
-
-    //! Returns the time extent of the gridded rainfall
-    virtual QPair<QDateTime, QDateTime> timeExtent() const SIP_SKIP;
-
-    //! Returns the minimum time step of the gridded series
-    ReosDuration minimumTimeStep() const;
 
     /**
      * Returns all the values related to \a index, order of values can be deduced from the sign of sizes dx,dy)
@@ -87,9 +70,6 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
     //! Returns the part of qualification values that are not null for the \a index. Returns value are between 0.0 and 1.0.
     double qualifCoverage( int index, double qualif ) const;
 
-    //! Returns whether the data support extraction of subgrid
-    bool supportExtractSubGrid() const;
-
     //! Returns a raster stored in memory containing the intensity values of the rain fall( unit: mm / h ) for the index \a index
     ReosRasterMemory<double> intensityRaster( int index ) const SIP_SKIP;
 
@@ -98,12 +78,6 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
 
     //! Returns a grid block containing all the qualification data for the \a index
     ReosFloat64GridBlock qualificationGridBloc( int index ) const;
-
-    //! Returns the index corresponding to \a time
-    int dataIndex( const QDateTime &time ) const;
-
-    //! Returns the raster extent of all the grids
-    ReosRasterExtent rasterExtent() const;
 
     //! Returns whether the gridded rainfallis valid
     bool isValid() const;
@@ -117,44 +91,21 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosRenderedObject
      */
     ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, const ReosTimeWindow &timeWindow = ReosTimeWindow(), QObject *parent = nullptr ) const SIP_FACTORY;
 
-    //! Copies data from another rainfall
-    void copyFrom( ReosGriddedRainfall *other ) SIP_SKIP;
-
-    //! Copies new from a rainfall provider
-    void copyFrom( ReosGriddedRainfallProvider *provider ) SIP_SKIP;
-
     //! Returns the current color ramp settings, keep ownership
     ReosColorShaderSettings *colorSetting() const SIP_SKIP;
 
     //! Sets the color ramp settings \a colorRampShader, take ownership. it the color settings is not compatible, it is destructed.
     void setColorSetting( ReosColorShaderSettings *colorRampShader ) SIP_SKIP;
 
-    QList<ReosColorShaderSettings *> colorShaderSettings() const override SIP_SKIP;
-
-    bool getDirectMinMaxValue( double &min, double &max ) const SIP_SKIP;
-
-    void calculateMinMaxValue( double &min, double &max ) const SIP_SKIP;
-
     ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
 
     //! Creates new instance from the encoded element
     static ReosGriddedRainfall *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr ) SIP_SKIP;
 
-  public slots:
-    void updateData() const override;
-
-  signals:
-    void loadingFinished();
-
   private:
     ReosGriddedRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent );
 
-    std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
-    QString mOverridenCrs;
-    std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
-
     QString formatKey( const QString &rawKey ) const;
-    void makeConnection();
 };
 
 #ifndef SIP_RUN
@@ -188,8 +139,8 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
 class ReosGriddedRainfallRendererFactory
 {
   public:
-    ReosGriddedRainfallRendererFactory( ReosGriddedRainfall *rainfall )
-      : mRainfall( rainfall )
+    ReosGriddedRainfallRendererFactory( ReosGriddedData *rainfall )
+      : mGriddedData( rainfall )
     {}
 
     virtual ~ReosGriddedRainfallRendererFactory() = default;
@@ -198,10 +149,10 @@ class ReosGriddedRainfallRendererFactory
     virtual void setColorRampShaderSettings( ReosColorShaderSettings *colorSettings ) = 0;
     virtual ReosEncodedElement encode() const = 0;
 
-    ReosGriddedRainfall *rainfall() const;
+    ReosGriddedData *griddedData() const;
 
   protected:
-    QPointer<ReosGriddedRainfall> mRainfall;
+    QPointer<ReosGriddedData> mGriddedData;
 };
 #endif //SIP_RUN
 

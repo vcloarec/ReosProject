@@ -131,7 +131,7 @@ double ReosSeriesRainfallFromGriddedOnWatershed::valueAt( int i ) const
     rainValues.setValues( mGriddedRainfall->intensityValues( griddedIndex ) );
   }
 
-  double averageIntensity = 0;
+  double averageValue = 0;
   double totalSurf = 0;
   for ( int xi = 0; xi < rasterizedXCount; ++xi )
   {
@@ -140,16 +140,36 @@ double ReosSeriesRainfallFromGriddedOnWatershed::valueAt( int i ) const
       double surf = mRasterizedWatershed.value( yi, xi );
       double rv = rainValues.value( yi + effYOri, xi + effXori );
       if ( !std::isnan( rv ) )
-        averageIntensity += surf * rv;
+      {
+        averageValue += surf * rv;
+      }
       totalSurf += mRasterizedWatershed.value( yi, xi );
     }
   }
-  averageIntensity = averageIntensity / totalSurf;
 
-  constantTimeStepDataProvider()->setValue( i, averageIntensity * timeStep().valueHour() );
+  averageValue = averageValue / totalSurf;
+  constantTimeStepDataProvider()->setValue( i, averageValue );
 
-  return averageIntensity;
+  return averageValue;
 
+}
+
+void ReosSeriesRainfallFromGriddedOnWatershed::preCalculate() const
+{
+  int count = mGriddedRainfall->gridCount();
+
+  mTimer.start();
+  for ( int i = 0; i < count; ++i )
+  {
+    valueAt( i );
+    if ( i % 2400 == 0 )
+    {
+      qint64 t = mTimer.elapsed();
+      qDebug() << "Time to calculate 240 average rainfall on watershed: " << t << mTimer.elapsed() << "*** " << i ;
+      mTimer.restart();
+      mElapseTime = 0;
+    }
+  }
 }
 
 void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const
@@ -239,5 +259,7 @@ void ReosSeriesRainfallFromGriddedOnWatershed::AverageCalculation::start()
 
   mIsSuccessful = true;
 
-  qDebug() << QString( "average gridded precipitation %1 on watershed:" ).arg( usePrecision ? "with precision" : "without precition" ) << timer.elapsed();
+  qDebug() << QString( "average gridded precipitation %1 on watershed:" ).arg( usePrecision ? "with precision" : "without precision" ) << timer.elapsed();
+  qDebug() << rasterizedWatershed.columnCount();
+  qDebug() << rasterizedWatershed.rowCount();
 }
