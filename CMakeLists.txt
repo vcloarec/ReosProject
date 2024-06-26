@@ -104,7 +104,7 @@ IF(ENABLE_HEC_DSS)
     ENDIF(MSVC)
 ENDIF(ENABLE_HEC_DSS)
 
-SET(WITH_HYDRAULIC_MODEL_SUPPORT TRUE CACHE BOOL "Enable TELEMAC Model support")
+SET(WITH_HYDRAULIC_MODEL_SUPPORT TRUE CACHE BOOL "Enable Hydraulic Model support")
 IF(WITH_HYDRAULIC_MODEL_SUPPORT)
     add_definitions(-DWITH_GMSH)
     SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
@@ -232,6 +232,7 @@ endif()
 IF (ENABLE_TESTS)
 
   set(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
+  set(ERA5_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for ERA5 gridded data, some specific files are necessary.")
   set(METEOFRANCEAPI_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Meteo France, a file containing a API key is necessary")
   set(INTERN_PYTHON_TESTS_ENABLE FALSE CACHE BOOL "Enable tests related calling python from Reos")
 

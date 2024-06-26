@@ -107,7 +107,8 @@ SET(REOS_CORE_SOURCES
 
 IF(WITH_HYDRAULIC_MODEL_SUPPORT)
     SET(REOS_CORE_SOURCES
-          mesh/gmesh/reosgmshgenerator.cpp
+        ${REOS_CORE_SOURCES}
+         mesh/gmsh/reosgmshgenerator.cpp
       )
 ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
@@ -206,7 +207,8 @@ SET(REOS_CORE_HEADERS
 
 IF(WITH_HYDRAULIC_MODEL_SUPPORT)
     SET(REOS_CORE_HEADERS
-         mesh/gmesh/reosgmshgenerator.h
+        ${REOS_CORE_HEADERS}
+         mesh/gmsh/reosgmshgenerator.h
       )
 ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
@@ -353,7 +355,7 @@ IF(WITH_HYDRAULIC_MODEL_SUPPORT)
         ${GMSH_INCLUDE_DIR}
     )
 TARGET_INCLUDE_DIRECTORIES( reosCore PUBLIC
-    ${CMAKE_SOURCE_DIR}/src/core/gmesh
+    ${CMAKE_SOURCE_DIR}/src/core/gmsh
 )
 ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 

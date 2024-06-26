@@ -35,7 +35,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosplotwidget.h"
 #include "reosstyleregistery.h"
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 
 
 ReosMainWindow::ReosMainWindow( ReosModule *rootModule, QWidget *parent )
@@ -298,12 +298,12 @@ void ReosMainWindow::languageSelection()
 
 void ReosMainWindow::newVersionAvailable()
 {
-    new ReosVersionMessageBox( this, version(), false );
+  new ReosVersionMessageBox( this, version(), false );
 }
 
 ReosModule *ReosMainWindow::rootModule() const
 {
-    return mRootModule;
+  return mRootModule;
 }
 
 ReosModule *ReosMainWindow::guiRootModule() const
