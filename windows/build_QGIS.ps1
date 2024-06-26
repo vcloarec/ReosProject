@@ -5,7 +5,7 @@ $env:QGIS_SRC=Get-Location
 
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $BUILDCONF="Release"
-$PYTHONHOME=Join-Path $OSGEO_DIR "apps\Python39"
+$PYTHONHOME=Join-Path $OSGEO_DIR "apps\Python312"
 Write-Host "=== Python HOME"
 ls $PYTHONHOME
 
@@ -60,7 +60,7 @@ cmake   -S $env:QGIS_SRC `
 		-D SQLITE3_LIBRARY=$OSGEO_DIR/lib/sqlite3_i.lib `
 		-D SPATIALITE_LIBRARY=$OSGEO_DIR/lib/spatialite_i.lib `
 		-D SPATIALINDEX_LIBRARY=$OSGEO_DIR/lib/spatialindex-64.lib `
-		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python39/python3.exe `
+		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
 		-D SIP_MODULE_EXECUTABLE=$PYTHONHOME/Scripts/sip-module.exe `
 		-D PYUIC_PROGRAM=$PYTHONHOME/Scripts/pyuic5.exe `
 		-D PYRCC_PROGRAM=$PYTHONHOME/Scripts/pyrcc5.exe `
