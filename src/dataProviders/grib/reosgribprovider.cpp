@@ -173,7 +173,7 @@ QDateTime ReosGribGriddedRainfallProvider::startTime( int index ) const
     case ValueType::CumulativeHeight:
       if ( index == 0 )
         return QDateTime::fromSecsSinceEpoch( mReferenceTime, Qt::UTC );
-      else
+      else if ( index > 0 )
         return QDateTime::fromSecsSinceEpoch( mFrames.at( index - 1 ).validTime, Qt::UTC );
       break;
     case ValueType::Height:

@@ -279,8 +279,8 @@ void ReosComephoreTest::netCdfFolder()
   for ( int i = 0; i < provider->count(); ++i )
     QVERIFY( provider->startTime( i ).isValid() );
 
-  QVERIFY( provider->hasPrecipitationCapability( ReosGriddedRainfallProvider::SubGridExtract ) );
-  QVERIFY( provider->hasPrecipitationCapability( ReosGriddedRainfallProvider::QualificationValue ) );
+  QVERIFY( provider->hasCapability( ReosGriddedRainfallProvider::SubGridExtract ) );
+  QVERIFY( provider->hasCapability( ReosGriddedRainfallProvider::QualificationValue ) );
 
   values = provider->dataInGridExtent( 700, 560, 570, 340, 360 );
   QCOMPARE( values.count(), 231 );
