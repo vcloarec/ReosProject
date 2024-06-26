@@ -23,8 +23,8 @@ email                : vcloarec@gmail.com
 #include <QRectF>
 #include <QPolygonF>
 
-#include <gdal_priv.h>
-#include <ogr_spatialref.h>
+#include <gdal/gdal_priv.h>
+#include <gdal/ogr_spatialref.h>
 
 #include "reosmapextent.h"
 

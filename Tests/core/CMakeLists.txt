@@ -70,8 +70,14 @@ SET(TESTS
     reos_hydrograph_transfer_test.cpp
     reos_hydraulic_structure_2D_test.cpp
     reos_hydraulic_network_test.cpp
-    reos_mesh_test.cpp
     )
+
+
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    SET(TESTS
+        reos_mesh_test.cpp
+        )
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 FOREACH(TESTSRC ${TESTS})
     ADD_REOS_TEST(${TESTSRC})

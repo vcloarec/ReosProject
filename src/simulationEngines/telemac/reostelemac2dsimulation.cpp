@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "reospolygonstructure.h"
 #ifdef _MSC_VER
 #include <Windows.h>
 #undef max

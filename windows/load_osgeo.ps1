@@ -35,7 +35,6 @@ Write-Host "================================================="
     --autoaccept `
     --delete-orphans `
     --local-package-dir "$env:APPDATA/OSGeo4W-Packages" `
-    --menu-name "QGIS LTR" `
     --no-desktop `
     --packages qgis-deps `
     --root $osgeo_root_install `

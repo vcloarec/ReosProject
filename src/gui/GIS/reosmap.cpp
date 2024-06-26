@@ -593,7 +593,7 @@ ReosGisEngine *ReosMap::engine() const
 QString ReosMap::mapCrs() const
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
-  return canvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return canvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 void ReosMap::setDefaultMapTool()

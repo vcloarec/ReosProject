@@ -236,7 +236,7 @@ void ReosGisLayersWidget::onSetCrs()
   QString crs = mGisEngine->crs();
   dial.setCrs( QgsCoordinateReferenceSystem::fromWkt( crs ) );
   if ( dial.exec() )
-    mGisEngine->setCrs( dial.crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
+    mGisEngine->setCrs( dial.crs().toWkt( Qgis::CrsWktVariant::Preferred ) );
 
 }
 

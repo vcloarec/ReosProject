@@ -112,7 +112,7 @@ void ReosMapPolygonBase_p::setMarkerDistance( double d )
   }
 
   mMarkerposition = ReosGisEngine::setPointOnPolyline( d, mapPoly,
-                    mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED ), mSegmentMarker );
+                    mMapCanvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred ), mSegmentMarker );
   updatePosition();
 }
 
@@ -125,7 +125,7 @@ void ReosMapPolygonBase_p::setMarkerAtMid()
 {
   const QPolygonF &mapPoly = geometry();
   mMarkerposition = ReosGisEngine::setPointOnPolyline( ReosGeometryUtils::length( mapPoly ) / 2, mapPoly,
-                    mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED ), mSegmentMarker );
+                    mMapCanvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred ), mSegmentMarker );
   updatePosition();
 }
 
@@ -709,5 +709,5 @@ ReosMapItem_p::ReosMapItem_p( QgsMapCanvas *canvas )
 
 QString ReosMapItem_p::crs() const
 {
-  return mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mMapCanvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred );
 }

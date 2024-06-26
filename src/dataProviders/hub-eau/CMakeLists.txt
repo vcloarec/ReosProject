@@ -3,17 +3,25 @@
 
 SET(REOS_HUB_EAU_SOURCES
   reoshubeauserver.cpp
-  reoshubeauwidget.cpp
   reoshubeauhydrographprovider.cpp
-  reoshubeausettingswidget.cpp
 )
 
 SET(REOS_HUB_EAU_HEADERS
     reoshubeauserver.h
-    reoshubeauwidget.h
     reoshubeauhydrographprovider.h
-    reoshubeausettingswidget.h
 )
+
+IF(WITH_GUI)
+    SET(REOS_HUB_EAU_SOURCES
+      reoshubeauwidget.cpp
+      reoshubeausettingswidget.cpp
+    )
+
+    SET(REOS_HUB_EAU_HEADERS
+        reoshubeauwidget.h
+        reoshubeausettingswidget.h
+    )
+ENDIF(WITH_GUI)
 
 SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/hub-eau/hub-eau-images.qrc)
 
@@ -33,9 +41,12 @@ TARGET_LINK_LIBRARIES(provider_hub_eau
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        reosGui
-        reosCore
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(provider_hub_eau
+            reosGui)
+ENDIF(WITH_GUI)
 
 set_target_properties(provider_hub_eau
     PROPERTIES
@@ -44,14 +55,6 @@ set_target_properties(provider_hub_eau
     )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/src/ui
-    ${CMAKE_SOURCE_DIR}/src/gui
-    ${CMAKE_SOURCE_DIR}/src/gui/chart
-    ${CMAKE_SOURCE_DIR}/src/gui/form
-    ${CMAKE_SOURCE_DIR}/src/gui/data
-    ${CMAKE_SOURCE_DIR}/src/gui/GIS
-    ${CMAKE_SOURCE_DIR}/src/gui/watershed
-    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -63,6 +66,19 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    )
+ENDIF(WITH_GUI)
 
 
 INSTALL(TARGETS provider_hub_eau

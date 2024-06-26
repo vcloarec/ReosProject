@@ -66,7 +66,7 @@ static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouse
 
         QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
                                  .setFilterRect( rect )
-                                 .setFlags( QgsFeatureRequest::ExactIntersect ) );
+                                 .setFlags( Qgis::FeatureRequestFlag::ExactIntersect ) );
         QgsFeature f;
         while ( fit.nextFeature( f ) )
         {
@@ -105,7 +105,7 @@ bool ReosMapTool_p::hasFeatureOnMap( const QPointF &mapPoint ) const
 
       QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
                                .setFilterRect( rect )
-                               .setFlags( QgsFeatureRequest::ExactIntersect ) );
+                               .setFlags( Qgis::FeatureRequestFlag::ExactIntersect ) );
       QgsFeature feat;
       if ( fit.nextFeature( feat ) )
         return true;
@@ -665,7 +665,7 @@ void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
 
 QString ReosMapTool_p::mapCrs() const
 {
-  return canvas()->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return canvas()->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
 

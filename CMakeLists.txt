@@ -51,6 +51,9 @@ ADD_DEFINITIONS(-DREOS_PROVIDERS="${REOS_PROVIDERS_DIR}")
 ADD_DEFINITIONS(-DREOS_SIMULATION_ENGINES="${REOS_ENGINES_DIR}")
 ADD_DEFINITIONS(-DREOS_BUILDING_OUTPUT="${REOS_OUTPUT_DIRECTORY}")
 
+SET(WITH_GUI TRUE CACHE BOOL "With Graphic User Interface (LEKAN)")
+SET(WITH_3D TRUE CACHE BOOL "With Graphic User Interface (LEKAN)")
+
 SET(WITH_QTWEBKIT FALSE CACHE BOOL "With QtWebKit")
 SET(QGIS_PROVIDERS_PATH CACHE PATH "Path to the folder containing the data providers of QGIS. Only necessary for dev and tests.")
 SET(QGIS_INCLUDE_DIR CACHE PATH "Path to the include dir of QGIS")
@@ -62,14 +65,19 @@ SET(QGIS_APP_LIB CACHE FILEPATH "Path to QGIS app lib")
 SET(QGIS_APP_INCLUDE CACHE PATH "Path to QGIS app header files (in source)")
 SET(QGIS_LIBS ${QGIS_CORE_LIB} ${QGIS_GUI_LIB} ${QGIS_ANALYSIS_LIB} ${QGIS_3D_LIB})
 SET(QSCISCINTILLA_INCLUDE_DIR CACHE PATH "Path to Qsciscintilla include dir")
-SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
-SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
-SET(TELEMAC_PATH CACHE PATH "Path to TELEMAC.")
-SET(TELEMAC_CONFIG_NAME CACHE STRING "Configuration name of TELEMAC.")
-SET(TELEMAC_CONFIG_FILE CACHE FILEPATH "Configuration file of TELEMAC.")
-SET(TELEMAC_PYTHON_PATH CACHE FILEPATH "Python interpreter path to use for TELEMAC.")
+
 
 SET(ENABLE_HEC_DSS TRUE CACHE BOOL "Enable hec-dss")
+
+IF(WITH_3D)
+    add_definitions(-DENABLE_3D)
+ENDIF(WITH_3D)
+
+IF(WITH_GUI)
+    add_definitions(-DENABLE_GUI)
+ENDIF(WITH_GUI)
+
+
 IF(ENABLE_HEC_DSS)
     SET (HEC_DSS_LIBS_PATH CACHE PATH "Path to the hec-dss libraries")
     SET (HEC_DSS_INCLUDE CACHE PATH "Path to the hec-dss include dir")
@@ -96,9 +104,24 @@ IF(ENABLE_HEC_DSS)
     ENDIF(MSVC)
 ENDIF(ENABLE_HEC_DSS)
 
-SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
-SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
+SET(WITH_HYDRAULIC_MODEL_SUPPORT TRUE CACHE BOOL "Enable Hydraulic Model support")
+IF(WITH_HYDRAULIC_MODEL_SUPPORT)
+    add_definitions(-DWITH_GMSH)
+    SET(GMSH_INCLUDE_DIR CACHE PATH "Path to the include dir of gmsh")
+    SET(GMSH_LIB CACHE FILEPATH "Path to the lib file of gmsh")
 
+    SET(WITH_TELEMAC_SUPPORT TRUE CACHE BOOL "Enable TELEMAC Model support")
+    IF(WITH_TELEMAC_SUPPORT)
+        SET(TELEMAC_PATH CACHE PATH "Path to TELEMAC.")
+        SET(TELEMAC_CONFIG_NAME CACHE STRING "Configuration name of TELEMAC.")
+        SET(TELEMAC_CONFIG_FILE CACHE FILEPATH "Configuration file of TELEMAC.")
+        SET(TELEMAC_PYTHON_PATH CACHE FILEPATH "Python interpreter path to use for TELEMAC.")
+    ENDIF(WITH_TELEMAC_SUPPORT)
+
+    SET(MDAL_INCLUDE_DIR CACHE PATH "Path to the include dir of MDAL")
+    SET(MDAL_LIB CACHE FILEPATH "Path to the lib file of MDAL")
+
+ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 set(QT_MIN_VERSION 5.14.0)
 set(QT_VERSION_BASE "Qt5")
@@ -123,13 +146,14 @@ if(NOT MSVC)
   FIND_QCAOSSL_PLUGIN_CPP(ENABLE_TESTS)
 endif()
 
-IF (WITH_QTWEBKIT)
-  FIND_PACKAGE(Qt5 COMPONENTS WebKit WebKitWidgets REQUIRED)
-ENDIF(WITH_QTWEBKIT)
+IF(WITH_GUI)
+    IF (WITH_QTWEBKIT)
+      FIND_PACKAGE(Qt5 COMPONENTS WebKit WebKitWidgets REQUIRED)
+    ENDIF(WITH_QTWEBKIT)
 
-SET(QWT_LIB CACHE FILEPATH "Path to qwt LIB")
-SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
-
+    SET(QWT_LIB CACHE FILEPATH "Path to qwt LIB")
+    SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
+ENDIF(WITH_GUI)
 
 
 #############################################################
@@ -196,7 +220,9 @@ endif()
 
 ADD_SUBDIRECTORY(images)
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(i18n)
+IF(WITH_GUI)
+    ADD_SUBDIRECTORY(i18n)
+ENDIF(WITH_GUI)
 
 if (WITH_BINDINGS)
     ADD_SUBDIRECTORY(python)
@@ -206,6 +232,7 @@ endif()
 IF (ENABLE_TESTS)
 
   set(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
+  set(ERA5_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for ERA5 gridded data, some specific files are necessary.")
   set(METEOFRANCEAPI_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Meteo France, a file containing a API key is necessary")
   set(INTERN_PYTHON_TESTS_ENABLE FALSE CACHE BOOL "Enable tests related calling python from Reos")
 

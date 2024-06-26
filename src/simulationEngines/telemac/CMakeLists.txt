@@ -8,17 +8,25 @@ ADD_DEFINITIONS(-DTELEMAC_PYTHON_PATH="${TELEMAC_PYTHON_PATH}")
 
 SET(REOS_TELEMAC_SOURCES
     reostelemac2dsimulation.cpp
-    reostelemacsimulationeditwidget.cpp
     reostelemac2dsimulationresults.cpp
     reostelemac2dinitialcondition.cpp
 )
 
 SET(REOS_TELEMAC_HEADERS
     reostelemac2dsimulation.h
-    reostelemacsimulationeditwidget.h
     reostelemac2dsimulationresults.h
     reostelemac2dinitialcondition.h
 )
+
+IF(WITH_GUI)
+    SET(REOS_TELEMAC_SOURCES
+        reostelemacsimulationeditwidget.cpp
+    )
+
+    SET(REOS_TELEMAC_HEADERS
+        reostelemacsimulationeditwidget.h
+    )
+ENDIF(WITH_GUI)
 
 SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/engines/TELEMAC/telemac-images.qrc)
 
@@ -39,9 +47,13 @@ TARGET_LINK_LIBRARIES(telemac_engine
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
         ${MDAL_LIB}
-        reosGui
         reosCore
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(telemac_engine
+            reosGui)
+ENDIF(WITH_GUI)
 
 
 set_target_properties(telemac_engine
@@ -82,6 +94,21 @@ INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}
     ${MDAL_INCLUDE_DIR}
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+        ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork
+        ${CMAKE_SOURCE_DIR}/src/gui/hydraulicNetwork/structure2d
+        )
+ENDIF(WITH_GUI)
 
 INSTALL(TARGETS telemac_engine 
   RUNTIME DESTINATION bin/${REOS_ENGINES_DIR}

@@ -18,11 +18,9 @@
 #include <qgsproject.h>
 #include <qgsmesheditor.h>
 #include <qgsmeshlayerrenderer.h>
-#include <qgsmapcanvas.h>
 #include <qgsrendercontext.h>
 #include <qgsproviderregistry.h>
 #include <qgsmeshlayertemporalproperties.h>
-#include <qgsmeshlayer3drenderer.h>
 #include <qgsgeometryengine.h>
 #include <qgsgeometryutils.h>
 #include <qgsunittypes.h>
@@ -753,6 +751,7 @@ ReosEncodedElement ReosMeshFrame_p::datasetGroupVectorSymbologyfromLayer( const 
 
 void ReosMeshFrame_p::update3DRenderer()
 {
+#ifdef ENABLE_3D
   if ( !mMeshLayer )
     return;
 
@@ -801,6 +800,8 @@ void ReosMeshFrame_p::update3DRenderer()
     renderer->setSymbol( symbol.release() );
 
   mMeshLayer->setRenderer3D( renderer.release() );
+
+#endif //ENABLE_3D
 }
 
 
@@ -1369,7 +1370,7 @@ void ReosMeshFrame_p::generateMesh( const ReosMeshFrameData &data )
 
 QString ReosMeshFrame_p::crs() const
 {
-  return mMeshDataProvider->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mMeshDataProvider->crs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 QObject *ReosMeshFrame_p::data() const
@@ -1387,7 +1388,7 @@ ReosMapExtent ReosMeshFrame_p::extent() const
   if ( mMeshLayer )
   {
     ReosMapExtent ret( mMeshLayer->extent().toRectF() );
-    ret.setCrs( mMeshLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED ) );
+    ret.setCrs( mMeshLayer->crs().toWkt( Qgis::CrsWktVariant::Preferred ) );
 
     return ret;
   }

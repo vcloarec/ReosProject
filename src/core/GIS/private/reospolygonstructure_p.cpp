@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include "reospolygonstructure_p.h"
 
+#include <qgis.h>
 #include <qgsvectorlayer.h>
 #include <qgscategorizedsymbolrenderer.h>
 #include <qgslinestring.h>
@@ -128,7 +129,7 @@ ReosEncodedElement ReosPolygonStructure_p::encode() const
 
 QString ReosPolygonStructure_p::crs() const
 {
-  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
 ReosPolygonStructure_p::~ReosPolygonStructure_p()

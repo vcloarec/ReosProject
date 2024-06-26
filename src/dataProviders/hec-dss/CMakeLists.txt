@@ -13,16 +13,23 @@ SET(REOS_HEC_DSS_HEADERS
 
 SET(REOS_PROVIDER_HEC_DSS_SOURCES
     reosdssprovider.cpp
-    reosdssgriddedrainfallselector.cpp
-    reosdssprovideruriwidget.cpp
-
 )
 
 SET(REOS_PROVIDER_HEC_DSS_HEADERS
     reosdssprovider.h
-    reosdssgriddedrainfallselector.h
-    reosdssprovideruriwidget.h
 )
+
+IF(WITH_GUI)
+    SET(REOS_PROVIDER_HEC_DSS_SOURCES
+        reosdssgriddedrainfallselector.cpp
+        reosdssprovideruriwidget.cpp
+    )
+
+    SET(REOS_PROVIDER_HEC_DSS_HEADERS
+        reosdssgriddedrainfallselector.h
+        reosdssprovideruriwidget.h
+    )
+ENDIF(WITH_GUI)
 
 #SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)
 
@@ -41,10 +48,14 @@ TARGET_LINK_LIBRARIES(reosHecDss
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        reosGui
         reosCore
         ${HEC_DSS_ALL_STATIC_LIB}
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(reosHecDss
+            reosGui)
+ENDIF(WITH_GUI)
 
 ADD_LIBRARY(provider_HEC_DSS MODULE
     ${REOS_PROVIDER_HEC_DSS_SOURCES}
@@ -61,10 +72,14 @@ TARGET_LINK_LIBRARIES(provider_HEC_DSS
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        reosGui
         reosCore
         reosHecDss
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(provider_HEC_DSS
+            reosGui)
+ENDIF(WITH_GUI)
 
 set_target_properties(reosHecDss
     PROPERTIES
@@ -80,14 +95,6 @@ set_target_properties(provider_HEC_DSS
     )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/src/ui
-    ${CMAKE_SOURCE_DIR}/src/gui
-    ${CMAKE_SOURCE_DIR}/src/gui/chart
-    ${CMAKE_SOURCE_DIR}/src/gui/form
-    ${CMAKE_SOURCE_DIR}/src/gui/data
-    ${CMAKE_SOURCE_DIR}/src/gui/GIS
-    ${CMAKE_SOURCE_DIR}/src/gui/watershed
-    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -100,6 +107,19 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     ${HEC_DSS_INCLUDE}
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    )
+ENDIF(WITH_GUI)
 
 
 IF(WIN32)

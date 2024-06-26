@@ -304,7 +304,7 @@ void ReosMeshDataProvider_p::generateMesh( const ReosMeshFrameData &data )
 void ReosMeshDataProvider_p::applyDemOnVertices( ReosDigitalElevationModel *dem )
 {
   double noDataValue = dem->noDataValue();
-  QString wktCrs = mCrs.toWkt( QgsCoordinateReferenceSystem::WKT2_2019_SIMPLIFIED );
+  QString wktCrs = mCrs.toWkt( Qgis::CrsWktVariant::Wkt2_2019 );
 
   for ( int i = 0; i < mMesh.vertexCount(); ++i )
   {

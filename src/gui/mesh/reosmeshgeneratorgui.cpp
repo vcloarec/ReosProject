@@ -17,7 +17,7 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 
 ReosFormWidget *ReosFormGmshGeneratorWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {

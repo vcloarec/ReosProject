@@ -19,7 +19,7 @@ email                : vcloarec at gmail dot com
 #include "reosmesh.h"
 #include "reosmeshgenerator.h"
 #include "reospolylinesstructure.h"
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 #include "reos_testutils.h"
 #include "reosparameter.h"
 
