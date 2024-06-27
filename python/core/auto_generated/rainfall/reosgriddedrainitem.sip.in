@@ -86,11 +86,6 @@ Returns a grid block containing all the data for the ``index``
 Returns a grid block containing all the qualification data for the ``index``
 %End
 
-    bool isValid() const;
-%Docstring
-Returns whether the gridded rainfallis valid
-%End
-
 
     ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, const ReosTimeWindow &timeWindow = ReosTimeWindow(), QObject *parent = 0 ) const /Factory/;
 %Docstring

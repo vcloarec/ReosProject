@@ -99,6 +99,9 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
 
     virtual bool hasCapability( GridCapability capability ) const;
 
+    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
+    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
+
   protected:
     QString mDataSource;
 
@@ -122,11 +125,6 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosGriddedDataProvid
     ~ReosGriddedRainfallProvider();
 
     virtual ReosGriddedRainfallProvider *clone() const = 0;
-
-    virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
-
-    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
-    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
 
     virtual bool write(
       ReosGriddedRainfall *rainfall,

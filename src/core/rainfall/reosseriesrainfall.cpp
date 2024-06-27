@@ -157,19 +157,8 @@ double ReosSeriesRainfallFromGriddedOnWatershed::valueAt( int i ) const
 void ReosSeriesRainfallFromGriddedOnWatershed::preCalculate() const
 {
   int count = mGriddedRainfall->gridCount();
-
-  mTimer.start();
   for ( int i = 0; i < count; ++i )
-  {
     valueAt( i );
-    if ( i % 2400 == 0 )
-    {
-      qint64 t = mTimer.elapsed();
-      qDebug() << "Time to calculate 240 average rainfall on watershed: " << t << mTimer.elapsed() << "*** " << i ;
-      mTimer.restart();
-      mElapseTime = 0;
-    }
-  }
 }
 
 void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const

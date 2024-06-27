@@ -16,6 +16,7 @@
 #ifndef REOSGRIDDEDRAINITEM_H
 #define REOSGRIDDEDRAINITEM_H
 
+#include "reosgriddedrainfallprovider.h"
 #include "reosmemoryraster.h"
 #include "reosrainfallitem.h"
 #include "reosrenderedobject.h"
@@ -39,7 +40,8 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosGriddedData
 
     static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
 
-    ReosGriddedRainfallProvider *dataProvider() const SIP_SKIP;
+    //! Returns a pointer to the data provider
+    ReosGriddedRainfallProvider *dataProvider() const override SIP_SKIP;
 
     static QString staticType();
 
@@ -78,9 +80,6 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosGriddedData
 
     //! Returns a grid block containing all the qualification data for the \a index
     ReosFloat64GridBlock qualificationGridBloc( int index ) const;
-
-    //! Returns whether the gridded rainfallis valid
-    bool isValid() const;
 
     //! Overrides the coordinates system with the wkt string \a crs of the gridded rainfall without modifying the coordinates
     void overrideCrs( const QString &crs ) SIP_SKIP;

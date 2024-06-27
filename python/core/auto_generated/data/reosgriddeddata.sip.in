@@ -1,0 +1,119 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosgriddeddata.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosGriddedData : ReosRenderedObject
+{
+%Docstring(signature="appended")
+Class that represents gridded data.
+%End
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosGriddedData( QObject *parent = 0 );
+%Docstring
+Constructor.
+%End
+
+    ReosGriddedData( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
+%Docstring
+Constructor with ``datasource`` or ``providerkey``.
+%End
+
+
+    static QString staticType();
+
+
+    bool isValid() const;
+%Docstring
+Returns whether the gridded rainfallis valid
+%End
+
+    int gridCount() const;
+%Docstring
+Returns the count of grids (e.g. time steps)
+%End
+
+    const QVector<double> values( int index ) const;
+%Docstring
+Returns all the values related to ``index``, order of values can be deduced from the sign of sizes dx,dy)
+of the cell contained in the raster extent (see :py:func:`~ReosGriddedData.extent`
+%End
+
+    const QVector<double> valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
+
+    const QDateTime startTime( int index ) const;
+%Docstring
+Returns the start time related to the grid with ``index``
+%End
+
+    const QDateTime endTime( int index ) const;
+%Docstring
+Returns the end time related to the grif with ``index``
+%End
+
+
+    ReosDuration minimumTimeStep() const;
+%Docstring
+Returns the minimum time step of the gridded series
+%End
+
+    bool supportExtractSubGrid() const;
+%Docstring
+Returns whether the data support extraction of subgrid
+%End
+
+
+
+    int dataIndex( const QDateTime &time ) const;
+%Docstring
+Returns the index corresponding to ``time``
+%End
+
+    ReosRasterExtent rasterExtent() const;
+%Docstring
+Returns the raster extent of all the grids
+%End
+
+
+
+  public slots:
+    virtual void updateData() const;
+
+
+  signals:
+    void loadingFinished();
+
+  protected:
+    void makeConnection();
+
+    void decodeProvider( const ReosEncodedElement &element, const ReosEncodeContext &context );
+    void setProvider( ReosGriddedDataProvider *provider );
+
+    void setRenderer( ReosGriddedRainfallRendererFactory *rendererFactory );
+    ReosGriddedRainfallRendererFactory *renderer() const;
+
+};
+
+ReosGriddedDataProvider *ReosGriddedData::dataProvider() const
+{
+  return mProvider.get();
+}
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reosgriddeddata.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

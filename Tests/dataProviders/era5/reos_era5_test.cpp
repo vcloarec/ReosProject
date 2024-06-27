@@ -28,6 +28,7 @@ class ReosEra5Test: public QObject
 
   private slots:
     void createProvider();
+    void createGridData();
 };
 
 void ReosEra5Test::createProvider()
@@ -80,6 +81,49 @@ void ReosEra5Test::createProvider()
   double min = 0, max = 0;
   QVERIFY( !provider->getDirectMinMax( min, max ) );
   provider->calculateMinMax( min, max );
+  QCOMPARE( min, 0.0 );
+  QCOMPARE( max, 0.0072928667068481445 );
+}
+
+void ReosEra5Test::createGridData()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QString( ERA5_FILES_PATH );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QCOMPARE( griddedData->gridCount(), 2880 );
+  QCOMPARE( griddedData->startTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->endTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->startTime( 1 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->endTime( 1 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->startTime( 50 ), QDateTime( QDate( 1990, 1, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->endTime( 50 ), QDateTime( QDate( 1990, 1, 3 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+
+  ReosRasterExtent extent = griddedData->rasterExtent();
+
+  QCOMPARE( extent.xCellSize(), 0.25 );
+  QCOMPARE( extent.yCellSize(), -0.25 );
+  QCOMPARE( extent.xCellCount(), 63 );
+  QCOMPARE( extent.yCellCount(), 41 );
+
+  QVector<double> values = griddedData->values( 0 );
+  QCOMPARE( values.at( 50 ), 1.112854089824677e-05 );
+  QCOMPARE( values.at( 60 ), 3.561133087438655e-06 );
+
+  values = griddedData->values( 50 );
+  QCOMPARE( values.at( 50 ), 5.341699631158416e-06 );
+  QCOMPARE( values.at( 60 ), 6.343268312000456e-06 );
+
+  double min = 0, max = 0;
+  QVERIFY( !griddedData->getDirectMinMaxValue( min, max ) );
+  griddedData->calculateMinMaxValue( min, max );
   QCOMPARE( min, 0.0 );
   QCOMPARE( max, 0.0072928667068481445 );
 }

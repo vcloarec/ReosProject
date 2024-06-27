@@ -34,7 +34,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &elem
 ReosGriddedRainfall::ReosGriddedRainfall( QObject *parent )
   : ReosGriddedData( parent )
 {
-  mProvider.reset( new ReosGriddedRainfallMemoryProvider );
+  setProvider( new ReosGriddedRainfallMemoryProvider );
   makeConnection();
 }
 
@@ -49,16 +49,10 @@ ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, con
   ReosDataObject::decode( element );
   element.getData( QStringLiteral( "overriden-crs" ), mOverridenCrs );
 
-  QString providerKey;
-  element.getData( QStringLiteral( "provider-key" ), providerKey );
-  mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) );
-  if ( dataProvider() )
-    dataProvider()->decode( element.getEncodedData( QStringLiteral( "provider" ) ), context );
-
+  decodeProvider( element, context );
   makeConnection();
 
-  // renderer factory must be created after set the datasource because, the factory needs the extent of the provider on creation
-  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( element.getEncodedData( QStringLiteral( "renderer" ) ), this ) );
+  setRenderer( new ReosGriddedRainfallRendererFactory_p( element.getEncodedData( QStringLiteral( "renderer" ) ), this ) );
 }
 
 QString ReosGriddedRainfall::formatKey( const QString &rawKey ) const
@@ -74,9 +68,9 @@ ReosEncodedElement ReosGriddedRainfall::encode( const ReosEncodeContext &context
   ReosEncodedElement element( ReosGriddedRainfall::staticType() );
   ReosDataObject::encode( element );
   element.addData( QStringLiteral( "overriden-crs" ), mOverridenCrs );
-  element.addEncodedData( QStringLiteral( "renderer" ), mRendererFactory->encode() );
+  element.addEncodedData( QStringLiteral( "renderer" ), renderer()->encode() );
 
-  element.addData( QStringLiteral( "provider-key" ), mProvider->key() );
+  element.addData( QStringLiteral( "provider-key" ), dataProvider()->key() );
   element.addEncodedData( QStringLiteral( "provider" ), dataProvider()->encode( context ) );
 
   return element;
@@ -101,7 +95,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::loadGriddedRainfall( const QString &da
 
 ReosGriddedRainfallProvider *ReosGriddedRainfall::dataProvider() const
 {
-  return qobject_cast<ReosGriddedRainfallProvider *>( mProvider.get() );
+  return qobject_cast<ReosGriddedRainfallProvider *>( ReosGriddedData::dataProvider() );
 }
 
 QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-precipitation" );}
@@ -110,54 +104,12 @@ QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-preci
 
 const QVector<double> ReosGriddedRainfall::intensityValues( int index ) const
 {
-  if ( mProvider )
-    return mProvider->data( index );
-  else
-    return QVector<double>();
+  return values( index );
 }
 
 const QVector<double> ReosGriddedRainfall::intensityValuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const
 {
-  if ( !mProvider )
-    return QVector<double>();
-
-  if ( index < 0 )
-    return QVector<double>();
-
-  if ( dataProvider()->hasCapability( ReosGriddedRainfallProvider::SubGridExtract ) )
-  {
-    const QVector<double> &ret = mProvider->dataInGridExtent( index, rowMin, rowMax, colMin, colMax );
-    return ret;
-  }
-
-  QElapsedTimer timer;
-  timer.start();
-  const QVector<double> &data = mProvider->data( index );
-
-  ReosRasterExtent extent = mProvider->extent();
-  int colRawCount = extent.xCellCount();
-
-  int rowCount = rowMax - rowMin + 1;
-  int colCount = colMax - colMin + 1;
-  QVector<double> ret;
-  ret.resize( rowCount * colCount );
-  for ( int r = 0; r < rowCount; ++r )
-    for ( int c = 0; c < colCount; ++c )
-    {
-      int rawIndex = c + colMin + ( r + rowMin ) * colRawCount;
-      int locIndex = c + r * colCount;
-      ret[locIndex] = data.at( rawIndex );
-    }
-
-  return ret;
-}
-
-const QVector<double> ReosGriddedRainfall::qualificationData( int index ) const
-{
-  if ( dataProvider() && dataProvider()->hasCapability( ReosGriddedRainfallProvider::SubGridExtract ) )
-    return dataProvider()->qualifData( index );
-
-  return QVector<double>();
+  return valuesInGridExtent( index, rowMin, rowMax, colMin, colMax );
 }
 
 double ReosGriddedRainfall::nullCoverage( int index ) const
@@ -187,96 +139,45 @@ double ReosGriddedRainfall::qualifCoverage( int index, double qualif ) const
   return 1.0;
 }
 
+const QVector<double> ReosGriddedRainfall::qualificationData( int index ) const
+{
+  if ( dataProvider() && dataProvider()->hasCapability( ReosGriddedRainfallProvider::QualificationValue ) )
+    return dataProvider()->qualifData( index );
+
+  return QVector<double>();
+}
+
+
 ReosRasterMemory<double> ReosGriddedRainfall::intensityRaster( int index ) const
 {
-  ReosRasterExtent extent = mProvider->extent();
+  ReosRasterExtent extent = dataProvider()->extent();
   ReosRasterMemory<double> ret( extent.yCellCount(), extent.xCellCount() );
-  ret.setValues( mProvider->data( index ) );
+  ret.setValues( dataProvider()->data( index ) );
 
   return ret;
 }
 
 ReosFloat64GridBlock ReosGriddedRainfall::intensityGridBlock( int index ) const
 {
-  ReosRasterExtent extent = mProvider->extent();
+  ReosRasterExtent extent = dataProvider()->extent();
   ReosFloat64GridBlock ret( extent.yCellCount(), extent.xCellCount() );
-  ret.setValues( mProvider->data( index ) );
+  ret.setValues( dataProvider()->data( index ) );
 
   return ret;
 }
 
 ReosFloat64GridBlock ReosGriddedRainfall::qualificationGridBloc( int index ) const
 {
-  ReosRasterExtent extent = mProvider->extent();
+  ReosRasterExtent extent = dataProvider()->extent();
   ReosFloat64GridBlock ret( extent.yCellCount(), extent.xCellCount() );
   ret.setValues( qualificationData( index ) );
 
   return ret;
 }
 
-int ReosGriddedData::dataIndex( const QDateTime &time ) const
-{
-  if ( !mProvider )
-    return  -1;
-
-  return mProvider->dataIndex( time );
-}
-
-ReosRasterExtent ReosGriddedData::rasterExtent() const
-{
-  if ( mProvider )
-  {
-    if ( mOverridenCrs.isEmpty() )
-      return mProvider->extent();
-    ReosRasterExtent extent = mProvider->extent();
-    extent.setCrs( mOverridenCrs );
-    return extent;
-  }
-  else
-    return ReosRasterExtent();
-}
-
-void ReosGriddedData::copyFrom( ReosGriddedData *other )
-{
-  copyFrom( other->mProvider.get() );
-}
-
-void ReosGriddedData::copyFrom( ReosGriddedDataProvider *provider )
-{
-  mProvider->copyFrom( provider );
-
-  //! We need to reset the renderer factor tp take account of the new extent
-  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
-}
-
-QList<ReosColorShaderSettings *> ReosGriddedData::colorShaderSettings() const
-{
-  QList<ReosColorShaderSettings *> ret;
-  ret << mRendererFactory->colorRampShaderSettings();
-  return ret;
-}
-
-bool ReosGriddedData::getDirectMinMaxValue( double &min, double &max ) const
-{
-  if ( mProvider )
-    return mProvider->getDirectMinMax( min, max );
-  return false;
-}
-
-void ReosGriddedData::calculateMinMaxValue( double &min, double &max ) const
-{
-  if ( mProvider )
-    mProvider->calculateMinMax( min, max );
-}
-
 ReosGriddedData *ReosGriddedRainfallRendererFactory::griddedData() const
 {
   return mGriddedData;
-}
-
-bool ReosGriddedRainfall::isValid() const
-{
-  return mProvider && mProvider->isValid();
 }
 
 void ReosGriddedRainfall::overrideCrs( const QString &crs )
@@ -303,19 +204,19 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
 
   bool filterTime = timeWindow.isValid();
 
-  for ( int i = 0; i < mProvider->count(); ++i )
+  for ( int i = 0; i < dataProvider()->count(); ++i )
   {
     if ( filterTime )
     {
-      const QDateTime &start = mProvider->startTime( i );
-      const QDateTime &end = mProvider->endTime( i );
+      const QDateTime &start = dataProvider()->startTime( i );
+      const QDateTime &end = dataProvider()->endTime( i );
       const ReosTimeWindow step_tw( start, end );
 
       if ( !timeWindow.intersect( step_tw ) )
         continue;
     }
 
-    const QVector<double> sourceValue = mProvider->data( i );
+    const QVector<double> sourceValue = dataProvider()->data( i );
     ReosRasterMemory<double> raster( yCount, xCount );
     raster.reserveMemory();
 
@@ -336,21 +237,21 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
       }
     }
 
-    newProvider->addFrame( raster, mProvider->startTime( i ), mProvider->endTime( i ) );
+    newProvider->addFrame( raster, dataProvider()->startTime( i ), dataProvider()->endTime( i ) );
   }
 
-  projectedRainfall->mProvider.reset( newProvider.release() );
+  projectedRainfall->setProvider( newProvider.release() );
   return projectedRainfall.release();
 }
 
 ReosColorShaderSettings *ReosGriddedRainfall::colorSetting() const
 {
-  return mRendererFactory->colorRampShaderSettings();
+  return renderer()->colorRampShaderSettings();
 }
 
 void ReosGriddedRainfall::setColorSetting( ReosColorShaderSettings *colorRampShader )
 {
-  mRendererFactory->setColorRampShaderSettings( colorRampShader );
+  renderer()->setColorRampShaderSettings( colorRampShader );
   emit repaintRequested();
 }
 
