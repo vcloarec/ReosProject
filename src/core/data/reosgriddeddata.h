@@ -45,7 +45,6 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
     */
     ReosGriddedData( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
 
-
     QString type() const override SIP_SKIP;
     ReosObjectRenderer *createRenderer( ReosRendererSettings *settings ) override SIP_SKIP ;
     ReosRendererObjectMapTimeStamp *createMapTimeStamp( ReosRendererSettings *settings ) const override SIP_SKIP;
@@ -53,6 +52,12 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
     QList<ReosColorShaderSettings *> colorShaderSettings() const override SIP_SKIP;
 
     static QString staticType();
+
+    //! Returns a pointer to the data provider
+    virtual ReosGriddedDataProvider *dataProvider() const SIP_SKIP;
+
+    //! Returns whether the gridded rainfallis valid
+    bool isValid() const;
 
     //! Returns the count of grids (e.g. time steps)
     int gridCount() const;
@@ -62,6 +67,8 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
      *  of the cell contained in the raster extent (see extent()
      */
     const QVector<double> values( int index ) const;
+
+    const QVector<double> valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
 
     //! Returns the start time related to the grid with \a index
     const QDateTime startTime( int index ) const;
@@ -103,10 +110,25 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
   protected:
     void makeConnection();
     QString mOverridenCrs;
-    std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
-    std::unique_ptr<ReosGriddedDataProvider> mProvider;
+
+    void decodeProvider( const ReosEncodedElement &element, const ReosEncodeContext &context );
+    void setProvider( ReosGriddedDataProvider *provider );
+
+    void setRenderer( ReosGriddedRainfallRendererFactory *rendererFactory );
+    ReosGriddedRainfallRendererFactory *renderer() const;
 
   private:
     QString formatKey( const QString &rawKey ) const;
+
+    std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
+    std::unique_ptr<ReosGriddedDataProvider> mProvider;
+
+
 };
+
+inline ReosGriddedDataProvider *ReosGriddedData::dataProvider() const
+{
+  return mProvider.get();
+}
+
 #endif // REOSGRIDDEDDATA_H

@@ -145,6 +145,9 @@ class ReosEra5Provider : public ReosGriddedDataProvider
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
 
+    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override {};
+    ReosEncodedElement encode( const ReosEncodeContext &context ) const {return ReosEncodedElement();}
+
     static QString staticKey();
     static QString dataType();
 

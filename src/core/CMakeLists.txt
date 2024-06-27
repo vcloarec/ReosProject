@@ -79,6 +79,7 @@ SET(REOS_CORE_SOURCES
   data/reosdataobject.cpp
   data/reosdataprovider.cpp
   data/reostimeseriesgroup.cpp
+  data/reosgriddeddata.cpp
   data/reosgriddedrainfallprovider.cpp
   data/reosdataupdater.cpp
   data/reosgriddeddata.cpp
@@ -181,6 +182,7 @@ SET(REOS_CORE_HEADERS
     data/reosdataobject.h
     data/reosdataprovider.h
     data/reostimeseriesgroup.h
+    data/reosgriddeddata.h
     data/reosgriddedrainfallprovider.h
     data/reosdataupdater.h
     data/reosgriddeddata.h

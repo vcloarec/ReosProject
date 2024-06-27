@@ -50,6 +50,31 @@ void ReosGriddedData::makeConnection()
   connect( this, &ReosDataObject::dataChanged, this, &ReosRenderedObject::repaintRequested );
 }
 
+void ReosGriddedData::decodeProvider( const ReosEncodedElement &element, const ReosEncodeContext &context )
+{
+  ReosDataObject::decode( element );
+  QString providerKey;
+  element.getData( QStringLiteral( "provider-key" ), providerKey );
+  mProvider.reset( qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) );
+  if ( mProvider )
+    mProvider->decode( element.getEncodedData( QStringLiteral( "provider" ) ), context );
+}
+
+void ReosGriddedData::setProvider( ReosGriddedDataProvider *provider )
+{
+  mProvider.reset( provider );
+}
+
+void ReosGriddedData::setRenderer( ReosGriddedRainfallRendererFactory *rendererFactory )
+{
+  mRendererFactory.reset( rendererFactory );
+}
+
+ReosGriddedRainfallRendererFactory *ReosGriddedData::renderer() const
+{
+  mRendererFactory.get();
+}
+
 QString ReosGriddedData::formatKey( const QString &rawKey ) const
 {
   if ( rawKey.contains( QStringLiteral( "::" ) ) )
@@ -87,12 +112,17 @@ ReosMapExtent ReosGriddedData::extent() const
 
 QString ReosGriddedData::staticType() {return QStringLiteral( "gridded-data" );}
 
+bool ReosGriddedData::isValid() const
+{
+    return mProvider && mProvider->isValid();
+}
+
 int ReosGriddedData::gridCount() const
 {
-  if ( mProvider )
-    return mProvider->count();
-  else
-    return 0;
+    if ( mProvider )
+        return mProvider->count();
+    else
+        return 0;
 }
 
 const QVector<double> ReosGriddedData::values( int index ) const
@@ -101,6 +131,39 @@ const QVector<double> ReosGriddedData::values( int index ) const
     return mProvider->data( index );
   else
     return QVector<double>();
+}
+
+const QVector<double> ReosGriddedData::valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const
+{
+  if ( !mProvider )
+    return QVector<double>();
+
+  if ( index < 0 )
+    return QVector<double>();
+
+  if ( mProvider->hasCapability( ReosGriddedRainfallProvider::SubGridExtract ) )
+  {
+    return mProvider->dataInGridExtent( index, rowMin, rowMax, colMin, colMax );
+  }
+
+  const QVector<double> &data = mProvider->data( index );
+
+  ReosRasterExtent extent = mProvider->extent();
+  int colRawCount = extent.xCellCount();
+
+  int rowCount = rowMax - rowMin + 1;
+  int colCount = colMax - colMin + 1;
+  QVector<double> ret;
+  ret.resize( rowCount * colCount );
+  for ( int r = 0; r < rowCount; ++r )
+    for ( int c = 0; c < colCount; ++c )
+    {
+      int rawIndex = c + colMin + ( r + rowMin ) * colRawCount;
+      int locIndex = c + r * colCount;
+      ret[locIndex] = data.at( rawIndex );
+    }
+
+  return ret;
 }
 
 const QDateTime ReosGriddedData::startTime( int index ) const
@@ -160,5 +223,61 @@ bool ReosGriddedData::supportExtractSubGrid() const
     return mProvider->hasCapability( ReosGriddedRainfallProvider::SubGridExtract );
 
   return false;
+}
+
+
+int ReosGriddedData::dataIndex( const QDateTime &time ) const
+{
+  if ( !mProvider )
+    return  -1;
+
+  return mProvider->dataIndex( time );
+}
+
+ReosRasterExtent ReosGriddedData::rasterExtent() const
+{
+  if ( mProvider )
+  {
+    if ( mOverridenCrs.isEmpty() )
+      return mProvider->extent();
+    ReosRasterExtent extent = mProvider->extent();
+    extent.setCrs( mOverridenCrs );
+    return extent;
+  }
+  else
+    return ReosRasterExtent();
+}
+
+void ReosGriddedData::copyFrom( ReosGriddedData *other )
+{
+  copyFrom( other->mProvider.get() );
+}
+
+void ReosGriddedData::copyFrom( ReosGriddedDataProvider *provider )
+{
+  mProvider->copyFrom( provider );
+
+  //! We need to reset the renderer factor tp take account of the new extent
+  mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
+}
+
+QList<ReosColorShaderSettings *> ReosGriddedData::colorShaderSettings() const
+{
+  QList<ReosColorShaderSettings *> ret;
+  ret << mRendererFactory->colorRampShaderSettings();
+  return ret;
+}
+
+bool ReosGriddedData::getDirectMinMaxValue( double &min, double &max ) const
+{
+  if ( mProvider )
+    return mProvider->getDirectMinMax( min, max );
+  return false;
+}
+
+void ReosGriddedData::calculateMinMaxValue( double &min, double &max ) const
+{
+  if ( mProvider )
+    mProvider->calculateMinMax( min, max );
 }
 
