@@ -18,14 +18,16 @@
 
 #include "reosmemoryraster.h"
 #include "reosrenderedobject.h"
+#include "reosduration.h"
+#include "reostimeseries.h"
 #include "reos_sip.h"
 
 
+class ReosWatershed;
 class ReosRasterExtent;
 class ReosGriddedDataProvider;
 class ReosGriddedRainfallRendererFactory;
 class ReosColorShaderSettings;
-class ReosDuration;
 
 
 /**
@@ -111,24 +113,100 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
     void makeConnection();
     QString mOverridenCrs;
 
-    void decodeProvider( const ReosEncodedElement &element, const ReosEncodeContext &context );
-    void setProvider( ReosGriddedDataProvider *provider );
+    void decodeProvider( const ReosEncodedElement &element, const ReosEncodeContext &context )SIP_SKIP;
+    void setProvider( ReosGriddedDataProvider *provider ) SIP_SKIP;
 
-    void setRenderer( ReosGriddedRainfallRendererFactory *rendererFactory );
-    ReosGriddedRainfallRendererFactory *renderer() const;
+    void setRenderer( ReosGriddedRainfallRendererFactory *rendererFactory ) SIP_SKIP;
+    ReosGriddedRainfallRendererFactory *renderer() const SIP_SKIP;
 
   private:
     QString formatKey( const QString &rawKey ) const;
 
     std::unique_ptr<ReosGriddedRainfallRendererFactory> mRendererFactory;
     std::unique_ptr<ReosGriddedDataProvider> mProvider;
+};
 
+class AverageCalculation : public ReosProcess
+{
+  public:
+    std::unique_ptr<ReosGriddedDataProvider> griddedRainfallProvider;
+    QPolygonF watershedPolygon;
+    ReosDuration timeStep;
+    bool usePrecision = false;
+    void start() override;
+
+    ReosRasterMemory<double> rasterizedWatershed;
+    ReosRasterExtent rasterizedExtent;
+    int xOri = -1;
+    int yOri = -1;
+};
+
+class ReosDataGriddedOnWatershed
+{
+  public:
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata );
+
+    double calculateValueAt( int index ) const;
+
+    virtual void preCalculate() const = 0;
+
+  protected:
+
+    virtual void onCalculationFinished() = 0;
+    virtual void onDataChanged() const = 0;
+    virtual QDateTime timeAtIndex( int i ) const = 0;
+    virtual void setDataActualized() const = 0;
+
+    mutable AverageCalculation *mCurrentCalculation = nullptr;
+
+    QPointer<ReosWatershed> mWatershed;
+    QPointer<ReosGriddedData> mGriddedData;
+
+    ReosRasterMemory<double> mRasterizedWatershed;
+    ReosRasterExtent mRasterizedExtent;
+    int mXOri = -1;
+    int mYOri = -1;
+
+    void launchCalculation();
+    AverageCalculation *getCalculationProcess() const;
+};
+
+
+class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeriesConstantInterval, public ReosDataGriddedOnWatershed
+{
+    Q_OBJECT
+  public:
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = nullptr );
+    ~ReosSeriesFromGriddedDataOnWatershed();
+
+    //! Returns a new created instance from \a watershed and \a gridded rainfall. Caller takes ownership.
+    static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) SIP_FACTORY;
+
+    double valueAt( int i ) const override;
+
+    //! Calculates all values directly.
+    void preCalculate() const override;
+
+  signals:
+    void calculationFinished();
+
+#ifndef SIP_RUN
+  protected:
+    void updateData() const override;
+    void onCalculationFinished() override;
+    void onDataChanged() const override;
+    QDateTime timeAtIndex( int i ) const override;
+    void setDataActualized() const override;
+#endif // No SIP_RUN
+
+  private slots:
+    void onWatershedGeometryChanged();
+  private:
 
 };
 
-inline ReosGriddedDataProvider *ReosGriddedData::dataProvider() const
-{
-  return mProvider.get();
-}
+
+
+
 
 #endif // REOSGRIDDEDDATA_H

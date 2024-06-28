@@ -97,18 +97,11 @@ Returns the raster extent of all the grids
   protected:
     void makeConnection();
 
-    void decodeProvider( const ReosEncodedElement &element, const ReosEncodeContext &context );
-    void setProvider( ReosGriddedDataProvider *provider );
 
-    void setRenderer( ReosGriddedRainfallRendererFactory *rendererFactory );
-    ReosGriddedRainfallRendererFactory *renderer() const;
 
 };
 
-ReosGriddedDataProvider *ReosGriddedData::dataProvider() const
-{
-  return mProvider.get();
-}
+
 
 /************************************************************************
  * This file has been generated automatically from                      *
