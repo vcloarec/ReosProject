@@ -21,15 +21,29 @@ email                : vcloarec at gmail dot com
 #include "reosera5provider.h"
 #include "reosnetcdfutils.h"
 #include "reosgisengine.h"
+#include "reoswatershed.h"
+#include "reosgriddeddata.h"
 
 class ReosEra5Test: public QObject
 {
     Q_OBJECT
 
   private slots:
+    void initTestCase();
     void createProvider();
     void createGridData();
+    void griddedDataOnWatersed();
+
+  private:
+    ReosModule mRootModule;
+    ReosGisEngine *mGisEngine = nullptr;
 };
+
+void ReosEra5Test::initTestCase()
+{
+  ReosIdfFormulaRegistery::instantiate( &mRootModule );
+  mGisEngine = new ReosGisEngine( &mRootModule );
+}
 
 void ReosEra5Test::createProvider()
 {
@@ -126,6 +140,40 @@ void ReosEra5Test::createGridData()
   griddedData->calculateMinMaxValue( min, max );
   QCOMPARE( min, 0.0 );
   QCOMPARE( max, 0.0072928667068481445 );
+}
+
+void ReosEra5Test::griddedDataOnWatersed()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QString( ERA5_FILES_PATH );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed;
+  mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
+  watershed.setGeographicalContext( mGisEngine );
+  watershed.setDelineating( watershed_poly );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 2880 );
+  QCOMPARE( values.at( 58 ), 0.0001061439977543495 );
 }
 
 
