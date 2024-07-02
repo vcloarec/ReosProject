@@ -190,6 +190,11 @@ Clears the GIS project
     bool canBeRasterDem( const QString &uri ) const;
 
 
+    static QList<QPolygonF> openPolygonVectorLayerSource( const QString &uri, QString &crs /Out/ );
+%Docstring
+Opens a polygon vector layer from ``uri`` and returns a  list of its polygons and the related ``crs``.
+%End
+
 
 
 

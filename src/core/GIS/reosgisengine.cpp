@@ -592,6 +592,27 @@ ReosCoordinateSystemTransformer ReosGisEngine::getCoordinateTransformer() const
   return ret;
 }
 
+QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri, QString &crs )
+{
+  std::unique_ptr<QgsVectorLayer> layer( new QgsVectorLayer( uri, "poly_layer" ) );
+  crs = layer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
+
+  QList<QPolygonF> ret;
+
+  QgsFeatureIterator it = layer->getFeatures();
+
+  QgsFeature feat;
+  while ( it.nextFeature( feat ) )
+  {
+    QPolygonF poly = feat.geometry().asQPolygonF();
+    if ( poly.first() == poly.last() )
+      poly.removeLast();
+    ret.append( poly );
+  }
+
+  return ret;
+}
+
 ReosMapExtent ReosGisEngine::transformExtent( const ReosMapExtent &extent, const QString &crs )
 {
   if ( extent.crs() == crs )

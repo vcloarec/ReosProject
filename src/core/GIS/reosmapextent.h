@@ -100,7 +100,12 @@ class REOSCORE_EXPORT ReosMapExtent
 
     //! Extends the extent by adding a point
     void addPointToExtent( const QPointF &pt );
+
+    //! Extends the extent combining it with \a other extent.
     void extendWithExtent( const ReosMapExtent &other );
+
+    //! Extents the extent with a \a buffer distance.
+    void extendByBuffer( double buffer );
 
     //! Returns the WKT coordinates system of this extent
     QString crs() const;

@@ -154,12 +154,12 @@ ReosEncodedElement ReosMapExtent::encode() const
 
 bool ReosMapExtent::isValid() const
 {
-    return mXMax >= mXMin && mYMax > mYMin;
+  return mXMax >= mXMin && mYMax > mYMin;
 }
 
 QString ReosMapExtent::crs() const
 {
-    return mCrs;
+  return mCrs;
 }
 
 void ReosMapExtent::setCrs( const QString &crs )
@@ -199,16 +199,24 @@ void ReosMapExtent::extendWithExtent( const ReosMapExtent &other )
   if ( mCrs.isEmpty() )
     mCrs = other.crs();
 
-  ReosSpatialPosition otherCornerMin( other.xMapMin(), other.yMapMin(), other.crs() );
-  ReosSpatialPosition otherCornerMax( other.xMapMax(), other.yMapMax(), other.crs() );
+  const ReosSpatialPosition otherCornerMin( other.xMapMin(), other.yMapMin(), other.crs() );
+  const ReosSpatialPosition otherCornerMax( other.xMapMax(), other.yMapMax(), other.crs() );
 
-  QPointF otherCornerMinInCrs = ReosGisEngine::transformToCoordinates( otherCornerMin, mCrs );
-  QPointF otherCornerMaxInCrs = ReosGisEngine::transformToCoordinates( otherCornerMax, mCrs );
+  const QPointF otherCornerMinInCrs = ReosGisEngine::transformToCoordinates( otherCornerMin, mCrs );
+  const QPointF otherCornerMaxInCrs = ReosGisEngine::transformToCoordinates( otherCornerMax, mCrs );
 
   mXMin = std::min( mXMin, std::min( otherCornerMinInCrs.x(), otherCornerMaxInCrs.x() ) );
   mXMax = std::max( mXMax, std::max( otherCornerMinInCrs.x(), otherCornerMaxInCrs.x() ) );
   mYMin = std::min( mYMin, std::min( otherCornerMinInCrs.y(), otherCornerMaxInCrs.y() ) );
   mYMax = std::max( mYMax, std::max( otherCornerMinInCrs.y(), otherCornerMaxInCrs.y() ) );
+}
+
+void ReosMapExtent::extendByBuffer( double buffer )
+{
+  mXMin = mXMin - buffer;
+  mXMax = mXMax + buffer;
+  mYMin = mYMin - buffer;
+  mYMax = mYMax + buffer;
 }
 
 ReosSpatialPosition::ReosSpatialPosition( const QPointF &position, const QString &crs )

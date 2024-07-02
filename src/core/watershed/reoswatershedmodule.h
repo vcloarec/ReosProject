@@ -16,6 +16,12 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
     ~ReosWatershedModule();
 
+    //! Adds a watershed from \a delinating polygon and \a outletPoint
+    ReosWatershed *addWatershed( const QPolygonF &delineating, const QPointF &ouletPoint );
+
+    //! Removes the \a watershed
+    void removeWaterhsed( ReosWatershed *watershed );
+
     //! Returns a pointer to the watershed tree
     ReosWatershedTree *watershedTree() const SIP_SKIP;
     ReosWatershedDelineating *delineatingModule() const;

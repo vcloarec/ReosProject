@@ -126,6 +126,8 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
     std::unique_ptr<ReosGriddedDataProvider> mProvider;
 };
 
+#ifndef SIP_RUN
+
 class AverageCalculation : public ReosProcess
 {
   public:
@@ -140,8 +142,9 @@ class AverageCalculation : public ReosProcess
     int xOri = -1;
     int yOri = -1;
 };
+#endif // No SIP_RUN
 
-class ReosDataGriddedOnWatershed
+class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
 {
   public:
     ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata );
@@ -157,6 +160,9 @@ class ReosDataGriddedOnWatershed
     virtual QDateTime timeAtIndex( int i ) const = 0;
     virtual void setDataActualized() const = 0;
 
+    void launchCalculation();
+
+  private:
     mutable AverageCalculation *mCurrentCalculation = nullptr;
 
     QPointer<ReosWatershed> mWatershed;

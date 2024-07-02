@@ -41,7 +41,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
      * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its sub watershed).
      * Take ownership and returns a pointer to the added watershed
      */
-    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false ) SIP_SKIP;
+    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
