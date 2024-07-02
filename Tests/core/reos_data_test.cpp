@@ -668,9 +668,29 @@ void ReosDataTesting::hydrograph()
   ReosFloat64GridBlock data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ) );
   QVector<double> values = data.values();
 
+  QDateTime refTime = hydrograph.referenceTime();
+
   QCOMPARE( values.count(), 87812 );
+  QVERIFY( equal( values.at( 0 ), 6.66, 0.001 ) );
   QVERIFY( equal( values.at( 500 ), 5.1281, 0.001 ) );
   QVERIFY( equal( values.at( 1000 ), 4.4908, 0.001 ) );
+
+  data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), QDateTime( refTime.date(), QTime( refTime.time().hour(), 0, 0 ), Qt::UTC ) );
+  values = data.values();
+
+  QVERIFY( equal( values.at( 0 ), 0.0, 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), 0.0, 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), 0.0, 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), 6.66, 0.001 ) );
+
+  data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), QDateTime( refTime.date(), QTime( refTime.time().hour() + 1, 0, 0 ), Qt::UTC ) );
+  values = data.values();
+
+  QVERIFY( equal( values.at( 0 ), 6.626, 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), 6.621, 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), 6.616, 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), 6.612, 0.001 ) );
+
 }
 
 QTEST_MAIN( ReosDataTesting )

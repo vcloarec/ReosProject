@@ -1067,7 +1067,7 @@ const QVector<int> ReosTimeSeriesVariableTimeStep::relativeTimesDataSeconds() co
   QVector<int> ret( times.size() );
 
   for ( int i = 0; i < times.size(); ++i )
-    ret[i] = ( times.at( i ) ).valueSecond();
+    ret[i] = static_cast<int>( std::round( times.at( i ).valueSecond() ) );
 
   return ret;
 
@@ -1235,14 +1235,17 @@ ReosFloat64GridBlock ReosTimeSeriesVariableTimeStep::toConstantTimeStep(
   const QDateTime &startTime,
   const ReosDuration &maxVoidInter ) const
 {
-  QVector<double> vals( totalDuration().numberOfFullyContainedIntervals( timeStep ), 0 );
-
   const QDateTime &refTime = referenceTime();
+  ReosDuration retDur = totalDuration();
+  if ( startTime.isValid() )
+    retDur = retDur - ReosDuration( refTime.msecsTo( startTime ) );
+  QVector<double> vals( static_cast<int>( retDur.numberOfFullyContainedIntervals( timeStep ) ), 0 );
+
   ReosDuration offset;
   if ( startTime.isValid() )
     offset = ReosDuration( startTime.msecsTo( refTime ) );
   for ( int i = 0; i < vals.count(); ++i )
-    vals[i] = valueAtTime( timeStep * i - offset );
+    vals[i] = valueAtTime( timeStep * i - offset, maxVoidInter );
 
   ReosFloat64GridBlock ret( 1, vals.count() );
   ret.setValues( vals );

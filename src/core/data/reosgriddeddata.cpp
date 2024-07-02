@@ -471,7 +471,7 @@ double ReosSeriesFromGriddedDataOnWatershed::valueAt( int i ) const
 
 void ReosSeriesFromGriddedDataOnWatershed::preCalculate() const
 {
-  int count = mGriddedData->gridCount();
+  int count = valueCount();
   for ( int i = 0; i < count; ++i )
     valueAt( i );
 }
