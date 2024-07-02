@@ -45,7 +45,10 @@ ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
 void ReosComephoreProvider::load()
 {
   mIsValid = false;
-  QFileInfo sourceInfo( dataSource() );
+  const QString &uri = dataSource();
+  const QString path = pathFromUri( uri );
+
+  QFileInfo sourceInfo( path );
 
   if ( sourceInfo.isDir() )
   {
@@ -297,8 +300,9 @@ bool ReosComephoreProvider::canReadUri( const QString &uri ) const
   return false;
 }
 
-static QFileInfoList tiffFiles( const QString &folderPath )
+static QFileInfoList tiffFiles( const QString &uri )
 {
+  QString folderPath = ReosComephoreProvider::pathFromUri( uri );
   QFileInfoList ret;
   QFileInfo sourceInfo( folderPath );
   if ( !sourceInfo.isDir() )
@@ -387,17 +391,23 @@ QString ReosComephoreProvider::staticKey()
   return COMEPHORES_KEY + QString( "::" ) + dataType();
 }
 
-ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &folderPath )
+ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &uri )
 {
-  const QFileInfoList fileInfoList = tiffFiles( folderPath );
+  const QFileInfoList fileInfoList = tiffFiles( ReosComephoreProvider::pathFromUri( uri ) );
+
+  const QDateTime startTime = ReosComephoreProvider::startFromUri( uri );
+  const QDateTime endTime = ReosComephoreProvider::endFromUri( uri );
 
   for ( const QFileInfo &fi : fileInfoList )
   {
     const QString timeString = fi.baseName().remove( QStringLiteral( "_RR" ) );
     QDateTime time = QDateTime::fromString( timeString, QStringLiteral( "yyyyMMddHH" ) );
     time.setTimeSpec( Qt::UTC );
-    mFilesNames.insert( time, fi.filePath() );
-    mTimes.append( time );
+    if ( ( time >= startTime && time.addMSecs( 3600 ) <= endTime ) || !startTime.isValid() || !endTime.isValid() )
+    {
+      mFilesNames.insert( time, fi.filePath() );
+      mTimes.append( time );
+    }
   }
 }
 
@@ -498,7 +508,11 @@ QVariantMap ReosComephoresProviderFactory::uriParameters( const QString &dataTyp
   QVariantMap ret;
 
   if ( supportType( dataType ) )
+  {
     ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
+    ret.insert( QStringLiteral( "start-date-time" ), QObject::tr( "Start date time (iso format) of requested data, optional." ) );
+    ret.insert( QStringLiteral( "end-date-time" ), QObject::tr( "End date time (iso format) of requested data, optional.)" ) );
+  }
 
   return ret;
 }
@@ -507,8 +521,15 @@ QString ReosComephoresProviderFactory::buildUri( const QString &dataType, const 
 {
   if ( supportType( dataType ) && parameters.contains( QStringLiteral( "file-or-dir-path" ) ) )
   {
+    QString uri = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+    if ( parameters.contains( QStringLiteral( "start-date-time" ) ) && parameters.contains( QStringLiteral( "end-date-time" ) ) )
+    {
+      uri = uri + QStringLiteral( "::%1::%2" ).arg(
+              parameters.value( QStringLiteral( "start-date-time" ) ).toString(),
+              parameters.value( QStringLiteral( "end-date-time" ) ).toString() );
+    }
     ok = true;
-    return parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+    return uri;
   }
   else
   {
@@ -517,10 +538,93 @@ QString ReosComephoresProviderFactory::buildUri( const QString &dataType, const 
   }
 }
 
-ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &filePath )
-  :  mFileName( filePath )
+QVariantMap ReosComephoreProvider::decodeUri( const QString &uri, bool &ok )
+{
+  QVariantMap ret;
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+
+  if ( parts.count() != 1 || parts.count() != 3 )
+  {
+    ok = false;
+    return ret;
+  }
+
+  if ( parts.count() >= 1 )
+  {
+    const QString path = parts[0];
+    const QFileInfo fileInfo( path );
+    if ( fileInfo.isFile() || fileInfo.isDir() )
+    {
+      ret["file-or-dir-path"] = pathFromUri( uri );
+    }
+    else
+    {
+      ok = false;
+      return ret;
+    }
+  }
+
+  if ( parts.count() == 3 )
+  {
+    const QDateTime start = startFromUri( uri );
+    const QDateTime end = endFromUri( uri );
+    if ( start.isValid() && end.isValid() )
+    {
+      ret["start-date-time"] = start;
+      ret["end-date-time"] = end;
+    }
+    else
+    {
+      ok = false;
+      return ret;
+    }
+  }
+
+  ok = true;
+  return ret;
+}
+
+QString ReosComephoreProvider::pathFromUri( const QString &uri )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 0 )
+    return parts[0];
+  return QString();
+}
+
+QDateTime ReosComephoreProvider::startFromUri( const QString &uri )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 1 )
+    return QDateTime::fromString( parts[1], Qt::ISODate );
+
+  return QDateTime();
+}
+
+QDateTime ReosComephoreProvider::endFromUri( const QString &uri )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 2 )
+    return QDateTime::fromString( parts[2], Qt::ISODate );
+
+  return QDateTime();
+}
+
+QString ReosComephoreProvider::replacePathInUri( const QString &uri, const QString &newPth )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  parts[0] = newPth;
+  return parts.join( QStringLiteral( "::" ) );
+}
+
+
+ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &uri )
+  :  mFileName( ReosComephoreProvider::pathFromUri( uri ) )
 {
   mFile.reset( new ReosNetCdfFile( mFileName ) );
+  const QDateTime startTime = ReosComephoreProvider::startFromUri( uri );
+  const QDateTime endTime = ReosComephoreProvider::endFromUri( uri );
+
   if ( mFile->isValid() )
   {
     const QString proj4Crs = mFile->globalStringAttributeValue( QStringLiteral( "crs_proj4_string" ) );
@@ -546,8 +650,11 @@ ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &f
     for ( int i = 0; i < frameCount; ++i )
     {
       const QDateTime time = oriTime.addSecs( 3600 * intTime.at( i ) );
-      if ( !timeToFileIndex.contains( time ) )
-        timeToFileIndex.insert( time, i );
+      if ( ( time >= startTime && time.addSecs( 3600 ) <= endTime ) || !startTime.isValid() || !endTime.isValid() )
+      {
+        if ( !timeToFileIndex.contains( time ) )
+          timeToFileIndex.insert( time, i );
+      }
     }
     mTimes = timeToFileIndex.keys();
     for ( int i = 0; i < mTimes.count(); ++i )
@@ -650,7 +757,8 @@ QVector<int> ReosComephoreNetCdfFilesReader::qualifData( int index, bool &readLi
 
 bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
 {
-  ReosNetCdfFile file( uri );
+  const QString path = ReosComephoreProvider::pathFromUri( uri );
+  ReosNetCdfFile file( path );
   if ( !file.isValid() )
     return false;
 
@@ -669,10 +777,10 @@ void ReosComephoreNetCdfFilesReader::reset()
   mFile.reset();
 }
 
-ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString &folderPath )
-  : mFolderPath( folderPath )
+ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString &uri )
+  : mFolderPath( ReosComephoreProvider::pathFromUri( uri ) )
 {
-  QDir dir( folderPath );
+  QDir dir( mFolderPath );
 
   QStringList filters;
   filters << "*.nc";
@@ -682,9 +790,10 @@ ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString 
   for ( const QString &file : entries )
   {
     const QString filePath = dir.filePath( file );
-    if ( ReosComephoreNetCdfFilesReader::canReadFile( filePath ) )
+    const QString fileUri = ReosComephoreProvider::replacePathInUri( uri, filePath );
+    if ( ReosComephoreNetCdfFilesReader::canReadFile( fileUri ) )
     {
-      std::unique_ptr<ReosComephoreNetCdfFilesReader> fileReader = std::make_unique<ReosComephoreNetCdfFilesReader>( filePath );
+      std::unique_ptr<ReosComephoreNetCdfFilesReader> fileReader = std::make_unique<ReosComephoreNetCdfFilesReader>( fileUri );
       if ( fileReader->frameCount() == 0 )
         continue;
       if ( !mExtent.isValid() )
@@ -795,7 +904,7 @@ QVector<int> ReosComephoreNetCdfFolderReader::qualifData( int index, bool &readL
 
 bool ReosComephoreNetCdfFolderReader::canReadFile( const QString &uri )
 {
-  QDir dir( uri );
+  QDir dir( ReosComephoreProvider::pathFromUri( uri ) );
   if ( !dir.exists() )
     return false;
   QStringList filters;
@@ -811,4 +920,3 @@ bool ReosComephoreNetCdfFolderReader::canReadFile( const QString &uri )
 
   return false;
 }
-
