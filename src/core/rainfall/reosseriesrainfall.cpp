@@ -113,7 +113,7 @@ double ReosSeriesRainfallFromGriddedOnWatershed::valueAt( int i ) const
 
 void ReosSeriesRainfallFromGriddedOnWatershed::preCalculate() const
 {
-  int count = mGriddedData->gridCount();
+  int count = valueCount();
   for ( int i = 0; i < count; ++i )
     valueAt( i );
 }
