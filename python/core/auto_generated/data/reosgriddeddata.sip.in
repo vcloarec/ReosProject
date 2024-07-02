@@ -102,6 +102,64 @@ Returns the raster extent of all the grids
 };
 
 
+class ReosDataGriddedOnWatershed /Abstract/
+{
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata );
+
+    double calculateValueAt( int index ) const;
+
+    virtual void preCalculate() const = 0;
+
+  protected:
+
+    virtual void onCalculationFinished() = 0;
+    virtual void onDataChanged() const = 0;
+    virtual QDateTime timeAtIndex( int i ) const = 0;
+    virtual void setDataActualized() const = 0;
+
+    void launchCalculation();
+
+};
+
+
+class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, ReosDataGriddedOnWatershed
+{
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = 0 );
+    ~ReosSeriesFromGriddedDataOnWatershed();
+
+    static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) /Factory/;
+%Docstring
+Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Caller takes ownership.
+%End
+
+    virtual double valueAt( int i ) const;
+
+
+    virtual void preCalculate() const;
+
+%Docstring
+Calculates all values directly.
+%End
+
+  signals:
+    void calculationFinished();
+
+
+};
+
+
+
+
 
 /************************************************************************
  * This file has been generated automatically from                      *

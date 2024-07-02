@@ -200,6 +200,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns a coordinate transformer that can be used from other thread
     ReosCoordinateSystemTransformer getCoordinateTransformer() const SIP_SKIP;
 
+    //! Opens a polygon vector layer from \a uri and returns a  list of its polygons and the related \a crs.
+    static QList<QPolygonF> openPolygonVectorLayerSource( const QString &uri, QString &crs SIP_OUT );
+
     //! Transform the source map extent \a sourceExtent to a map extent with crs \a crs
     static ReosMapExtent transformExtent( const ReosMapExtent &extent, const QString &crs ) SIP_SKIP;
 

@@ -127,7 +127,16 @@ Return true if the extent cotains, even partially, the ``line``
 %Docstring
 Extends the extent by adding a point
 %End
+
     void extendWithExtent( const ReosMapExtent &other );
+%Docstring
+Extends the extent combining it with ``other`` extent.
+%End
+
+    void extendByBuffer( double buffer );
+%Docstring
+Extents the extent with a ``buffer`` distance.
+%End
 
     QString crs() const;
 %Docstring

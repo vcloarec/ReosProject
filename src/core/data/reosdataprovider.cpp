@@ -112,7 +112,7 @@ QVariantMap ReosDataProviderRegistery::uriParameters( const QString &key, const 
     return QVariantMap();
 }
 
-QString ReosDataProviderRegistery::buildUri( const QString &key, const QString &dataType, const QVariantMap &parameters, bool &ok )
+QString ReosDataProviderRegistery::buildUri( const QString &key, const QString &dataType, const QVariantMap &parameters, bool &ok SIP_OUT )
 {
   auto it = mFactories.find( key );
   if ( it != mFactories.end() )

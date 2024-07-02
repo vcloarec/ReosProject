@@ -301,7 +301,7 @@ Returns the relative times from the reference time
 
     const QVector<int> relativeTimesDataSeconds() const;
 %Docstring
-Returns the relative times from the reference time in miliseconds, convenient for storing elsewhere.
+Returns the relative times from the reference time in seconds, convenient for storing elsewhere.
 %End
 
     ReosDuration totalDuration() const;
@@ -317,6 +317,11 @@ Sets the value at ``relative`` time with ``value``, if the ``relative`` time is 
     void setValue( const QDateTime &time, double value );
 %Docstring
 Sets the value at ``time`` with ``value``, if the ``time`` is not present insert a new couple (time, value)
+%End
+
+    void setValues( const QVector<int> &relativeTime, const QVector<double> &values );
+%Docstring
+Sets values with a relative times ``relativeTimeSecond`` in seconds.
 %End
 
     double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;

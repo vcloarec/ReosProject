@@ -39,6 +39,11 @@ the Free Software Foundation; either version 2 of the License, or     *
     explicit ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent = 0 );
 
 
+    ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
+%Docstring
+Adds a watershed to the store, in the ``downstreamWatershed`` (or in one of its sub watershed).
+Take ownership and returns a pointer to the added watershed
+%End
 
     ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
 %Docstring

@@ -39,8 +39,7 @@ the Free Software Foundation; either version 2 of the License, or     *
 
 };
 
-
-class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall
+class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall, ReosDataGriddedOnWatershed
 {
 
 %TypeHeaderCode
@@ -58,13 +57,13 @@ Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Call
     virtual double valueAt( int i ) const;
 
 
-    void preCalculate() const;
+    virtual void preCalculate() const;
+
 
   signals:
     void calculationFinished();
 
 
-      public:
 };
 
 
