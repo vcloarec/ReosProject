@@ -44,7 +44,7 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
 {
   public:
 
-    explicit ReosComephoreTiffFilesReader( const QString &folderPath );
+    explicit ReosComephoreTiffFilesReader( const QString &uri );
     ~ReosComephoreTiffFilesReader();
 
     ReosComephoreFilesReader *clone() const override;
@@ -75,7 +75,7 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
 class ReosComephoreNetCdfFilesReader : public ReosComephoreFilesReader
 {
   public:
-    explicit ReosComephoreNetCdfFilesReader( const QString &filePath );
+    explicit ReosComephoreNetCdfFilesReader( const QString &uri );
 
     ReosComephoreFilesReader *clone() const override;
     int frameCount() const override;
@@ -167,6 +167,12 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     static QString staticKey();
     static QString dataType();
 
+    static QVariantMap decodeUri( const QString &uri, bool &ok );
+    static QString pathFromUri( const QString &uri );
+    static QDateTime startFromUri( const QString &uri );
+    static QDateTime endFromUri( const QString &uri );
+    static QString replacePathInUri( const QString &uri, const QString &newPth );
+
   private:
     bool mIsValid = false;
     std::unique_ptr<ReosComephoreFilesReader> mFileReader;
@@ -174,7 +180,12 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     mutable QCache<int, QVector<double>> mCache;
     GridCapabilities mCapabilities = {SubGridExtract | QualificationValue};
 
+    QDateTime mStartTime;
+    QDateTime mEndTime;
+
+    static QStringList QStringLiterral( const char * );
 };
+
 
 class ReosComephoresProviderFactory: public ReosDataProviderFactory
 {

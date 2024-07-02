@@ -32,6 +32,7 @@ class ReosComephoreTest: public QObject
     void dupplicateFrames();
     void createRainfallFromNetCdf();
     void netCdfFolder();
+    void timeWindow();
 };
 
 void ReosComephoreTest::createProvider()
@@ -289,6 +290,25 @@ void ReosComephoreTest::netCdfFolder()
   values = provider->qualifData( 700 );
   QCOMPARE( values.count(), 1536 * 1536 );
   QCOMPARE( values.at( 866655 ), 91 );
+}
+
+void ReosComephoreTest::timeWindow()
+{
+  QVariantMap uriParams;
+  uriParams[QStringLiteral( "file-or-dir-path" )] = COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" );
+  uriParams[QStringLiteral( "start-date-time" )] = QDateTime( QDate( 2020, 2, 3 ), QTime( 1, 2, 3 ), Qt::UTC );
+  uriParams[QStringLiteral( "end-date-time" )] = QDateTime( QDate( 2020, 5, 6 ), QTime( 12, 5, 0 ), Qt::UTC );
+  bool ok = false;
+  const QString uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedRainfall::staticType(), uriParams, ok );
+
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedRainfall> rainfall = std::make_unique<ReosGriddedRainfall>( uri, QStringLiteral( "comephore" ) );
+
+  QCOMPARE( 2242, rainfall->gridCount() );
+  QPair<QDateTime, QDateTime> timeExtent = rainfall->timeExtent();
+  QCOMPARE( timeExtent.first, QDateTime( QDate( 2020, 2, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( timeExtent.second, QDateTime( QDate( 2020, 5, 6 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 }
 
 
