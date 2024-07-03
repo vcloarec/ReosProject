@@ -55,7 +55,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
      * Constructor of manual delineating watershed with \a delineating polygon and the \a outlet point.
      */
     ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint );
+                   const QPointF &outletPoint,
+                   const QString &wktCrs = QString() );
 
 #ifndef SIP_RUN
 
@@ -290,6 +291,7 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
 
     //! Return mGisEngine or the one of the parent watershed if nullptr
     ReosGisEngine *geographicalContext() const;
+    QString mWktCrs;
 
     struct DirectionData
     {
