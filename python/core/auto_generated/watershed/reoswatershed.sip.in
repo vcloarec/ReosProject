@@ -47,7 +47,8 @@ Default constructor
 %End
 
     ReosWatershed( const QPolygonF &delineating,
-                   const QPointF &outletPoint );
+                   const QPointF &outletPoint,
+                   const QString &wktCrs = QString() );
 %Docstring
 Constructor of manual delineating watershed with ``delineating`` polygon and the ``outlet`` point.
 %End

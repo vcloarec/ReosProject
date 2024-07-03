@@ -33,7 +33,7 @@ ReosWatershed::ReosWatershed()
   init();
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint )
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs )
   : ReosWatershed( delineating, outletPoint, ReosWatershed::Manual )
 {}
 
@@ -1073,7 +1073,7 @@ QString ReosWatershed::crs() const
   if ( mDownstreamWatershed )
     return mDownstreamWatershed->geographicalContext()->crs();
 
-  return QString();
+  return mWktCrs;
 }
 
 ReosDuration ReosWatershed::timeStepForOutputHydrograph() const
