@@ -60,7 +60,6 @@ bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWat
 
 ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, bool adaptDelineating )
 {
-
   std::unique_ptr<ReosWatershed> ws( watershedToAdd );
   if ( !ws )
     return nullptr;
