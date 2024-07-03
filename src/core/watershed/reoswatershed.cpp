@@ -35,7 +35,9 @@ ReosWatershed::ReosWatershed()
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs )
   : ReosWatershed( delineating, outletPoint, ReosWatershed::Manual )
-{}
+{
+  mWktCrs = wktCrs;
+}
 
 ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type ):
   mType( type )
