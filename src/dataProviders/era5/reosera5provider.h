@@ -32,7 +32,7 @@ class ReosEra5FilesReader
     virtual int frameCount() const = 0;
     virtual QDateTime time( int i ) const = 0;
     virtual QVector<double> data( int index, bool &readLine ) const = 0;
-    virtual QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const {return QVector<double>();}
+    virtual QVector<double> dataInGridExtent( int, int, int, int, int, bool & ) const {return QVector<double>();}
     virtual bool supportGridExtent() const {return false;}
     virtual ReosRasterExtent extent() const = 0;
     virtual bool getDirectMinMax( double &min, double &max ) const = 0;
@@ -49,18 +49,18 @@ class ReosEra5FilesReader
 class ReosEra5NetCdfFilesReader : public ReosEra5FilesReader
 {
   public:
-    explicit ReosEra5NetCdfFilesReader( const QString &fileName, const QString &varName );
+    explicit ReosEra5NetCdfFilesReader( const QString &fileName, const QString &varName, const QDateTime &start, const QDateTime &end );
 
-    ReosEra5NetCdfFilesReader *clone() const;
-    int frameCount() const ;
-    QDateTime time( int i ) const;
-    QVector<double> data( int index, bool &readLine ) const;
-    QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const;
-    bool supportGridExtent() const  {return true;}
-    ReosRasterExtent extent() const ;
-    bool getDirectMinMax( double &min, double &max ) const;
-    bool hasQualif() const  {return true;}
-    QVector<int> qualifData( int index, bool &readLine ) const ;
+    ReosEra5NetCdfFilesReader *clone() const override;
+    int frameCount() const override;
+    QDateTime time( int i ) const override;
+    QVector<double> data( int index, bool &readLine ) const override;
+    QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const override;
+    bool supportGridExtent() const override {return true;}
+    ReosRasterExtent extent() const override;
+    bool getDirectMinMax( double &min, double &max ) const override;
+    bool hasQualif() const override {return true;}
+    QVector<int> qualifData( int index, bool &readLine ) const override;
 
     static bool canReadFile( const QString &uri );
 
@@ -71,6 +71,8 @@ class ReosEra5NetCdfFilesReader : public ReosEra5FilesReader
     mutable std::unique_ptr<ReosNetCdfFile> mFile;
     QString mFileName;
     QString mVarName;
+    QDateTime mStart;
+    QDateTime mEnd;
     ReosRasterExtent mExtent;
     QList<QDateTime> mTimes;
     QMap<int, int> mDataIndexToFileIndex;
@@ -87,7 +89,7 @@ class ReosEra5NetCdfFilesReader : public ReosEra5FilesReader
 class ReosEra5NetCdfFolderReader: public ReosEra5FilesReader
 {
   public:
-    explicit ReosEra5NetCdfFolderReader( const QString &folderPath, const QString &varName );
+    explicit ReosEra5NetCdfFolderReader( const QString &folderPath, const QString &varName, const QDateTime &start, const QDateTime &end );
 
     ReosEra5FilesReader *clone() const override;
     int frameCount() const override;
@@ -105,6 +107,8 @@ class ReosEra5NetCdfFolderReader: public ReosEra5FilesReader
   private:
     QString mFolderPath;
     QString mVarName;
+    QDateTime mStart;
+    QDateTime mEnd;
     std::vector<std::unique_ptr<ReosEra5NetCdfFilesReader>> mFileReaders;
     mutable size_t mLastFileIndex = -1;
     ReosRasterExtent mExtent;
@@ -145,17 +149,19 @@ class ReosEra5Provider : public ReosGriddedDataProvider
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
 
-    void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override {};
-    ReosEncodedElement encode( const ReosEncodeContext &context ) const {return ReosEncodedElement();}
+    void decode( const ReosEncodedElement &, const ReosEncodeContext & ) override {};
+    ReosEncodedElement encode( const ReosEncodeContext & ) const override {return ReosEncodedElement();}
 
     static QString staticKey();
     static QString dataType();
 
     static  QVariantMap decodeUri( const QString &uri, bool &ok ) ;
     static  QString buildUri( const QVariantMap &parameters, bool &ok );
-    static  QString buildUri( const QString &filePath, const QString &varName );
+    static  QString buildUri( const QString &filePath, const QString &varName, const QDateTime &startTime = QDateTime(), const QDateTime &endTime = QDateTime() );
     static QString pathFromUri( const QString &uri, bool &ok );
     static QString varNameFromUri( const QString &uri, bool &ok );
+    static QDateTime startFromUri( const QString &uri, bool &ok );
+    static QDateTime endFromUri( const QString &uri, bool &ok );
 
   private:
     bool mIsValid = false;
