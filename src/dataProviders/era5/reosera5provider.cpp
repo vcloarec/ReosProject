@@ -59,13 +59,13 @@ void ReosEra5Provider::load()
   if ( !ok )
     return;
 
-  const QDateTime &start = startFromUri( uri, ok );
+  QDateTime start = startFromUri( uri, ok );
   if ( !ok )
-    return;
+    start = QDateTime();
 
-  const QDateTime &end = endFromUri( uri, ok );
+  QDateTime end = endFromUri( uri, ok );
   if ( !ok )
-    return;
+    end = QDateTime();
 
   if ( sourceInfo.isDir() )
   {
