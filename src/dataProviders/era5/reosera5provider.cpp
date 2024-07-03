@@ -272,8 +272,10 @@ QString ReosEra5Provider::buildUri( const QVariantMap &parameters, bool &ok )
        parameters.contains( QStringLiteral( "var-short-name" ) ) )
   {
     ok = true;
-    const QDateTime &starTime = parameters.value( QStringLiteral( "start-date-time" ) ).toDateTime();
-    const QDateTime &endTime =  parameters.value( QStringLiteral( "end-date-time" ) ).toDateTime();
+    QDateTime starTime = parameters.value( QStringLiteral( "start-date-time" ) ).toDateTime();
+    QDateTime endTime =  parameters.value( QStringLiteral( "end-date-time" ) ).toDateTime();
+    starTime.setTimeSpec( Qt::UTC );
+    endTime.setTimeSpec( Qt::UTC );
     return buildUri( parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString(),
                      parameters.value( QStringLiteral( "var-short-name" ) ).toString(),
                      starTime,
