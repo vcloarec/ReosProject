@@ -33,6 +33,7 @@ class ReosEra5Test: public QObject
     void createProvider();
     void createGridData();
     void griddedDataOnWatersed();
+    void timeWindow();
 
   private:
     ReosModule mRootModule;
@@ -69,7 +70,7 @@ void ReosEra5Test::createProvider()
   provider->setDataSource( uri );
   QVERIFY( provider->isValid() );
 
-  QCOMPARE( provider->count(), 2880 );
+  QCOMPARE( provider->count(), 3624 );
   QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
   QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
   QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
@@ -112,7 +113,7 @@ void ReosEra5Test::createGridData()
   std::unique_ptr<ReosGriddedData> griddedData =
     std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
-  QCOMPARE( griddedData->gridCount(), 2880 );
+  QCOMPARE( griddedData->gridCount(), 3624 );
   QCOMPARE( griddedData->startTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
   QCOMPARE( griddedData->endTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
   QCOMPARE( griddedData->startTime( 1 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
@@ -172,9 +173,29 @@ void ReosEra5Test::griddedDataOnWatersed()
   gridOnWs->preCalculate();
 
   QVector<double> values = gridOnWs->constData();
-  QCOMPARE( values.count(), 2880 );
+  QCOMPARE( values.count(), 3624 );
   QCOMPARE( values.at( 58 ), 0.0001061439977543495 );
 }
+
+void ReosEra5Test::timeWindow()
+{
+  QVariantMap uriParams;
+  uriParams[QStringLiteral( "file-or-dir-path" )] = ERA5_FILES_PATH;
+  uriParams[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
+  uriParams[QStringLiteral( "start-date-time" )] = QDateTime( QDate( 1990, 2, 3 ), QTime( 1, 2, 3 ), Qt::UTC );
+  uriParams[QStringLiteral( "end-date-time" )] = QDateTime( QDate( 1990, 4, 6 ), QTime( 12, 5, 0 ), Qt::UTC );
+  bool ok = false;
+  const QString uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosGriddedData::staticType(), uriParams, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QCOMPARE( 1498, griddedData->gridCount() );
+  QPair<QDateTime, QDateTime> timeExtent = griddedData->timeExtent();
+  QCOMPARE( timeExtent.first, QDateTime( QDate( 1990, 2, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( timeExtent.second, QDateTime( QDate( 1990, 4, 6 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+}
+
 
 
 QTEST_MAIN( ReosEra5Test )

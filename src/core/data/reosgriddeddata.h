@@ -173,7 +173,6 @@ class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
     int mXOri = -1;
     int mYOri = -1;
 
-    void launchCalculation();
     AverageCalculation *getCalculationProcess() const;
 };
 
