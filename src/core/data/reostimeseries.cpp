@@ -1906,48 +1906,48 @@ bool ReosTimeSeriesVariableTimeStepModel::checkListValuesValidity( const QModelI
   return true;
 }
 
-void ReosTimeSeriesVariableTimeStep::setValues(const QVector<int> &relativeTime, const QVector<double> &values)
+void ReosTimeSeriesVariableTimeStep::setValues( const QVector<int> &relativeTime, const QVector<double> &values )
 {
-    Q_ASSERT( relativeTime.count() == values.count() );
-    if ( relativeTime.count() == 0 )
-        return;
+  Q_ASSERT( relativeTime.count() == values.count() );
+  if ( relativeTime.count() == 0 )
+    return;
 
-    ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
+  ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
 
-    const ReosDuration firstDuration( relativeTime.at( 0 ), ReosDuration::second );
+  const ReosDuration firstDuration( relativeTime.at( 0 ), ReosDuration::second );
 
-    if ( dataProv->valueCount() == 0 || firstDuration > dataProv->lastRelativeTime() )
-    {
-        for ( int i = 0; i < relativeTime.count(); ++i )
-            dataProv->appendValue( ReosDuration( relativeTime.at( i ), ReosDuration::hour ), values.at( i ) );
-
-        emit dataChanged();
-        return;
-    }
-
-    const ReosDuration lastDuration( relativeTime.last(), ReosDuration::second );
-    if ( lastDuration > dataProv->relativeTimeAt( 0 ) )
-    {
-        for ( int i = 0; i < relativeTime.count(); ++i )
-            dataProv->prependValue( ReosDuration( relativeTime.at( i ), ReosDuration::second ), values.at( i ) );
-
-        emit dataChanged();
-        return;
-    }
-
-
+  if ( dataProv->valueCount() == 0 || firstDuration > dataProv->lastRelativeTime() )
+  {
     for ( int i = 0; i < relativeTime.count(); ++i )
-    {
-        bool exact = false;
-        const ReosDuration &relTime = ReosDuration( relativeTime.at( i ), ReosDuration::second );
-        int index = timeValueIndex( ReosDuration( relativeTime.at( i ), ReosDuration::second ), exact );
+      dataProv->appendValue( ReosDuration( relativeTime.at( i ), ReosDuration::second ), values.at( i ) );
 
-        if ( exact )
-            mProvider->setValue( index, values.at( i ) );
-        else
-        {
-            dataProv->insertValue( index + 1, relTime, values.at( i ) );
-        }
-    }
     emit dataChanged();
+    return;
+  }
+
+  const ReosDuration lastDuration( relativeTime.last(), ReosDuration::second );
+  if ( lastDuration > dataProv->relativeTimeAt( 0 ) )
+  {
+    for ( int i = 0; i < relativeTime.count(); ++i )
+      dataProv->prependValue( ReosDuration( relativeTime.at( i ), ReosDuration::second ), values.at( i ) );
+
+    emit dataChanged();
+    return;
+  }
+
+
+  for ( int i = 0; i < relativeTime.count(); ++i )
+  {
+    bool exact = false;
+    const ReosDuration &relTime = ReosDuration( relativeTime.at( i ), ReosDuration::second );
+    int index = timeValueIndex( ReosDuration( relativeTime.at( i ), ReosDuration::second ), exact );
+
+    if ( exact )
+      mProvider->setValue( index, values.at( i ) );
+    else
+    {
+      dataProv->insertValue( index + 1, relTime, values.at( i ) );
+    }
+  }
+  emit dataChanged();
 }

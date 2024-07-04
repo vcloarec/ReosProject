@@ -675,7 +675,9 @@ void ReosDataTesting::hydrograph()
   QVERIFY( equal( values.at( 500 ), 5.1281, 0.001 ) );
   QVERIFY( equal( values.at( 1000 ), 4.4908, 0.001 ) );
 
-  data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), QDateTime( refTime.date(), QTime( refTime.time().hour(), 0, 0 ), Qt::UTC ) );
+  QDateTime newRef = QDateTime( refTime.date(), QTime( refTime.time().hour(), 0, 0 ), Qt::UTC );
+
+  data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), newRef );
   values = data.values();
 
   QVERIFY( equal( values.at( 0 ), 0.0, 0.001 ) );
@@ -683,6 +685,12 @@ void ReosDataTesting::hydrograph()
   QVERIFY( equal( values.at( 2 ), 0.0, 0.001 ) );
   QVERIFY( equal( values.at( 3 ), 6.66, 0.001 ) );
 
+  QVERIFY( equal( values.at( 0 ), hydrograph.valueAtTime( newRef ), 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), hydrograph.valueAtTime( newRef.addSecs( 360 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), hydrograph.valueAtTime( newRef.addSecs( 720 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), hydrograph.valueAtTime( newRef.addSecs( 1080 ) ), 0.001 ) );
+
+  newRef = QDateTime( refTime.date(), QTime( refTime.time().hour() + 1, 0, 0 ), Qt::UTC );
   data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), QDateTime( refTime.date(), QTime( refTime.time().hour() + 1, 0, 0 ), Qt::UTC ) );
   values = data.values();
 
@@ -690,6 +698,11 @@ void ReosDataTesting::hydrograph()
   QVERIFY( equal( values.at( 1 ), 6.621, 0.001 ) );
   QVERIFY( equal( values.at( 2 ), 6.616, 0.001 ) );
   QVERIFY( equal( values.at( 3 ), 6.612, 0.001 ) );
+
+  QVERIFY( equal( values.at( 0 ), hydrograph.valueAtTime( newRef ), 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), hydrograph.valueAtTime( newRef.addSecs( 360 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), hydrograph.valueAtTime( newRef.addSecs( 720 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), hydrograph.valueAtTime( newRef.addSecs( 1080 ) ), 0.001 ) );
 
 }
 
