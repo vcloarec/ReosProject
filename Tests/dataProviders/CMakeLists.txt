@@ -6,9 +6,13 @@
 
 add_subdirectory(grib)
 add_subdirectory(hydroportail)
-add_subdirectory(era5)
+
+if (ERA5_TESTS_ENABLE)
+    add_subdirectory(era5)
+endif(COMEPHORE_TESTS_ENABLE)
 
 add_subdirectory(vortex-io)
+
 if (COMEPHORE_TESTS_ENABLE)
     add_subdirectory(comephore)
 endif(COMEPHORE_TESTS_ENABLE)

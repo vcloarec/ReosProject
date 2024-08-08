@@ -329,6 +329,9 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
     //! Adds another instance to this the values of this ones, create new time steps if needed
     void addOther( const ReosTimeSeriesVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 
+    //! Completes this instance with the other series when time is after the last time of this
+    void completeAfter( const ReosTimeSeriesVariableTimeStep *other );
+
     //! Returns the unit of the values as a string
     QString unitString() const;
 

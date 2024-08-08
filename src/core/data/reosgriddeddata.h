@@ -206,7 +206,6 @@ class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeri
 
   private slots:
     void onWatershedGeometryChanged();
-  private:
 
 };
 

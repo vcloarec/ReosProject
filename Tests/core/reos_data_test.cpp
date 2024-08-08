@@ -651,6 +651,8 @@ void ReosDataTesting::hydrograph()
   QString file( testFile( QStringLiteral( "hydroportail/J261401002_Q_2000.csv" ) ) );
   ReosHydrograph hydrograph( nullptr, "hydroportail", file );
 
+  QCOMPARE( hydrograph.valueCount(), 1304 );
+
   QDateTime timeMax;
   double max = 0;
   for ( int i = 0; i < hydrograph.valueCount(); ++i )
@@ -703,6 +705,32 @@ void ReosDataTesting::hydrograph()
   QVERIFY( equal( values.at( 1 ), hydrograph.valueAtTime( newRef.addSecs( 360 ) ), 0.001 ) );
   QVERIFY( equal( values.at( 2 ), hydrograph.valueAtTime( newRef.addSecs( 720 ) ), 0.001 ) );
   QVERIFY( equal( values.at( 3 ), hydrograph.valueAtTime( newRef.addSecs( 1080 ) ), 0.001 ) );
+
+
+  ReosTimeWindow tw = hydrograph.timeWindow();
+  ReosHydrograph hyrographToComplete;
+  hyrographToComplete.copyFrom( &hydrograph );
+  ReosHydrograph hydroForCompleting_1;
+  hydroForCompleting_1.setValue( tw.end().addMSecs( -3600 ), 1.0 );
+  hydroForCompleting_1.setValue( tw.end(), 2.0 );
+  hydroForCompleting_1.setValue( tw.end().addMSecs( 3600 ), 3.0 );
+  hydroForCompleting_1.setValue( tw.end().addMSecs( 4152 ), 4.0 );
+
+  hyrographToComplete.completeAfter( &hydroForCompleting_1 );
+
+  QCOMPARE( hyrographToComplete.valueCount(), 1306 );
+
+  double val = hyrographToComplete.valueAt( 1304 );
+  QDateTime time = hyrographToComplete.timeAt( 1304 );
+
+  QVERIFY( equal( val, 3.0, 0.001 ) );
+  QCOMPARE( tw.end().addMSecs( 3600 ), time );
+
+  val = hyrographToComplete.valueAt( 1305 );
+  time = hyrographToComplete.timeAt( 1305 );
+
+  QVERIFY( equal( val, 4.0, 0.001 ) );
+  QCOMPARE( tw.end().addMSecs( 4152 ), time );
 
 }
 

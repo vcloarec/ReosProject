@@ -1190,6 +1190,16 @@ void ReosTimeSeriesVariableTimeStep::addOther( const ReosTimeSeriesVariableTimeS
 
 }
 
+void ReosTimeSeriesVariableTimeStep::completeAfter( const ReosTimeSeriesVariableTimeStep *other )
+{
+  for ( int i = 0; i < other->valueCount(); ++i )
+  {
+    const QDateTime &otherTime = other->timeAt( i );
+    if ( otherTime > timeAt( valueCount() - 1 ) )
+      setValue( otherTime, other->valueAt( i ) );
+  }
+}
+
 int ReosTimeSeriesVariableTimeStep::timeValueIndex( const ReosDuration &time, bool &exact ) const
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();
