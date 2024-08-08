@@ -341,6 +341,11 @@ Returns the value at time ``time``, interpolate if time is between two time valu
 Adds another instance to this the values of this ones, create new time steps if needed
 %End
 
+    void completeAfter( const ReosTimeSeriesVariableTimeStep *other );
+%Docstring
+Completes this instance with the other series when time is after the last time of this
+%End
+
     QString unitString() const;
 %Docstring
 Returns the unit of the values as a string
