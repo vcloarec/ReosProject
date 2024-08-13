@@ -19,6 +19,7 @@
 
 
 #include <QObject>
+#include <QVariantMap>
 #include <map>
 #include <memory>
 
@@ -61,6 +62,9 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 
     bool isValid() const {return mIsValid;}
 
+    QVariantMap metadata() const;
+    void setMetadata( const QVariantMap &meta );
+
   signals:
     void dataChanged();
     void dataReset();
@@ -68,6 +72,7 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 
   protected:
     bool mIsValid = true;
+    QVariantMap mMeta;
 };
 
 class REOSCORE_EXPORT ReosDataProviderFactory

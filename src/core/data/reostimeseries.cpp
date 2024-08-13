@@ -672,6 +672,15 @@ const QVector<double> &ReosTimeSeries::constData() const
   return  mProvider->constData();
 }
 
+const QVariantMap ReosTimeSeries::metadata() const
+{
+  updateData();
+  if ( mProvider )
+    return mProvider->metadata();
+  else
+    return QVariantMap();
+}
+
 ReosTimeSerieProvider *ReosTimeSeries::dataProvider() const
 {
   return mProvider.get();

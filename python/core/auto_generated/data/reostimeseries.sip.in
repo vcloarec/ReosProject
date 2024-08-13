@@ -121,6 +121,14 @@ Returns the maximum of values of this time serie
 %End
 
     const QVector<double> &constData() const;
+%Docstring
+Returns the values as a const array
+%End
+
+    const QVariantMap metadata() const;
+%Docstring
+Returns eventual metadata related to the time series
+%End
 
 
 };
