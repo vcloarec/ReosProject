@@ -59,6 +59,9 @@ void ReosVortexIoProvider::load()
   }
 
   QString stationId = params.value( QStringLiteral( "station-id" ) ).toString();
+  QStringList parts = stationId.split( '-' );
+  if ( parts.count() > 1 )
+    stationId = parts.at( 1 );
   QString startStr = params.value( QStringLiteral( "start" ) ).toString();
   QString endStr = params.value( QStringLiteral( "end" ) ).toString();
 
@@ -84,8 +87,6 @@ void ReosVortexIoProvider::load()
 
     QEventLoop *loop = new QEventLoop( this );
 
-
-
     QNetworkReply *waitedReply  = mNetworkManager->get( QNetworkRequest( url ) );
     connect( waitedReply, &QNetworkReply::finished, this, [ = ]()
     {
@@ -95,11 +96,18 @@ void ReosVortexIoProvider::load()
     loop->exec();
     loop->deleteLater();
 
-    if ( waitedReply->error() != QNetworkReply::NoError )
+    QNetworkReply::NetworkError er = waitedReply->error();
+    int statusCode = waitedReply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+    mMeta.insert( QStringLiteral( "request_status" ), statusCode );
+
+    switch ( er )
     {
-      mIsValid = false;
-      qDebug() << QString( "Error when requesting url: %1" ).arg( url );
-      qDebug() << waitedReply->errorString();
+      case QNetworkReply::NoError:
+        break;
+      default:
+        mIsValid = false;
+        return;
+        break;
     }
 
     const QJsonDocument mJsonResult = QJsonDocument::fromJson( waitedReply->readAll() );
@@ -119,7 +127,7 @@ void ReosVortexIoProvider::load()
       {
         qDebug() << QString( "Void response." );
       }
-
+      mMeta.insert( QStringLiteral( "request_status" ) )
       return;
     }
 

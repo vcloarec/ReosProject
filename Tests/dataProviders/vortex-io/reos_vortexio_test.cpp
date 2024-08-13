@@ -32,6 +32,7 @@ class ReosVortexIoTest: public QObject
     void createHydrograph();
     void missingData();
     void rhin();
+    void badRequest();
 
 };
 
@@ -47,7 +48,7 @@ void ReosVortexIoTest::createProvider()
   ReosVortexIoProvider provider;
   provider.setDataSource( uri );
   provider.load();
-
+  QVERIFY( provider.isValid() );
 }
 
 void ReosVortexIoTest::createHydrograph()
@@ -57,6 +58,8 @@ void ReosVortexIoTest::createHydrograph()
 
   ReosHydrograph hydrograph( nullptr, "vortexio", QStringLiteral( "maeslstrom_key::fr-V720001002::2018-01-01::2023-12-31" ) );
   QVERIFY( hydrograph.isValid() );
+  QVERIFY( hydrograph.metadata().contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( hydrograph.metadata().value( QStringLiteral( "request_status" ) ), 200 );
 
   int valueCount = hydrograph.valueCount();
 
@@ -97,6 +100,8 @@ void ReosVortexIoTest::createHydrograph()
 void ReosVortexIoTest::missingData()
 {
   ReosHydrograph hydrograph( nullptr, "vortexio", QStringLiteral( "maeslstrom_key::fr-J261401002::2006-05-13::2006-08-12" ) );
+  QVERIFY( hydrograph.metadata().contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( hydrograph.metadata().value( QStringLiteral( "request_status" ) ), 200 );
 
   QVector<double> values = hydrograph.constData();
   int valueCount = hydrograph.valueCount();
@@ -120,6 +125,8 @@ void ReosVortexIoTest::rhin()
 {
   ReosHydrograph hydrograph( nullptr, "vortexio", QStringLiteral( "maeslstrom_key::fr-A021005050::1990-01-01::2000-01-01" ) );
 
+  QVERIFY( hydrograph.metadata().contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( hydrograph.metadata().value( QStringLiteral( "request_status" ) ), 200 );
 
   QVector<double> values = hydrograph.constData();
   int valueCount = hydrograph.valueCount();
@@ -128,6 +135,16 @@ void ReosVortexIoTest::rhin()
     QVERIFY( hydrograph.timeAt( i ) < hydrograph.timeAt( i + 1 ) );
 
   QCOMPARE( valueCount, 0 );
+}
+
+void ReosVortexIoTest::badRequest()
+{
+  QString uri =  QStringLiteral( "maeslstrom_key::fr-A236003301::2022-06-17::2024-06-16" );
+  ReosHydrograph hydrograph( nullptr, "vortexio", uri );
+  QVariantMap metadata = hydrograph.metadata();
+
+  QVERIFY( metadata.contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( metadata.value( QStringLiteral( "request_status" ) ), 500 );
 }
 
 QTEST_MAIN( ReosVortexIoTest )

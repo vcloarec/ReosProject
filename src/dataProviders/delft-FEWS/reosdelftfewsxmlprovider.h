@@ -25,9 +25,6 @@ class ReosDelftFewsXMLProviderInterface
 {
   public:
 
-    QVariantMap metadata() const;
-    void setMetadata( const QVariantMap &meta );
-
     static QString staticKey() {return QStringLiteral( "delft-fews-xml" );}
     static QDateTime timefromElement( const QDomElement &element );
     static double doubleValueFromElement( const QDomElement &element, const QString &noData );

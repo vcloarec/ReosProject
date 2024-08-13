@@ -193,4 +193,14 @@ ReosDataProviderFactory *ReosDataProviderRegistery::extractFactory( const QStrin
 
 bool ReosDataProvider::canReadUri( const QString & ) const {return false;}
 
+QVariantMap ReosDataProvider::metadata() const
+{
+    return mMeta;
+}
+
+void ReosDataProvider::setMetadata(const QVariantMap &meta)
+{
+    mMeta = meta;
+}
+
 bool ReosDataProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const {return false;}

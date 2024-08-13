@@ -110,7 +110,11 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     //! Returns the maximum of values of this time serie
     double minimum() const;
 
+    //! Returns the values as a const array
     const QVector<double> &constData() const;
+
+    //! Returns eventual metadata related to the time series
+    const QVariantMap metadata() const;
 
 #ifndef SIP_RUN
 

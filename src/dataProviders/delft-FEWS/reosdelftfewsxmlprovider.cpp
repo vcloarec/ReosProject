@@ -157,15 +157,9 @@ QDomElement ReosDelftFewsXMLProviderInterface::seriesElement( const QString &uri
     return serieElement;
 }
 
-QVariantMap ReosDelftFewsXMLProviderInterface::metadata() const
-{
-  return mMeta;
-}
 
-void ReosDelftFewsXMLProviderInterface::setMetadata( const QVariantMap &meta )
-{
-  mMeta = meta;
-}
+
+
 
 QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
 
