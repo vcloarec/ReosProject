@@ -127,7 +127,7 @@ void ReosVortexIoProvider::load()
       {
         qDebug() << QString( "Void response." );
       }
-      mMeta.insert( QStringLiteral( "request_status" ) )
+      mMeta.insert( QStringLiteral( "request_status" ), statusCode );
       return;
     }
 
