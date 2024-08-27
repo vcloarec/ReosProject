@@ -1014,6 +1014,39 @@ ReosDuration ReosTimeSeriesVariableTimeStep::totalDuration() const
   return ret;
 }
 
+ReosDuration ReosTimeSeriesVariableTimeStep::duration() const
+{
+  if ( valueCount() <= 1 )
+    return ReosDuration();
+
+
+  int i = 0;
+  while ( std::isnan( valueAt( i ) ) && i < valueCount() )
+    ++i;
+
+  if ( i >= valueCount() - 1 )
+    return ReosDuration();
+
+  QDateTime refTime = timeAt( i );
+  ReosDuration ret( qint64( 0 ) );
+  for ( ; i < valueCount(); ++i )
+  {
+    if ( std::isnan( valueAt( i ) ) )
+    {
+      ret = ret + ReosDuration( refTime.msecsTo( timeAt( i - 1 ) ) );
+      while ( i < valueCount() && std::isnan( valueAt( i ) ) )
+        ++i;
+      if ( i >= valueCount() - 1 )
+        return ret;
+      refTime = timeAt( i );
+    }
+  }
+
+  ret = ret + ReosDuration( refTime.msecsTo( timeAt( valueCount() - 1 ) ) );
+
+  return ret;
+}
+
 bool ReosTimeSeriesVariableTimeStep::setRelativeTimeAt( int i, const ReosDuration &relativeTime )
 {
   ReosTimeSerieVariableTimeStepProvider *dataProv = variableTimeStepDataProvider();

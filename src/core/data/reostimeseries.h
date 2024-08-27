@@ -308,8 +308,11 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
     //! Returns the relative times from the reference time in seconds, convenient for storing elsewhere.
     const QVector<int> relativeTimesDataSeconds() const;
 
-    //! Return the total durarion of the serie
+    //! Returns the total durarion of the serie
     ReosDuration totalDuration() const;
+
+    //! Returns the duration of the serie taking account of hole in the series
+    ReosDuration duration() const;
 
     //! Sets the value at \a relative time with \a value, if the \a relative time is not present insert a new couple (time, value)
     void setValue( const ReosDuration &relativeTime, double value );
