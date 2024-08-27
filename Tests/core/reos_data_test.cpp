@@ -27,6 +27,7 @@ class ReosDataTesting: public QObject
     void variable_time_step_time_model();
     void encode_variable_time_step();
     void hydrograph();
+    void duration();
 
 };
 
@@ -731,8 +732,53 @@ void ReosDataTesting::hydrograph()
 
   QVERIFY( equal( val, 4.0, 0.001 ) );
   QCOMPARE( tw.end().addMSecs( 4152 ), time );
-
 }
+
+void ReosDataTesting::duration()
+{
+  ReosTimeSeriesVariableTimeStep timeSerie;
+  timeSerie.setReferenceTime( QDateTime( QDate( 2020, 02, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( qint64( 0 ) ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( qint64( 0 ) ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 01 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( qint64( 0 ) ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( qint64( 0 ) ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 03, 01 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 29, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 15 ), QTime( 2, 0, 0 ), Qt::UTC ), std::numeric_limits<double>::quiet_NaN() );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 0, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 02 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 1, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 28 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 03, 15 ), QTime( 2, 0, 0 ), Qt::UTC ), std::numeric_limits<double>::quiet_NaN() );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 43, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ), std::numeric_limits<double>::quiet_NaN() );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 74, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
+}
+
+
 
 QTEST_MAIN( ReosDataTesting )
 #include "reos_data_test.moc"
