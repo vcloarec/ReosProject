@@ -314,7 +314,12 @@ Returns the relative times from the reference time in seconds, convenient for st
 
     ReosDuration totalDuration() const;
 %Docstring
-Return the total durarion of the serie
+Returns the total durarion of the serie
+%End
+
+    ReosDuration duration() const;
+%Docstring
+Returns the duration of the serie taking account of hole in the series
 %End
 
     void setValue( const ReosDuration &relativeTime, double value );
