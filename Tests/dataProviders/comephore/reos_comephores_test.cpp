@@ -18,8 +18,10 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 #include "reosgriddedrainitem.h"
 #include "reosgriddedrainfallprovider.h"
+#include "reosseriesrainfall.h"
 #include "reosnetcdfutils.h"
 #include "reosgisengine.h"
+#include "reoswatershed.h"
 
 class ReosComephoreTest: public QObject
 {
@@ -33,6 +35,8 @@ class ReosComephoreTest: public QObject
     void createRainfallFromNetCdf();
     void netCdfFolder();
     void timeWindow();
+
+    void missingIndex();
 };
 
 void ReosComephoreTest::createProvider()
@@ -309,6 +313,42 @@ void ReosComephoreTest::timeWindow()
   QPair<QDateTime, QDateTime> timeExtent = rainfall->timeExtent();
   QCOMPARE( timeExtent.first, QDateTime( QDate( 2020, 2, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
   QCOMPARE( timeExtent.second, QDateTime( QDate( 2020, 5, 6 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+}
+
+void ReosComephoreTest::missingIndex()
+{
+  QVariantMap uriParams;
+  uriParams[QStringLiteral( "file-or-dir-path" )] = COMEPHORE_FILES_PATH + QStringLiteral( "/negative_values" );
+
+  bool ok = false;
+  const QString uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedRainfall::staticType(), uriParams, ok );
+
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedRainfall> rainfall = std::make_unique<ReosGriddedRainfall>( uri, QStringLiteral( "comephore" ) );
+
+  QCOMPARE( 1487, rainfall->gridCount() );
+
+
+  int missingIndex = rainfall->dataIndex( QDateTime( QDate( 2019, 12, 31 ), QTime( 23, 30, 0 ), Qt::UTC ) );
+  QCOMPARE( -1, missingIndex );
+
+  ReosRasterExtent extent = rainfall->rasterExtent();
+
+  ReosRasterMemory<double> rainValues = ReosRasterMemory<double>( extent.yCellCount(), extent.xCellCount() );
+  rainValues.setValues( rainfall->values( -1 ) );
+
+  QPolygonF delineating;
+  delineating << QPointF( 541413, 6242700 ) << QPointF( 568692, 6242215 ) << QPointF( 550460, 6229044 );
+
+  ReosWatershed ws( delineating, delineating.at( 0 ), ReosGisEngine::crsFromEPSG( 2154 ) );
+
+  std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed> onWs = std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed>( ReosSeriesRainfallFromGriddedOnWatershed::create( & ws, rainfall.get() ) );
+
+  double value = onWs->valueAt( 743 );
+
+  int a = 1;
+
 }
 
 
