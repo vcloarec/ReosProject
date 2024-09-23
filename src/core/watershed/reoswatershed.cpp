@@ -55,14 +55,15 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating,
                               const QPolygonF &streamPath,
                               const ReosRasterWatershed::Watershed &rasterizedWatershed,
                               const ReosRasterExtent &rasterizedWatershedExtent,
-                              const QString &refLayerId ):
+                              const QString &refLayerId, const QString &crs ):
   mType( type ),
   mExtent( delineating ),
   mDelineating( delineating ),
   mDelineatingReferenceLayer( refLayerId ),
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
-  mStreamPath( streamPath )
+  mStreamPath( streamPath ),
+  mWktCrs( crs )
 {
   init();
   RasterizedWatershedData rw{rasterizedWatershed, rasterizedWatershedExtent};
@@ -77,14 +78,16 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating,
                               const ReosRasterWatershed::Directions &direction,
                               const ReosRasterWatershed::Watershed &rasterizedWatershed,
                               const ReosRasterExtent &rasterExtent,
-                              const QString &refLayerId ):
+                              const QString &refLayerId,
+                              const QString &crs ):
   mType( type ),
   mExtent( delineating ),
   mDelineating( delineating ),
   mDelineatingReferenceLayer( refLayerId ),
   mOutletPoint( outletPoint ),
   mDownstreamLine( downstreamLine ),
-  mStreamPath( streamPath )
+  mStreamPath( streamPath ),
+  mWktCrs( crs )
 {
   init();
   DirectionData dir {direction, rasterExtent};
@@ -1069,11 +1072,22 @@ ReosHydrographsStore *ReosWatershed::gaugedHydrographs() const
 QString ReosWatershed::crs() const
 {
   /// TODO : we need to make the watershed crs independant from the general crs.
-  if ( mGisEngine )
-    return mGisEngine->crs();
 
-  if ( mDownstreamWatershed )
-    return mDownstreamWatershed->geographicalContext()->crs();
+  if ( mWktCrs.isEmpty() )
+  {
+    if ( mDownstreamWatershed )
+    {
+      const QString dsCrs = mDownstreamWatershed->crs();
+      if ( !dsCrs.isEmpty() )
+        return mDownstreamWatershed->crs();
+    }
+
+    if ( mGisEngine )
+      return mGisEngine->crs();
+
+    if ( mDownstreamWatershed )
+      return mDownstreamWatershed->geographicalContext()->crs();
+  }
 
   return mWktCrs;
 }

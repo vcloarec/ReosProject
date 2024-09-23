@@ -38,11 +38,13 @@ class ReosWatershedDelineatingProcess: public ReosProcess
     ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
                                      const ReosMapExtent &mapExtent,
                                      const QPolygonF &downtreamLine,
+                                     const QString &downstreamLineCrs,
                                      const QList<QPolygonF> &burningLines,
                                      bool calculateAverageElevation = false );
 
     ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
                                      const QPolygonF &downtreamLine,
+                                     const QString &downstreamLineCrs,
                                      const QString &layerId );
 
     void start() override;
@@ -109,8 +111,11 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Sets the DEM to operate
     bool setDigitalElevationModelDEM( const QString &layerId );
 
-    //! Sets the downstream line, return true if sucessful
-    bool setDownstreamLine( const QPolygonF &downstreamLine );
+    /**
+     *  Sets the downstream line and its crs, return true if sucessful.
+     *  If the crs is not provided, it is supposed the crs is the same than other inputs (extent or at least DEM crs)
+     */
+    bool setDownstreamLine( const QPolygonF &downstreamLine, const QString &lineCrs = QString() );
 
     //! Sets the predefined extent, return true if sucessful
     bool setPreDefinedExtent( const ReosMapExtent &extent );
@@ -179,6 +184,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     QString mDEMLayerId;
     State mCurrentState = NoDigitalElevationModel;
     QPolygonF mDownstreamLine;
+    QString mDSLineCrs;
     ReosMapExtent mExtent;
     ReosWatershed *mDownstreamWatershed = nullptr;
     QList<QPolygonF> mBurningLines;
