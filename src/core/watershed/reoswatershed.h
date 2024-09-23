@@ -68,7 +68,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
                    const QPolygonF &streamPath,
                    const ReosRasterWatershed::Watershed &rasterizedWatershed,
                    const ReosRasterExtent &rasterizedWatershedExtent,
-                   const QString &refLayerId );
+                   const QString &refLayerId,
+                   const QString &crs = QString() );
 
     //! Constructor used with automatic delineating with direction data
     ReosWatershed( const QPolygonF &delineating,
@@ -79,7 +80,8 @@ class REOSCORE_EXPORT ReosWatershed: public ReosDataObject
                    const ReosRasterWatershed::Directions &direction,
                    const ReosRasterWatershed::Watershed &rasterizedWatershed,
                    const ReosRasterExtent &rasterExtent,
-                   const QString &refLayerId );
+                   const QString &refLayerId,
+                   const QString &crs = QString() );
 
     Type watershedType() const {return mType;}
 

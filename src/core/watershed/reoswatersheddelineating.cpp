@@ -56,7 +56,7 @@ ReosWatershedDelineating::State ReosWatershedDelineating::currentState() const
   return mCurrentState;
 }
 
-bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLine )
+bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLine, const QString &lineCrs )
 {
   if ( downstreamLine.count() > 1 )
   {
@@ -66,6 +66,7 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
       return false;
 
     mDownstreamLine = downstreamLine;
+    mDSLineCrs = lineCrs;
     if ( mDownstreamWatershed &&
          mDownstreamWatershed->hasDirectiondata( mDEMLayerId ) &&
          mIsBurningLineUpToDate )
@@ -106,12 +107,12 @@ bool ReosWatershedDelineating::prepareDelineating()
   }
 
   if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( mDEMLayerId ) && mIsBurningLineUpToDate )
-    mProcess = std::make_unique<ReosWatershedDelineatingProcess>( mDownstreamWatershed, mDownstreamLine, mDEMLayerId );
+    mProcess = std::make_unique<ReosWatershedDelineatingProcess>( mDownstreamWatershed, mDownstreamLine, mDSLineCrs, mDEMLayerId );
   else
   {
     std::unique_ptr<ReosDigitalElevationModel> dem;
     dem.reset( mGisEngine->getDigitalElevationModel( mDEMLayerId ) );
-    mProcess = std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), mExtent, mDownstreamLine, mBurningLines, mCalculateAverageElevation );
+    mProcess = std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), mExtent, mDownstreamLine,  mDSLineCrs, mBurningLines, mCalculateAverageElevation );
   }
 
   connect( mProcess.get(), &ReosProcess::finished, this, &ReosWatershedDelineating::onDelineatingFinished );
@@ -350,12 +351,12 @@ void ReosWatershedDelineating::setCalculateAverageElevation( bool calculate )
 
 ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
     const ReosMapExtent &mapExtent,
-    const QPolygonF &downtreamLine,
+    const QPolygonF &downtreamLine, const QString &downstreamLineCrs,
     const QList<QPolygonF> &burningLines,
     bool calculateAverageElevation ):
   mExtent( mapExtent ),
   mEntryDem( dem ),
-  mDownstreamLine( downtreamLine ),
+  mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, mapExtent.crs() ) ),
   mBurningLines( burningLines ),
   mCalculateAverageElevation( calculateAverageElevation )
 {}
@@ -363,13 +364,12 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalEle
 ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
   ReosWatershed *downstreamWatershed,
   const QPolygonF &downtreamLine,
+  const QString &downstreamLineCrs,
   const QString &layerId ):
-  mDownstreamLine( downtreamLine ),
+  mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, downstreamWatershed->crs() ) ),
   mDirections( downstreamWatershed->directions( layerId ) ),
   mPredefinedRasterExtent( downstreamWatershed->directionExtent( layerId ) )
-{
-
-}
+{}
 
 void ReosWatershedDelineatingProcess::start()
 {
@@ -389,7 +389,7 @@ void ReosWatershedDelineatingProcess::start()
     setCurrentProgression( 0 );
     setInformation( tr( "Extract digital elevation model" ) );
     float maxValue;
-    ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mPredefinedRasterExtent, maxValue, QString(), this ) );
+    ReosRasterMemory<float> dem( mEntryDem->extractMemoryRasterSimplePrecision( mExtent, mPredefinedRasterExtent, maxValue, QString(), this ) ); // destination CRS will be the one of the extent
     if ( isStop() )
     {
       finish();

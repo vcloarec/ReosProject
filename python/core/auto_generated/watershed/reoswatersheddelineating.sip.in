@@ -45,9 +45,10 @@ Returns wheher the instance has a registered DEM to operate
 Sets the DEM to operate
 %End
 
-    bool setDownstreamLine( const QPolygonF &downstreamLine );
+    bool setDownstreamLine( const QPolygonF &downstreamLine, const QString &lineCrs = QString() );
 %Docstring
-Sets the downstream line, return true if sucessful
+Sets the downstream line and its crs, return true if sucessful.
+If the crs is not provided, it is supposed the crs is the same than other inputs (extent or at least DEM crs)
 %End
 
     bool setPreDefinedExtent( const ReosMapExtent &extent );
