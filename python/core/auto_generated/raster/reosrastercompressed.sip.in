@@ -1,0 +1,51 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/raster/reosrastercompressed.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+class ReosRasterByteCompressed
+{
+%Docstring(signature="appended")
+Class used to store unsigned char raser that has value unde 128 by a compress way
+%End
+
+%TypeHeaderCode
+#include "reosrastercompressed.h"
+%End
+  public:
+    ReosRasterByteCompressed();
+
+
+
+    bool hasData() const;
+%Docstring
+Return whether the instance of this object contains data
+%End
+
+    ReosEncodedElement encode() const;
+%Docstring
+Encodes the instance and returns a encodeded element
+%End
+    static ReosRasterByteCompressed decode( const ReosEncodedElement &element );
+%Docstring
+Creates a new instance of this class by decoding the ``element``
+%End
+
+    bool operator==( const ReosRasterByteCompressed &other ) const;
+    bool operator!=( const ReosRasterByteCompressed &other ) const;
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/raster/reosrastercompressed.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

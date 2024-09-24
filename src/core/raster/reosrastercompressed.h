@@ -15,8 +15,6 @@ email                : vcloarec@gmail.com
 #ifndef REOSRASTERCOMPRESSED_H
 #define REOSRASTERCOMPRESSED_H
 
-#define SIP_NO_FILE
-
 #include <QByteArray>
 #include "reosmemoryraster.h"
 
@@ -29,11 +27,15 @@ class REOSCORE_EXPORT ReosRasterByteCompressed
 {
   public:
     ReosRasterByteCompressed() = default;
+
+
+#ifndef SIP_RUN
     //! Constructor with an existing \a raster
     ReosRasterByteCompressed( const ReosRasterMemory<unsigned char> &raster );
 
     //! Decompresses the raster and returns it
     ReosRasterMemory<unsigned char> uncompressRaster() const;
+#endif // not SIP_RUN
 
     //! Return whether the instance of this object contains data
     bool hasData() const;

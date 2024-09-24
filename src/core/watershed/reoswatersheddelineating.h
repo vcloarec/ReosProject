@@ -26,6 +26,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reosrasterwatershed.h"
 #include "reosdigitalelevationmodel.h"
+#include "reosrastercompressed.h"
 
 class ReosRasterFillingWangLiu;
 class ReosWatershedTree;
@@ -35,17 +36,28 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 {
     Q_OBJECT
   public:
-    ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
-                                     const ReosMapExtent &mapExtent,
-                                     const QPolygonF &downtreamLine,
-                                     const QString &downstreamLineCrs,
-                                     const QList<QPolygonF> &burningLines,
-                                     bool calculateAverageElevation = false );
+    ReosWatershedDelineatingProcess(
+      ReosDigitalElevationModel *dem,
+      const ReosMapExtent &mapExtent,
+      const QPolygonF &downtreamLine,
+      const QString &downstreamLineCrs,
+      const QList<QPolygonF> &burningLines,
+      bool calculateAverageElevation = false );
 
-    ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
-                                     const QPolygonF &downtreamLine,
-                                     const QString &downstreamLineCrs,
-                                     const QString &layerId );
+    ReosWatershedDelineatingProcess(
+      ReosWatershed *downstreamWatershed,
+      const QPolygonF &downstreamLine,
+      const QString &downstreamLineCrs,
+      const QString &layerId,
+      bool calculateAverageElevation = false );
+
+    ReosWatershedDelineatingProcess(
+      ReosDigitalElevationModel *dem,
+      const ReosRasterWatershed::Directions &directions,
+      const ReosRasterExtent &directionsExtent,
+      const QPolygonF &downstreamLine,
+      const QString &downstreamLineCrs,
+      bool calculateAverageElevation = false );
 
     void start() override;
 
@@ -172,6 +184,31 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     void clear();
 
     static QString staticName() {return QStringLiteral( "watershed-delineating" );}
+
+
+    struct DelineateResult
+    {
+      ReosRasterExtent outputRasterExtent;
+      ReosRasterByteCompressed direction;
+      QPolygonF delineateWatershed;
+      QPolygonF streamLine;
+      double averageElevation;
+    };
+
+    static DelineateResult delineateWatershed(
+      const QString &demLayerId,
+      const QPolygon &downstreamLine,
+      const QString &dsLineCrs,
+      const ReosMapExtent &extent,
+      ReosGisEngine *gisEngine );
+
+    static DelineateResult delineateWatershed(
+      const QString &demLayerId,
+      const QPolygon &downstreamLine,
+      const QString &dsLineCrs,
+      const ReosRasterExtent &directionExtent,
+      const ReosRasterByteCompressed &direction,
+      ReosGisEngine *gisEngine );
 
   signals:
     void hasBeenReset();
