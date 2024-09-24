@@ -334,7 +334,7 @@ void ReosWatershedDelineating::clear()
 
 ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWatershed(
   const QString &demLayerId,
-  const QPolygon &downstreamLine,
+  const QPolygonF &downstreamLine,
   const QString &dsLineCrs,
   const ReosMapExtent &extent,
   ReosGisEngine *gisEngine )
@@ -358,7 +358,7 @@ ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWat
 
 ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWatershed(
   const QString &demLayerId,
-  const QPolygon &downstreamLine,
+  const QPolygonF &downstreamLine,
   const QString &dsLineCrs,
   const ReosRasterExtent &directionExtent,
   const ReosRasterByteCompressed &compressedDirection,
@@ -429,12 +429,12 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
   , mCalculateAverageElevation( calculateAverageElevation )
 {}
 
-ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(ReosDigitalElevationModel *dem,
-  const ReosRasterWatershed::Directions &directions,
-  const ReosRasterExtent &directionsExtent,
-  const QPolygonF &downstreamLine,
-  const QString &downstreamLineCrs,
-  bool calculateAverageElevation )
+ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
+    const ReosRasterWatershed::Directions &directions,
+    const ReosRasterExtent &directionsExtent,
+    const QPolygonF &downstreamLine,
+    const QString &downstreamLineCrs,
+    bool calculateAverageElevation )
   : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, directionsExtent.crs() ) )
   , mEntryDem( dem )
   , mDirections( directions )

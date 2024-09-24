@@ -197,14 +197,14 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 
     static DelineateResult delineateWatershed(
       const QString &demLayerId,
-      const QPolygon &downstreamLine,
+      const QPolygonF &downstreamLine,
       const QString &dsLineCrs,
       const ReosMapExtent &extent,
       ReosGisEngine *gisEngine );
 
     static DelineateResult delineateWatershed(
       const QString &demLayerId,
-      const QPolygon &downstreamLine,
+      const QPolygonF &downstreamLine,
       const QString &dsLineCrs,
       const ReosRasterExtent &directionExtent,
       const ReosRasterByteCompressed &direction,
