@@ -36,10 +36,8 @@ class REOSCORE_EXPORT ReosSpatialPosition
 
     bool isValid() const;
 
-#ifndef SIP_RUN
     static ReosSpatialPosition decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
-#endif //ifndef SIP_RUN
 
   private:
     QPointF mPosition;

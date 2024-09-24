@@ -119,9 +119,9 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
 
     bool operator!=( const ReosRasterExtent &other ) const;
 
-    ReosEncodedElement encode() const SIP_SKIP;
+    ReosEncodedElement encode() const;
 
-    static ReosRasterExtent decode( const ReosEncodedElement &element ) SIP_SKIP;
+    static ReosRasterExtent decode( const ReosEncodedElement &element );
 
   private:
     bool mIsValid = false;

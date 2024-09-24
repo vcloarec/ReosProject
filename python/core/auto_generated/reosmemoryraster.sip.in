@@ -139,7 +139,9 @@ Returns the surface of a cell
 
     bool operator!=( const ReosRasterExtent &other ) const;
 
+    ReosEncodedElement encode() const;
 
+    static ReosRasterExtent decode( const ReosEncodedElement &element );
 
 };
 
