@@ -26,15 +26,25 @@
 class ReosVortexIoTest: public QObject
 {
     Q_OBJECT
-
   private slots:
+    void parameters();
     void createProvider();
     void createHydrograph();
+    void validationData();
     void missingData();
     void rhin();
     void badRequest();
-
 };
+
+void ReosVortexIoTest::parameters()
+{
+  QVariantMap params = ReosDataProviderRegistery::instance()->uriParameters( "vortexio", ReosHydrograph::staticType() );
+  QVERIFY( params.contains( QStringLiteral( "maelstrom-key" ) ) );
+  QVERIFY( params.contains( QStringLiteral( "station-id" ) ) );
+  QVERIFY( params.contains( QStringLiteral( "start" ) ) );
+  QVERIFY( params.contains( QStringLiteral( "end" ) ) );
+  QVERIFY( params.contains( QStringLiteral( "data-validation" ) ) );
+}
 
 void ReosVortexIoTest::createProvider()
 {
@@ -95,6 +105,27 @@ void ReosVortexIoTest::createHydrograph()
   QVERIFY( decodedHyd->relativeTimeAt( 1 ) == ReosDuration( 600, ReosDuration::second ) );
   QVERIFY( decodedHyd->relativeTimeAt( 12000 ) == ReosDuration( 13152000, ReosDuration::second ) );
 
+}
+
+void ReosVortexIoTest::validationData()
+{
+  ReosHydrograph hydrograph_valid( nullptr, "vortexio", QStringLiteral( "maeslstrom_key::fr-V720001002::2023-01-01::2023-12-31::validated" ) );
+  QVERIFY( hydrograph_valid.isValid() );
+  QVERIFY( hydrograph_valid.metadata().contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( hydrograph_valid.metadata().value( QStringLiteral( "request_status" ) ), 200 );
+  QCOMPARE( hydrograph_valid.valueCount(), 5273 );
+
+  ReosHydrograph hydrograph_prevalid( nullptr, "vortexio", QStringLiteral( "maeslstrom_key::fr-V720001002::2023-01-01::2023-12-31::pre_validated_and_validated" ) );
+  QVERIFY( hydrograph_prevalid.isValid() );
+  QVERIFY( hydrograph_prevalid.metadata().contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( hydrograph_prevalid.metadata().value( QStringLiteral( "request_status" ) ), 200 );
+  QCOMPARE( hydrograph_prevalid.valueCount(), 5273 );
+
+  ReosHydrograph hydrograph_raw( nullptr, "vortexio", QStringLiteral( "maeslstrom_key::fr-V720001002::2023-01-01::2023-12-31::raw" ) );
+  QVERIFY( hydrograph_raw.isValid() );
+  QVERIFY( hydrograph_raw.metadata().contains( QStringLiteral( "request_status" ) ) );
+  QCOMPARE( hydrograph_raw.metadata().value( QStringLiteral( "request_status" ) ), 200 );
+  QCOMPARE( hydrograph_raw.valueCount(), 104899 );
 }
 
 void ReosVortexIoTest::missingData()
