@@ -35,7 +35,7 @@ REOSEXTERN ReosVortexIoProviderFactory *providerFactory()
 ReosVortexIoProvider::ReosVortexIoProvider()
   : mNetworkManager( new QNetworkAccessManager( this ) )
 {
-  mBaseUri = QStringLiteral( "https://www.hydro.eaufrance.fr/stationhydro/ajax/%1/series?hydro_series[startAt]=%2&hydro_series[endAt]=%3&hydro_series[variableType]=simple_and_interpolated_and_hourly_variable&hydro_series[simpleAndInterpolatedAndHourlyVariable]=Q&hydro_series[statusData]=most_valid" );
+  mBaseUri = QStringLiteral( "https://www.hydro.eaufrance.fr/stationhydro/ajax/%1/series?hydro_series[startAt]=%2&hydro_series[endAt]=%3&hydro_series[variableType]=simple_and_interpolated_and_hourly_variable&hydro_series[simpleAndInterpolatedAndHourlyVariable]=Q&hydro_series[statusData]=%4" );
 }
 
 QString ReosVortexIoProvider::key() const {return staticKey();}
@@ -65,6 +65,13 @@ void ReosVortexIoProvider::load()
   QString startStr = params.value( QStringLiteral( "start" ) ).toString();
   QString endStr = params.value( QStringLiteral( "end" ) ).toString();
 
+  QString validation;
+
+  if ( params.contains( QStringLiteral( "data-validation" ) ) )
+    validation = params.value( QStringLiteral( "data-validation" ) ).toString();
+  else
+    validation = QStringLiteral( "most_valid" );
+
   const QDate start = QDate::fromString( startStr, Qt::ISODate );
   const QDate end = QDate::fromString( endStr, Qt::ISODate );
 
@@ -83,7 +90,7 @@ void ReosVortexIoProvider::load()
     if ( pageEnd > end )
       pageEnd = end;
 
-    const QString url = mBaseUri.arg( stationId, pageStart.toString( "dd/MM/yyyy" ), pageEnd.toString( "dd/MM/yyyy" ) );
+    const QString url = mBaseUri.arg( stationId, pageStart.toString( "dd/MM/yyyy" ), pageEnd.toString( "dd/MM/yyyy" ), validation );
 
     QEventLoop *loop = new QEventLoop( this );
 
@@ -272,7 +279,7 @@ bool ReosVortexIoProvider::canReadUri( const QString &uri ) const
 QVariantMap ReosVortexIoProvider::decodeUri( const QString &uri, bool &ok )
 {
   const QStringList params = uri.split( QStringLiteral( "::" ) );
-  if ( params.size() != 4 )
+  if ( params.size() < 4 )
   {
     ok = false;
     return QVariantMap();
@@ -284,6 +291,8 @@ QVariantMap ReosVortexIoProvider::decodeUri( const QString &uri, bool &ok )
   ret[QStringLiteral( "start" )] = params.at( 2 );
   ret[QStringLiteral( "end" )] = params.at( 3 );
 
+  if ( params.size() >= 5 )
+    ret[QStringLiteral( "data-validation" )] = params.at( 4 );
   ok = true;
 
   return ret;
@@ -329,6 +338,7 @@ QVariantMap ReosVortexIoProviderFactory::uriParameters( const QString &dataType 
     ret.insert( QStringLiteral( "station-id" ), QObject::tr( "Station id" ) );
     ret.insert( QStringLiteral( "start" ), QObject::tr( "Start date/time of the requested data (ISO format)" ) );
     ret.insert( QStringLiteral( "end" ), QObject::tr( "End date/time of the requested data (ISO format)" ) );
+    ret.insert( QStringLiteral( "data-validation" ), QObject::tr( "most_valid (default), validated, pre_validated_and_validated or raw" ) );
   }
 
   return ret;
@@ -343,11 +353,16 @@ QString ReosVortexIoProviderFactory::buildUri( const QString &dataType, const QV
        && parameters.contains( QStringLiteral( "end" ) ) )
   {
     ok = true;
-    return QString( "%1::%2::%3::%4" ).
-           arg( parameters.value( QStringLiteral( "maelstrom-key" ) ).toString(),
-                parameters.value( QStringLiteral( "station-id" ) ).toString(),
-                parameters.value( QStringLiteral( "start" ) ).toString(),
-                parameters.value( QStringLiteral( "end" ) ).toString() ) ;
+    QString ret = QString( "%1::%2::%3::%4" ).
+                  arg( parameters.value( QStringLiteral( "maelstrom-key" ) ).toString(),
+                       parameters.value( QStringLiteral( "station-id" ) ).toString(),
+                       parameters.value( QStringLiteral( "start" ) ).toString(),
+                       parameters.value( QStringLiteral( "end" ) ).toString() ) ;
+
+    if ( parameters.contains( QStringLiteral( "data-validation" ) ) )
+      ret = ret.append( QString( ":%1" ).arg( parameters.value( QStringLiteral( "data-validation" ) ).toString() ) );
+
+    return ret;
   }
   ok = false;
   return QString();
