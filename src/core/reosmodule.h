@@ -75,8 +75,11 @@ class REOSCORE_EXPORT ReosModule : public QObject
       return qobject_cast<T>( childModule( std::remove_pointer<T>::type::staticName() ) );
     }
 
+#endif //SIP_RUN
   signals:
     void emitMessage( const Message &message, bool messageBox ) const;
+
+#ifndef SIP_RUN
     void dirtied();
 
   public slots:
