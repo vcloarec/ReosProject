@@ -88,7 +88,8 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
 
 bool ReosWatershedDelineating::setPreDefinedExtent( const ReosMapExtent &extent )
 {
-  if ( extent.containsPartialy( mDownstreamLine ) )
+  QPolygonF testedDs = ReosGisEngine::transformToCoordinates( mDSLineCrs, mDownstreamLine, extent.crs() );
+  if ( extent.containsPartialy( testedDs ) )
   {
     mExtent = extent;
     mCurrentState = WaitingforProceed;
