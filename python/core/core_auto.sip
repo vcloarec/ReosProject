@@ -1,5 +1,6 @@
 // Include auto-generated SIP files
 %Include auto_generated/reosapplication.sip
+%Include auto_generated/reosencodedelement.sip
 %Include auto_generated/reosmemoryraster.sip
 %Include auto_generated/reosmodule.sip
 %Include auto_generated/reoscoremodule.sip
@@ -9,6 +10,7 @@
 %Include auto_generated/GIS/reosmapextent.sip
 %Include auto_generated/GIS/reosrenderedobject.sip
 %Include auto_generated/process/reosprocess.sip
+%Include auto_generated/raster/reosrastercompressed.sip
 %Include auto_generated/watershed/reoswatershed.sip
 %Include auto_generated/watershed/reoswatersheddelineating.sip
 %Include auto_generated/watershed/reoswatershedtree.sip

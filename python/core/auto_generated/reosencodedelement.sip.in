@@ -1,0 +1,101 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reosencodedelement.h                                        *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+class ReosEncodeContext
+{
+%Docstring(signature="appended")
+Class that sore information about the context of encoding
+%End
+
+%TypeHeaderCode
+#include "reosencodedelement.h"
+%End
+  public:
+    QString pathToEncode( const QString &filePath ) const;
+%Docstring
+Returns the path to encode depending of the context
+%End
+
+    QString resolvePath( const QString &path ) const;
+%Docstring
+Resolves the path depending of the context
+%End
+
+    void setBaseDir( const QDir &newBaseDir );
+%Docstring
+Sets the base direcory used for relative pathes
+
+.. seealso:: :py:func:`setEncodeRelativePath`
+%End
+
+    void setEncodeRelativePath( bool isRelative );
+%Docstring
+Sets whether pathes are relative
+
+.. seealso:: :py:func:`setBaseDir`
+%End
+
+};
+
+class ReosEncodedElement
+{
+%Docstring(signature="appended")
+Class used to store data under byte array
+%End
+
+%TypeHeaderCode
+#include "reosencodedelement.h"
+%End
+  public:
+
+    explicit ReosEncodedElement();
+%Docstring
+Constructor of an empty encoded element with only the description
+%End
+
+    explicit ReosEncodedElement( const QString &description );
+%Docstring
+Constructor of an empty encoded element with only the description
+%End
+
+    explicit ReosEncodedElement( const QByteArray &byteArray );
+%Docstring
+Contructor of an encoded element from a ``byte`` array than contains data and description
+%End
+
+    QByteArray bytes() const;
+%Docstring
+Returns byte of the encoded element that can be store in files or in another encoded element
+%End
+
+    QString description() const;
+%Docstring
+Returns the desctiption of the encoded element
+%End
+
+    void addEncodedData( const QString &key, const ReosEncodedElement &element );
+%Docstring
+Adds data ``value`` with a ``key`` to the encoded element
+%End
+
+    ReosEncodedElement getEncodedData( const QString &key ) const;
+
+    static void setSerialisationVersion( QDataStream::Version version );
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reosencodedelement.h                                        *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

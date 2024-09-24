@@ -332,6 +332,59 @@ void ReosWatershedDelineating::clear()
   emit hasBeenReset();
 }
 
+ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWatershed(
+  const QString &demLayerId,
+  const QPolygon &downstreamLine,
+  const QString &dsLineCrs,
+  const ReosMapExtent &extent,
+  ReosGisEngine *gisEngine )
+{
+  std::unique_ptr<ReosDigitalElevationModel> dem;
+  dem.reset( gisEngine->getDigitalElevationModel( demLayerId ) );
+  std::unique_ptr<ReosWatershedDelineatingProcess> process =
+    std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), extent, downstreamLine, dsLineCrs, QList<QPolygonF>(), true );
+  process->start();
+
+  DelineateResult res;
+
+  res.outputRasterExtent = process->outputRasterExtent();
+  res.direction = ReosRasterByteCompressed( process->directions() );
+  res.delineateWatershed = process->watershedPolygon();
+  res.streamLine = process->streamLine();
+  res.averageElevation = process->averageElevation();
+
+  return res;
+}
+
+ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWatershed(
+  const QString &demLayerId,
+  const QPolygon &downstreamLine,
+  const QString &dsLineCrs,
+  const ReosRasterExtent &directionExtent,
+  const ReosRasterByteCompressed &compressedDirection,
+  ReosGisEngine *gisEngine )
+{
+  std::unique_ptr<ReosDigitalElevationModel> dem;
+  dem.reset( gisEngine->getDigitalElevationModel( demLayerId ) );
+
+  const ReosRasterWatershed::Directions directions = compressedDirection.uncompressRaster();
+
+  std::unique_ptr<ReosWatershedDelineatingProcess> process =
+    std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), directions, directionExtent, downstreamLine, dsLineCrs, true );
+
+  process->start();
+
+  DelineateResult res;
+
+  res.outputRasterExtent = process->outputRasterExtent();
+  res.direction = ReosRasterByteCompressed( process->directions() );
+  res.delineateWatershed = process->watershedPolygon();
+  res.streamLine = process->streamLine();
+  res.averageElevation = process->averageElevation();
+
+  return res;
+}
+
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )
 {
   mBurningLines = burningLines;
@@ -350,11 +403,13 @@ void ReosWatershedDelineating::setCalculateAverageElevation( bool calculate )
 }
 
 
-ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
-    const ReosMapExtent &mapExtent,
-    const QPolygonF &downtreamLine, const QString &downstreamLineCrs,
-    const QList<QPolygonF> &burningLines,
-    bool calculateAverageElevation ):
+ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
+  ReosDigitalElevationModel *dem,
+  const ReosMapExtent &mapExtent,
+  const QPolygonF &downtreamLine,
+  const QString &downstreamLineCrs,
+  const QList<QPolygonF> &burningLines,
+  bool calculateAverageElevation ):
   mExtent( mapExtent ),
   mEntryDem( dem ),
   mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, mapExtent.crs() ) ),
@@ -364,12 +419,26 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalEle
 
 ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
   ReosWatershed *downstreamWatershed,
-  const QPolygonF &downtreamLine,
+  const QPolygonF &downstreamLine,
   const QString &downstreamLineCrs,
-  const QString &layerId ):
-  mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, downstreamWatershed->crs() ) ),
-  mDirections( downstreamWatershed->directions( layerId ) ),
-  mPredefinedRasterExtent( downstreamWatershed->directionExtent( layerId ) )
+  const QString &layerId,
+  bool calculateAverageElevation )
+  : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, downstreamWatershed->crs() ) )
+  , mDirections( downstreamWatershed->directions( layerId ) )
+  , mPredefinedRasterExtent( downstreamWatershed->directionExtent( layerId ) )
+  , mCalculateAverageElevation( calculateAverageElevation )
+{}
+
+ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(ReosDigitalElevationModel *dem,
+  const ReosRasterWatershed::Directions &directions,
+  const ReosRasterExtent &directionsExtent,
+  const QPolygonF &downstreamLine,
+  const QString &downstreamLineCrs,
+  bool calculateAverageElevation )
+  : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, directionsExtent.crs() ) )
+  , mEntryDem( dem )
+  , mDirections( directions )
+  , mCalculateAverageElevation( calculateAverageElevation )
 {}
 
 void ReosWatershedDelineatingProcess::start()
