@@ -446,6 +446,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   else
     outputRasterExtent = outputRasterExtentInDemCoorindates;
 
+  outputRasterExtent.setCrs( destCrs.toWkt( Qgis::CrsWktVariant::PreferredGdal ) );
 
   ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
 
