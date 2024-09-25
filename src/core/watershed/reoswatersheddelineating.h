@@ -185,11 +185,9 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 
     static QString staticName() {return QStringLiteral( "watershed-delineating" );}
 
-
     struct DelineateResult
     {
       ReosRasterExtent outputRasterExtent;
-      ReosRasterByteCompressed direction;
       QPolygonF delineateWatershed;
       QPolygonF streamLine;
       double averageElevation;
@@ -197,18 +195,15 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 
     static DelineateResult delineateWatershed(
       const QString &demLayerId,
+      const QString &directionFile,
       const QPolygonF &downstreamLine,
       const QString &dsLineCrs,
-      const ReosMapExtent &extent,
       ReosGisEngine *gisEngine );
 
-    static DelineateResult delineateWatershed(
-      const QString &demLayerId,
-      const QPolygonF &downstreamLine,
-      const QString &dsLineCrs,
-      const ReosRasterExtent &directionExtent,
-      const ReosRasterByteCompressed &direction,
-      ReosGisEngine *gisEngine );
+    static bool directionFromDem( const QString &demLayerId,
+                                  const ReosMapExtent &extent,
+                                  ReosGisEngine *gisEngine,
+                                  const QString &fileName );
 
   signals:
     void hasBeenReset();

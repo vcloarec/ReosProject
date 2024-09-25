@@ -161,3 +161,64 @@ ReosRasterMemory<int> ReosGdalDataset::valuesInt( int band )
 
   return ret;
 }
+
+ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band )
+{
+  if ( !mHDataset )
+    return ReosRasterMemory<unsigned char>();
+
+  GDALRasterBandH hBand = GDALGetRasterBand( mHDataset, band );
+
+  if ( !hBand )
+    return ReosRasterMemory<unsigned char>();
+
+  int xCount = GDALGetRasterXSize( mHDataset );
+  int yCount = GDALGetRasterYSize( mHDataset );
+
+  ReosRasterMemory<unsigned char> ret( yCount, xCount );
+
+  if ( !ret.reserveMemory() )
+    return ReosRasterMemory<unsigned char>();
+
+  CPLErr err = GDALRasterIO( hBand, GF_Read, 0, 0, xCount, yCount, ret.data(), xCount, yCount, GDT_Byte, 0, 0 );
+
+  if ( err != CE_None )
+    return ReosRasterMemory<unsigned char>();
+
+  return ret;
+}
+
+bool ReosGdalDataset::writeByteRasterToFile( const QString &fileName, ReosRasterMemory<unsigned char> raster, const ReosRasterExtent &extent )
+{
+  GDALDriver *driver = GetGDALDriverManager()->GetDriverByName( "GTiff" );
+
+  if ( !driver )
+    return false;
+
+  char *papszOptions[] =
+  {
+    const_cast<char *>( "COMPRESS=DEFLATE" ),
+    const_cast<char *>( "PREDICTOR=1" ),
+    nullptr
+  };
+
+  GDALDataset *dataSet = driver->Create( fileName.toStdString().c_str(), raster.columnCount(), raster.rowCount(), 1, GDALDataType::GDT_Byte, papszOptions );
+  if ( !dataSet )
+    return false;
+
+  CPLErr err = dataSet->GetRasterBand( 1 )->RasterIO( GF_Write, 0, 0, raster.columnCount(), raster.rowCount(), raster.data(), raster.columnCount(), raster.rowCount(), GDALDataType::GDT_Byte, 0, 0 );
+  if ( err )
+    return false;
+
+  double geoTrans[6] = { extent.xMapOrigin(), extent.xCellSize(), 0, extent.yMapOrigin(), 0, extent.yCellSize() };
+  dataSet->SetGeoTransform( geoTrans );
+
+  char *proj_WKT = nullptr;
+  QString wktCrs = extent.crs();
+  dataSet->SetProjection( extent.crs().toStdString().c_str() );
+  CPLFree( proj_WKT );
+
+  GDALClose( static_cast<GDALDatasetH>( dataSet ) );
+
+  return true;
+}

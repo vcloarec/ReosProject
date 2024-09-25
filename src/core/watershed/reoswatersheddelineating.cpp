@@ -18,6 +18,7 @@ email                : vcloarec at gmail dot com
 #include "reosrasterfilling.h"
 #include "reosrasterwatershed.h"
 #include "reoswatershedtree.h"
+#include "reosgdalutils.h"
 
 ReosWatershedDelineating::ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedtree, ReosGisEngine *gisEngine ):
   ReosModule( ReosWatershedDelineating::staticName(), parent ),
@@ -332,23 +333,35 @@ void ReosWatershedDelineating::clear()
   emit hasBeenReset();
 }
 
+
 ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWatershed(
   const QString &demLayerId,
+  const QString &directionFile,
   const QPolygonF &downstreamLine,
   const QString &dsLineCrs,
-  const ReosMapExtent &extent,
   ReosGisEngine *gisEngine )
 {
   std::unique_ptr<ReosDigitalElevationModel> dem;
   dem.reset( gisEngine->getDigitalElevationModel( demLayerId ) );
-  std::unique_ptr<ReosWatershedDelineatingProcess> process =
-    std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), extent, downstreamLine, dsLineCrs, QList<QPolygonF>(), true );
-  process->start();
 
   DelineateResult res;
 
+  ReosGdalDataset directionDataset( directionFile );
+
+  if ( !directionDataset.isValid() )
+    return res;
+
+  const ReosRasterWatershed::Directions directions = directionDataset.valuesBytes( 1 );
+
+  std::unique_ptr<ReosWatershedDelineatingProcess> process =
+    std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), directions, directionDataset.extent(), downstreamLine, dsLineCrs, true );
+
+  process->start();
+
+  if ( !process->isSuccessful() )
+    return res;
+
   res.outputRasterExtent = process->outputRasterExtent();
-  res.direction = ReosRasterByteCompressed( process->directions() );
   res.delineateWatershed = process->watershedPolygon();
   res.streamLine = process->streamLine();
   res.averageElevation = process->averageElevation();
@@ -356,33 +369,29 @@ ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWat
   return res;
 }
 
-ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWatershed(
+bool ReosWatershedDelineating::directionFromDem(
   const QString &demLayerId,
-  const QPolygonF &downstreamLine,
-  const QString &dsLineCrs,
-  const ReosRasterExtent &directionExtent,
-  const ReosRasterByteCompressed &compressedDirection,
-  ReosGisEngine *gisEngine )
+  const ReosMapExtent &extent,
+  ReosGisEngine *gisEngine,
+  const QString &fileName )
 {
-  std::unique_ptr<ReosDigitalElevationModel> dem;
-  dem.reset( gisEngine->getDigitalElevationModel( demLayerId ) );
+  std::unique_ptr<ReosDigitalElevationModel> entryDem( gisEngine->getDigitalElevationModel( demLayerId ) );
+  float maxValue = 0;
+  ReosRasterExtent rasterExtent;
+  ReosRasterMemory<float> dem( entryDem->extractMemoryRasterSimplePrecision( extent, rasterExtent, maxValue, QString() ) );
 
-  const ReosRasterWatershed::Directions directions = compressedDirection.uncompressRaster();
+  std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess(
+    new ReosRasterFillingWangLiu( dem, fabs( rasterExtent.xCellSize() ), fabs( rasterExtent.yCellSize() ), maxValue ) );
+  fillDemProcess->start();
 
-  std::unique_ptr<ReosWatershedDelineatingProcess> process =
-    std::make_unique<ReosWatershedDelineatingProcess>( dem.release(), directions, directionExtent, downstreamLine, dsLineCrs, true );
+  entryDem.release();
 
-  process->start();
+  ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
+  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess(
+    new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
+  directionProcess->start();
 
-  DelineateResult res;
-
-  res.outputRasterExtent = process->outputRasterExtent();
-  res.direction = ReosRasterByteCompressed( process->directions() );
-  res.delineateWatershed = process->watershedPolygon();
-  res.streamLine = process->streamLine();
-  res.averageElevation = process->averageElevation();
-
-  return res;
+  return ReosGdalDataset::writeByteRasterToFile( fileName, directionProcess->directions(), rasterExtent );
 }
 
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )

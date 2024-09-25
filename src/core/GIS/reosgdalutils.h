@@ -40,6 +40,9 @@ class REOSCORE_EXPORT ReosGdalDataset
 
     ReosRasterMemory<double> values( int band );
     ReosRasterMemory<int> valuesInt( int band );
+    ReosRasterMemory<unsigned char> valuesBytes( int band );
+
+    static bool writeByteRasterToFile( const QString &fileName, ReosRasterMemory<unsigned char> raster, const ReosRasterExtent &extent );
 
   private:
     GDALDatasetH mHDataset = nullptr;
