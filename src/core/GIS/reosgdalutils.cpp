@@ -125,6 +125,9 @@ ReosRasterMemory<double> ReosGdalDataset::values( int band )
 
   ReosRasterMemory<double> ret( yCount, xCount );
 
+  double no_data = static_cast<double>( GDALGetRasterNoDataValue( hBand, 0 ) );
+  ret.setNodata( no_data );
+
   if ( !ret.reserveMemory() )
     return ReosRasterMemory<double>();
 
@@ -151,6 +154,9 @@ ReosRasterMemory<int> ReosGdalDataset::valuesInt( int band )
 
   ReosRasterMemory<int> ret( yCount, xCount );
 
+  int no_data = static_cast<int>( GDALGetRasterNoDataValue( hBand, 0 ) );
+  ret.setNodata( no_data );
+
   if ( !ret.reserveMemory() )
     return ReosRasterMemory<int>();
 
@@ -176,6 +182,9 @@ ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band )
   int yCount = GDALGetRasterYSize( mHDataset );
 
   ReosRasterMemory<unsigned char> ret( yCount, xCount );
+
+  unsigned char no_data = static_cast<unsigned char>( GDALGetRasterNoDataValue( hBand, 0 ) );
+  ret.setNodata( no_data );
 
   if ( !ret.reserveMemory() )
     return ReosRasterMemory<unsigned char>();
@@ -206,9 +215,13 @@ bool ReosGdalDataset::writeByteRasterToFile( const QString &fileName, ReosRaster
   if ( !dataSet )
     return false;
 
-  CPLErr err = dataSet->GetRasterBand( 1 )->RasterIO( GF_Write, 0, 0, raster.columnCount(), raster.rowCount(), raster.data(), raster.columnCount(), raster.rowCount(), GDALDataType::GDT_Byte, 0, 0 );
+  GDALRasterBand *band = dataSet->GetRasterBand( 1 );
+
+  CPLErr err = band->RasterIO( GF_Write, 0, 0, raster.columnCount(), raster.rowCount(), raster.data(), raster.columnCount(), raster.rowCount(), GDALDataType::GDT_Byte, 0, 0 );
   if ( err )
     return false;
+
+  band->SetNoDataValue( raster.noData() );
 
   double geoTrans[6] = { extent.xMapOrigin(), extent.xCellSize(), 0, extent.yMapOrigin(), 0, extent.yCellSize() };
   dataSet->SetGeoTransform( geoTrans );

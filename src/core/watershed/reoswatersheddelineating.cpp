@@ -448,6 +448,7 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalEle
   , mEntryDem( dem )
   , mDirections( directions )
   , mCalculateAverageElevation( calculateAverageElevation )
+  , mPredefinedRasterExtent( directionsExtent )
 {}
 
 void ReosWatershedDelineatingProcess::start()
@@ -490,8 +491,6 @@ void ReosWatershedDelineatingProcess::start()
     }
 
     ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
-    filledDem.createTiffFile( "/home/vincent/filledDem.tif", GDT_Float32, ReosRasterExtent( mExtent, filledDem.columnCount(), filledDem.rowCount() ) );
-
     setCurrentProgression( 0 );
     std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
     setSubProcess( directionProcess.get() );
@@ -506,9 +505,6 @@ void ReosWatershedDelineatingProcess::start()
     }
 
     mDirections = directionProcess->directions();
-
-    mDirections.createTiffFile( "/home/vincent/dir.tif", GDT_Byte, ReosRasterExtent( mExtent, mDirections.columnCount(), mDirections.rowCount() ) );
-
     setSubProcess( nullptr );
 
     fillDemProcess.reset();

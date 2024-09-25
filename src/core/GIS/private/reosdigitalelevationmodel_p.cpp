@@ -436,12 +436,12 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
       adjustedExtentInDestinationCoordinates = adjustedExtent;
     }
 
-    outputRasterExtent =      ReosRasterExtent(
-                                ReosMapExtent( adjustedExtentInDestinationCoordinates.xMinimum(),
-                                    adjustedExtentInDestinationCoordinates.yMinimum(),
-                                    adjustedExtentInDestinationCoordinates.xMaximum(),
-                                    adjustedExtentInDestinationCoordinates.yMaximum() ),
-                                xPixCount, yPixCount );
+    outputRasterExtent = ReosRasterExtent(
+                           ReosMapExtent( adjustedExtentInDestinationCoordinates.xMinimum(),
+                                          adjustedExtentInDestinationCoordinates.yMinimum(),
+                                          adjustedExtentInDestinationCoordinates.xMaximum(),
+                                          adjustedExtentInDestinationCoordinates.yMaximum() ),
+                           xPixCount, yPixCount );
   }
   else
     outputRasterExtent = outputRasterExtentInDemCoorindates;

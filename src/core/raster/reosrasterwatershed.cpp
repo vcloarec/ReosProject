@@ -86,7 +86,6 @@ void ReosRasterWatershedMarkerFromDirection::start()
 
     if ( isStop() )
       stop( true );
-
   }
 
 }
