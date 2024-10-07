@@ -150,7 +150,9 @@ Clears all the data from the delineating tool
     static bool directionFromDem( const QString &demLayerId,
                                   const ReosMapExtent &extent,
                                   ReosGisEngine *gisEngine,
-                                  const QString &fileName );
+                                  const QString &fileName,
+                                  const QString &burningLinesLayerUri = QString() );
+
 
   signals:
     void hasBeenReset();
