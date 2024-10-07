@@ -89,8 +89,6 @@ class ReosWatershedDelineatingProcess: public ReosProcess
     ReosRasterExtent mOutputRasterExtent;
     bool mCalculateAverageElevation = false;
     double mAverageElevation = 0;
-
-    static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent );
 };
 
 #endif //No SIP_RUN
@@ -203,7 +201,10 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     static bool directionFromDem( const QString &demLayerId,
                                   const ReosMapExtent &extent,
                                   ReosGisEngine *gisEngine,
-                                  const QString &fileName );
+                                  const QString &fileName,
+                                  const QString &burningLinesLayerUri = QString() );
+
+    static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent ) SIP_SKIP;
 
   signals:
     void hasBeenReset();
@@ -226,7 +227,6 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     std::unique_ptr<ReosWatershedDelineatingProcess> mProcess;
 
     std::unique_ptr<ReosWatershed> mCurrentWatershed;
-
 };
 
 #endif // REOSWATERSHEDDELINEATING_H

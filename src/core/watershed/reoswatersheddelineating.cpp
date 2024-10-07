@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include "reosrasterwatershed.h"
 #include "reoswatershedtree.h"
 #include "reosgdalutils.h"
+#include "reosgeometryutils.h"
 
 ReosWatershedDelineating::ReosWatershedDelineating( ReosModule *parent, ReosWatershedTree *watershedtree, ReosGisEngine *gisEngine ):
   ReosModule( ReosWatershedDelineating::staticName(), parent ),
@@ -373,7 +374,8 @@ bool ReosWatershedDelineating::directionFromDem(
   const QString &demLayerId,
   const ReosMapExtent &extent,
   ReosGisEngine *gisEngine,
-  const QString &fileName )
+  const QString &fileName,
+  const QString &burningLinesLayerUri )
 {
   std::unique_ptr<ReosDigitalElevationModel> entryDem( gisEngine->getDigitalElevationModel( demLayerId ) );
   float maxValue = 0;
@@ -383,6 +385,13 @@ bool ReosWatershedDelineating::directionFromDem(
   std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess(
     new ReosRasterFillingWangLiu( dem, fabs( rasterExtent.xCellSize() ), fabs( rasterExtent.yCellSize() ), maxValue ) );
   fillDemProcess->start();
+
+  if ( !burningLinesLayerUri.isEmpty() )
+  {
+    QString blCrs;
+    QList<QPolygonF> burningLines = ReosGisEngine::openPolygonVectorLayerSource( burningLinesLayerUri, blCrs );
+    ReosWatershedDelineating::burnRasterDem( dem, burningLines, rasterExtent );
+  }
 
   entryDem.release();
 
@@ -476,7 +485,7 @@ void ReosWatershedDelineatingProcess::start()
       return;
     }
 
-    burnRasterDem( dem, mBurningLines, mPredefinedRasterExtent );
+    ReosWatershedDelineating::burnRasterDem( dem, mBurningLines, mPredefinedRasterExtent );
     setCurrentProgression( 0 );
     std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( mPredefinedRasterExtent.xCellSize() ), fabs( mPredefinedRasterExtent.yCellSize() ), maxValue ) );
     setSubProcess( fillDemProcess.get() );
@@ -718,7 +727,7 @@ bool ReosWatershedDelineatingProcess::calculateAverageElevation() const
   return mCalculateAverageElevation;
 }
 
-void ReosWatershedDelineatingProcess::burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent )
+void ReosWatershedDelineating::burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent )
 {
   for ( const QPolygonF &burningLine : burningLines )
   {
