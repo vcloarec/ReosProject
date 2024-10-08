@@ -207,7 +207,7 @@ bool ReosGdalDataset::writeByteRasterToFile( const QString &fileName, ReosRaster
   char *papszOptions[] =
   {
     const_cast<char *>( "COMPRESS=DEFLATE" ),
-    const_cast<char *>( "PREDICTOR=1" ),
+    const_cast<char *>( "PREDICTOR=2" ),
     nullptr
   };
 
