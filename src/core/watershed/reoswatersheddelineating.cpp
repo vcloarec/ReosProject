@@ -380,27 +380,40 @@ bool ReosWatershedDelineating::directionFromDem(
   std::unique_ptr<ReosDigitalElevationModel> entryDem( gisEngine->getDigitalElevationModel( demLayerId ) );
   float maxValue = 0;
   ReosRasterExtent rasterExtent;
+  std::cout << "Extract DEM from layer..." << std::endl;
   ReosRasterMemory<float> dem( entryDem->extractMemoryRasterSimplePrecision( extent, rasterExtent, maxValue, QString() ) );
 
+  if ( !burningLinesLayerUri.isEmpty() )
+  {
+    std::cout << "Use burning lines from layer with uri: " << burningLinesLayerUri.toStdString() << std::endl;
+    QString blCrs;
+    QList<QPolygonF> burningLines = ReosGisEngine::openPolygonVectorLayerSource( burningLinesLayerUri, blCrs );
+
+    std::cout << "Burning line count: " << burningLines.count() << std::endl;
+
+    for ( int i = 0; i < burningLines.count(); ++i )
+      burningLines[i] = ReosGisEngine::transformToCoordinates( blCrs, burningLines.at( i ), extent.crs() );
+
+    ReosWatershedDelineating::burnRasterDem( dem, burningLines, rasterExtent );
+  }
+
+  std::cout << "Filling DEM..." << std::endl;
   std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess(
     new ReosRasterFillingWangLiu( dem, fabs( rasterExtent.xCellSize() ), fabs( rasterExtent.yCellSize() ), maxValue ) );
   fillDemProcess->start();
 
-  if ( !burningLinesLayerUri.isEmpty() )
-  {
-    QString blCrs;
-    QList<QPolygonF> burningLines = ReosGisEngine::openPolygonVectorLayerSource( burningLinesLayerUri, blCrs );
-    ReosWatershedDelineating::burnRasterDem( dem, burningLines, rasterExtent );
-  }
-
   entryDem.release();
 
   ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
+  std::cout << "Calculate direction..." << std::endl;
   std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess(
     new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
   directionProcess->start();
 
+  std::cout << "Save direction to file: " << fileName.toStdString() << std::endl;
   return ReosGdalDataset::writeByteRasterToFile( fileName, directionProcess->directions(), rasterExtent );
+
+  std::cout << "Direction calculation finished!!! " << fileName.toStdString() << std::endl;
 }
 
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )
