@@ -831,6 +831,7 @@ QPolygonF ReosGisEngine::transformToCoordinates( const QString &sourceCRS, const
     }
     catch ( ... )
     {
+      std::cout << "Unable to transform polygon..." << std::endl;
       return geom.asQPolygonF();
     }
   }
