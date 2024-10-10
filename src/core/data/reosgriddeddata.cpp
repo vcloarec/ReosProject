@@ -316,7 +316,7 @@ AverageCalculation *ReosDataGriddedOnWatershed::getCalculationProcess() const
 
   std::unique_ptr<AverageCalculation> newCalc( new AverageCalculation );
 
-  newCalc->griddedRainfallProvider.reset( mGriddedData->dataProvider()->clone() );
+  newCalc->gridExtent = mGriddedData->rasterExtent();
   newCalc->timeStep = mGriddedData->minimumTimeStep();
   newCalc->usePrecision = watershedArea < cellArea * 30;
   newCalc->watershedPolygon = ReosGisEngine::transformToCoordinates( mWatershed->crs(), mWatershed->delineating(), rainExtent.crs() );
@@ -330,10 +330,8 @@ void AverageCalculation::start()
   QElapsedTimer timer;
   timer.start();
 
-  ReosRasterExtent rainExtent = griddedRainfallProvider->extent();
-
   rasterizedWatershed = ReosGeometryUtils::rasterizePolygon(
-                          watershedPolygon, rainExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
+                          watershedPolygon, gridExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
 
   mIsSuccessful = true;
 
