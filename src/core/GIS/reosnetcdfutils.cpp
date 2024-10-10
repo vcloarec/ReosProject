@@ -18,6 +18,7 @@
 #include <limits>
 #include <netcdf.h>
 #include <QVector>
+#include <iostream>
 
 #ifdef _MSC_VER
 #include <windows.h>

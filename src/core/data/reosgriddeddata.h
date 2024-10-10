@@ -131,7 +131,7 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
 class AverageCalculation : public ReosProcess
 {
   public:
-    std::unique_ptr<ReosGriddedDataProvider> griddedRainfallProvider;
+    ReosRasterExtent gridExtent;
     QPolygonF watershedPolygon;
     ReosDuration timeStep;
     bool usePrecision = false;
