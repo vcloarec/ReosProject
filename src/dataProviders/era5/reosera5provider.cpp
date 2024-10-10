@@ -591,6 +591,7 @@ void ReosEra5NetCdfFilesReader::reset()
 ReosEra5NetCdfFolderReader::ReosEra5NetCdfFolderReader( const QString &folderPath, const QString &varName, const QDateTime &start, const QDateTime &end )
   : mFolderPath( folderPath ), mVarName( varName ), mStart( start ), mEnd( end )
 {
+  std::cout << "Parse folder " << folderPath.toStdString() << "." << std::endl;
   QDir dir( folderPath );
 
   QStringList filters;
@@ -631,6 +632,7 @@ ReosEra5NetCdfFolderReader::ReosEra5NetCdfFolderReader( const QString &folderPat
   }
 
   mLastFileIndex = mFileReaders.size();
+  std::cout << "Files count: " << mFileReaders.size() << "." << std::endl;
 }
 
 ReosEra5FilesReader *ReosEra5NetCdfFolderReader::clone() const
