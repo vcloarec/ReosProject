@@ -28,7 +28,7 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
 
 ReosComephoreProvider::ReosComephoreProvider()
 {
-  mCache.setMaxCost( 20000000 );
+  mCache.setMaxCost( 2000000 );
 }
 
 ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
