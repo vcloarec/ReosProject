@@ -471,7 +471,11 @@ void ReosSeriesFromGriddedDataOnWatershed::preCalculate() const
 {
   int count = valueCount();
   for ( int i = 0; i < count; ++i )
+  {
     valueAt( i );
+    if ( i % 1000 == 0 )
+      std::cout << "Timestep: " << i << " / " << count << std::endl;
+  }
 }
 
 void ReosSeriesFromGriddedDataOnWatershed::updateData() const
