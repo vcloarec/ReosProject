@@ -2,7 +2,7 @@ name: Build Test Package Windows
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "vortexio" ]
   pull_request:
     branches: [ "master" ]
 
