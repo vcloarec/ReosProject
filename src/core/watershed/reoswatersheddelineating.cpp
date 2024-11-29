@@ -641,7 +641,7 @@ void ReosWatershedDelineatingProcess::start()
   do
   {
     bool stop = false;
-    for ( int r = 0; r < mRasterizedWatershed.columnCount(); ++r )
+    for ( int r = 0; r < mRasterizedWatershed.rowCount(); ++r )
       if ( mRasterizedWatershed.value( r, c ) != 0 )
       {
         stop = true;
@@ -659,7 +659,7 @@ void ReosWatershedDelineatingProcess::start()
   do
   {
     bool stop = false;
-    for ( int r = 0; r < mRasterizedWatershed.columnCount(); ++r )
+    for ( int r = 0; r < mRasterizedWatershed.rowCount(); ++r )
       if ( mRasterizedWatershed.value( r, c ) != 0 )
       {
         stop = true;
