@@ -102,6 +102,8 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
     virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
     virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
 
+    virtual void exportToTiff( int index, const QString &fileName ) const {};
+
   protected:
     QString mDataSource;
 

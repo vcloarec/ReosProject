@@ -266,6 +266,11 @@ void ReosGriddedData::copyFrom( ReosGriddedDataProvider *provider )
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
 }
 
+void ReosGriddedData::exportToTiff( int index, const QString &fileName ) const
+{
+  mProvider->exportToTiff( index, fileName );
+}
+
 QList<ReosColorShaderSettings *> ReosGriddedData::colorShaderSettings() const
 {
   QList<ReosColorShaderSettings *> ret;

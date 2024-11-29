@@ -197,6 +197,7 @@ ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band )
   return ret;
 }
 
+
 bool ReosGdalDataset::writeByteRasterToFile( const QString &fileName, ReosRasterMemory<unsigned char> raster, const ReosRasterExtent &extent )
 {
   GDALDriver *driver = GetGDALDriverManager()->GetDriverByName( "GTiff" );
@@ -218,6 +219,45 @@ bool ReosGdalDataset::writeByteRasterToFile( const QString &fileName, ReosRaster
   GDALRasterBand *band = dataSet->GetRasterBand( 1 );
 
   CPLErr err = band->RasterIO( GF_Write, 0, 0, raster.columnCount(), raster.rowCount(), raster.data(), raster.columnCount(), raster.rowCount(), GDALDataType::GDT_Byte, 0, 0 );
+  if ( err )
+    return false;
+
+  band->SetNoDataValue( raster.noData() );
+
+  double geoTrans[6] = { extent.xMapOrigin(), extent.xCellSize(), 0, extent.yMapOrigin(), 0, extent.yCellSize() };
+  dataSet->SetGeoTransform( geoTrans );
+
+  char *proj_WKT = nullptr;
+  QString wktCrs = extent.crs();
+  dataSet->SetProjection( extent.crs().toStdString().c_str() );
+  CPLFree( proj_WKT );
+
+  GDALClose( static_cast<GDALDatasetH>( dataSet ) );
+
+  return true;
+}
+
+bool ReosGdalDataset::writeIntRasterToFile( const QString &fileName, ReosRasterMemory<int> raster, const ReosRasterExtent &extent )
+{
+  GDALDriver *driver = GetGDALDriverManager()->GetDriverByName( "GTiff" );
+
+  if ( !driver )
+    return false;
+
+  char *papszOptions[] =
+  {
+    const_cast<char *>( "COMPRESS=DEFLATE" ),
+    const_cast<char *>( "PREDICTOR=2" ),
+    nullptr
+  };
+
+  GDALDataset *dataSet = driver->Create( fileName.toStdString().c_str(), raster.columnCount(), raster.rowCount(), 1, GDALDataType::GDT_Int32, papszOptions );
+  if ( !dataSet )
+    return false;
+
+  GDALRasterBand *band = dataSet->GetRasterBand( 1 );
+
+  CPLErr err = band->RasterIO( GF_Write, 0, 0, raster.columnCount(), raster.rowCount(), raster.data(), raster.columnCount(), raster.rowCount(), GDALDataType::GDT_Int32, 0, 0 );
   if ( err )
     return false;
 

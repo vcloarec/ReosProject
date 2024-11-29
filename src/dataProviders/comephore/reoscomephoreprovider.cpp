@@ -225,7 +225,6 @@ const QVector<double> ReosComephoreProvider::dataInGridExtent( int index, int ro
 
     QVector<double> ret = *values;
 
-
     return ret;
   }
 
@@ -382,6 +381,34 @@ void ReosComephoreProvider::calculateMinMax( double &min, double &max ) const
         max = v;
     }
   }
+}
+
+void ReosComephoreProvider::exportToTiff( int index, const QString &fileName ) const
+{
+  if ( mFileReader )
+  {
+    bool readLine = true;
+    const QVector<int> rawValues = mFileReader->data( index, readLine );
+    ReosRasterMemory<int> rast( mExtent.yCellCount(), mExtent.xCellCount() );
+    if ( rast.reserveMemory() )
+    {
+      int xCount = mExtent.xCellCount();
+      int yCount = mExtent.yCellCount();
+
+      Q_ASSERT( xCount * yCount == rawValues.count() );
+
+      for ( int xi = 0; xi < xCount; ++xi )
+        for ( int yi = 0; yi < yCount; ++yi )
+        {
+          int retIndex = xi + yi * xCount;
+          int rawIndex = readLine ? retIndex : yi + xi * yCount;
+
+          rast.setValue( yi, xi, rawValues.at( rawIndex ) );
+        }
+      ReosGdalDataset::writeIntRasterToFile( fileName, rast, mExtent );
+    }
+  }
+
 }
 
 QString ReosComephoreProvider::dataType() {return ReosGriddedRainfall::staticType();}

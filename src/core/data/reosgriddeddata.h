@@ -103,6 +103,9 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
     //! Copies new from a rainfall provider
     void copyFrom( ReosGriddedDataProvider *provider ) SIP_SKIP;
 
+    //! Exports to a TIFF file with path \a fileName the grid at position \a index
+    void exportToTiff( int index, const QString &fileName ) const;
+
   public slots:
     void updateData() const override;
 

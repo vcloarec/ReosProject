@@ -164,6 +164,8 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
 
+    void exportToTiff( int index, const QString &fileName ) const override;
+
     static QString staticKey();
     static QString dataType();
 
