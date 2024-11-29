@@ -137,7 +137,7 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public 
     void start() override;
     void stop( bool b ) override;
 
-    //! Returns the raster watershed defined by this class after calculation
+    //! Returns the raster watershed defined by this instance after calculation
     ReosRasterWatershed::Watershed watershed() const;
 
     //! Returns the first defined cells, that is on the middle of the downstream line

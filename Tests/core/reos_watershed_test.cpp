@@ -46,6 +46,8 @@ class ReosWatersehdTest: public QObject
 
     void runoffhydrograph();
 
+    void delineate_watershed();
+
   private:
     ReosModule rootModule;
     ReosGisEngine gisEngine;
@@ -399,6 +401,28 @@ void ReosWatersehdTest::watershedDelineating()
 
   QVERIFY( itemModel.rowCount( QModelIndex() ) == 1 );
   QVERIFY( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ) == 2 ); //including residual watershed
+}
+
+void ReosWatersehdTest::delineate_watershed()
+{
+  QString layerId = gisEngine.addRasterLayer( "/home/vincent/dev/vortex/data/SRTMGL1_France_SE.tif", QStringLiteral( "raster_DEM" ) );
+  ReosMapExtent extent = ReosMapExtent( 661553.33, 1792732.0, 661780.44, 1792964.54 );
+  extent.setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
+
+  const QString directionFilePath = "/home/vincent/dev/vortex/data/SRTMGL1_France_SE_dir.tif";
+  QPolygonF dsLine;
+  dsLine << QPointF( 2.62316877380512858, 43.26591984771614818 )
+         << QPointF( 2.62914772565076982, 43.26415514870655699 )
+         << QPointF( 2.62914772565076982, 43.26415514870655699 );
+
+  ReosWatershedDelineating::DelineateResult res = ReosWatershedDelineating::delineateWatershed(
+        layerId,
+        directionFilePath,
+        dsLine,
+        ReosGisEngine::crsFromEPSG( 4326 ),
+        &gisEngine );
+
+  int a = 1;
 }
 
 void ReosWatersehdTest::delineateFromDirection()

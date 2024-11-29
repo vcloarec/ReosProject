@@ -90,6 +90,9 @@ ReosDataObject *ReosDelftFewsWidget::createData( QObject *parent ) const
   std::unique_ptr<ReosTimeSeries> dataObject;
   ReosDelftFewsXMLProviderInterface *provider = nullptr;
 
+  if ( dataObject->dataProvider() )
+    dataObject->dataProvider()->setMetadata( station.meta );
+
   if ( station.dataType() == ReosDelftFewsXMLHydrographProvider::dataType() )
   {
     dataObject.reset( createHydrograph( parent ) );
@@ -108,7 +111,6 @@ ReosDataObject *ReosDelftFewsWidget::createData( QObject *parent ) const
 
   if ( provider )
   {
-    provider->setMetadata( station.meta );
     dataObject->setName( station.meta.value( QStringLiteral( "name" ) ).toString() );
     return dataObject.release();
   }

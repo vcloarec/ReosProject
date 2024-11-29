@@ -80,6 +80,11 @@ ReosGriddedRainfall::~ReosGriddedRainfall()
 {
 }
 
+QString ReosGriddedRainfall::type() const
+{
+  return staticType();
+}
+
 ReosGriddedRainfall *ReosGriddedRainfall::loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent )
 {
   std::unique_ptr<ReosGriddedRainfall> ret = std::make_unique<ReosGriddedRainfall>( dataSource, providerKey, parent );

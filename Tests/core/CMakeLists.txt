@@ -75,6 +75,7 @@ SET(TESTS
 
 IF(WITH_HYDRAULIC_MODEL_SUPPORT)
     SET(TESTS
+        ${TESTS}
         reos_mesh_test.cpp
         )
 ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)

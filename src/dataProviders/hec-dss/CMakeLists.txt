@@ -21,11 +21,13 @@ SET(REOS_PROVIDER_HEC_DSS_HEADERS
 
 IF(WITH_GUI)
     SET(REOS_PROVIDER_HEC_DSS_SOURCES
+        ${REOS_PROVIDER_HEC_DSS_SOURCES}
         reosdssgriddedrainfallselector.cpp
         reosdssprovideruriwidget.cpp
     )
 
     SET(REOS_PROVIDER_HEC_DSS_HEADERS
+        ${REOS_PROVIDER_HEC_DSS_HEADERS}
         reosdssgriddedrainfallselector.h
         reosdssprovideruriwidget.h
     )

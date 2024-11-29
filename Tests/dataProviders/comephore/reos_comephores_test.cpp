@@ -35,8 +35,12 @@ class ReosComephoreTest: public QObject
     void createRainfallFromNetCdf();
     void netCdfFolder();
     void timeWindow();
-
     void missingIndex();
+    void griddedDataOnWatersed();
+
+  private:
+    ReosModule mRootModule;
+    ReosGisEngine *mGisEngine = nullptr;
 };
 
 void ReosComephoreTest::createProvider()
@@ -84,6 +88,7 @@ void ReosComephoreTest::createProvider()
   provider->calculateMinMax( min, max );
   QCOMPARE( min, 0.1 );
   QCOMPARE( max, 12.4 );
+
 }
 
 void ReosComephoreTest::createRainfallFromTif()
@@ -344,11 +349,39 @@ void ReosComephoreTest::missingIndex()
   ReosWatershed ws( delineating, delineating.at( 0 ), ReosGisEngine::crsFromEPSG( 2154 ) );
 
   std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed> onWs = std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed>( ReosSeriesRainfallFromGriddedOnWatershed::create( & ws, rainfall.get() ) );
+}
 
-  double value = onWs->valueAt( 743 );
+void ReosComephoreTest::griddedDataOnWatersed()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" );
 
-  int a = 1;
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedRainfall::staticType(), uriParam, ok );
+  QVERIFY( ok );
 
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed;
+  mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
+  watershed.setGeographicalContext( mGisEngine );
+  watershed.setDelineating( watershed_poly );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 3624 );
+  QCOMPARE( values.at( 58 ), 0.0001061439977543495 );
 }
 
 
