@@ -12,11 +12,11 @@ SET(REOS_MF_API_HEADERS
 )
 
 IF(WITH_GUI)
-    SET(REOS_MF_API_SOURCES
+    SET(REOS_MF_API_SOURCES ${REOS_MF_API_SOURCES}
         reosmeteofrancearomeapiwidget.cpp
     )
 
-    SET(REOS_MF_API_HEADERS
+    SET(REOS_MF_API_HEADERS ${REOS_MF_API_HEADERS}
      reosmeteofrancearomeapiwidget.h
     )
 ENDIF(WITH_GUI)
