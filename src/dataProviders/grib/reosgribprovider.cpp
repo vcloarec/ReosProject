@@ -170,14 +170,14 @@ QDateTime ReosGribGriddedRainfallProvider::startTime( int index ) const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::CumulativeHeight:
+    case ValueType::Cumulative:
       if ( index == 0 )
         return QDateTime::fromSecsSinceEpoch( mReferenceTime, Qt::UTC );
       else if ( index > 0 )
         return QDateTime::fromSecsSinceEpoch( mFrames.at( index - 1 ).validTime, Qt::UTC );
       break;
-    case ValueType::Height:
-    case ValueType::Intensity:
+    case ValueType::CumulativeOnTimeStep:
+    case ValueType::Instantaneous:
       return QDateTime();
       break;
   }
@@ -189,11 +189,11 @@ QDateTime ReosGribGriddedRainfallProvider::endTime( int index ) const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::CumulativeHeight:
+    case ValueType::Cumulative:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
       break;
-    case ValueType::Height:
-    case ValueType::Intensity:
+    case ValueType::CumulativeOnTimeStep:
+    case ValueType::Instantaneous:
       return QDateTime();
       break;
   }
@@ -223,7 +223,7 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
 
   switch ( mSourceValueType )
   {
-    case ValueType::CumulativeHeight:
+    case ValueType::Cumulative:
     {
       QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
 
@@ -254,8 +254,8 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
       return ret;
     }
     break;
-    case ValueType::Height:
-    case ValueType::Intensity:
+    case ValueType::CumulativeOnTimeStep:
+    case ValueType::Instantaneous:
     {
       QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
       for ( int i = 0; i < ret.count(); ++i )
@@ -357,12 +357,12 @@ QString ReosGribGriddedRainfallProvider::uri( const QString &sourcePath, const Q
 
   switch ( valueType )
   {
-    case ValueType::CumulativeHeight:
+    case ValueType::Cumulative:
       stringValueType = QStringLiteral( "cumulative" );
       break;
-    case ValueType::Height:
+    case ValueType::CumulativeOnTimeStep:
       stringValueType = QStringLiteral( "height" );
-    case ValueType::Intensity:
+    case ValueType::Instantaneous:
       stringValueType = QStringLiteral( "intensity" );
       break;
   }
@@ -393,18 +393,18 @@ ReosGriddedRainfallProvider::ValueType ReosGribGriddedRainfallProvider::valueTyp
 {
   const QStringList part = uri.split( QStringLiteral( "::" ) );
   if ( part.count() < 3 )
-    return ValueType::Height;
+    return ValueType::CumulativeOnTimeStep;
 
   if ( part.at( 2 ) == QStringLiteral( "cumulative" ) )
-    return ValueType::CumulativeHeight;
+    return ValueType::Cumulative;
 
   if ( part.at( 2 ) == QStringLiteral( "intensity" ) )
-    return ValueType::Intensity;
+    return ValueType::Instantaneous;
 
   if ( part.at( 2 ) == QStringLiteral( "height" ) )
-    return ValueType::Height;
+    return ValueType::CumulativeOnTimeStep;
 
-  return ValueType::Height;
+  return ValueType::CumulativeOnTimeStep;
 }
 
 bool ReosGribGriddedRainfallProvider::sourceIsValid( const QString &source, ReosModule::Message &message ) const
