@@ -2041,7 +2041,7 @@ QgsMeshDataset *ReosResultDatasetGroup::dataset( int index ) const
 
 QgsMeshDatasetGroup::Type ReosResultDatasetGroup::type() const
 {
-  return QgsMeshDatasetGroup::None;
+  return QgsMeshDatasetGroup::Unknown;
 }
 
 ReosRendererMeshMapTimeStamp_p::ReosRendererMeshMapTimeStamp_p(

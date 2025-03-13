@@ -394,7 +394,7 @@ QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &r
 
 ReosMeshProviderMetaData::ReosMeshProviderMetaData() : QgsProviderMetadata( QStringLiteral( "ReosMesh" ), QStringLiteral( "reos mesh" ) ) {}
 
-ReosMeshDataProvider_p *ReosMeshProviderMetaData::createProvider( const QString &, const QgsDataProvider::ProviderOptions &, QgsDataProvider::ReadFlags )
+ReosMeshDataProvider_p *ReosMeshProviderMetaData::createProvider( const QString &, const QgsDataProvider::ProviderOptions &, Qgis::DataProviderReadFlags )
 {
   return new ReosMeshDataProvider_p();
 }

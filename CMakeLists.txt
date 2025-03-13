@@ -77,7 +77,6 @@ IF(WITH_GUI)
     add_definitions(-DENABLE_GUI)
 ENDIF(WITH_GUI)
 
-
 IF(ENABLE_HEC_DSS)
     SET (HEC_DSS_LIBS_PATH CACHE PATH "Path to the hec-dss libraries")
     SET (HEC_DSS_INCLUDE CACHE PATH "Path to the hec-dss include dir")
@@ -123,6 +122,15 @@ IF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
+SET(ENABLE_ECCODES_READER TRUE CACHE BOOL "Enable ecCodes reader for grib format")
+
+IF(ENABLE_ECCODES_READER)
+    SET(HAS_ECCODES TRUE)
+    SET(ECCODES_INCLUDE_DIR CACHE PATH "Path to ecCodes headers.")
+    SET(ECCODES_LIB CACHE FILEPATH "Path to ecCodes lib.")
+ENDIF(ENABLE_ECCODES_READER)
+
+
 set(QT_MIN_VERSION 5.14.0)
 set(QT_VERSION_BASE "Qt5")
 set(QT_VERSION_BASE_LOWER "qt5")
@@ -166,7 +174,7 @@ set(Python_FIND_FRAMEWORK "LAST")
 
 if(PYTHON_DIR)
     set(Python_FIND_STRATEGY "LOCATION")
-	set(Python_ROOT_DIR "${PYTHON_DIR}")
+        set(Python_ROOT_DIR "${PYTHON_DIR}")
 endif()
 
 if (WITH_BINDINGS)

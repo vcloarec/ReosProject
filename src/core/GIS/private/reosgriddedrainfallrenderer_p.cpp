@@ -253,7 +253,7 @@ ReosGriddedRainfallProviderMetaData::ReosGriddedRainfallProviderMetaData()
 {}
 
 
-ReosGriddedRainfallRasterProvider_p *ReosGriddedRainfallProviderMetaData::createProvider( const QString &uri, const QgsDataProvider::ProviderOptions &, QgsDataProvider::ReadFlags )
+ReosGriddedRainfallRasterProvider_p *ReosGriddedRainfallProviderMetaData::createProvider( const QString &uri, const QgsDataProvider::ProviderOptions &, Qgis::DataProviderReadFlags )
 {
   return new ReosGriddedRainfallRasterProvider_p( uri );
 }

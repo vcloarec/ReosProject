@@ -143,7 +143,7 @@ class ReosGriddedRainfallProviderMetaData: public QgsProviderMetadata
     ReosGriddedRainfallRasterProvider_p *createProvider(
       const QString &,
       const QgsDataProvider::ProviderOptions &,
-      QgsDataProvider::ReadFlags ) override;
+      Qgis::DataProviderReadFlags ) override;
 };
 
 

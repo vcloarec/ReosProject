@@ -21,6 +21,7 @@
 #include <qgsmeshdataprovider.h>
 #include <qgsmeshdataset.h>
 #include <qgsprovidersublayerdetails.h>
+#include <qgis.h>
 
 #include "reosmesh.h"
 #include "reosmeshgenerator.h"
@@ -126,7 +127,7 @@ class ReosMeshProviderMetaData: public QgsProviderMetadata
   public:
     ReosMeshProviderMetaData();
 
-    ReosMeshDataProvider_p *createProvider( const QString &, const QgsDataProvider::ProviderOptions &, QgsDataProvider::ReadFlags ) override;
+    ReosMeshDataProvider_p *createProvider( const QString &, const QgsDataProvider::ProviderOptions &, Qgis::DataProviderReadFlags ) override;
 
     ProviderCapabilities providerCapabilities() const override {return FileBasedUris;}
     QgsProviderMetadata::ProviderMetadataCapabilities capabilities() const override {return QgsProviderMetadata::LayerTypesForUri;}
