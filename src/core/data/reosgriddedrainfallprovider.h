@@ -53,6 +53,13 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
     Q_DECLARE_FLAGS( GridCapabilities, GridCapability )
     Q_FLAG( GridCapabilities )
 
+    enum class ValueType
+    {
+      Instantaneous,
+      CumulativeOnTimeStep,
+      Cumulative
+    };
+
     struct FileDetails
     {
       QStringList availableVariables;
@@ -104,8 +111,18 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
 
     virtual void exportToTiff( int index, const QString &fileName ) const {};
 
+    virtual bool write(
+      ReosGriddedRainfall *rainfall,
+      const QString &uri,
+      const ReosRasterExtent &destination,
+      const ReosTimeWindow &timeWindow ) const {return false;}
+
+    virtual const QVector<double> qualifData( int ) const {return QVector<double>();}
   protected:
     QString mDataSource;
+
+  protected:
+    ValueType mSourceValueType = ValueType::CumulativeOnTimeStep;
 
     mutable int mLastFrameIndex = -1;
 
@@ -117,26 +134,8 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosGriddedDataProvid
 {
     Q_OBJECT
   public:
-    enum class ValueType
-    {
-      Intensity,
-      Height,
-      CumulativeHeight
-    };
-
     ~ReosGriddedRainfallProvider();
-
     virtual ReosGriddedRainfallProvider *clone() const = 0;
-
-    virtual bool write(
-      ReosGriddedRainfall *rainfall,
-      const QString &uri,
-      const ReosRasterExtent &destination,
-      const ReosTimeWindow &timeWindow ) const;
-    virtual const QVector<double> qualifData( int ) const;
-
-  protected:
-    ValueType mSourceValueType = ValueType::Height;
 
 };
 

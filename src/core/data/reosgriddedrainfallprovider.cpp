@@ -168,13 +168,8 @@ QString ReosGriddedRainfallMemoryProviderFactory::key() const
 ReosGriddedRainfallProvider::~ReosGriddedRainfallProvider()
 {}
 
-const QVector<double> ReosGriddedRainfallProvider::qualifData( int ) const {return QVector<double>();}
-
 ReosGriddedDataProvider::~ReosGriddedDataProvider()
 {}
-
-bool ReosGriddedRainfallProvider::write( ReosGriddedRainfall *, const QString &, const ReosRasterExtent &, const ReosTimeWindow & ) const {return false;}
-
 
 ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
 {
