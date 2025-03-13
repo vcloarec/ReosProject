@@ -94,33 +94,33 @@ void ReosComephoreTest::createProvider()
 void ReosComephoreTest::createRainfallFromTif()
 {
   std::unique_ptr<ReosGriddedRainfall> rainfall =
-    std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), QStringLiteral( "comephore" ) );
+    std::make_unique<ReosGriddedRainfall>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997/" ) ), QStringLiteral( "comephore" ) );
 
-  QCOMPARE( rainfall->gridCount(), 73 );
-  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->gridCount(), 25 );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 20, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 21, 0, 0 ), Qt::UTC ) );
 
   ReosRasterExtent extent = rainfall->rasterExtent();
 
   QCOMPARE( extent.xCellSize(), 1000.0 );
   QCOMPARE( extent.yCellSize(), -1000.0 );
-  QCOMPARE( extent.xCellCount(), 101 );
-  QCOMPARE( extent.yCellCount(), 170 );
+  QCOMPARE( extent.xCellCount(), 1536 );
+  QCOMPARE( extent.yCellCount(), 1536 );
 
-  QVector<double> values = rainfall->intensityValues( 70 );
-  QCOMPARE( values.at( 8581 ), 2.2 );
-  QCOMPARE( values.at( 8584 ), 3.0 );
+  QVector<double> values = rainfall->intensityValues( 20 );
+  QCOMPARE( values.at( 8581 ), std::numeric_limits<double>::quiet_NaN() );
+  QCOMPARE( values.at( 8584 ), std::numeric_limits<double>::quiet_NaN() );
   QVERIFY( std::isnan( values.last() ) );
 
   double min, max;
   QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
   rainfall->calculateMinMaxValue( min, max );
-  QCOMPARE( min, 0.1 );
-  QCOMPARE( max, 12.4 );
+  QCOMPARE( min, 0.2 );
+  QCOMPARE( max, 1.9 );
 }
 
 void ReosComephoreTest::netcdfFile()

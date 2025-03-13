@@ -58,7 +58,7 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
     QVector<int> qualifData( int, bool & ) const override {return QVector<int>();}
 
     static bool canReadFile( const QString &uri );
-    static ReosGriddedRainfallProvider::FileDetails details( const QString &source, bool *ok );
+    static ReosGriddedDataProvider::FileDetails details( const QString &source, bool *ok );
 
   private:
     ReosComephoreTiffFilesReader() = default;

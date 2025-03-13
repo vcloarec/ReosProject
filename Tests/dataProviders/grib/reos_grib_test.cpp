@@ -33,8 +33,8 @@ class ReosGribTest: public QObject
 void ReosGribTest::createProvider()
 {
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
-  std::unique_ptr<ReosGriddedRainfallProvider> provider(
-    qobject_cast<ReosGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( gribFile, ReosGriddedRainfall::staticType() ) ) );
+  std::unique_ptr<ReosGribGriddedRainfallProvider> provider(
+    qobject_cast<ReosGribGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( gribFile, ReosGriddedRainfall::staticType() ) ) );
 
   ReosModule::Message message;
   ReosGriddedRainfallProvider::FileDetails details = provider->details( "lkhkjh", message );
@@ -50,7 +50,7 @@ void ReosGribTest::createProvider()
   QVERIFY( details.availableVariables.contains( variable ) );
 
   provider->setDataSource(
-    ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ) );
+    ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGribGriddedRainfallProvider::ValueType::Cumulative ) );
 
   QCOMPARE( provider->count(), 3 );
 
@@ -76,8 +76,8 @@ void ReosGribTest::griddedRainInFolder()
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
-                             ReosGribGriddedDataProvider::staticKey() ) );
+    new ReosGriddedRainfall( ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
+                             ReosGribGriddedRainfallProvider::staticKey() ) );
 
   QVERIFY( rainfall->isValid() );
 
@@ -106,8 +106,8 @@ void ReosGribTest::griddedRainInFile()
   QString gribFile( testFile( QStringLiteral( "grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
-                             ReosGribGriddedDataProvider::staticKey() ) );
+    new ReosGriddedRainfall( ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
+                             ReosGribGriddedRainfallProvider::staticKey() ) );
 
   QVERIFY( rainfall->isValid() );
 

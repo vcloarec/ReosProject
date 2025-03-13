@@ -309,9 +309,6 @@ static QFileInfoList tiffFiles( const QString &uri )
 
   QDir sourceDir( folderPath );
 
-  if ( !sourceDir.cd( QStringLiteral( "RR" ) ) )
-    return ret;
-
   QStringList filters;
   filters << QStringLiteral( "*_RR.gtif" );
   filters << QStringLiteral( "*_RR.tif" );
@@ -488,7 +485,7 @@ bool ReosComephoreTiffFilesReader::canReadFile( const QString &uri )
   return !tiffFiles( uri ).isEmpty();
 }
 
-ReosGriddedRainfallProvider::FileDetails ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
+ReosGriddedDataProvider::FileDetails ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
 {
   ReosGriddedRainfallProvider::FileDetails ret;
 
