@@ -13,3 +13,5 @@ endif (ENABLE_HEC_DSS)
 add_subdirectory(meteofrance-api)
 add_subdirectory(hydroportail)
 add_subdirectory(vortex-io)
+
+add_subdirectory(meteo-hdf5)

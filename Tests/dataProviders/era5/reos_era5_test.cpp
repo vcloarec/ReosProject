@@ -52,7 +52,6 @@ void ReosEra5Test::createProvider()
         ERA5_FILES_PATH + QStringLiteral( "/nc.nc" ), ReosGriddedRainfall::staticType() ) );
   QVERIFY( !compatibleProvider );
 
-  const QString &variabbleShortName = QStringLiteral( "tp" );
   const QVariantMap &uriParamDescription = ReosDataProviderRegistery::instance()->uriParameters( QStringLiteral( "era5" ), ReosEra5Provider::dataType() );
 
   QVariantMap uriParam;

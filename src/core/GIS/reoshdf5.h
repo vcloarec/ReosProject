@@ -16,6 +16,7 @@
 #ifndef REOSHDF5_H
 #define REOSHDF5_H
 
+#include <memory>
 #define SIP_NO_FILE
 
 #include "reoscore.h"
@@ -32,12 +33,19 @@ class REOSCORE_EXPORT ReosHdf5Attribute
 
     bool isValid() const;
     QString readString( size_t preSize = 512 ) const;
+    int readInt( bool &ok ) const;
+
 
   private:
     ReosHdf5Attribute( const QString &name, hid_t group );
 
-    hid_t id = 0;
-    int ref = 0;
+    struct Data
+    {
+      hid_t id = 0;
+      int ref = 0;
+    };
+
+    std::shared_ptr<Data> mData;
 
     friend class ReosHdf5Group;
 };
@@ -57,8 +65,13 @@ class REOSCORE_EXPORT ReosHdf5Group
   private:
     ReosHdf5Group( const QString &path, hid_t file );
 
-    hid_t id;
-    int ref = 0;
+    struct Data
+    {
+      hid_t id = 0;
+      int ref = 0;
+    };
+
+    std::shared_ptr<Data> mData;
 
     friend class ReosHdf5File;
 };

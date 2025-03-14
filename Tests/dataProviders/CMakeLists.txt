@@ -6,6 +6,7 @@
 
 add_subdirectory(grib)
 add_subdirectory(hydroportail)
+add_subdirectory(meteo-hdf5)
 
 if (ERA5_TESTS_ENABLE)
     add_subdirectory(era5)

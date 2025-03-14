@@ -48,7 +48,7 @@ int ReosGriddedDataProvider::dataIndex( const QDateTime &time ) const
       return  mLastFrameIndex;
 
 
-    if ( time >= startTime( mLastFrameIndex + 1 ) &&
+    if ( mLastFrameIndex < ( frameCount - 1 ) && time >= startTime( mLastFrameIndex + 1 ) &&
          time < endTime( mLastFrameIndex + 1 ) )
     {
       mLastFrameIndex = mLastFrameIndex + 1;
