@@ -145,6 +145,9 @@ void ReosMeteoHdf5Test::rainOnWatershed()
   QCOMPARE( values.at( 1 ), 0.1244901610017982 );
   QCOMPARE( values.at( 2 ), 0.116361515127953 );
 
+  ReosDuration timeStep = gridOnWs->timeStep();
+  QVERIFY( timeStep == ReosDuration( 5.0, ReosDuration::minute ) );
+
 
   watershed_poly.clear();
   watershed_poly  << QPointF( 3.37651104703155402, 43.78221043303267379 )
@@ -165,6 +168,8 @@ void ReosMeteoHdf5Test::rainOnWatershed()
   QCOMPARE( values.at( 0 ), 0.03978165938864616 );
   QCOMPARE( values.at( 1 ), 0.02716157205240172 );
   QCOMPARE( values.at( 2 ), 0.01061135371179039 );
+  timeStep = gridOnWs->timeStep();
+  QVERIFY( timeStep == ReosDuration( 5.0, ReosDuration::minute ) );
 }
 
 

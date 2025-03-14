@@ -1,9 +1,9 @@
 /***************************************************************************
-  reosgribprovider.cpp - ReosGribProvider
+  reosmeteohdf5.cpp - ReosMeteoHdf5Provider
 
  ---------------------
- begin                : 11.11.2022
- copyright            : (C) 2022 by Vincent Cloarec
+ begin                : 14.03.2025
+ copyright            : (C) 2025 by Vincent Cloarec
  email                : vcloarec at gmail dot com
  ***************************************************************************
  *                                                                         *
