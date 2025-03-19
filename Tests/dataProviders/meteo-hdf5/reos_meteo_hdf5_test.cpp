@@ -48,7 +48,7 @@ void ReosMeteoHdf5Test::createProvider()
 {
   QString pathToFiles( testFile( QStringLiteral( "MF-mosaique" ) ) );
   std::unique_ptr<ReosGriddedDataProvider> provider(
-    qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( pathToFiles, ReosGriddedRainfall::staticType() ) ) );
+    qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( pathToFiles, ReosGriddedData::staticType() ) ) );
   QVERIFY( provider );
   QVERIFY( provider->key().contains( METEO_HDF5_KEY ) );
 
@@ -61,7 +61,7 @@ void ReosMeteoHdf5Test::createProvider()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "meteo-hdf5" ), ReosMeteoHdf5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  provider.reset( qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( uri, ReosGriddedRainfall::staticType() ) ) );
+  provider.reset( qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( uri, ReosGriddedData::staticType() ) ) );
   QVERIFY( provider );
   provider->setDataSource( uri );
   provider->load();
@@ -86,8 +86,8 @@ void ReosMeteoHdf5Test::createGridData()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "meteo-hdf5" ), ReosMeteoHdf5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedRainfall> griddedRain =
-    std::make_unique<ReosGriddedRainfall>( uri, QStringLiteral( "meteo-hdf5" ) );
+  std::unique_ptr<ReosGriddedData> griddedRain =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
 
   QCOMPARE( griddedRain->gridCount(), 3 );
   QCOMPARE( griddedRain->startTime( 0 ), QDateTime( QDate( 2025, 03, 13 ), QTime( 15, 55, 0 ), Qt::UTC ) );
@@ -121,8 +121,8 @@ void ReosMeteoHdf5Test::rainOnWatershed()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "meteo-hdf5" ), ReosMeteoHdf5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedRainfall> griddedRain =
-    std::make_unique<ReosGriddedRainfall>( uri, QStringLiteral( "meteo-hdf5" ) );
+  std::unique_ptr<ReosGriddedData> griddedRain =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
   QPolygonF watershed_poly;
 
   watershed_poly  << QPointF( 5.48210223811306463, 47.49347814632444909 )

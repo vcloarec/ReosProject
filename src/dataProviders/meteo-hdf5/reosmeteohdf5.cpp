@@ -279,7 +279,7 @@ ReosRasterExtent ReosMeteoHdf5Provider::extent() const
   return mExtent;
 }
 
-QString ReosMeteoHdf5Provider::dataType() {return ReosGriddedRainfall::staticType();}
+QString ReosMeteoHdf5Provider::dataType() {return ReosGriddedData::staticType();}
 
 QString ReosMeteoHdf5Provider::staticKey()
 {
@@ -405,7 +405,7 @@ QString ReosMeteoHdf5ProviderFactory::key() const
 
 bool ReosMeteoHdf5ProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosGriddedRainfall::staticType() );
+  return dataType.contains( ReosGriddedRainfall::staticType() ) or dataType.contains( ReosGriddedData::staticType() );
 }
 
 QVariantMap ReosMeteoHdf5ProviderFactory::uriParameters( const QString &dataType ) const
