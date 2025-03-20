@@ -889,9 +889,14 @@ void ReosWatershed::calculateArea()
 {
   ReosGisEngine *engine = geographicalContext();
   if ( engine )
-    mArea->setDerivedValue( engine->polygonArea( mDelineating ) );
+    mArea->setDerivedValue( engine->polygonArea( mDelineating, mWktCrs ) );
   else
-    mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
+  {
+    if ( mWktCrs.isEmpty() )
+      mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
+    else
+      mArea->setDerivedValue( ReosGisEngine::polygonAreaWithCrs( mDelineating, mWktCrs ) );
+  }
 }
 
 void ReosWatershed::calculateSlope()
