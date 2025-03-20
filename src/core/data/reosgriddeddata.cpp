@@ -318,11 +318,13 @@ AverageCalculation *ReosDataGriddedOnWatershed::getCalculationProcess() const
                    std::fabs( rainExtent.xCellSize() ),
                    std::fabs( rainExtent.yCellSize() ) );
   ReosArea cellArea = ReosGisEngine::polygonAreaWithCrs( cellRect, rainExtent.crs() );
+  qDebug() << QString( "Cell area is: %1" ).arg( cellArea.toString() );
 
   std::unique_ptr<AverageCalculation> newCalc( new AverageCalculation );
 
   newCalc->gridExtent = mGriddedData->rasterExtent();
   newCalc->timeStep = mGriddedData->minimumTimeStep();
+  qDebug() << QString( "Watershed area is: %1" ).arg( watershedArea.toString() );
   newCalc->usePrecision = watershedArea < cellArea * 30;
   newCalc->watershedPolygon = ReosGisEngine::transformToCoordinates( mWatershed->crs(), mWatershed->delineating(), rainExtent.crs() );
 
@@ -481,7 +483,7 @@ void ReosSeriesFromGriddedDataOnWatershed::preCalculate() const
   for ( int i = 0; i < count; ++i )
   {
     valueAt( i );
-    if ( i % 1000 == 0 )
+    if ( i % 10 == 0 )
       std::cout << "Timestep: " << i << " / " << count << std::endl;
   }
 }
