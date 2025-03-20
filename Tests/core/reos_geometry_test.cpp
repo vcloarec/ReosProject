@@ -19,6 +19,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reos_testutils.h"
 
+
 class ReosGeometryTest: public QObject
 {
     Q_OBJECT
@@ -30,6 +31,8 @@ class ReosGeometryTest: public QObject
     void gridReprojection();
 
     void rasterizePolygon();
+
+    void areaWithCrs();
 
   private:
     ReosModule mRootModule;
@@ -205,6 +208,19 @@ void ReosGeometryTest::rasterizePolygon()
 
   QCOMPARE( fullCount, 0 );
   QCOMPARE( partialCount, 0 );
+}
+
+void ReosGeometryTest::areaWithCrs()
+{
+  QPolygonF poly;
+  poly << QPointF( 2.90597431093595349, 42.84514842886782304 )
+       << QPointF( 2.50835984091437414, 42.51569643942136878 )
+       << QPointF( 3.08774092580296111, 42.34907704245994609 )
+       << QPointF( 3.15969021085448487, 42.67095542295360389 );
+
+  ReosArea area = ReosGisEngine::polygonAreaWithCrs( poly, ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  QCOMPARE( area.valueM2(), 1601745947.813 );
 }
 
 

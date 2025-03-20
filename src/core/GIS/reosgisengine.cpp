@@ -513,6 +513,7 @@ ReosArea ReosGisEngine::polygonAreaWithCrs( const QPolygonF &polygon, const QStr
 
   std::unique_ptr<QgsLineString> linestring( QgsLineString::fromQPolygonF( polygon ) );
   std::unique_ptr<QgsPolygon> qgsPolygon = std::make_unique<QgsPolygon>( linestring.release() );
+  areaCalculation.setEllipsoid( "EPSG:7030" );
   double area = areaCalculation.measureArea( QgsGeometry( qgsPolygon.release() ) );
   Qgis::AreaUnit unit = areaCalculation.areaUnits();
 
