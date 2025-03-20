@@ -348,6 +348,9 @@ void ReosDataGriddedOnWatershed::launchCalculation()
 {
   AverageCalculation *newCalc = getCalculationProcess();
 
+  if ( !newCalc )
+    return;
+
   QObject::connect( newCalc, &ReosProcess::finished, newCalc, [newCalc, this]
   {
     if ( mCurrentCalculation == newCalc )
