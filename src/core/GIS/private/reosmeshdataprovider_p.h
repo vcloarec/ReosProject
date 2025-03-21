@@ -74,6 +74,7 @@ class ReosMeshDataProvider_p: public QgsMeshDataProvider
     QgsMeshDatasetValue datasetValue( QgsMeshDatasetIndex index, int valueIndex ) const override;
     QgsMeshDataBlock datasetValues( QgsMeshDatasetIndex index, int valueIndex, int count ) const override;
     QgsMesh3DDataBlock dataset3dValues( QgsMeshDatasetIndex index, int faceIndex, int count ) const override;
+    bool removeDatasetGroup( int index ) override  {return false;}
 
     bool isFaceActive( QgsMeshDatasetIndex, int ) const override; //not implemented
     QgsMeshDataBlock areFacesActive( QgsMeshDatasetIndex index, int faceIndex, int count ) const override;
