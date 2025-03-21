@@ -211,6 +211,7 @@ if (WITH_BINDINGS)
     set(PYQT_MOD_DIR ${PYQT5_MOD_DIR})
   endif()
   separate_arguments(PYQT_SIP_FLAGS) # convert space separated values to a list
+  message("-- PyQt dir: ${PYQT_SIP_DIR}")
 
   #find_package(Qsci REQUIRED)
   include(PythonMacros)
