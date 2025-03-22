@@ -1,7 +1,7 @@
 # Reos licence GPL version 2
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.23)
 
 SET(CMAKE_AUTORCC ON)
 
@@ -138,7 +138,10 @@ set(HAS_KDE_QT5_PDF_TRANSFORM_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork wit
 set(HAS_KDE_QT5_SMALL_CAPS_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont::SmallCaps fix")
 set(HAS_KDE_QT5_FONT_STRETCH_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont stretch fix")
 
-FIND_PACKAGE(NetCDF REQUIRED)
+find_package(NetCDF REQUIRED)
+find_package(GDAL REQUIRED)
+MESSAGE("GDAL_INCLUDE_DIR=${GDAL_INCLUDE_DIR}")
+MESSAGE("GDAL_LIBRARY=${GDAL_LIBRARY}")
 
 FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 

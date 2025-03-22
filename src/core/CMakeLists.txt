@@ -1,8 +1,6 @@
 # Reos licence GPL version 2
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
-FIND_PACKAGE(GDAL REQUIRED)
-
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
   reosencodedelement.cpp
@@ -308,7 +306,7 @@ TARGET_INCLUDE_DIRECTORIES(reosCore SYSTEM PUBLIC
 
 IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARIES} )
+    TARGET_LINK_LIBRARIES(reosCore PUBLIC ${GDAL_LIBRARY} )
 ENDIF(GDAL_FOUND)
 
 FIND_PACKAGE(HDF5 REQUIRED)
