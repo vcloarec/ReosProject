@@ -136,12 +136,12 @@ class ReosComephoreNetCdfFolderReader : public ReosComephoreFilesReader
     ReosComephoreNetCdfFilesReader *fileReader( int index, int &interINdex ) const;
 };
 
-class ReosComephoreProvider : public ReosGriddedRainfallProvider
+class ReosComephoreProvider : public ReosGriddedDataProvider
 {
   public:
     ReosComephoreProvider();
     ~ReosComephoreProvider();
-    ReosGriddedRainfallProvider *clone() const override;
+    ReosGriddedDataProvider *clone() const override;
     void load() override;
 
     QString key() const override {return staticKey();}
@@ -192,7 +192,7 @@ class ReosComephoreProvider : public ReosGriddedRainfallProvider
 class ReosComephoresProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
+    ReosGriddedDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
     bool supportType( const QString &dataType ) const override;
     QVariantMap uriParameters( const QString &dataType ) const override;

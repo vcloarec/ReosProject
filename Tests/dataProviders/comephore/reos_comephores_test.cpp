@@ -46,14 +46,14 @@ class ReosComephoreTest: public QObject
 void ReosComephoreTest::createProvider()
 {
   std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ), ReosGriddedRainfall::staticType() ) );
+        COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ), ReosGriddedData::staticType() ) );
   QVERIFY( !compatibleProvider );
 
   compatibleProvider.reset( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-                              COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), ReosGriddedRainfall::staticType() ) );
+                              COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), ReosGriddedData::staticType() ) );
   QVERIFY( compatibleProvider );
 
-  ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
+  ReosGriddedDataProvider *provider = qobject_cast<ReosGriddedDataProvider *>( compatibleProvider.get() );
 
   QString comephoresPath( COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ) );
   provider->setDataSource( comephoresPath );
@@ -93,8 +93,8 @@ void ReosComephoreTest::createProvider()
 
 void ReosComephoreTest::createRainfallFromTif()
 {
-  std::unique_ptr<ReosGriddedRainfall> rainfall =
-    std::make_unique<ReosGriddedRainfall>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997/" ) ), QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedData> rainfall =
+    std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997/" ) ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 25 );
   QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
@@ -108,10 +108,9 @@ void ReosComephoreTest::createRainfallFromTif()
 
   QCOMPARE( extent.xCellSize(), 1000.0 );
   QCOMPARE( extent.yCellSize(), -1000.0 );
-  QCOMPARE( extent.xCellCount(), 1536 );
-  QCOMPARE( extent.yCellCount(), 1536 );
+  QCOMPARE( extent.xCellCount(), 1536 );  QCOMPARE( extent.yCellCount(), 1536 );
 
-  QVector<double> values = rainfall->intensityValues( 20 );
+  QVector<double> values = rainfall->values( 20 );
   QCOMPARE( values.at( 8581 ), std::numeric_limits<double>::quiet_NaN() );
   QCOMPARE( values.at( 8584 ), std::numeric_limits<double>::quiet_NaN() );
   QVERIFY( std::isnan( values.last() ) );
@@ -152,12 +151,12 @@ void ReosComephoreTest::netcdfFile()
   ReosSpatialPosition nw_position( nw_longitude, nw_latitude, crsWGS84 );
 
   std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), ReosGriddedRainfall::staticType() ) );
+        COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), ReosGriddedData::staticType() ) );
   QVERIFY( compatibleProvider );
 
   QCOMPARE( compatibleProvider->key(), QStringLiteral( "comephore::gridded-precipitation" ) );
 
-  ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
+  ReosGriddedDataProvider *provider = qobject_cast<ReosGriddedDataProvider *>( compatibleProvider.get() );
   provider->setDataSource( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_XXXX.nc" ) );
   QVERIFY( !provider->isValid() );
 

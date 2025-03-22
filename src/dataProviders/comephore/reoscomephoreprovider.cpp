@@ -17,7 +17,7 @@
 
 #include <QLocale>
 
-#include "reosgriddedrainitem.h"
+#include "reosgriddeddata.h"
 #include "reosgdalutils.h"
 #include "reosgisengine.h"
 
@@ -31,7 +31,7 @@ ReosComephoreProvider::ReosComephoreProvider()
   mCache.setMaxCost( 2000000 );
 }
 
-ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
+ReosGriddedDataProvider *ReosComephoreProvider::clone() const
 {
   std::unique_ptr<ReosComephoreProvider> other = std::make_unique<ReosComephoreProvider>();
 
@@ -318,7 +318,7 @@ static QFileInfoList tiffFiles( const QString &uri )
   return fileInfoList;
 }
 
-ReosGriddedRainfallProvider::FileDetails ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
+ReosGriddedDataProvider::FileDetails ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
 {
   FileDetails ret;
 
@@ -408,7 +408,7 @@ void ReosComephoreProvider::exportToTiff( int index, const QString &fileName ) c
 
 }
 
-QString ReosComephoreProvider::dataType() {return ReosGriddedRainfall::staticType();}
+QString ReosComephoreProvider::dataType() {return ReosGriddedData::staticType();}
 
 QString ReosComephoreProvider::staticKey()
 {
@@ -487,7 +487,7 @@ bool ReosComephoreTiffFilesReader::canReadFile( const QString &uri )
 
 ReosGriddedDataProvider::FileDetails ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
 {
-  ReosGriddedRainfallProvider::FileDetails ret;
+  ReosGriddedDataProvider::FileDetails ret;
 
   ReosComephoreTiffFilesReader fileReader( source );
   if ( fileReader.frameCount() == 0 )
@@ -509,7 +509,7 @@ ReosGriddedDataProvider::FileDetails ReosComephoreTiffFilesReader::details( cons
 
 ReosComephoreTiffFilesReader::~ReosComephoreTiffFilesReader() = default;
 
-ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
+ReosGriddedDataProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
 {
   if ( ReosComephoreProvider::dataType() == dataType )
     return new ReosComephoreProvider;
@@ -524,7 +524,7 @@ QString ReosComephoresProviderFactory::key() const
 
 bool ReosComephoresProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosGriddedRainfall::staticType() );
+  return dataType.contains( ReosGriddedData::staticType() );
 }
 
 QVariantMap ReosComephoresProviderFactory::uriParameters( const QString &dataType ) const
