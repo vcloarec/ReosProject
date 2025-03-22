@@ -878,7 +878,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
     double sourceDx = std::fabs( extent.xCellSize() );
     double sourceDy = std::fabs( extent.yCellSize() );
 
-    destExtent.setMinimal();
+    destExtent.setNull();
     for ( int iy = 0; iy < yCount + 1; ++iy )
     {
       for ( int ix = 0; ix < xCount + 1 ; ++ix )
@@ -921,7 +921,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
       for ( int ix = 0; ix < xCount ; ++ix )
       {
         QgsRectangle cellBB;
-        cellBB.setMinimal();
+        cellBB.setNull();
         cellBB.include( sourceExtentVerticesInDestination.at( ix ).at( iy ) );
         cellBB.include( sourceExtentVerticesInDestination.at( ix + 1 ).at( iy ) );
         cellBB.include( sourceExtentVerticesInDestination.at( ix + 1 ).at( iy + 1 ) );

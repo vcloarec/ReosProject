@@ -617,7 +617,7 @@ void ReosPolylineStructureVectorLayer::addPolylines( const QPolygonF &polyline, 
 
   mVectorLayer->beginEditCommand( "Add lines" );
 
-  QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ) ) );
+  QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ).release() ) );
 
   bool somethingDone = false;
 
@@ -849,7 +849,7 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
     int vertesPos = mBoundariesVertex.indexOf( vertex );
     QPolygonF exteriorF = boundary();
     exteriorF.replace( vertesPos, newPosInLayer.toQPointF() );
-    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ) ) );
+    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ).release() ) );
 
     QSet<VertexP> checkedVert;
     for ( const Segment &seg : mSegments )
@@ -869,7 +869,7 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeMoved( ReosGeometryStructureVe
   }
   else
   {
-    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ) ) );
+    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( boundary() ).release() ) );
     if ( !isOnBoundary( closeVertex ) && !exterior.contains( &newPosInLayer ) )
       return false;
   }
@@ -926,7 +926,7 @@ bool ReosPolylineStructureVectorLayer::vertexCanBeRemoved( ReosGeometryStructure
 
     QPolygonF exteriorF = boundary();
     exteriorF.removeAt( vertexPos );
-    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ) ) );
+    QgsGeometry exterior( new QgsPolygon( QgsLineString::fromQPolygonF( exteriorF ).release() ) );
 
     QSet<VertexP> checkedVert;
     for ( const Segment &seg : mSegments )
