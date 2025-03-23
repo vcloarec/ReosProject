@@ -430,39 +430,67 @@ ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &uri )
     if ( ( time >= startTime && time.addMSecs( 3600 ) <= endTime ) || !startTime.isValid() || !endTime.isValid() )
     {
       mFilesNames.insert( time, fi.filePath() );
-      mTimes.append( time );
     }
   }
+
+  if ( mFilesNames.count() > 0 )
+  {
+    const QDateTime &firstTime = mFilesNames.firstKey();
+    const QDateTime &lastTime = mFilesNames.lastKey();
+
+    ReosDuration duration( firstTime, lastTime );
+    mFrameCount = duration.numberOfFullyContainedIntervals( ReosDuration( 1, ReosDuration::hour ) ) + 1;
+
+    mFirstStartTime = firstTime.addSecs( -3600 );
+  }
+
 }
 
 ReosComephoreFilesReader *ReosComephoreTiffFilesReader::clone() const
 {
   std::unique_ptr<ReosComephoreTiffFilesReader> other( new ReosComephoreTiffFilesReader );
+
+  other->mFrameCount = mFrameCount;
+  other->mFirstStartTime = mFirstStartTime;
   other->mFilesNames = mFilesNames;
-  other->mTimes = mTimes;
   return other.release();
 }
 
 int ReosComephoreTiffFilesReader::frameCount() const
 {
-  return mFilesNames.count();
+  return mFrameCount;
 }
 
 QDateTime ReosComephoreTiffFilesReader::time( int i ) const
 {
-  return mTimes.at( i );
+  return mFirstStartTime.addSecs( 3600 * i );
 }
 
 QVector<int> ReosComephoreTiffFilesReader::data( int index, bool &readLine ) const
 {
-  const QDateTime &time = mTimes.at( index );
-  const QString fileName = mFilesNames.value( time );
-  ReosGdalDataset dataset( fileName );
+  if ( mFrameCount == 0 )
+    return QVector<int>();
 
-  const ReosRasterMemory<int> values = dataset.valuesInt( 1 );
+  const QDateTime &time = this->time( index );
   readLine = true;
 
-  return values.values();
+  auto frameIt = mFilesNames.find( ( time ) );
+  if ( frameIt != mFilesNames.constEnd() )
+  {
+    const QString fileName = mFilesNames.value( time );
+    ReosGdalDataset dataset( fileName );
+    const ReosRasterMemory<int> values = dataset.valuesInt( 1 );
+    return values.values();
+  }
+  else
+  {
+    const ReosRasterExtent &dataExtent = extent();
+    QVector<int> ret;
+    ret.resize( dataExtent.xCellCount()*dataExtent.yCellCount() );
+    ret.fill( 65535 );
+
+    return ret;
+  }
 }
 
 ReosRasterExtent ReosComephoreTiffFilesReader::extent() const

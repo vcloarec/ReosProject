@@ -30,6 +30,7 @@ class ReosComephoreTest: public QObject
   private slots:
     void createProvider();
     void createRainfallFromTif();
+    void createRainfallFromTifMissingFrame();
     void netcdfFile();
     void dupplicateFrames();
     void createRainfallFromNetCdf();
@@ -97,12 +98,43 @@ void ReosComephoreTest::createRainfallFromTif()
     std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997/" ) ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 25 );
-  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 20, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 21, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 30 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 19, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 20, 0, 0 ), Qt::UTC ) );
+
+  ReosRasterExtent extent = rainfall->rasterExtent();
+
+  QCOMPARE( extent.xCellSize(), 1000.0 );
+  QCOMPARE( extent.yCellSize(), -1000.0 );
+  QCOMPARE( extent.xCellCount(), 1536 );  QCOMPARE( extent.yCellCount(), 1536 );
+
+  QVector<double> values = rainfall->values( 20 );
+  QCOMPARE( values.at( 8581 ), std::numeric_limits<double>::quiet_NaN() );
+  QCOMPARE( values.at( 8584 ), std::numeric_limits<double>::quiet_NaN() );
+  QVERIFY( std::isnan( values.last() ) );
+
+  double min, max;
+  QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
+  rainfall->calculateMinMaxValue( min, max );
+  QCOMPARE( min, 0.2 );
+  QCOMPARE( max, 1.9 );
+}
+
+void ReosComephoreTest::createRainfallFromTifMissingFrame()
+{
+  std::unique_ptr<ReosGriddedData> rainfall =
+    std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997_missing_frame/" ) ), QStringLiteral( "comephore" ) );
+
+  QCOMPARE( rainfall->gridCount(), 25 );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 30 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 19, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 20 ), QDateTime( QDate( 1997, 01, 31 ), QTime( 20, 0, 0 ), Qt::UTC ) );
 
   ReosRasterExtent extent = rainfall->rasterExtent();
 

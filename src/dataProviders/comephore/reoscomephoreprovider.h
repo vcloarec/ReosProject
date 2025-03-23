@@ -63,7 +63,8 @@ class ReosComephoreTiffFilesReader : public ReosComephoreFilesReader
   private:
     ReosComephoreTiffFilesReader() = default;
     QMap<QDateTime, QString> mFilesNames;
-    QList<QDateTime> mTimes;
+    int mFrameCount = 0;
+    QDateTime mFirstStartTime;
 };
 
 
