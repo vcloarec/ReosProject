@@ -152,6 +152,20 @@ void ReosComephoreTest::createRainfallFromTifMissingFrame()
   rainfall->calculateMinMaxValue( min, max );
   QCOMPARE( min, 0.2 );
   QCOMPARE( max, 1.9 );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, rainfall.get() ) );
+
+  gridOnWs->preCalculate();
+  values = gridOnWs->constData();
+  QCOMPARE( values.count(), 25 );
 }
 
 void ReosComephoreTest::netcdfFile()

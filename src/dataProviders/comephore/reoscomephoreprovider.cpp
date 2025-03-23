@@ -53,7 +53,10 @@ void ReosComephoreProvider::load()
   if ( sourceInfo.isDir() )
   {
     if ( ReosComephoreTiffFilesReader::canReadFile( dataSource() ) )
+    {
       mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource() ) );
+      mCapabilities = {NoOption};
+    }
     else
       mFileReader.reset( new ReosComephoreNetCdfFolderReader( dataSource() ) );
   }

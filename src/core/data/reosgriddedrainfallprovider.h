@@ -46,6 +46,7 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
 
     enum GridCapability
     {
+      NoOption = 0,
       SubGridExtract = 1 << 0,
       QualificationValue = 1 << 1,
     };
