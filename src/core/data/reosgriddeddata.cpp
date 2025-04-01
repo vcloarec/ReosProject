@@ -390,6 +390,9 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
   ReosRasterMemory<double> rainValues;
   int griddedIndex = mGriddedData->dataIndex( timeAtIndex( i ) );
 
+  if ( griddedIndex < 0 )
+    return std::numeric_limits<double>::quiet_NaN();
+
   int effXori;
   int effYOri;
 
