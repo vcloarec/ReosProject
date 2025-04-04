@@ -39,7 +39,7 @@ ReosGdalDataset::~ReosGdalDataset()
     GDALClose( mHDataset );
 }
 
-int ReosGdalDataset::bandCount()
+int ReosGdalDataset::bandCount() const
 {
   if ( mHDataset )
     return GDALGetRasterCount( mHDataset );
@@ -89,8 +89,9 @@ QMap<QString, QString> ReosGdalDataset::bandMetadata( int band ) const
   return _metadata( hBand );
 }
 
-ReosRasterExtent ReosGdalDataset::extent() const
+ReosRasterExtent ReosGdalDataset::extent( int i ) const
 {
+  Q_UNUSED( i );
   std::array<double, 6> geoTransform;
   GDALGetGeoTransform( mHDataset, geoTransform.data() );
 
@@ -108,9 +109,19 @@ ReosRasterExtent ReosGdalDataset::extent() const
   return extent;
 }
 
+ReosRasterMemory<double> ReosGdalDataset::values( int frameIndex ) const
+{
+  return valuesFromBand( frameIndex + 1 );
+}
+
 bool ReosGdalDataset::isValid() const {return mHDataset != nullptr;}
 
-ReosRasterMemory<double> ReosGdalDataset::values( int band )
+int ReosGdalDataset::frameCount() const
+{
+  return bandCount();
+}
+
+ReosRasterMemory<double> ReosGdalDataset::valuesFromBand( int band ) const
 {
   if ( !mHDataset )
     return ReosRasterMemory<double>();
@@ -139,7 +150,7 @@ ReosRasterMemory<double> ReosGdalDataset::values( int band )
   return ret;
 }
 
-ReosRasterMemory<int> ReosGdalDataset::valuesInt( int band )
+ReosRasterMemory<int> ReosGdalDataset::valuesInt( int band ) const
 {
   if ( !mHDataset )
     return ReosRasterMemory<int>();
@@ -168,7 +179,7 @@ ReosRasterMemory<int> ReosGdalDataset::valuesInt( int band )
   return ret;
 }
 
-ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band )
+ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band ) const
 {
   if ( !mHDataset )
     return ReosRasterMemory<unsigned char>();
@@ -274,4 +285,48 @@ bool ReosGdalDataset::writeIntRasterToFile( const QString &fileName, ReosRasterM
   GDALClose( static_cast<GDALDatasetH>( dataSet ) );
 
   return true;
+}
+
+bool ReosGdalDataset::writeDoubleRasterToFile( const QString &fileName, ReosRasterMemory<double> raster, const ReosRasterExtent &extent )
+{
+  GDALDriver *driver = GetGDALDriverManager()->GetDriverByName( "GTiff" );
+
+  if ( !driver )
+    return false;
+
+  char *papszOptions[] =
+  {
+    const_cast<char *>( "COMPRESS=DEFLATE" ),
+    const_cast<char *>( "PREDICTOR=1" ),
+    nullptr
+  };
+
+  GDALDataset *dataSet = driver->Create( fileName.toStdString().c_str(), raster.columnCount(), raster.rowCount(), 1, GDALDataType::GDT_Float64, papszOptions );
+  if ( !dataSet )
+    return false;
+
+  GDALRasterBand *band = dataSet->GetRasterBand( 1 );
+
+  CPLErr err = band->RasterIO( GF_Write, 0, 0, raster.columnCount(), raster.rowCount(), raster.data(), raster.columnCount(), raster.rowCount(), GDALDataType::GDT_Float64, 0, 0 );
+  if ( err )
+    return false;
+
+  band->SetNoDataValue( raster.noData() );
+
+  double geoTrans[6] = { extent.xMapOrigin(), extent.xCellSize(), 0, extent.yMapOrigin(), 0, extent.yCellSize() };
+  dataSet->SetGeoTransform( geoTrans );
+
+  char *proj_WKT = nullptr;
+  QString wktCrs = extent.crs();
+  dataSet->SetProjection( extent.crs().toStdString().c_str() );
+  CPLFree( proj_WKT );
+
+  GDALClose( static_cast<GDALDatasetH>( dataSet ) );
+
+  return true;
+}
+
+ReosGriddedDataSource::~ReosGriddedDataSource()
+{
+
 }

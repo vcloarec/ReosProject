@@ -193,7 +193,7 @@ const QVector<double> ReosMeteoHdf5Provider::data( int index ) const
   if ( !dataset.isValid() )
     return QVector<double>();
 
-  ReosRasterMemory<double> raster = dataset.values( 1 );
+  ReosRasterMemory<double> raster = dataset.valuesFromBand( 1 );
   QVector<double> rawValues = raster.values();
 
   std::unique_ptr<QVector<double>> values = std::make_unique<QVector<double>>( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() );

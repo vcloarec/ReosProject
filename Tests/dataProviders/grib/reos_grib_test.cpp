@@ -14,10 +14,13 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 #include<QtTest/QtTest>
 #include <QObject>
+#include <QPair>
+#include <qtestcase.h>
 
 #include "reos_testutils.h"
 #include "reosgribprovider.h"
 #include "reosgriddedrainitem.h"
+#include "reoseccodesreader.h"
 
 class ReosGribTest: public QObject
 {
@@ -28,16 +31,19 @@ class ReosGribTest: public QObject
 
     void griddedRainInFolder();
     void griddedRainInFile();
+    void eccodesReader();
+    void aromeGribFiles();
+    void ecmwfGribFiles();
 };
 
 void ReosGribTest::createProvider()
 {
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
-  std::unique_ptr<ReosGribGriddedRainfallProvider> provider(
-    qobject_cast<ReosGribGriddedRainfallProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( gribFile, ReosGriddedRainfall::staticType() ) ) );
+  std::unique_ptr<ReosGriddedDataProvider> provider(
+    qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( gribFile, ReosGriddedData::staticType() ) ) );
 
   ReosModule::Message message;
-  ReosGriddedRainfallProvider::FileDetails details = provider->details( "lkhkjh", message );
+  ReosGriddedDataProvider::FileDetails details = provider->details( "lkhkjh", message );
   QVERIFY( details.availableVariables.isEmpty() );
   QVERIFY( message.type == ReosModule::Error );
 
@@ -50,7 +56,7 @@ void ReosGribTest::createProvider()
   QVERIFY( details.availableVariables.contains( variable ) );
 
   provider->setDataSource(
-    ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGribGriddedRainfallProvider::ValueType::Cumulative ) );
+    ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGribGriddedDataProvider::ValueType::Cumulative ) );
 
   QCOMPARE( provider->count(), 3 );
 
@@ -76,8 +82,8 @@ void ReosGribTest::griddedRainInFolder()
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
-                             ReosGribGriddedRainfallProvider::staticKey() ) );
+    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
+                             ReosGribGriddedDataProvider::staticKey() ) );
 
   QVERIFY( rainfall->isValid() );
 
@@ -106,8 +112,8 @@ void ReosGribTest::griddedRainInFile()
   QString gribFile( testFile( QStringLiteral( "grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( ReosGribGriddedRainfallProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
-                             ReosGribGriddedRainfallProvider::staticKey() ) );
+    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
+                             ReosGribGriddedDataProvider::staticKey() ) );
 
   QVERIFY( rainfall->isValid() );
 
@@ -124,6 +130,212 @@ void ReosGribTest::griddedRainInFile()
   rainfall->intensityValues( 1 );
   rainfall->intensityValues( 2 );
 }
+
+void ReosGribTest::eccodesReader()
+{
+  QString fileName = testFile( QStringLiteral( "grib/ecmwf/000-oper.grib2" ) );
+
+  const QList<ReosEcCodesReader::Variable> variables = ReosEcCodesReader::variables( fileName );
+
+  QVariantMap keys;
+  keys.insert( "shortName", "vsw" );
+  keys.insert( "topLevel", 0 );
+
+  ReosEcCodesReader reader( fileName, keys );
+  QVERIFY( reader.isValid() );
+  QCOMPARE( 1, reader.frameCount() );
+
+  QPair<int, int> range = reader.stepRange( 0 );
+  ReosEcCodesReader::StepType stepType = reader.stepType( 0 );
+  QPair<int, int> expected( 0, 0 );
+  QCOMPARE( expected, range );
+  QVERIFY( stepType == ReosEcCodesReader::Instant );
+
+  keys.clear();
+  keys.insert( "shortName", "vsw" );
+  keys.insert( "topLevel", "0" );
+
+  reader = ReosEcCodesReader( fileName, keys );
+  QVERIFY( reader.isValid() );
+  QCOMPARE( 1, reader.frameCount() );
+
+  keys.clear();
+  keys.insert( "shortName", "blabla" );
+  keys.insert( "topLevel", "0" );
+
+  reader = ReosEcCodesReader( fileName, keys );
+  QVERIFY( reader.isValid() );
+  QCOMPARE( 0, reader.frameCount() );
+
+  keys.clear();
+  keys.insert( "shortName", "vsw" );
+  keys.insert( "topLevel", 1 );
+
+  keys.clear();
+  keys.insert( "shortName", "sot" );
+  reader = ReosEcCodesReader( fileName, keys );
+  QVERIFY( reader.isValid() );
+  QCOMPARE( 4, reader.frameCount() );
+
+  QDateTime refTime = reader.referenceTime( 0 );
+  QDateTime validTime = reader.validityTime( 0 );
+
+  keys.clear();
+  keys.insert( "shortName", "tp" );
+  reader = ReosEcCodesReader( fileName, keys );
+  QVERIFY( reader.isValid() );
+  QCOMPARE( 1, reader.frameCount() );
+
+  refTime = reader.referenceTime( 0 );
+  validTime = reader.validityTime( 0 );
+
+  QCOMPARE( QDateTime( QDate( 2025, 2, 17 ), QTime( 0, 0 ), Qt::UTC ), refTime );
+  QCOMPARE( QDateTime( QDate( 2025, 2, 17 ), QTime( 0, 0 ), Qt::UTC ), validTime );
+
+  range = reader.stepRange( 0 );
+  stepType = reader.stepType( 0 );
+  expected = QPair<int, int>( 0, 0 );
+  QCOMPARE( expected, range );
+  QVERIFY( stepType == ReosEcCodesReader::Accum );
+
+  ReosRasterMemory<double> raster = reader.values( 0 );
+  QCOMPARE( raster.values().size(), 1038240 );
+
+  ReosRasterExtent extent = reader.extent( 0 );
+
+  fileName = "/home/vincent/318-oper.grib2";
+
+  keys.clear();
+  keys.insert( "shortName", "tp" );
+  reader = ReosEcCodesReader( fileName, keys );
+  QVERIFY( reader.isValid() );
+  QCOMPARE( 1, reader.frameCount() );
+
+  refTime = reader.referenceTime( 0 );
+  validTime = reader.validityTime( 0 );
+
+  QCOMPARE( QDateTime( QDate( 2025, 2, 17 ), QTime( 0, 0 ), Qt::UTC ), refTime );
+  QCOMPARE( QDateTime( QDate( 2025, 3, 02 ), QTime( 6, 0 ), Qt::UTC ), validTime );
+
+  range = reader.stepRange( 0 );
+  stepType = reader.stepType( 0 );
+  expected = QPair<int, int>( 0, 318 );
+  QCOMPARE( expected, range );
+  QVERIFY( stepType == ReosEcCodesReader::Accum );
+
+  fileName = "/home/vincent/AROME_2025-04-02T12_15_00Z.grib2";
+  keys.clear();
+  keys.insert( "shortName", "tp" );
+  reader = ReosEcCodesReader( fileName, keys );
+  raster = reader.values( 0 );
+  QCOMPARE( raster.values().size(), 5016591 );
+  extent = reader.extent( 0 );
+  QCOMPARE( extent.width(), 28.01 );
+  QVERIFY( extent.crs() != "" );
+
+  refTime = reader.referenceTime( 0 );
+  validTime = reader.validityTime( 0 );
+
+  QCOMPARE( QDateTime( QDate( 2025, 4, 2 ), QTime( 12, 0 ), Qt::UTC ), refTime );
+  QCOMPARE( QDateTime( QDate( 2025, 4, 2 ), QTime( 12, 15 ), Qt::UTC ), validTime );
+
+  range = reader.stepRange( 0 );
+  stepType = reader.stepType( 0 );
+  expected = QPair<int, int>( 0, 15 );
+  QCOMPARE( expected, range );
+  QVERIFY( stepType == ReosEcCodesReader::Accum );
+
+}
+
+void ReosGribTest::aromeGribFiles()
+{
+  QString gribFile( testFile( QStringLiteral( "grib/arome" ) ) );
+  QVariantMap keys;
+  keys.clear();
+  keys.insert( "shortName", "tp" );
+  std::unique_ptr<ReosGriddedData> rainfall(
+    new ReosGriddedData( ReosGribGriddedDataProvider::uri( gribFile, keys ),
+                         ReosGribGriddedDataProvider::staticKey() ) );
+
+  QVERIFY( rainfall->isValid() );
+
+  QCOMPARE( rainfall->gridCount(), 5 );
+
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2025, 04, 01 ), QTime( 06, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2025, 04, 01 ), QTime( 07, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2025, 04, 01 ), QTime( 07, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2025, 04, 01 ), QTime( 8, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 2 ), QDateTime( QDate( 2025, 04, 01 ), QTime( 8, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 2 ), QDateTime( QDate( 2025, 04, 01 ), QTime( 9, 0, 0 ), Qt::UTC ) );
+
+  QVector<double> values = rainfall->values( 0 );
+  QVERIFY( std::isnan( values.at( 11000 ) ) );
+  QVERIFY( equal( values.at( 6995 ), 0.01318359375, 0.000001 ) );
+
+  values = rainfall->values( 2 );
+  QVERIFY( std::isnan( values.at( 11000 ) ) );
+  QVERIFY( equal( values.at( 6995 ), 0.008056640625, 0.000001 ) );
+
+}
+
+void ReosGribTest::ecmwfGribFiles()
+{
+  QString gribFile( testFile( QStringLiteral( "grib/ecmwf" ) ) );
+  QString shortName = "tp";
+  QVariantMap keys;
+  keys.insert( "shortName", shortName );
+  std::unique_ptr<ReosGriddedData> rainfall(
+    new ReosGriddedData( ReosGribGriddedDataProvider::uri( gribFile, keys ),
+                         ReosGribGriddedDataProvider::staticKey() ) );
+
+  QVERIFY( rainfall->isValid() );
+
+  QCOMPARE( rainfall->gridCount(), 2 );
+
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 6, 0, 0 ), Qt::UTC ) );
+
+
+  QVector<double> values = rainfall->values( 0 );
+  QVERIFY( equal( values.at( 6453 ), 6.866455078125e-05, 1e-10 ) );
+
+  values = rainfall->values( 1 );
+  QVERIFY( equal( values.at( 6453 ), 8.58306884765625e-05, 1e-10 ) );
+
+
+  keys.clear();
+  keys.insert( "shortName", "vsw" );
+  keys.insert( "topLevel", "0" );
+  std::unique_ptr<ReosGriddedData> dataset(
+    new ReosGriddedData( ReosGribGriddedDataProvider::uri( gribFile, keys ),
+                         ReosGribGriddedDataProvider::staticKey() ) );
+
+  QVERIFY( dataset->isValid() );
+
+  QCOMPARE( dataset->gridCount(), 3 );
+
+  QCOMPARE( dataset->startTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->endTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->startTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->endTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->startTime( 2 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 6, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->endTime( 2 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 6, 0, 0 ), Qt::UTC ) );
+
+
+  values = dataset->values( 0 );
+  QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
+
+  values = dataset->values( 1 );
+  QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
+
+  values = dataset->values( 2 );
+  QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
+}
+
+
+
 
 QTEST_MAIN( ReosGribTest )
 #include "reos_grib_test.moc"

@@ -23,27 +23,41 @@
 
 #include "reosmemoryraster.h"
 
-class REOSCORE_EXPORT ReosGdalDataset
+class REOSCORE_EXPORT ReosGriddedDataSource
+{
+  public:
+    ReosGriddedDataSource() = default;
+    virtual ~ReosGriddedDataSource();
+    virtual bool isValid() const = 0;
+    virtual int frameCount() const = 0;
+    virtual ReosRasterExtent extent( int frameIndex = 0 ) const = 0;
+    virtual ReosRasterMemory<double> values( int frameIndex ) const = 0;
+
+};
+
+class REOSCORE_EXPORT ReosGdalDataset : public ReosGriddedDataSource
 {
   public:
     ReosGdalDataset( const QString &fileName, bool readOnly = true );
     ~ReosGdalDataset();
 
-    int bandCount();
+    bool isValid() const override ;
+    int frameCount() const override;
+    ReosRasterExtent extent( int frameIndex = 0 ) const override;
+    ReosRasterMemory<double> values( int frameIndex ) const override;
+
+    int bandCount() const;
 
     QMap<QString, QString> metadata() const;
     QMap<QString, QString> bandMetadata( int band ) const;
 
-    ReosRasterExtent extent() const;
-
-    bool isValid() const;
-
-    ReosRasterMemory<double> values( int band );
-    ReosRasterMemory<int> valuesInt( int band );
-    ReosRasterMemory<unsigned char> valuesBytes( int band );
+    ReosRasterMemory<double> valuesFromBand( int band ) const;
+    ReosRasterMemory<int> valuesInt( int band ) const;
+    ReosRasterMemory<unsigned char> valuesBytes( int band ) const;
 
     static bool writeByteRasterToFile( const QString &fileName, ReosRasterMemory<unsigned char> raster, const ReosRasterExtent &extent );
     static bool writeIntRasterToFile( const QString &fileName, ReosRasterMemory<int> raster, const ReosRasterExtent &extent );
+    static bool writeDoubleRasterToFile( const QString &fileName, ReosRasterMemory<double> raster, const ReosRasterExtent &extent );
 
   private:
     GDALDatasetH mHDataset = nullptr;

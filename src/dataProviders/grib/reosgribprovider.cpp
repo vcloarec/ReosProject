@@ -21,31 +21,34 @@
 #include "reosgribprovider.h"
 #include "reosgriddedrainitem.h"
 #include "reosgdalutils.h"
+#include "reoseccodesreader.h"
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
   return new ReosGribProviderFactory();
 }
 
-ReosGribGriddedRainfallProvider::ReosGribGriddedRainfallProvider()
+ReosGribGriddedDataProvider::ReosGribGriddedDataProvider()
 {
   mCache.setMaxCost( 20000000 );
 }
 
-ReosGriddedRainfallProvider *ReosGribGriddedRainfallProvider::clone() const
+ReosGriddedDataProvider *ReosGribGriddedDataProvider::clone() const
 {
-  std::unique_ptr<ReosGribGriddedRainfallProvider> other = std::make_unique<ReosGribGriddedRainfallProvider>();
+  std::unique_ptr<ReosGribGriddedDataProvider> other = std::make_unique<ReosGribGriddedDataProvider>();
   other->setDataSource( dataSource() );
 
   return other.release();
 }
 
-void ReosGribGriddedRainfallProvider::load()
+void ReosGribGriddedDataProvider::load()
 {
   QString fileSource = sourcePathFromUri( dataSource() );
   QString varName = variableFromUri( dataSource() );
   mSourceValueType = valueTypeFromUri( dataSource() );
+  mGribKeys = keysFromUri( dataSource() );
   mIsValid = false;
+  GribReader reader = mGribKeys.isEmpty() ? GDAL : EcCodes;
 
   QMap<qint64, GribFrame> pathes;
 
@@ -61,12 +64,25 @@ void ReosGribGriddedRainfallProvider::load()
     filters << QStringLiteral( "*.grb2" );
     const QStringList files = dir.entryList( filters, QDir::Files );
     for ( const QString &file : files )
-      parseFile( dir.filePath( file ), varName, mReferenceTime, pathes, mExtent );
-
+      switch ( reader )
+      {
+        case GDAL:
+          parseFileWithGDAL( dir.filePath( file ), varName, mReferenceTime, pathes, mExtent );
+          break;
+        case EcCodes:
+          parseFileWithEcCodes( dir.filePath( file ), pathes, mExtent );
+      }
   }
   else if ( fileInfo.isFile() )
   {
-    parseFile( fileSource, varName, mReferenceTime, pathes, mExtent );
+    switch ( reader )
+    {
+      case GDAL:
+        parseFileWithGDAL( fileSource, varName, mReferenceTime, pathes, mExtent );
+        break;
+      case EcCodes:
+        parseFileWithEcCodes( fileSource, pathes, mExtent );
+    }
   }
 
   mFrames = pathes.values();
@@ -76,7 +92,7 @@ void ReosGribGriddedRainfallProvider::load()
   emit loadingFinished();
 }
 
-QStringList ReosGribGriddedRainfallProvider::fileSuffixes() const
+QStringList ReosGribGriddedDataProvider::fileSuffixes() const
 {
   QStringList ret;
   ret << QStringLiteral( "grib2" )
@@ -85,7 +101,7 @@ QStringList ReosGribGriddedRainfallProvider::fileSuffixes() const
   return ret;
 }
 
-ReosGriddedRainfallProvider::FileDetails ReosGribGriddedRainfallProvider::details( const QString &source, ReosModule::Message &message ) const
+ReosGriddedRainfallProvider::FileDetails ReosGribGriddedDataProvider::details( const QString &source, ReosModule::Message &message ) const
 {
   FileDetails ret;
   QDir dir;
@@ -144,17 +160,30 @@ ReosGriddedRainfallProvider::FileDetails ReosGribGriddedRainfallProvider::detail
   return ret;
 }
 
-bool ReosGribGriddedRainfallProvider::isValid() const
+bool ReosGribGriddedDataProvider::isValid() const
 {
   return mIsValid;
 }
 
-int ReosGribGriddedRainfallProvider::count() const
+int ReosGribGriddedDataProvider::count() const
 {
-  return mFrames.count();
+  switch ( mSourceValueType )
+  {
+    case ValueType::Cumulative:
+      return mFrames.count() - 1;
+      break;
+    case ValueType::Instantaneous:
+      return mFrames.count();
+      break;
+    case ValueType::CumulativeOnTimeStep:
+      return mFrames.count();
+      break;
+    default:
+      break;
+  }
 }
 
-bool ReosGribGriddedRainfallProvider::canReadUri( const QString &path ) const
+bool ReosGribGriddedDataProvider::canReadUri( const QString &path ) const
 {
   QDir dir;
   ReosModule::Message message;
@@ -166,26 +195,7 @@ bool ReosGribGriddedRainfallProvider::canReadUri( const QString &path ) const
   return !files.empty() && dir.exists();
 }
 
-QDateTime ReosGribGriddedRainfallProvider::startTime( int index ) const
-{
-  switch ( mSourceValueType )
-  {
-    case ValueType::Cumulative:
-      if ( index == 0 )
-        return QDateTime::fromSecsSinceEpoch( mReferenceTime, Qt::UTC );
-      else if ( index > 0 )
-        return QDateTime::fromSecsSinceEpoch( mFrames.at( index - 1 ).validTime, Qt::UTC );
-      break;
-    case ValueType::CumulativeOnTimeStep:
-    case ValueType::Instantaneous:
-      return QDateTime();
-      break;
-  }
-
-  return QDateTime();
-}
-
-QDateTime ReosGribGriddedRainfallProvider::endTime( int index ) const
+QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
 {
   switch ( mSourceValueType )
   {
@@ -193,15 +203,34 @@ QDateTime ReosGribGriddedRainfallProvider::endTime( int index ) const
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
       break;
     case ValueType::CumulativeOnTimeStep:
+      return QDateTime::fromSecsSinceEpoch(
+               mFrames.at( index ).validTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
+      break;
     case ValueType::Instantaneous:
-      return QDateTime();
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
+      break;
+  }
+
+  return QDateTime();
+}
+
+QDateTime ReosGribGriddedDataProvider::endTime( int index ) const
+{
+  switch ( mSourceValueType )
+  {
+    case ValueType::Cumulative:
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).validTime, Qt::UTC );
+      break;
+    case ValueType::CumulativeOnTimeStep:
+    case ValueType::Instantaneous:
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
       break;
   }
 
   return QDateTime();;
 }
 
-const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
+const QVector<double> ReosGribGriddedDataProvider::data( int index ) const
 {
   if ( index < 0 )
     return QVector<double>();
@@ -214,64 +243,35 @@ const QVector<double> ReosGribGriddedRainfallProvider::data( int index ) const
   if ( cache )
     mCache.remove( index );
 
-  ReosGdalDataset dataset( mFrames.at( index ).file );
-  if ( !dataset.isValid() )
-    return QVector<double>();
-
-  ReosRasterMemory<double> raster = dataset.values( mFrames.at( index ).bandNo );
-  ReosDuration duration = intervalDuration( index );
 
   switch ( mSourceValueType )
   {
     case ValueType::Cumulative:
     {
+      ReosRasterMemory<double> raster = frame( index + 1 );
+      ReosRasterMemory<double> prevRaster = frame( index );
       QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
 
-      if ( index == 0 )
-      {
-        for ( int i = 0; i < ret.count(); ++i )
-        {
-          if ( raster.values().at( i ) != 0.0 )
-            ret[i] = raster.values().at( i ) / duration.valueHour();
-        }
-        return ret;;
-      }
-
-      ReosGdalDataset prevDataset( mFrames.at( index - 1 ).file );
-      ReosRasterMemory<double> prevRaster = prevDataset.values( mFrames.at( index - 1 ).bandNo );
-      const QVector<double> &prevIndex = prevRaster.values();
-      const QVector<double> &currentIndex = raster.values();
-      Q_ASSERT( prevIndex.count() == currentIndex.count() );
-
-
       for ( int i = 0; i < ret.count(); ++i )
-      {
-        double val =  std::max( ( currentIndex.at( i ) - prevIndex.at( i ) ) / duration.valueHour(), 0.0 );
-        if ( val != 0.0 )
-          ret[i] = val;
-      }
-
+        ret[i] = raster.values().at( i ) - prevRaster.values().at( i );
       return ret;
+
     }
     break;
     case ValueType::CumulativeOnTimeStep:
     case ValueType::Instantaneous:
     {
-      QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
-      for ( int i = 0; i < ret.count(); ++i )
-      {
-        if ( raster.values().at( i ) != 0.0 )
-          ret[i] = raster.values().at( i ) ;
-      }
-      return ret;
+      ReosRasterMemory<double> raster = frame( index );
+      return raster.values();
     }
+
     break;
   }
 
   return QVector<double>();
 }
 
-bool ReosGribGriddedRainfallProvider::getDirectMinMax( double &min, double &max ) const
+bool ReosGribGriddedDataProvider::getDirectMinMax( double &min, double &max ) const
 {
   if ( mHasMinMaxCalculated )
   {
@@ -281,7 +281,7 @@ bool ReosGribGriddedRainfallProvider::getDirectMinMax( double &min, double &max 
   return mHasMinMaxCalculated;
 }
 
-void ReosGribGriddedRainfallProvider::calculateMinMax( double &min, double &max ) const
+void ReosGribGriddedDataProvider::calculateMinMax( double &min, double &max ) const
 {
   mMin = std::numeric_limits<double>::max();
   mMax = -std::numeric_limits<double>::max();
@@ -304,7 +304,7 @@ void ReosGribGriddedRainfallProvider::calculateMinMax( double &min, double &max 
   mHasMinMaxCalculated = true;
 }
 
-QString ReosGribGriddedRainfallProvider::htmlDescription() const
+QString ReosGribGriddedDataProvider::htmlDescription() const
 {
   QString htmlText = QStringLiteral( "<html>\n<body>\n" );
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
@@ -339,19 +339,31 @@ QString ReosGribGriddedRainfallProvider::htmlDescription() const
   return htmlText;
 }
 
-ReosRasterExtent ReosGribGriddedRainfallProvider::extent() const
+void ReosGribGriddedDataProvider::exportToTiff( int index, const QString &fileName ) const
+{
+  ReosRasterMemory<double> rast( mExtent.yCellCount(), mExtent.xCellCount() );
+
+  if ( rast.reserveMemory() )
+  {
+    rast.setValues( data( index ) );
+    ReosGdalDataset::writeDoubleRasterToFile( fileName, rast, mExtent );
+  }
+
+}
+
+ReosRasterExtent ReosGribGriddedDataProvider::extent() const
 {
   return mExtent;
 }
 
-QString ReosGribGriddedRainfallProvider::dataType() {return ReosGriddedRainfall::staticType();}
+QString ReosGribGriddedDataProvider::dataType() {return ReosGriddedRainfall::staticType();}
 
-QString ReosGribGriddedRainfallProvider::staticKey()
+QString ReosGribGriddedDataProvider::staticKey()
 {
   return GRIB_KEY + QString( "::" ) + dataType();
 }
 
-QString ReosGribGriddedRainfallProvider::uri( const QString &sourcePath, const QString &variable, ValueType valueType )
+QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QString &variable, ValueType valueType )
 {
   QString stringValueType;
 
@@ -369,7 +381,17 @@ QString ReosGribGriddedRainfallProvider::uri( const QString &sourcePath, const Q
   return QStringLiteral( "\"%1\"::%2::%3" ).arg( sourcePath, variable, stringValueType );
 }
 
-QString ReosGribGriddedRainfallProvider::sourcePathFromUri( const QString &uri )
+QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys )
+{
+  QStringList stringKey;
+
+  for ( auto it = gribKeys.constBegin(); it != gribKeys.constEnd(); ++it )
+    stringKey.append( QStringLiteral( "%1:%2" ).arg( it.key(), it.value().toString() ) );
+
+  return QStringLiteral( "\"%1\"::keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
+}
+
+QString ReosGribGriddedDataProvider::sourcePathFromUri( const QString &uri )
 {
   const QStringList part = uri.split( QStringLiteral( "::" ) );
   if ( part.count() == 0 )
@@ -380,16 +402,40 @@ QString ReosGribGriddedRainfallProvider::sourcePathFromUri( const QString &uri )
   return source;
 }
 
-QString ReosGribGriddedRainfallProvider::variableFromUri( const QString &uri )
+QString ReosGribGriddedDataProvider::variableFromUri( const QString &uri )
 {
   const QStringList part = uri.split( QStringLiteral( "::" ) );
-  if ( part.count() < 2 )
+  if ( part.count() < 2 || part.at( 1 ).startsWith( QStringLiteral( "keys=" ) ) )
     return QString();
 
   return part.at( 1 );
 }
 
-ReosGriddedRainfallProvider::ValueType ReosGribGriddedRainfallProvider::valueTypeFromUri( const QString &uri )
+QVariantMap ReosGribGriddedDataProvider::keysFromUri( const QString &uri )
+{
+  const QStringList part = uri.split( QStringLiteral( "::" ) );
+  if ( part.count() < 2 || !part.at( 1 ).startsWith( QStringLiteral( "keys=" ) ) )
+    return QVariantMap();
+
+  const QString stringKeys = part.at( 1 ).split( '=' ).at( 1 );
+
+  const QStringList keysList = stringKeys.split( '&' );
+
+  QVariantMap ret;
+
+  for ( const QString &key : keysList )
+  {
+    QStringList split = key.split( ':' );
+    if ( split.count() != 2 )
+      continue;
+
+    ret.insert( split.at( 0 ), split.at( 1 ) );
+  }
+
+  return ret;
+}
+
+ReosGriddedRainfallProvider::ValueType ReosGribGriddedDataProvider::valueTypeFromUri( const QString &uri )
 {
   const QStringList part = uri.split( QStringLiteral( "::" ) );
   if ( part.count() < 3 )
@@ -407,7 +453,7 @@ ReosGriddedRainfallProvider::ValueType ReosGribGriddedRainfallProvider::valueTyp
   return ValueType::CumulativeOnTimeStep;
 }
 
-bool ReosGribGriddedRainfallProvider::sourceIsValid( const QString &source, ReosModule::Message &message ) const
+bool ReosGribGriddedDataProvider::sourceIsValid( const QString &source, ReosModule::Message &message ) const
 {
   QFileInfo fileInfo( source );
   if ( fileInfo.isDir() )
@@ -440,7 +486,7 @@ bool ReosGribGriddedRainfallProvider::sourceIsValid( const QString &source, Reos
 
 }
 
-ReosEncodedElement ReosGribGriddedRainfallProvider::encode( const ReosEncodeContext &context ) const
+ReosEncodedElement ReosGribGriddedDataProvider::encode( const ReosEncodeContext &context ) const
 {
   ReosEncodedElement element( QStringLiteral( "grib-gridded-precipitation" ) );
 
@@ -454,7 +500,7 @@ ReosEncodedElement ReosGribGriddedRainfallProvider::encode( const ReosEncodeCont
   return element;
 }
 
-void ReosGribGriddedRainfallProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
+void ReosGribGriddedDataProvider::decode( const ReosEncodedElement &element, const ReosEncodeContext &context )
 {
   if ( element.description() != QStringLiteral( "grib-gridded-precipitation" ) )
     return;
@@ -469,12 +515,12 @@ void ReosGribGriddedRainfallProvider::decode( const ReosEncodedElement &element,
 
 }
 
-void ReosGribGriddedRainfallProvider::parseFile(
+void ReosGribGriddedDataProvider::parseFileWithGDAL(
   const QString &fileName,
   const QString &varName,
   qint64 &referenceTime,
   QMap<qint64, GribFrame> &pathes,
-  ReosRasterExtent &extent ) const
+  ReosRasterExtent &extent )
 {
   ReosGdalDataset dataset( fileName );
   if ( !dataset.isValid() )
@@ -497,7 +543,8 @@ void ReosGribGriddedRainfallProvider::parseFile(
 
       GribFrame path;
       path.file = fileName;
-      path.bandNo = bi;
+      path.frameNo = bi - 1;
+      path.reader = GDAL;
 
       QString strRefTime = metadata.value( QStringLiteral( "GRIB_REF_TIME" ) );
       if ( strRefTime.isEmpty() )
@@ -525,7 +572,66 @@ void ReosGribGriddedRainfallProvider::parseFile(
   }
 }
 
-QStringList ReosGribGriddedRainfallProvider::getFiles( const QString &path, QDir &dir ) const
+void ReosGribGriddedDataProvider::parseFileWithEcCodes(
+  const QString &fileName,
+  QMap<qint64, GribFrame> &pathes,
+  ReosRasterExtent &extent )
+{
+  std::unique_ptr<ReosEcCodesReader> reader = std::make_unique<ReosEcCodesReader>( fileName, mGribKeys );
+  if ( !reader->isValid() )
+    return;
+
+  int frameCount = reader->frameCount();
+  for ( int fi = 0; fi < frameCount; ++fi )
+  {
+    if ( pathes.isEmpty() )
+      extent = reader->extent( fi );
+    else
+    {
+      if ( extent != reader->extent( fi ) )
+        continue;
+    }
+
+    GribFrame path;
+    path.file = fileName;
+    path.frameNo = fi;
+    path.reader = EcCodes;
+    path.timeRange = reader->stepDuration( fi );
+
+    ReosEcCodesReader::StepType stepType = reader->stepType( fi );
+    QPair<int, int> range = reader->stepRange( fi );
+
+    switch ( stepType )
+    {
+      case ReosEcCodesReader::Accum:
+      {
+        if ( range.first == 0 )
+          mSourceValueType = ValueType::Cumulative;
+        else
+          mSourceValueType = ValueType::CumulativeOnTimeStep;
+      }
+      break;
+      case ReosEcCodesReader::Instant:
+        mSourceValueType = ValueType::Instantaneous;
+      default:
+        break;
+    }
+
+    if ( mReferenceTime == -1 )
+      mReferenceTime = reader->referenceTime( fi ).toSecsSinceEpoch();
+
+
+    path.validTime = reader->validityTime( fi ).toSecsSinceEpoch();
+
+    pathes.insert( path.validTime, path );
+  }
+
+  mCurrentReader.reset( reader.release() );
+  mCurrentReaderType = EcCodes;
+  mCurrentFile = fileName;
+}
+
+QStringList ReosGribGriddedDataProvider::getFiles( const QString &path, QDir &dir ) const
 {
   QStringList files;
   QFileInfo fileInfo( path );
@@ -548,7 +654,7 @@ QStringList ReosGribGriddedRainfallProvider::getFiles( const QString &path, QDir
   return files;
 }
 
-void ReosGribGriddedRainfallProvider::giveName( FileDetails &details )
+void ReosGribGriddedDataProvider::giveName( FileDetails &details )
 {
   QString name;
   auto baseName = []( const QString & string )->QString
@@ -615,10 +721,31 @@ void ReosGribGriddedRainfallProvider::giveName( FileDetails &details )
   details.deducedName = name;
 }
 
-ReosGriddedRainfallProvider *ReosGribProviderFactory::createProvider( const QString &dataType ) const
+ReosRasterMemory<double> ReosGribGriddedDataProvider::frame( int index ) const
 {
-  if ( dataType == ReosGribGriddedRainfallProvider::dataType() )
-    return new ReosGribGriddedRainfallProvider;
+  GribFrame gf = mFrames.at( index );
+  if ( mCurrentReader &&
+       mCurrentReaderType == gf.reader &&
+       mCurrentFile == gf.file )
+    return mCurrentReader->values( gf.frameNo );
+
+  switch ( gf.reader )
+  {
+    case GDAL:
+      mCurrentReader.reset( new ReosGdalDataset( gf.file ) );
+    default:
+      mCurrentReader.reset( new ReosEcCodesReader( gf.file, mGribKeys ) );
+      break;
+  }
+  mCurrentFile = gf.file;
+  mCurrentReaderType = gf.reader;
+  return mCurrentReader->values( gf.frameNo );
+}
+
+ReosGriddedDataProvider *ReosGribProviderFactory::createProvider( const QString &dataType ) const
+{
+  if ( dataType == ReosGribGriddedDataProvider::dataType() )
+    return new ReosGribGriddedDataProvider;
 
   return nullptr;
 }
@@ -630,7 +757,8 @@ QString ReosGribProviderFactory::key() const
 
 bool ReosGribProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosGriddedRainfall::staticType() );
+  return dataType.contains( ReosGriddedRainfall::staticType() )
+         || dataType.contains( ReosGriddedData::staticType() );
 }
 
 QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) const
@@ -642,6 +770,7 @@ QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) co
     ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
     ret.insert( QStringLiteral( "variable" ), QObject::tr( "variable that store the pricipitation values" ) );
     ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Intensity(0), Height for the time step (1) or Cummulative heigth (2) " ) );
+    ret.insert( QStringLiteral( "keys" ), QObject::tr( "GRIB keys used for filtering the dataset, can be used instead of \"variables\" and \"value-type\"." ) );
   }
 
   return ret;
@@ -651,8 +780,7 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
 {
   if ( supportType( dataType ) &&
        parameters.contains( QStringLiteral( "file-or-dir-path" ) ) &&
-       parameters.contains( QStringLiteral( "variable" ) ) &&
-       parameters.contains( QStringLiteral( "value-type" ) ) )
+       parameters.contains( QStringLiteral( "variable" ) ) && parameters.contains( QStringLiteral( "value-type" ) ) )
   {
     const QString path = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
     const QString variable = parameters.value( QStringLiteral( "variable" ) ).toString();
@@ -662,9 +790,20 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
     {
       ReosGriddedRainfallProvider::ValueType type = static_cast<ReosGriddedRainfallProvider::ValueType>( typeInt );
       ok = true;
-      return ReosGribGriddedRainfallProvider::uri( path, variable, type );
+      return ReosGribGriddedDataProvider::uri( path, variable, type );
     }
   }
+
+  if ( supportType( dataType ) &&
+       parameters.contains( QStringLiteral( "file-or-dir-path" ) ) &&
+       parameters.contains( QStringLiteral( "grib-keys" ) ) )
+  {
+    const QString path = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+    const QVariantMap keys = parameters.value( QStringLiteral( "grib-keys" ) ).toMap();
+    ok = true;
+    return ReosGribGriddedDataProvider::uri( path, keys );
+  }
+
   ok = false;
   return QString();
 }

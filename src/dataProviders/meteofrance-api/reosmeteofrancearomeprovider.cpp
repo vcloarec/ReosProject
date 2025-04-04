@@ -172,7 +172,7 @@ void ReosMeteoFranceAromeApiProvider::receiveData( const QByteArray &data, int f
   if ( !dataset.isValid() )
     return;
 
-  ReosRasterMemory<double> datasetValues = dataset.values( 1 );
+  ReosRasterMemory<double> datasetValues = dataset.valuesFromBand( 1 );
   mExtent = dataset.extent();
 
   if ( frameIndex < mValues.count() )

@@ -33,15 +33,15 @@ REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 ReosGribPrecipitationWidget::ReosGribPrecipitationWidget( QWidget *parent )
   : ReosGriddedRainDataProviderSelectorWidget( parent )
   , ui( new Ui::ReosGribPrecipitationWidget )
-  ,  mProvider( new ReosGribGriddedRainfallProvider )
+  ,  mProvider( new ReosGribGriddedDataProvider )
 {
   ui->setupUi( this );
 
   connect( ui->mVariablesCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGribPrecipitationWidget::updateRainfall );
 
-  ui->mValueTypeCombo->addItem( tr( "Intensity" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::Intensity ) );
-  ui->mValueTypeCombo->addItem( tr( "Height during time step" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::Height ) );
-  ui->mValueTypeCombo->addItem( tr( "Cumulative height from start" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::CumulativeHeight ) );
+  ui->mValueTypeCombo->addItem( tr( "Intensity" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::Instantaneous ) );
+  ui->mValueTypeCombo->addItem( tr( "Height during time step" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::CumulativeOnTimeStep ) );
+  ui->mValueTypeCombo->addItem( tr( "Cumulative height from start" ), static_cast<int>( ReosGriddedRainfallProvider::ValueType::Cumulative ) );
   connect( ui->mValueTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosGribPrecipitationWidget::updateRainfall );
 
   onPathChanged();
@@ -116,7 +116,7 @@ void ReosGribPrecipitationWidget::updateRainfall()
   QString variable = ui->mVariablesCombo->currentText();
   ReosGriddedRainfallProvider::ValueType valueType = static_cast<ReosGriddedRainfallProvider::ValueType>( ui->mValueTypeCombo->currentData().toInt() );
 
-  QString candidateUri = ReosGribGriddedRainfallProvider::uri( mSource, variable, valueType );
+  QString candidateUri = ReosGribGriddedDataProvider::uri( mSource, variable, valueType );
 
   if ( mCurrentDataUri == candidateUri )
     return;
@@ -145,7 +145,7 @@ QString ReosGribGuiFactory::key() const
 
 ReosGribPrecipitationWidget *ReosGribGuiFactory::createProviderSelectorWidget( ReosMap *map, const QString &dataType, QWidget *parent ) const
 {
-  if ( dataType == ReosGribGriddedRainfallProvider::dataType() )
+  if ( dataType == ReosGribGriddedDataProvider::dataType() )
     return new ReosGribPrecipitationWidget( parent );
 
   return nullptr;
@@ -158,7 +158,7 @@ ReosDataProviderSettingsWidget *ReosGribGuiFactory::createProviderSettingsWidget
 
 QString ReosGribGuiFactory::dataType() const
 {
-  return ReosGribGriddedRainfallProvider::dataType();
+  return ReosGribGriddedDataProvider::dataType();
 }
 
 QString ReosGribGuiFactory::displayText() const

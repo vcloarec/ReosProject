@@ -3,17 +3,19 @@
 
 SET(REOS_GRIB_SOURCES
     reosgribprovider.cpp
+    reoseccodesreader.cpp
 )
 
 SET(REOS_GRIB_HEADERS
     reosgribprovider.h
+    reoseccodesreader.h
 )
 
 IF(WITH_GUI)
-    SET(REOS_GRIB_SOURCES
+    SET(REOS_GRIB_SOURCES ${REOS_GRIB_SOURCES}
         reosgribprecipitationwidget.cpp
     )
-    SET(REOS_GRIB_SOURCES
+    SET(REOS_GRIB_HEADERS ${REOS_GRIB_HEADERS}
         reosgribprecipitationwidget.h
     )
 ENDIF(WITH_GUI)
@@ -36,6 +38,11 @@ TARGET_LINK_LIBRARIES(provider_grib
         ${Qt5Concurrent_LIBRARIES}
         reosCore
 )
+
+IF (HAS_ECCODES)
+    TARGET_LINK_LIBRARIES(provider_grib
+        ${ECCODES_LIB})
+ENDIF(HAS_ECCODES)
 
 IF(WITH_GUI)
     TARGET_LINK_LIBRARIES(provider_grib
@@ -61,6 +68,10 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     )
+
+IF (HAS_ECCODES)
+    INCLUDE_DIRECTORIES(${ECCODES_INCLUDE_DIR})
+ENDIF(HAS_ECCODES)
 
 IF(WITH_GUI)
     INCLUDE_DIRECTORIES(

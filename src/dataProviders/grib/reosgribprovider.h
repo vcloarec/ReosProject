@@ -19,19 +19,22 @@
 #include <QDateTime>
 #include <QCache>
 
+#include "reosgdalutils.h"
 #include "reosmodule.h"
 #include "reosgriddedrainfallprovider.h"
+#include "reosgriddeddata.h"
 #include "reosmemoryraster.h"
 
 #define GRIB_KEY QStringLiteral("grib")
 
-class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
+
+class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
 {
     Q_OBJECT
   public:
-    ReosGribGriddedRainfallProvider();
+    ReosGribGriddedDataProvider();
 
-    ReosGriddedRainfallProvider *clone() const override;
+    ReosGriddedDataProvider *clone() const override;
     void load() override;
     QStringList fileSuffixes() const override;
     QString key() const override {return staticKey();}
@@ -46,6 +49,7 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     bool getDirectMinMax( double &min, double &max ) const override;
     void calculateMinMax( double &min, double &max ) const override;
     QString htmlDescription() const override;
+    void exportToTiff( int index, const QString &fileName ) const override;
 
     static QString dataType();
 
@@ -53,9 +57,11 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     static QString staticKey();
 
     static QString uri( const QString &sourcePath, const QString &variable, ValueType valueType );
+    static QString uri( const QString &sourcePath, const QVariantMap &gribKeys );
     static QString sourcePathFromUri( const QString &uri );
     static QString variableFromUri( const QString &uri );
     static ValueType valueTypeFromUri( const QString &uri );
+    static QVariantMap keysFromUri( const QString &uri );
 
     bool sourceIsValid( const QString &source, ReosModule::Message &message ) const;
 
@@ -63,15 +69,26 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
   private:
+
+    enum GribReader
+    {
+      GDAL,
+      EcCodes
+    };
+
     struct GribFrame
     {
       QString file;
-      int bandNo = 0;
-      qint64 validTime;
+      int frameNo = 0;
+      qint64 validTime = 0;
+      GribReader reader = GDAL;
+      ReosDuration timeRange;
     };
+
     QList<GribFrame> mFrames;
     ReosRasterExtent mExtent;
     qint64 mReferenceTime = -1;
+    QVariantMap mGribKeys;
 
     bool mIsValid = false;
     ReosModule::Message mLastMessage;
@@ -88,21 +105,30 @@ class ReosGribGriddedRainfallProvider : public ReosGriddedRainfallProvider
 
     mutable QCache<int, CacheValues> mCache;
 
-    void parseFile( const QString &fileName,
-                    const QString &varName,
-                    qint64 &refTime,
-                    QMap<qint64, GribFrame> &pathes,
-                    ReosRasterExtent &extent ) const;
+    void parseFileWithGDAL( const QString &fileName,
+                            const QString &varName,
+                            qint64 &refTime,
+                            QMap<qint64, GribFrame> &pathes,
+                            ReosRasterExtent &extent );
+
+    void parseFileWithEcCodes( const QString &fileName,
+                               QMap<qint64, GribFrame> &pathes,
+                               ReosRasterExtent &extent );
 
     QStringList getFiles( const QString &path, QDir &dir ) const;
 
     static void giveName( FileDetails &details );
+
+    ReosRasterMemory<double> frame( int index ) const;
+    mutable std::unique_ptr<ReosGriddedDataSource> mCurrentReader;
+    mutable GribReader mCurrentReaderType = GDAL;
+    mutable QString mCurrentFile;
 };
 
 class ReosGribProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
+    ReosGriddedDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
     bool supportType( const QString &dataType ) const override;
     QVariantMap uriParameters( const QString &dataType ) const override;
