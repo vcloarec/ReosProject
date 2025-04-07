@@ -365,6 +365,57 @@ void ReosGribGriddedDataProvider::exportToTiff( int index, const QString &fileNa
 
 }
 
+ReosDuration ReosGribGriddedDataProvider::minimumTimeStep() const
+{
+  switch ( mSourceValueType )
+  {
+    case ValueType::Cumulative:
+    case ValueType::CumulativeOnTimeStep:
+    {
+      int frameCount = count();
+
+      if ( frameCount == 0 )
+        return ReosDuration();
+
+      ReosDuration ret = ReosDuration( startTime( 0 ), endTime( 0 ) );
+
+      for ( int i = 1; i < frameCount; ++i )
+      {
+        ReosDuration dt( startTime( i ), endTime( i ) );
+        if ( dt < ret )
+          ret = dt;
+      }
+
+      return ret;
+    }
+
+    break;
+    case ValueType::Instantaneous:
+    {
+      {
+        int frameCount = count();
+
+        if ( frameCount == 0 || frameCount == 1 )
+          return ReosDuration();
+
+        ReosDuration ret = ReosDuration( startTime( 0 ), endTime( 1 ) );
+
+        for ( int i = 1; i < frameCount - 1; ++i )
+        {
+          ReosDuration dt( startTime( i ), endTime( i + 1 ) );
+          if ( dt < ret )
+            ret = dt;
+        }
+
+        return ret;
+      }
+    }
+    break;
+    default:
+      break;
+  }
+}
+
 ReosRasterExtent ReosGribGriddedDataProvider::extent() const
 {
   return mExtent;

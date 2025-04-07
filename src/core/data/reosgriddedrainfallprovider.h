@@ -119,6 +119,9 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
       const ReosTimeWindow &timeWindow ) const {return false;}
 
     virtual const QVector<double> qualifData( int ) const {return QVector<double>();}
+
+    virtual ReosDuration minimumTimeStep() const;
+
   protected:
     QString mDataSource;
 

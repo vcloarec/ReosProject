@@ -336,7 +336,7 @@ QPair<int, int> ReosEcCodesReader::stepRange( int index ) const
 ReosDuration ReosEcCodesReader::stepDuration( int index ) const
 {
   const ReosEcCodesReaderKeys &keys = getKeys( index );
-  int stepUnit = keys.longValue( QStringLiteral( "stepUnit" ) );
+  int stepUnit = keys.longValue( QStringLiteral( "stepUnits" ) );
   ReosDuration::Unit unit;
 
   switch ( stepUnit )

@@ -205,21 +205,7 @@ ReosDuration ReosGriddedData::minimumTimeStep() const
   if ( !mProvider )
     return ReosDuration();
 
-  int count = mProvider->count();
-
-  if ( count == 0 )
-    return ReosDuration();
-
-  ReosDuration ret = ReosDuration( mProvider->startTime( 0 ), mProvider->endTime( 0 ) );
-
-  for ( int i = 1; i < count; ++i )
-  {
-    ReosDuration dt( mProvider->startTime( i ), mProvider->endTime( i ) );
-    if ( dt < ret )
-      ret = dt;
-  }
-
-  return ret;
+  return mProvider->minimumTimeStep();
 }
 
 bool ReosGriddedData::supportExtractSubGrid() const
@@ -334,15 +320,13 @@ AverageCalculation *ReosDataGriddedOnWatershed::getCalculationProcess() const
 void AverageCalculation::start()
 {
   mIsSuccessful = false;
-  QElapsedTimer timer;
-  timer.start();
 
   rasterizedWatershed = ReosGeometryUtils::rasterizePolygon(
                           watershedPolygon, gridExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
 
   mIsSuccessful = true;
 
-  qDebug() << QString( "average gridded precipitation %1 on watershed:" ).arg( usePrecision ? "with precision" : "without precision" ) << timer.elapsed();
+  qDebug() << QString( "average gridded precipitation %1 on watershed:" ).arg( usePrecision ? "with precision" : "without precision" );
 }
 
 

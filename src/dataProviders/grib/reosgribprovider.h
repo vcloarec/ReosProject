@@ -50,6 +50,7 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     void calculateMinMax( double &min, double &max ) const override;
     QString htmlDescription() const override;
     void exportToTiff( int index, const QString &fileName ) const override;
+    ReosDuration minimumTimeStep() const override;
 
     static QString dataType();
 

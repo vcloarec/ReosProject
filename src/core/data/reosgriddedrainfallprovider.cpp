@@ -34,6 +34,26 @@ ReosDuration ReosGriddedDataProvider::intervalDuration( int index ) const
 
 bool ReosGriddedDataProvider::hasCapability( GridCapability )  const {return false;}
 
+ReosDuration ReosGriddedDataProvider::minimumTimeStep() const
+{
+
+  int frameCount = count();
+
+  if ( frameCount == 0 )
+    return ReosDuration();
+
+  ReosDuration ret = ReosDuration( startTime( 0 ), endTime( 0 ) );
+
+  for ( int i = 1; i < frameCount; ++i )
+  {
+    ReosDuration dt( startTime( i ), endTime( i ) );
+    if ( dt < ret )
+      ret = dt;
+  }
+
+  return ret;
+}
+
 int ReosGriddedDataProvider::dataIndex( const QDateTime &time ) const
 {
   int frameCount = count();
