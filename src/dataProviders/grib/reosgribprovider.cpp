@@ -388,7 +388,7 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVari
   for ( auto it = gribKeys.constBegin(); it != gribKeys.constEnd(); ++it )
     stringKey.append( QStringLiteral( "%1:%2" ).arg( it.key(), it.value().toString() ) );
 
-  return QStringLiteral( "\"%1\"::keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
+  return QStringLiteral( "\"%1\"::grib-keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
 }
 
 QString ReosGribGriddedDataProvider::sourcePathFromUri( const QString &uri )
@@ -405,7 +405,7 @@ QString ReosGribGriddedDataProvider::sourcePathFromUri( const QString &uri )
 QString ReosGribGriddedDataProvider::variableFromUri( const QString &uri )
 {
   const QStringList part = uri.split( QStringLiteral( "::" ) );
-  if ( part.count() < 2 || part.at( 1 ).startsWith( QStringLiteral( "keys=" ) ) )
+  if ( part.count() < 2 || part.at( 1 ).startsWith( QStringLiteral( "grib-keys=" ) ) )
     return QString();
 
   return part.at( 1 );
@@ -414,7 +414,7 @@ QString ReosGribGriddedDataProvider::variableFromUri( const QString &uri )
 QVariantMap ReosGribGriddedDataProvider::keysFromUri( const QString &uri )
 {
   const QStringList part = uri.split( QStringLiteral( "::" ) );
-  if ( part.count() < 2 || !part.at( 1 ).startsWith( QStringLiteral( "keys=" ) ) )
+  if ( part.count() < 2 || !part.at( 1 ).startsWith( QStringLiteral( "grib-keys=" ) ) )
     return QVariantMap();
 
   const QString stringKeys = part.at( 1 ).split( '=' ).at( 1 );
@@ -770,7 +770,7 @@ QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) co
     ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
     ret.insert( QStringLiteral( "variable" ), QObject::tr( "variable that store the pricipitation values" ) );
     ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Intensity(0), Height for the time step (1) or Cummulative heigth (2) " ) );
-    ret.insert( QStringLiteral( "keys" ), QObject::tr( "GRIB keys used for filtering the dataset, can be used instead of \"variables\" and \"value-type\"." ) );
+    ret.insert( QStringLiteral( "grib-keys" ), QObject::tr( "GRIB keys used for filtering the dataset, can be used instead of \"variables\" and \"value-type\"." ) );
   }
 
   return ret;
@@ -780,7 +780,8 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
 {
   if ( supportType( dataType ) &&
        parameters.contains( QStringLiteral( "file-or-dir-path" ) ) &&
-       parameters.contains( QStringLiteral( "variable" ) ) && parameters.contains( QStringLiteral( "value-type" ) ) )
+       parameters.contains( QStringLiteral( "variable" ) ) &&
+       parameters.contains( QStringLiteral( "value-type" ) ) )
   {
     const QString path = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
     const QString variable = parameters.value( QStringLiteral( "variable" ) ).toString();
