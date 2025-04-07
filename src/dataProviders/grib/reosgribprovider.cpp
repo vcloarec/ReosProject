@@ -368,7 +368,7 @@ ReosRasterExtent ReosGribGriddedDataProvider::extent() const
   return mExtent;
 }
 
-QString ReosGribGriddedDataProvider::dataType() {return ReosGriddedRainfall::staticType();}
+QString ReosGribGriddedDataProvider::dataType() {return ReosGriddedData::staticType();}
 
 QString ReosGribGriddedDataProvider::staticKey()
 {
