@@ -17,6 +17,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QLocale>
+#include <QDebug>
 
 #include "reosgribprovider.h"
 #include "reosgriddedrainitem.h"
@@ -49,6 +50,17 @@ void ReosGribGriddedDataProvider::load()
   mGribKeys = keysFromUri( dataSource() );
   mIsValid = false;
   GribReader reader = mGribKeys.isEmpty() ? GDAL : EcCodes;
+
+  switch ( reader )
+  {
+    case GDAL:
+      qDebug() << "Start loading grib 2 dataset with GDAL reader";
+      break;
+    case EcCodes:
+      qDebug() << "Start loading grib 2 dataset with EcCodes reader with grib keys: " << mGribKeys;
+    default:
+      break;
+  }
 
   QMap<qint64, GribFrame> pathes;
 
