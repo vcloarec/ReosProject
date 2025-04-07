@@ -193,6 +193,8 @@ int ReosGribGriddedDataProvider::count() const
     default:
       break;
   }
+
+  return 0;
 }
 
 bool ReosGribGriddedDataProvider::canReadUri( const QString &path ) const
@@ -617,7 +619,9 @@ void ReosGribGriddedDataProvider::parseFileWithEcCodes(
     {
       case ReosEcCodesReader::Accum:
       {
-        if ( range.first == 0 )
+        if ( range.first == 0 && range.second == 0 )
+          mSourceValueType = ValueType::Cumulative;
+        else if ( range.first == 0 && !pathes.isEmpty() )
           mSourceValueType = ValueType::Cumulative;
         else
           mSourceValueType = ValueType::CumulativeOnTimeStep;
