@@ -221,8 +221,10 @@ QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
                mFrames.at( index ).validTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
       break;
     case ValueType::Instantaneous:
+    {
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
-      break;
+    }
+    break;
   }
 
   return QDateTime();
@@ -236,8 +238,13 @@ QDateTime ReosGribGriddedDataProvider::endTime( int index ) const
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).validTime, Qt::UTC );
       break;
     case ValueType::CumulativeOnTimeStep:
-    case ValueType::Instantaneous:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
+      break;
+    case ValueType::Instantaneous:
+      if ( index < mFrames.count() - 1 )
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).validTime, Qt::UTC );
+      else
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
       break;
   }
 
@@ -414,6 +421,8 @@ ReosDuration ReosGribGriddedDataProvider::minimumTimeStep() const
     default:
       break;
   }
+
+  return ReosDuration();
 }
 
 ReosRasterExtent ReosGribGriddedDataProvider::extent() const

@@ -21,6 +21,8 @@ email                : vcloarec at gmail dot com
 #include "reosgribprovider.h"
 #include "reosgriddedrainitem.h"
 #include "reoseccodesreader.h"
+#include "reoswatershed.h"
+#include "reosgisengine.h"
 
 class ReosGribTest: public QObject
 {
@@ -33,7 +35,9 @@ class ReosGribTest: public QObject
     void griddedRainInFile();
     void eccodesReader();
     void aromeGribFiles();
+    void aromePiGribFiles();
     void ecmwfGribFiles();
+    void uri();
 };
 
 void ReosGribTest::createProvider()
@@ -56,7 +60,7 @@ void ReosGribTest::createProvider()
   QVERIFY( details.availableVariables.contains( variable ) );
 
   provider->setDataSource(
-    ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGribGriddedDataProvider::ValueType::Cumulative ) );
+    ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGribGriddedDataProvider::ValueType::CumulativeOnTimeStep ) );
 
   QCOMPARE( provider->count(), 3 );
 
@@ -82,7 +86,7 @@ void ReosGribTest::griddedRainInFolder()
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
+    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::CumulativeOnTimeStep ),
                              ReosGribGriddedDataProvider::staticKey() ) );
 
   QVERIFY( rainfall->isValid() );
@@ -112,7 +116,7 @@ void ReosGribTest::griddedRainInFile()
   QString gribFile( testFile( QStringLiteral( "grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) ) );
   QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::Cumulative ),
+    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::CumulativeOnTimeStep ),
                              ReosGribGriddedDataProvider::staticKey() ) );
 
   QVERIFY( rainfall->isValid() );
@@ -253,6 +257,11 @@ void ReosGribTest::aromeGribFiles()
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
+  bool ok = false;
+  QVariantMap uriParams;
+  uriParams.insert( QStringLiteral( "file-or-dir-path" ), gribFile );
+  uriParams.insert( QStringLiteral( "grib-keys" ), keys );
+  const QString uri = ReosDataProviderRegistery::instance()->buildUri( "grib", ReosGriddedData::staticType(), uriParams, ok );
   std::unique_ptr<ReosGriddedData> rainfall(
     new ReosGriddedData( ReosGribGriddedDataProvider::uri( gribFile, keys ),
                          ReosGribGriddedDataProvider::staticKey() ) );
@@ -276,6 +285,39 @@ void ReosGribTest::aromeGribFiles()
   QVERIFY( std::isnan( values.at( 11000 ) ) );
   QVERIFY( equal( values.at( 6995 ), 0.008056640625, 0.000001 ) );
 
+}
+
+void ReosGribTest::aromePiGribFiles()
+{
+  QString gribFile( testFile( QStringLiteral( "grib/arome-pi" ) ) );
+  QVariantMap keys;
+  keys.clear();
+  keys.insert( "shortName", "tp" );
+  bool ok = false;
+  QVariantMap uriParams;
+  uriParams.insert( QStringLiteral( "file-or-dir-path" ), gribFile );
+  uriParams.insert( QStringLiteral( "grib-keys" ), keys );
+  const QString uri = ReosDataProviderRegistery::instance()->buildUri( "grib", ReosGriddedData::staticType(), uriParams, ok );
+  std::unique_ptr<ReosGriddedData> rainfall(
+    new ReosGriddedData( uri, "grib" ) );
+
+  QVERIFY( rainfall->isValid() );
+
+  QCOMPARE( rainfall->gridCount(), 4 );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, rainfall.get() ) );
+
+  gridOnWs->preCalculate();
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 4 );
 }
 
 void ReosGribTest::ecmwfGribFiles()
@@ -317,9 +359,9 @@ void ReosGribTest::ecmwfGribFiles()
   QCOMPARE( dataset->gridCount(), 3 );
 
   QCOMPARE( dataset->startTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( dataset->endTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->endTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
   QCOMPARE( dataset->startTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( dataset->endTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( dataset->endTime( 1 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 6, 0, 0 ), Qt::UTC ) );
   QCOMPARE( dataset->startTime( 2 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 6, 0, 0 ), Qt::UTC ) );
   QCOMPARE( dataset->endTime( 2 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 6, 0, 0 ), Qt::UTC ) );
 
@@ -332,6 +374,27 @@ void ReosGribTest::ecmwfGribFiles()
 
   values = dataset->values( 2 );
   QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, dataset.get() ) );
+
+  gridOnWs->preCalculate();
+  values = dataset->values( 1 );
+  QVector<double> valuesOnWs = gridOnWs->constData();
+  QCOMPARE( valuesOnWs.count(), 2 );
+  QVERIFY( !std::isnan( valuesOnWs.at( 0 ) ) );
+}
+
+void ReosGribTest::uri()
+{
+  ReosDataProviderRegistery::instance()->uriParameters( "grib", ReosGriddedData::staticType() );
 }
 
 

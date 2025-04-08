@@ -299,8 +299,8 @@ AverageCalculation *ReosDataGriddedOnWatershed::getCalculationProcess() const
 
   ReosArea watershedArea = mWatershed->areaParameter()->value();
   ReosRasterExtent rainExtent = mGriddedData->rasterExtent();
-  QRectF cellRect( rainExtent.xMapOrigin(),
-                   rainExtent.yMapOrigin(),
+  QRectF cellRect( ( rainExtent.xMapMax() + rainExtent.xMapMin() ) / 2,
+                   ( rainExtent.yMapMax() + rainExtent.yMapMin() ) / 2,
                    std::fabs( rainExtent.xCellSize() ),
                    std::fabs( rainExtent.yCellSize() ) );
   ReosArea cellArea = ReosGisEngine::polygonAreaWithCrs( cellRect, rainExtent.crs() );
@@ -429,8 +429,8 @@ ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( Reos
   setReferenceTime( griddedData->startTime( 0 ) );
   setTimeStep( griddedData->minimumTimeStep() );
   QDateTime endTime = griddedData->endTime( griddedData->gridCount() - 1 );
-  ReosDuration rainDuration( qint64( referenceTime().msecsTo( endTime ) ) );
-  int valueCount = static_cast<int>( rainDuration.numberOfFullyContainedIntervals( timeStep() ) );
+  ReosDuration dataDuration( qint64( referenceTime().msecsTo( endTime ) ) );
+  int valueCount = static_cast<int>( dataDuration.numberOfFullyContainedIntervals( timeStep() ) );
   QVector<double> values( valueCount, std::numeric_limits<double>::quiet_NaN() );
   setValues( values );
 
