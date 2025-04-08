@@ -356,7 +356,7 @@ void ReosGribTest::ecmwfGribFiles()
 
   QVERIFY( dataset->isValid() );
 
-  QCOMPARE( dataset->gridCount(), 3 );
+  QCOMPARE( dataset->gridCount(), 2 );
 
   QCOMPARE( dataset->startTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 0, 0, 0 ), Qt::UTC ) );
   QCOMPARE( dataset->endTime( 0 ), QDateTime( QDate( 2025, 02, 17 ), QTime( 3, 0, 0 ), Qt::UTC ) );
@@ -370,9 +370,6 @@ void ReosGribTest::ecmwfGribFiles()
   QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
 
   values = dataset->values( 1 );
-  QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
-
-  values = dataset->values( 2 );
   QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
 
   QPolygonF watershed_poly;

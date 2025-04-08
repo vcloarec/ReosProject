@@ -185,7 +185,7 @@ int ReosGribGriddedDataProvider::count() const
       return mFrames.count() - 1;
       break;
     case ValueType::Instantaneous:
-      return mFrames.count();
+      return mFrames.count() > 1 ? mFrames.count() - 1 : mFrames.count();
       break;
     case ValueType::CumulativeOnTimeStep:
       return mFrames.count();
@@ -280,9 +280,14 @@ const QVector<double> ReosGribGriddedDataProvider::data( int index ) const
     }
     break;
     case ValueType::CumulativeOnTimeStep:
-    case ValueType::Instantaneous:
     {
       ReosRasterMemory<double> raster = frame( index );
+      return raster.values();
+    }
+    break;
+    case ValueType::Instantaneous:
+    {
+      ReosRasterMemory<double> raster = frame( mFrames.count() > 1 ? index + 1 : index );
       return raster.values();
     }
 
@@ -374,55 +379,22 @@ void ReosGribGriddedDataProvider::exportToTiff( int index, const QString &fileNa
 
 ReosDuration ReosGribGriddedDataProvider::minimumTimeStep() const
 {
-  switch ( mSourceValueType )
+
+  int frameCount = count();
+
+  if ( frameCount == 0 )
+    return ReosDuration();
+
+  ReosDuration ret = ReosDuration( startTime( 0 ), endTime( 0 ) );
+
+  for ( int i = 1; i < frameCount; ++i )
   {
-    case ValueType::Cumulative:
-    case ValueType::CumulativeOnTimeStep:
-    {
-      int frameCount = count();
-
-      if ( frameCount == 0 )
-        return ReosDuration();
-
-      ReosDuration ret = ReosDuration( startTime( 0 ), endTime( 0 ) );
-
-      for ( int i = 1; i < frameCount; ++i )
-      {
-        ReosDuration dt( startTime( i ), endTime( i ) );
-        if ( dt < ret )
-          ret = dt;
-      }
-
-      return ret;
-    }
-
-    break;
-    case ValueType::Instantaneous:
-    {
-      {
-        int frameCount = count();
-
-        if ( frameCount == 0 || frameCount == 1 )
-          return ReosDuration();
-
-        ReosDuration ret = ReosDuration( startTime( 0 ), endTime( 1 ) );
-
-        for ( int i = 1; i < frameCount - 1; ++i )
-        {
-          ReosDuration dt( startTime( i ), endTime( i + 1 ) );
-          if ( dt < ret )
-            ret = dt;
-        }
-
-        return ret;
-      }
-    }
-    break;
-    default:
-      break;
+    ReosDuration dt( startTime( i ), endTime( i ) );
+    if ( dt < ret )
+      ret = dt;
   }
 
-  return ReosDuration();
+  return ret;
 }
 
 ReosRasterExtent ReosGribGriddedDataProvider::extent() const
