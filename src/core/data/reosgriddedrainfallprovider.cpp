@@ -54,6 +54,11 @@ ReosDuration ReosGriddedDataProvider::minimumTimeStep() const
   return ret;
 }
 
+double ReosGriddedDataProvider::timeStepRatio( int index, const ReosDuration &timeStep ) const
+{
+  return 1.0;
+}
+
 int ReosGriddedDataProvider::dataIndex( const QDateTime &time ) const
 {
   int frameCount = count();

@@ -37,6 +37,7 @@ the Free Software Foundation; either version 2 of the License, or     *
     ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
     ~ReosGriddedRainfall();
 
+
     static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
 
 

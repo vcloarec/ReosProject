@@ -68,7 +68,7 @@ ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatersh
   ReosGriddedRainfall *griddedRainfall,
   QObject *parent )
   : ReosSeriesRainfall( parent )
-  , ReosDataGriddedOnWatershed( watershed, griddedRainfall )
+  , ReosDataGriddedOnWatershed( watershed, griddedRainfall, griddedRainfall->minimumTimeStep() )
 {
   connect( watershed, &ReosWatershed::geometryChanged, this, &ReosSeriesRainfallFromGriddedOnWatershed::onWatershedGeometryChanged );
   registerUpstreamData( griddedRainfall );

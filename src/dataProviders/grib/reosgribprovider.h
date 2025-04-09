@@ -51,6 +51,7 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     QString htmlDescription() const override;
     void exportToTiff( int index, const QString &fileName ) const override;
     ReosDuration minimumTimeStep() const override;
+    double timeStepRatio( int index, const ReosDuration &timeStep ) const override;
 
     static QString dataType();
 

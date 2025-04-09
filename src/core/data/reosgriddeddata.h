@@ -84,6 +84,15 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
     //! Returns the minimum time step of the gridded series
     ReosDuration minimumTimeStep() const;
 
+    /**
+     *  Returns the time stap ratio for the \a index and the time step \a timeStep.
+     *  This is the ratio to obtain the adjusted value when using a time step different from the native time step of the data.
+     *  This ratio will depends on the ration between the time step provided and the native time step for the \a index, but also on the type of data.
+     *  For accumulative data, the ration is typically directly the time step ratio, for instantaneous value, the ratio is 1.
+     *  It is the responsbility if the data provider to define this ratio.
+     */
+    double timeStepRatio( int index, const ReosDuration &timeStep ) const;
+
     //! Returns whether the data support extraction of subgrid
     bool supportExtractSubGrid() const;
 
@@ -150,7 +159,7 @@ class AverageCalculation : public ReosProcess
 class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
 {
   public:
-    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata );
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep );
 
     double calculateValueAt( int index ) const;
 
@@ -170,6 +179,7 @@ class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
 
     QPointer<ReosWatershed> mWatershed;
     QPointer<ReosGriddedData> mGriddedData;
+    ReosDuration mOutputTimeStep;
 
     ReosRasterMemory<double> mRasterizedWatershed;
     ReosRasterExtent mRasterizedExtent;
@@ -185,10 +195,14 @@ class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeri
     Q_OBJECT
   public:
     ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = nullptr );
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, QObject *parent = nullptr );
     ~ReosSeriesFromGriddedDataOnWatershed();
 
     //! Returns a new created instance from \a watershed and \a gridded rainfall. Caller takes ownership.
     static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) SIP_FACTORY;
+
+    //! Returns a new created instance from \a watershed and \a gridded rainfall with forcing the output time step \a outputTimeStep. Caller takes ownership.
+    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep ) SIP_FACTORY;
 
     double valueAt( int i ) const override;
 

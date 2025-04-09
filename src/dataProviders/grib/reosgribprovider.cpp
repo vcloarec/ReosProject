@@ -397,6 +397,28 @@ ReosDuration ReosGribGriddedDataProvider::minimumTimeStep() const
   return ret;
 }
 
+double ReosGribGriddedDataProvider::timeStepRatio( int index, const ReosDuration &timeStep ) const
+{
+
+  switch ( mSourceValueType )
+  {
+    case ValueType::Cumulative:
+    case ValueType::CumulativeOnTimeStep:
+    {
+      ReosDuration indexTimeStep( startTime( index ), endTime( index ) );
+      return timeStep / indexTimeStep;
+    }
+    case ValueType::Instantaneous:
+      return 1.0;
+      break;
+    default:
+      return 1.0;
+      break;
+  }
+
+  return 1.0;
+}
+
 ReosRasterExtent ReosGribGriddedDataProvider::extent() const
 {
   return mExtent;

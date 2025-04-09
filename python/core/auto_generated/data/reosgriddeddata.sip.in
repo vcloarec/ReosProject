@@ -68,6 +68,15 @@ Returns the end time related to the grif with ``index``
 Returns the minimum time step of the gridded series
 %End
 
+    double timeStepRatio( int index, const ReosDuration &timeStep ) const;
+%Docstring
+Returns the time stap ratio for the ``index`` and the time step ``timeStep``.
+This is the ratio to obtain the adjusted value when using a time step different from the native time step of the data.
+This ratio will depends on the ration between the time step provided and the native time step for the ``index``, but also on the type of data.
+For accumulative data, the ration is typically directly the time step ratio, for instantaneous value, the ratio is 1.
+It is the responsbility if the data provider to define this ratio.
+%End
+
     bool supportExtractSubGrid() const;
 %Docstring
 Returns whether the data support extraction of subgrid
@@ -86,6 +95,11 @@ Returns the raster extent of all the grids
 %End
 
 
+
+    void exportToTiff( int index, const QString &fileName ) const;
+%Docstring
+Exports to a TIFF file with path ``fileName`` the grid at position ``index``
+%End
 
   public slots:
     virtual void updateData() const;
@@ -109,11 +123,12 @@ class ReosDataGriddedOnWatershed /Abstract/
 #include "reosgriddeddata.h"
 %End
   public:
-    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata );
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep );
 
     double calculateValueAt( int index ) const;
 
     virtual void preCalculate() const = 0;
+
 
   protected:
 
@@ -135,11 +150,17 @@ class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, Reo
 %End
   public:
     ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = 0 );
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, QObject *parent = 0 );
     ~ReosSeriesFromGriddedDataOnWatershed();
 
     static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) /Factory/;
 %Docstring
 Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Caller takes ownership.
+%End
+
+    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep ) /Factory/;
+%Docstring
+Returns a new created instance from ``watershed`` and ``gridded`` rainfall with forcing the output time step ``outputTimeStep``. Caller takes ownership.
 %End
 
     virtual double valueAt( int i ) const;

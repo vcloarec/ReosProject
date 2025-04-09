@@ -346,6 +346,21 @@ void ReosGribTest::ecmwfGribFiles()
   values = rainfall->values( 1 );
   QVERIFY( equal( values.at( 6453 ), 8.58306884765625e-05, 1e-10 ) );
 
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs_1( ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, rainfall.get(), ReosDuration( 1.0, ReosDuration::hour ) ) );
+
+  gridOnWs_1->preCalculate();
+  values = rainfall->values( 1 );
+  QVector<double> valuesOnWs = gridOnWs_1->constData();
+  QCOMPARE( valuesOnWs.count(), 6 );
+  QVERIFY( !std::isnan( valuesOnWs.at( 0 ) ) );
 
   keys.clear();
   keys.insert( "shortName", "vsw" );
@@ -372,20 +387,12 @@ void ReosGribTest::ecmwfGribFiles()
   values = dataset->values( 1 );
   QVERIFY( equal( values.at( 43607 ), 0.728271484375, 1e-10 ) );
 
-  QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs_2( ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, dataset.get(), ReosDuration( 1.0, ReosDuration::hour ) ) );
 
-  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
-
-  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, dataset.get() ) );
-
-  gridOnWs->preCalculate();
+  gridOnWs_2->preCalculate();
   values = dataset->values( 1 );
-  QVector<double> valuesOnWs = gridOnWs->constData();
-  QCOMPARE( valuesOnWs.count(), 2 );
+  valuesOnWs = gridOnWs_2->constData();
+  QCOMPARE( valuesOnWs.count(), 6 );
   QVERIFY( !std::isnan( valuesOnWs.at( 0 ) ) );
 }
 

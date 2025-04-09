@@ -122,6 +122,8 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
 
     virtual ReosDuration minimumTimeStep() const;
 
+    virtual double timeStepRatio( int index, const ReosDuration &timeStep ) const;
+
   protected:
     QString mDataSource;
 
