@@ -74,6 +74,7 @@ void ReosGribGriddedDataProvider::load()
     dir = QDir( fileSource );
     filters << QStringLiteral( "*.grib2" );
     filters << QStringLiteral( "*.grb2" );
+    filters << QStringLiteral( "*.grib" );
     const QStringList files = dir.entryList( filters, QDir::Files );
     for ( const QString &file : files )
       switch ( reader )
