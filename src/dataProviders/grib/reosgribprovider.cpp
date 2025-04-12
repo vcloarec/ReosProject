@@ -51,6 +51,9 @@ void ReosGribGriddedDataProvider::load()
   mIsValid = false;
   GribReader reader = mGribKeys.isEmpty() ? GDAL : EcCodes;
 
+  if ( cumulativeOnDayFromUri( dataSource() ) )
+    mSourceValueType = ValueType::CumulativeOnDay;
+
   switch ( reader )
   {
     case GDAL:
@@ -178,11 +181,24 @@ bool ReosGribGriddedDataProvider::isValid() const
   return mIsValid;
 }
 
+bool ReosGribGriddedDataProvider::canReadUri( const QString &path ) const
+{
+  QDir dir;
+  ReosModule::Message message;
+  if ( !sourceIsValid( path, message ) )
+    return false;
+
+  QStringList files = getFiles( path, dir );
+
+  return !files.empty() && dir.exists();
+}
+
 int ReosGribGriddedDataProvider::count() const
 {
   switch ( mSourceValueType )
   {
     case ValueType::Cumulative:
+    case ValueType::CumulativeOnDay:
       return mFrames.count() - 1;
       break;
     case ValueType::Instantaneous:
@@ -198,23 +214,12 @@ int ReosGribGriddedDataProvider::count() const
   return 0;
 }
 
-bool ReosGribGriddedDataProvider::canReadUri( const QString &path ) const
-{
-  QDir dir;
-  ReosModule::Message message;
-  if ( !sourceIsValid( path, message ) )
-    return false;
-
-  QStringList files = getFiles( path, dir );
-
-  return !files.empty() && dir.exists();
-}
-
 QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
 {
   switch ( mSourceValueType )
   {
     case ValueType::Cumulative:
+    case ValueType::CumulativeOnDay:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
       break;
     case ValueType::CumulativeOnTimeStep:
@@ -222,10 +227,8 @@ QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
                mFrames.at( index ).validTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
       break;
     case ValueType::Instantaneous:
-    {
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
-    }
-    break;
+      break;
   }
 
   return QDateTime();
@@ -236,6 +239,7 @@ QDateTime ReosGribGriddedDataProvider::endTime( int index ) const
   switch ( mSourceValueType )
   {
     case ValueType::Cumulative:
+    case ValueType::CumulativeOnDay:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).validTime, Qt::UTC );
       break;
     case ValueType::CumulativeOnTimeStep:
@@ -265,19 +269,37 @@ const QVector<double> ReosGribGriddedDataProvider::data( int index ) const
   if ( cache )
     mCache.remove( index );
 
-
   switch ( mSourceValueType )
   {
     case ValueType::Cumulative:
     {
-      ReosRasterMemory<double> raster = frame( index + 1 );
       ReosRasterMemory<double> prevRaster = frame( index );
+      ReosRasterMemory<double> raster = frame( index + 1 );
       QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
 
       for ( int i = 0; i < ret.count(); ++i )
         ret[i] = raster.values().at( i ) - prevRaster.values().at( i );
       return ret;
 
+    }
+    break;
+    case ValueType::CumulativeOnDay:
+    {
+      if ( startTime( index ).time().hour() == 0 )
+      {
+        ReosRasterMemory<double> raster = frame( index + 1 );
+        return raster.values();
+      }
+      else
+      {
+        ReosRasterMemory<double> prevRaster = frame( index );
+        ReosRasterMemory<double> raster = frame( index + 1 );
+        QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
+
+        for ( int i = 0; i < ret.count(); ++i )
+          ret[i] = raster.values().at( i ) - prevRaster.values().at( i );
+        return ret;
+      }
     }
     break;
     case ValueType::CumulativeOnTimeStep:
@@ -435,11 +457,13 @@ QString ReosGribGriddedDataProvider::staticKey()
 QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QString &variable, ValueType valueType )
 {
   QString stringValueType;
-
   switch ( valueType )
   {
     case ValueType::Cumulative:
       stringValueType = QStringLiteral( "cumulative" );
+      break;
+    case ValueType::CumulativeOnDay:
+      stringValueType = QStringLiteral( "cumulativeOnDay" );
       break;
     case ValueType::CumulativeOnTimeStep:
       stringValueType = QStringLiteral( "height" );
@@ -450,14 +474,17 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QStri
   return QStringLiteral( "\"%1\"::%2::%3" ).arg( sourcePath, variable, stringValueType );
 }
 
-QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys )
+QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cummulativeOnDay )
 {
   QStringList stringKey;
 
   for ( auto it = gribKeys.constBegin(); it != gribKeys.constEnd(); ++it )
     stringKey.append( QStringLiteral( "%1:%2" ).arg( it.key(), it.value().toString() ) );
 
-  return QStringLiteral( "\"%1\"::grib-keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
+  QString ret = QStringLiteral( "\"%1\"::grib-keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
+  if ( cummulativeOnDay )
+    ret.append( QStringLiteral( "::cumulative-on-day" ) );
+  return ret;
 }
 
 QString ReosGribGriddedDataProvider::sourcePathFromUri( const QString &uri )
@@ -502,6 +529,11 @@ QVariantMap ReosGribGriddedDataProvider::keysFromUri( const QString &uri )
   }
 
   return ret;
+}
+
+bool ReosGribGriddedDataProvider::cumulativeOnDayFromUri( const QString &uri )
+{
+  return uri.contains( "cumulative-on-day" );
 }
 
 ReosGriddedRainfallProvider::ValueType ReosGribGriddedDataProvider::valueTypeFromUri( const QString &uri )
@@ -666,33 +698,41 @@ void ReosGribGriddedDataProvider::parseFileWithEcCodes(
     path.frameNo = fi;
     path.reader = EcCodes;
     path.timeRange = reader->stepDuration( fi );
+    const QDateTime validityTime = reader->validityTime( fi );
+    path.validTime = validityTime.toSecsSinceEpoch();
 
-    ReosEcCodesReader::StepType stepType = reader->stepType( fi );
-    QPair<int, int> range = reader->stepRange( fi );
-
-    switch ( stepType )
+    if ( mSourceValueType != ValueType::CumulativeOnDay )
     {
-      case ReosEcCodesReader::Accum:
+      ReosEcCodesReader::StepType stepType = reader->stepType( fi );
+      QPair<int, int> range = reader->stepRange( fi );
+
+      switch ( stepType )
       {
-        if ( range.first == 0 && range.second == 0 )
-          mSourceValueType = ValueType::Cumulative;
-        else if ( range.first == 0 && !pathes.isEmpty() )
-          mSourceValueType = ValueType::Cumulative;
-        else
-          mSourceValueType = ValueType::CumulativeOnTimeStep;
-      }
-      break;
-      case ReosEcCodesReader::Instant:
-        mSourceValueType = ValueType::Instantaneous;
-      default:
+        case ReosEcCodesReader::Accum:
+        {
+          if ( range.first == 0 && range.second == 0 )
+            mSourceValueType = ValueType::Cumulative;
+          else if ( range.first == 0 && !pathes.isEmpty() )
+            mSourceValueType = ValueType::Cumulative;
+          else
+            mSourceValueType = ValueType::CumulativeOnTimeStep;
+        }
         break;
+        case ReosEcCodesReader::Instant:
+          mSourceValueType = ValueType::Instantaneous;
+        default:
+          break;
+      }
     }
 
     if ( mReferenceTime == -1 )
-      mReferenceTime = reader->referenceTime( fi ).toSecsSinceEpoch();
-
-
-    path.validTime = reader->validityTime( fi ).toSecsSinceEpoch();
+      mReferenceTime = reader->dataTime( fi ).toSecsSinceEpoch();
+    else
+    {
+      qint64 dataTime = reader->dataTime( fi ).toSecsSinceEpoch();
+      if ( dataTime < mReferenceTime )
+        mReferenceTime = dataTime;
+    }
 
     pathes.insert( path.validTime, path );
   }
@@ -840,8 +880,9 @@ QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) co
   {
     ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
     ret.insert( QStringLiteral( "variable" ), QObject::tr( "variable that store the pricipitation values" ) );
-    ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Intensity(0), Height for the time step (1) or Cummulative heigth (2) " ) );
+    ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Instantaneous(0), Cummulative for the time step (1), Cummulative from start (2) or Cummulative from the start of the day (4)." ) );
     ret.insert( QStringLiteral( "grib-keys" ), QObject::tr( "GRIB keys used for filtering the dataset, can be used instead of \"variables\" and \"value-type\"." ) );
+    ret.insert( QStringLiteral( "cumulative-on-day " ), QObject::tr( "If GRIB keys is provided, flag used to force the value type to me Cumulative on a day." ) );
   }
 
   return ret;
@@ -858,7 +899,7 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
     const QString variable = parameters.value( QStringLiteral( "variable" ) ).toString();
     int typeInt = parameters.value( QStringLiteral( "value-type" ) ).toInt();
 
-    if ( typeInt >= 0 && typeInt < 3 )
+    if ( typeInt >= 0 && typeInt < 4 )
     {
       ReosGriddedRainfallProvider::ValueType type = static_cast<ReosGriddedRainfallProvider::ValueType>( typeInt );
       ok = true;
@@ -873,7 +914,8 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
     const QString path = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
     const QVariantMap keys = parameters.value( QStringLiteral( "grib-keys" ) ).toMap();
     ok = true;
-    return ReosGribGriddedDataProvider::uri( path, keys );
+    bool cumulativeOnDay = parameters.contains( "cumulative-on-day" ) && parameters.value( "cumulative-on-day" ).toBool();
+    return ReosGribGriddedDataProvider::uri( path, keys, cumulativeOnDay );
   }
 
   ok = false;

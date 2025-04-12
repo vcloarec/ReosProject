@@ -58,7 +58,8 @@ class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
     {
       Instantaneous,
       CumulativeOnTimeStep,
-      Cumulative
+      Cumulative,
+      CumulativeOnDay
     };
 
     struct FileDetails

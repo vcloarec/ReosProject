@@ -242,6 +242,9 @@ ReosRasterExtent ReosEcCodesReader::extent( int frameIndex ) const
 
 ReosRasterMemory<double> ReosEcCodesReader::values( int index ) const
 {
+  if ( mCacheValuesIndex == index )
+    return mCacheValues;
+
   codes_handle *handle = findHandle( index );
 
   ReosRasterMemory<double> ret;
@@ -276,6 +279,8 @@ ReosRasterMemory<double> ReosEcCodesReader::values( int index ) const
 
     ret.setValues( data );
   }
+  mCacheValues = ret;
+  mCacheValuesIndex = index;
   return ret;
 }
 
@@ -291,7 +296,7 @@ static QDateTime intToTime( int dateInt, int timeInt )
   return QDateTime( QDate( y, m, d ), QTime( h, mi ), Qt::UTC );
 }
 
-QDateTime ReosEcCodesReader::referenceTime( int index ) const
+QDateTime ReosEcCodesReader::dataTime( int index ) const
 {
   const ReosEcCodesReaderKeys keys = getKeys( index );
   int dateInt = keys.longValue( QStringLiteral( "dataDate" ) );

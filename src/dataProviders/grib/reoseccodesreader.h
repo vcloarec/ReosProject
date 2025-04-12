@@ -119,7 +119,7 @@ class ReosEcCodesReader: public ReosGriddedDataSource
 
     ReosEcCodesReaderKeys keys( int frameIndex ) const;
 
-    QDateTime referenceTime( int index ) const;
+    QDateTime dataTime( int index ) const;
     QDateTime validityTime( int index ) const;
 
     StepType stepType( int index ) const;
@@ -139,6 +139,8 @@ class ReosEcCodesReader: public ReosGriddedDataSource
 
     mutable ReosEcCodesReaderKeys mCacheKeys;
     mutable int mCacheKeysIndex = -1;
+    mutable ReosRasterMemory<double> mCacheValues;
+    mutable int mCacheValuesIndex = -1;
 
     const ReosEcCodesReaderKeys &getKeys( int index ) const;
 
