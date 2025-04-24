@@ -199,7 +199,7 @@ int ReosGribGriddedDataProvider::count() const
   {
     case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
-      return mFrames.count() - 1;
+      return std::max( 0, mFrames.count() - 1 );
       break;
     case ValueType::Instantaneous:
       return mFrames.count() > 1 ? mFrames.count() - 1 : mFrames.count();
@@ -474,7 +474,7 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QStri
   return QStringLiteral( "\"%1\"::%2::%3" ).arg( sourcePath, variable, stringValueType );
 }
 
-QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cummulativeOnDay )
+QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cumulativeOnDay )
 {
   QStringList stringKey;
 
@@ -482,7 +482,7 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVari
     stringKey.append( QStringLiteral( "%1:%2" ).arg( it.key(), it.value().toString() ) );
 
   QString ret = QStringLiteral( "\"%1\"::grib-keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
-  if ( cummulativeOnDay )
+  if ( cumulativeOnDay )
     ret.append( QStringLiteral( "::cumulative-on-day" ) );
   return ret;
 }
@@ -880,7 +880,7 @@ QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) co
   {
     ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
     ret.insert( QStringLiteral( "variable" ), QObject::tr( "variable that store the pricipitation values" ) );
-    ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Instantaneous(0), Cummulative for the time step (1), Cummulative from start (2) or Cummulative from the start of the day (4)." ) );
+    ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Instantaneous(0), Cumulative for the time step (1), Cumulative from start (2) or Cumulative from the start of the day (4)." ) );
     ret.insert( QStringLiteral( "grib-keys" ), QObject::tr( "GRIB keys used for filtering the dataset, can be used instead of \"variables\" and \"value-type\"." ) );
     ret.insert( QStringLiteral( "cumulative-on-day " ), QObject::tr( "If GRIB keys is provided, flag used to force the value type to me Cumulative on a day." ) );
   }

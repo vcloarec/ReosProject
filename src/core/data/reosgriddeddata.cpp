@@ -441,16 +441,19 @@ ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( Reos
 {
   connect( watershed, &ReosWatershed::geometryChanged, this, &ReosSeriesFromGriddedDataOnWatershed::onWatershedGeometryChanged );
   registerUpstreamData( griddedData );
-
-  setReferenceTime( griddedData->startTime( 0 ) );
-  setTimeStep( outputTimeStep );
-  QDateTime endTime = griddedData->endTime( griddedData->gridCount() - 1 );
-  ReosDuration dataDuration( qint64( referenceTime().msecsTo( endTime ) ) );
-  int valueCount = static_cast<int>( dataDuration.numberOfFullyContainedIntervals( timeStep() ) );
-  QVector<double> values( valueCount, std::numeric_limits<double>::quiet_NaN() );
-  setValues( values );
+  if ( griddedData->gridCount() > 0 )
+  {
+    setReferenceTime( griddedData->startTime( 0 ) );
+    setTimeStep( outputTimeStep );
+    QDateTime endTime = griddedData->endTime( griddedData->gridCount() - 1 );
+    ReosDuration dataDuration( qint64( referenceTime().msecsTo( endTime ) ) );
+    int valueCount = static_cast<int>( dataDuration.numberOfFullyContainedIntervals( timeStep() ) );
+    QVector<double> values( valueCount, std::numeric_limits<double>::quiet_NaN() );
+    setValues( values );
+  }
 
   launchCalculation();
+
 }
 
 ReosSeriesFromGriddedDataOnWatershed::~ReosSeriesFromGriddedDataOnWatershed()
@@ -458,11 +461,14 @@ ReosSeriesFromGriddedDataOnWatershed::~ReosSeriesFromGriddedDataOnWatershed()
 
 ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::create( ReosWatershed *watershed, ReosGriddedData *griddedData )
 {
-  QEventLoop loop;
-  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret = std::make_unique<ReosSeriesFromGriddedDataOnWatershed>( watershed, griddedData );
-  connect( ret.get(), &ReosSeriesFromGriddedDataOnWatershed::calculationFinished, &loop, &QEventLoop::quit );
-  loop.exec();
 
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret = std::make_unique<ReosSeriesFromGriddedDataOnWatershed>( watershed, griddedData );
+  if ( griddedData->gridCount() > 0 )
+  {
+    QEventLoop loop;
+    connect( ret.get(), &ReosSeriesFromGriddedDataOnWatershed::calculationFinished, &loop, &QEventLoop::quit );
+    loop.exec();
+  }
   return ret.release();
 }
 
