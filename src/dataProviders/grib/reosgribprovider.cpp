@@ -936,7 +936,7 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
     ok = true;
     bool cumulativeOnDay = parameters.contains( "cumulative-on-day" ) && parameters.value( "cumulative-on-day" ).toBool();
     bool allInstantaneousFrame = parameters.contains( "all-instantaneous-frames" ) && parameters.value( "all-instantaneous-frames" ).toBool();
-    return ReosGribGriddedDataProvider::uri( path, keys, cumulativeOnDay );
+    return ReosGribGriddedDataProvider::uri( path, keys, cumulativeOnDay, allInstantaneousFrame );
   }
 
   ok = false;
