@@ -145,7 +145,7 @@ int ReosEra5Provider::count() const
 QDateTime ReosEra5Provider::startTime( int index ) const
 {
   if ( mFileReader )
-    return mFileReader->time( index );
+    return mFileReader->time( index ).addSecs( -3600 );
 
   return QDateTime();
 }
@@ -153,7 +153,7 @@ QDateTime ReosEra5Provider::startTime( int index ) const
 QDateTime ReosEra5Provider::endTime( int index ) const
 {
   if ( mFileReader )
-    return mFileReader->time( index ).addSecs( 3600 );
+    return mFileReader->time( index );
 
   return QDateTime();
 }
