@@ -44,15 +44,13 @@ ReosGriddedDataProvider *ReosGribGriddedDataProvider::clone() const
 
 void ReosGribGriddedDataProvider::load()
 {
-  QString fileSource = sourcePathFromUri( dataSource() );
-  QString varName = variableFromUri( dataSource() );
-  mSourceValueType = valueTypeFromUri( dataSource() );
-  mGribKeys = keysFromUri( dataSource() );
+  const QString uri = dataSource();
+  QString fileSource = sourcePathFromUri( uri );
+  QString varName = variableFromUri( uri );
+  mSourceValueType = valueTypeFromUri( uri );
+  mGribKeys = keysFromUri( uri );
   mIsValid = false;
   GribReader reader = mGribKeys.isEmpty() ? GDAL : EcCodes;
-
-  if ( cumulativeOnDayFromUri( dataSource() ) )
-    mSourceValueType = ValueType::CumulativeOnDay;
 
   switch ( reader )
   {
@@ -102,6 +100,18 @@ void ReosGribGriddedDataProvider::load()
   }
 
   mFrames = pathes.values();
+
+  if ( allInstanteousFrameFromUri( uri ) &&
+       mSourceValueType == ReosGriddedDataProvider::ValueType::Instantaneous &&
+       mFrames.count() > 0 )
+  {
+    //here we insert a dummy frame at the beginning to force to consider the first instantaneous frame index.
+    qint64 validTime = mFrames.count() > 1 ? 2 * mFrames.at( 0 ).validTime - mFrames.at( 1 ).validTime :  mFrames.at( 0 ).validTime;
+    GribFrame dummyFrame;
+    dummyFrame.validTime = validTime;
+    mFrames.insert( 0, dummyFrame );
+  }
+
   mIsValid = true;
 
   emit dataReset();
@@ -474,7 +484,7 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QStri
   return QStringLiteral( "\"%1\"::%2::%3" ).arg( sourcePath, variable, stringValueType );
 }
 
-QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cumulativeOnDay )
+QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cumulativeOnDay, bool allInstantaneousFrames )
 {
   QStringList stringKey;
 
@@ -484,6 +494,8 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVari
   QString ret = QStringLiteral( "\"%1\"::grib-keys=%2" ).arg( sourcePath, stringKey.join( '&' ) );
   if ( cumulativeOnDay )
     ret.append( QStringLiteral( "::cumulative-on-day" ) );
+  if ( allInstantaneousFrames )
+    ret.append( QStringLiteral( "::all-instantaneous-frames" ) );
   return ret;
 }
 
@@ -534,6 +546,11 @@ QVariantMap ReosGribGriddedDataProvider::keysFromUri( const QString &uri )
 bool ReosGribGriddedDataProvider::cumulativeOnDayFromUri( const QString &uri )
 {
   return uri.contains( "cumulative-on-day" );
+}
+
+bool ReosGribGriddedDataProvider::allInstanteousFrameFromUri( const QString &uri )
+{
+  return uri.contains( "all-instantaneous-frames" );
 }
 
 ReosGriddedRainfallProvider::ValueType ReosGribGriddedDataProvider::valueTypeFromUri( const QString &uri )
@@ -682,29 +699,30 @@ void ReosGribGriddedDataProvider::parseFileWithEcCodes(
   if ( !reader->isValid() )
     return;
 
-  int frameCount = reader->frameCount();
-  for ( int fi = 0; fi < frameCount; ++fi )
+  ReosEcCodesReader::FrameMetadata meta;
+  int frameNumber = 0;
+  while ( reader->nextFrameMetadata( meta ) )
   {
     if ( pathes.isEmpty() )
-      extent = reader->extent( fi );
+      extent = meta.extent;
     else
     {
-      if ( extent != reader->extent( fi ) )
+      if ( extent != meta.extent )
         continue;
     }
 
     GribFrame path;
     path.file = fileName;
-    path.frameNo = fi;
+    path.frameNo = frameNumber;
     path.reader = EcCodes;
-    path.timeRange = reader->stepDuration( fi );
-    const QDateTime validityTime = reader->validityTime( fi );
+    path.timeRange = meta.stepDuration;
+    const QDateTime validityTime = meta.validityTime;
     path.validTime = validityTime.toSecsSinceEpoch();
 
     if ( mSourceValueType != ValueType::CumulativeOnDay )
     {
-      ReosEcCodesReader::StepType stepType = reader->stepType( fi );
-      QPair<int, int> range = reader->stepRange( fi );
+      ReosEcCodesReader::StepType stepType = meta.stepType;
+      QPair<int, int> range = meta.stepRange;
 
       switch ( stepType )
       {
@@ -726,15 +744,16 @@ void ReosGribGriddedDataProvider::parseFileWithEcCodes(
     }
 
     if ( mReferenceTime == -1 )
-      mReferenceTime = reader->dataTime( fi ).toSecsSinceEpoch();
+      mReferenceTime = meta.dataTime.toSecsSinceEpoch();
     else
     {
-      qint64 dataTime = reader->dataTime( fi ).toSecsSinceEpoch();
+      qint64 dataTime = meta.dataTime.toSecsSinceEpoch();
       if ( dataTime < mReferenceTime )
         mReferenceTime = dataTime;
     }
 
     pathes.insert( path.validTime, path );
+    frameNumber++;
   }
 
   mCurrentReader.reset( reader.release() );
@@ -882,7 +901,8 @@ QVariantMap ReosGribProviderFactory::uriParameters( const QString &dataType ) co
     ret.insert( QStringLiteral( "variable" ), QObject::tr( "variable that store the pricipitation values" ) );
     ret.insert( QStringLiteral( "value-type" ), QObject::tr( "Type of the values: Instantaneous(0), Cumulative for the time step (1), Cumulative from start (2) or Cumulative from the start of the day (4)." ) );
     ret.insert( QStringLiteral( "grib-keys" ), QObject::tr( "GRIB keys used for filtering the dataset, can be used instead of \"variables\" and \"value-type\"." ) );
-    ret.insert( QStringLiteral( "cumulative-on-day " ), QObject::tr( "If GRIB keys is provided, flag used to force the value type to me Cumulative on a day." ) );
+    ret.insert( QStringLiteral( "cumulative-on-day" ), QObject::tr( "If GRIB keys is provided, flag used to force the value type to be Cumulative on a day." ) );
+    ret.insert( QStringLiteral( "all-instantaneous-frames" ), QObject::tr( "If GRIB keys is provided, flag used to consider all the instantaneous frame (not ignore the first frame for compatibility with cumulative frame number." ) );
   }
 
   return ret;
@@ -915,6 +935,7 @@ QString ReosGribProviderFactory::buildUri( const QString &dataType, const QVaria
     const QVariantMap keys = parameters.value( QStringLiteral( "grib-keys" ) ).toMap();
     ok = true;
     bool cumulativeOnDay = parameters.contains( "cumulative-on-day" ) && parameters.value( "cumulative-on-day" ).toBool();
+    bool allInstantaneousFrame = parameters.contains( "all-instantaneous-frames" ) && parameters.value( "all-instantaneous-frames" ).toBool();
     return ReosGribGriddedDataProvider::uri( path, keys, cumulativeOnDay );
   }
 

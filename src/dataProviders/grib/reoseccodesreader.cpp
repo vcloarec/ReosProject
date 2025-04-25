@@ -196,23 +196,132 @@ ReosEcCodesReader::ReosEcCodesReader( const QString &gribFileName, const QVarian
   int error = 0;
 
   mIsValid = mIndex.isValid();
-  bool ok = false;
-  while ( codes_handle *handle = mIndex.nextHandle( ok ) )
-  {
-    if ( !ok )
-    {
-      mIsValid = false;
-      codes_handle_delete( handle );
-      break;
-    }
-    mFrameCount++;
-    codes_handle_delete( handle );
-  }
-
 }
 
 ReosEcCodesReader::~ReosEcCodesReader()
 {
+}
+
+static ReosRasterExtent extentFromKeys( const ReosEcCodesReaderKeys &keys )
+{
+  const ReosEcCodesGridDescritpion grid = gridDescription( keys );
+  ReosMapExtent mapExtent( grid.west, grid.south, grid.east, grid.north );
+  mapExtent.setCrs( grid.wktCrs );
+  return ReosRasterExtent( mapExtent, grid.width, grid.height, true, grid.yAscendant );
+}
+
+static QDateTime intToTime( int dateInt, int timeInt )
+{
+  int y = int( std::round( dateInt / 10000.0 ) );
+  int m = int( std::round( ( dateInt - y * 10000.0 ) / 100.0 ) );
+  int d = dateInt - y * 10000.0 - m * 100;
+
+  int h = int( std::round( timeInt / 100.0 ) );
+  int mi = timeInt - h * 100;
+
+  return QDateTime( QDate( y, m, d ), QTime( h, mi ), Qt::UTC );
+}
+
+static QDateTime dataTimeFromKeys( const ReosEcCodesReaderKeys &keys )
+{
+  int dateInt = keys.longValue( QStringLiteral( "dataDate" ) );
+  int timeInt = keys.longValue( QStringLiteral( "dataTime" ) );
+
+  return intToTime( dateInt, timeInt );
+}
+
+static QDateTime validityTimeFromKeys( const ReosEcCodesReaderKeys &keys )
+{
+  int dateInt = keys.longValue( QStringLiteral( "validityDate" ) );
+  int timeInt = keys.longValue( QStringLiteral( "validityTime" ) );
+
+  return intToTime( dateInt, timeInt );
+}
+
+static QPair<int, int> stepRangeFromKeys( const ReosEcCodesReaderKeys &keys )
+{
+  int start = keys.longValue( QStringLiteral( "startStep" ) );
+  int end = keys.longValue( QStringLiteral( "endStep" ) );
+
+  if ( start == -1 || end == -1 )
+  {
+    QString startStr = keys.stringValue( QStringLiteral( "startStep" ) );
+    QString endStr = keys.stringValue( QStringLiteral( "endStep" ) );
+
+    if ( startStr.contains( 'm' ) )
+      startStr = startStr.remove( 'm' );
+
+    if ( endStr.contains( 'm' ) )
+      endStr = endStr.remove( 'm' );
+
+    start = startStr.toInt();
+    end = endStr.toInt();
+  }
+
+  return QPair<int, int>( start, end );
+}
+
+static ReosDuration stepDurationFromKeys( const ReosEcCodesReaderKeys &keys )
+{
+  int stepUnit = keys.longValue( QStringLiteral( "stepUnits" ) );
+  ReosDuration::Unit unit;
+
+  switch ( stepUnit )
+  {
+    case 0:
+      unit = ReosDuration::minute;
+      break;
+    case 1:
+      unit = ReosDuration::hour;
+      break;
+    default:
+      unit = ReosDuration::hour;
+      break;
+  }
+
+  QPair<int, int> range = stepRangeFromKeys( keys );
+
+  return ReosDuration( range.second - range.first, unit );
+}
+
+static ReosEcCodesReader::StepType stepTypeFromKeys( const ReosEcCodesReaderKeys &keys )
+{
+  QString strType = keys.stringValue( QStringLiteral( "stepType" ) );
+
+  if ( strType == QStringLiteral( "accum" ) )
+    return ReosEcCodesReader::StepType::Accum;
+
+  if ( strType == QStringLiteral( "instant" ) )
+    return ReosEcCodesReader::StepType::Instant;
+
+  return ReosEcCodesReader::StepType::Unknown;
+}
+
+bool ReosEcCodesReader::nextFrameMetadata( ReosEcCodesReader::FrameMetadata &meta ) const
+{
+  bool ok = false;
+  codes_handle *handle = mIndex.nextHandle( ok );
+  if ( !ok )
+  {
+    codes_handle_delete( handle );
+    return false;
+  }
+
+  if ( handle )
+  {
+    ReosEcCodesReaderKeys keys( handle );
+    codes_handle_delete( handle );
+
+    meta.extent = extentFromKeys( keys );
+    meta.dataTime = dataTimeFromKeys( keys );
+    meta.validityTime = validityTimeFromKeys( keys );
+    meta.stepRange = stepRangeFromKeys( keys );
+    meta.stepDuration = stepDurationFromKeys( keys );
+    meta.stepType = stepTypeFromKeys( keys );
+    return true;
+  }
+
+  return false;
 }
 
 bool ReosEcCodesReader::isValid() const
@@ -222,6 +331,20 @@ bool ReosEcCodesReader::isValid() const
 
 int ReosEcCodesReader::frameCount() const
 {
+  if ( mFrameCount < 0 )
+  {
+    bool ok = false;
+    while ( codes_handle *handle = mIndex.nextHandle( ok ) )
+    {
+      if ( !ok )
+      {
+        codes_handle_delete( handle );
+        break;
+      }
+      mFrameCount++;
+      codes_handle_delete( handle );
+    }
+  }
   return mFrameCount;
 }
 
@@ -231,13 +354,11 @@ ReosEcCodesReaderKeys ReosEcCodesReader::keys( int frameIndex ) const
 
 }
 
+
 ReosRasterExtent ReosEcCodesReader::extent( int frameIndex ) const
 {
   const ReosEcCodesReaderKeys &keys = getKeys( frameIndex );
-  const ReosEcCodesGridDescritpion grid = gridDescription( keys );
-  ReosMapExtent mapExtent( grid.west, grid.south, grid.east, grid.north );
-  mapExtent.setCrs( grid.wktCrs );
-  return ReosRasterExtent( mapExtent, grid.width, grid.height, true, grid.yAscendant );
+  return extentFromKeys( keys );
 }
 
 ReosRasterMemory<double> ReosEcCodesReader::values( int index ) const
@@ -284,95 +405,34 @@ ReosRasterMemory<double> ReosEcCodesReader::values( int index ) const
   return ret;
 }
 
-static QDateTime intToTime( int dateInt, int timeInt )
-{
-  int y = int( std::round( dateInt / 10000.0 ) );
-  int m = int( std::round( ( dateInt - y * 10000.0 ) / 100.0 ) );
-  int d = dateInt - y * 10000.0 - m * 100;
-
-  int h = int( std::round( timeInt / 100.0 ) );
-  int mi = timeInt - h * 100;
-
-  return QDateTime( QDate( y, m, d ), QTime( h, mi ), Qt::UTC );
-}
-
 QDateTime ReosEcCodesReader::dataTime( int index ) const
 {
   const ReosEcCodesReaderKeys keys = getKeys( index );
-  int dateInt = keys.longValue( QStringLiteral( "dataDate" ) );
-  int timeInt = keys.longValue( QStringLiteral( "dataTime" ) );
-
-  return intToTime( dateInt, timeInt );
+  return dataTimeFromKeys( keys );
 }
 
 QDateTime ReosEcCodesReader::validityTime( int index ) const
 {
   const ReosEcCodesReaderKeys keys = getKeys( index );
-  int dateInt = keys.longValue( QStringLiteral( "validityDate" ) );
-  int timeInt = keys.longValue( QStringLiteral( "validityTime" ) );
-
-  return intToTime( dateInt, timeInt );
+  return validityTimeFromKeys( keys );
 }
 
 QPair<int, int> ReosEcCodesReader::stepRange( int index ) const
 {
   const ReosEcCodesReaderKeys &keys = getKeys( index );
-  int start = keys.longValue( QStringLiteral( "startStep" ) );
-  int end = keys.longValue( QStringLiteral( "endStep" ) );
-
-  if ( start == -1 || end == -1 )
-  {
-    QString startStr = keys.stringValue( QStringLiteral( "startStep" ) );
-    QString endStr = keys.stringValue( QStringLiteral( "endStep" ) );
-
-    if ( startStr.contains( 'm' ) )
-      startStr = startStr.remove( 'm' );
-
-    if ( endStr.contains( 'm' ) )
-      endStr = endStr.remove( 'm' );
-
-    start = startStr.toInt();
-    end = endStr.toInt();
-  }
-
-  return QPair<int, int>( start, end );
+  return stepRangeFromKeys( keys );
 }
 
 ReosDuration ReosEcCodesReader::stepDuration( int index ) const
 {
   const ReosEcCodesReaderKeys &keys = getKeys( index );
-  int stepUnit = keys.longValue( QStringLiteral( "stepUnits" ) );
-  ReosDuration::Unit unit;
-
-  switch ( stepUnit )
-  {
-    case 0:
-      unit = ReosDuration::minute;
-      break;
-    case 1:
-      unit = ReosDuration::hour;
-    default:
-      unit = ReosDuration::hour;
-      break;
-  }
-
-  QPair<int, int> range = stepRange( index );
-
-  return ReosDuration( range.second - range.first, unit );
+  return stepDurationFromKeys( keys );
 }
 
 ReosEcCodesReader::StepType ReosEcCodesReader::stepType( int index ) const
 {
   const ReosEcCodesReaderKeys &keys = getKeys( index );
-  QString strType = keys.stringValue( QStringLiteral( "stepType" ) );
-
-  if ( strType == QStringLiteral( "accum" ) )
-    return StepType::Accum;
-
-  if ( strType == QStringLiteral( "instant" ) )
-    return StepType::Instant;
-
-  return StepType::Unknown;
+  return stepTypeFromKeys( keys );
 }
 
 codes_handle *ReosEcCodesReader::findHandle( int index ) const

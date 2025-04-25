@@ -95,12 +95,6 @@ class ReosEcCodesReader: public ReosGriddedDataSource
 {
   public:
 
-    struct Variable
-    {
-      QString name;
-      QString shortName;
-    };
-
     enum StepType
     {
       Accum,
@@ -108,8 +102,27 @@ class ReosEcCodesReader: public ReosGriddedDataSource
       Unknown
     };
 
+    struct Variable
+    {
+      QString name;
+      QString shortName;
+    };
+
+    struct FrameMetadata
+    {
+      ReosRasterExtent extent;
+      ReosDuration stepDuration;
+      QDateTime dataTime;
+      QDateTime validityTime;
+      QPair<int, int> stepRange;
+      StepType stepType;
+    };
+
+
     ReosEcCodesReader( const QString &gribFileName, const QVariantMap &variableKeys );
     ~ReosEcCodesReader();
+
+    bool nextFrameMetadata( ReosEcCodesReader::FrameMetadata &meta ) const;
 
     ReosRasterExtent extent( int frameIndex ) const override;
     ReosRasterMemory<double>  values( int index ) const override;
@@ -132,7 +145,7 @@ class ReosEcCodesReader: public ReosGriddedDataSource
     QString mFileName;
     QVariantMap mVariableKeys;
     bool mIsValid = false;
-    int mFrameCount = 0;
+    mutable int mFrameCount = -1;
     mutable ReosEcCodesIndex mIndex;
 
     codes_handle *findHandle( int index ) const;

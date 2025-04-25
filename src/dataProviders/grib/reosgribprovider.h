@@ -59,12 +59,13 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     static QString staticKey();
 
     static QString uri( const QString &sourcePath, const QString &variable, ValueType valueType );
-    static QString uri(const QString &sourcePath, const QVariantMap &gribKeys, bool cumulativeOnDay = false );
+    static QString uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cumulativeOnDay = false, bool allInstantaneousFrames = false );
     static QString sourcePathFromUri( const QString &uri );
     static QString variableFromUri( const QString &uri );
     static ValueType valueTypeFromUri( const QString &uri );
     static QVariantMap keysFromUri( const QString &uri );
     static bool cumulativeOnDayFromUri( const QString &uri );
+    static bool allInstanteousFrameFromUri( const QString &uri );
 
     bool sourceIsValid( const QString &source, ReosModule::Message &message ) const;
 
