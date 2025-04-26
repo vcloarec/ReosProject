@@ -108,7 +108,7 @@ QString ReosEra5Provider::htmlDescription() const
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
               + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + QStringLiteral( "COMEPHORE" ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "ERA5" ) + QStringLiteral( "</td></tr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
               + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
@@ -415,11 +415,29 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
   mFile.reset( new ReosNetCdfFile( mFileName ) );
   if ( mFile->isValid() )
   {
-    const QString crs = ReosGisEngine::crsFromEPSG( 4326 );
+    const QString crs = ReosGisEngine::projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( 6371229 ) );
+    const QStringList dimensionNames = mFile->variableDimensionNames( varName );
     int longitudeCount = mFile->dimensionLength( QStringLiteral( "longitude" ) );
     int latitudeCount = mFile->dimensionLength( QStringLiteral( "latitude" ) );
     double lonResol = 0.25;
     double latResol = 0.25;
+
+    QDateTime timeOrigin;
+    ReosDuration timeUnit;
+    QString timeName;
+    if ( dimensionNames.contains( QStringLiteral( "time" ) ) )
+    {
+      timeName = QStringLiteral( "time" );
+      timeOrigin = QDateTime( QDate( 1900, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
+      timeUnit = ReosDuration( 1., ReosDuration::hour );
+    }
+    else
+    {
+      timeName = QStringLiteral( "valid_time" );
+      timeOrigin = QDateTime( QDate( 1970, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
+      timeUnit = ReosDuration( 1., ReosDuration::second );
+    }
+
 
     QVector<double> longs = mFile->getDoubleArray( QStringLiteral( "longitude" ), longitudeCount );
     QVector<double> lats = mFile->getDoubleArray( QStringLiteral( "latitude" ), longitudeCount );
@@ -432,13 +450,13 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
     mFillingValue = mFile->shortAttributeValue( varName, QStringLiteral( "_FillValue" ) );
     mMissingValue = mFile->shortAttributeValue( varName, QStringLiteral( "missing_value" ) );
 
-    int frameCount = mFile->dimensionLength( QStringLiteral( "time" ) );
-    const QVector<int> intTime = mFile->getIntArray( QStringLiteral( "time" ), frameCount );
+    int frameCount = mFile->dimensionLength( timeName );
+    const QVector<int> intTime = mFile->getIntArray( timeName, frameCount );
     const QDateTime oriTime( QDate( 1900, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
     QMap<QDateTime, int> timeToFileIndex;
     for ( int i = 0; i < frameCount; ++i )
     {
-      const QDateTime &time = oriTime.addSecs( 3600 * static_cast<qint64>( intTime.at( i ) ) );
+      const QDateTime &time = oriTime.addSecs( timeUnit.valueSecond() * static_cast<qint64>( intTime.at( i ) ) );
       if ( !mStart.isValid() || !mEnd.isValid()  || ( time >= mStart && time.addSecs( 3600 ) <= mEnd ) )
       {
         if ( !timeToFileIndex.contains( time ) )
@@ -580,7 +598,7 @@ bool ReosEra5NetCdfFilesReader::canReadFile( const QString &uri )
 
   return dimensionNames.contains( QStringLiteral( "latitude" ) ) &&
          dimensionNames.contains( QStringLiteral( "longitude" ) ) &&
-         dimensionNames.contains( QStringLiteral( "time" ) );
+         ( dimensionNames.contains( QStringLiteral( "time" ) ) || dimensionNames.contains( QStringLiteral( "valid_time" ) ) );
 }
 
 void ReosEra5NetCdfFilesReader::reset()

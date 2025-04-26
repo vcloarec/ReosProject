@@ -346,6 +346,28 @@ bool ReosGisEngine::crsIsValid( const QString &crsString )
   return qgsCrs.isValid();
 }
 
+QString ReosGisEngine::projStringToWkt(const QString &projString)
+{
+    // Create an OGRSpatialReferenceH object( Handle - based API )
+    OGRSpatialReferenceH hSRS = OSRNewSpatialReference( NULL );
+    if ( OSRImportFromProj4( hSRS, projString.toUtf8() ) != OGRERR_NONE )
+    {
+        OSRDestroySpatialReference( hSRS );
+        return QString();
+    }
+
+    // Convert to WKT format
+    char *wkt = NULL;
+    if ( OSRExportToWkt( hSRS, &wkt ) != OGRERR_NONE )
+    {
+        fprintf( stderr, "Failed to convert to WKT\n" );
+        OSRDestroySpatialReference( hSRS );
+        return QString();
+    }
+
+    return QString::fromUtf8( wkt );
+}
+
 void ReosGisEngine::loadQGISProject( const QString &fileName )
 {
   QString oldCrs = crs();

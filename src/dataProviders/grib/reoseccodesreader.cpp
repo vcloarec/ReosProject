@@ -4,7 +4,8 @@
 #include <QDateTime>
 #include <QFile>
 
-#include "gdal.h"
+#include "reosgisengine.h"
+
 #include "ogr_srs_api.h"
 
 
@@ -75,28 +76,6 @@ static QVariantMap keys( codes_handle *handle )
   return keysMap;
 }
 
-static QString projStringToWkt( const QString &projString )
-{
-  // Create an OGRSpatialReferenceH object( Handle - based API )
-  OGRSpatialReferenceH hSRS = OSRNewSpatialReference( NULL );
-  if ( OSRImportFromProj4( hSRS, projString.toUtf8() ) != OGRERR_NONE )
-  {
-    OSRDestroySpatialReference( hSRS );
-    return QString();
-  }
-
-  // Convert to WKT format
-  char *wkt = NULL;
-  if ( OSRExportToWkt( hSRS, &wkt ) != OGRERR_NONE )
-  {
-    fprintf( stderr, "Failed to convert to WKT\n" );
-    OSRDestroySpatialReference( hSRS );
-    return QString();
-  }
-
-  return QString::fromUtf8( wkt );
-}
-
 static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &keys )
 {
   ReosEcCodesGridDescritpion ret;
@@ -110,7 +89,7 @@ static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &
       switch ( earthShapeCode )
       {
         case 6:
-          ret.wktCrs = projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( 6371229 ) );
+          ret.wktCrs = ReosGisEngine::projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( 6371229 ) );
           break;
         default:
           break;
@@ -129,7 +108,7 @@ static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &
         else
           radius = 6367470;
 
-        ret.wktCrs = projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( radius ) );
+        ret.wktCrs = ReosGisEngine::projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( radius ) );
       }
 
     }

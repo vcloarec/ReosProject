@@ -147,6 +147,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns wheter the crs is recognized and valid
     static bool crsIsValid( const QString &crs );
 
+    static QString projStringToWkt( const QString &projString );
+
     //! loads a QGIS project as GIS project
     void loadQGISProject( const QString &fileName );
 
