@@ -407,7 +407,6 @@ void ReosGribGriddedDataProvider::exportToTiff( int index, const QString &fileNa
     rast.setValues( data( index ) );
     ReosGdalDataset::writeDoubleRasterToFile( fileName, rast, mExtent );
   }
-
 }
 
 ReosDuration ReosGribGriddedDataProvider::minimumTimeStep() const

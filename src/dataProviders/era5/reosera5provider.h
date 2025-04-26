@@ -76,12 +76,17 @@ class ReosEra5NetCdfFilesReader : public ReosEra5FilesReader
     ReosRasterExtent mExtent;
     QList<QDateTime> mTimes;
     QMap<int, int> mDataIndexToFileIndex;
+
     double mScalefactor = std::numeric_limits<double>::quiet_NaN();
     double mAddOffset = std::numeric_limits<double>::quiet_NaN();
     qint16 mFillingValue = 0;
     qint16 mMissingValue = 0;
 
-    QVector<double> treatRawData( const QVector<qint16> &rawData ) const;
+    double mFloatMissingValue = std::numeric_limits<double>::quiet_NaN();;
+
+    QVector<double> treatShortRawData( const QVector<qint16> &rawData ) const;
+    QVector<double> treatFloatRawData( const QVector<double> &rawData ) const;
+    bool mOldFormat = false;
 };
 
 
@@ -141,6 +146,8 @@ class ReosEra5Provider : public ReosGriddedDataProvider
     QDateTime endTime( int index ) const override;
     const QVector<double> data( int index ) const override;
     const QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const override;
+
+    void exportToTiff( int index, const QString &fileName ) const;
 
     ReosRasterExtent extent() const override;
     bool canReadUri( const QString &uri ) const override;

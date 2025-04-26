@@ -152,7 +152,7 @@ QStringList ReosNetCdfFile::variableDimensionNames( const QString &variableName 
 {
   QStringList ret;
   int dimCount = 0;
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
   int res = nc_inq_varndims( mNcId, varId, &dimCount );
 
   if ( res != NC_NOERR )
@@ -206,7 +206,7 @@ QString ReosNetCdfFile::globalStringAttributeValue( const QString &attribureName
 
 double ReosNetCdfFile::doubleAttributeValue( const QString &variableName, const QString &attributeName ) const
 {
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
   double ret = 0;
   int res = nc_get_att_double( mNcId, varId, attributeName.toUtf8().constData(), &ret );
   if ( res != NC_NOERR )
@@ -216,7 +216,7 @@ double ReosNetCdfFile::doubleAttributeValue( const QString &variableName, const 
 
 qint16 ReosNetCdfFile::shortAttributeValue( const QString &variableName, const QString &attributeName ) const
 {
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
   qint16 ret = 0;
   int res = nc_get_att_short( mNcId, varId, attributeName.toUtf8().constData(), &ret );
   if ( res != NC_NOERR )
@@ -226,7 +226,7 @@ qint16 ReosNetCdfFile::shortAttributeValue( const QString &variableName, const Q
 
 QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int size )
 {
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
   QVector<qint64> ret( size );
   int res = nc_get_var_longlong( mNcId, varId, ret.data() );
   if ( res != NC_NOERR )
@@ -237,7 +237,7 @@ QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int 
 
 QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, int size ) const
 {
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
   QVector<int> ret( size );
   int res = nc_get_var_int( mNcId, varId, ret.data() );
   if ( res != NC_NOERR )
@@ -258,7 +258,7 @@ static std::vector<size_t> int_array_to_size_t_array( const QVector<int> &int_ar
 QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const
 {
   Q_ASSERT( starts.count() == counts.count() );
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
 
   std::vector<size_t> startp = int_array_to_size_t_array( starts );
   std::vector<size_t> countp = int_array_to_size_t_array( counts );
@@ -278,7 +278,7 @@ QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, const QVe
 
 QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, int size )
 {
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
   QVector<double> ret( size );
   int res = nc_get_var_double( mNcId, varId, ret.data() );
   if ( res != NC_NOERR )
@@ -290,7 +290,7 @@ QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, int
 QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const
 {
   Q_ASSERT( starts.count() == counts.count() );
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
 
   std::vector<size_t> startp = int_array_to_size_t_array( starts );
   std::vector<size_t> countp = int_array_to_size_t_array( counts );
@@ -300,6 +300,7 @@ QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, con
 
   QVector<double> ret;
   ret.resize( totalSize );
+  ret.fill( 1.0 );
   int res = nc_get_vara_double( mNcId, varId, startp.data(), countp.data(), ret.data() );
 
   if ( res == NC_NOERR )
@@ -311,7 +312,7 @@ QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, con
 QVector<qint16> ReosNetCdfFile::getShortArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const
 {
   Q_ASSERT( starts.count() == counts.count() );
-  int varId = mVarNameToVarId.value( variableName );
+  int varId = mVarNameToVarId.value( variableName, -1 );
 
   std::vector<size_t> startp = int_array_to_size_t_array( starts );
   std::vector<size_t> countp = int_array_to_size_t_array( counts );

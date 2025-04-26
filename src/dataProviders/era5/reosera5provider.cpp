@@ -192,6 +192,17 @@ const QVector<double> ReosEra5Provider::dataInGridExtent( int index, int rowMin,
   return QVector<double>();
 }
 
+void ReosEra5Provider::exportToTiff(int index, const QString &fileName) const
+{
+    ReosRasterMemory<double> rast( mExtent.yCellCount(), mExtent.xCellCount() );
+
+    if ( rast.reserveMemory() )
+    {
+        rast.setValues( data( index ) );
+        ReosGdalDataset::writeDoubleRasterToFile( fileName, rast, mExtent );
+    }
+}
+
 ReosRasterExtent ReosEra5Provider::extent() const
 {
   return mExtent;
@@ -417,6 +428,8 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
   {
     const QString crs = ReosGisEngine::projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( 6371229 ) );
     const QStringList dimensionNames = mFile->variableDimensionNames( varName );
+    if ( dimensionNames.isEmpty() )
+      return;
     int longitudeCount = mFile->dimensionLength( QStringLiteral( "longitude" ) );
     int latitudeCount = mFile->dimensionLength( QStringLiteral( "latitude" ) );
     double lonResol = 0.25;
@@ -430,25 +443,26 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
       timeName = QStringLiteral( "time" );
       timeOrigin = QDateTime( QDate( 1900, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
       timeUnit = ReosDuration( 1., ReosDuration::hour );
+      mScalefactor = mFile->doubleAttributeValue( varName, QStringLiteral( "scale_factor" ) );
+      mAddOffset = mFile->doubleAttributeValue( varName, QStringLiteral( "add_offset" ) );
+      mFillingValue = mFile->shortAttributeValue( varName, QStringLiteral( "_FillValue" ) );
+      mMissingValue = mFile->shortAttributeValue( varName, QStringLiteral( "missing_value" ) );
+      mOldFormat = true;
     }
     else
     {
       timeName = QStringLiteral( "valid_time" );
       timeOrigin = QDateTime( QDate( 1970, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
       timeUnit = ReosDuration( 1., ReosDuration::second );
+      mFloatMissingValue = mFile->doubleAttributeValue( varName, QStringLiteral( "GRIB_missingValue" ) );
+      mOldFormat = false;
     }
-
 
     QVector<double> longs = mFile->getDoubleArray( QStringLiteral( "longitude" ), longitudeCount );
     QVector<double> lats = mFile->getDoubleArray( QStringLiteral( "latitude" ), longitudeCount );
 
     mExtent = ReosRasterExtent( longs.at( 0 ) - lonResol / 2, lats.at( 0 ) + latResol / 2, longitudeCount, latitudeCount, lonResol, -latResol );
     mExtent.setCrs( crs );
-
-    mScalefactor = mFile->doubleAttributeValue( varName, QStringLiteral( "scale_factor" ) );
-    mAddOffset = mFile->doubleAttributeValue( varName, QStringLiteral( "add_offset" ) );
-    mFillingValue = mFile->shortAttributeValue( varName, QStringLiteral( "_FillValue" ) );
-    mMissingValue = mFile->shortAttributeValue( varName, QStringLiteral( "missing_value" ) );
 
     int frameCount = mFile->dimensionLength( timeName );
     const QVector<int> intTime = mFile->getIntArray( timeName, frameCount );
@@ -471,20 +485,7 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
   mFile.reset();
 }
 
-QVector<double> ReosEra5NetCdfFilesReader::treatRawData( const QVector<qint16> &rawData ) const
-{
-  QVector<double> ret( rawData.count(), std::numeric_limits<double>::quiet_NaN() );
 
-  for ( int i = 0; i < rawData.count(); ++i )
-  {
-    qint16 rawValue = rawData.at( i );
-    if ( rawValue != mFillingValue && rawValue != mMissingValue )
-    {
-      ret[i] = std::max( 0.0,   rawValue * mScalefactor + mAddOffset );
-    }
-  }
-  return ret;
-}
 
 ReosEra5NetCdfFilesReader *ReosEra5NetCdfFilesReader::clone() const
 {
@@ -519,7 +520,10 @@ QVector<double> ReosEra5NetCdfFilesReader::data( int index, bool &readLine ) con
   if ( mFile->isValid() )
   {
     readLine = false;
-    return treatRawData( mFile->getShortArray( mVarName, starts, counts ) );
+    if ( mOldFormat )
+      return treatShortRawData( mFile->getShortArray( mVarName, starts, counts ) );
+    else
+      return mFile->getDoubleArray( mVarName, starts, counts );
   }
 
   return QVector<double>();
@@ -540,7 +544,7 @@ QVector<double> ReosEra5NetCdfFilesReader::dataInGridExtent( int index, int rowM
   if ( mFile->isValid() )
   {
     readLine = false;
-    return treatRawData( mFile->getShortArray( mVarName, starts, counts ) );
+    return treatShortRawData( mFile->getShortArray( mVarName, starts, counts ) );
   }
 
   return QVector<double>();
@@ -604,6 +608,32 @@ bool ReosEra5NetCdfFilesReader::canReadFile( const QString &uri )
 void ReosEra5NetCdfFilesReader::reset()
 {
   mFile.reset();
+}
+
+QVector<double> ReosEra5NetCdfFilesReader::treatShortRawData( const QVector<qint16> &rawData ) const
+{
+  QVector<double> ret( rawData.count(), std::numeric_limits<double>::quiet_NaN() );
+
+  for ( int i = 0; i < rawData.count(); ++i )
+  {
+    qint16 rawValue = rawData.at( i );
+    if ( rawValue != mFillingValue && rawValue != mMissingValue )
+    {
+      ret[i] = std::max( 0.0,   rawValue * mScalefactor + mAddOffset );
+    }
+  }
+  return ret;
+}
+
+QVector<double> ReosEra5NetCdfFilesReader::treatFloatRawData( const QVector<double> &rawData ) const
+{
+  QVector<double> ret = rawData;
+  for ( int i = 0; i < rawData.count(); ++i )
+  {
+    if ( rawData.at( i ) == mFloatMissingValue )
+      ret[i] = std::numeric_limits<double>::quiet_NaN();
+  }
+  return ret;
 }
 
 ReosEra5NetCdfFolderReader::ReosEra5NetCdfFolderReader( const QString &folderPath, const QString &varName, const QDateTime &start, const QDateTime &end )
