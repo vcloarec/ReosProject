@@ -192,15 +192,15 @@ const QVector<double> ReosEra5Provider::dataInGridExtent( int index, int rowMin,
   return QVector<double>();
 }
 
-void ReosEra5Provider::exportToTiff(int index, const QString &fileName) const
+void ReosEra5Provider::exportToTiff( int index, const QString &fileName ) const
 {
-    ReosRasterMemory<double> rast( mExtent.yCellCount(), mExtent.xCellCount() );
+  ReosRasterMemory<double> rast( mExtent.yCellCount(), mExtent.xCellCount() );
 
-    if ( rast.reserveMemory() )
-    {
-        rast.setValues( data( index ) );
-        ReosGdalDataset::writeDoubleRasterToFile( fileName, rast, mExtent );
-    }
+  if ( rast.reserveMemory() )
+  {
+    rast.setValues( data( index ) );
+    ReosGdalDataset::writeDoubleRasterToFile( fileName, rast, mExtent );
+  }
 }
 
 ReosRasterExtent ReosEra5Provider::extent() const
@@ -466,11 +466,10 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
 
     int frameCount = mFile->dimensionLength( timeName );
     const QVector<int> intTime = mFile->getIntArray( timeName, frameCount );
-    const QDateTime oriTime( QDate( 1900, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
     QMap<QDateTime, int> timeToFileIndex;
     for ( int i = 0; i < frameCount; ++i )
     {
-      const QDateTime &time = oriTime.addSecs( timeUnit.valueSecond() * static_cast<qint64>( intTime.at( i ) ) );
+      const QDateTime &time = timeOrigin.addSecs( timeUnit.valueSecond() * static_cast<qint64>( intTime.at( i ) ) );
       if ( !mStart.isValid() || !mEnd.isValid()  || ( time >= mStart && time.addSecs( 3600 ) <= mEnd ) )
       {
         if ( !timeToFileIndex.contains( time ) )
@@ -523,7 +522,7 @@ QVector<double> ReosEra5NetCdfFilesReader::data( int index, bool &readLine ) con
     if ( mOldFormat )
       return treatShortRawData( mFile->getShortArray( mVarName, starts, counts ) );
     else
-      return mFile->getDoubleArray( mVarName, starts, counts );
+      return treatFloatRawData( mFile->getDoubleArray( mVarName, starts, counts ) );
   }
 
   return QVector<double>();
