@@ -346,26 +346,26 @@ bool ReosGisEngine::crsIsValid( const QString &crsString )
   return qgsCrs.isValid();
 }
 
-QString ReosGisEngine::projStringToWkt(const QString &projString)
+QString ReosGisEngine::projStringToWkt( const QString &projString )
 {
-    // Create an OGRSpatialReferenceH object( Handle - based API )
-    OGRSpatialReferenceH hSRS = OSRNewSpatialReference( NULL );
-    if ( OSRImportFromProj4( hSRS, projString.toUtf8() ) != OGRERR_NONE )
-    {
-        OSRDestroySpatialReference( hSRS );
-        return QString();
-    }
+  // Create an OGRSpatialReferenceH object( Handle - based API )
+  OGRSpatialReferenceH hSRS = OSRNewSpatialReference( NULL );
+  if ( OSRImportFromProj4( hSRS, projString.toUtf8() ) != OGRERR_NONE )
+  {
+    OSRDestroySpatialReference( hSRS );
+    return QString();
+  }
 
-    // Convert to WKT format
-    char *wkt = NULL;
-    if ( OSRExportToWkt( hSRS, &wkt ) != OGRERR_NONE )
-    {
-        fprintf( stderr, "Failed to convert to WKT\n" );
-        OSRDestroySpatialReference( hSRS );
-        return QString();
-    }
+  // Convert to WKT format
+  char *wkt = NULL;
+  if ( OSRExportToWkt( hSRS, &wkt ) != OGRERR_NONE )
+  {
+    fprintf( stderr, "Failed to convert to WKT\n" );
+    OSRDestroySpatialReference( hSRS );
+    return QString();
+  }
 
-    return QString::fromUtf8( wkt );
+  return QString::fromUtf8( wkt );
 }
 
 void ReosGisEngine::loadQGISProject( const QString &fileName )
@@ -615,19 +615,43 @@ ReosCoordinateSystemTransformer ReosGisEngine::getCoordinateTransformer() const
   return ret;
 }
 
-QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri, QString &crs )
+QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri, QString &crs, const QString &provider, const ReosMapExtent  &mapExtent )
 {
-  std::unique_ptr<QgsVectorLayer> layer( new QgsVectorLayer( uri, "poly_layer" ) );
-  crs = layer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
+  std::unique_ptr<QgsVectorLayer> layer( new QgsVectorLayer( uri, "poly_layer", provider.isEmpty() ? QStringLiteral( "ogr" ) : provider ) );
 
   QList<QPolygonF> ret;
 
-  QgsFeatureIterator it = layer->getFeatures();
+  if ( ! layer->isValid() )
+    return ret;
+
+  crs = layer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
+
+  QgsFeatureIterator it;
+
+  if ( mapExtent.isValid() )
+  {
+    QgsRectangle extent = QgsRectangle( mapExtent.toRectF() );
+    QgsCoordinateReferenceSystem extentCrs = QgsCoordinateReferenceSystem::fromWkt( mapExtent.crs() );
+
+
+    QgsFeatureRequest request;
+    request.setDestinationCrs( extentCrs, QgsProject::instance()->transformContext() );
+    request.setFilterRect( extent );
+
+    it = layer->getFeatures( request );
+  }
+  else
+  {
+    it = layer->getFeatures();
+  }
 
   QgsFeature feat;
   while ( it.nextFeature( feat ) )
   {
+    QgsGeometry geom = feat.geometry();
     QPolygonF poly = feat.geometry().asQPolygonF();
+    if ( poly.isEmpty() )
+      continue;
     if ( poly.first() == poly.last() )
       poly.removeLast();
     ret.append( poly );
