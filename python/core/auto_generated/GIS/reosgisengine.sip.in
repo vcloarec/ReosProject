@@ -131,6 +131,8 @@ Sets the coordinate reference system of the GIS project
 Returns wheter the crs is recognized and valid
 %End
 
+    static QString projStringToWkt( const QString &projString );
+
     void loadQGISProject( const QString &fileName );
 %Docstring
 loads a QGIS project as GIS project
@@ -190,7 +192,7 @@ Clears the GIS project
     bool canBeRasterDem( const QString &uri ) const;
 
 
-    static QList<QPolygonF> openPolygonVectorLayerSource( const QString &uri, QString &crs /Out/ );
+    static QList<QPolygonF> openPolygonVectorLayerSource( const QString &uri, QString &crs /Out/, const QString &provider = QString(), const ReosMapExtent &mapExtent = ReosMapExtent() );
 %Docstring
 Opens a polygon vector layer from ``uri`` and returns a  list of its polygons and the related ``crs``.
 %End

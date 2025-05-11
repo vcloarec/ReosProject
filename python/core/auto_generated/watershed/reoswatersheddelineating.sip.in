@@ -151,7 +151,8 @@ Clears all the data from the delineating tool
                                   const ReosMapExtent &extent,
                                   ReosGisEngine *gisEngine,
                                   const QString &fileName,
-                                  const QString &burningLinesLayerUri = QString() );
+                                  const QString &burningLinesLayerUri = QString(),
+                                  const QString &burningLinesLayerProvider = QString() );
 
 
   signals:

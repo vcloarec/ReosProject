@@ -202,7 +202,8 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
                                   const ReosMapExtent &extent,
                                   ReosGisEngine *gisEngine,
                                   const QString &fileName,
-                                  const QString &burningLinesLayerUri = QString() );
+                                  const QString &burningLinesLayerUri = QString(),
+                                  const QString &burningLinesLayerProvider = QString() );
 
     static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent ) SIP_SKIP;
 

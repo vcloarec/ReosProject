@@ -375,7 +375,8 @@ bool ReosWatershedDelineating::directionFromDem(
   const ReosMapExtent &extent,
   ReosGisEngine *gisEngine,
   const QString &fileName,
-  const QString &burningLinesLayerUri )
+  const QString &burningLinesLayerUri,
+  const QString &burningLinesLayerProvider )
 {
   std::unique_ptr<ReosDigitalElevationModel> entryDem( gisEngine->getDigitalElevationModel( demLayerId ) );
   float maxValue = 0;
@@ -387,7 +388,8 @@ bool ReosWatershedDelineating::directionFromDem(
   {
     std::cout << "Use burning lines from layer with uri: " << burningLinesLayerUri.toStdString() << std::endl;
     QString blCrs;
-    QList<QPolygonF> burningLines = ReosGisEngine::openPolygonVectorLayerSource( burningLinesLayerUri, blCrs );
+    QList<QPolygonF> burningLines =
+      ReosGisEngine::openPolygonVectorLayerSource( burningLinesLayerUri, blCrs, burningLinesLayerProvider, rasterExtent );
 
     std::cout << "Burning line count: " << burningLines.count() << std::endl;
 

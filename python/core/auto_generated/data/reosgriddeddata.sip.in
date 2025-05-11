@@ -129,7 +129,6 @@ class ReosDataGriddedOnWatershed /Abstract/
 
     virtual void preCalculate() const = 0;
 
-
   protected:
 
     virtual void onCalculationFinished() = 0;
