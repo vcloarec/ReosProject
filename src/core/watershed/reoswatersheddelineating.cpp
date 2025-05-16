@@ -394,7 +394,13 @@ bool ReosWatershedDelineating::directionFromDem(
     std::cout << "Burning line count: " << burningLines.count() << std::endl;
 
     for ( int i = 0; i < burningLines.count(); ++i )
+    {
       burningLines[i] = ReosGisEngine::transformToCoordinates( blCrs, burningLines.at( i ), extent.crs() );
+      if ( burningLines[i].count() > 0 )
+        std::cout << "Burning line (" << i << ") first vertex: " << burningLines[i].at( 0 ).x() << ", " << burningLines[i].at( 0 ).y() << std::endl;
+      else
+        std::cout << "Burning line (" << i << ") not valid" << std::endl;
+    }
 
     ReosWatershedDelineating::burnRasterDem( dem, burningLines, rasterExtent );
   }
@@ -413,9 +419,11 @@ bool ReosWatershedDelineating::directionFromDem(
   directionProcess->start();
 
   std::cout << "Save direction to file: " << fileName.toStdString() << std::endl;
-  return ReosGdalDataset::writeByteRasterToFile( fileName, directionProcess->directions(), rasterExtent );
+  return ReosGdalDataset::writeByteRasterToCOGFile( fileName, directionProcess->directions(), rasterExtent );
 
   std::cout << "Direction calculation finished!!! " << fileName.toStdString() << std::endl;
+
+  return true;
 }
 
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )
