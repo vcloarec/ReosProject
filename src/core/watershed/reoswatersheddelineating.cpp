@@ -386,7 +386,6 @@ bool ReosWatershedDelineating::directionFromDem(
 
   if ( !burningLinesLayerUri.isEmpty() )
   {
-    std::cout << "Use burning lines from layer with uri: " << burningLinesLayerUri.toStdString() << std::endl;
     QString blCrs;
     QList<QPolygonF> burningLines =
       ReosGisEngine::openPolygonVectorLayerSource( burningLinesLayerUri, blCrs, burningLinesLayerProvider, rasterExtent );
