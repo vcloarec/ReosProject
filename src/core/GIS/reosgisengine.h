@@ -113,6 +113,8 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     //! Returns whether the layer exists and is valid
     bool hasValidLayer( const QString &layerId ) const;
 
+    ReosMapExtent layerExtent( const QString &layerId ) const;
+
     //! Returns the count of layers in the project
     int layersCount() const;
 

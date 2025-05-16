@@ -624,7 +624,7 @@ QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri
   if ( ! layer->isValid() )
     return ret;
 
-  crs = layer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
+
 
   QgsFeatureIterator it;
 
@@ -639,10 +639,12 @@ QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri
     request.setFilterRect( extent );
 
     it = layer->getFeatures( request );
+    crs = mapExtent.crs(); // with a destination CRS in the request the return feature are in the destination CRS
   }
   else
   {
     it = layer->getFeatures();
+    crs = layer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
   }
 
   QgsFeature feat;
@@ -1248,6 +1250,19 @@ bool ReosGisEngine::hasValidLayer( const QString &layerId ) const
   QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
 
   return ( layer && layer->isValid() );
+}
+
+ReosMapExtent ReosGisEngine::layerExtent( const QString &layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+
+  QgsRectangle extent = layer->extent();
+  QString crs = layer->crs().toWkt();
+
+  ReosMapExtent ret( extent.toRectF() );
+  ret.setCrs( crs );
+
+  return ret;
 }
 
 int ReosGisEngine::layersCount() const
