@@ -35,6 +35,8 @@ namespace ReosRasterWatershed
 {
   typedef ReosRasterMemory<unsigned char> Directions;
   typedef ReosRasterMemory<unsigned char> Watershed;
+  typedef ReosRasterMemory<float> DistanceFromOutlet;
+  typedef ReosRasterMemory<unsigned char> DistanceClasses;
   typedef ReosRasterMemory<float> Dem;
 
   struct Climber
@@ -99,11 +101,12 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
 {
   public:
 
-    ReosRasterWatershedMarkerFromDirection( ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
-                                            const ReosRasterWatershed::Climber &initialClimb,
-                                            const ReosRasterWatershed::Directions &directions,
-                                            ReosRasterWatershed::Watershed &watershed,
-                                            const ReosRasterLine &excludedCell );
+    ReosRasterWatershedMarkerFromDirection(ReosRasterWatershedFromDirectionAndDownStreamLine *mParent,
+                                           const ReosRasterWatershed::Climber &initialClimb,
+                                           const ReosRasterWatershed::Directions &directions,
+                                           ReosRasterWatershed::Watershed &watershed,
+                                           ReosRasterWatershed::DistanceFromOutlet &distanceFromOutlet,
+                                           const ReosRasterLine &excludedCell );
 
     //! Set a dem for
 
@@ -113,6 +116,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection: public ReosProcess
     ReosRasterWatershedFromDirectionAndDownStreamLine *mParent;
     const ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed &mWatershed;
+    ReosRasterWatershed::DistanceFromOutlet &mDistanceFromOutlet;
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
     size_t mMaxClimberStored = 100;
@@ -145,9 +149,12 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine: public 
     //! Returns the cells at the end of the longer path
     ReosRasterCellPos endOfLongerPath() const;
 
+    ReosRasterWatershed::DistanceClasses distanceClasses( unsigned char classCount ) const;
+
   private:
     ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed mWatershed;
+    ReosRasterWatershed::DistanceFromOutlet mDistanceFromOutlet;
     ReosRasterLine mDownstreamLine;
     std::list<ReosRasterWatershed::Climber> mPoolCellsToTreat;
     int mCounter;

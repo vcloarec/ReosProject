@@ -340,7 +340,8 @@ ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWat
   const QString &directionFile,
   const QPolygonF &downstreamLine,
   const QString &dsLineCrs,
-  ReosGisEngine *gisEngine )
+  ReosGisEngine *gisEngine,
+  const QString &distanceClassesOutputFile )
 {
   std::unique_ptr<ReosDigitalElevationModel> dem;
   dem.reset( gisEngine->getDigitalElevationModel( demLayerId ) );
@@ -366,6 +367,11 @@ ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWat
   res.delineateWatershed = process->watershedPolygon();
   res.streamLine = process->streamLine();
   res.averageElevation = process->averageElevation();
+  res.distanceArea = process->distanceArea();
+
+  const ReosRasterWatershed::DistanceClasses &distClasses = process->distanceClasses();
+
+  ReosGdalDataset::writeByteRasterToFile( distanceClassesOutputFile, distClasses, res.outputRasterExtent );
 
   return res;
 }
@@ -569,6 +575,7 @@ void ReosWatershedDelineatingProcess::start()
   }
 
   mRasterizedWatershed = rasterWatershedFromDirection->watershed();
+  mDistanceClasses = rasterWatershedFromDirection->distanceClasses( 255 );
   ReosRasterCellPos downStreamPoint = rasterWatershedFromDirection->firstCell();
   ReosRasterCellPos endOfLongerPath = rasterWatershedFromDirection->endOfLongerPath();
   setSubProcess( nullptr );
@@ -692,6 +699,7 @@ void ReosWatershedDelineatingProcess::start()
     mDirections = mDirections.reduceRaster( rowMin, rowMax, colMin, colMax );
 
   mRasterizedWatershed = mRasterizedWatershed.reduceRaster( rowMin, rowMax, colMin, colMax );
+  mDistanceClasses = mDistanceClasses.reduceRaster( rowMin, rowMax, colMin, colMax );
 
   double newXOrigin = mPredefinedRasterExtent.xMapOrigin() + colMin * mPredefinedRasterExtent.xCellSize();
   double newYOrigin = mPredefinedRasterExtent.yMapOrigin() + rowMin * mPredefinedRasterExtent.yCellSize();
@@ -702,6 +710,38 @@ void ReosWatershedDelineatingProcess::start()
   // Calculate average elevation
   if ( mCalculateAverageElevation && mEntryDem )
     mAverageElevation = mEntryDem->averageElevationOnGrid( mRasterizedWatershed, mOutputRasterExtent, this );
+
+  // calculate distance vs area
+  mDistanceToArea = QVector<int>( 256 );
+  mDistanceToArea.fill( 0 );
+  const QVector<unsigned char> &distValues = mDistanceClasses.values();
+  for ( int i = 0; i < distValues.count(); ++i )
+  {
+    unsigned char val = distValues.at( i );
+    mDistanceToArea[val] = mDistanceToArea[val] + 1;
+  }
+
+  int areaCount = 0;
+  mDistanceToArea[0] = 0;
+  for ( int i = 1; i < 256; i++ )
+    mDistanceToArea[i] = mDistanceToArea[i - 1] + mDistanceToArea.at( i );
+
+  int maxArea = mDistanceToArea.at( 255 );
+
+  for ( int i = 0; i < 256; i++ )
+    mDistanceToArea[i] = 255 - static_cast<int>( std::floor( 254.0 * mDistanceToArea[i] / maxArea ) + 1 );
+
+  QVector<unsigned char> distAreaRast( distValues.size() );
+  distAreaRast.fill( 0u );
+  for ( int i = 0; i < distValues.count(); ++i )
+  {
+    unsigned char dist = distValues.at( i );
+    if ( dist == 0 )
+      continue;
+    distAreaRast[i] = mDistanceToArea.at( dist );
+  }
+
+  mDistanceClasses.setValues( distAreaRast );
 
   mEntryDem.reset();
 
@@ -729,6 +769,11 @@ ReosRasterWatershed::Watershed ReosWatershedDelineatingProcess::rasterizedWaters
   return mRasterizedWatershed;
 }
 
+ReosRasterWatershed::DistanceClasses ReosWatershedDelineatingProcess::distanceClasses() const
+{
+  return mDistanceClasses;
+}
+
 ReosRasterExtent ReosWatershedDelineatingProcess::predefinedRasterExtent() const
 {
   return mPredefinedRasterExtent;
@@ -742,6 +787,11 @@ ReosRasterExtent ReosWatershedDelineatingProcess::outputRasterExtent() const
 double ReosWatershedDelineatingProcess::averageElevation() const
 {
   return mAverageElevation;
+}
+
+QVector<int> ReosWatershedDelineatingProcess::distanceArea() const
+{
+  return mDistanceToArea;
 }
 
 bool ReosWatershedDelineatingProcess::calculateAverageElevation() const

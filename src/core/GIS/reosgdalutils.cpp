@@ -213,7 +213,7 @@ ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band ) const
   return ret;
 }
 
-void ReosGdalDataset::clip( const ReosRasterExtent &newExtent )
+void ReosGdalDataset::resample( const ReosRasterExtent &newExtent )
 {
   double pixelSizeX = newExtent.xCellSize();
   double pixelSizeY = newExtent.yCellSize();

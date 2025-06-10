@@ -66,12 +66,14 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 
     ReosRasterWatershed::Directions directions() const;
     ReosRasterWatershed::Watershed rasterizedWatershed() const;
+    ReosRasterWatershed::DistanceClasses distanceClasses() const;
 
     //! Returns the entry extent matching to dem raster resolution
     ReosRasterExtent predefinedRasterExtent() const;
     ReosRasterExtent outputRasterExtent() const;
 
     double averageElevation() const;
+    QVector<int> distanceArea() const;
 
     bool calculateAverageElevation() const;
 
@@ -83,6 +85,8 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 
     ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed mRasterizedWatershed;
+    ReosRasterWatershed::DistanceClasses mDistanceClasses;
+    QVector<int> mDistanceToArea;
     QPolygonF mOutputWatershed;
     QPolygonF mOutputStreamline;
     ReosRasterExtent mPredefinedRasterExtent;
@@ -189,6 +193,7 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
       QPolygonF delineateWatershed;
       QPolygonF streamLine;
       double averageElevation;
+      QVector<int> distanceArea;
     };
 
     static DelineateResult delineateWatershed(
@@ -196,7 +201,8 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
       const QString &directionFile,
       const QPolygonF &downstreamLine,
       const QString &dsLineCrs,
-      ReosGisEngine *gisEngine );
+      ReosGisEngine *gisEngine,
+      const QString &distanceClassesOutputFile = QString() );
 
     static bool directionFromDem( const QString &demLayerId,
                                   const ReosMapExtent &extent,

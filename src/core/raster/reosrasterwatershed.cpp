@@ -20,10 +20,12 @@ ReosRasterWatershedMarkerFromDirection::ReosRasterWatershedMarkerFromDirection( 
     const ReosRasterWatershed::Climber &initialClimb,
     const ReosRasterWatershed::Directions &directionRaster,
     ReosRasterWatershed::Watershed &resultRaster,
+    ReosRasterWatershed::DistanceFromOutlet &distanceFromOutlet,
     const ReosRasterLine &excludedPixel ):
   mParent( parent ),
   mDirections( directionRaster ),
   mWatershed( resultRaster ),
+  mDistanceFromOutlet( distanceFromOutlet ),
   mExcludedPixel( excludedPixel )
 {
   mClimberToTreat.push( initialClimb );
@@ -60,6 +62,7 @@ void ReosRasterWatershedMarkerFromDirection::start()
               else
                 dl = 1;
 
+              mDistanceFromOutlet.setValue( pixelToTest.row(), pixelToTest.column(), static_cast<float>( currentClimb.lengthPath + dl ) );
               if ( mClimberToTreat.size() < mMaxClimberStored )
                 mClimberToTreat.push( ReosRasterWatershed::Climber( pixelToTest, currentClimb.lengthPath + dl ) );
               else
@@ -97,6 +100,10 @@ ReosRasterWatershedFromDirectionAndDownStreamLine::ReosRasterWatershedFromDirect
   mWatershed = ReosRasterWatershed::Watershed( mDirections.rowCount(), mDirections.columnCount() );
   mWatershed.reserveMemory();
   mWatershed.fill( 0 );
+
+  mDistanceFromOutlet = ReosRasterWatershed::DistanceFromOutlet( mDirections.rowCount(), mDirections.columnCount() );
+  mDistanceFromOutlet.reserveMemory();
+  mDistanceFromOutlet.fill( 0.0f );
 
   for ( unsigned i = 0; i < mDownstreamLine.cellCount(); ++i )
   {
@@ -159,6 +166,30 @@ ReosRasterCellPos ReosRasterWatershedFromDirectionAndDownStreamLine::firstCell()
 
 ReosRasterCellPos ReosRasterWatershedFromDirectionAndDownStreamLine::endOfLongerPath() const {return mEndOfLongerPath.pos;}
 
+ReosRasterWatershed::DistanceClasses ReosRasterWatershedFromDirectionAndDownStreamLine::distanceClasses( unsigned char classCount ) const
+{
+  ReosRasterWatershed::DistanceClasses ret( mDistanceFromOutlet.rowCount(), mDistanceFromOutlet.columnCount() );
+  ret.setNodata( 0 );
+
+  const QVector<float> &distValues = mDistanceFromOutlet.values();
+  QVector<unsigned char> classValues;
+  classValues.resize( distValues.count() );
+  classValues.fill( 0u );
+
+  double longestPath = mEndOfLongerPath.lengthPath;
+
+  for ( int i = 0; i < distValues.count(); ++i )
+  {
+    if ( distValues.at( i ) == 0 )
+      continue;
+    classValues[i] = static_cast<unsigned char>( std::floor( ( distValues.at( i ) / longestPath ) * classCount + 1 ) );
+  }
+
+  ret.setValues( classValues );
+
+  return ret;
+}
+
 bool ReosRasterWatershedFromDirectionAndDownStreamLine::testCell( const ReosRasterCellPos &cell ) const
 {
   if ( mTestingCell )
@@ -182,7 +213,8 @@ void ReosRasterWatershedFromDirectionAndDownStreamLine::start()
     ReosRasterWatershed::Climber pix = getClimberFromPool( pixelAvailable );
     if ( pixelAvailable )
     {
-      ReosRasterWatershedMarkerFromDirection *cal = new ReosRasterWatershedMarkerFromDirection( this, pix, mDirections, mWatershed, mDownstreamLine );
+      ReosRasterWatershedMarkerFromDirection *cal =
+        new ReosRasterWatershedMarkerFromDirection( this, pix, mDirections, mWatershed, mDistanceFromOutlet, mDownstreamLine );
       mJobs.emplace_back( cal );
       mThreads.emplace_back( ReosProcess::processStart, cal );
     }

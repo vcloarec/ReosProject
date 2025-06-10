@@ -55,7 +55,7 @@ class REOSCORE_EXPORT ReosGdalDataset : public ReosGriddedDataSource
     ReosRasterMemory<int> valuesInt( int band ) const;
     ReosRasterMemory<unsigned char> valuesBytes( int band ) const;
 
-    void clip( const ReosRasterExtent &newExtent );
+    void resample( const ReosRasterExtent &newExtent );
 
     bool writeDoubleToFile( int bandNo, const QString &fileName ) const;
 
