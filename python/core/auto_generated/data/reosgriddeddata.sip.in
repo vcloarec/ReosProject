@@ -123,7 +123,11 @@ class ReosDataGriddedOnWatershed /Abstract/
 #include "reosgriddeddata.h"
 %End
   public:
-    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep );
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed,
+                                ReosGriddedData *griddeddata,
+                                const ReosDuration &outputTimeStep,
+                                const QString classifiedDistanceFile = QString(),
+                                int classCout = 0 );
 
     double calculateValueAt( int index ) const;
 

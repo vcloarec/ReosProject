@@ -77,6 +77,8 @@ Returns the name of the layer with ``layerId``
 Returns whether the layer exists and is valid
 %End
 
+    ReosMapExtent layerExtent( const QString &layerId ) const;
+
     int layersCount() const;
 %Docstring
 Returns the count of layers in the project
