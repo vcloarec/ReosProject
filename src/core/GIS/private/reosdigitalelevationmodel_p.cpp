@@ -40,6 +40,7 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
     mSourceId = rasterLayer->id();
     QgsRectangle qgsRasterExtent = mDataProvider->extent();
     mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
+    mExtent.setCrs( mCrs.toWkt() );
   }
 }
 
@@ -54,6 +55,7 @@ ReosDigitalElevationModelRaster::ReosDigitalElevationModelRaster(
     mCrs = mDataProvider->crs();
     QgsRectangle qgsRasterExtent = mDataProvider->extent();
     mExtent = ReosRasterExtent( ReosMapExtent( qgsRasterExtent.toRectF() ), mDataProvider->xSize(), mDataProvider->ySize() );
+    mExtent.setCrs( mCrs.toWkt() );
   }
 }
 

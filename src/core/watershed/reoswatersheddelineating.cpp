@@ -460,6 +460,7 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
   mEntryDem( dem ),
   mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, mapExtent.crs() ) ),
   mBurningLines( burningLines ),
+  mOutputCrs( mapExtent.crs() ),
   mCalculateAverageElevation( calculateAverageElevation )
 {}
 
@@ -470,6 +471,7 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
   const QString &layerId,
   bool calculateAverageElevation )
   : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, downstreamWatershed->crs() ) )
+  , mOutputCrs( downstreamWatershed->crs() )
   , mDirections( downstreamWatershed->directions( layerId ) )
   , mPredefinedRasterExtent( downstreamWatershed->directionExtent( layerId ) )
   , mCalculateAverageElevation( calculateAverageElevation )
@@ -482,6 +484,7 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess( ReosDigitalEle
     const QString &downstreamLineCrs,
     bool calculateAverageElevation )
   : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, directionsExtent.crs() ) )
+  , mOutputCrs( directionsExtent.crs() )
   , mEntryDem( dem )
   , mDirections( directions )
   , mCalculateAverageElevation( calculateAverageElevation )
@@ -705,7 +708,7 @@ void ReosWatershedDelineatingProcess::start()
   double newYOrigin = mPredefinedRasterExtent.yMapOrigin() + rowMin * mPredefinedRasterExtent.yCellSize();
 
   mOutputRasterExtent = ReosRasterExtent( newXOrigin, newYOrigin, colMax - colMin + 1, rowMax - rowMin + 1, mPredefinedRasterExtent.xCellSize(), mPredefinedRasterExtent.yCellSize() );
-  mOutputRasterExtent.setCrs( mExtent.crs() );
+  mOutputRasterExtent.setCrs( mOutputCrs );
 
   // Calculate average elevation
   if ( mCalculateAverageElevation && mEntryDem )

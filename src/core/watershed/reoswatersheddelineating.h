@@ -82,6 +82,7 @@ class ReosWatershedDelineatingProcess: public ReosProcess
     std::unique_ptr<ReosDigitalElevationModel> mEntryDem;
     const QPolygonF mDownstreamLine;
     const QList<QPolygonF> mBurningLines;
+    QString mOutputCrs;
 
     ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed mRasterizedWatershed;
