@@ -732,7 +732,7 @@ void ReosWatershedDelineatingProcess::start()
   int maxArea = mDistanceToArea.at( 255 );
 
   for ( int i = 0; i < 256; i++ )
-    mDistanceToArea[i] = 255 - static_cast<int>( std::floor( 254.0 * mDistanceToArea[i] / maxArea ) + 1 );
+    mDistanceToArea[i] = 255 - static_cast<int>( std::floor( 255.0 * mDistanceToArea[i] / maxArea ) );
 
   QVector<unsigned char> distAreaRast( distValues.size() );
   distAreaRast.fill( 0u );
