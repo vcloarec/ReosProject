@@ -235,8 +235,7 @@ void ReosGdalDataset::resample( const ReosRasterExtent &newExtent )
   };
   GDALSetGeoTransform( hDstDS, dstGeoTransform );
   const char *proj = GDALGetProjectionRef( mHDataset );
-  GDALSetProjection( hDstDS, proj );
-
+  GDALSetProjection( hDstDS, newExtent.crs().toUtf8() );
 
   char **papszOptions = NULL;
   papszOptions = CSLAddString( papszOptions, "-r" );

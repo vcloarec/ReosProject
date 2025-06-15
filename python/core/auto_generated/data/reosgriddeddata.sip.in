@@ -126,12 +126,14 @@ class ReosDataGriddedOnWatershed /Abstract/
     ReosDataGriddedOnWatershed( ReosWatershed *watershed,
                                 ReosGriddedData *griddeddata,
                                 const ReosDuration &outputTimeStep,
-                                const QString classifiedDistanceFile = QString(),
-                                int classCout = 0 );
+                                const QString areaDistributionFilePath = QString(),
+                                int areaCount = 0 );
 
     double calculateValueAt( int index ) const;
 
     virtual void preCalculate() const = 0;
+
+    QVector<double> valuesForArea( int areaIndex ) const;
 
   protected:
 
@@ -142,7 +144,11 @@ class ReosDataGriddedOnWatershed /Abstract/
 
     void launchCalculation();
 
+    void initValuesPerArea( int count );
+
 };
+
+
 
 
 class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, ReosDataGriddedOnWatershed
@@ -153,7 +159,12 @@ class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, Reo
 %End
   public:
     ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = 0 );
-    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, QObject *parent = 0 );
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed,
+                                          ReosGriddedData *griddedData,
+                                          const ReosDuration &outputTimeStep,
+                                          const QString areaDistributionFilePath = QString(),
+                                          int areaCount = 0,
+                                          QObject *parent = 0 );
     ~ReosSeriesFromGriddedDataOnWatershed();
 
     static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) /Factory/;
@@ -161,7 +172,12 @@ class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, Reo
 Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Caller takes ownership.
 %End
 
-    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep ) /Factory/;
+    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep(
+      ReosWatershed *watershed,
+      ReosGriddedData *griddedData,
+      const ReosDuration &outputTimeStep,
+      const QString areaDistributionFilePath = QString(),
+      int areaCount = 0 ) /Factory/;
 %Docstring
 Returns a new created instance from ``watershed`` and ``gridded`` rainfall with forcing the output time step ``outputTimeStep``. Caller takes ownership.
 %End

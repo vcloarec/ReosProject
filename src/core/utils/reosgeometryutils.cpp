@@ -372,6 +372,7 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &p
   double destYOri = rasterExtent.yMapOrigin() + yOri * rasterExtent.yCellSize();
 
   finalRasterExtent = ReosRasterExtent( destXOri, destYOri, colCount, rowCount, rasterExtent.xCellSize(), rasterExtent.yCellSize() );
+  finalRasterExtent.setCrs( rasterExtent.crs() );
 
   ret = ReosRasterMemory<double>( rowCount, colCount );
   ret.reserveMemory();

@@ -22,6 +22,7 @@
 #include "reosgeometryutils.h"
 #include "reosgisengine.h"
 #include "reoswatershed.h"
+#include "reosgdalutils.h"
 
 
 ReosGriddedData::ReosGriddedData( QObject *parent )
@@ -356,6 +357,35 @@ void ReosDataGriddedOnWatershed::launchCalculation()
         mXOri = mCurrentCalculation->xOri;
         mYOri = mCurrentCalculation->yOri;
         mCurrentCalculation = nullptr;
+
+        if ( mDistributePerArea )
+        {
+          ReosGdalDataset areaDistributionDS( mAreaDistributionFilePath );
+          if ( areaDistributionDS.isValid() )
+          {
+            areaDistributionDS.resample( mRasterizedExtent );
+            mAreaDistributionGrid = areaDistributionDS.valuesBytes( 1 );
+
+            QVector<unsigned char> distrValues = mAreaDistributionGrid.values();
+
+            int div = static_cast<int>( std::round( 256 / mAreaCount ) );
+
+            for ( int i = 0; i < distrValues.count(); ++i )
+              if ( distrValues.at( i ) == 0 )
+                distrValues[i] = mAreaCount; //we don't want values when area is classified as 0 (no data value)
+              else
+                distrValues[i] = static_cast<unsigned char>( std::floor( distrValues.at( i ) / div ) );
+
+            mAreaDistributionGrid.setValues( distrValues );
+
+            for ( int i = 0; i < mAreaCount; ++i )
+              mValuesPerAreas.append( std::make_shared < QVector<double>>() );
+          }
+          else
+          {
+            mDistributePerArea = false;
+          }
+        }
         onCalculationFinished();
       }
     }
@@ -367,11 +397,22 @@ void ReosDataGriddedOnWatershed::launchCalculation()
   newCalc->startOnOtherThread();
 }
 
-ReosDataGriddedOnWatershed::ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep )
+ReosDataGriddedOnWatershed::ReosDataGriddedOnWatershed( ReosWatershed *watershed,
+    ReosGriddedData *griddeddata,
+    const ReosDuration &outputTimeStep,
+    const QString areaDistributionFilePath,
+    int areaCount )
   : mWatershed( watershed )
   , mGriddedData( griddeddata )
   , mOutputTimeStep( outputTimeStep )
-{}
+  , mAreaDistributionFilePath( areaDistributionFilePath )
+  , mAreaCount( areaCount )
+{
+  if ( mAreaDistributionFilePath.isEmpty() || mAreaCount < +0 )
+    return;
+
+  mDistributePerArea = true;
+}
 
 double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
 {
@@ -409,6 +450,18 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
 
   double averageValue = 0;
   double totalSurf = 0;
+
+  QVector<double> distributeAverageValue;
+  QVector<double> distribureTotalSurf;
+
+  if ( mDistributePerArea )
+  {
+    distributeAverageValue.resize( mAreaCount );
+    distributeAverageValue.fill( 0 );
+    distribureTotalSurf.resize( mAreaCount );
+    distribureTotalSurf.fill( 0 );
+  }
+
   for ( int xi = 0; xi < rasterizedXCount; ++xi )
   {
     for ( int yi = 0; yi < rasterizedYCount; ++yi )
@@ -419,25 +472,92 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
       {
         averageValue += surf * rv;
       }
-      totalSurf += mRasterizedWatershed.value( yi, xi );
+      totalSurf += surf;
+
+      if ( mDistributePerArea && surf > 0 )
+      {
+        int distIndex = mAreaDistributionGrid.value( yi, xi );
+        if ( distIndex < 0 || distIndex >= mAreaCount )
+        {
+          for ( int ni = -1; ni <= 1; ++ni )
+          {
+            bool stop = false;
+            for ( int nj = -1; nj <= 1; ++nj )
+            {
+              if ( ni == 0 && nj == 0 )
+                continue;
+
+              if ( yi + ni < 0 || yi + ni >= mAreaDistributionGrid.rowCount() )
+                continue;
+
+              if ( xi + nj < 0 || xi + nj >= mAreaDistributionGrid.columnCount() )
+                continue;
+
+              if ( mAreaDistributionGrid.value( yi + ni, xi + nj ) != mAreaCount )
+              {
+                distIndex = mAreaDistributionGrid.value( yi + ni, xi + nj );
+                stop = true;
+                break;
+              }
+            }
+            if ( stop )
+              break;
+          }
+        }
+
+        if ( distIndex >= 0 && distIndex < mAreaCount )
+        {
+          if ( !std::isnan( rv ) )
+            distributeAverageValue[distIndex] = distributeAverageValue.at( distIndex ) + surf * rv;
+          distribureTotalSurf[distIndex] = distribureTotalSurf.at( distIndex ) + surf;
+        }
+        else
+        {
+          for ( int di = 0; di < mAreaCount; ++di )
+          {
+            if ( !std::isnan( rv ) )
+              distributeAverageValue[di] = distributeAverageValue.at( di ) + surf * rv / mAreaCount;
+            distribureTotalSurf[di] = distribureTotalSurf.at( di ) + surf;
+          }
+        }
+      }
+    }
+  }
+
+
+  if ( mDistributePerArea )
+  {
+    for ( int di = 0; di < mValuesPerAreas.count(); ++di )
+    {
+      ( *mValuesPerAreas.at( di ).get() )[i] = distributeAverageValue.at( di ) / distribureTotalSurf.at( di ) * timeStepRatio;
     }
   }
 
   return averageValue / totalSurf * timeStepRatio;
 }
 
+QVector<double> ReosDataGriddedOnWatershed::valuesForArea( int areaIndex ) const
+{
+  if ( areaIndex >= 0 && areaIndex < mAreaCount )
+    return ( *mValuesPerAreas[areaIndex].get() );
+
+  return QVector<double>();
+}
+
 
 ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent )
-  : ReosSeriesFromGriddedDataOnWatershed( watershed, griddedData, griddedData->minimumTimeStep(), parent )
+  : ReosSeriesFromGriddedDataOnWatershed( watershed, griddedData, griddedData->minimumTimeStep(), QString(), 0, parent )
 {
 }
 
 ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed,
     ReosGriddedData *griddedData,
     const ReosDuration &outputTimeStep,
+    const QString areaDistributionFilePath,
+    int areaCount,
     QObject *parent )
   : ReosTimeSeriesConstantInterval( parent )
-  , ReosDataGriddedOnWatershed( watershed, griddedData, outputTimeStep )
+  , ReosDataGriddedOnWatershed( watershed, griddedData, outputTimeStep, areaDistributionFilePath, areaCount )
 {
   connect( watershed, &ReosWatershed::geometryChanged, this, &ReosSeriesFromGriddedDataOnWatershed::onWatershedGeometryChanged );
   registerUpstreamData( griddedData );
@@ -461,7 +581,6 @@ ReosSeriesFromGriddedDataOnWatershed::~ReosSeriesFromGriddedDataOnWatershed()
 
 ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::create( ReosWatershed *watershed, ReosGriddedData *griddedData )
 {
-
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret = std::make_unique<ReosSeriesFromGriddedDataOnWatershed>( watershed, griddedData );
   if ( griddedData->gridCount() > 0 )
   {
@@ -472,10 +591,16 @@ ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::crea
   return ret.release();
 }
 
-ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep )
+ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath, int areaCount )
 {
   QEventLoop loop;
-  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret = std::make_unique<ReosSeriesFromGriddedDataOnWatershed>( watershed, griddedData, outputTimeStep );
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret =
+    std::make_unique<ReosSeriesFromGriddedDataOnWatershed>(
+      watershed,
+      griddedData,
+      outputTimeStep,
+      areaDistributionFilePath,
+      areaCount );
   connect( ret.get(), &ReosSeriesFromGriddedDataOnWatershed::calculationFinished, &loop, &QEventLoop::quit );
   loop.exec();
 
@@ -516,6 +641,7 @@ void ReosSeriesFromGriddedDataOnWatershed::updateData() const
 
 void ReosSeriesFromGriddedDataOnWatershed::onCalculationFinished()
 {
+  initValuesPerArea( valueCount() );
   emit calculationFinished();
 }
 
@@ -542,3 +668,12 @@ void ReosSeriesFromGriddedDataOnWatershed::onWatershedGeometryChanged()
   setObsolete();
 }
 
+
+void ReosDataGriddedOnWatershed::initValuesPerArea( int count )
+{
+  for ( int i = 0; i < mValuesPerAreas.count(); ++i )
+  {
+    mValuesPerAreas.at( i )->resize( count );
+    mValuesPerAreas.at( i )->fill( std::numeric_limits<double>::quiet_NaN() );
+  }
+}

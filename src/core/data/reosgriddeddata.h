@@ -159,11 +159,17 @@ class AverageCalculation : public ReosProcess
 class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
 {
   public:
-    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep );
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed,
+                                ReosGriddedData *griddeddata,
+                                const ReosDuration &outputTimeStep,
+                                const QString areaDistributionFilePath = QString(),
+                                int areaCount = 0 );
 
     double calculateValueAt( int index ) const;
 
     virtual void preCalculate() const = 0;
+
+    QVector<double> valuesForArea( int areaIndex ) const;
 
   protected:
 
@@ -174,20 +180,30 @@ class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
 
     void launchCalculation();
 
+    void initValuesPerArea( int count );
+
   private:
     mutable AverageCalculation *mCurrentCalculation = nullptr;
 
     QPointer<ReosWatershed> mWatershed;
     QPointer<ReosGriddedData> mGriddedData;
     ReosDuration mOutputTimeStep;
+    QString mAreaDistributionFilePath;
+    ReosRasterMemory<unsigned char> mAreaDistributionGrid;
+    int mAreaCount;
+    bool mDistributePerArea = false;
 
     ReosRasterMemory<double> mRasterizedWatershed;
     ReosRasterExtent mRasterizedExtent;
     int mXOri = -1;
     int mYOri = -1;
 
+    QVector<std::shared_ptr<QVector<double>>> mValuesPerAreas;
+
     AverageCalculation *getCalculationProcess() const;
 };
+
+
 
 
 class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeriesConstantInterval, public ReosDataGriddedOnWatershed
@@ -195,14 +211,24 @@ class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeri
     Q_OBJECT
   public:
     ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = nullptr );
-    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, QObject *parent = nullptr );
+    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed,
+                                          ReosGriddedData *griddedData,
+                                          const ReosDuration &outputTimeStep,
+                                          const QString areaDistributionFilePath = QString(),
+                                          int areaCount = 0,
+                                          QObject *parent = nullptr );
     ~ReosSeriesFromGriddedDataOnWatershed();
 
     //! Returns a new created instance from \a watershed and \a gridded rainfall. Caller takes ownership.
     static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) SIP_FACTORY;
 
     //! Returns a new created instance from \a watershed and \a gridded rainfall with forcing the output time step \a outputTimeStep. Caller takes ownership.
-    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep ) SIP_FACTORY;
+    static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep(
+      ReosWatershed *watershed,
+      ReosGriddedData *griddedData,
+      const ReosDuration &outputTimeStep,
+      const QString areaDistributionFilePath = QString(),
+      int areaCount = 0 ) SIP_FACTORY;
 
     double valueAt( int i ) const override;
 

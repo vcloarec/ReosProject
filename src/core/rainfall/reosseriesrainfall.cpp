@@ -132,6 +132,7 @@ void ReosSeriesRainfallFromGriddedOnWatershed::updateData() const
 
 void ReosSeriesRainfallFromGriddedOnWatershed::onCalculationFinished()
 {
+  initValuesPerArea( valueCount() );
   emit calculationFinished();
 }
 
