@@ -817,9 +817,7 @@ bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
   if ( !file.isValid() )
     return false;
 
-  if ( !( file.hasVariable( QStringLiteral( "RR" ) ) &&
-          file.hasVariable( QStringLiteral( "QUALIF" ) ) &&
-          file.hasVariable( QStringLiteral( "ERR" ) ) ) )
+  if ( !file.hasVariable( QStringLiteral( "RR" ) ) )
     return false;
 
   const QStringList dimensionNames = file.variableDimensionNames( QStringLiteral( "RR" ) );
