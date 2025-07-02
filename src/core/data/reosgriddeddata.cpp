@@ -363,7 +363,7 @@ void ReosDataGriddedOnWatershed::launchCalculation()
           ReosGdalDataset areaDistributionDS( mAreaDistributionFilePath );
           if ( areaDistributionDS.isValid() )
           {
-            areaDistributionDS.resample( mRasterizedExtent );
+            areaDistributionDS.resample( mRasterizedExtent, "mode" );
             mAreaDistributionGrid = areaDistributionDS.valuesBytes( 1 );
 
             QVector<unsigned char> distrValues = mAreaDistributionGrid.values();
@@ -529,7 +529,10 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
   {
     for ( int di = 0; di < mValuesPerAreas.count(); ++di )
     {
-      ( *mValuesPerAreas.at( di ).get() )[i] = distributeAverageValue.at( di ) / distribureTotalSurf.at( di ) * timeStepRatio;
+      if ( distribureTotalSurf.at( di ) > 0 )
+        ( *mValuesPerAreas.at( di ).get() )[i] = distributeAverageValue.at( di ) / distribureTotalSurf.at( di ) * timeStepRatio;
+      else
+        ( *mValuesPerAreas.at( di ).get() )[i] = 0;
     }
   }
 

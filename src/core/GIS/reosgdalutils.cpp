@@ -213,7 +213,7 @@ ReosRasterMemory<unsigned char> ReosGdalDataset::valuesBytes( int band ) const
   return ret;
 }
 
-void ReosGdalDataset::resample( const ReosRasterExtent &newExtent )
+void ReosGdalDataset::resample( const ReosRasterExtent &newExtent, const QString &alg )
 {
   double pixelSizeX = newExtent.xCellSize();
   double pixelSizeY = newExtent.yCellSize();
@@ -239,7 +239,7 @@ void ReosGdalDataset::resample( const ReosRasterExtent &newExtent )
 
   char **papszOptions = NULL;
   papszOptions = CSLAddString( papszOptions, "-r" );
-  papszOptions = CSLAddString( papszOptions, "near" ); // or "near", "cubic", etc.
+  papszOptions = CSLAddString( papszOptions, alg.toUtf8() ); // or "near", "cubic", etc.
 
   int usageError;
   GDALWarpAppOptions *psWarpOptions = GDALWarpAppOptionsNew( papszOptions, NULL );
