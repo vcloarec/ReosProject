@@ -1,0 +1,47 @@
+name: Build and Push Reos worker
+
+on:
+    workflow_dispatch:
+
+env:
+  REOS_DEPS_ECR_REPOSITORY: reos/deps
+  REOS_ECR_REPOSITORY: reos/reos_env
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-24.04
+    permissions:
+        id-token: write
+        contents: read
+    environment: 
+      name: development
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: GitHubOIDCSession
+        aws-region: ${{ vars.AWS_REGION }}
+    - uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Pull reos deps image from Amazon ECR
+      run: |
+        # Pull the source image
+        docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/$REOS_DEPS_ECR_REPOSITORY:latest
+
+    - name: Build, tag, and push reos to Amazon ECR
+      run: |
+        cd $GITHUB_WORKSPACE/reos
+
+        # Build the new image
+        docker build --no-cache --progress=plain \
+          -f Dockerfile \
+          -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/$REOS_ECR_REPOSITORY:latest .
+        
+        # Push the new image
+        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/$REOS_ECR_REPOSITORY:latest
+
+    - name: Logout of Amazon ECR
+      if: always()
+      run: docker logout ${{ steps.login-ecr.outputs.registry }}
