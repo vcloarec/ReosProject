@@ -2,16 +2,24 @@
 # Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 SET(REOS_DELFT_FEWS_SOURCES
-  reosdelftfewswidget.cpp
   reosdelftfewsxmlprovider.cpp
-  reosdelftfewssettingswidget.cpp
 )
 
 SET(REOS_DELFT_FEWS_HEADERS
-    reosdelftfewswidget.h
     reosdelftfewsxmlprovider.h
-    reosdelftfewssettingswidget.h
 )
+
+IF(WITH_GUI)
+    SET(REOS_DELFT_FEWS_SOURCES
+        reosdelftfewswidget.cpp
+        reosdelftfewssettingswidget.cpp
+    )
+
+    SET(REOS_DELFT_FEWS_HEADERS
+        reosdelftfewswidget.h
+        reosdelftfewssettingswidget.h
+    )
+ENDIF(WITH_GUI)
 
 SET(LOGO_RCCS ${CMAKE_SOURCE_DIR}/images/providers/delft-fews/delft-fews-images.qrc)
 
@@ -32,9 +40,13 @@ TARGET_LINK_LIBRARIES(provider_delft_FEWS
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
-        reosGui
         reosCore
 )
+
+IF(WITH_GUI)
+    TARGET_LINK_LIBRARIES(provider_delft_FEWS
+            reosGui)
+ENDIF(WITH_GUI)
 
 
 set_target_properties(provider_delft_FEWS
@@ -44,14 +56,6 @@ set_target_properties(provider_delft_FEWS
     )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/src/ui
-    ${CMAKE_SOURCE_DIR}/src/gui
-    ${CMAKE_SOURCE_DIR}/src/gui/chart
-    ${CMAKE_SOURCE_DIR}/src/gui/form
-    ${CMAKE_SOURCE_DIR}/src/gui/data
-    ${CMAKE_SOURCE_DIR}/src/gui/GIS
-    ${CMAKE_SOURCE_DIR}/src/gui/watershed
-    ${CMAKE_SOURCE_DIR}/src/gui/rainfall
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/data
     ${CMAKE_SOURCE_DIR}/src/core/GIS
@@ -63,6 +67,19 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/rainfall
     ${CMAKE_SOURCE_DIR}/src/core/hydrograph
     )
+
+IF(WITH_GUI)
+    INCLUDE_DIRECTORIES(
+        ${CMAKE_BINARY_DIR}/src/ui
+        ${CMAKE_SOURCE_DIR}/src/gui
+        ${CMAKE_SOURCE_DIR}/src/gui/chart
+        ${CMAKE_SOURCE_DIR}/src/gui/form
+        ${CMAKE_SOURCE_DIR}/src/gui/data
+        ${CMAKE_SOURCE_DIR}/src/gui/GIS
+        ${CMAKE_SOURCE_DIR}/src/gui/watershed
+        ${CMAKE_SOURCE_DIR}/src/gui/rainfall
+    )
+ENDIF(WITH_GUI)
 
 
 

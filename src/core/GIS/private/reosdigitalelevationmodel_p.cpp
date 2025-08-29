@@ -222,14 +222,15 @@ double ReosDigitalElevationModelRaster::averageElevationInPolygon( const QPolygo
     }
   }
 
-  QMap<QgsZonalStatistics::Statistic, QVariant> result = QgsZonalStatistics::calculateStatistics( mDataProvider.get(),
+
+  QMap<Qgis::ZonalStatistic, QVariant> result = QgsZonalStatistics::calculateStatistics( mDataProvider.get(),
       geometry,
       fabs( mExtent.xCellSize() ),
       fabs( mExtent.yCellSize() ),
       1,
-      QgsZonalStatistics::Mean );
+      Qgis::ZonalStatistic::Mean );
 
-  return result.value( QgsZonalStatistics::Mean ).toDouble();
+  return result.value( Qgis::ZonalStatistic::Mean ).toDouble();
 }
 
 
@@ -595,7 +596,7 @@ ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectang
   double xPixelSize;
   double yPixelSize;
 
-  if ( mDataProvider->capabilities() & QgsRasterInterface::Size )
+  if ( mDataProvider->capabilities() & Qgis::RasterInterfaceCapability::Size )
   {
     int xCount = mDataProvider->xSize();
     int yCount = mDataProvider->ySize();

@@ -15,7 +15,10 @@
  ***************************************************************************/
 #include "reoshydraulicstructure2d.h"
 #include "reosmeshgenerator.h"
-#include "reosgmshgenerator.h"
+#include "reospolygonstructure.h"
+#ifdef WITH_GMSH
+#include "gmsh/reosgmshgenerator.h"
+#endif //WITH_GMSH
 #include "reostopographycollection.h"
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructureboundarycondition.h"
@@ -37,7 +40,9 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, con
   , mCapabilities( GeometryEditable | MultiSimulation )
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( domain, crs ) )
   , mMesh( ReosMesh::createMeshFrame( crs ) )
+#ifdef WITH_GMSH
   , mMeshGenerator( new ReosGmshGenerator( this ) )
+#endif //WITH_GMSH
   , mMeshResolutionController( new ReosMeshResolutionController( this, crs ) )
   , mTopographyCollection( ReosTopographyCollection::createTopographyCollection( context.network()->gisEngine(), this ) )
   , mRoughnessStructure( new ReosRoughnessStructure( crs ) )
@@ -98,7 +103,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D(
   if ( encodedElement.hasEncodedData( QStringLiteral( "mesh-generator" ) ) )
     mMeshGenerator = ReosMeshGenerator::createMeshGenerator( encodedElement.getEncodedData( QStringLiteral( "mesh-generator" ) ), this );
   else if ( hasCapability( GeometryEditable ) )
+#ifdef WITH_GMSH
     mMeshGenerator = new ReosGmshGenerator( this );
+#else
+    mMeshGenerator = nullptr;
+#endif // WITH_GMSH
 
   if ( encodedElement.hasEncodedData( QStringLiteral( "topography-collection" ) ) )
     mTopographyCollection = ReosTopographyCollection::createTopographyCollection( encodedElement.getEncodedData( QStringLiteral( "topography-collection" ) ),

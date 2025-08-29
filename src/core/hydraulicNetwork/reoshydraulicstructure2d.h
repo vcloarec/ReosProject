@@ -21,7 +21,10 @@
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
 #include "reoshydraulicsimulation.h"
-#include "reosgmshgenerator.h"
+#ifdef WITH_GMSH
+#include "gmsh/reosgmshgenerator.h"
+#endif //WITH GMSH
+#include "reosmeshgenerator.h"
 #include "reosmesh.h"
 #include "reos3dmapsettings.h"
 #include "reoshydraulicsimulationresults.h"

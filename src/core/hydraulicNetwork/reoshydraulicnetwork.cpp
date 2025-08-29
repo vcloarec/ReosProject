@@ -194,7 +194,9 @@ ReosHydraulicNetwork::ReosHydraulicNetwork( ReosModule *parent, ReosGisEngine *g
   , mHydraulicSchemeCollection( new ReosHydraulicSchemeCollection( this ) )
 {
   ReosHydrographRoutingMethodFactories::instantiate( this );
+#ifdef WITH_GMSH
   ReosGmshEngine::instantiate( this );
+#endif //WITH_GMSH
 
   mElementFactories.emplace( ReosHydrographNodeWatershed::staticType(), new ReosHydrographNodeWatershedFactory );
   mElementFactories.emplace( ReosHydrographJunction::staticType(), new ReosHydrographJunctionFactory );

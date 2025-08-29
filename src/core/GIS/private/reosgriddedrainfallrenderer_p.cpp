@@ -51,7 +51,7 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
     renderer->setClassificationMax( 20 );
   }
 
-  renderer->createShader( colorRamp.release(), QgsColorRampShader::Interpolated, QgsColorRampShader::EqualInterval, 10, false );
+  renderer->createShader( colorRamp.release(),  Qgis::ShaderInterpolationMethod::Linear, Qgis::ShaderClassificationMethod::EqualInterval, 10, false );
   mColorRampSettings->setShader( renderer->shader()->rasterShaderFunction() );
   mRasterLayer->setRenderer( renderer.release() );
 }

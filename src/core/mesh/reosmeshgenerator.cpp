@@ -23,7 +23,9 @@
 #include "reosparameter.h"
 #include "reospolylinesstructure.h"
 #include "reospolygonstructure.h"
-#include "reosgmshgenerator.h"
+#ifdef WITH_GMSH
+#include "gmsh/reosgmshgenerator.h"
+#endif //WITH_GMSH
 
 ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure,
     ReosMeshResolutionController *,
@@ -53,6 +55,7 @@ ReosParameterBoolean *ReosMeshGenerator::autoUpdateParameter() const
 
 ReosMeshGenerator *ReosMeshGenerator::createMeshGenerator( const ReosEncodedElement &element, QObject *parent )
 {
+#ifdef WITH_GMSH
   if ( element.description() == QStringLiteral( "mesh-generator" ) )
   {
     QString type;
@@ -65,6 +68,9 @@ ReosMeshGenerator *ReosMeshGenerator::createMeshGenerator( const ReosEncodedElem
   }
 
   return new ReosGmshGenerator( parent );
+#else
+  return nullptr;
+#endif // WITH_GMSH
 }
 
 ReosMeshGenerator::ReosMeshGenerator( const ReosEncodedElement &element, QObject *parent )
@@ -182,7 +188,7 @@ void ReosMeshGeneratorPoly2TriProcess::start()
     if ( triangles.size() > INT32_MAX )
       throw std::exception();
 
-    int triangleCount = static_cast<int>(triangles.size());
+    int triangleCount = static_cast<int>( triangles.size() );
 
     mResult.facesIndexes.fill( QVector<int>( 3 ), triangleCount );
 

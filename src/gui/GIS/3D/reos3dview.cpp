@@ -22,7 +22,7 @@
 #include <QMenu>
 #include <QTimer>
 
-#include <3d/qgs3dmapcanvas.h>
+#include <qgs3dmapcanvas.h>
 #include <qgsmeshterraingenerator.h>
 #include <qgsmeshlayer.h>
 #include <qgs3dmapsettings.h>
@@ -53,8 +53,8 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   setWindowFlag( Qt::Dialog );
   setWindowTitle( tr( "3D View" ) );
 
-  mCanvas = new Qgs3DMapCanvas( this );
-  mCanvas->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+  mCanvas = new Qgs3DMapCanvas();
+//mCanvas->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
   QgsMeshLayer *meshLayer = nullptr;
   if ( meshTerrain )
@@ -77,11 +77,15 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
     context.map()->currentTime().addMSecs( context.map()->timeStep().valueMilliSecond() )
   } );
 
-  mCanvas->setMap( settings );
+  mCanvas->setMapSettings( settings );
   mCanvas->setViewFromTop( extent.center(), dist, 0 );
-  mCanvas->setOnScreenNavigationVisibility( false );
+  //mCanvas->setOnScreenNavigationVisibility( false );
 
-  ui->m3dViewLayout->addWidget( mCanvas );
+  mContainer = QWidget::createWindowContainer( mCanvas );
+  mContainer->setMinimumSize( QSize( 200, 200 ) );
+  mContainer->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+
+  ui->m3dViewLayout->addWidget( mContainer );
 
   QToolBar *toolBar = new QToolBar( this );
   ui->mToolBarLayout->addWidget( toolBar );
@@ -192,8 +196,8 @@ Reos3dView::~Reos3dView()
   //  so the destruction will happen after terrain creation
   // before launching the defered deletation, we remove reference to the mesh layer
 
-  mCanvas->map()->setLayers( QList<QgsMapLayer *>() );
-  mCanvas->map()->setTerrainGenerator( new QgsFlatTerrainGenerator );
+  mCanvas->mapSettings()->setLayers( QList<QgsMapLayer *>() );
+  mCanvas->mapSettings()->setTerrainGenerator( new QgsFlatTerrainGenerator );
   mCanvas->setParent( nullptr );
   QTimer::singleShot( 0, mCanvas, &QObject::deleteLater );
 
@@ -202,11 +206,11 @@ Reos3dView::~Reos3dView()
 void Reos3dView::addMesh( ReosMesh *mesh )
 {
   mMeshes.append( mesh );
-  QList<QgsMapLayer *> layers = mCanvas->map()->layers();
+  QList<QgsMapLayer *> layers = mCanvas->mapSettings()->layers();
 
   layers.append( qobject_cast<QgsMapLayer *>( mesh->data() ) );
 
-  mCanvas->map()->setLayers( layers );
+  mCanvas->mapSettings()->setLayers( layers );
 }
 
 void Reos3dView::onExaggerationChange( double value )
@@ -231,7 +235,7 @@ void Reos3dView::onLightChange()
   std::unique_ptr<QgsDirectionalLightSettings> lightSettings = std::make_unique<QgsDirectionalLightSettings>();
   lightSettings->setDirection( mLightWidget->direction() );
   lightSettings->setIntensity( mLightWidget->lightIntensity() );
-  mCanvas->map()->setLightSources( {lightSettings.release()} );
+  mCanvas->mapSettings()->setLightSources( {lightSettings.release()} );
 
   emit mapSettingsChanged();
 }
@@ -281,7 +285,7 @@ void Reos3dView::onTerrainSettingsChanged()
   std::unique_ptr<QgsMeshTerrainGenerator> newTerrain = std::make_unique<QgsMeshTerrainGenerator>();
   newTerrain->setSymbol( terrainSymbol.release() );
   newTerrain->setLayer( meshLayer );
-  mCanvas->map()->setTerrainGenerator( newTerrain.release() );
+  mCanvas->mapSettings()->setTerrainGenerator( newTerrain.release() );
 
   emit terrainSettingsChanged();
 }

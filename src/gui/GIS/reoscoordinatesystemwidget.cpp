@@ -33,7 +33,7 @@ ReosCoordinateSystemWidget::ReosCoordinateSystemWidget( QWidget *parent )
 
 QString ReosCoordinateSystemWidget::crs() const
 {
-  return mQgsWidget->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return mQgsWidget->crs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 void ReosCoordinateSystemWidget::setCrs( const QString &crs )
