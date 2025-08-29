@@ -27,5 +27,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: worker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/reos_worker_env:latest
+          build-opts: |
+            --progress=plain
