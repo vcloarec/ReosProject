@@ -7,6 +7,8 @@ WORKDIR /app
 COPY build_qgis.sh /app/build_qgis.sh
 COPY build_reos.sh /app/build_reos.sh
 
+RUN mkdir /qgis_built
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -99,7 +101,7 @@ RUN  apt clean && rm -rf /var/lib/apt/lists/*
 
 
 # Copy only the built QGIS and EcCodes output from stage 1
-COPY --from=builder /app/qgis_built /qgis_built
+COPY --from=builder /qgis_built /qgis_built
 COPY --from=builder /eccodes_built /eccodes_built
 COPY --from=builder /app/reos_built /reos_built
 
