@@ -28,7 +28,7 @@ jobs:
         env:
           BUILDKIT_PROGRESS: plain
         with:
-          context: .
+          context: ./worker
           file: worker/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/reos_worker_env:latest
