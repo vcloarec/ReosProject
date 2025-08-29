@@ -87,7 +87,7 @@ RUN apt update && apt-get install -y --no-install-recommends \
     python3 python3-pip &&\
     pip install --no-cache-dir --break-system-package numpy>2.0.0 wheel setuptools>=67
 
-RUN apt-get install python3-gdal python3-lxml python3-owslib python3-psycopg2 \
+RUN apt-get install -y python3-gdal python3-lxml python3-owslib python3-psycopg2 \
     python3-pygments python3-pyproj python3-pyqt5 python3-pyqt5.qsci \
     python3-pyqt5.qtmultimedia python3-pyqt5.qtpositioning \
     python3-pyqt5.qtserialport python3-pyqt5.qtsql \
