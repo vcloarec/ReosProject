@@ -86,8 +86,7 @@ RUN apt update && apt-get install -y --no-install-recommends \
     poppler-utils libqt5keychain1 \
     ocl-icd-libopencl1 libprotobuf-lite32t64 libgsl27\
     libqt5multimedia5 libqt5positioning5 libqt5concurrent5 \
-    python3 python3-pip &&\
-    pip install --no-cache-dir --break-system-package numpy>2.0.0 wheel setuptools>=67
+    python3
 
 RUN apt-get install -y python3-gdal python3-lxml python3-owslib python3-psycopg2 \
     python3-pygments python3-pyproj python3-pyqt5 python3-pyqt5.qsci \
@@ -104,6 +103,16 @@ RUN  apt clean && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /qgis_built /qgis_built
 COPY --from=builder /eccodes_built /eccodes_built
 COPY --from=builder /app/reos_built /reos_built
+
+# # Set env var
+ENV LD_LIBRARY_PATH=/reos_built/lib:/qgis_built/lib:/eccodes_built/lib
+ENV PYTHONPATH=/reos_built/python:/qgis_built/share/qgis/python
+ENV REOS_PREFIX_PATH="/reos_built"
+ENV QGIS_PREFIX_PATH="/qgis_built"
+ENV QGIS_PLUGIN_PATH="/qgis_built/lib/qgis/plugins"
+
+RUN echo "Checking lib path:"$LD_LIBRARY_PATH
+RUN python3 -c "import reos.core; print('Import successful')" || (echo 'Import failed' && exit 1)
 
 # Expose port 8000
 EXPOSE 8000
