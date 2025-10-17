@@ -217,6 +217,7 @@ static QDateTime validityTimeFromKeys( const ReosEcCodesReaderKeys &keys )
   return intToTime( dateInt, timeInt );
 }
 
+
 static QPair<int, int> stepRangeFromKeys( const ReosEcCodesReaderKeys &keys )
 {
   int start = keys.longValue( QStringLiteral( "startStep" ) );
@@ -239,6 +240,30 @@ static QPair<int, int> stepRangeFromKeys( const ReosEcCodesReaderKeys &keys )
 
   return QPair<int, int>( start, end );
 }
+
+static ReosDuration timeFromDataTime( const ReosEcCodesReaderKeys &keys )
+{
+  int stepUnit = keys.longValue( QStringLiteral( "stepUnits" ) );
+  ReosDuration::Unit unit;
+
+  switch ( stepUnit )
+  {
+    case 0:
+      unit = ReosDuration::minute;
+      break;
+    case 1:
+      unit = ReosDuration::hour;
+      break;
+    default:
+      unit = ReosDuration::hour;
+      break;
+  }
+
+  QPair<int, int> range = stepRangeFromKeys( keys );
+
+  return ReosDuration( range.second, unit );
+}
+
 
 static ReosDuration stepDurationFromKeys( const ReosEcCodesReaderKeys &keys )
 {
@@ -293,10 +318,10 @@ bool ReosEcCodesReader::nextFrameMetadata( ReosEcCodesReader::FrameMetadata &met
 
     meta.extent = extentFromKeys( keys );
     meta.dataTime = dataTimeFromKeys( keys );
-    meta.validityTime = validityTimeFromKeys( keys );
     meta.stepRange = stepRangeFromKeys( keys );
     meta.stepDuration = stepDurationFromKeys( keys );
     meta.stepType = stepTypeFromKeys( keys );
+    meta.frameTime = meta.dataTime.addSecs( timeFromDataTime( keys ).valueSecond() );
     return true;
   }
 

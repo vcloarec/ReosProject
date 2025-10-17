@@ -106,9 +106,9 @@ void ReosGribGriddedDataProvider::load()
        mFrames.count() > 0 )
   {
     //here we insert a dummy frame at the beginning to force to consider the first instantaneous frame index.
-    qint64 validTime = mFrames.count() > 1 ? 2 * mFrames.at( 0 ).validTime - mFrames.at( 1 ).validTime :  mFrames.at( 0 ).validTime;
+    qint64 validTime = mFrames.count() > 1 ? 2 * mFrames.at( 0 ).frameTime - mFrames.at( 1 ).frameTime :  mFrames.at( 0 ).frameTime;
     GribFrame dummyFrame;
-    dummyFrame.validTime = validTime;
+    dummyFrame.frameTime = validTime;
     mFrames.insert( 0, dummyFrame );
   }
 
@@ -230,14 +230,14 @@ QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
   {
     case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
-      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
     case ValueType::CumulativeOnTimeStep:
       return QDateTime::fromSecsSinceEpoch(
-               mFrames.at( index ).validTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
+               mFrames.at( index ).frameTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
       break;
     case ValueType::Instantaneous:
-      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
   }
 
@@ -250,16 +250,16 @@ QDateTime ReosGribGriddedDataProvider::endTime( int index ) const
   {
     case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
-      return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).validTime, Qt::UTC );
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).frameTime, Qt::UTC );
       break;
     case ValueType::CumulativeOnTimeStep:
-      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
+      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
     case ValueType::Instantaneous:
       if ( index < mFrames.count() - 1 )
-        return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).validTime, Qt::UTC );
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).frameTime, Qt::UTC );
       else
-        return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).validTime, Qt::UTC );
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
   }
 
@@ -681,10 +681,10 @@ void ReosGribGriddedDataProvider::parseFileWithGDAL(
         continue;
       strValidTime = strValidTime.split( ' ', Qt::SplitBehaviorFlags::SkipEmptyParts ).at( 0 );
       ok = false;
-      path.validTime = strValidTime.toInt( &ok );
+      path.frameTime = strValidTime.toInt( &ok );
       if ( !ok )
         continue;
-      pathes.insert( path.validTime, path );
+      pathes.insert( path.frameTime, path );
     }
   }
 }
@@ -715,8 +715,8 @@ void ReosGribGriddedDataProvider::parseFileWithEcCodes(
     path.frameNo = frameNumber;
     path.reader = EcCodes;
     path.timeRange = meta.stepDuration;
-    const QDateTime validityTime = meta.validityTime;
-    path.validTime = validityTime.toSecsSinceEpoch();
+    const QDateTime refTime = meta.frameTime;
+    path.frameTime = refTime.toSecsSinceEpoch();
 
     if ( mSourceValueType != ValueType::CumulativeOnDay )
     {
@@ -751,7 +751,7 @@ void ReosGribGriddedDataProvider::parseFileWithEcCodes(
         mReferenceTime = dataTime;
     }
 
-    pathes.insert( path.validTime, path );
+    pathes.insert( path.frameTime, path );
     frameNumber++;
   }
 

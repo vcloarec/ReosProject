@@ -39,6 +39,7 @@ class ReosGribTest: public QObject
     void ecmwfGribFiles();
     void ERA5GribFiles();
     void uri();
+    void griddedAromePiaf();
 };
 
 void ReosGribTest::createProvider()
@@ -464,6 +465,21 @@ void ReosGribTest::uri()
 }
 
 
+void ReosGribTest::griddedAromePiaf()
+{
+  QString gribFile( "/home/vincent/arome-piaf/" );
+  QString shortName = "tp";
+  QVariantMap keys;
+  keys.insert( "shortName", shortName );
+  std::unique_ptr<ReosGriddedRainfall> rainfall(
+    new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, keys ),
+                             ReosGribGriddedDataProvider::staticKey() ) );
+
+  QVERIFY( rainfall->isValid() );
+
+  QCOMPARE( rainfall->gridCount(), 6 );
+
+}
 
 
 QTEST_MAIN( ReosGribTest )

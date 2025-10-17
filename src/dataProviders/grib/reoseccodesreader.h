@@ -113,7 +113,7 @@ class ReosEcCodesReader: public ReosGriddedDataSource
       ReosRasterExtent extent;
       ReosDuration stepDuration;
       QDateTime dataTime;
-      QDateTime validityTime;
+      QDateTime frameTime;
       QPair<int, int> stepRange;
       StepType stepType;
     };

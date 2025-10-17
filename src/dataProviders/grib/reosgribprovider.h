@@ -84,7 +84,7 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     {
       QString file;
       int frameNo = 0;
-      qint64 validTime = 0;
+      qint64 frameTime = 0;
       GribReader reader = GDAL;
       ReosDuration timeRange;
     };
