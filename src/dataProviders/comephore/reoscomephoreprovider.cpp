@@ -138,7 +138,7 @@ int ReosComephoreProvider::count() const
 QDateTime ReosComephoreProvider::startTime( int index ) const
 {
   if ( mFileReader )
-    return mFileReader->time( index );
+    return mFileReader->time( index ).addSecs( -3600 );
 
   return QDateTime();
 }
@@ -146,7 +146,7 @@ QDateTime ReosComephoreProvider::startTime( int index ) const
 QDateTime ReosComephoreProvider::endTime( int index ) const
 {
   if ( mFileReader )
-    return mFileReader->time( index ).addSecs( 3600 );
+    return mFileReader->time( index );
 
   return QDateTime();
 }
