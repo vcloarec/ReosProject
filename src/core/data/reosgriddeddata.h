@@ -70,6 +70,11 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
      */
     const QVector<double> values( int index ) const;
 
+    /**
+     * Returns value at position provided by \points for index \a index
+     */
+    const QVector<double> valuesAtPositions( int index, const QVector<QPointF> &positions, const QString &destinationCrs ) const;
+
     const QVector<double> valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
 
     //! Returns the start time related to the grid with \a index

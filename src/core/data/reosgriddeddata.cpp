@@ -23,6 +23,7 @@
 #include "reosgisengine.h"
 #include "reoswatershed.h"
 #include "reosgdalutils.h"
+#include "reosmemoryraster.h"
 
 
 ReosGriddedData::ReosGriddedData( QObject *parent )
@@ -137,6 +138,36 @@ const QVector<double> ReosGriddedData::values( int index ) const
     return mProvider->data( index );
   else
     return QVector<double>();
+}
+
+const QVector<double> ReosGriddedData::valuesAtPositions( int index, const QVector<QPointF> &positions, const QString &destinationCrs ) const
+{
+  const ReosRasterExtent extent = mProvider->extent();
+  ReosRasterMemory<double> raster( extent.yCellCount(), extent.xCellCount() );
+  QVector<double> ret;
+  if ( !raster.reserveMemory() )
+  {
+    std::cout << "Unable to get enought memory to get raster data !!!" << std::endl;
+    return ret;
+  }
+
+  raster.setNodata( std::numeric_limits<double>::quiet_NaN() );
+  raster.setValues( mProvider->data( index ) );
+  ret.reserve( positions.size() );
+
+  for ( const QPointF &position : positions )
+  {
+    const QPointF pos = ReosGisEngine::transformToCoordinates( ReosSpatialPosition( position, destinationCrs ), extent.crs() );
+    const ReosRasterCellPos cellPos = extent.mapToCellPos( pos );
+    if ( cellPos.isValid() )
+      ret.append( raster.value( cellPos ) );
+    else
+      ret.append( std::numeric_limits<double>::quiet_NaN() );
+  }
+
+  extent.mapToCellPos( positions.at( 0 ) );
+
+  return ret;
 }
 
 const QVector<double> ReosGriddedData::valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const

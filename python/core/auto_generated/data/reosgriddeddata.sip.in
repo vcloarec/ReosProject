@@ -50,6 +50,11 @@ Returns all the values related to ``index``, order of values can be deduced from
 of the cell contained in the raster extent (see :py:func:`~ReosGriddedData.extent`
 %End
 
+    const QVector<double> valuesAtPositions( int index, const QVector<QPointF> &positions, const QString &destinationCrs ) const;
+%Docstring
+Returns value at position provided by \points for index ``index``
+%End
+
     const QVector<double> valuesInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const;
 
     const QDateTime startTime( int index ) const;
