@@ -82,7 +82,7 @@ void ReosPolygonStructure_p::init()
 
   mVectorLayer->undoStack()->blockSignals( true );
   QgsField field;
-  field.setType( QVariant::String );
+  field.setType( QMetaType::QString );
   field.setName( QStringLiteral( "classId" ) );
   mVectorLayer->addAttribute( field );
   mRenderer = new QgsCategorizedSymbolRenderer( QStringLiteral( "classId" ) );

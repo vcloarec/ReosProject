@@ -251,10 +251,10 @@ void Reos3dView::onTerrainSettingsChanged()
   switch ( terrainSettings.renderingType() )
   {
     case Reos3DTerrainSettings::UniqueColor:
-      terrainSymbol->setRenderingStyle( QgsMesh3DSymbol::SingleColor );
+      terrainSymbol->setRenderingStyle( QgsMesh3DSymbol::RenderingStyle::SingleColor );
       break;
     case Reos3DTerrainSettings::ColorRamp:
-      terrainSymbol->setRenderingStyle( QgsMesh3DSymbol::ColorRamp );
+      terrainSymbol->setRenderingStyle( QgsMesh3DSymbol::RenderingStyle::ColorRamp );
       break;
   }
   terrainSymbol->setSingleMeshColor( terrainSettings.uniqueColor() );

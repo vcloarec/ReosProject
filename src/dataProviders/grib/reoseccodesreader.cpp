@@ -530,7 +530,7 @@ long ReosEcCodesReaderKeys::longValue( const QString &key ) const
   auto it = mMap.find( key );
   if ( it != mMap.constEnd() )
   {
-    if ( it.value().isValid() && it.value().type() == QMetaType::Long )
+    if ( it.value().isValid() && it.value().type() == QVariant::Type::LongLong )
     {
       bool ok = false;
       long val = it.value().toLongLong( &ok );
@@ -547,7 +547,7 @@ double ReosEcCodesReaderKeys::doubleValue( const QString &key ) const
   auto it = mMap.find( key );
   if ( it != mMap.constEnd() )
   {
-    if ( it.value().isValid() && it.value().type() == QMetaType::Double )
+    if ( it.value().isValid() && it.value().type() == QVariant::Type::Double )
     {
       bool ok = false;
       double val = it.value().toDouble( &ok );

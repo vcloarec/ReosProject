@@ -290,7 +290,13 @@ bool ReosGdalDataset::writeByteRasterToCOGFile( const QString &fileName, ReosRas
   GDALSetProjection( hTempDS, wktCrs.toUtf8() );
 
   GDALRasterBandH hBand = GDALGetRasterBand( hTempDS, 1 );
-  GDALRasterIO( hBand, GF_Write, 0, 0, width, height, raster.data(), width, height, GDT_Byte, 0, 0 );
+  CPLErr err=GDALRasterIO( hBand, GF_Write, 0, 0, width, height, raster.data(), width, height, GDT_Byte, 0, 0 );
+
+  if (err!=CPLErr::CE_None)
+  {
+    std::cout << ( stderr, "Failed to write to file.\n" );
+    return false;
+  }
 
   GDALDriverH hCOGDriver = GDALGetDriverByName( "COG" );
   if ( !hCOGDriver )

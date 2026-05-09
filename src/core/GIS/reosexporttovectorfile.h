@@ -39,7 +39,7 @@ class REOSCORE_EXPORT ReosExportToVectorFile
     struct Field
     {
       QString name;
-      QVariant::Type type;
+      QMetaType::Type type;
       QString typeName;
       int length;
     };

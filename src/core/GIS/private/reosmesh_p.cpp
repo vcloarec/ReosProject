@@ -27,6 +27,8 @@
 #include <qgsrasterfilewriter.h>
 #include <qgsmeshlayerutils.h>
 #include <qgsmeshlayerinterpolator.h>
+#include <qgsmeshlayer3drenderer.h>
+#include <qgsmesh3dsymbol.h>
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"
@@ -577,7 +579,7 @@ QList<ReosMeshPointValue> ReosMeshFrame_p::drapePolyline( const QPolygonF &polyl
         const QgsMeshVertex vert = vertices.at( vi );
         double minX = 0;
         double minY = 0;
-        if ( QgsGeometryUtils::sqrDistToLine( vert.x(), vert.y(), pt1.x(), pt1.y(), pt2.x(), pt2.y(), minX, minY, 0 ) < tolerance * tolerance )
+        if ( QgsGeometryUtilsBase::sqrDistToLine( vert.x(), vert.y(), pt1.x(), pt1.y(), pt2.x(), pt2.y(), minX, minY, 0 ) < tolerance * tolerance )
         {
           double pointDistFromStart = lenghtFromStart + sqrt( pow( pt1.x() - minX, 2 ) + pow( pt1.y() - minY, 2 ) );
           intersectedVertex.insert( vi );
@@ -779,12 +781,12 @@ void ReosMeshFrame_p::update3DRenderer()
   symbol->setLevelOfDetailIndex( 0 );
 
   symbol->setVerticalScale( mVerticaleSCale );
-  symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::ColorRamp ) );
+  symbol->setRenderingStyle( static_cast<QgsMesh3DSymbol::RenderingStyle>( QgsMesh3DSymbol::RenderingStyle::ColorRamp ) );
   symbol->setSingleMeshColor( Qt::blue );
   symbol->setVerticalDatasetGroupIndex( verticalIndex );
   symbol->setIsVerticalMagnitudeRelative( false );
 
-  if ( symbol->renderingStyle() == QgsMesh3DSymbol::ColorRamp )
+  if ( symbol->renderingStyle() == QgsMesh3DSymbol::RenderingStyle::ColorRamp )
   {
     QgsColorRampShader ramp = scalarSettings.colorRampShader();
     symbol->setColorRampShader( ramp );

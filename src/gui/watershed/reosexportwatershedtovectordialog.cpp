@@ -62,8 +62,8 @@ void ReosExportWatershedToVectorDialog::accept()
   if ( ui->groupBoxDelineating->isChecked() )
   {
     QList<ReosExportToVectorFile::Field> fields;
-    fields.append( {tr( "Name" ), QVariant::String, "string", 255} );
-    fields.append( {tr( "Area" ), QVariant::Double, "double", 16} );
+    fields.append( {tr( "Name" ), QMetaType::QString, "string", 255} );
+    fields.append( {tr( "Area" ), QMetaType::Double, "double", 16} );
     ReosExportToVectorFile exportToFile( ui->lineEditDelineatingFile->text(), fields, ReosExportToVectorFile::Polygon, mCrs );
 
     for ( ReosWatershed *ws : mWatersheds )
@@ -78,10 +78,10 @@ void ReosExportWatershedToVectorDialog::accept()
   if ( ui->groupBoxPath->isChecked() )
   {
     QList<ReosExportToVectorFile::Field> fields;
-    fields.append( {tr( "Name" ), QVariant::String, "string", 255} );
-    fields.append( {tr( "Length" ), QVariant::Double, "double", 16} );
-    fields.append( {tr( "Slope" ), QVariant::Double, "double", 16} );
-    fields.append( {tr( "Drop" ), QVariant::Double, "double", 16} );
+    fields.append( {tr( "Name" ),  QMetaType::QString, "string", 255} );
+    fields.append( {tr( "Length" ), QMetaType::Double, "double", 16} );
+    fields.append( {tr( "Slope" ), QMetaType::Double, "double", 16} );
+    fields.append( {tr( "Drop" ), QMetaType::Double, "double", 16} );
     ReosExportToVectorFile exportToFile( ui->lineEditStreamPathFile->text(), fields, ReosExportToVectorFile::Polyline, mCrs );
 
     for ( ReosWatershed *ws : mWatersheds )

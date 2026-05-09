@@ -244,7 +244,7 @@ void ReosMapStructureHolePointsItem::updatePosition( const ReosPolylinesStructur
   mViewPoints.reserve( points.count() );
   mPointValidity.reserve( points.count() );
   QgsRectangle extent;
-  extent.setMinimal();
+  extent.setNull();
 
   for ( const QPointF &pt : points )
   {

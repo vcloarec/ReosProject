@@ -1897,7 +1897,7 @@ QRectF ReosPolylineStructureVectorLayer::classExtent( const QString &classId, co
 
   QgsFeature feat;
   QgsRectangle rect;
-  rect.setMinimal();
+  rect.setNull();
   while ( it.nextFeature( feat ) )
   {
     if ( feat.attribute( 0 ).toString() == classId )
