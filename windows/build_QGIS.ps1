@@ -76,8 +76,17 @@ cmake   -S $env:QGIS_SRC `
 		-D QCA_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qca-qt5.lib `
 		-D QWT_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
 		-D QSCINTILLA_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qscintilla2.lib
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "CMake configure failed with exit code $LASTEXITCODE."
+    exit 1
+}
 		
 cmake --build .  --config Release
+if ($LASTEXITCODE -ne 0) {
+	Write-Error "QGIS build failed with exit code $LASTEXITCODE."
+	exit 1
+}
 cmake --install .
 
 cd ..
