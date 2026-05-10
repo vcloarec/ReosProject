@@ -144,7 +144,7 @@ jobs:
           ls ${{env.NSI_DESTINATION}}
           
     - name: Archive installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Lekan Windows Installer
         path: ${{env.NSI_DESTINATION}}\Lekan-${{env.LEKAN_EXPERIMENTAL_VERSION}}-install-win64.exe
