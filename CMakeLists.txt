@@ -56,6 +56,7 @@ SET(WITH_3D TRUE CACHE BOOL "With Graphic User Interface (LEKAN)")
 
 SET(WITH_QTWEBKIT FALSE CACHE BOOL "With QtWebKit")
 SET(QGIS_PROVIDERS_PATH CACHE PATH "Path to the folder containing the data providers of QGIS. Only necessary for dev and tests.")
+SET(QGIS_PREFIX CACHE PATH "Path to built QGIS")
 SET(QGIS_INCLUDE_DIR CACHE PATH "Path to the include dir of QGIS")
 SET(QGIS_CORE_LIB CACHE FILEPATH "Path to QGIS core lib")
 SET(QGIS_GUI_LIB CACHE FILEPATH "Path to QGIS gui lib")
@@ -254,4 +255,9 @@ IF (ENABLE_TESTS)
   add_subdirectory(Tests)
 
 ENDIF(ENABLE_TESTS)
+
+# write a marker with source directory path into the output's bin directory
+# if run from the build directory Reos will detect it and alter the paths
+set (REOS_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+file(WRITE ${REOS_OUTPUT_DIRECTORY}/reosbuildpath.txt "${CMAKE_SOURCE_DIR}\n${REOS_OUTPUT_DIRECTORY}")
 

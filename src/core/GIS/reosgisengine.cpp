@@ -148,6 +148,13 @@ ReosGisEngine::~ReosGisEngine()
 
 void ReosGisEngine::initGisEngine()
 {
+
+  if (ReosApplication::isRunningFromBuildDir())
+  {
+      QString qgisPrefix(QGIS_PREFIX);
+      //QgsApplication::setPrefixPath(qgisPrefix);
+      setenv( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str() ,1);
+  }
   QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::AppDataLocation ).value( 0 );
   // here we do not want profile folder as QGIS has, but only one unique folder for QGIS stuff, so we gives only the App data location
   // Give a profile folder also avoid QGIS to override the settings path
@@ -196,7 +203,7 @@ void ReosGisEngine::initGisEngine()
   }
 
   //! init the QGIS network manager to access remote GIS data
-  QgsApplication::authManager()->init( qgisProviderPath, QgsApplication::qgisAuthDatabaseFilePath() );
+  QgsApplication::authManager()->setup( qgisProviderPath, QgsApplication::qgisAuthDatabaseUri() );
   QgsAuthMethodRegistry::instance( qgisProviderPath );
   QgsNetworkAccessManager::instance();
 
