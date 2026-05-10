@@ -58,9 +58,9 @@ jobs:
     - name: clone QGIS
       uses: actions/checkout@v3
       with:
-        repository: vcloarec/QGIS
+        repository: qgis/QGIS
         path: QGIS
-        ref: master
+        ref: final-3_44_10
     
     - name: check QGIS hash
       id: getQgisHash
