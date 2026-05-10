@@ -36,7 +36,7 @@ Write-Host "================================================="
     --delete-orphans `
     --local-package-dir "$env:APPDATA/OSGeo4W-Packages" `
     --no-desktop `
-    --packages qgis-deps `
+    --packages qgis-ltr-deps `
     --root $osgeo_root_install `
     --quiet-mode `
     --site "http://download.osgeo.org/osgeo4w/v2" `

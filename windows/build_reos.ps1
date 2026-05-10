@@ -12,7 +12,7 @@ Write-Host "=== OSGEO:"
 $OSGEO_DIR
 ls $OSGEO_DIR
 ls $OSGEO_DIR\apps
-ls $OSGEO_DIR\apps\Python39
+ls $OSGEO_DIR\apps\Python312
 
 Write-Host "=== MDAL"
 $env:MDAL_ROOT
