@@ -17,6 +17,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosgeometryutils.h"
 #include "reosgisengine.h"
+#include "reosgdalutils.h"
 #include "reos_testutils.h"
 
 
@@ -31,8 +32,11 @@ class ReosGeometryTest: public QObject
     void gridReprojection();
 
     void rasterizePolygon();
-
     void areaWithCrs();
+
+    void clipGdalDataSet();
+
+    void loadPostGres();
 
   private:
     ReosModule mRootModule;
@@ -221,6 +225,42 @@ void ReosGeometryTest::areaWithCrs()
   ReosArea area = ReosGisEngine::polygonAreaWithCrs( poly, ReosGisEngine::crsFromEPSG( 4326 ) );
 
   QCOMPARE( area.valueM2(), 1601745947.813 );
+}
+
+void ReosGeometryTest::clipGdalDataSet()
+{
+  ReosGdalDataset dataset( testFile( QStringLiteral( "DEM_for_watershed.tif" ) ) );
+
+  const ReosRasterExtent extent = dataset.extent();
+
+  ReosMapExtent newRawMapExtent( extent.xMapMin() + 2.2, extent.yMapMin() + 5.9, extent.xMapMax() - 5, extent.yMapMax() );
+
+  int width = 100;
+  double pixelSize = newRawMapExtent.width() / width;
+  int height = width * pixelSize;
+
+  ReosMapExtent newMapExtent( newRawMapExtent.xMapMin(),
+                              newRawMapExtent.yMapMin(),
+                              newRawMapExtent.xMapMin() + width * pixelSize,
+                              newRawMapExtent.yMapMax() + height * pixelSize );
+
+
+  dataset.resample( ReosRasterExtent( newMapExtent, width, height ) );
+
+  QVERIFY( dataset.writeDoubleToFile( 1, "/home/vincent/clip_es.tif" ) );
+
+
+}
+
+void ReosGeometryTest::loadPostGres()
+{
+  QString uri = "dbname='stations' host=database-flopi.c6xqozt4ysmb.eu-west-1.rds.amazonaws.com port=5432 user='postgres' password='wxs1YPTrfRFP9eC4QoXr' checkPrimaryKeyUnicity='1' table=\"dems\".\"burning_lines\" (geom)";
+  QString crs;
+
+  ReosMapExtent extent( 98256, 6718593, 343284, 6935745 );
+  extent.setCrs( ReosGisEngine::crsFromEPSG( 2154 ) );
+  QList<QPolygonF> polys = ReosGisEngine::openPolygonVectorLayerSource( uri, crs, QStringLiteral( "postgres" ), extent );
+  QVERIFY( polys.count() > 0 );
 }
 
 

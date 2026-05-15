@@ -34,6 +34,11 @@ class ReosEra5Test: public QObject
     void createGridData();
     void griddedDataOnWatersed();
     void timeWindow();
+    void griddedDataOnWatersedAccuFile();
+    void griddedDataOnWatersedInstantFile();
+    void griddedDataOnWatersedAccuUnchunkedFile();
+
+    void griddedDataOnWatersedDistArea();
 
   private:
     ReosModule mRootModule;
@@ -175,6 +180,163 @@ void ReosEra5Test::griddedDataOnWatersed()
   QCOMPARE( values.count(), 3624 );
   QCOMPARE( values.at( 58 ), 0.0001061439977543495 );
 }
+
+void ReosEra5Test::griddedDataOnWatersedAccuFile()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/vincent/era5_files" );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QVERIFY( griddedData->isValid() );
+  QCOMPARE( griddedData->gridCount(), 744 );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed;
+  mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
+  watershed.setGeographicalContext( mGisEngine );
+  watershed.setDelineating( watershed_poly );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 744 );
+}
+
+
+void ReosEra5Test::griddedDataOnWatersedAccuUnchunkedFile()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/vincent/1995-08-accum.nc" );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QVERIFY( griddedData->isValid() );
+  QCOMPARE( griddedData->gridCount(), 744 );
+
+  QCOMPARE( griddedData->startTime( 0 ), QDateTime( QDate( 1995, 7, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->endTime( 0 ), QDateTime( QDate( 1995, 8, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->startTime( 1 ), QDateTime( QDate( 1995, 8, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->endTime( 1 ), QDateTime( QDate( 1995, 8, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->startTime( 50 ), QDateTime( QDate( 1995, 8, 3 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( griddedData->endTime( 50 ), QDateTime( QDate( 1995, 8, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed;
+  mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
+  watershed.setGeographicalContext( mGisEngine );
+  watershed.setDelineating( watershed_poly );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 744 );
+
+
+  QVector<double> valuesOnPoint = griddedData->valuesAtPositions( 0, watershed_poly, ReosGisEngine::crsFromEPSG( 9794 ) );
+  QCOMPARE( valuesOnPoint.count(), watershed_poly.count() );
+}
+
+void ReosEra5Test::griddedDataOnWatersedDistArea()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/vincent/1995-08-accum.nc" );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosGriddedData::staticType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QString watershedCrs;
+  const QPolygonF watershed_poly = ReosGisEngine::openPolygonVectorLayerSource( testFile( "watershed_clermont.shp" ), watershedCrs ).at( 0 );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), watershedCrs );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs(
+    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep(
+      &watershed,
+      griddedData.get(),
+      ReosDuration( 1.0, ReosDuration::hour ),
+      testFile( "area_distribution_clermont.tiff" ), 4
+    ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 744 );
+
+  QVector<double> val1 = gridOnWs->valuesForArea( 0 );
+  QVector<double> val2 = gridOnWs->valuesForArea( 1 );
+  QVector<double> val3 = gridOnWs->valuesForArea( 2 );
+  QVector<double> val4 = gridOnWs->valuesForArea( 3 );
+
+  QCOMPARE( val1.count(), 744 );
+}
+
+void ReosEra5Test::griddedDataOnWatersedInstantFile()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/vincent/era5_files" );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "u10" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QVERIFY( griddedData->isValid() );
+  QCOMPARE( griddedData->gridCount(), 744 );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 279856., 6309772. )
+                  << QPointF( 346425., 6320051. )
+                  << QPointF( 348884., 6252486. )
+                  << QPointF( 283670., 6251741. );
+
+  ReosWatershed watershed;
+  mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
+  watershed.setGeographicalContext( mGisEngine );
+  watershed.setDelineating( watershed_poly );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 744 );
+}
+
 
 void ReosEra5Test::timeWindow()
 {

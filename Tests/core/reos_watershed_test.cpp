@@ -27,6 +27,7 @@ email                : vcloarec at gmail dot com
 #include "reoshydrograph.h"
 #include "reosmeteorologicmodel.h"
 #include "reosgdalutils.h"
+#include "reosgisengine.h"
 
 
 class ReosWatersehdTest: public QObject
@@ -47,6 +48,8 @@ class ReosWatersehdTest: public QObject
     void runoffhydrograph();
 
     void delineate_watershed();
+
+    void directionFromCog();
 
   private:
     ReosModule rootModule;
@@ -177,7 +180,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QVERIFY( ! watershedDelineating.hasValidDigitalElevationModel() );
 
-  // add raster layer and register it as DEM
+  // add raster layer and register it as DEMvoid directionFromCog();
   QString layerId = gisEngine.addRasterLayer( test_file( "DEM_for_watershed.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
   QCOMPARE( gisEngine.layerType( layerId ), ReosGisEngine::RasterLayer );
   // attempt to add it to the wateshed delineating but fail because the DEM is not registered
@@ -403,26 +406,36 @@ void ReosWatersehdTest::watershedDelineating()
   QVERIFY( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ) == 2 ); //including residual watershed
 }
 
+
+void ReosWatersehdTest::directionFromCog()
+{
+  QString layerId = gisEngine.addRasterLayer( "/vsis3/vortexio-ml-flopi/cog/SRTMGL1_France_SE.tif", QStringLiteral( "raster_DEM" ) );
+  const QString directionFilePath = "/home/vincent/SRTMGL1_France_SE_dir.tif";
+  const QString blUri = "dbname='stations' host=database-flopi.c6xqozt4ysmb.eu-west-1.rds.amazonaws.com port=5432 user='postgres' password='wxs1YPTrfRFP9eC4QoXr' table=\"dems\".\"burning_lines\" (geom)";
+  ReosWatershedDelineating::directionFromDem( layerId, gisEngine.layerExtent( layerId ), &gisEngine, directionFilePath, blUri, "postgres" );
+}
+
 void ReosWatersehdTest::delineate_watershed()
 {
-  QString layerId = gisEngine.addRasterLayer( "/home/vincent/dev/vortex/data/SRTMGL1_France_SE.tif", QStringLiteral( "raster_DEM" ) );
-  ReosMapExtent extent = ReosMapExtent( 661553.33, 1792732.0, 661780.44, 1792964.54 );
-  extent.setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
-
-  const QString directionFilePath = "/home/vincent/dev/vortex/data/SRTMGL1_France_SE_dir.tif";
+  QString layerId = gisEngine.addRasterLayer( testFile( "DEM_SE.tif" ), QStringLiteral( "raster_DEM" ) );
+  const QString directionFilePath = testFile( "DEM_SE_dir.tif" );
+  //ReosWatershedDelineating::directionFromDem( layerId, gisEngine.layerExtent( layerId ), &gisEngine, directionFilePath );
   QPolygonF dsLine;
-  dsLine << QPointF( 2.62316877380512858, 43.26591984771614818 )
-         << QPointF( 2.62914772565076982, 43.26415514870655699 )
-         << QPointF( 2.62914772565076982, 43.26415514870655699 );
+  dsLine << QPointF( 756796.82534309197217226, 6319006.69449135288596153 )
+         << QPointF( 757299.64505985646974295, 6318284.82460094895213842 );
+
 
   ReosWatershedDelineating::DelineateResult res = ReosWatershedDelineating::delineateWatershed(
         layerId,
         directionFilePath,
         dsLine,
-        ReosGisEngine::crsFromEPSG( 4326 ),
-        &gisEngine );
+        ReosGisEngine::crsFromEPSG( 2154 ),
+        &gisEngine,
+        "/home/vincent/distClasses.tif" );
 
-  int a = 1;
+  ReosExportToVectorFile exportToFile( "/home/vincent/watershed.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, ReosGisEngine::crsFromEPSG( 2154 ) );
+
+  exportToFile.addPolygon( res.delineateWatershed, QVariantMap() );
 }
 
 void ReosWatersehdTest::delineateFromDirection()
@@ -449,7 +462,8 @@ void ReosWatersehdTest::delineateFromDirection()
         directionFilePath,
         dsLine,
         ReosGisEngine::crsFromEPSG( 32620 ),
-        &gisEngine );
+        &gisEngine,
+        "/home/vincent/distClasses.tif" );
 
   QPolygonF polygonWatershed = res.delineateWatershed;
 
@@ -566,7 +580,8 @@ void ReosWatersehdTest::delineateFromDirectionWithBurningLines()
         directionFilePath,
         dsLine,
         ReosGisEngine::crsFromEPSG( 32620 ),
-        &gisEngine );
+        &gisEngine,
+        "/home/vincent/distClasses.tif" );
 
   QPolygonF polygonWatershed = res.delineateWatershed;
 

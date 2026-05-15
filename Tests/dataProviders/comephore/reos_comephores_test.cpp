@@ -22,6 +22,7 @@ email                : vcloarec at gmail dot com
 #include "reosnetcdfutils.h"
 #include "reosgisengine.h"
 #include "reoswatershed.h"
+#include "reos_testutils.h"
 
 class ReosComephoreTest: public QObject
 {
@@ -38,6 +39,8 @@ class ReosComephoreTest: public QObject
     void timeWindow();
     void missingIndex();
     void griddedDataOnWatersed();
+    void griddedDataOnWatersedDistArea();
+    void griddedDataOnWatersedRebuiltNcFile();
 
   private:
     ReosModule mRootModule;
@@ -402,11 +405,11 @@ void ReosComephoreTest::griddedDataOnWatersed()
   uriParam[QStringLiteral( "file-or-dir-path" )] = COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" );
 
   bool ok = false;
-  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedRainfall::staticType(), uriParam, ok );
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
   QVERIFY( ok );
 
   std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
 
 
   QPolygonF watershed_poly;
@@ -415,18 +418,84 @@ void ReosComephoreTest::griddedDataOnWatersed()
                   << QPointF( 348884., 6252486. )
                   << QPointF( 283670., 6251741. );
 
-  ReosWatershed watershed;
-  mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
-  watershed.setGeographicalContext( mGisEngine );
-  watershed.setDelineating( watershed_poly );
+  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
 
   gridOnWs->preCalculate();
 
   QVector<double> values = gridOnWs->constData();
-  QCOMPARE( values.count(), 3624 );
-  QCOMPARE( values.at( 58 ), 0.0001061439977543495 );
+  QCOMPARE( values.count(), 2904 );
+}
+
+void ReosComephoreTest::griddedDataOnWatersedRebuiltNcFile()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = testFile( QStringLiteral( "comephore/vortex/" ) );
+  //uriParam[QStringLiteral( "file-or-dir-path" )] = "/home/vincent/comephore_1km-1h_199710.nc" ;
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
+
+  griddedData->exportToTiff( 0, "/home/vincent/com.tif" );
+
+  QPolygonF watershed_poly;
+  watershed_poly  << QPointF( 477900.58052908896934241, 6940478.81985924020409584 )
+                  << QPointF( 439270.32867335260380059, 6884862.21612367685884237 )
+                  << QPointF( 477900.58052908896934241, 6834725.08073644526302814 )
+                  << QPointF( 522010.30073315638583153, 6884862.21612367685884237 );
+
+
+
+  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, griddedData.get() ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 25 );
+}
+
+void ReosComephoreTest::griddedDataOnWatersedDistArea()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData =
+    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
+
+  QString watershedCrs;
+  const QPolygonF watershed_poly = ReosGisEngine::openPolygonVectorLayerSource( testFile( "watershed.shp" ), watershedCrs ).at( 0 );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), watershedCrs );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs(
+    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep(
+      &watershed,
+      griddedData.get(),
+      ReosDuration( 1.0, ReosDuration::hour ),
+      testFile( "distClasses.tif" ), 4
+    ) );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 2904 );
+
+  QVector<double> val1 = gridOnWs->valuesForArea( 0 );
+  QVector<double> val2 = gridOnWs->valuesForArea( 1 );
+  QVector<double> val3 = gridOnWs->valuesForArea( 2 );
+  QVector<double> val4 = gridOnWs->valuesForArea( 3 );
+
+  QCOMPARE( val1.count(), 2904 );
 }
 
 
