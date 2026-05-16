@@ -146,10 +146,10 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosGriddedDataProvid
 
 };
 
-class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
+class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedDataProvider
 {
   public:
-    ReosGriddedRainfallProvider *clone() const override;
+    ReosGriddedDataProvider *clone() const override;
 
     void load() override {};
     QString key() const override;
@@ -189,7 +189,7 @@ class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRain
 class ReosGriddedRainfallMemoryProviderFactory: public ReosDataProviderFactory
 {
   public:
-    ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
+    ReosGriddedDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
 };
 

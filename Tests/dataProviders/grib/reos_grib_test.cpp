@@ -61,11 +61,12 @@ void ReosGribTest::createProvider()
   QVERIFY( message.type == ReosModule::Simple );
   QCOMPARE( details.availableVariables.count(), 15 );
 
-  QString variable = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
+  QString variable = QStringLiteral( "Total Precipitation" );
   QVERIFY( details.availableVariables.contains( variable ) );
 
+
   provider->setDataSource(
-    ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGribGriddedDataProvider::ValueType::CumulativeOnTimeStep ) );
+    ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGribGriddedDataProvider::ValueType::Cumulative ) );
 
   QCOMPARE( provider->count(), 3 );
 
@@ -79,7 +80,7 @@ void ReosGribTest::createProvider()
   ReosRasterExtent extent = provider->extent();
   QVERIFY( extent.isValid() );
 
-  double min = 0, max = 0;
+    double min = 0, max = 0;
   QVERIFY( !provider->getDirectMinMax( min, max ) );
   provider->calculateMinMax( min, max );
   QCOMPARE( min, 0.0009765625 );

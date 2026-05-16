@@ -114,12 +114,13 @@ void ReoHydraulicNetworkTest::calculationPropagation()
 
   //**** Mount a watershed
   QPolygonF watershedPolygon;
-  watershedPolygon << QPointF( 0, 0 ) << QPointF( 100, 0 ) << QPointF( 100, 100 ) << QPointF( 0, 100 );
+  QPointF ori(662000,1793000);
+  watershedPolygon << ori+QPointF( 0, 0 ) << ori+QPointF( 100, 0 ) <<ori+ QPointF( 100, 100 ) << ori+QPointF( 0, 100 );
   ReosWatershed *watershed =
-    mWatershedModule->watershedTree()->addWatershed( new  ReosWatershed( watershedPolygon, QPointF( 0, 0 ) ) );
+    mWatershedModule->watershedTree()->addWatershed( new  ReosWatershed( watershedPolygon, ori+QPointF( 0, 0 ) ) );
   watershed->concentrationTime()->setValue( ReosDuration( 10, ReosDuration::minute ) );
   watershed->calculateArea();
-  QVERIFY( watershed->areaParameter()->value() == ReosArea( 1, ReosArea::ha ) );
+  QVERIFY( watershed->areaParameter()->value() == ReosArea( 10001.505282669328, ReosArea::m2 ) ); // area in the ellispoid, not in the plan, so not exactly 10000 m2
   std::unique_ptr<ReosRunoffConstantCoefficientModel> runoffModel( new ReosRunoffConstantCoefficientModel( "runoff" ) );
   runoffModel->coefficient()->setValue( 1 );
   watershed->runoffModels()->addRunoffModel( runoffModel.get() );

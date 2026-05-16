@@ -300,7 +300,7 @@ ReosFormWidget *ReosFormWidgetGriddedRainfalFactory::createDataWidget( ReosDataO
   buttonShowExtent->setAutoRaise( true );
 
 
-  if ( ReosGriddedRainfallProvider *provider =  griddedRainFall->dataProvider() )
+  if ( ReosGriddedDataProvider *provider =  griddedRainFall->dataProvider() )
   {
     QTextBrowser *textbrowser = new QTextBrowser( formWidget );
     textbrowser->setText( provider->htmlDescription() );

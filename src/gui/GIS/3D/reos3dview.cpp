@@ -69,7 +69,8 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   if ( meshLayer )
     extent = meshLayer->extent();
   float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
-  settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
+  settings->setExtent(extent);
+  //settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
 
   settings->setTemporalRange(
   {

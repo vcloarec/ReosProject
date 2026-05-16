@@ -169,7 +169,7 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
   std::unique_ptr<ReosDataProvider> provider(
     ReosDataProviderRegistery::instance()->createCompatibleProvider( ui->mPathLineEdit->text(), ReosGriddedRainfall::staticType() ) );
 
-  mProvider.reset( qobject_cast<ReosGriddedRainfallProvider *>( provider.release() ) );
+  mProvider.reset( qobject_cast<ReosGriddedDataProvider *>( provider.release() ) );
 
   if ( !mProvider )
   {

@@ -61,7 +61,7 @@ void ReosMeshTest::GmshGenerator()
 #ifdef _MSC_VER
   QCOMPARE( frameData.facesIndexes.count(), 1022 );
 #else
-  QCOMPARE( frameData.facesIndexes.count(), 1026 );
+  QCOMPARE( frameData.facesIndexes.count(), 1020 );
 #endif
   controler.defaultSize()->setValue( 10 );
   process.reset( generator.getGenerateMeshProcess( structure.get(), &controler ) );

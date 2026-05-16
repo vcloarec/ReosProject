@@ -98,12 +98,12 @@ ReosGriddedRainfall *ReosGriddedRainfall::loadGriddedRainfall( const QString &da
   return ret.release();
 }
 
-ReosGriddedRainfallProvider *ReosGriddedRainfall::dataProvider() const
+ReosGriddedDataProvider *ReosGriddedRainfall::dataProvider() const
 {
-  return qobject_cast<ReosGriddedRainfallProvider *>( ReosGriddedData::dataProvider() );
+  return qobject_cast<ReosGriddedDataProvider *>( ReosGriddedData::dataProvider() );
 }
 
-QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-precipitation" );}
+QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-data" );}
 
 
 

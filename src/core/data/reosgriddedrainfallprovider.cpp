@@ -196,7 +196,7 @@ ReosGriddedRainfallProvider::~ReosGriddedRainfallProvider()
 ReosGriddedDataProvider::~ReosGriddedDataProvider()
 {}
 
-ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
+ReosGriddedDataProvider *ReosGriddedRainfallMemoryProvider::clone() const
 {
   std::unique_ptr<ReosGriddedRainfallMemoryProvider> other = std::make_unique<ReosGriddedRainfallMemoryProvider>();
 
@@ -207,7 +207,7 @@ ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProvider::clone() const
   return other.release();
 }
 
-ReosGriddedRainfallProvider *ReosGriddedRainfallMemoryProviderFactory::createProvider( const QString &dataType ) const
+ReosGriddedDataProvider *ReosGriddedRainfallMemoryProviderFactory::createProvider( const QString &dataType ) const
 {
   if ( dataType == ReosGriddedRainfallMemoryProvider::dataType() )
     return new ReosGriddedRainfallMemoryProvider;

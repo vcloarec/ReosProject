@@ -412,7 +412,7 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( doubleTriangle->centerCoefficient()->value() == 0.5 );
     QVERIFY( doubleTriangle->referenceTime() == QDateTime( QDate( 2010, 02, 03 ), QTime( 5, 6, 7 ), Qt::UTC ) );
 
-    //****** Aletrnate rainfall
+    //****** Alternate rainfall
     ReosRainfallAlternatingBlockItem *alternateItem = qobject_cast<ReosRainfallAlternatingBlockItem *>(
           rainfallModel->indexToItem( rainfallModel->index( 4, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
     QVERIFY( alternateItem );
@@ -427,7 +427,7 @@ void ReosRainfallTest::loadRainfallData()
     QVERIFY( alternateRainfall->centerCoefficient()->value() == 0.5 );
     QVERIFY( alternateRainfall->referenceTime() == QDateTime( QDate( 2021, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
 
-    //****** Alternate rainfall
+    //****** Gauged rainfall
     ReosRainfallGaugedRainfallItem *gaugedItem = qobject_cast<ReosRainfallGaugedRainfallItem *>(
           rainfallModel->indexToItem( rainfallModel->index( 3, 0, rainfallModel->itemToIndex( stationItem ) ) ) );
     QVERIFY( gaugedItem );
@@ -631,7 +631,7 @@ void ReosRainfallTest::griddedRainfall()
   ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr );
 
   QVERIFY( rainfall.isValid() );
-  QCOMPARE( rainfall.gridCount(), 3 );
+  QCOMPARE( rainfall.gridCount(), 2 );
 
   ReosEncodeContext context;
   ReosEncodedElement encodedRainfall = rainfall.encode( context );
@@ -639,7 +639,7 @@ void ReosRainfallTest::griddedRainfall()
   std::unique_ptr<ReosGriddedRainfall> loadedRainFall( ReosGriddedRainfall::decode( encodedRainfall, context, nullptr ) );
   QVERIFY( loadedRainFall );
   QVERIFY( loadedRainFall->isValid() );
-  QCOMPARE( loadedRainFall->gridCount(), 3 );
+  QCOMPARE( loadedRainFall->gridCount(), 2 );
 
   ReosRainfallModel rainfallModel;
   ReosZoneItem *zoneItem = rainfallModel.addZone( "Zone 1", "a zone for a gridded rain" );
@@ -662,7 +662,7 @@ void ReosRainfallTest::griddedRainfall()
   ReosGriddedRainfall *grf = griddedItem->data();
 
   QVERIFY( grf->isValid() );
-  QCOMPARE( grf->gridCount(), 3 );
+  QCOMPARE( grf->gridCount(), 2 );
 }
 
 void ReosRainfallTest::griddedRainfallOnSmallWatershed()
@@ -689,27 +689,26 @@ void ReosRainfallTest::griddedRainfallOnSmallWatershed()
   ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr );
 
   QVERIFY( rainfall.isValid() );
-  QCOMPARE( rainfall.gridCount(), 6 );
+  QCOMPARE( rainfall.gridCount(), 5 );
 
   ReosSeriesRainfallFromGriddedOnWatershed rainfallSeries( &watershed, &rainfall );
   connect( &rainfallSeries, &ReosSeriesRainfallFromGriddedOnWatershed::calculationFinished, &loop, &QEventLoop::quit );
   loop.exec();
 
-  QCOMPARE( rainfallSeries.referenceTime(), QDateTime( QDate( 2022, 11, 16 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfallSeries.referenceTime(), QDateTime( QDate( 2022, 11, 16 ), QTime( 13, 0, 0 ), Qt::UTC ) );
 
-  QCOMPARE( rainfallSeries.valueCount(), 6 );
+  QCOMPARE( rainfallSeries.valueCount(), 5 );
   double val = rainfallSeries.valueAt( 0 );
-  QVERIFY( equal( val, 1.474, 0.001 ) );
+  QVERIFY( equal( val, 2.1204, 0.001 ) );
   val = rainfallSeries.valueAt( 1 );
-  QVERIFY( equal( val, 2.120, 0.001 ) );
-  val = rainfallSeries.valueAt( 2 );
   QVERIFY( equal( val, 3.7006, 0.001 ) );
-  val = rainfallSeries.valueAt( 3 );
+  val = rainfallSeries.valueAt( 2 );
   QVERIFY( equal( val, 1.3899, 0.001 ) );
-  val = rainfallSeries.valueAt( 4 );
+  val = rainfallSeries.valueAt( 3 );
   QVERIFY( equal( val, 0.4101, 0.001 ) );
-  val = rainfallSeries.valueAt( 5 );
-  QVERIFY( equal( val, 0.6549, 0.001 ) );
+  val = rainfallSeries.valueAt( 4 );
+  QVERIFY( equal( val, 0.65491, 0.001 ) );
+
 }
 
 QTEST_MAIN( ReosRainfallTest )

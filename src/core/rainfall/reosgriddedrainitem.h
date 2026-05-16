@@ -43,7 +43,7 @@ class REOSCORE_EXPORT ReosGriddedRainfall : public ReosGriddedData
     static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
 
     //! Returns a pointer to the data provider
-    ReosGriddedRainfallProvider *dataProvider() const override SIP_SKIP;
+    ReosGriddedDataProvider *dataProvider() const override SIP_SKIP;
 
     static QString staticType();
 

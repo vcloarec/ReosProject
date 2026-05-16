@@ -11,11 +11,13 @@ SET(REOS_DELFT_FEWS_HEADERS
 
 IF(WITH_GUI)
     SET(REOS_DELFT_FEWS_SOURCES
+        ${REOS_DELFT_FEWS_SOURCES}
         reosdelftfewswidget.cpp
         reosdelftfewssettingswidget.cpp
     )
 
     SET(REOS_DELFT_FEWS_HEADERS
+        ${REOS_DELFT_FEWS_HEADERS}
         reosdelftfewswidget.h
         reosdelftfewssettingswidget.h
     )

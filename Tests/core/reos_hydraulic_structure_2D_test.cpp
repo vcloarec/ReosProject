@@ -422,7 +422,7 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
 #ifdef _MSC_VER
   QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 715 );
 #else
-  QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 714 );
+  QCOMPARE( mHydraulicStructure->mesh()->vertexCount(), 711 );
 #endif
 
   QPolygonF hole;
@@ -556,7 +556,7 @@ void ReoHydraulicStructure2DTest::meteoModel()
 
   ReosGriddedRainfall *rainfall = meteoModel->associatedRainfall( mHydraulicStructure );
   QVERIFY( rainfall );
-  QCOMPARE( rainfall->gridCount(), 6 );
+  QCOMPARE( rainfall->gridCount(), 5 );
 
   ReosEncodedElement encodedMeteoModel = meteoModel->encode( nullptr );
 

@@ -154,6 +154,9 @@ class REOSCORE_EXPORT ReosApplication: public QApplication
     //! Returns the path of gis provider library files
     static QString gisProviderPath();
 
+    //! Returns if the current running is a local build (i.e. not installed)
+    static bool isRunningFromBuildDir();
+
 #ifndef SIP_RUN
 
     static QString i18nPath();

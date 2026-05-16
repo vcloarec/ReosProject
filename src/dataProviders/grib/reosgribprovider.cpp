@@ -85,6 +85,7 @@ void ReosGribGriddedDataProvider::load()
           break;
         case EcCodes:
           parseFileWithEcCodes( dir.filePath( file ), pathes, mExtent );
+            break;
       }
   }
   else if ( fileInfo.isFile() )
@@ -143,35 +144,24 @@ ReosGriddedRainfallProvider::FileDetails ReosGribGriddedDataProvider::details( c
     message.text = tr( "No Grib2 source found in \"%1\"." ).arg( source );
   }
 
-  bool hasExtent = false;
+  bool hasExtent=false;
 
-  for ( const QString &file : std::as_const( files ) )
+  for (const QString &file : std::as_const(files))
   {
-    ReosGdalDataset dataset( dir.filePath( file ) );
+      const QList<ReosEcCodesReader::Variable> ecVars=ReosEcCodesReader::variables( dir.filePath( file ) );
+      for ( const ReosEcCodesReader::Variable &var : ecVars )
+      {
+          if ( ret.availableVariables.contains( var.name ) )
+              continue;
+          ret.availableVariables.append( var.name );
+      }
 
-    int bandCount = dataset.bandCount();
-
-    if ( bandCount == 0 )
-    {
-      message.type = ReosModule::Error;
-      message.text = tr( "No data found in \"%1\"." ).arg( source );
-      return ret;
-    }
-
-    for ( int i = 1; i <= bandCount; ++i )
-    {
-      QMap<QString, QString> metadata = dataset.bandMetadata( i );
-      auto it = metadata.find( QStringLiteral( "GRIB_COMMENT" ) );
-      if ( it == metadata.end() )
-        continue;
-
-      if ( ret.availableVariables.contains( it.value() ) )
-        continue;
-
-      ret.availableVariables.append( it.value() );
       if ( !hasExtent )
-        ret.extent = dataset.extent();
-    }
+      {
+          ReosGdalDataset dataset( dir.filePath( file ) );
+          ret.extent = dataset.extent();
+          hasExtent=true;
+      }
   }
 
   if ( ret.availableVariables.isEmpty() )
@@ -207,13 +197,13 @@ int ReosGribGriddedDataProvider::count() const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
       return std::max( 0, mFrames.count() - 1 );
       break;
     case ValueType::Instantaneous:
       return mFrames.count() > 1 ? mFrames.count() - 1 : mFrames.count();
       break;
+    case ValueType::Cumulative:
     case ValueType::CumulativeOnTimeStep:
       return mFrames.count();
       break;
@@ -228,10 +218,10 @@ QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
+    case ValueType::Cumulative:
     case ValueType::CumulativeOnTimeStep:
       return QDateTime::fromSecsSinceEpoch(
                mFrames.at( index ).frameTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
@@ -248,10 +238,10 @@ QDateTime ReosGribGriddedDataProvider::endTime( int index ) const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).frameTime, Qt::UTC );
       break;
+    case ValueType::Cumulative:
     case ValueType::CumulativeOnTimeStep:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
@@ -283,6 +273,9 @@ const QVector<double> ReosGribGriddedDataProvider::data( int index ) const
   {
     case ValueType::Cumulative:
     {
+      if (index==0)
+        return frame( index ).values();
+
       ReosRasterMemory<double> prevRaster = frame( index );
       ReosRasterMemory<double> raster = frame( index + 1 );
       QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
@@ -476,11 +469,12 @@ QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QStri
       break;
     case ValueType::CumulativeOnTimeStep:
       stringValueType = QStringLiteral( "height" );
+      break;
     case ValueType::Instantaneous:
       stringValueType = QStringLiteral( "intensity" );
       break;
   }
-  return QStringLiteral( "\"%1\"::%2::%3" ).arg( sourcePath, variable, stringValueType );
+  return QStringLiteral( "\"%1\"::grib-keys=name:%2::%3" ).arg( sourcePath, variable, stringValueType );
 }
 
 QString ReosGribGriddedDataProvider::uri( const QString &sourcePath, const QVariantMap &gribKeys, bool cumulativeOnDay, bool allInstantaneousFrames )
@@ -862,6 +856,7 @@ ReosRasterMemory<double> ReosGribGriddedDataProvider::frame( int index ) const
   {
     case GDAL:
       mCurrentReader.reset( new ReosGdalDataset( gf.file ) );
+      break;
     default:
       mCurrentReader.reset( new ReosEcCodesReader( gf.file, mGribKeys ) );
       break;

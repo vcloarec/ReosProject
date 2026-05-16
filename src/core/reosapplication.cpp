@@ -290,3 +290,10 @@ QString ReosApplication::gisProviderPath()
     return resolvePath( QStringLiteral( "qgisProvider" ) );
   else return qgisPluginPath;
 }
+
+bool ReosApplication::isRunningFromBuildDir()
+{
+  QString appDir= QCoreApplication::applicationDirPath();
+  QString buildFile= QDir( appDir ).filePath( QStringLiteral( "reosbuildpath.txt" ) );
+  return QFileInfo( buildFile ).exists();
+}

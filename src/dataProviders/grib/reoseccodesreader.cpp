@@ -124,7 +124,7 @@ static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &
     if ( firstLon >= 180.0 )
       firstLon = -360 + firstLon;
     if ( lastLon >= 180.0 )
-      lastLon = -360 + firstLon;
+      lastLon = -360 + lastLon;
 
     double pixelWidth = std::abs( firstLon - lastLon ) / ( ret.width - 1 );
     double pixelHeight = std::abs( firstLat - lastLat ) / ( ret.height - 1 );
@@ -530,13 +530,10 @@ long ReosEcCodesReaderKeys::longValue( const QString &key ) const
   auto it = mMap.find( key );
   if ( it != mMap.constEnd() )
   {
-    if ( it.value().isValid() && it.value().type() == QVariant::Type::LongLong )
-    {
       bool ok = false;
       long val = it.value().toLongLong( &ok );
       if ( ok )
         return val;
-    }
   }
 
   return -1;
@@ -547,13 +544,10 @@ double ReosEcCodesReaderKeys::doubleValue( const QString &key ) const
   auto it = mMap.find( key );
   if ( it != mMap.constEnd() )
   {
-    if ( it.value().isValid() && it.value().type() == QVariant::Type::Double )
-    {
       bool ok = false;
       double val = it.value().toDouble( &ok );
       if ( ok )
         return val;
-    }
   }
 
   return std::numeric_limits<double>::quiet_NaN();

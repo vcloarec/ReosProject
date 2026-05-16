@@ -71,9 +71,9 @@ class ReosGriddedRainfallSelectorWidget : public ReosDataProviderSelectorWidget
     ReosGuiContext mGuiContext;
     std::unique_ptr<ReosMapPolygon> mDataExtent;
     QString mCurrentVariable;
-    ReosGriddedRainfallProvider::FileDetails mDetails;
+    ReosGriddedDataProvider::FileDetails mDetails;
     std::unique_ptr<ReosGriddedRainfall> mCurrentRainfall;
-    std::unique_ptr<ReosGriddedRainfallProvider> mProvider;
+    std::unique_ptr<ReosGriddedDataProvider> mProvider;
     std::unique_ptr<ReosMapPolygon> mExtentOnMainMap;
 
     ReosGriddedRainDataProviderSelectorWidget *mProviderSelectorWidget = nullptr;
