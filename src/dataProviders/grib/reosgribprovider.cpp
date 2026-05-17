@@ -97,6 +97,7 @@ void ReosGribGriddedDataProvider::load()
         break;
       case EcCodes:
         parseFileWithEcCodes( fileSource, pathes, mExtent );
+        break;
     }
   }
 
@@ -195,15 +196,20 @@ bool ReosGribGriddedDataProvider::canReadUri( const QString &path ) const
 
 int ReosGribGriddedDataProvider::count() const
 {
+  if (mFrames.count()==0)
+        return 0;
   switch ( mSourceValueType )
   {
+    case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
-      return std::max( 0, mFrames.count() - 1 );
+      if (mFrames.at(0).timeRange==ReosDuration())
+        return std::max( 0, mFrames.count() - 1 );
+      else
+        return mFrames.count();
       break;
     case ValueType::Instantaneous:
       return mFrames.count() > 1 ? mFrames.count() - 1 : mFrames.count();
       break;
-    case ValueType::Cumulative:
     case ValueType::CumulativeOnTimeStep:
       return mFrames.count();
       break;
@@ -218,10 +224,18 @@ QDateTime ReosGribGriddedDataProvider::startTime( int index ) const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::CumulativeOnDay:
-      return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
-      break;
     case ValueType::Cumulative:
+    case ValueType::CumulativeOnDay:
+      if (mFrames.at(0).timeRange==ReosDuration())
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
+      else
+      {
+        if ( index == 0 )
+            return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
+        else
+            return QDateTime::fromSecsSinceEpoch( mFrames.at( index-1 ).frameTime, Qt::UTC );
+      }
+      break;
     case ValueType::CumulativeOnTimeStep:
       return QDateTime::fromSecsSinceEpoch(
                mFrames.at( index ).frameTime, Qt::UTC ).addSecs( -mFrames.at( index ).timeRange.valueSecond() );
@@ -238,10 +252,13 @@ QDateTime ReosGribGriddedDataProvider::endTime( int index ) const
 {
   switch ( mSourceValueType )
   {
-    case ValueType::CumulativeOnDay:
-      return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).frameTime, Qt::UTC );
-      break;
     case ValueType::Cumulative:
+    case ValueType::CumulativeOnDay:
+      if (mFrames.at(0).timeRange==ReosDuration())
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index + 1 ).frameTime, Qt::UTC );
+      else
+        return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
+      break;
     case ValueType::CumulativeOnTimeStep:
       return QDateTime::fromSecsSinceEpoch( mFrames.at( index ).frameTime, Qt::UTC );
       break;
@@ -273,15 +290,22 @@ const QVector<double> ReosGribGriddedDataProvider::data( int index ) const
   {
     case ValueType::Cumulative:
     {
-      if (index==0)
+      if (index==0 && mFrames.at(0).timeRange!=ReosDuration())
         return frame( index ).values();
 
-      ReosRasterMemory<double> prevRaster = frame( index );
-      ReosRasterMemory<double> raster = frame( index + 1 );
-      QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
+      int effIndex=0;
+      if (mFrames.at(0).timeRange!=ReosDuration())
+        effIndex=index;
+      else
+        effIndex=index+1;
 
+      ReosRasterMemory<double> prevRaster = frame( effIndex-1 );
+      ReosRasterMemory<double> raster = frame( effIndex );
+
+      QVector<double> ret( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() ) ;
       for ( int i = 0; i < ret.count(); ++i )
         ret[i] = raster.values().at( i ) - prevRaster.values().at( i );
+
       return ret;
 
     }

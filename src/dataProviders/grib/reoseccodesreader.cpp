@@ -124,7 +124,7 @@ static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &
     if ( firstLon >= 180.0 )
       firstLon = -360 + firstLon;
     if ( lastLon >= 180.0 )
-      lastLon = -360 + lastLon;
+      lastLon = -360 + firstLon;
 
     double pixelWidth = std::abs( firstLon - lastLon ) / ( ret.width - 1 );
     double pixelHeight = std::abs( firstLat - lastLat ) / ( ret.height - 1 );
@@ -173,7 +173,6 @@ ReosEcCodesReader::ReosEcCodesReader( const QString &gribFileName, const QVarian
   , mIndex( gribFileName, variableKeys )
 {
   int error = 0;
-
   mIsValid = mIndex.isValid();
 }
 
@@ -338,11 +337,13 @@ int ReosEcCodesReader::frameCount() const
   if ( mFrameCount < 0 )
   {
     bool ok = false;
+    mFrameCount=0;
     while ( codes_handle *handle = mIndex.nextHandle( ok ) )
     {
       if ( !ok )
       {
         codes_handle_delete( handle );
+        mFrameCount=-1;
         break;
       }
       mFrameCount++;
@@ -530,10 +531,13 @@ long ReosEcCodesReaderKeys::longValue( const QString &key ) const
   auto it = mMap.find( key );
   if ( it != mMap.constEnd() )
   {
+    if ( it.value().isValid() && it.value().type() == QMetaType::Long )
+    {
       bool ok = false;
       long val = it.value().toLongLong( &ok );
       if ( ok )
         return val;
+    }
   }
 
   return -1;
@@ -544,10 +548,13 @@ double ReosEcCodesReaderKeys::doubleValue( const QString &key ) const
   auto it = mMap.find( key );
   if ( it != mMap.constEnd() )
   {
+    if ( it.value().isValid() && it.value().type() == QMetaType::Double )
+    {
       bool ok = false;
       double val = it.value().toDouble( &ok );
       if ( ok )
         return val;
+    }
   }
 
   return std::numeric_limits<double>::quiet_NaN();

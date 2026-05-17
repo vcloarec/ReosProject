@@ -83,14 +83,14 @@ void ReosGribTest::createProvider()
     double min = 0, max = 0;
   QVERIFY( !provider->getDirectMinMax( min, max ) );
   provider->calculateMinMax( min, max );
-  QCOMPARE( min, 0.0009765625 );
+  QCOMPARE( min, -0.001953125 );
   QCOMPARE( max, 63.595703125 );
 }
 
 void ReosGribTest::griddedRainInFolder()
 {
   QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
-  QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
+  QString variable( QStringLiteral( "Total Precipitation" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
     new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::CumulativeOnTimeStep ),
                              ReosGribGriddedDataProvider::staticKey() ) );
@@ -113,14 +113,14 @@ void ReosGribTest::griddedRainInFolder()
   double min = 0, max = 0;
   QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
   rainfall->calculateMinMaxValue( min, max );
-  QCOMPARE( min, 0.0009765625 );
+  QCOMPARE( min, -0.001953125 );
   QCOMPARE( max, 63.595703125 );
 }
 
 void ReosGribTest::griddedRainInFile()
 {
   QString gribFile( testFile( QStringLiteral( "grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) ) );
-  QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
+  QString variable( QStringLiteral( "Total Precipitation" ) );
   std::unique_ptr<ReosGriddedRainfall> rainfall(
     new ReosGriddedRainfall( ReosGribGriddedDataProvider::uri( gribFile, variable, ReosGriddedRainfallProvider::ValueType::CumulativeOnTimeStep ),
                              ReosGribGriddedDataProvider::staticKey() ) );
