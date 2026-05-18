@@ -213,7 +213,7 @@ void ReosGribTest::eccodesReader()
 
   ReosRasterExtent extent = reader.extent( 0 );
 
-  fileName = "/home/vincent/318-oper.grib2";
+  fileName = testFile( QStringLiteral( "grib/318-oper.grib2"));
 
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -233,7 +233,7 @@ void ReosGribTest::eccodesReader()
   QCOMPARE( expected, range );
   QVERIFY( stepType == ReosEcCodesReader::Accum );
 
-  fileName = "/home/vincent/AROME_2025-04-02T12_15_00Z.grib2";
+  fileName = testFile( QStringLiteral( "grib/AROME_2025-04-02T12_15_00Z.grib2"));
   keys.clear();
   keys.insert( "shortName", "tp" );
   reader = ReosEcCodesReader( fileName, keys );
