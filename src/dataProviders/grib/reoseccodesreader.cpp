@@ -68,7 +68,6 @@ static QVariantMap keys( codes_handle *handle )
   while ( codes_keys_iterator_next( kit ) )
   {
     const char *key = codes_keys_iterator_get_name( kit );
-    QString keyName = QString::fromUtf8( key );
     keysMap.insert( key, getKeyValue( handle, key ) );
   }
   codes_keys_iterator_delete( kit );
@@ -172,7 +171,6 @@ ReosEcCodesReader::ReosEcCodesReader( const QString &gribFileName, const QVarian
   , mVariableKeys( variableKeys )
   , mIndex( gribFileName, variableKeys )
 {
-  int error = 0;
   mIsValid = mIndex.isValid();
 }
 
