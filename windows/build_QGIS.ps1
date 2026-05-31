@@ -12,7 +12,7 @@ ls $PYTHONHOME
 Write-Host "=== Start building QGIS ..."
 Write-Host "=== Osgeo directory:"
 $OSGEO_DIR
-ls $OSGEO_DIR
+ls $OSGEO_DIR\bin
 
 Write-Host "=== Cygwin directory:"
 $env:CYGWIN_ROOT
