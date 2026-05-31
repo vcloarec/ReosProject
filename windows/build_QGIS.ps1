@@ -41,7 +41,7 @@ cmake   -S $env:QGIS_SRC `
 		-D WITH_HANA=FALSE `
 		-D WITH_GRASS=FALSE `
 		-D WITH_GRASS7=FALSE `
-		-D WITH_BINDINGS=FALSE `
+		-D WITH_BINDINGS=TRUE `
 		-D WITH_ORACLE=FALSE `
 		-D WITH_CUSTOM_WIDGETS=FALSE `
 		-D WITH_QTWEBKIT=FALSE `
@@ -77,6 +77,8 @@ cmake   -S $env:QGIS_SRC `
 		-D ZSTD_LIBRARY=$OSGEO_DIR/lib/zstd.lib `
 		-D EXIV2_INCLUDE_DIR=$OSGEO_DIR/include/exiv2 `
 		-D EXIV2_LIBRARY=$OSGEO_DIR/lib/exiv2.lib `
+		-D QWT_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include `
+		-D QWT_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
 		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
 		-D SIP_MODULE_EXECUTABLE=$PYTHONHOME/Scripts/sip-module.exe `
 		-D PYUIC_PROGRAM=$PYTHONHOME/Scripts/pyuic5.exe `
