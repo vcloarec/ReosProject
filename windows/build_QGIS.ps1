@@ -71,7 +71,7 @@ cmake   -S $env:QGIS_SRC `
 		-D ZLIB_INCLUDE_DIR=$OSGEO_DIR/include `
 		-D ZLIB_LIBRARY=$OSGEO_DIR/lib/zlib.lib `
 		-D ZSTD_INCLUDE_DIR=$OSGEO_DIR/include `
-		-D ZSTD_LIBRARY=$OSGEO_DIR/lib/zstd.lib `	
+		-D ZSTD_LIBRARY=$OSGEO_DIR/lib/zstd.lib `
 		-D EXIV2_INCLUDE_DIR=$OSGEO_DIR/include/exiv2 `
 		-D EXIV2_LIBRARY=$OSGEO_DIR/lib/exiv2.lib `
 		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
