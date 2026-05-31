@@ -58,6 +58,9 @@ cmake   -S $env:QGIS_SRC `
 		-D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
 		-D PROJ_INCLUDE_DIR=$OSGEO_DIR/include `
 		-D GEOS_LIBRARY=$OSGEO_DIR/lib/geos_c.lib `
+		-D GSL_INCLUDE_DIR=$GSL_INCLUDE_DIR `
+        -D GSL_LIBRARY=$GSL_LIBRARY `
+        -D GSL_CBLAS_LIBRARY=$GSL_CBLAS_LIBRARY `
 		-D SQLITE3_LIBRARY=$OSGEO_DIR/lib/sqlite3_i.lib `
 		-D SPATIALITE_LIBRARY=$OSGEO_DIR/lib/spatialite_i.lib `
 		-D SPATIALINDEX_LIBRARY=$OSGEO_DIR/lib/spatialindex-64.lib `
