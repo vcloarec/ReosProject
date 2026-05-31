@@ -629,7 +629,7 @@ ReosEncodedElement ReosGribGriddedDataProvider::encode( const ReosEncodeContext 
 
   QString sourcePath = sourcePathFromUri( uriToEncode );
   sourcePath = context.pathToEncode( sourcePath );
-  uriToEncode = uri( sourcePath, variableFromUri( uriToEncode ), valueTypeFromUri( uriToEncode ) );
+  uriToEncode = uri( sourcePath, keysFromUri(uriToEncode) );
   element.addData( QStringLiteral( "data-source" ), uriToEncode );
 
   return element;
@@ -644,7 +644,7 @@ void ReosGribGriddedDataProvider::decode( const ReosEncodedElement &element, con
   {
     QString sourcePath = sourcePathFromUri( source );
     sourcePath = context.resolvePath( sourcePath );
-    source = uri( sourcePath, variableFromUri( source ), valueTypeFromUri( source ) );
+    source = uri( sourcePath, keysFromUri( source ));
     setDataSource( source );
   }
 

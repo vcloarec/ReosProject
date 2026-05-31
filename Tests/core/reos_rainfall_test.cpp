@@ -627,11 +627,11 @@ void ReosRainfallTest::syntheticRainfall()
 void ReosRainfallTest::griddedRainfall()
 {
   QString filePath = testFile( QStringLiteral( "/grib/arome-antilles/" ) );
-  QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
-  ReosGriddedRainfall rainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr );
+  QString variableName = QStringLiteral( "Total Precipitation" );
+  ReosGriddedRainfall rainfall( filePath + "::" + "grib-keys=name:"+variableName + "::" + "cumulative", QStringLiteral( "grib" ), nullptr );
 
   QVERIFY( rainfall.isValid() );
-  QCOMPARE( rainfall.gridCount(), 2 );
+  QCOMPARE( rainfall.gridCount(), 3 );
 
   ReosEncodeContext context;
   ReosEncodedElement encodedRainfall = rainfall.encode( context );
@@ -639,7 +639,7 @@ void ReosRainfallTest::griddedRainfall()
   std::unique_ptr<ReosGriddedRainfall> loadedRainFall( ReosGriddedRainfall::decode( encodedRainfall, context, nullptr ) );
   QVERIFY( loadedRainFall );
   QVERIFY( loadedRainFall->isValid() );
-  QCOMPARE( loadedRainFall->gridCount(), 2 );
+  QCOMPARE( loadedRainFall->gridCount(), 3 );
 
   ReosRainfallModel rainfallModel;
   ReosZoneItem *zoneItem = rainfallModel.addZone( "Zone 1", "a zone for a gridded rain" );
@@ -662,7 +662,7 @@ void ReosRainfallTest::griddedRainfall()
   ReosGriddedRainfall *grf = griddedItem->data();
 
   QVERIFY( grf->isValid() );
-  QCOMPARE( grf->gridCount(), 2 );
+  QCOMPARE( grf->gridCount(), 3 );
 }
 
 void ReosRainfallTest::griddedRainfallOnSmallWatershed()

@@ -205,12 +205,13 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
       ReosGisEngine *gisEngine,
       const QString &distanceClassesOutputFile = QString() );
 
-    static bool directionFromDem( const QString &demLayerId,
-                                  const ReosMapExtent &extent,
-                                  ReosGisEngine *gisEngine,
-                                  const QString &fileName,
-                                  const QString &burningLinesLayerUri = QString(),
-                                  const QString &burningLinesLayerProvider = QString() );
+    static bool directionFromDem(const QString &demLayerId,
+                                 const ReosMapExtent &extent,
+                                 ReosGisEngine *gisEngine,
+                                 const QString &fileName,
+                                 const QString &burningLinesLayerUri = QString(),
+                                 const QString &burningLinesLayerProvider = QString(),
+                                 bool cogOutput=true);
 
     static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent ) SIP_SKIP;
 

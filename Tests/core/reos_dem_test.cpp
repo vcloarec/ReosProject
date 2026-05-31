@@ -25,8 +25,6 @@ class ReosDemTesting: public QObject
     Q_OBJECT
   private slots:
     void raster_DEM();
-    void cog_DEM();
-    void createCOGFile();
 
   private:
     ReosGisEngine gisEngine;
@@ -93,29 +91,6 @@ void ReosDemTesting::raster_DEM()
   QVERIFY( equal( dem->averageElevationInPolygon( polygon, QString() ), 5.0002, 0.0001 ) );
 }
 
-void ReosDemTesting::cog_DEM()
-{
-  const QString uri = QStringLiteral( "/vsis3/vortexio-ml-flopi/cog/SRTMGL1_France_NO.tif" );
-
-  QString layerId = gisEngine.addRasterLayer( uri, "raster" );
-
-  QVERIFY( ! gisEngine.getTopDigitalElevationModel() );
-
-  gisEngine.registerLayerAsDigitalElevationModel( layerId );
-  std::unique_ptr<ReosDigitalElevationModel> dem( gisEngine.getTopDigitalElevationModel() );
-  QVERIFY( dem );
-}
-
-void ReosDemTesting::createCOGFile()
-{
-  ReosGdalDataset input( QStringLiteral( "/vsis3/vortexio-ml-flopi/cog/SRTMGL1_France_NO.tif" ) );
-
-  ReosRasterExtent extent = input.extent();
-  ReosRasterMemory<unsigned char> raster( extent.yCellCount(), extent.xCellCount() );
-  raster.reserveMemory();
-  raster.setValues( QVector< unsigned char>( extent.xCellCount()*extent.yCellCount(), 8 ) );
-  QVERIFY( ReosGdalDataset::writeByteRasterToCOGFile( "/home/vincent/tesg_cog.tif", raster, extent ) );
-}
 
 QTEST_MAIN( ReosDemTesting )
 #include "reos_dem_test.moc"

@@ -290,6 +290,7 @@ bool ReosGdalDataset::writeByteRasterToCOGFile( const QString &fileName, ReosRas
   GDALSetProjection( hTempDS, wktCrs.toUtf8() );
 
   GDALRasterBandH hBand = GDALGetRasterBand( hTempDS, 1 );
+  GDALSetRasterNoDataValue( hBand, 255 );
   CPLErr err=GDALRasterIO( hBand, GF_Write, 0, 0, width, height, raster.data(), width, height, GDT_Byte, 0, 0 );
 
   if (err!=CPLErr::CE_None)

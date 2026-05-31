@@ -49,8 +49,6 @@ class ReosWatersehdTest: public QObject
 
     void delineate_watershed();
 
-    void directionFromCog();
-
   private:
     ReosModule rootModule;
     ReosGisEngine gisEngine;
@@ -406,15 +404,6 @@ void ReosWatersehdTest::watershedDelineating()
   QVERIFY( itemModel.rowCount( itemModel.index( 0, 0, QModelIndex() ) ) == 2 ); //including residual watershed
 }
 
-
-void ReosWatersehdTest::directionFromCog()
-{
-  QString layerId = gisEngine.addRasterLayer( "/vsis3/vortexio-ml-flopi/cog/SRTMGL1_France_SE.tif", QStringLiteral( "raster_DEM" ) );
-  const QString directionFilePath = "/home/vincent/SRTMGL1_France_SE_dir.tif";
-  const QString blUri = "dbname='stations' host=database-flopi.c6xqozt4ysmb.eu-west-1.rds.amazonaws.com port=5432 user='postgres' password='wxs1YPTrfRFP9eC4QoXr' table=\"dems\".\"burning_lines\" (geom)";
-  ReosWatershedDelineating::directionFromDem( layerId, gisEngine.layerExtent( layerId ), &gisEngine, directionFilePath, blUri, "postgres" );
-}
-
 void ReosWatersehdTest::delineate_watershed()
 {
   QString layerId = gisEngine.addRasterLayer( testFile( "DEM_SE.tif" ), QStringLiteral( "raster_DEM" ) );
@@ -425,15 +414,17 @@ void ReosWatersehdTest::delineate_watershed()
          << QPointF( 757299.64505985646974295, 6318284.82460094895213842 );
 
 
+  const QString &classesPath=tempFile("distClasses.tif");
   ReosWatershedDelineating::DelineateResult res = ReosWatershedDelineating::delineateWatershed(
         layerId,
         directionFilePath,
         dsLine,
         ReosGisEngine::crsFromEPSG( 2154 ),
         &gisEngine,
-        "/home/vincent/distClasses.tif" );
+        classesPath );
 
-  ReosExportToVectorFile exportToFile( "/home/vincent/watershed.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, ReosGisEngine::crsFromEPSG( 2154 ) );
+  const QString &exportPath=tempFile("watershed.shp");
+  ReosExportToVectorFile exportToFile( exportPath, QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, ReosGisEngine::crsFromEPSG( 2154 ) );
 
   exportToFile.addPolygon( res.delineateWatershed, QVariantMap() );
 }
@@ -447,7 +438,7 @@ void ReosWatersehdTest::delineateFromDirection()
   const QString directionFilePath = tempFile( "test_directions.tif" );
 
 
-  QVERIFY( ReosWatershedDelineating::directionFromDem( layerId, extent, &gisEngine, directionFilePath ) );
+  QVERIFY( ReosWatershedDelineating::directionFromDem( layerId, extent, &gisEngine, directionFilePath,"","",false ) );
 
   ReosGdalDataset directionsDataset( directionFilePath );
   ReosRasterWatershed::Directions directions = directionsDataset.valuesBytes( 1 );
@@ -529,6 +520,10 @@ void ReosWatersehdTest::delineateFromDirection()
     QPointF( 661675.50, 1792951.50 ), QPointF( 661675.50, 1792950.50 ), QPointF( 661599.50, 1792950.50 )
   } );
 
+  ReosExportToVectorFile exportPoly("/home/cloarec/poly.shp",QList<ReosExportToVectorFile::Field>(),ReosExportToVectorFile::GeometryType::Polygon, ReosGisEngine::crsFromEPSG( 32620 ));
+  exportPoly.addPolygon(polygonWatershed, QVariantMap());
+
+
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
   QPolygonF streamLine = res.streamLine;
@@ -563,9 +558,9 @@ void ReosWatersehdTest::delineateFromDirectionWithBurningLines()
 
   const QString directionFilePath = tempFile( "test_directions.tif" );
 
-  const QString &burningLinesUri = "/home/vincent/dev/sources/ReosProject/Tests/testData/burning_lines.gpkg|layername=burning_lines";
+  const QString &burningLinesUri =  testFile("/burning_lines.gpkg")+"|layername=burning_lines";
 
-  QVERIFY( ReosWatershedDelineating::directionFromDem( layerId, extent, &gisEngine, directionFilePath, burningLinesUri ) );
+  QVERIFY( ReosWatershedDelineating::directionFromDem( layerId, extent, &gisEngine, directionFilePath, burningLinesUri,"",false ) );
 
   ReosGdalDataset directionsDataset( directionFilePath );
   ReosRasterWatershed::Directions directions = directionsDataset.valuesBytes( 1 );

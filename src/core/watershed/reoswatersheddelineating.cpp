@@ -382,7 +382,8 @@ bool ReosWatershedDelineating::directionFromDem(
   ReosGisEngine *gisEngine,
   const QString &fileName,
   const QString &burningLinesLayerUri,
-  const QString &burningLinesLayerProvider )
+  const QString &burningLinesLayerProvider,
+  bool cogOutput)
 {
   std::unique_ptr<ReosDigitalElevationModel> entryDem( gisEngine->getDigitalElevationModel( demLayerId ) );
   float maxValue = 0;
@@ -424,11 +425,10 @@ bool ReosWatershedDelineating::directionFromDem(
   directionProcess->start();
 
   std::cout << "Save direction to file: " << fileName.toStdString() << std::endl;
-  return ReosGdalDataset::writeByteRasterToCOGFile( fileName, directionProcess->directions(), rasterExtent );
-
-  std::cout << "Direction calculation finished!!! " << fileName.toStdString() << std::endl;
-
-  return true;
+  if (cogOutput)
+    return ReosGdalDataset::writeByteRasterToCOGFile( fileName, directionProcess->directions(), rasterExtent );
+  else
+    return ReosGdalDataset::writeByteRasterToFile( fileName, directionProcess->directions(), rasterExtent );
 }
 
 void ReosWatershedDelineating::setBurningLines( const QList<QPolygonF> &burningLines )
@@ -578,6 +578,7 @@ void ReosWatershedDelineatingProcess::start()
   }
 
   mRasterizedWatershed = rasterWatershedFromDirection->watershed();
+  mRasterizedWatershed.createTiffFile("/home/cloarec/raster.tiff", GDALDataType::GDT_Byte,mPredefinedRasterExtent);
   mDistanceClasses = rasterWatershedFromDirection->distanceClasses( 255 );
   ReosRasterCellPos downStreamPoint = rasterWatershedFromDirection->firstCell();
   ReosRasterCellPos endOfLongerPath = rasterWatershedFromDirection->endOfLongerPath();

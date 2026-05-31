@@ -36,8 +36,6 @@ class ReosGeometryTest: public QObject
 
     void clipGdalDataSet();
 
-    void loadPostGres();
-
   private:
     ReosModule mRootModule;
     ReosGisEngine *mGisEngine = nullptr;
@@ -246,23 +244,7 @@ void ReosGeometryTest::clipGdalDataSet()
 
 
   dataset.resample( ReosRasterExtent( newMapExtent, width, height ) );
-
-  QVERIFY( dataset.writeDoubleToFile( 1, "/home/vincent/clip_es.tif" ) );
-
-
 }
-
-void ReosGeometryTest::loadPostGres()
-{
-  QString uri = "dbname='stations' host=database-flopi.c6xqozt4ysmb.eu-west-1.rds.amazonaws.com port=5432 user='postgres' password='wxs1YPTrfRFP9eC4QoXr' checkPrimaryKeyUnicity='1' table=\"dems\".\"burning_lines\" (geom)";
-  QString crs;
-
-  ReosMapExtent extent( 98256, 6718593, 343284, 6935745 );
-  extent.setCrs( ReosGisEngine::crsFromEPSG( 2154 ) );
-  QList<QPolygonF> polys = ReosGisEngine::openPolygonVectorLayerSource( uri, crs, QStringLiteral( "postgres" ), extent );
-  QVERIFY( polys.count() > 0 );
-}
-
 
 QTEST_MAIN( ReosGeometryTest )
 #include "reos_geometry_test.moc"

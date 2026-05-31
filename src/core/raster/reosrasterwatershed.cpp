@@ -40,6 +40,8 @@ void ReosRasterWatershedMarkerFromDirection::start()
 
     bool endOfPath = true;
 
+    unsigned char lastDirection=0;
+
     for ( int i = 0; i < 3; ++i )
       for ( int j = 0; j < 3; ++j )
       {
@@ -56,9 +58,7 @@ void ReosRasterWatershedMarkerFromDirection::start()
               mWatershed.setValue( pixelToTest.row(), pixelToTest.column(), 1 );
               double dl = 0;
               if ( direction % 2 == 0 )
-              {
                 dl = sqrt( 2 );
-              }
               else
                 dl = 1;
 
@@ -70,6 +70,12 @@ void ReosRasterWatershedMarkerFromDirection::start()
 
               endOfPath &= false;
             }
+            else
+                lastDirection=direction;
+          }
+          else
+          {
+              lastDirection=direction;
           }
         }
       }
