@@ -60,6 +60,8 @@ cmake   -S $env:QGIS_SRC `
 		-D SQLITE3_LIBRARY=$OSGEO_DIR/lib/sqlite3_i.lib `
 		-D SPATIALITE_LIBRARY=$OSGEO_DIR/lib/spatialite_i.lib `
 		-D SPATIALINDEX_LIBRARY=$OSGEO_DIR/lib/spatialindex-64.lib `
+		-D EXPAT_INCLUDE_DIR=$OSGEO_DIR/include `
+        -D EXPAT_LIBRARY=$OSGEO_DIR/lib/expat.lib `
 		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
 		-D SIP_MODULE_EXECUTABLE=$PYTHONHOME/Scripts/sip-module.exe `
 		-D PYUIC_PROGRAM=$PYTHONHOME/Scripts/pyuic5.exe `
