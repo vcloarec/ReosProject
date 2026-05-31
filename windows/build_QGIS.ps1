@@ -65,6 +65,10 @@ cmake   -S $env:QGIS_SRC `
 		-D LIBZIP_INCLUDE_DIR=$OSGEO_DIR/include `
 		-D LIBZIP_CONF_INCLUDE_DIR=$OSGEO_DIR/include `
 		-D LIBZIP_LIBRARY=$OSGEO_DIR/lib/zip.lib `
+		-D Protobuf_INCLUDE_DIR=$OSGEO_DIR/include `
+		-D Protobuf_LIBRARIES=$OSGEO_DIR/lib/libprotobuf.lib `
+		-D ZLIB_INCLUDE_DIR=$OSGEO_DIR/include `
+		-D ZLIB_LIBRARY=$OSGEO_DIR/lib/zlib.lib `
 		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
 		-D SIP_MODULE_EXECUTABLE=$PYTHONHOME/Scripts/sip-module.exe `
 		-D PYUIC_PROGRAM=$PYTHONHOME/Scripts/pyuic5.exe `
