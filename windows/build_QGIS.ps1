@@ -77,7 +77,7 @@ cmake   -S $env:QGIS_SRC `
 		-D ZSTD_LIBRARY=$OSGEO_DIR/lib/zstd.lib `
 		-D EXIV2_INCLUDE_DIR=$OSGEO_DIR/include/exiv2 `
 		-D EXIV2_LIBRARY=$OSGEO_DIR/lib/exiv2.lib `
-		-D QWT_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include `
+		-D QWT_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/qwt6 `
 		-D QWT_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
 		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
 		-D SIP_MODULE_EXECUTABLE=$PYTHONHOME/Scripts/sip-module.exe `
@@ -93,7 +93,6 @@ cmake   -S $env:QGIS_SRC `
 		-D FCGI_LIBRARY=$OSGEO_DIR/lib/libfcgi.lib `
 		-D QCA_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/QtCrypto `
 		-D QCA_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qca-qt5.lib `
-		-D QWT_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
 		-D QSCINTILLA_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qscintilla2.lib
 
 if ($LASTEXITCODE -ne 0) {
