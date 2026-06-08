@@ -79,7 +79,6 @@ cmake   -S $env:QGIS_SRC `
 		-D QWT_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/qwt6 `
 		-D QWT_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
 		-D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
-		-D SIP_MODULE_EXECUTABLE=$PYTHONHOME/Scripts/sip-module.exe `
 		-D PYUIC_PROGRAM=$PYTHONHOME/Scripts/pyuic5.exe `
 		-D PYRCC_PROGRAM=$PYTHONHOME/Scripts/pyrcc5.exe `
 		-D PYTHON_INCLUDE_PATH=$PYTHONHOME/include `
