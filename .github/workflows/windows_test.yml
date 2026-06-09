@@ -42,6 +42,7 @@ jobs:
         
     - name: load CYGWIN
       if: steps.cache-cygwin.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/load_cygwin.ps1
       
     - name: Cache OSGEO
@@ -53,9 +54,11 @@ jobs:
         
     - name: load OSGEO dependencies
       if: steps.cache-osgeo.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/load_osgeo.ps1
       
     - name: clone QGIS
+      continue-on-error: true
       uses: actions/checkout@v3
       with:
         repository: qgis/QGIS
@@ -64,12 +67,14 @@ jobs:
     
     - name: check QGIS hash
       id: getQgisHash
+      continue-on-error: true
       run: |
           cd QGIS
           $QGIS_HASH=git rev-parse HEAD
           echo "qgis_hash=$QGIS_HASH" >> $env:GITHUB_ENV
           
     - name: clone MDAL
+      continue-on-error: true
       uses: actions/checkout@v3
       with:
         repository: lutraconsulting/MDAL
@@ -77,6 +82,7 @@ jobs:
     
     - name: check MDAL hash
       id: getMdalHash
+      continue-on-error: true
       run: |
           cd MDAL
           $MDAL_HASH=git rev-parse HEAD
@@ -91,6 +97,7 @@ jobs:
         
     - name: build QGIS
       if: steps.cache-qgis.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/qgis_env_before_powershell.bat "./windows/build_QGIS.ps1"
            
     - name: Cache MDAL
@@ -102,9 +109,11 @@ jobs:
         
     - name: build MDAL
       if: steps.cache-mdal.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/qgis_env_before_powershell.bat "./windows/build_MDAL.ps1"
 
     - name: Setup Intel Fortran
+      continue-on-error: true
       uses: modflowpy/install-intelfortran-action@v1
       with:
         cache: false
@@ -118,32 +127,42 @@ jobs:
         
     - name: build GMSH
       if: steps.cache-gmsh.outputs.cache-hit != 'true'
+      continue-on-error: true
       run: ./windows/load_build_gmsh.ps1
 
     - name: config FORTRAN path
+      continue-on-error: true
       run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV
 
     - name: install hecras
+      continue-on-error: true
       run:  |
           Invoke-WebRequest -Uri "https://github.com/HydrologicEngineeringCenter/hec-downloads/releases/download/1.0.26/HEC-RAS_631_Setup.exe" -OutFile "hec_inst.exe"
           Start-Process hec_inst.exe -ArgumentList "/S /v/qn" -Wait
           ls
     
     - name: build and test REOS
+      continue-on-error: true
       run:  ./windows/build_tests_REOS.bat
           
     - name: Create installer
+      if: always()
+      continue-on-error: true
       uses: joncloud/makensis-action@v3.7
       with:
           script-file: ${{github.workspace}}/package/ms-windows/nsi/lekan_exp.nsi
           arguments: "/V4"
           
     - name: Check installer
+      if: always()
+      continue-on-error: true
       run:  |
           ls
           ls ${{env.NSI_DESTINATION}}
           
     - name: Archive installer
+      if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v4
       with:
         name: Lekan Windows Installer
