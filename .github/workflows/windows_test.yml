@@ -97,7 +97,6 @@ jobs:
         
     - name: build QGIS
       if: steps.cache-qgis.outputs.cache-hit != 'true'
-      continue-on-error: true
       run: ./windows/qgis_env_before_powershell.bat "./windows/build_QGIS.ps1"
            
     - name: Cache MDAL
@@ -109,11 +108,9 @@ jobs:
         
     - name: build MDAL
       if: steps.cache-mdal.outputs.cache-hit != 'true'
-      continue-on-error: true
       run: ./windows/qgis_env_before_powershell.bat "./windows/build_MDAL.ps1"
 
     - name: Setup Intel Fortran
-      continue-on-error: true
       uses: modflowpy/install-intelfortran-action@v1
       with:
         cache: false
@@ -127,22 +124,18 @@ jobs:
         
     - name: build GMSH
       if: steps.cache-gmsh.outputs.cache-hit != 'true'
-      continue-on-error: true
       run: ./windows/load_build_gmsh.ps1
 
     - name: config FORTRAN path
-      continue-on-error: true
       run: echo "FORTRAN_COMPILER_PATH=${{env.INTEL_HPCKIT_INSTALL_PATH}}\compiler\${{env.INTEL_COMPILER_VERSION}}" >> $env:GITHUB_ENV
 
     - name: install hecras
-      continue-on-error: true
       run:  |
           Invoke-WebRequest -Uri "https://github.com/HydrologicEngineeringCenter/hec-downloads/releases/download/1.0.26/HEC-RAS_631_Setup.exe" -OutFile "hec_inst.exe"
           Start-Process hec_inst.exe -ArgumentList "/S /v/qn" -Wait
           ls
     
     - name: build and test REOS
-      continue-on-error: true
       run:  ./windows/build_tests_REOS.bat
           
     - name: Create installer
