@@ -66,6 +66,8 @@ cmake   -S $env:REOS_SOURCE `
         -D ENABLE_TESTS=TRUE `
         -D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
         -D GDAL_LIBRARY=$env:GDAL_ROOT/lib/gdal_i.lib `
+        -D NETCDF_INCLUDE_DIR=$OSGEO_DIR/apps/gdal-dev/include `
+        -D NETCDF_LIBRARY=$OSGEO_DIR/apps/gdal-dev/lib/netcdf.lib `
         -D QGIS_INCLUDE_DIR=$QGIS_INSTALL/include `
         -D QGIS_3D_LIB=$QGIS_INSTALL/lib/qgis_3d.lib `
         -D QGIS_ANALYSIS_LIB=$QGIS_INSTALL/lib/qgis_analysis.lib `
