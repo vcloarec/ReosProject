@@ -3,7 +3,7 @@ rem batch
 setlocal
 echo off
 set PATH=%WINDIR%\system32;%WINDIR%\system32\WindowsPowerShell\v1.0;%WINDIR%;%WINDIR%\system32\WBem;%CMAKE_PATH%
-set PATH=%PATH%;%OSGEO4W_ROOT%\bin;%OSGEO4W_ROOT%\apps\Python312
+set PATH=%PATH%;%OSGEO4W_ROOT%\bin;%OSGEO4W_ROOT%\apps\Python312;%OSGEO4W_ROOT%\apps\gdal-dev;%OSGEO4W_ROOT%\apps\gdal-dev\bin
 set PATH=%PATH%;%OSGEO4W_ROOT%\apps\Python312
 for %%f in ("%OSGEO4W_ROOT%\etc\ini\*.bat") do call "%%f"
 
@@ -53,4 +53,3 @@ taskkill /F /IM Lekan.exe
  )
 
 echo on
-
