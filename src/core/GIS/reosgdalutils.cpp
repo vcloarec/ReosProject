@@ -55,7 +55,7 @@ int ReosGdalDataset::bandCount() const
 static QMap<QString, QString> _metadata( GDALMajorObjectH mHMajorObject )
 {
   QMap<QString, QString> meta;
-  char **GDALmetadata = nullptr;
+  CSLConstList GDALmetadata = nullptr;
   GDALmetadata = GDALGetMetadata( mHMajorObject, nullptr );
 
   if ( GDALmetadata )

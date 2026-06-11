@@ -41,6 +41,7 @@ class REOSCORE_EXPORT ReosGriddedData : public ReosRenderedObject
      * Constructor.
      */
     ReosGriddedData( QObject *parent = nullptr );
+    ~ReosGriddedData();
 
     /**
     * Constructor with \a datasource or \a providerkey.

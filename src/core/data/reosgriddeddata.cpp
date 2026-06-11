@@ -32,6 +32,8 @@ ReosGriddedData::ReosGriddedData( QObject *parent )
   mRendererFactory.reset( new ReosGriddedRainfallRendererFactory_p( this ) );
 }
 
+ReosGriddedData::~ReosGriddedData() = default;
+
 ReosGriddedData::ReosGriddedData( const QString &dataSource, const QString &providerKey, QObject *parent )
   : ReosRenderedObject( parent )
   , mProvider( qobject_cast<ReosGriddedDataProvider*>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) )

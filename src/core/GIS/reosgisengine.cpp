@@ -153,7 +153,11 @@ void ReosGisEngine::initGisEngine()
   {
       QString qgisPrefix(QGIS_PREFIX);
       //QgsApplication::setPrefixPath(qgisPrefix);
+#ifdef _WIN32
+      _putenv_s( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str() );
+#else
       setenv( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str() ,1);
+#endif
   }
   QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::AppDataLocation ).value( 0 );
   // here we do not want profile folder as QGIS has, but only one unique folder for QGIS stuff, so we gives only the App data location
