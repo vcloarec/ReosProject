@@ -34,6 +34,7 @@ set (SYSTEM_APP_NAME "reossystem")
 SET(CMAKE_CXX_STANDARD 17)
 IF(MSVC)
   SET(CMAKE_GENERATOR_PLATFORM x64)
+  add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
 ENDIF(MSVC)
 SET(CMAKE_AUTOMOC ON)
 
@@ -260,4 +261,3 @@ ENDIF(ENABLE_TESTS)
 # if run from the build directory Reos will detect it and alter the paths
 set (REOS_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 file(WRITE ${REOS_OUTPUT_DIRECTORY}/reosbuildpath.txt "${CMAKE_SOURCE_DIR}\n${REOS_OUTPUT_DIRECTORY}")
-
