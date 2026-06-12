@@ -14,6 +14,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosplotpolygons_p.h"
+
+#include <QPainter>
+
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 

@@ -15,8 +15,11 @@
  ***************************************************************************/
 #include "reosplot_p.h"
 
+#include <QPainter>
+#include <QPen>
 #include <QWheelEvent>
 
+#include "qwt_graphic.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_legenditem.h"
 #include "qwt_plot_zoomer.h"
@@ -49,7 +52,7 @@ ReosPlot_p::ReosPlot_p( QWidget *parent ): QwtPlot( parent )
   QBrush brushLegend( QColor( 255, 255, 255, 100 ), Qt::SolidPattern );
   mLegend->setBackgroundBrush( brushLegend );
   mLegend->setBackgroundMode( QwtPlotLegendItem::ItemBackground );
-  mLegend->setAlignment( Qt::AlignTop | Qt::AlignLeft );
+  mLegend->setAlignmentInCanvas( Qt::AlignTop | Qt::AlignLeft );
   mLegend->attach( this );
   mLegend->setMaxColumns( 1 );
 
@@ -75,7 +78,7 @@ void ReosPlot_p::setLegendVisible( bool b )
 
 void ReosPlot_p::setLegendAlignement( Qt::Alignment align )
 {
-  mLegend->setAlignment( align );
+  mLegend->setAlignmentInCanvas( align );
 }
 
 void ReosPlot_p::setLegendColumnCount( int columnCount )

@@ -15,8 +15,11 @@
  ***************************************************************************/
 
 #include <QPainterPath>
+#include <QPainter>
+#include <QPen>
 
 #include "qwt_date.h"
+#include "qwt_graphic.h"
 #include "qwt_scale_map.h"
 #include "qwt_plot.h"
 #include "qwt_painter.h"
@@ -157,6 +160,5 @@ QwtGraphic ReosIdfPlot_p::legendIcon( int index, const QSizeF & ) const
 
   return graphic;
 }
-
 
 

@@ -16,6 +16,11 @@
 #ifndef REOSPLOTPOLYGONS_P_H
 #define REOSPLOTPOLYGONS_P_H
 
+#include <QBrush>
+#include <QList>
+#include <QPen>
+#include <QPolygonF>
+
 #include "qwt_plot_item.h"
 
 class ReosPlotPolygons_p :public QwtPlotItem
