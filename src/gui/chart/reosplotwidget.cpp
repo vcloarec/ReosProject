@@ -45,6 +45,7 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_date_scale_draw.h>
 #include <qwt_date_scale_engine.h>
+#include <qwt_scale_map.h>
 #include <qwt_scale_widget.h>
 
 

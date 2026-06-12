@@ -19,7 +19,10 @@
 #include "reosplotpicker_p.h"
 
 #include <QMenu>
+#include <QPen>
 #include <QPixmap>
+
+#include <qwt_scale_map.h>
 
 
 ReosEditableProfile::ReosEditableProfile():

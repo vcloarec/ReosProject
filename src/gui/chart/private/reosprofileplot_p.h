@@ -16,6 +16,9 @@
 #ifndef REOSPROFILEPLOT_P_H
 #define REOSPROFILEPLOT_P_H
 
+#include <QBrush>
+#include <QPen>
+
 #include <qwt_plot_item.h>
 
 #include "reosplotwidget.h"

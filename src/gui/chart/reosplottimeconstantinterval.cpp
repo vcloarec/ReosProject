@@ -17,6 +17,10 @@
 #include "reostimeseries.h"
 #include "reosplot_p.h"
 
+#include <QBrush>
+#include <QPainter>
+#include <QPen>
+
 #include <qwt_plot_histogram.h>
 #include <qwt_plot_curve.h>
 
