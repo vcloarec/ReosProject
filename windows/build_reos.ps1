@@ -57,16 +57,52 @@ cd $REOS_BUILD
 Write-Host "===================================== Current PATH:"
 $env:Path
 
-$ECCODES_INCLUDE = "$OSGEO_DIR/include"
-if ( -not ( Test-Path ( Join-Path $ECCODES_INCLUDE "eccodes.h" ) ) )
+function Get-FirstExistingPath( [string[]]$candidates )
 {
-    $ECCODES_INCLUDE = "$OSGEO_DIR/apps/gdal-dev/include"
+    foreach ( $candidate in $candidates )
+    {
+        if ( Test-Path $candidate )
+        {
+            return $candidate
+        }
+    }
+
+    return $null
 }
 
-$ECCODES_LIB = "$OSGEO_DIR/lib/eccodes.lib"
-if ( -not ( Test-Path $ECCODES_LIB ) )
+$ECCODES_INCLUDE = Get-FirstExistingPath @(
+    "$OSGEO_DIR/include/eccodes.h",
+    "$OSGEO_DIR/include/eccodes/eccodes.h",
+    "$OSGEO_DIR/apps/gdal-dev/include/eccodes.h",
+    "$OSGEO_DIR/apps/gdal-dev/include/eccodes/eccodes.h"
+)
+if ( $ECCODES_INCLUDE )
 {
-    $ECCODES_LIB = "$OSGEO_DIR/apps/gdal-dev/lib/eccodes.lib"
+    $ECCODES_INCLUDE = Split-Path $ECCODES_INCLUDE -Parent
+}
+
+$ECCODES_LIB = Get-FirstExistingPath @(
+    "$OSGEO_DIR/lib/eccodes.lib",
+    "$OSGEO_DIR/apps/gdal-dev/lib/eccodes.lib"
+)
+
+$MDAL_INCLUDE_DIR = Get-FirstExistingPath @(
+    "$env:MDAL_ROOT/include",
+    "$env:MDAL_ROOT\include"
+)
+
+$MDAL_LIB = Get-FirstExistingPath @(
+    "$env:MDAL_ROOT/lib/mdal.lib",
+    "$env:MDAL_ROOT/bin/mdal.lib",
+    "$env:MDAL_ROOT/mdal.lib"
+)
+if ( -not $MDAL_LIB )
+{
+    $mdalLibSearch = Get-ChildItem -Path $env:MDAL_ROOT -Filter mdal.lib -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ( $mdalLibSearch )
+    {
+        $MDAL_LIB = $mdalLibSearch.FullName
+    }
 }
 
 cmake   -S $env:REOS_SOURCE `
@@ -91,8 +127,8 @@ cmake   -S $env:REOS_SOURCE `
 		-D PYTHON_DIR=$OSGEO_DIR/apps/Python39 `
         -D GTest_DIR=GTest_DIR-NOTFOUND `
         -D INSTALL_GTEST=ON `
-        -D MDAL_INCLUDE_DIR=$env:MDAL_ROOT/include `
-        -D MDAL_LIB=$env:MDAL_ROOT/lib/mdal.lib `
+        -D MDAL_INCLUDE_DIR=$MDAL_INCLUDE_DIR `
+        -D MDAL_LIB=$MDAL_LIB `
         -D ECCODES_INCLUDE_DIR=$ECCODES_INCLUDE `
         -D ECCODES_LIB=$ECCODES_LIB `
         -D Qt5_DIR=$OSGEO_DIR/apps/Qt5/lib/cmake/Qt5 `
