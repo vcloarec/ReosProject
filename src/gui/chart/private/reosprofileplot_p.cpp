@@ -16,6 +16,9 @@
 #include "reosprofileplot_p.h"
 #include "reosparameter.h"
 
+#include <QFontMetrics>
+#include <QPainter>
+
 #include <qwt_scale_map.h>
 
 
