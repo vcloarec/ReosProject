@@ -57,6 +57,17 @@ cd $REOS_BUILD
 Write-Host "===================================== Current PATH:"
 $env:Path
 
+$ECCODES_INCLUDE = "$OSGEO_DIR/include"
+if ( -not ( Test-Path ( Join-Path $ECCODES_INCLUDE "eccodes.h" ) ) )
+{
+    $ECCODES_INCLUDE = "$OSGEO_DIR/apps/gdal-dev/include"
+}
+
+$ECCODES_LIB = "$OSGEO_DIR/lib/eccodes.lib"
+if ( -not ( Test-Path $ECCODES_LIB ) )
+{
+    $ECCODES_LIB = "$OSGEO_DIR/apps/gdal-dev/lib/eccodes.lib"
+}
 
 cmake   -S $env:REOS_SOURCE `
 		-B . `
@@ -82,6 +93,8 @@ cmake   -S $env:REOS_SOURCE `
         -D INSTALL_GTEST=ON `
         -D MDAL_INCLUDE_DIR=$env:MDAL_ROOT/include `
         -D MDAL_LIB=$env:MDAL_ROOT/lib/mdal.lib `
+        -D ECCODES_INCLUDE_DIR=$ECCODES_INCLUDE `
+        -D ECCODES_LIB=$ECCODES_LIB `
         -D Qt5_DIR=$OSGEO_DIR/apps/Qt5/lib/cmake/Qt5 `
         -D QT_QMAKE_EXECUTABLE=$OSGEO_DIR/apps/Qt5/bin/qmake `
         -D QCA_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/QtCrypto `

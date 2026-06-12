@@ -85,7 +85,7 @@ void ReosMeteoHdf5Provider::load()
       }
       else
       {
-        if ( xSize != currentXSize or ySize != currentYSize )
+        if ( xSize != currentXSize || ySize != currentYSize )
           continue;
       }
 
@@ -405,7 +405,7 @@ QString ReosMeteoHdf5ProviderFactory::key() const
 
 bool ReosMeteoHdf5ProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosGriddedRainfall::staticType() ) or dataType.contains( ReosGriddedData::staticType() );
+  return dataType.contains( ReosGriddedRainfall::staticType() ) || dataType.contains( ReosGriddedData::staticType() );
 }
 
 QVariantMap ReosMeteoHdf5ProviderFactory::uriParameters( const QString &dataType ) const

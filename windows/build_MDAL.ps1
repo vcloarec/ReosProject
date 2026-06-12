@@ -43,9 +43,34 @@ cmake --build .  --config Release
 
 cmake --install .
 
-Copy-Item '.\mdal\Release\mdal.lib' $MDAL_DIR\lib\mdal.lib
+$mdalLibDestination = Join-Path $MDAL_DIR "lib\mdal.lib"
+New-Item -ItemType Directory -Path (Join-Path $MDAL_DIR "lib") -Force | Out-Null
+
+if ( -not ( Test-Path $mdalLibDestination ) )
+{
+    $mdalLibCandidates = @(
+        '.\mdal\Release\mdal.lib',
+        '.\Release\mdal.lib',
+        '.\lib\mdal.lib',
+        '.\bin\mdal.lib'
+    )
+
+    foreach ( $candidate in $mdalLibCandidates )
+    {
+        if ( Test-Path $candidate )
+        {
+            Copy-Item $candidate $mdalLibDestination -Force
+            break
+        }
+    }
+}
+
+if ( -not ( Test-Path $mdalLibDestination ) )
+{
+    Write-Error "Unable to find mdal.lib after MDAL build/install."
+    exit 1
+}
 
 cd ..
 
 Remove-Item MDAL_building -Recurse
-

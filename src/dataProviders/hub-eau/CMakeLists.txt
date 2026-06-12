@@ -12,12 +12,12 @@ SET(REOS_HUB_EAU_HEADERS
 )
 
 IF(WITH_GUI)
-    SET(REOS_HUB_EAU_SOURCES
+    SET(REOS_HUB_EAU_SOURCES ${REOS_HUB_EAU_SOURCES}
       reoshubeauwidget.cpp
       reoshubeausettingswidget.cpp
     )
 
-    SET(REOS_HUB_EAU_HEADERS
+    SET(REOS_HUB_EAU_HEADERS ${REOS_HUB_EAU_HEADERS}
         reoshubeauwidget.h
         reoshubeausettingswidget.h
     )
@@ -41,6 +41,7 @@ TARGET_LINK_LIBRARIES(provider_hub_eau
         ${Qt5Network_LIBRARIES}
         ${Qt5Sql_LIBRARIES}
         ${Qt5Concurrent_LIBRARIES}
+        reosCore
 )
 
 IF(WITH_GUI)
@@ -83,6 +84,5 @@ ENDIF(WITH_GUI)
 
 INSTALL(TARGETS provider_hub_eau
  LIBRARY DESTINATION bin/${REOS_PROVIDERS_DIR})
-
 
 
