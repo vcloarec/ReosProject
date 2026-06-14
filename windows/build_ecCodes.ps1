@@ -16,9 +16,8 @@ if (Test-Path $eccodes_source_dir) {
 
 tar -xzf $eccodes_archive -C $starter_path
 
-
 mkdir -p $eccodes_source_dir/eccodes_src/build 
-ls -la 
+
 cd $eccodes_source_dir/eccodes_src/build 
 cmake -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
 -DCMAKE_BUILD_TYPE=Release \
