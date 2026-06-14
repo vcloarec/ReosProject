@@ -45,18 +45,6 @@ jobs:
       if: steps.cache-cygwin.outputs.cache-hit != 'true'
       continue-on-error: true
       run: ./windows/load_cygwin.ps1
-
-    - name: Cache ECCODES
-      id: cache-eccodes
-      uses: actions/cache@v3
-      with:
-        path: ${{env.ECCODES_ROOT}}
-        key: ${{ runner.os }}-eccodes
-        
-
-    - name: build ECCODES
-      if: steps.cache-eccodes.outputs.cache-hit != 'true'
-      run: ./windows/build_ecCodes.ps1
       
     - name: Cache OSGEO
       id: cache-osgeo
@@ -69,6 +57,17 @@ jobs:
       if: steps.cache-osgeo.outputs.cache-hit != 'true'
       continue-on-error: true
       run: ./windows/load_osgeo.ps1
+
+    - name: Cache ECCODES
+      id: cache-eccodes
+      uses: actions/cache@v3
+      with:
+        path: ${{env.ECCODES_ROOT}}
+        key: ${{ runner.os }}-eccodes
+
+    - name: build ECCODES
+      if: steps.cache-eccodes.outputs.cache-hit != 'true'
+      run: ./windows/build_ecCodes.ps1
       
     - name: clone QGIS
       continue-on-error: true
