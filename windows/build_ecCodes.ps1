@@ -7,6 +7,7 @@ $url="https://confluence.ecmwf.int/download/attachments/45757960/eccodes-2.47.0-
 
 $eccodes_archive = Join-Path $starter_path "eccodes-2.47.0-Source.tar.gz"
 $eccodes_source_dir = Join-Path $starter_path "eccodes-2.47.0-Source"
+$libaec_cmake_dir = Join-Path $env:OSGEO4W_ROOT "apps/gdal-dev/lib/cmake/libaec"
 
 Invoke-WebRequest -Uri $url -OutFile $eccodes_archive
 
@@ -23,7 +24,7 @@ cmake `
     -DCMAKE_INSTALL_PREFIX="$ECCODES_INSTALL" `
     -DCMAKE_BUILD_TYPE=Release `
     -DENABLE_NETCDF=OFF `
-    -DENABLE_AEC=OFF `
+    -Dlibaec_DIR="$libaec_cmake_dir" `
     -DENABLE_FORTRAN=OFF `
     -DPRODUCT_BUFR=OFF `
     -DEXAMPLES=OFF `
