@@ -36,6 +36,15 @@ $aec_include_dir = Get-FirstExistingPath @(
     ( Join-Path $env:OSGEO4W_ROOT "apps/gdal-dev/include/aec.h" ),
     ( Join-Path $env:OSGEO4W_ROOT "apps/gdal-dev/include/libaec.h" )
 )
+
+if ( -not $aec_include_dir )
+{
+    $aec_include_dir = Get-FirstExistingPath @(
+        ( Get-ChildItem -Path $env:OSGEO4W_ROOT -Recurse -File -Filter "libaec.h" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -First 1 ),
+        ( Get-ChildItem -Path $env:OSGEO4W_ROOT -Recurse -File -Filter "aec.h" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -First 1 )
+    )
+}
+
 if ( $aec_include_dir )
 {
     $aec_include_dir = Split-Path $aec_include_dir -Parent
@@ -125,6 +134,28 @@ if ( $aec_library )
         $aec_inc_fwd  = $fallback_inc -replace '\\', '/'
     }
 
+    $libaec_include_dirs = @($aec_inc_fwd)
+    if ( $aec_include_dir )
+    {
+        $aec_header = Join-Path $aec_include_dir "aec.h"
+        $libaec_header = Join-Path $aec_include_dir "libaec.h"
+        if ( -not ( Test-Path $libaec_header ) -and ( Test-Path $aec_header ) )
+        {
+            $libaec_shim_dir = Join-Path $libaec_cmake_dir "include"
+            New-Item -ItemType Directory -Force -Path $libaec_shim_dir | Out-Null
+            @"
+#pragma once
+#include <aec.h>
+"@ | Out-File -FilePath ( Join-Path $libaec_shim_dir "libaec.h" ) -Encoding ascii
+            $libaec_include_dirs = @(
+                ( $libaec_shim_dir -replace '\\', '/' ),
+                $aec_inc_fwd
+            )
+            Write-Host "Created libaec.h compatibility shim: $(Join-Path $libaec_shim_dir 'libaec.h')"
+        }
+    }
+    $libaec_include_dirs_cmake = $libaec_include_dirs -join ';'
+
     $config_content = @"
 # libaecConfig.cmake - auto-generated wrapper around the OSGeo4W AEC library
 set(libaec_VERSION "1.1.4")
@@ -134,18 +165,18 @@ if(NOT TARGET libaec::aec)
     add_library(libaec::aec UNKNOWN IMPORTED)
     set_target_properties(libaec::aec PROPERTIES
         IMPORTED_LOCATION "$aec_lib_fwd"
-        INTERFACE_INCLUDE_DIRECTORIES "$aec_inc_fwd")
+        INTERFACE_INCLUDE_DIRECTORIES "$libaec_include_dirs_cmake")
 endif()
 
 if(NOT TARGET libaec::sz)
     add_library(libaec::sz UNKNOWN IMPORTED)
     set_target_properties(libaec::sz PROPERTIES
         IMPORTED_LOCATION "$sz_lib_fwd"
-        INTERFACE_INCLUDE_DIRECTORIES "$aec_inc_fwd")
+        INTERFACE_INCLUDE_DIRECTORIES "$libaec_include_dirs_cmake")
 endif()
 
 set(libaec_LIBRARIES libaec::aec libaec::sz)
-set(libaec_INCLUDE_DIRS "$aec_inc_fwd")
+set(libaec_INCLUDE_DIRS "$libaec_include_dirs_cmake")
 "@
 
     $version_content = @"
