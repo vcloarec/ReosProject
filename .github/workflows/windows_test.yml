@@ -22,6 +22,7 @@ jobs:
           echo "CYGWIN_ROOT=${{github.workspace}}\cygwin64" >> $env:GITHUB_ENV
           echo "OSGEO4W_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
           echo "GDAL_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
+          echo "ECCODES_ROOT=${{github.workspace}}\ECCODES_Install" >> $env:GITHUB_ENV
           echo "MDAL_ROOT=${{github.workspace}}\MDAL_Install" >> $env:GITHUB_ENV
           echo "GMSH_BUILT=${{github.workspace}}\GMSH_Built" >> $env:GITHUB_ENV
           echo "QGIS_SRC=${{github.workspace}}\QGIS" >> $env:GITHUB_ENV
@@ -44,6 +45,15 @@ jobs:
       if: steps.cache-cygwin.outputs.cache-hit != 'true'
       continue-on-error: true
       run: ./windows/load_cygwin.ps1
+
+    - name: Cache ECCODES
+      id: cache-eccodes
+      uses: actions/cache@v3
+      with:
+
+    - name: build ECCODES
+      if: steps.cache-eccodes.outputs.cache-hit != 'true'
+      run: ./windows/build_ecCodes.ps1
       
     - name: Cache OSGEO
       id: cache-osgeo
