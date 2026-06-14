@@ -85,22 +85,13 @@ cd $eccodes_source_dir/eccodes_src/build
 $cmake_args = @(
     "-DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL",
     "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_CONFIGURATION_TYPES=Release",
     "-DCMAKE_PREFIX_PATH=$env:OSGEO4W_ROOT",
     "-DENABLE_NETCDF=OFF",
     "-DENABLE_FORTRAN=OFF",
-    "-DPRODUCT_BUFR=OFF",
-    "-DEXAMPLES=OFF"
+    "-DENABLE_PRODUCT_BUFR=OFF",
+    "-DENABLE_EXAMPLES=OFF"
 )
-
-if ( $aec_include_dir )
-{
-    $cmake_args += "-DAEC_INCLUDE_DIR=$aec_include_dir"
-}
-
-if ( $aec_library )
-{
-    $cmake_args += "-DAEC_LIBRARY=$aec_library"
-}
 
 if ( $cmake_include_path.Count -gt 0 )
 {
@@ -189,10 +180,10 @@ if ( $aec_include_dir )
 cmake @cmake_args $eccodes_source_dir
 Exit-IfFailed "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to configure ecCodes"
 
-cmake --build .  
+cmake --build . --config Release
 Exit-IfFailed "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to build ecCodes"
 
-cmake --install .
+cmake --install . --config Release
 Exit-IfFailed "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to install ecCodes"
 
 ls $ECCODES_INSTALL
