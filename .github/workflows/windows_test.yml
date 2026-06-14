@@ -50,6 +50,9 @@ jobs:
       id: cache-eccodes
       uses: actions/cache@v3
       with:
+        path: ${{env.ECCODES_ROOT}}
+        key: ${{ runner.os }}-eccodes
+        
 
     - name: build ECCODES
       if: steps.cache-eccodes.outputs.cache-hit != 'true'
