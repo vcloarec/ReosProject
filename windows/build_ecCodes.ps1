@@ -19,13 +19,14 @@ tar -xzf $eccodes_archive -C $starter_path
 mkdir -p $eccodes_source_dir/eccodes_src/build 
 
 cd $eccodes_source_dir/eccodes_src/build 
-cmake -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
--DCMAKE_BUILD_TYPE=Release \
--DENABLE_NETCDF=OFF \ 
--DENABLE_FORTRAN=OFF \
--DPRODUCT_BUFR=OFF \
--DEXAMPLES=OFF \
-.$eccodes_source_dir/. && \
+cmake `
+    -DCMAKE_INSTALL_PREFIX="$ECCODES_INSTALL" `
+    -DCMAKE_BUILD_TYPE=Release `
+    -DENABLE_NETCDF=OFF `
+    -DENABLE_FORTRAN=OFF `
+    -DPRODUCT_BUFR=OFF `
+    -DEXAMPLES=OFF `
+    $eccodes_source_dir
 
 cmake --build .  
 cmake --install .
@@ -35,4 +36,3 @@ ls $ECCODES_INSTALL
 cd ..
 
 Remove-Item MDAL_building -Recurse
-
