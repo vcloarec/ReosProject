@@ -27,7 +27,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
 -DPRODUCT_BUFR=OFF \
 -DEXAMPLES=OFF \
 -DCMAKE_PREFIX_PATH=$OSGEO_DIR \
-.$eccodes_source_dir/. && \
+.$eccodes_source_dir/eccodes_src/. && \
 
 cmake --build .  
 cmake --install .
