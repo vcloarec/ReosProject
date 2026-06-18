@@ -10,9 +10,11 @@ add_subdirectory(meteo-hdf5)
 
 if (ERA5_TESTS_ENABLE)
     add_subdirectory(era5)
-endif(COMEPHORE_TESTS_ENABLE)
+endif(ERA5_TESTS_ENABLE)
 
-add_subdirectory(vortex-io)
+if (GRIB_TESTS_ENABLE)
+    add_subdirectory(grib)
+endif(GRIB_TESTS_ENABLE)
 
 if (COMEPHORE_TESTS_ENABLE)
     add_subdirectory(comephore)
@@ -21,3 +23,7 @@ endif(COMEPHORE_TESTS_ENABLE)
 if (METEOFRANCEAPI_TESTS_ENABLE)
     add_subdirectory(mf-api)
 endif(METEOFRANCEAPI_TESTS_ENABLE)
+
+add_subdirectory(vortex-io)
+
+
