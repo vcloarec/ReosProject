@@ -12,6 +12,11 @@ function Get-FirstExistingPath( [string[]]$candidates )
 {
     foreach ( $candidate in $candidates )
     {
+        if ( [string]::IsNullOrWhiteSpace( $candidate ) )
+        {
+            continue
+        }
+
         if ( Test-Path $candidate )
         {
             return $candidate
