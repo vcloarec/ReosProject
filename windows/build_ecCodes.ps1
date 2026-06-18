@@ -17,10 +17,10 @@ if (Test-Path $eccodes_source_dir) {
 
 tar -xzf $eccodes_archive -C $starter_path
 
-mkdir -p $eccodes_source_dir/eccodes_src/build 
+mkdir -p $eccodes_source_dir/build 
 
-cd $eccodes_source_dir/eccodes_src/build 
-cmake -S $eccodes_source_dir/eccodes_src \
+cd $eccodes_source_dir/build 
+cmake -S .. \
 -B .
 -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
 -DCMAKE_BUILD_TYPE=Release \
