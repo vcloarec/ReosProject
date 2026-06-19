@@ -21,7 +21,7 @@ mkdir -p $eccodes_source_dir/build
 
 cd $eccodes_source_dir/build 
 cmake -S .. \
--B .
+-B . \
 -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
 -DCMAKE_BUILD_TYPE=Release \
 -DENABLE_NETCDF=OFF \
