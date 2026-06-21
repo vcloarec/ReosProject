@@ -17,7 +17,8 @@ if (Test-Path $eccodes_source_dir) {
 
 tar -xzf $eccodes_archive -C $starter_path
 
-mkdir -p $eccodes_source_dir/build 
+mkdir -p $eccodes_source_dir/build
+mkdir -p $ECCODES_INSTALL
 
 cd $eccodes_source_dir/build 
 cmake -S .. `
