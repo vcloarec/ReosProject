@@ -24,6 +24,7 @@ mkdir -p $ECCODES_INSTALL
 ls $OSGEO_DIR\lib\cmake
 Write-Host "=== libaec CMake directory:"
 $LIBAEC_CMAKE_DIR
+ls $LIBAEC_CMAKE_DIR
 
 cd $eccodes_source_dir/build 
 cmake -S .. `
