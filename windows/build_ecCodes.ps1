@@ -2,6 +2,7 @@ $starter_path = Get-Location
 
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $ECCODES_INSTALL=$env:ECCODES_ROOT
+$LIBAEC_CMAKE_DIR=(Join-Path $OSGEO_DIR "lib/cmake/libaec").Replace('\', '/')
 
 Write-Host "============================= Download ecCodes source:"
 $url="https://confluence.ecmwf.int/download/attachments/45757960/eccodes-2.47.0-Source.tar.gz"
@@ -20,6 +21,8 @@ tar -xzf $eccodes_archive -C $starter_path
 mkdir -p $eccodes_source_dir/build
 mkdir -p $ECCODES_INSTALL
 ls $OSGEO_DIR\lib\cmake
+Write-Host "=== libaec CMake directory:"
+$LIBAEC_CMAKE_DIR
 
 cd $eccodes_source_dir/build 
 cmake -S .. `
@@ -30,7 +33,7 @@ cmake -S .. `
   -DENABLE_FORTRAN=OFF `
   -DPRODUCT_BUFR=OFF `
   -DEXAMPLES=OFF `
-  -DCMAKE_MODULE_PATH=$OSGEO_DIR\lib\cmake\libaec
+  -DCMAKE_MODULE_PATH=$LIBAEC_CMAKE_DIR
 
 cmake --build .  
 cmake --install .
