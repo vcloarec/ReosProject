@@ -19,7 +19,7 @@ tar -xzf $eccodes_archive -C $starter_path
 
 mkdir -p $eccodes_source_dir/build
 mkdir -p $ECCODES_INSTALL
-ls $OSGEO_DIR\lib\cmake\libaec
+ls $OSGEO_DIR\lib\cmake
 
 cd $eccodes_source_dir/build 
 cmake -S .. `
