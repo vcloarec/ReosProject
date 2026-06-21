@@ -19,18 +19,18 @@ tar -xzf $eccodes_archive -C $starter_path
 
 mkdir -p $eccodes_source_dir/build
 mkdir -p $ECCODES_INSTALL
+ls $OSGEO_DIR\lib\cmake\libaec
 
 cd $eccodes_source_dir/build 
 cmake -S .. `
   -B $eccodes_source_dir/build `
-  -DCMAKE_PREFIX_PATH=$OSGEO_DIR `
   -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL `
   -DCMAKE_BUILD_TYPE=Release `
   -DENABLE_NETCDF=OFF `
   -DENABLE_FORTRAN=OFF `
   -DPRODUCT_BUFR=OFF `
   -DEXAMPLES=OFF `
-  -Dlibaec_DIR=$OSGEO_DIR\lib\cmake\libaec
+  -DCMAKE_MODULE_PATH=$OSGEO_DIR\lib\cmake\libaec
 
 cmake --build .  
 cmake --install .
