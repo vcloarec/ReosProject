@@ -2,6 +2,7 @@ $starter_path = Get-Location
 
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $ECCODES_INSTALL=$env:ECCODES_ROOT
+$OSGEO_CMAKE_PREFIX=$OSGEO_DIR.Replace('\', '/')
 $LIBAEC_CMAKE_DIR=(Join-Path $OSGEO_DIR "lib/cmake/libaec").Replace('\', '/')
 
 Write-Host "============================= Download ecCodes source:"
@@ -29,6 +30,7 @@ cmake -S .. `
   -B $eccodes_source_dir/build `
   -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL `
   -DCMAKE_BUILD_TYPE=Release `
+  -DCMAKE_PREFIX_PATH=$OSGEO_CMAKE_PREFIX `
   -DENABLE_NETCDF=OFF `
   -DENABLE_FORTRAN=OFF `
   -DPRODUCT_BUFR=OFF `
