@@ -30,7 +30,7 @@ cmake -S .. `
   -DENABLE_FORTRAN=OFF `
   -DPRODUCT_BUFR=OFF `
   -DEXAMPLES=OFF `
-  -DCMAKE_PREFIX_PATH=$OSGEO_DIR
+  -Dlibaec_DIR=$OSGEO_DIR\lib\cmake\libaec
 
 cmake --build .  
 cmake --install .
