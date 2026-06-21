@@ -20,16 +20,16 @@ tar -xzf $eccodes_archive -C $starter_path
 mkdir -p $eccodes_source_dir/build 
 
 cd $eccodes_source_dir/build 
-cmake -S .. \
--B $eccodes_source_dir/build \
--DCMAKE_PREFIX_PATH=$OSGEO_DIR \
--DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
--DCMAKE_BUILD_TYPE=Release \
--DENABLE_NETCDF=OFF \
--DENABLE_FORTRAN=OFF \
--DPRODUCT_BUFR=OFF \
--DEXAMPLES=OFF \
--DCMAKE_PREFIX_PATH=$OSGEO_DIR
+cmake -S .. `
+  -B $eccodes_source_dir/build `
+  -DCMAKE_PREFIX_PATH=$OSGEO_DIR `
+  -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL `
+  -DCMAKE_BUILD_TYPE=Release `
+  -DENABLE_NETCDF=OFF `
+  -DENABLE_FORTRAN=OFF `
+  -DPRODUCT_BUFR=OFF `
+  -DEXAMPLES=OFF `
+  -DCMAKE_PREFIX_PATH=$OSGEO_DIR
 
 cmake --build .  
 cmake --install .
@@ -39,4 +39,3 @@ ls $ECCODES_INSTALL
 cd ..
 
 Remove-Item MDAL_building -Recurse
-
