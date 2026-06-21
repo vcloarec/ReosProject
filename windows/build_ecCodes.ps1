@@ -33,7 +33,7 @@ cmake -S .. `
   -DENABLE_FORTRAN=OFF `
   -DPRODUCT_BUFR=OFF `
   -DEXAMPLES=OFF `
-  -DCMAKE_MODULE_PATH=$LIBAEC_CMAKE_DIR
+  -Dlibaec_DIR=$LIBAEC_CMAKE_DIR
 
 cmake --build .  
 cmake --install .
