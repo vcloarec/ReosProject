@@ -22,6 +22,7 @@ mkdir -p $eccodes_source_dir/build
 cd $eccodes_source_dir/build 
 cmake -S .. \
 -B $eccodes_source_dir/build \
+-DCMAKE_PREFIX_PATH=$OSGEO_DIR \
 -DCMAKE_INSTALL_PREFIX=$ECCODES_INSTALL \
 -DCMAKE_BUILD_TYPE=Release \
 -DENABLE_NETCDF=OFF \
