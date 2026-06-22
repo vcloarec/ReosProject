@@ -46,4 +46,4 @@ ls $ECCODES_INSTALL
 
 cd ..
 
-Remove-Item MDAL_building -Recurse
+Remove-Item $eccodes_source_dir/build -Recurse
