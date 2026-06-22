@@ -42,8 +42,8 @@ cmake -S .. `
   -DEXAMPLES=OFF `
   "-Dlibaec_DIR:PATH=$LIBAEC_CMAKE_DIR"
 
-cmake --build .  
-cmake --install .
+cmake --build . --config Release
+cmake --install . --config Release
 
 ls $ECCODES_INSTALL
 
