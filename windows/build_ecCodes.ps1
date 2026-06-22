@@ -30,7 +30,7 @@ ls $LIBAEC_CMAKE_DIR
 cd $eccodes_source_dir/build 
 cmake -S .. `
   -B $eccodes_source_dir/build `
-  -G "Ninja" `
+  -G "Visual Studio 17 2022" -A x64 `
   "-DCMAKE_INSTALL_PREFIX:PATH=$ECCODES_CMAKE_INSTALL" `
   -DCMAKE_BUILD_TYPE=Release `
   "-DCMAKE_PREFIX_PATH:PATH=$OSGEO_CMAKE_PREFIX" `
