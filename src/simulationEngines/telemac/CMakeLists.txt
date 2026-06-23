@@ -20,10 +20,12 @@ SET(REOS_TELEMAC_HEADERS
 
 IF(WITH_GUI)
     SET(REOS_TELEMAC_SOURCES
+        ${REOS_TELEMAC_SOURCES}
         reostelemacsimulationeditwidget.cpp
     )
 
     SET(REOS_TELEMAC_HEADERS
+        ${REOS_TELEMAC_HEADERS}
         reostelemacsimulationeditwidget.h
     )
 ENDIF(WITH_GUI)

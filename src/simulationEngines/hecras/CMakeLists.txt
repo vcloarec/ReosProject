@@ -17,11 +17,13 @@ SET(REOS_HECRAS_HEADERS
 
 IF(WITH_GUI)
 SET(REOS_HECRAS_SOURCES
+    ${REOS_HECRAS_SOURCES}
     reoshecrassimulationimportwidget.cpp
     reoshecrassimulationeditwidget.cpp
 )
 
 SET(REOS_HECRAS_HEADERS
+    ${REOS_HECRAS_HEADERS}
     reoshecrassimulationimportwidget.h
     reoshecrassimulationeditwidget.h
 )
