@@ -25,10 +25,10 @@ static QString getString( codes_handle *handle, const char *key )
 {
   size_t length = 0;
   handleError( codes_get_length( handle, key, &length ) );
-  char str[length];
-  handleError( codes_get_string( handle, key, str, &length ) );
-
-  return QString::fromUtf8( str );
+  std::vector<char> strVec( length );
+  handleError( codes_get_string( handle, key, strVec.data(), &length ) );
+  QByteArray byteArray( strVec.data(), int( length ) );
+  return QString::fromUtf8( byteArray );
 }
 
 static QVariant getKeyValue( codes_handle *handle, const char *key )
