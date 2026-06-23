@@ -19,6 +19,9 @@ SET(REOS_TELEMAC_HEADERS
 )
 
 ADD_EXECUTABLE(test_telemac ${REOS_TELEMAC_HEADERS} ${REOS_TELEMAC_SOURCES} test_telemac.cpp)
+IF (MSVC)
+  TARGET_COMPILE_DEFINITIONS(test_telemac PRIVATE _USE_MATH_DEFINES)
+ENDIF (MSVC)
 TARGET_LINK_LIBRARIES(test_telemac
                       ${Qt5Core_LIBRARIES}
                       ${Qt5Test_LIBRARIES}
@@ -77,5 +80,4 @@ INCLUDE_DIRECTORIES(
     ${QGIS_INCLUDE_DIR}
     ${MDAL_INCLUDE_DIR}
     )
-
 
