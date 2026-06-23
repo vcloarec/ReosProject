@@ -71,19 +71,13 @@ function Get-FirstExistingPath( [string[]]$candidates )
 }
 
 $ECCODES_INCLUDE = Get-FirstExistingPath @(
-    "$OSGEO_DIR/include/eccodes.h",
-    "$OSGEO_DIR/include/eccodes/eccodes.h",
-    "$OSGEO_DIR/apps/gdal-dev/include/eccodes.h",
-    "$OSGEO_DIR/apps/gdal-dev/include/eccodes/eccodes.h"
+    "$env:ECCODES_ROOT/include",
+    "$env:ECCODES_ROOT\include"
 )
-if ( $ECCODES_INCLUDE )
-{
-    $ECCODES_INCLUDE = Split-Path $ECCODES_INCLUDE -Parent
-}
-
 $ECCODES_LIB = Get-FirstExistingPath @(
-    "$OSGEO_DIR/lib/eccodes.lib",
-    "$OSGEO_DIR/apps/gdal-dev/lib/eccodes.lib"
+    "$env:ECCODES_ROOT/lib/eccodes.lib",
+    "$env:ECCODES_ROOT/bin/eccodes.lib",
+    "$env:ECCODES_ROOT/eccodes.lib"
 )
 
 $MDAL_INCLUDE_DIR = Get-FirstExistingPath @(
