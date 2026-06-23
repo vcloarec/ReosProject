@@ -22,6 +22,7 @@ $env:Path
 
 cmake   -S $mdal_source `
 		-B . `
+        -D CMAKE_PREFIX_PATH="$OSGEO_DIR" `
         -D BUILD_EXTERNAL_DRIVERS=FALSE `
         -D BUILD_PLY=TRUE `
         -D BUILD_SHARED=TRUE `
