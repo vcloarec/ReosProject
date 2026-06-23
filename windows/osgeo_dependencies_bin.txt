@@ -24,6 +24,8 @@ jpeg62.dll
 jxl.dll
 jxl_threads.dll
 Lerc.dll
+libaec.dll
+libsz.dll
 libcrypto-1_1-x64.dll
 libcurl.dll
 libexpat.dll
