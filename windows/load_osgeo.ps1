@@ -2,7 +2,7 @@
 
 $starter_path = Get-Location
 
-md $env:OSGEO4W_ROOT
+md $env:OSGEO4W_ROOT -Force | Out-Null
 
 # Download installer if not exists
 if (-Not (Test-Path "$env:OSGEO4W_ROOT\osgeo4w-setup.exe" -PathType leaf )) {

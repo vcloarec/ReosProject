@@ -1,6 +1,9 @@
 $starter_path = Get-Location
 
-git clone https://gitlab.onelab.info/gmsh/gmsh.git
+if ( -not (Test-Path 'gmsh/.git') )
+{
+    git clone https://gitlab.onelab.info/gmsh/gmsh.git
+}
 
 cd gmsh
 git checkout tags/gmsh_4_11_1
@@ -9,7 +12,7 @@ cd ..
 $GMSH_SRC = Join-Path $starter_path gmsh
 $GMSH_INSTALL=Join-Path $starter_path GMSH_Built
 
-md gmsh_building
+md gmsh_building -Force | Out-Null
 cd gmsh_building
 
 $gmsh_building_path = Get-Location

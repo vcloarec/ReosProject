@@ -25,8 +25,8 @@ $env:Path
 $SDK_PATH=$(Get-Item "hklm:\SOFTWARE\Microsoft\Windows Kits\Installed Roots").GetValue("KitsRoot10")
 $SDK_VERSION=$(Get-childItem -Name "hklm:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" | Select-Object -last 1)
 
-md $env:QGIS_BUILDING
-md $env:QGIS_BUILT
+md $env:QGIS_BUILDING -Force | Out-Null
+md $env:QGIS_BUILT -Force | Out-Null
 cd $env:QGIS_BUILDING
 
 cmake -S $env:QGIS_SRC `

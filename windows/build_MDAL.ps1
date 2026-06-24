@@ -10,12 +10,12 @@ ls $OSGEO_DIR
 
 $mdal_source=Join-Path $starter_path MDAL
 
-md MDAL_building
+md MDAL_building -Force | Out-Null
 cd MDAL_building
 
 Write-Host "============================= MDAL will be installed in the following folder:"
 $MDAL_DIR
-md $MDAL_DIR
+md $MDAL_DIR -Force | Out-Null
 
 Write-Host "===================================== Current PATH:"
 $env:Path
