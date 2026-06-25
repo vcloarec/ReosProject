@@ -65,7 +65,8 @@ Write-Host "=== Building QGIS with $cpuCount parallel jobs"
 
 cmake -S $env:QGIS_SRC `
       -B . `
-      -D CMAKE_CXX_FLAGS="/MP$cpuCount" `
+      "-D CMAKE_CXX_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+      "-D CMAKE_C_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
       "-D CMAKE_CXX_FLAGS_$($BUILDCONF.ToUpper())=/MD /Z7 /Od /D NDEBUG" `
       -D CMAKE_EXE_LINKER_FLAGS=/machine:x64 `
       -D WITH_QSPATIALITE=TRUE `

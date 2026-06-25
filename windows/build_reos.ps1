@@ -54,6 +54,14 @@ if (Test-Path -Path $REOS_BUILD)
 
 cd $REOS_BUILD
 
+$cpuCount = [Environment]::ProcessorCount
+Write-Host "=== Building REOS with $cpuCount parallel jobs"
+
+# Propagate to child cmake processes spawned via EXECUTE_PROCESS
+# (e.g. Tests/core/CMakeLists.txt fetches GoogleTest via a nested cmake call
+# that does not inherit our -D flags).
+$env:CMAKE_POLICY_VERSION_MINIMUM = "3.5"
+
 Write-Host "===================================== Current PATH:"
 $env:Path
 
@@ -101,8 +109,11 @@ if ( -not $MDAL_LIB )
 
 cmake   -S $env:REOS_SOURCE `
 		-B . `
-        -D BUILD_GMOCK=ON `
-        -D BUILD_TESTING=ON `
+		"-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
+		"-DCMAKE_C_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+		"-DCMAKE_CXX_FLAGS=/MP$cpuCount /DWIN32 /D_WIN32" `
+		-D BUILD_GMOCK=ON `
+		-D BUILD_TESTING=ON `
         -D CMAKE_INSTALL_PREFIX=$REOS_INSTALL `
         -D ENABLE_TESTS=TRUE `
         -D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
@@ -145,7 +156,12 @@ cmake   -S $env:REOS_SOURCE `
         -D TELEMAC_CONFIG_NAME=win `
         -D TELEMAC_PYTHON_PATH=$REOS_INSTALL\apps\python
 
-cmake --build .  --config $env:BUILD_TYPE --parallel
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to configure Reos"
+    exit $LASTEXITCODE
+}
+
+cmake --build . --config $env:BUILD_TYPE --parallel $cpuCount
 
 #cmake -G Ninja -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
 
