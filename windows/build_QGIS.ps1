@@ -9,6 +9,37 @@ $PYTHONHOME=Join-Path $OSGEO_DIR "apps\Python312"
 Write-Host "=== Python HOME"
 ls $PYTHONHOME
 
+# --- Qt5 / MSVC 2026 compatibility patch ----------------------------------
+# Newer MSVC (VS 17.10+ / VS 2026) fully removed stdext::checked_array_iterator
+# and stdext::unchecked_array_iterator (the _HAS_DEPRECATED_STDEXT_ARRAY_ITERATORS
+# re-enable macro no longer exists either). Qt5's qcompilerdetection.h still
+# expands QT_MAKE_(UN)CHECKED_ARRAY_ITERATOR to those removed symbols on MSVC,
+# which breaks compilation of any TU including qvector.h / qlist.h / qvarlengtharray.h.
+# Patch the Qt header in-place to use the passthrough fallback Qt itself provides
+# for non-MSVC compilers. Idempotent via a sentinel comment.
+$qtCompilerDet = Join-Path $OSGEO_DIR "apps\Qt5\include\QtCore\qcompilerdetection.h"
+if (Test-Path $qtCompilerDet) {
+    $sentinel = "// REOS_PATCH_STDEXT_ARRAY_ITERATOR"
+    $content = Get-Content -LiteralPath $qtCompilerDet -Raw
+    if ($content -notmatch [regex]::Escape($sentinel)) {
+        Write-Host "=== Patching Qt5 qcompilerdetection.h for MSVC 2026 stdext removal"
+        Copy-Item -LiteralPath $qtCompilerDet -Destination "$qtCompilerDet.reos.bak" -Force
+        $patched = $content `
+            -replace '#  define QT_MAKE_UNCHECKED_ARRAY_ITERATOR\(x\) stdext::make_unchecked_array_iterator\(x\)[^\r\n]*', "#  define QT_MAKE_UNCHECKED_ARRAY_ITERATOR(x) (x) $sentinel" `
+            -replace '#  define QT_MAKE_CHECKED_ARRAY_ITERATOR\(x, N\) stdext::make_checked_array_iterator\(x, size_t\(N\)\)[^\r\n]*', "#  define QT_MAKE_CHECKED_ARRAY_ITERATOR(x, N) (x) $sentinel"
+        if ($patched -eq $content) {
+            Write-Warning "Qt5 header patch did not match expected macro definitions; leaving file untouched."
+        } else {
+            Set-Content -LiteralPath $qtCompilerDet -Value $patched -NoNewline
+        }
+    } else {
+        Write-Host "=== Qt5 qcompilerdetection.h already patched, skipping"
+    }
+} else {
+    Write-Warning "Qt5 qcompilerdetection.h not found at $qtCompilerDet; skipping stdext patch"
+}
+# --------------------------------------------------------------------------
+
 Write-Host "=== Start building QGIS ..."
 Write-Host "=== Osgeo directory:"
 $OSGEO_DIR
@@ -29,9 +60,13 @@ md $env:QGIS_BUILDING -Force | Out-Null
 md $env:QGIS_BUILT -Force | Out-Null
 cd $env:QGIS_BUILDING
 
+$cpuCount = [Environment]::ProcessorCount
+Write-Host "=== Building QGIS with $cpuCount parallel jobs"
+
 cmake -S $env:QGIS_SRC `
       -B . `
-      -D CMAKE_CXX_FLAGS_${BUILDCONF^^}="/MD /Z7 /MP /Od /D NDEBUG" `
+      -D CMAKE_CXX_FLAGS="/MP$cpuCount" `
+      "-D CMAKE_CXX_FLAGS_$($BUILDCONF.ToUpper())=/MD /Z7 /Od /D NDEBUG" `
       -D CMAKE_EXE_LINKER_FLAGS=/machine:x64 `
       -D WITH_QSPATIALITE=TRUE `
       -D WITH_SERVER=FALSE `
@@ -47,6 +82,7 @@ cmake -S $env:QGIS_SRC `
       -D WITH_QTWEBKIT=FALSE `
       -D WITH_PY_COMPILE=FALSE `
       -D WITH_DRACO=FALSE `
+      -D USE_OPENCL=FALSE `
       -D ENABLE_TESTS=FALSE `
       -D SETUPAPI_LIBRARY=$SDK_PATH/Lib/$SDK_VERSION/um/x64/setupAPI.Lib `
       -D VERSION_LIBRARY=$SDK_PATH/Lib/$SDK_VERSION/um/x64/Version.Lib `
@@ -64,7 +100,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 		
-cmake --build .  --config Release
+cmake --build . --config Release --parallel $cpuCount
 if ($LASTEXITCODE -ne 0) {
 	Write-Error "QGIS build failed with exit code $LASTEXITCODE."
 	exit 1

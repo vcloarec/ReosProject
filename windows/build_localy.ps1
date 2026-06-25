@@ -77,6 +77,8 @@ param(
     [string]$QgisRef              = 'final-3_44_11',
     [switch]$SkipCygwin,
     [switch]$SkipOsgeo,
+
+
     [switch]$SkipEcCodes,
     [switch]$SkipQgis,
     [switch]$SkipMdal,
@@ -290,7 +292,7 @@ else
         Push-Location $BuildRoot
         try
         {
-            & "$PSScriptRoot\qgis_env_before_powershell.bat" './windows/build_QGIS.ps1'
+            & "$PSScriptRoot\qgis_env_before_powershell.bat" "$PSScriptRoot\build_QGIS.ps1"
         }
         finally { Pop-Location }
     }
@@ -310,7 +312,7 @@ else
         Push-Location $BuildRoot
         try
         {
-            & "$PSScriptRoot\qgis_env_before_powershell.bat" './windows/build_MDAL.ps1'
+            & "$PSScriptRoot\qgis_env_before_powershell.bat" "$PSScriptRoot\build_MDAL.ps1"
         }
         finally { Pop-Location }
     }
@@ -411,7 +413,7 @@ Invoke-Step 'build and test REOS' {
     {
         if ($SkipTests)
         {
-            & "$PSScriptRoot\qgis_env_before_powershell.bat" './windows/build_REOS.ps1'
+            & "$PSScriptRoot\qgis_env_before_powershell.bat" "$PSScriptRoot\build_REOS.ps1"
         }
         else
         {
