@@ -18,7 +18,19 @@ if (Test-Path $eccodes_source_dir) {
     Remove-Item $eccodes_source_dir -Recurse -Force
 }
 
-tar -xzf $eccodes_archive -C $starter_path
+# Use Windows' native tar (libarchive-based). Cygwin's tar interprets the
+# leading "C:" of Windows paths as a remote rsync host, producing the
+# "Cannot connect to C: resolve failed" error.
+$nativeTar = Join-Path $env:SystemRoot 'System32\tar.exe'
+if (-not (Test-Path $nativeTar)) {
+    Write-Error "Windows native tar.exe not found at $nativeTar (requires Windows 10 1803 or later)."
+    exit 1
+}
+& $nativeTar -xzf $eccodes_archive -C $starter_path
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to extract $eccodes_archive (exit code $LASTEXITCODE)."
+    exit $LASTEXITCODE
+}
 
 mkdir -p $eccodes_source_dir/build -Force | Out-Null
 mkdir -p $ECCODES_INSTALL -Force | Out-Null
@@ -72,6 +84,7 @@ cmake -S .. `
   -DCMAKE_BUILD_TYPE=Release `
   "-DCMAKE_PREFIX_PATH:PATH=$OSGEO_CMAKE_PREFIX" `
   -DENABLE_NETCDF=OFF `
+  -DENABLE_JPG=ON `
   -DENABLE_FORTRAN=OFF `
   -DPRODUCT_BUFR=OFF `
   -DEXAMPLES=OFF `

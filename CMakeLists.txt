@@ -248,6 +248,7 @@ IF (ENABLE_TESTS)
   set(COMEPHORE_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Comephore gridded rainfall, some specific files are necessary.")
   set(ERA5_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for ERA5 gridded data, some specific files are necessary.")
   set(GRIB_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for GRIB gridded data, some specific files are necessary.")
+  set(HDF5_METEO_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for HDF5 meteo gridded data, some specific files are necessary.")
   set(METEOFRANCEAPI_TESTS_ENABLE FALSE CACHE BOOL "Enable tests for Meteo France, a file containing a API key is necessary")
   set(INTERN_PYTHON_TESTS_ENABLE FALSE CACHE BOOL "Enable tests related calling python from Reos")
 

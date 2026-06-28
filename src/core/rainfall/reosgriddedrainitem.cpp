@@ -22,6 +22,7 @@
 #include "reosrenderersettings.h"
 
 #include <QElapsedTimer>
+#include <QDebug>
 
 ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &element,  const ReosEncodeContext &context, QObject *parent )
 {
@@ -201,7 +202,6 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
   int sourceXCount = sourceExtent.xCellCount();
 
   std::unique_ptr<ReosGriddedRainfallMemoryProvider> newProvider( new ReosGriddedRainfallMemoryProvider );
-
   newProvider->setExtent( destinationExtent );
 
   int xCount = destinationExtent.xCellCount();
@@ -209,6 +209,8 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
 
   bool filterTime = timeWindow.isValid();
 
+  qDebug() << "Prt 1" << dataProvider();
+  qDebug() << "Prt 2";
   for ( int i = 0; i < dataProvider()->count(); ++i )
   {
     if ( filterTime )
@@ -223,6 +225,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
 
     const QVector<double> sourceValue = dataProvider()->data( i );
     ReosRasterMemory<double> raster( yCount, xCount );
+    qDebug() << "Prt "<<i;
     raster.reserveMemory();
 
     for ( int y = 0; y < yCount; ++y )
@@ -241,10 +244,12 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
         raster.setValue( y, x, value );
       }
     }
-
+    qDebug() << "Prt --" << i;
     newProvider->addFrame( raster, dataProvider()->startTime( i ), dataProvider()->endTime( i ) );
+    qDebug() << "Prt ++" << i;
   }
 
+  qDebug() << "Prt 1";
   projectedRainfall->setProvider( newProvider.release() );
   return projectedRainfall.release();
 }

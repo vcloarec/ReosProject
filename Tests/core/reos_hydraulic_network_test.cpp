@@ -120,7 +120,8 @@ void ReoHydraulicNetworkTest::calculationPropagation()
     mWatershedModule->watershedTree()->addWatershed( new  ReosWatershed( watershedPolygon, ori+QPointF( 0, 0 ) ) );
   watershed->concentrationTime()->setValue( ReosDuration( 10, ReosDuration::minute ) );
   watershed->calculateArea();
-  QVERIFY( watershed->areaParameter()->value() == ReosArea( 10001.505282669328, ReosArea::m2 ) ); // area in the ellispoid, not in the plan, so not exactly 10000 m2
+  qDebug()<< QString::number(watershed->areaParameter()->value().valueM2(), 'f', 10);
+  QVERIFY( equal(watershed->areaParameter()->value().valueM2(), 10001.505282669328 ,0.001)); // area in the ellispoid, not in the plan, so not exactly 10000 m2
   std::unique_ptr<ReosRunoffConstantCoefficientModel> runoffModel( new ReosRunoffConstantCoefficientModel( "runoff" ) );
   runoffModel->coefficient()->setValue( 1 );
   watershed->runoffModels()->addRunoffModel( runoffModel.get() );

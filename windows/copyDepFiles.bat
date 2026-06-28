@@ -15,6 +15,9 @@ copy /v /y %GDAL_ROOT%\bin\gdal*.dll "%REOS_INSTALL%\bin"
 copy /v /y  %GMSH_BUILT%\lib\gmsh.dll "%REOS_INSTALL%\bin\gmsh.dll"
 copy /v /y %MDAL_ROOT%\lib\mdal.dll  "%REOS_INSTALL%\bin\mdal.dll"
 copy /v /y %MDAL_ROOT%\lib\mdal.dll  "%REOS_INSTALL%\bin\engines\mdal.dll"
+copy /v /y %ECCODES_ROOT%\bin\eccodes.dll  "%REOS_INSTALL%\bin\eccodes.dll"
+copy /v /y %ECCODES_ROOT%\bin\eccodes.dll  "%REOS_INSTALL%\bin\providers\eccodes.dll"
+
 
 rem OSGEO Dependencies
 for /f "tokens=*" %%i in (%REOS_SOURCE%\windows\osgeo_dependencies_bin.txt) DO (
@@ -35,6 +38,12 @@ copy /v /y %REOS_SOURCE%\package\dem.qml %REOS_INSTALL%\resources\dem.qml
 
 robocopy %OSGEO4W_ROOT%\apps\gdal\share\gdal %REOS_INSTALL%\share\gdal /E /S /NFL /NDL /NJH /NJS /nc /ns /np
 robocopy %OSGEO4W_ROOT%\share\proj %REOS_INSTALL%\share\proj /E /S /Xf *.tif *.tiff /NFL /NDL /NJH /NJS /nc /ns /np
+
+rem ecCodes runtime data (definitions + samples). Required by the grib provider
+rem at runtime; without it eccodes crashes on first parse. ECCODES_DEFINITION_PATH
+rem / ECCODES_SAMPLES_PATH must be set by the application launcher to point here.
+robocopy %ECCODES_ROOT%\share\eccodes\definitions %REOS_INSTALL%\share\eccodes\definitions /E /S /NFL /NDL /NJH /NJS /nc /ns /np
+robocopy %ECCODES_ROOT%\share\eccodes\samples     %REOS_INSTALL%\share\eccodes\samples     /E /S /NFL /NDL /NJH /NJS /nc /ns /np
 
 copy /v /y %REOS_SOURCE%\LICENSE_LEKAN.txt %REOS_INSTALL%\LICENSE_LEKAN.txt
 endlocal

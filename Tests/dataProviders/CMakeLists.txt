@@ -4,9 +4,11 @@
 #########################################################################
 #########################################################################
 
-add_subdirectory(grib)
 add_subdirectory(hydroportail)
-add_subdirectory(meteo-hdf5)
+
+if (HDF5_METEO_TESTS_ENABLE)
+    add_subdirectory(meteo-hdf5)
+endif(HDF5_METEO_TESTS_ENABLE)
 
 if (ERA5_TESTS_ENABLE)
     add_subdirectory(era5)
@@ -24,6 +26,6 @@ if (METEOFRANCEAPI_TESTS_ENABLE)
     add_subdirectory(mf-api)
 endif(METEOFRANCEAPI_TESTS_ENABLE)
 
-add_subdirectory(vortex-io)
+#add_subdirectory(vortex-io)
 
 

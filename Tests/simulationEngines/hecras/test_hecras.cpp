@@ -383,10 +383,9 @@ void ReosHecrasTesting::createTimeSerie()
 
 void ReosHecrasTesting::writeGridInDss()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/arome-antilles" ) ) );
-  QString variable( QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" ) );
-  std::unique_ptr<ReosGriddedRainfall> rainfall(
-    new ReosGriddedRainfall( QStringLiteral( "\"%1\"::%2::%3" ).arg( gribFile, variable, "cumulative" ), QStringLiteral( "grib::gridded-precipitation" ) ) );
+  QString filePath = testFile(QStringLiteral("/grib/arome-antilles/"));
+  QString variableName = QStringLiteral("Total Precipitation");
+  std::unique_ptr<ReosGriddedRainfall> rainfall(new ReosGriddedRainfall(filePath + "::" + "grib-keys=name:" + variableName + "::" + "cumulative", QStringLiteral("grib"), nullptr));
 
   QString projCrs = ReosGisEngine::crsFromEPSG( 32620 );
   rainfall->overrideCrs( ReosGisEngine::crsFromEPSG( 4326 ) );

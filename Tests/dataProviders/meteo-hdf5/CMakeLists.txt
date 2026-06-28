@@ -26,7 +26,7 @@ ADD_TEST(NAME test_meteo_hdf5
          COMMAND "test_meteo_hdf5"
          WORKING_DIRECTORY ${REOS_OUTPUT_DIRECTORY})
 
-set_target_properties(test_grib
+set_target_properties(test_meteo_hdf5
       PROPERTIES
       ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/$<0:>
       LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/$<0:>
