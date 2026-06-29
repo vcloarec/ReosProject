@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 #include <QModelIndexList>
 
@@ -33,7 +33,7 @@ email                : vcloarec at gmail dot com
 
 #define WAITING_TIME_FOR_LOOP 100
 
-class ReoHydraulicNetworkTest: public QObject
+class ReoHydraulicNetworkTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -48,7 +48,6 @@ class ReoHydraulicNetworkTest: public QObject
     ReosModule *mRootModule = nullptr;
     ReosGisEngine *mGisEngine = nullptr;
     ReosHydraulicElementModel *mElementModel = nullptr;
-
 };
 
 void ReoHydraulicNetworkTest::initTestCase()
@@ -79,9 +78,8 @@ void ReoHydraulicNetworkTest::addRemoveElement()
   QCOMPARE( mElementModel->rowCount( QModelIndex() ), 2 );
 
   ReosHydraulicNetworkElement *link = mNetwork->addElement(
-                                        new ReosHydrographRoutingLink( qobject_cast<ReosHydrographJunction *>( junctionNode1 ),
-                                            qobject_cast<ReosHydrographJunction *>( junctionNode1 ),
-                                            mNetwork ) );
+    new ReosHydrographRoutingLink( qobject_cast<ReosHydrographJunction *>( junctionNode1 ), qobject_cast<ReosHydrographJunction *>( junctionNode1 ), mNetwork )
+  );
 
   QCOMPARE( mElementModel->rowCount( QModelIndex() ), 3 );
   QCOMPARE( mNetwork->networkExtent(), ReosMapExtent( 10.0, 10.0, 10.0, 20.0 ) );
@@ -114,20 +112,18 @@ void ReoHydraulicNetworkTest::calculationPropagation()
 
   //**** Mount a watershed
   QPolygonF watershedPolygon;
-  QPointF ori(662000,1793000);
-  watershedPolygon << ori+QPointF( 0, 0 ) << ori+QPointF( 100, 0 ) <<ori+ QPointF( 100, 100 ) << ori+QPointF( 0, 100 );
-  ReosWatershed *watershed =
-    mWatershedModule->watershedTree()->addWatershed( new  ReosWatershed( watershedPolygon, ori+QPointF( 0, 0 ) ) );
+  QPointF ori( 662000, 1793000 );
+  watershedPolygon << ori + QPointF( 0, 0 ) << ori + QPointF( 100, 0 ) << ori + QPointF( 100, 100 ) << ori + QPointF( 0, 100 );
+  ReosWatershed *watershed = mWatershedModule->watershedTree()->addWatershed( new ReosWatershed( watershedPolygon, ori + QPointF( 0, 0 ) ) );
   watershed->concentrationTime()->setValue( ReosDuration( 10, ReosDuration::minute ) );
   watershed->calculateArea();
-  qDebug()<< QString::number(watershed->areaParameter()->value().valueM2(), 'f', 10);
-  QVERIFY( equal(watershed->areaParameter()->value().valueM2(), 10001.505282669328 ,0.001)); // area in the ellispoid, not in the plan, so not exactly 10000 m2
+  qDebug() << QString::number( watershed->areaParameter()->value().valueM2(), 'f', 10 );
+  QVERIFY( equal( watershed->areaParameter()->value().valueM2(), 10001.505282669328, 0.001 ) ); // area in the ellispoid, not in the plan, so not exactly 10000 m2
   std::unique_ptr<ReosRunoffConstantCoefficientModel> runoffModel( new ReosRunoffConstantCoefficientModel( "runoff" ) );
   runoffModel->coefficient()->setValue( 1 );
   watershed->runoffModels()->addRunoffModel( runoffModel.get() );
   watershed->setCurrentTransferFunction( ReosTransferFunctionSCSUnitHydrograph::staticType() );
-  ReosHydrographNodeWatershed *watershedNode =
-    new ReosHydrographNodeWatershed( watershed, mWatershedModule->meteoModelsCollection(), mNetwork );
+  ReosHydrographNodeWatershed *watershedNode = new ReosHydrographNodeWatershed( watershed, mWatershedModule->meteoModelsCollection(), mNetwork );
   mNetwork->addElement( watershedNode );
 
   //**** Mount a rainfall
@@ -137,20 +133,14 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   rainfallSerie->appendValue( 5 );
   rainfallSerie->appendValue( 10 );
   rainfallSerie->appendValue( 20 );
-  std::unique_ptr<ReosRainfallGaugedRainfallItem> rainItem(
-    new ReosRainfallGaugedRainfallItem( QStringLiteral( "rainfall" ), QString(), rainfallSerie.release() ) );
+  std::unique_ptr<ReosRainfallGaugedRainfallItem> rainItem( new ReosRainfallGaugedRainfallItem( QStringLiteral( "rainfall" ), QString(), rainfallSerie.release() ) );
 
   ReosMeteorologicModel *meteoModel = mWatershedModule->meteoModelsCollection()->meteorologicModel( 0 );
   meteoModel->associate( watershed, rainItem.get() );
 
   //**** Mount a 2D structure
   QPolygonF domainD2;
-  domainD2 << QPointF( 0, 0 )
-           << QPointF( 10, 0 )
-           << QPointF( 10, 10 )
-           << QPointF( 6, 10 )
-           << QPointF( 4, 10 )
-           << QPointF( 0, 10 );
+  domainD2 << QPointF( 0, 0 ) << QPointF( 10, 0 ) << QPointF( 10, 10 ) << QPointF( 6, 10 ) << QPointF( 4, 10 ) << QPointF( 0, 10 );
   ReosHydraulicStructure2D *structure2D = new ReosHydraulicStructure2D( domainD2, mGisEngine->crs(), mNetwork->context() );
   mNetwork->addElement( structure2D );
   if ( structure2D->simulationCount() != 0 )
@@ -196,15 +186,11 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QVERIFY( structure2D->currentSimulation() );
 
   //**** Mount a junction with a hydrograph
-  ReosHydrographJunction *junction =
-    new ReosHydrographJunction(
-    ReosSpatialPosition( QPointF( 5.0, 20.0 ), mGisEngine->crs() ), mNetwork );
+  ReosHydrographJunction *junction = new ReosHydrographJunction( ReosSpatialPosition( QPointF( 5.0, 20.0 ), mGisEngine->crs() ), mNetwork );
   mNetwork->addElement( junction );
 
   //**** Mount a simple junction for downstream
-  ReosHydrographJunction *junctionDownstream =
-    new ReosHydrographJunction(
-    ReosSpatialPosition( QPointF( 15.0, 5.0 ), mGisEngine->crs() ), mNetwork );
+  ReosHydrographJunction *junctionDownstream = new ReosHydrographJunction( ReosSpatialPosition( QPointF( 15.0, 5.0 ), mGisEngine->crs() ), mNetwork );
   mNetwork->addElement( junctionDownstream );
 
   std::unique_ptr<ReosHydrograph> hydrograh( new ReosHydrograph );
@@ -239,8 +225,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
 
   ReosModule::Message message;
   ReosSimulationData simData = structure2D->simulationData( mNetwork->currentSchemeId(), message );
-  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess(
-    structure2D->getPreparationProcessSimulation( simData, mNetwork->currentScheme()->calculationContext(), message ) );
+  std::unique_ptr<ReosSimulationPreparationProcess> preparationProcess( structure2D->getPreparationProcessSimulation( simData, mNetwork->currentScheme()->calculationContext(), message ) );
   QVERIFY( preparationProcess );
   controller = std::make_unique<ModuleProcessControler>( preparationProcess.get() );
   controller->waitForFinished();
@@ -289,8 +274,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   simulateEventLoop( WAITING_TIME_FOR_LOOP );
 
   QString error;
-  ReosSimulationProcess *simulationProcess =
-    structure2D->createSimulationProcess( mNetwork->currentScheme()->calculationContext(), error );
+  ReosSimulationProcess *simulationProcess = structure2D->createSimulationProcess( mNetwork->currentScheme()->calculationContext(), error );
 
   controller = std::make_unique<ModuleProcessControler>( simulationProcess );
   controller->waitForFinished();
@@ -347,7 +331,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QCOMPARE( junction->outputHydrograph()->valueCount(), 5 ); //hydrograph on junction is the same with this scheme
 
   tw = structure2D->timeWindow();
-  QCOMPARE( tw.start(),  QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
+  QCOMPARE( tw.start(), QDateTime( QDate( 2010, 02, 01 ), QTime( 1, 55, 0 ), Qt::UTC ) );
   QCOMPARE( tw.end(), QDateTime( QDate( 2010, 02, 01 ), QTime( 2, 15, 0 ), Qt::UTC ) );
   mtw = mGisEngine->mapTimeWindow();
   QVERIFY( tw == mtw );
@@ -374,7 +358,6 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   mtw = mGisEngine->mapTimeWindow();
   QVERIFY( tw == mtw );
 }
-
 
 
 QTEST_MAIN( ReoHydraulicNetworkTest )

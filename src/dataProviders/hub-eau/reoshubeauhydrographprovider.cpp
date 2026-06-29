@@ -21,24 +21,45 @@
 
 #include <QLocale>
 
-QString ReosHubEauHydrographProvider::key() const {return ReosHubEauHydrographProvider::staticKey();}
+QString ReosHubEauHydrographProvider::key() const
+{
+  return ReosHubEauHydrographProvider::staticKey();
+}
 
 QStringList ReosHubEauHydrographProvider::fileSuffixes() const
 {
   return QStringList();
 }
 
-QDateTime ReosHubEauHydrographProvider::referenceTime() const {return mReferenceTime;}
+QDateTime ReosHubEauHydrographProvider::referenceTime() const
+{
+  return mReferenceTime;
+}
 
-QString ReosHubEauHydrographProvider::valueUnit() const {return QString();}
+QString ReosHubEauHydrographProvider::valueUnit() const
+{
+  return QString();
+}
 
-int ReosHubEauHydrographProvider::valueCount() const {return mCachedValues.count();}
+int ReosHubEauHydrographProvider::valueCount() const
+{
+  return mCachedValues.count();
+}
 
-double ReosHubEauHydrographProvider::value( int i ) const  {return mCachedValues.at( i );}
+double ReosHubEauHydrographProvider::value( int i ) const
+{
+  return mCachedValues.at( i );
+}
 
-double ReosHubEauHydrographProvider::firstValue() const {return mCachedValues.first();}
+double ReosHubEauHydrographProvider::firstValue() const
+{
+  return mCachedValues.first();
+}
 
-double ReosHubEauHydrographProvider::lastValue() const {return mCachedValues.last();}
+double ReosHubEauHydrographProvider::lastValue() const
+{
+  return mCachedValues.last();
+}
 
 void ReosHubEauHydrographProvider::load()
 {
@@ -57,14 +78,20 @@ void ReosHubEauHydrographProvider::load()
   emit dataChanged();
 }
 
-double *ReosHubEauHydrographProvider::data() {return mCachedValues.data();}
+double *ReosHubEauHydrographProvider::data()
+{
+  return mCachedValues.data();
+}
 
 const QVector<ReosDuration> &ReosHubEauHydrographProvider::constTimeData() const
 {
   return mCachedTimeValues;
 }
 
-const QVector<double> &ReosHubEauHydrographProvider::constData() const {return mCachedValues;}
+const QVector<double> &ReosHubEauHydrographProvider::constData() const
+{
+  return mCachedValues;
+}
 
 ReosEncodedElement ReosHubEauHydrographProvider::encode( const ReosEncodeContext &context ) const
 {
@@ -90,12 +117,23 @@ void ReosHubEauHydrographProvider::decode( const ReosEncodedElement &element, co
   mMetadataRequestControler = new ReosHubEauConnectionControler( this );
   connect( mMetadataRequestControler, &ReosHubEauConnectionControler::resultReady, this, &ReosHubEauHydrographProvider::onMetadataReady );
   connect( mMetadataRequestControler, &ReosHubEauConnectionControler::errorOccured, this, &ReosHubEauHydrographProvider::onErrorOccured );
-  mMetadataRequestControler->request( QStringLiteral( "referentiel/stations?code_entite=%1&fields=code_station,libelle_station,type_station,longitude_station,latitude_station,en_service,date_ouverture_station,date_fermeture_station,influence_locale_station,commentaire_influence_locale_station,commentaire_station&format=json&pretty&page=1&size=1" ).arg( source ) );
+  mMetadataRequestControler->request( QStringLiteral(
+                                        "referentiel/"
+                                        "stations?code_entite=%1&fields=code_station,libelle_station,type_station,longitude_station,latitude_station,en_service,date_ouverture_station,date_fermeture_"
+                                        "station,influence_locale_station,commentaire_influence_locale_station,commentaire_station&format=json&pretty&page=1&size=1"
+  )
+                                        .arg( source ) );
 }
 
-ReosDuration ReosHubEauHydrographProvider::relativeTimeAt( int i ) const {return mCachedTimeValues.at( i );}
+ReosDuration ReosHubEauHydrographProvider::relativeTimeAt( int i ) const
+{
+  return mCachedTimeValues.at( i );
+}
 
-ReosDuration ReosHubEauHydrographProvider::lastRelativeTime() const {return mCachedTimeValues.last();}
+ReosDuration ReosHubEauHydrographProvider::lastRelativeTime() const
+{
+  return mCachedTimeValues.last();
+}
 
 void ReosHubEauHydrographProvider::onResultReady( const QVariantMap &result )
 {
@@ -117,7 +155,7 @@ void ReosHubEauHydrographProvider::onResultReady( const QVariantMap &result )
 
   if ( !mReferenceTime.isValid() )
   {
-    QVariantMap firstData =   dataList.at( 0 ).toMap();
+    QVariantMap firstData = dataList.at( 0 ).toMap();
     QString dateString = firstData.value( QStringLiteral( "date_obs" ) ).toString();
     mReferenceTime = QDateTime::fromString( dateString, Qt::ISODate );
   }
@@ -216,42 +254,50 @@ QString ReosHubEauHydrographProvider::htmlDescriptionFromMeta( const QVariantMap
     htmlText += QStringLiteral( "<h2>" ) + metadata.value( QStringLiteral( "libelle_station" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Code</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Code</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "code_station" ) ).toString()
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>On duty</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>On duty</b>" )
+                + QStringLiteral( "</td><td>" )
                 + ( metadata.value( QStringLiteral( "en_service" ) ).toBool() ? tr( "yes" ) : tr( "no" ) )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Station type</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Station type</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "type_station" ) ).toString()
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Opening date</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Opening date</b>" )
+                + QStringLiteral( "</td><td>" )
                 + QLocale().toString( QDateTime::fromString( metadata.value( QStringLiteral( "date_ouverture_station" ) ).toString(), Qt::ISODate ) )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Closing date</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Closing date</b>" )
+                + QStringLiteral( "</td><td>" )
                 + QLocale().toString( QDateTime::fromString( metadata.value( QStringLiteral( "date_fermeture_station" ) ).toString(), Qt::ISODate ) )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Local influence</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Local influence</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "influence_locale_station" ) ).toString()
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Local influence comments</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Local influence comments</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "commentaire_influence_locale_station" ) ).toString()
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + tr( "<b>Comments</b>" ) + QStringLiteral( "</td><td>" )
+                + tr( "<b>Comments</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "commentaire_station" ) ).toString()
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -316,14 +362,12 @@ QVariantMap ReosHubEauHydrographProviderFactory::uriParameters( const QString &d
 
 QString ReosHubEauHydrographProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
 {
-  if ( supportType( dataType ) &&
-       parameters.contains( QStringLiteral( "station-id" ) ) )
+  if ( supportType( dataType ) && parameters.contains( QStringLiteral( "station-id" ) ) )
   {
     const QString stationId = parameters.value( QStringLiteral( "station-id" ) ).toString();
 
     ok = !stationId.isEmpty();
     return stationId;
-
   }
   ok = false;
   return QString();

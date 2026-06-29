@@ -20,10 +20,7 @@
 #include "reostimeseriesgroup.h"
 #include "reoshydraulicscheme.h"
 
-ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition(
-  ReosHydraulicStructure2D *hydStructure,
-  const QString &boundaryConditionId,
-  const ReosHydraulicNetworkContext &context )
+ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition( ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosHydraulicNetworkContext &context )
   : ReosHydrographJunction( ReosSpatialPosition(), context.network() )
   , mContext( context )
   , mBoundaryConditionId( boundaryConditionId )
@@ -33,10 +30,8 @@ ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition
 }
 
 ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition(
-  ReosHydraulicStructure2D *hydStructure,
-  const QString &boundaryConditionId,
-  const ReosSpatialPosition &position,
-  const ReosHydraulicNetworkContext &context )
+  ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosSpatialPosition &position, const ReosHydraulicNetworkContext &context
+)
   : ReosHydraulicStructureBoundaryCondition( hydStructure, boundaryConditionId, context )
 {
   mPositionOnStructure = false;
@@ -44,9 +39,7 @@ ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition
 }
 
 
-ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition(
-  const ReosEncodedElement &encodedElement,
-  ReosHydraulicNetwork *parent )
+ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition( const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent )
   : ReosHydrographJunction( encodedElement, parent )
   , mContext( parent->context() )
 {
@@ -130,8 +123,7 @@ ReosSpatialPosition ReosHydraulicStructureBoundaryCondition::spatialPosition() c
   if ( mPositionOnStructure )
   {
     if ( !mStructure.isNull() )
-      return ReosSpatialPosition( mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, QString() ),
-                                  mStructure->geometryStructure()->crs() );
+      return ReosSpatialPosition( mStructure->geometryStructure()->boundaryConditionCenter( mBoundaryConditionId, QString() ), mStructure->geometryStructure()->crs() );
   }
 
   return ReosHydrographJunction::spatialPosition();
@@ -158,10 +150,7 @@ bool ReosHydraulicStructureBoundaryCondition::canAcceptLink( const QString &link
   return true;
 }
 
-void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstream(
-  const ReosCalculationContext &context,
-  ReosHydraulicNetworkElement *upstreamElement,
-  bool upstreamWillChange )
+void ReosHydraulicStructureBoundaryCondition::updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange )
 {
   switch ( conditionType() )
   {
@@ -193,7 +182,6 @@ void ReosHydraulicStructureBoundaryCondition::saveConfiguration( ReosHydraulicSc
   scheme->saveElementConfig( id(), encodedElement );
 
   ReosHydrographJunction::saveConfiguration( scheme );
-
 }
 
 void ReosHydraulicStructureBoundaryCondition::restoreConfiguration( ReosHydraulicScheme *scheme )
@@ -290,8 +278,7 @@ void ReosHydraulicStructureBoundaryCondition::attachStructure( ReosHydraulicStru
     elementNameParameter()->blockSignals( false );
   }
 
-  connect( this, &ReosHydraulicNetworkElement::calculationIsUpdated, structure, [this, structure]
-  {
+  connect( this, &ReosHydraulicNetworkElement::calculationIsUpdated, structure, [this, structure] {
     emit structure->boundaryUpdated( this );
     emit structure->timeWindowChanged();
   } );

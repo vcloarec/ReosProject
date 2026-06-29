@@ -30,8 +30,10 @@ class ReosParameterDouble;
 class ReosSliderElastic : public QSlider
 {
     Q_OBJECT
-  public :
-    ReosSliderElastic( QWidget *parent ): QSlider( parent ) {}
+  public:
+    ReosSliderElastic( QWidget *parent )
+      : QSlider( parent )
+    {}
 
   signals:
     //! Emitted when the user release the slider

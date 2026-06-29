@@ -31,8 +31,7 @@ ReosImportHydraulicStructureDialog::ReosImportHydraulicStructureDialog( const Re
 {
   ui->setupUi( this );
 
-  QMap<QString, QString> mEngines =
-    ReosSimulationEngineRegistery::instance()->availableEngine( ReosSimulationEngineFactory::ImportStructure2D );
+  QMap<QString, QString> mEngines = ReosSimulationEngineRegistery::instance()->availableEngine( ReosSimulationEngineFactory::ImportStructure2D );
 
   for ( auto it = mEngines.constBegin(); it != mEngines.constEnd(); ++it )
   {

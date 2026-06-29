@@ -12,18 +12,18 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
 #include <QObject>
+#include <QtTest/QtTest>
 
+#include "gmsh/reosgmshgenerator.h"
+#include "reos_testutils.h"
 #include "reosgisengine.h"
 #include "reosmesh.h"
 #include "reosmeshgenerator.h"
-#include "reospolylinesstructure.h"
-#include "gmsh/reosgmshgenerator.h"
-#include "reos_testutils.h"
 #include "reosparameter.h"
+#include "reospolylinesstructure.h"
 
-class ReosMeshTest: public QObject
+class ReosMeshTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -34,14 +34,12 @@ class ReosMeshTest: public QObject
     ReosGisEngine engine;
 };
 
-
 void ReosMeshTest::GmshGenerator()
 {
   QPolygonF domain;
   domain << QPointF( 0, 0 ) << QPointF( 0, 20 ) << QPointF( 20, 20 ) << QPointF( 20, 0 );
 
-  std::unique_ptr<ReosPolylinesStructure> structure =
-    ReosPolylinesStructure::createPolylineStructure( domain, QString() );
+  std::unique_ptr<ReosPolylinesStructure> structure = ReosPolylinesStructure::createPolylineStructure( domain, QString() );
 
   ReosGmshGenerator generator;
 

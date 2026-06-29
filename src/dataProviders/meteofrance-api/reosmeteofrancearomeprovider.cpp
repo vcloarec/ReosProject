@@ -28,10 +28,12 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
 
 
 ReosMeteoFranceAromeApiProvider::ReosMeteoFranceAromeApiProvider()
-{
-}
+{}
 
-QString ReosMeteoFranceAromeApiProvider::dataType() {return ReosGriddedRainfall::staticType();}
+QString ReosMeteoFranceAromeApiProvider::dataType()
+{
+  return ReosGriddedRainfall::staticType();
+}
 
 QString ReosMeteoFranceAromeApiProvider::staticKey()
 {
@@ -218,32 +220,37 @@ QString ReosMeteoFranceAromeApiProvider::htmlDescription() const
   htmlText += QLatin1String( "<table class=\"list-view\">\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + tr( "Météo France Arome API" ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) )
+              + QStringLiteral( "</td><td>" )
+              + tr( "Météo France Arome API" )
+              + QStringLiteral( "</td></tr>\n" );
 
-  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Zone" ) ) + QStringLiteral( "</td><td>" )
-              + mModel.zone + QStringLiteral( "</td></tr>\n" );;
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" ) + QStringLiteral( "<b>%1</b>" ).arg( tr( "Zone" ) ) + QStringLiteral( "</td><td>" ) + mModel.zone + QStringLiteral( "</td></tr>\n" );
+  ;
 
-  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Resolution" ) ) + QStringLiteral( "</td><td>" )
-              + mModel.resol + QStringLiteral( "</td></tr>\n" );;
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" ) + QStringLiteral( "<b>%1</b>" ).arg( tr( "Resolution" ) ) + QStringLiteral( "</td><td>" ) + mModel.resol + QStringLiteral( "</td></tr>\n" );
+  ;
 
   int runIndex = runIndexfromUri( dataSource() );
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Run" ) ) + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Run" ) )
+              + QStringLiteral( "</td><td>" )
               + ( runIndex == 0 ? tr( "Last" ) : tr( "%1 before last" ).arg( runIndex ) )
-              + QStringLiteral( " (%1)" ).arg( mRun.toString( QLocale().dateTimeFormat() ) ) + QStringLiteral( "</td></tr>\n" );;
+              + QStringLiteral( " (%1)" ).arg( mRun.toString( QLocale().dateTimeFormat() ) )
+              + QStringLiteral( "</td></tr>\n" );
+  ;
 
   if ( count() > 0 )
   {
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) )
+                + QStringLiteral( "</td><td>" )
                 + startTime( 0 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) )
+                + QStringLiteral( "</td><td>" )
                 + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -251,13 +258,25 @@ QString ReosMeteoFranceAromeApiProvider::htmlDescription() const
   return htmlText;
 }
 
-ReosGriddedRainfallProvider::FileDetails ReosMeteoFranceAromeApiProvider::details( const QString &, ReosModule::Message & ) const {return FileDetails();}
+ReosGriddedRainfallProvider::FileDetails ReosMeteoFranceAromeApiProvider::details( const QString &, ReosModule::Message & ) const
+{
+  return FileDetails();
+}
 
-bool ReosMeteoFranceAromeApiProvider::isValid() const {return mIsValid;}
+bool ReosMeteoFranceAromeApiProvider::isValid() const
+{
+  return mIsValid;
+}
 
-int ReosMeteoFranceAromeApiProvider::count() const { return mRunInfo.frameCount;}
+int ReosMeteoFranceAromeApiProvider::count() const
+{
+  return mRunInfo.frameCount;
+}
 
-bool ReosMeteoFranceAromeApiProvider::canReadUri( const QString & ) const {return false;}
+bool ReosMeteoFranceAromeApiProvider::canReadUri( const QString & ) const
+{
+  return false;
+}
 
 QDateTime ReosMeteoFranceAromeApiProvider::startTime( int index ) const
 {
@@ -269,7 +288,10 @@ QDateTime ReosMeteoFranceAromeApiProvider::endTime( int index ) const
   return mRunInfo.startTime.addSecs( ( index ) * 3600 );
 }
 
-ReosRasterExtent ReosMeteoFranceAromeApiProvider::extent() const {return mExtent;}
+ReosRasterExtent ReosMeteoFranceAromeApiProvider::extent() const
+{
+  return mExtent;
+}
 
 const QVector<double> ReosMeteoFranceAromeApiProvider::data( int index ) const
 {
@@ -279,7 +301,10 @@ const QVector<double> ReosMeteoFranceAromeApiProvider::data( int index ) const
   return mValues.at( index );
 }
 
-bool ReosMeteoFranceAromeApiProvider::getDirectMinMax( double &, double & ) const {return false;}
+bool ReosMeteoFranceAromeApiProvider::getDirectMinMax( double &, double & ) const
+{
+  return false;
+}
 
 void ReosMeteoFranceAromeApiProvider::calculateMinMax( double &min, double &max ) const
 {
@@ -304,8 +329,7 @@ ReosEncodedElement ReosMeteoFranceAromeApiProvider::encode( const ReosEncodeCont
   QString uriToEncode = dataSource();
   QString keyFilePath = apiKeyFileNamefromUri( uriToEncode );
   keyFilePath = context.pathToEncode( keyFilePath );
-  uriToEncode = uri( keyFilePath,
-                     zoneFromUri( uriToEncode ), resolFromUri( uriToEncode ), extentFromUri( uriToEncode ), runIndexfromUri( uriToEncode ) );
+  uriToEncode = uri( keyFilePath, zoneFromUri( uriToEncode ), resolFromUri( uriToEncode ), extentFromUri( uriToEncode ), runIndexfromUri( uriToEncode ) );
   element.addData( QStringLiteral( "data-source" ), uriToEncode );
 
   return element;
@@ -370,12 +394,12 @@ QVariantMap ReosMeteoFranceAromeApiProviderFactory::uriParameters( const QString
 
 QString ReosMeteoFranceAromeApiProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
 {
-  if ( supportType( dataType ) &&
-       parameters.contains( QStringLiteral( "api-key-file" ) ) &&
-       parameters.contains( QStringLiteral( "zone" ) ) &&
-       parameters.contains( QStringLiteral( "resolution" ) ) &&
-       parameters.contains( QStringLiteral( "extent" ) ) &&
-       parameters.contains( QStringLiteral( "run-index-before-last" ) ) )
+  if ( supportType( dataType )
+       && parameters.contains( QStringLiteral( "api-key-file" ) )
+       && parameters.contains( QStringLiteral( "zone" ) )
+       && parameters.contains( QStringLiteral( "resolution" ) )
+       && parameters.contains( QStringLiteral( "extent" ) )
+       && parameters.contains( QStringLiteral( "run-index-before-last" ) ) )
   {
     const QString apiFile = parameters.value( QStringLiteral( "api-key-file" ) ).toString();
     const QString zone = parameters.value( QStringLiteral( "zone" ) ).toString();
@@ -396,10 +420,7 @@ QString ReosMeteoFranceAromeApiProviderFactory::buildUri( const QString &dataTyp
             return QString();
         }
 
-        if ( !apiFile.isEmpty() &&
-             !zone.isEmpty() &&
-             !resolution.isEmpty() &&
-             runIndex >= 0 )
+        if ( !apiFile.isEmpty() && !zone.isEmpty() && !resolution.isEmpty() && runIndex >= 0 )
         {
           ok = true;
           return ReosMeteoFranceAromeApiProvider::uri( apiFile, zone, resolution, ReosMeteoFranceAromeApiProvider::extentFromList( extentDouble ), runIndex );

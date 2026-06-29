@@ -27,14 +27,12 @@
 #include "reosgriddedrainitem.h"
 #include "reosversion.h"
 
-#define FILE_MAGIC_NUMBER  1909201401
+#define FILE_MAGIC_NUMBER 1909201401
 
-ReosRainfallModel::ReosRainfallModel( QObject *parent ):
-  QAbstractItemModel( parent )
+ReosRainfallModel::ReosRainfallModel( QObject *parent )
+  : QAbstractItemModel( parent )
   , mRootZone( new ReosRootItem() )
-{
-
-}
+{}
 
 QModelIndex ReosRainfallModel::index( int row, int column, const QModelIndex &parent ) const
 {
@@ -49,7 +47,7 @@ QModelIndex ReosRainfallModel::index( int row, int column, const QModelIndex &pa
     parentItem = mRootZone.get();
   }
 
-  if ( ! parentItem || row >= parentItem->childrenCount() )
+  if ( !parentItem || row >= parentItem->childrenCount() )
     return QModelIndex();
 
   return createIndex( row, column, parentItem->itemAt( row ) );
@@ -101,7 +99,6 @@ QVariant ReosRainfallModel::data( const QModelIndex &index, int role ) const
 
     if ( index.column() == 1 )
       return item->description();
-
   }
 
   if ( role == Qt::DecorationRole && index.column() == 0 )
@@ -155,7 +152,7 @@ bool ReosRainfallModel::canDropMimeData( const QMimeData *data, Qt::DropAction, 
   return receiver->accept( item, true );
 }
 
-bool ReosRainfallModel::dropMimeData( const QMimeData *data, Qt::DropAction,  int row, int, const QModelIndex &parent )
+bool ReosRainfallModel::dropMimeData( const QMimeData *data, Qt::DropAction, int row, int, const QModelIndex &parent )
 {
   ReosRainfallItem *item = uriToItem( data->text() );
   ReosRainfallItem *receiver = indexToItem( parent );
@@ -216,7 +213,6 @@ ReosZoneItem *ReosRainfallModel::addZone( const QString &name, const QString &de
     return static_cast<ReosZoneItem *>( addItem( receiver, newZone.release() ) );
 
   return nullptr;
-
 }
 
 ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QString &description, const QModelIndex &index, const ReosSpatialPosition &position )
@@ -232,7 +228,7 @@ ReosStationItem *ReosRainfallModel::addStation( const QString &name, const QStri
 
   std::unique_ptr<ReosStationItem> newStation = std::make_unique<ReosStationItem>( name, description, position );
 
-  if ( ! receiver->accept( newStation.get() ) )
+  if ( !receiver->accept( newStation.get() ) )
     return nullptr;
 
   return static_cast<ReosStationItem *>( addItem( receiver, newStation.release() ) );
@@ -251,7 +247,7 @@ ReosRainfallGaugedRainfallItem *ReosRainfallModel::addGaugedRainfall( const QStr
 
   std::unique_ptr<ReosRainfallGaugedRainfallItem> newRainfal = std::make_unique<ReosRainfallGaugedRainfallItem>( name, description, data );
 
-  if ( ! receiver->accept( newRainfal.get() ) )
+  if ( !receiver->accept( newRainfal.get() ) )
     return nullptr;
 
   return static_cast<ReosRainfallGaugedRainfallItem *>( addItem( receiver, newRainfal.release() ) );
@@ -270,7 +266,7 @@ ReosRainfallChicagoItem *ReosRainfallModel::addChicagoRainfall( const QString &n
 
   std::unique_ptr<ReosRainfallChicagoItem> newRainfal = std::make_unique<ReosRainfallChicagoItem>( name, description );
 
-  if ( ! receiver->accept( newRainfal.get() ) )
+  if ( !receiver->accept( newRainfal.get() ) )
     return nullptr;
 
   return static_cast<ReosRainfallChicagoItem *>( addItem( receiver, newRainfal.release() ) );
@@ -289,7 +285,7 @@ ReosRainfallAlternatingBlockItem *ReosRainfallModel::addAlternatingBlockRainfall
 
   std::unique_ptr<ReosRainfallAlternatingBlockItem> newRainfal = std::make_unique<ReosRainfallAlternatingBlockItem>( name, description );
 
-  if ( ! receiver->accept( newRainfal.get() ) )
+  if ( !receiver->accept( newRainfal.get() ) )
     return nullptr;
 
   return static_cast<ReosRainfallAlternatingBlockItem *>( addItem( receiver, newRainfal.release() ) );
@@ -308,7 +304,7 @@ ReosRainfallDoubleTriangleItem *ReosRainfallModel::addDoubleTriangleRainfall( co
 
   std::unique_ptr<ReosRainfallDoubleTriangleItem> newRainfal = std::make_unique<ReosRainfallDoubleTriangleItem>( name, description );
 
-  if ( ! receiver->accept( newRainfal.get() ) )
+  if ( !receiver->accept( newRainfal.get() ) )
     return nullptr;
 
   return static_cast<ReosRainfallDoubleTriangleItem *>( addItem( receiver, newRainfal.release() ) );
@@ -327,7 +323,7 @@ ReosRainfallIdfCurvesItem *ReosRainfallModel::addIDFCurves( const QString &name,
 
   std::unique_ptr<ReosRainfallIdfCurvesItem> newIDF = std::make_unique<ReosRainfallIdfCurvesItem>( name, description );
 
-  if ( ! receiver->accept( newIDF.get() ) )
+  if ( !receiver->accept( newIDF.get() ) )
     return nullptr;
 
   return static_cast<ReosRainfallIdfCurvesItem *>( addItem( receiver, newIDF.release() ) );
@@ -353,7 +349,7 @@ ReosRainfallIntensityDurationCurveItem *ReosRainfallModel::addIDCurve( const Reo
 
   std::unique_ptr<ReosRainfallIntensityDurationCurveItem> newID = std::make_unique<ReosRainfallIntensityDurationCurveItem>( duration, QString(), description );
 
-  if ( ! receiver->accept( newID.get() ) )
+  if ( !receiver->accept( newID.get() ) )
     return nullptr;
 
   return static_cast<ReosRainfallIntensityDurationCurveItem *>( idfItem->itemAt( idfItem->placeIdCurveItem( newID.release() ) ) );
@@ -560,7 +556,6 @@ bool ReosRainfallModel::saveToFile( const QString &path )
 
 bool ReosRainfallModel::loadFromFile( const QString &path )
 {
-
   QFileInfo fileInfo( path );
 
   if ( !fileInfo.exists() )
@@ -693,7 +688,3 @@ void ReosRainfallModel::connectItem( ReosRainfallItem *item )
       itemToConnect.push( currentItem->itemAt( i ) );
   }
 }
-
-
-
-

@@ -38,8 +38,7 @@ ReosGriddedRainfallSelectorWidget::ReosGriddedRainfallSelectorWidget( const Reos
   connect( ui->mPathLineEdit, &QLineEdit::textEdited, this, &ReosGriddedRainfallSelectorWidget::onPathChanged );
   connect( ui->mFileRadioButton, &QRadioButton::toggled, this, &ReosGriddedRainfallSelectorWidget::onFileRemoteChanged );
 
-  QObject::connect( ui->mToolButtonColorRamp, &QToolButton::clicked, this, [this]
-  {
+  QObject::connect( ui->mToolButtonColorRamp, &QToolButton::clicked, this, [this] {
     if ( mCurrentRainfall )
     {
       QDialog *dial = new QDialog( this );
@@ -124,8 +123,7 @@ void ReosGriddedRainfallSelectorWidget::onPathButtonClicked()
   dial->setOptions( QFileDialog::DontUseNativeDialog );
   dial->setFileMode( QFileDialog::AnyFile );
 
-  connect( dial, &QFileDialog::currentChanged, this, [dial]( const QString & str )
-  {
+  connect( dial, &QFileDialog::currentChanged, this, [dial]( const QString &str ) {
     QStringList fileNames = dial->selectedFiles();
     if ( str.isEmpty() )
       return;
@@ -134,7 +132,6 @@ void ReosGriddedRainfallSelectorWidget::onPathButtonClicked()
       dial->setFileMode( QFileDialog::ExistingFile );
     else if ( info.isDir() )
       dial->setFileMode( QFileDialog::Directory );
-
   } );
 
   if ( dial->exec() )
@@ -166,8 +163,7 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
     mProviderSelectorWidget = nullptr;
   }
 
-  std::unique_ptr<ReosDataProvider> provider(
-    ReosDataProviderRegistery::instance()->createCompatibleProvider( ui->mPathLineEdit->text(), ReosGriddedRainfall::staticType() ) );
+  std::unique_ptr<ReosDataProvider> provider( ReosDataProviderRegistery::instance()->createCompatibleProvider( ui->mPathLineEdit->text(), ReosGriddedRainfall::staticType() ) );
 
   mProvider.reset( qobject_cast<ReosGriddedDataProvider *>( provider.release() ) );
 
@@ -192,21 +188,15 @@ void ReosGriddedRainfallSelectorWidget::onPathChanged()
 
   if ( ReosDataProviderGuiRegistery::instance()->hasCapability( providerKey, ReosDataProviderGuiFactory::GuiCapability::DataSelector ) )
   {
-
-    mProviderSelectorWidget =
-      qobject_cast<ReosGriddedRainDataProviderSelectorWidget *>(
-        ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget(
-          mProvider->key(),
-          ReosGriddedRainfall::staticType(),
-          ui->mDataVizMap->map(),
-          this ) );
+    mProviderSelectorWidget = qobject_cast<ReosGriddedRainDataProviderSelectorWidget *>(
+      ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( mProvider->key(), ReosGriddedRainfall::staticType(), ui->mDataVizMap->map(), this )
+    );
   }
 
   if ( mProviderSelectorWidget )
   {
     mDetails = mProviderSelectorWidget->setSource( ui->mPathLineEdit->text(), message );
-    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged,
-             this, &ReosGriddedRainfallSelectorWidget::updateRainfall );
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged, this, &ReosGriddedRainfallSelectorWidget::updateRainfall );
     ui->mProviderLayout->addWidget( mProviderSelectorWidget );
   }
   else
@@ -240,7 +230,8 @@ void ReosGriddedRainfallSelectorWidget::updateRainfall()
 
   std::unique_ptr<ReosColorShaderSettings> colorSettings;
   if ( mCurrentRainfall )
-    colorSettings.reset( mCurrentRainfall->colorSetting()->clone() );;
+    colorSettings.reset( mCurrentRainfall->colorSetting()->clone() );
+  ;
 
   mCurrentRainfall.reset();
 
@@ -320,26 +311,18 @@ void ReosGriddedRainfallSelectorWidget::onRemoteSourceChanged()
   const QString currentKey = ui->mRemoteCombobox->currentData().toString();
 
   mProviderSelectorWidget = qobject_cast<ReosGriddedRainDataProviderSelectorWidget *>(
-                              ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget(
-                                currentKey,
-                                ReosGriddedRainfall::staticType(),
-                                ui->mDataVizMap->map(),
-                                this ) );
+    ReosDataProviderGuiRegistery::instance()->createProviderSelectorWidget( currentKey, ReosGriddedRainfall::staticType(), ui->mDataVizMap->map(), this )
+  );
 
   if ( mProviderSelectorWidget )
   {
     mDetails = mProviderSelectorWidget->setSource( ui->mPathLineEdit->text(), message );
 
-    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged,
-             this, &ReosGriddedRainfallSelectorWidget::updateRainfall );
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged, this, &ReosGriddedRainfallSelectorWidget::updateRainfall );
 
-    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged,
-             this, &ReosGriddedRainfallSelectorWidget::dataSelectionChanged );
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged, this, &ReosGriddedRainfallSelectorWidget::dataSelectionChanged );
 
-    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged, this, [this]
-    {
-      ui->mNameLineEdit->setText( giveName() );
-    } );
+    connect( mProviderSelectorWidget, &ReosGriddedRainDataProviderSelectorWidget::dataSelectionChanged, this, [this] { ui->mNameLineEdit->setText( giveName() ); } );
 
     ui->mProviderLayout->addWidget( mProviderSelectorWidget );
   }
@@ -358,8 +341,7 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
 
   if ( name.isEmpty() )
   {
-    auto baseName = []( const QString & string )->QString
-    {
+    auto baseName = []( const QString &string ) -> QString {
       QFileInfo fileInfo( string );
       return fileInfo.baseName();
     };

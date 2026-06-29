@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reos_testutils.h"
@@ -23,7 +23,7 @@
 #include "reoshydrograph.h"
 #include "reosvortexioprovider.h"
 
-class ReosVortexIoTest: public QObject
+class ReosVortexIoTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -104,7 +104,6 @@ void ReosVortexIoTest::createHydrograph()
   QVERIFY( decodedHyd->relativeTimeAt( 0 ) == ReosDuration( qint64( 0 ) ) );
   QVERIFY( decodedHyd->relativeTimeAt( 1 ) == ReosDuration( 600, ReosDuration::second ) );
   QVERIFY( decodedHyd->relativeTimeAt( 12000 ) == ReosDuration( 13152000, ReosDuration::second ) );
-
 }
 
 void ReosVortexIoTest::validationData()
@@ -148,7 +147,6 @@ void ReosVortexIoTest::missingData()
   QVERIFY( std::isnan( constStep.values().at( 25 ) ) );
   QVERIFY( std::isnan( constStep.values().at( 418 ) ) );
   QCOMPARE( constStep.values().at( 419 ), 0.2998231132075472 );
-
 }
 
 
@@ -170,7 +168,7 @@ void ReosVortexIoTest::rhin()
 
 void ReosVortexIoTest::badRequest()
 {
-  QString uri =  QStringLiteral( "maeslstrom_key::fr-A236003301::2022-06-17::2024-06-16" );
+  QString uri = QStringLiteral( "maeslstrom_key::fr-A236003301::2022-06-17::2024-06-16" );
   ReosHydrograph hydrograph( nullptr, "vortexio", uri );
   QVariantMap metadata = hydrograph.metadata();
 

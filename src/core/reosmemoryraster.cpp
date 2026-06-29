@@ -47,7 +47,6 @@ int ReosRasterExtent::yCellCount() const
 
 ReosRasterExtent ReosRasterExtent::operator*( const ReosRasterExtent &other ) const
 {
-
   ReosMapExtent retMapExtent = ReosMapExtent::operator*( other );
 
   if ( retMapExtent == ReosMapExtent() )
@@ -109,7 +108,7 @@ ReosEncodedElement ReosRasterExtent::encode() const
 
   ret.addEncodedData( QStringLiteral( "map-extent" ), ReosMapExtent::encode() );
   ret.addData( QStringLiteral( "valid" ), mIsValid );
-  ret.addData( QStringLiteral( "x-origin" ),  mXOrigin );
+  ret.addData( QStringLiteral( "x-origin" ), mXOrigin );
   ret.addData( QStringLiteral( "y-origin" ), mYOrigin );
   ret.addData( QStringLiteral( "x-cell-size" ), mXCellSize );
   ret.addData( QStringLiteral( "y-cell-size" ), mYCellSize );
@@ -127,7 +126,7 @@ ReosRasterExtent ReosRasterExtent::decode( const ReosEncodedElement &element )
   if ( !element.getData( QStringLiteral( "valid" ), ret.mIsValid ) )
     return ReosRasterExtent();
 
-  if ( !element.getData( QStringLiteral( "x-origin" ),  ret.mXOrigin ) )
+  if ( !element.getData( QStringLiteral( "x-origin" ), ret.mXOrigin ) )
     return ReosRasterExtent();
   if ( !element.getData( QStringLiteral( "y-origin" ), ret.mYOrigin ) )
     return ReosRasterExtent();
@@ -209,19 +208,19 @@ double ReosRasterExtent::cellXBeforeToMap( int i ) const
   return xMapOrigin() + mXCellSize * ( i /*+ ( mXCellSize > 0 ? 0 : 1 ) */ );
 }
 
-double ReosRasterExtent::cellXAfterToMap( int i )const
+double ReosRasterExtent::cellXAfterToMap( int i ) const
 {
-  return xMapOrigin() + mXCellSize * ( i + 1/*+ ( mXCellSize > 0 ? 1 : 0 ) */ );
+  return xMapOrigin() + mXCellSize * ( i + 1 /*+ ( mXCellSize > 0 ? 1 : 0 ) */ );
 }
 
-double ReosRasterExtent::cellYBeforeToMap( int i )const
+double ReosRasterExtent::cellYBeforeToMap( int i ) const
 {
   return yMapOrigin() + mYCellSize * ( i /*+ ( mYCellSize > 0 ? 0 : 1 )*/ );
 }
 
-double ReosRasterExtent::cellYAfterToMap( int i )const
+double ReosRasterExtent::cellYAfterToMap( int i ) const
 {
-  return yMapOrigin() + mYCellSize * ( i + 1/*+ ( mYCellSize > 0 ? 1 : 0 ) */ );
+  return yMapOrigin() + mYCellSize * ( i + 1 /*+ ( mYCellSize > 0 ? 1 : 0 ) */ );
 }
 
 QPointF ReosRasterExtent::cellCenterToMap( const QPoint &cellPos ) const
@@ -309,7 +308,8 @@ QRect ReosRasterExtent::mapExtentToCellRect( const ReosMapExtent &mapExtent ) co
 
   QRect ret( pt0, pt1 );
 
-  return ret.normalized();;
+  return ret.normalized();
+  ;
 }
 
 ReosMapExtent ReosRasterExtent::cellRectToMapExtent( const QRect &cellRect, const Position &position ) const
@@ -340,25 +340,32 @@ ReosMapExtent ReosRasterExtent::cellRectToMapExtent( const QRect &cellRect, cons
   return ReosMapExtent( ret );
 }
 
-double ReosRasterExtent::cellSurface() const {return fabs( mXCellSize * mYCellSize );}
+double ReosRasterExtent::cellSurface() const
+{
+  return fabs( mXCellSize * mYCellSize );
+}
 
-ReosRasterExtent::ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize ):
-  ReosMapExtent( XCellSize > 0 ? xOrigine : xOrigine + XCellSize * XCellCount,
-                 YCellSize > 0 ? yOrigine : yOrigine + YCellSize * YCellCount,
-                 ( XCellSize > 0 ? xOrigine : xOrigine + XCellSize * XCellCount ) + fabs( XCellSize * XCellCount ),
-                 ( YCellSize > 0 ? yOrigine : yOrigine + YCellSize * YCellCount ) + fabs( YCellSize * YCellCount ) ),
-  mXOrigin( xOrigine ),
-  mYOrigin( yOrigine ),
-  mXCellSize( XCellSize ),
-  mYCellSize( YCellSize ),
-  mXCellCount( XCellCount ),
-  mYCellCount( YCellCount )
+ReosRasterExtent::ReosRasterExtent( double xOrigine, double yOrigine, int XCellCount, int YCellCount, double XCellSize, double YCellSize )
+  : ReosMapExtent(
+      XCellSize > 0 ? xOrigine : xOrigine + XCellSize * XCellCount,
+      YCellSize > 0 ? yOrigine : yOrigine + YCellSize * YCellCount,
+      ( XCellSize > 0 ? xOrigine : xOrigine + XCellSize * XCellCount ) + fabs( XCellSize * XCellCount ),
+      ( YCellSize > 0 ? yOrigine : yOrigine + YCellSize * YCellCount ) + fabs( YCellSize * YCellCount )
+    )
+  , mXOrigin( xOrigine )
+  , mYOrigin( yOrigine )
+  , mXCellSize( XCellSize )
+  , mYCellSize( YCellSize )
+  , mXCellCount( XCellCount )
+  , mYCellCount( YCellCount )
 {
   mIsValid = true;
 }
 
-ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant, bool yAscendant ):
-  ReosMapExtent( extent ), mXCellCount( XCellCount ), mYCellCount( YcellCount )
+ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent, int XCellCount, int YcellCount, bool xAscendant, bool yAscendant )
+  : ReosMapExtent( extent )
+  , mXCellCount( XCellCount )
+  , mYCellCount( YcellCount )
 {
   mIsValid = true;
   mXCellSize = extent.width() / mXCellCount * ( xAscendant ? 1 : -1 );
@@ -368,7 +375,8 @@ ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent, int XCellCount,
   mYOrigin = yAscendant ? extent.yMapMin() : extent.yMapMax();
 }
 
-ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent ): ReosMapExtent( extent )
+ReosRasterExtent::ReosRasterExtent( const ReosMapExtent &extent )
+  : ReosMapExtent( extent )
 {}
 
 bool ReosRasterExtent::isValid() const
@@ -376,7 +384,10 @@ bool ReosRasterExtent::isValid() const
   return mIsValid;
 }
 
-ReosRasterCellPos::ReosRasterCellPos( int r, int c ): mRow( r ), mColumn( c ) {}
+ReosRasterCellPos::ReosRasterCellPos( int r, int c )
+  : mRow( r )
+  , mColumn( c )
+{}
 
 int ReosRasterCellPos::row() const
 {
@@ -434,10 +445,12 @@ bool ReosRasterCellPos::isValid() const
   return mRow != -1 && mColumn != -1;
 }
 
-RasterNeighborCirculator::RasterNeighborCirculator( const ReosRasterCellPos &central ): mCentral( central )
+RasterNeighborCirculator::RasterNeighborCirculator( const ReosRasterCellPos &central )
+  : mCentral( central )
 {}
 
-RasterNeighborCirculator::RasterNeighborCirculator( const ReosRasterCellPos &central, short delta_Row, short delta_Column ): mCentral( central )
+RasterNeighborCirculator::RasterNeighborCirculator( const ReosRasterCellPos &central, short delta_Row, short delta_Column )
+  : mCentral( central )
 {
   setRelativePosition( delta_Row, delta_Column );
 }
@@ -483,26 +496,24 @@ void RasterNeighborCirculator::setRelativePosition( short delta_Row, short delta
   mPos = relativePositionToCyclePosition[unsigned( delta_Row + 1 )][unsigned( delta_Column + 1 )];
 }
 
-const std::array<ReosRasterCellPos, 8> RasterNeighborCirculator::cyclePositionToRelativePosition =
-{
-  ReosRasterCellPos( 0, 1 ), // 0
-  ReosRasterCellPos( -1, 1 ), // 1
-  ReosRasterCellPos( -1, 0 ), // 2
+const std::array<ReosRasterCellPos, 8> RasterNeighborCirculator::cyclePositionToRelativePosition = {
+  ReosRasterCellPos( 0, 1 ),   // 0
+  ReosRasterCellPos( -1, 1 ),  // 1
+  ReosRasterCellPos( -1, 0 ),  // 2
   ReosRasterCellPos( -1, -1 ), // 3
-  ReosRasterCellPos( 0, -1 ), // 4
-  ReosRasterCellPos( 1, -1 ), // 5
-  ReosRasterCellPos( 1, 0 ), // 6
-  ReosRasterCellPos( 1, 1 ) // 7
+  ReosRasterCellPos( 0, -1 ),  // 4
+  ReosRasterCellPos( 1, -1 ),  // 5
+  ReosRasterCellPos( 1, 0 ),   // 6
+  ReosRasterCellPos( 1, 1 )    // 7
 };
 
-const std::array<std::array<unsigned, 3>, 3> RasterNeighborCirculator::relativePositionToCyclePosition =
-{
-  std::array<unsigned, 3>( {3, 2, 1} ),
-  std::array<unsigned, 3>( {4, 8, 0} ),
-  std::array<unsigned, 3>( {5, 6, 7} )
-};
+const std::array<std::array<unsigned, 3>, 3> RasterNeighborCirculator::relativePositionToCyclePosition
+  = { std::array<unsigned, 3>( { 3, 2, 1 } ), std::array<unsigned, 3>( { 4, 8, 0 } ), std::array<unsigned, 3>( { 5, 6, 7 } ) };
 
-ReosRasterTestingCellInPolygon::ReosRasterTestingCellInPolygon( ReosRasterExtent emprise, const QPolygonF &polygon ): mExtent( emprise ), mPolygon( polygon ) {}
+ReosRasterTestingCellInPolygon::ReosRasterTestingCellInPolygon( ReosRasterExtent emprise, const QPolygonF &polygon )
+  : mExtent( emprise )
+  , mPolygon( polygon )
+{}
 
 bool ReosRasterTestingCellInPolygon::testCell( const ReosRasterCellPos &cell ) const
 {
@@ -522,7 +533,7 @@ ReosFloat64GridBlock::ReosFloat64GridBlock( int rowCount, int colCount )
   mMemoryRaster = ReosRasterMemory<double>( rowCount, colCount );
 }
 
-void ReosFloat64GridBlock::setValues(const QVector<double> &values )
+void ReosFloat64GridBlock::setValues( const QVector<double> &values )
 {
   mMemoryRaster.setValues( values );
 }

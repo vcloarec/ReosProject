@@ -32,11 +32,13 @@ ReosDuration ReosGriddedDataProvider::intervalDuration( int index ) const
   return ReosDuration( startTime( index ), endTime( index ) );
 }
 
-bool ReosGriddedDataProvider::hasCapability( GridCapability )  const {return false;}
+bool ReosGriddedDataProvider::hasCapability( GridCapability ) const
+{
+  return false;
+}
 
 ReosDuration ReosGriddedDataProvider::minimumTimeStep() const
 {
-
   int frameCount = count();
 
   if ( frameCount == 0 )
@@ -68,39 +70,39 @@ int ReosGriddedDataProvider::dataIndex( const QDateTime &time ) const
 
   if ( mLastFrameIndex != -1 )
   {
-    if ( time >= startTime( mLastFrameIndex )
-         && time < endTime( mLastFrameIndex ) )
-      return  mLastFrameIndex;
+    if ( time >= startTime( mLastFrameIndex ) && time < endTime( mLastFrameIndex ) )
+      return mLastFrameIndex;
 
 
-    if ( mLastFrameIndex < ( frameCount - 1 ) && time >= startTime( mLastFrameIndex + 1 ) &&
-         time < endTime( mLastFrameIndex + 1 ) )
+    if ( mLastFrameIndex < ( frameCount - 1 ) && time >= startTime( mLastFrameIndex + 1 ) && time < endTime( mLastFrameIndex + 1 ) )
     {
       mLastFrameIndex = mLastFrameIndex + 1;
-      return  mLastFrameIndex;
+      return mLastFrameIndex;
     }
   }
 
   for ( int i = 0; i < frameCount; ++i )
   {
-    if ( time >= startTime( i ) &&
-         time < endTime( i ) )
+    if ( time >= startTime( i ) && time < endTime( i ) )
     {
       mLastFrameIndex = i;
-      return  i;
+      return i;
     }
   }
 
   if ( time == endTime( frameCount - 1 ) )
   {
     mLastFrameIndex = frameCount - 1;
-    return  frameCount - 1;
+    return frameCount - 1;
   }
 
-  return  -1;
+  return -1;
 }
 
-bool ReosGriddedDataProvider::hasData( const QString &, const ReosTimeWindow & ) const {return false;}
+bool ReosGriddedDataProvider::hasData( const QString &, const ReosTimeWindow & ) const
+{
+  return false;
+}
 
 QString ReosGriddedRainfallMemoryProvider::key() const
 {
@@ -117,7 +119,10 @@ QDateTime ReosGriddedRainfallMemoryProvider::startTime( int index ) const
   return mRasters.at( index ).startTime;
 }
 
-QDateTime ReosGriddedRainfallMemoryProvider::endTime( int index ) const {return mRasters.at( index ).endTime;}
+QDateTime ReosGriddedRainfallMemoryProvider::endTime( int index ) const
+{
+  return mRasters.at( index ).endTime;
+}
 
 const QVector<double> ReosGriddedRainfallMemoryProvider::data( int index ) const
 {
@@ -135,13 +140,11 @@ ReosEncodedElement ReosGriddedRainfallMemoryProvider::encode( const ReosEncodeCo
 }
 
 void ReosGriddedRainfallMemoryProvider::decode( const ReosEncodedElement &, const ReosEncodeContext & )
-{
-
-}
+{}
 
 void ReosGriddedRainfallMemoryProvider::addFrame( const ReosRasterMemory<double> &raster, const QDateTime &startTime, const QDateTime &endTime )
 {
-  mRasters.append( {startTime, endTime, raster} );
+  mRasters.append( { startTime, endTime, raster } );
 }
 
 QString ReosGriddedRainfallMemoryProvider::dataType()
@@ -151,7 +154,7 @@ QString ReosGriddedRainfallMemoryProvider::dataType()
 
 QString ReosGriddedRainfallMemoryProvider::staticKey()
 {
-  return  QString( QStringLiteral( "gridded-precipitation-memory" ) );
+  return QString( QStringLiteral( "gridded-precipitation-memory" ) );
 }
 
 void ReosGriddedRainfallMemoryProvider::setExtent( const ReosRasterExtent &newExtent )

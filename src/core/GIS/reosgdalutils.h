@@ -32,7 +32,6 @@ class REOSCORE_EXPORT ReosGriddedDataSource
     virtual int frameCount() const = 0;
     virtual ReosRasterExtent extent( int frameIndex = 0 ) const = 0;
     virtual ReosRasterMemory<double> values( int frameIndex ) const = 0;
-
 };
 
 class REOSCORE_EXPORT ReosGdalDataset : public ReosGriddedDataSource
@@ -41,7 +40,7 @@ class REOSCORE_EXPORT ReosGdalDataset : public ReosGriddedDataSource
     ReosGdalDataset( const QString &fileName, bool readOnly = true );
     ~ReosGdalDataset();
 
-    bool isValid() const override ;
+    bool isValid() const override;
     int frameCount() const override;
     ReosRasterExtent extent( int frameIndex = 0 ) const override;
     ReosRasterMemory<double> values( int frameIndex ) const override;
@@ -69,10 +68,6 @@ class REOSCORE_EXPORT ReosGdalDataset : public ReosGriddedDataSource
 
     static bool sRegistered;
 };
-
-
-
-
 
 
 #endif // REOSGDALUTILS_H

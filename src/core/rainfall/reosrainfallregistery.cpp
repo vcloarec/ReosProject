@@ -22,20 +22,18 @@
 ReosRainfallRegistery *ReosRainfallRegistery::sRainfallRegistery = nullptr;
 
 ReosRainfallRegistery::ReosRainfallRegistery( ReosModule *parentModule )
-  : ReosModule( QStringLiteral("rainfall-registery"), parentModule )
+  : ReosModule( QStringLiteral( "rainfall-registery" ), parentModule )
 {
   mRainfallModel = new ReosRainfallModel( this );
 
   ReosIdfFormulaRegistery::instantiate( this );
 
-  connect( mRainfallModel, &ReosRainfallModel::loaded, this, [this]( const QString & filePath )
-  {
+  connect( mRainfallModel, &ReosRainfallModel::loaded, this, [this]( const QString &filePath ) {
     QString text = tr( "Rainfall data loaded from file: %1" ).arg( filePath );
     message( text );
   } );
 
-  connect( mRainfallModel, &ReosRainfallModel::saved, this, [this]( const QString & filePath )
-  {
+  connect( mRainfallModel, &ReosRainfallModel::saved, this, [this]( const QString &filePath ) {
     QString text = tr( "Rainfall data saved to file:%1" ).arg( filePath );
     message( text );
   } );

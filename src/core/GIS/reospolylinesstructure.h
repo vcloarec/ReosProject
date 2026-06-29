@@ -35,14 +35,13 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
 {
     Q_OBJECT
   public:
-
     struct Data
     {
-      QVector<QPointF> vertices; //! all the vertices of the structure
-      int boundaryPointCount; //! the count of boundary points that are the first in the array of point \a vertices
-      QVector<QVector<int>> internalLines; //! all internal lines vertices index
-      QVector<QVector<int>> holes; //! all holes internal lines index
-      QRectF extent; //! Extent of the data
+        QVector<QPointF> vertices;           //! all the vertices of the structure
+        int boundaryPointCount;              //! the count of boundary points that are the first in the array of point \a vertices
+        QVector<QVector<int>> internalLines; //! all internal lines vertices index
+        QVector<QVector<int>> holes;         //! all holes internal lines index
+        QRectF extent;                       //! Extent of the data
     };
 
     //! Creates and returns polylines structure with specified \a crs
@@ -58,7 +57,7 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
      *  Adds a \a polyline to the structure with coordinates in \a sourcesCrs and a tolerance for each vertices \a tolerances in \a sourceCrs unit
      *  If the tolerance, is negative, the proper tolerance of the structure will be used
      */
-    virtual void addPolylines( const QPolygonF &polyline,  const QList<double> &tolerances = QList<double>(), const QString &sourceCrs = QString() ) = 0;
+    virtual void addPolylines( const QPolygonF &polyline, const QList<double> &tolerances = QList<double>(), const QString &sourceCrs = QString() ) = 0;
 
     //! Returns the geometric line with \a id in the \a destinationCrs coordinate system
     virtual QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const = 0;
@@ -76,10 +75,7 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
     virtual QPolygonF boundary( const QString &destinationCrs = QString() ) const = 0;
 
     //! Returns lines on boundary from the vertex \a vertexFrom to vertex \a vertexTo
-    virtual QPolygonF linesOnBoundaryFromTo(
-      ReosGeometryStructureVertex *vertexFrom,
-      ReosGeometryStructureVertex *vertexTo,
-      const QString &destinationCrs = QString() ) const = 0;
+    virtual QPolygonF linesOnBoundaryFromTo( ReosGeometryStructureVertex *vertexFrom, ReosGeometryStructureVertex *vertexTo, const QString &destinationCrs = QString() ) const = 0;
 
     //! Return the class id of the ith segment returned by boundary()
     virtual QString boundaryClassId( int i ) const = 0;
@@ -106,7 +102,7 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
     virtual bool vertexCanBeRemoved( ReosGeometryStructureVertex *vertex ) const = 0;
 
     //! Removes \a vertex
-    virtual void removeVertex( ReosGeometryStructureVertex *vertex ) = 0 ;
+    virtual void removeVertex( ReosGeometryStructureVertex *vertex ) = 0;
 
     //! Returns whether the vertex can be removed
     virtual bool lineCanBeRemoved( qint64 lineId ) const = 0;
@@ -136,7 +132,7 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
      *  Returns the list of intersection points of \a line with the strucure ordered from the closest from firt point of \a line to the farthest.
      *  Caller can add another polyline \a otherPoly to also search interection of the \a line with
      */
-    virtual  QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const = 0;
+    virtual QList<QPointF> intersectionPoints( const QLineF &line, const QString &crs = QString(), const QPolygonF &otherPoly = QPolygonF() ) const = 0;
 
     //! Adds a point that represent a hole in the structure at \a position
     virtual void addHolePoint( const ReosSpatialPosition &position ) = 0;
@@ -201,7 +197,6 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
 
   private:
     QString mSelectedClass;
-
 };
 
 #endif // REOSPOLYLINESSTRUCTURES_H

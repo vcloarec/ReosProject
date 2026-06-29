@@ -53,7 +53,6 @@ Q_DECLARE_METATYPE( ReosSpatialPosition )
 class REOSCORE_EXPORT ReosMapExtent
 {
   public:
-
     //! Default constrcutor
     ReosMapExtent() = default;
 
@@ -76,7 +75,7 @@ class REOSCORE_EXPORT ReosMapExtent
     double width() const;
 
     //! Returns the height of the extent
-    double height()const;
+    double height() const;
 
     //! Returns the x min
     double xMapMin() const;
@@ -94,7 +93,7 @@ class REOSCORE_EXPORT ReosMapExtent
     bool contains( const QPointF &point ) const;
 
     //! Return true if the extent cotains, even partially, the \a line
-    bool containsPartialy( const  QPolygonF &line ) const;
+    bool containsPartialy( const QPolygonF &line ) const;
 
     //! Extends the extent by adding a point
     void addPointToExtent( const QPointF &pt );

@@ -32,7 +32,6 @@ class ReosMapToolEditMeshFrame : public ReosMapTool
   private:
     ReosMapTool_p *tool_p() const;
     QPointer<ReosMapToolEditMeshFrame_p> d;
-
 };
 
 #endif // REOSMAPTOOLEDITMESHFRAME_H

@@ -50,11 +50,10 @@ class REOSGUI_EXPORT ReosMainWindow : public QMainWindow
 
     ReosModule *rootModule() const;
 
-public slots:
+  public slots:
     void newProject();
 
   protected:
-
     ReosModule *guiRootModule() const;
     void closeEvent( QCloseEvent *event ) override;
 
@@ -85,7 +84,7 @@ public slots:
     void onRemoteInformation( const QVariantMap &information );
 
   private:
-    virtual ReosVersion version() const {return ReosVersion();}
+    virtual ReosVersion version() const { return ReosVersion(); }
     virtual bool saveProject() = 0;
     virtual void clearProject() = 0;
     virtual bool openProject() = 0;
@@ -98,7 +97,7 @@ public slots:
     void about();
     void newVersionAvailable();
 
-    virtual QList<QMenu *> specificMenus() {return QList<QMenu *>();}
+    virtual QList<QMenu *> specificMenus() { return QList<QMenu *>(); }
 
     bool mProjectIsDirty = false;
 

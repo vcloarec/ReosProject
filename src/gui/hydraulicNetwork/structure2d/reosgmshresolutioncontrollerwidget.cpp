@@ -27,8 +27,8 @@
 #include "reosformwidget.h"
 
 ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext )
-  :  QWidget( guiContext.parent() )
-  ,  ui( new Ui::ReosGmshResolutionControllerWidget )
+  : QWidget( guiContext.parent() )
+  , ui( new Ui::ReosGmshResolutionControllerWidget )
   , mMap( guiContext.map() )
   , mController( static_cast<ReosMeshResolutionController *>( structure2D->meshResolutionController() ) )
   , mActionEditResolutionPolygons( new QAction( QIcon( QStringLiteral( ":/images/editStructurePolygon.svg" ) ), tr( "Edit Resolution Polygons" ), this ) )
@@ -50,8 +50,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   mToolBar->addActions( mMapToolEditResolutionPolygon->mainActions()->actions() );
   mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
 
-  connect( mController->resolutionPolygons(), &ReosDataObject::dataChanged, this, [this]
-  {
+  connect( mController->resolutionPolygons(), &ReosDataObject::dataChanged, this, [this] {
     mMapStructureItem.updatePosition();
     mMap->refreshCanvas();
   } );
@@ -61,9 +60,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
 
   connect( ui->mToolButtonAddClass, &QToolButton::clicked, this, &ReosGmshResolutionControllerWidget::addClass );
   connect( ui->mToolButtonRemoveClass, &QToolButton::clicked, this, &ReosGmshResolutionControllerWidget::removeCurrentClass );
-  connect( ui->mPolygonClassView->selectionModel(), &QItemSelectionModel::currentChanged, mMapToolEditResolutionPolygon,
-           [this]( const QModelIndex & current, const QModelIndex & )
-  {
+  connect( ui->mPolygonClassView->selectionModel(), &QItemSelectionModel::currentChanged, mMapToolEditResolutionPolygon, [this]( const QModelIndex &current, const QModelIndex & ) {
     QString classId;
     if ( current.isValid() )
     {

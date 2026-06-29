@@ -16,17 +16,15 @@
 #include "reoschartwidget.h"
 #include "ui_reoschartwidget.h"
 
-#include<QToolButton>
+#include <QToolButton>
 #include <QPixmap>
 #include <QtCharts/QAbstractSeries>
 
-ReosChartWidget::ReosChartWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosChartWidget )
+ReosChartWidget::ReosChartWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosChartWidget )
 {
   ui->setupUi( this );
-
-
 }
 
 ReosChartWidget::~ReosChartWidget()

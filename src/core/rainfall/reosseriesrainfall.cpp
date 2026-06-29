@@ -25,13 +25,16 @@
 #include "reosgriddeddata.h"
 
 
-ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource ):
-  ReosTimeSeriesConstantInterval( parent, providerKey, dataSource )
+ReosSeriesRainfall::ReosSeriesRainfall( QObject *parent, const QString &providerKey, const QString &dataSource )
+  : ReosTimeSeriesConstantInterval( parent, providerKey, dataSource )
 {
   setupData();
 }
 
-QString ReosSeriesRainfall::staticType() {return ReosTimeSeriesConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );}
+QString ReosSeriesRainfall::staticType()
+{
+  return ReosTimeSeriesConstantInterval::staticType() + ':' + QStringLiteral( "hyetograph" );
+}
 
 ReosEncodedElement ReosSeriesRainfall::encode( const ReosEncodeContext &context ) const
 {
@@ -46,8 +49,8 @@ ReosSeriesRainfall *ReosSeriesRainfall::decode( const ReosEncodedElement &elemen
   return new ReosSeriesRainfall( element, context, parent );
 }
 
-ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
-  ReosTimeSeriesConstantInterval( element, context, parent )
+ReosSeriesRainfall::ReosSeriesRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
+  : ReosTimeSeriesConstantInterval( element, context, parent )
 {
   setupData();
 }
@@ -63,10 +66,7 @@ void ReosSeriesRainfall::setupData()
   setValueModeColor( ReosTimeSeriesConstantInterval::Cumulative, QColor( 255, 50, 0 ) );
 }
 
-ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatershed(
-  ReosWatershed *watershed,
-  ReosGriddedRainfall *griddedRainfall,
-  QObject *parent )
+ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent )
   : ReosSeriesRainfall( parent )
   , ReosDataGriddedOnWatershed( watershed, griddedRainfall, griddedRainfall->minimumTimeStep() )
 {
@@ -85,8 +85,7 @@ ReosSeriesRainfallFromGriddedOnWatershed::ReosSeriesRainfallFromGriddedOnWatersh
 }
 
 ReosSeriesRainfallFromGriddedOnWatershed::~ReosSeriesRainfallFromGriddedOnWatershed()
-{
-}
+{}
 
 ReosSeriesRainfallFromGriddedOnWatershed *ReosSeriesRainfallFromGriddedOnWatershed::create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall )
 {

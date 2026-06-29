@@ -33,15 +33,13 @@ class ReosPolygonStructureValues
 
     virtual double value( double x, double y, bool acceptClose = false ) const = 0;
     virtual void setDefaultValue( double defVal ) = 0;
-    virtual double defaultValue()  const  = 0;
-
+    virtual double defaultValue() const = 0;
 };
 
 class REOSCORE_EXPORT ReosPolygonStructure : public ReosGeometryStructure
 {
     Q_OBJECT
   public:
-
     virtual ReosPolygonStructure *clone() const = 0;
 
     //! Creates and returns polylines structure with specified \a crs
@@ -65,11 +63,10 @@ class REOSCORE_EXPORT ReosPolygonStructure : public ReosGeometryStructure
 
     virtual ReosPolygonStructureValues *values( const QString &destinationCrs ) const = 0;
 
-    QPolygonF searchPolygon( const ReosSpatialPosition &, bool  = true ) const override {return QPolygonF();}
+    QPolygonF searchPolygon( const ReosSpatialPosition &, bool = true ) const override { return QPolygonF(); }
 
   signals:
     void classesChanged();
-
 };
 
 #endif // REOSPOLYGONSTRUCTURE_H

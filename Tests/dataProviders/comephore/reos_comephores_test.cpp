@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reos_testutils.h"
@@ -24,7 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reos_testutils.h"
 
-class ReosComephoreTest: public QObject
+class ReosComephoreTest : public QObject
 {
     Q_OBJECT
 
@@ -49,12 +49,12 @@ class ReosComephoreTest: public QObject
 
 void ReosComephoreTest::createProvider()
 {
-  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ), ReosGriddedData::staticType() ) );
+  std::unique_ptr<ReosDataProvider> compatibleProvider(
+    ReosDataProviderRegistery::instance()->createCompatibleProvider( COMEPHORE_FILES_PATH + QStringLiteral( "/tif.tif" ), ReosGriddedData::staticType() )
+  );
   QVERIFY( !compatibleProvider );
 
-  compatibleProvider.reset( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-                              COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), ReosGriddedData::staticType() ) );
+  compatibleProvider.reset( ReosDataProviderRegistery::instance()->createCompatibleProvider( COMEPHORE_FILES_PATH + QStringLiteral( "/tif" ), ReosGriddedData::staticType() ) );
   QVERIFY( compatibleProvider );
 
   ReosGriddedDataProvider *provider = qobject_cast<ReosGriddedDataProvider *>( compatibleProvider.get() );
@@ -92,13 +92,11 @@ void ReosComephoreTest::createProvider()
   provider->calculateMinMax( min, max );
   QCOMPARE( min, 0.1 );
   QCOMPARE( max, 12.4 );
-
 }
 
 void ReosComephoreTest::createRainfallFromTif()
 {
-  std::unique_ptr<ReosGriddedData> rainfall =
-    std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997/" ) ), QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedData> rainfall = std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997/" ) ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 25 );
   QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 30 ), QTime( 23, 0, 0 ), Qt::UTC ) );
@@ -112,7 +110,8 @@ void ReosComephoreTest::createRainfallFromTif()
 
   QCOMPARE( extent.xCellSize(), 1000.0 );
   QCOMPARE( extent.yCellSize(), -1000.0 );
-  QCOMPARE( extent.xCellCount(), 1536 );  QCOMPARE( extent.yCellCount(), 1536 );
+  QCOMPARE( extent.xCellCount(), 1536 );
+  QCOMPARE( extent.yCellCount(), 1536 );
 
   QVector<double> values = rainfall->values( 20 );
   QCOMPARE( values.at( 8581 ), std::numeric_limits<double>::quiet_NaN() );
@@ -128,8 +127,7 @@ void ReosComephoreTest::createRainfallFromTif()
 
 void ReosComephoreTest::createRainfallFromTifMissingFrame()
 {
-  std::unique_ptr<ReosGriddedData> rainfall =
-    std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997_missing_frame/" ) ), QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedData> rainfall = std::make_unique<ReosGriddedData>( testFile( QStringLiteral( "comephore/tif_files/a_day_january_1997_missing_frame/" ) ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 25 );
   QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 1997, 01, 30 ), QTime( 23, 0, 0 ), Qt::UTC ) );
@@ -143,7 +141,8 @@ void ReosComephoreTest::createRainfallFromTifMissingFrame()
 
   QCOMPARE( extent.xCellSize(), 1000.0 );
   QCOMPARE( extent.yCellSize(), -1000.0 );
-  QCOMPARE( extent.xCellCount(), 1536 );  QCOMPARE( extent.yCellCount(), 1536 );
+  QCOMPARE( extent.xCellCount(), 1536 );
+  QCOMPARE( extent.yCellCount(), 1536 );
 
   QVector<double> values = rainfall->values( 20 );
   QCOMPARE( values.at( 8581 ), std::numeric_limits<double>::quiet_NaN() );
@@ -157,10 +156,7 @@ void ReosComephoreTest::createRainfallFromTifMissingFrame()
   QCOMPARE( max, 1.9 );
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
   ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
 
@@ -199,8 +195,9 @@ void ReosComephoreTest::netcdfFile()
   QString crsWGS84 = ReosGisEngine::crsFromEPSG( 4326 );
   ReosSpatialPosition nw_position( nw_longitude, nw_latitude, crsWGS84 );
 
-  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), ReosGriddedData::staticType() ) );
+  std::unique_ptr<ReosDataProvider> compatibleProvider(
+    ReosDataProviderRegistery::instance()->createCompatibleProvider( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), ReosGriddedData::staticType() )
+  );
   QVERIFY( compatibleProvider );
 
   QCOMPARE( compatibleProvider->key(), QStringLiteral( "comephore::gridded-precipitation" ) );
@@ -235,10 +232,10 @@ void ReosComephoreTest::netcdfFile()
 
   QVector<double> vals_ex = provider->dataInGridExtent( 200, rowMin, rowMax, colMin, colMax );
   QCOMPARE( vals_ex.count(), ( colMax - colMin + 1 ) * ( rowMax - rowMin + 1 ) );
-  for ( int row = 0; row < rowMax - rowMin + 1 ; row++ )
+  for ( int row = 0; row < rowMax - rowMin + 1; row++ )
     for ( int col = 0; col < colMax - colMin; col++ )
     {
-      int oriIndex = ( col + colMin ) + ( row  + rowMin )  * 1536;
+      int oriIndex = ( col + colMin ) + ( row + rowMin ) * 1536;
       int index = col + row * ( colMax - colMin + 1 );
       QCOMPARE( vals.at( oriIndex ), vals_ex.at( index ) );
     }
@@ -246,10 +243,7 @@ void ReosComephoreTest::netcdfFile()
 
 void ReosComephoreTest::dupplicateFrames()
 {
-  std::unique_ptr<ReosGriddedRainfall> rainfall =
-    std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH +
-        QStringLiteral( "/comephore_nc/comephore_1km-1h_202008.nc" ),
-        QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedRainfall> rainfall = std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202008.nc" ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 744 );
   QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
@@ -266,10 +260,7 @@ void ReosComephoreTest::dupplicateFrames()
 
 void ReosComephoreTest::createRainfallFromNetCdf()
 {
-  std::unique_ptr<ReosGriddedRainfall> rainfall =
-    std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH +
-        QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ),
-        QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedRainfall> rainfall = std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 744 );
   QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
@@ -302,8 +293,9 @@ void ReosComephoreTest::createRainfallFromNetCdf()
 
 void ReosComephoreTest::netCdfFolder()
 {
-  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" ), ReosGriddedRainfall::staticType() ) );
+  std::unique_ptr<ReosDataProvider> compatibleProvider(
+    ReosDataProviderRegistery::instance()->createCompatibleProvider( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" ), ReosGriddedRainfall::staticType() )
+  );
   QVERIFY( compatibleProvider );
 
   ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
@@ -396,7 +388,7 @@ void ReosComephoreTest::missingIndex()
 
   ReosWatershed ws( delineating, delineating.at( 0 ), ReosGisEngine::crsFromEPSG( 2154 ) );
 
-  std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed> onWs = std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed>( ReosSeriesRainfallFromGriddedOnWatershed::create( & ws, rainfall.get() ) );
+  std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed> onWs = std::unique_ptr<ReosSeriesRainfallFromGriddedOnWatershed>( ReosSeriesRainfallFromGriddedOnWatershed::create( &ws, rainfall.get() ) );
 }
 
 void ReosComephoreTest::griddedDataOnWatersed()
@@ -408,15 +400,11 @@ void ReosComephoreTest::griddedDataOnWatersed()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
 
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
   ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
 
@@ -437,17 +425,16 @@ void ReosComephoreTest::griddedDataOnWatersedRebuiltNcFile()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
 
   griddedData->exportToTiff( 0, "/home/vincent/com.tif" );
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 477900.58052908896934241, 6940478.81985924020409584 )
-                  << QPointF( 439270.32867335260380059, 6884862.21612367685884237 )
-                  << QPointF( 477900.58052908896934241, 6834725.08073644526302814 )
-                  << QPointF( 522010.30073315638583153, 6884862.21612367685884237 );
-
+  watershed_poly
+    << QPointF( 477900.58052908896934241, 6940478.81985924020409584 )
+    << QPointF( 439270.32867335260380059, 6884862.21612367685884237 )
+    << QPointF( 477900.58052908896934241, 6834725.08073644526302814 )
+    << QPointF( 522010.30073315638583153, 6884862.21612367685884237 );
 
 
   ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
@@ -469,8 +456,7 @@ void ReosComephoreTest::griddedDataOnWatersedDistArea()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
 
   QString watershedCrs;
   const QPolygonF watershed_poly = ReosGisEngine::openPolygonVectorLayerSource( testFile( "watershed.shp" ), watershedCrs ).at( 0 );
@@ -478,12 +464,8 @@ void ReosComephoreTest::griddedDataOnWatersedDistArea()
   ReosWatershed watershed( watershed_poly, QPointF(), watershedCrs );
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs(
-    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep(
-      &watershed,
-      griddedData.get(),
-      ReosDuration( 1.0, ReosDuration::hour ),
-      testFile( "distClasses.tif" ), 4
-    ) );
+    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, griddedData.get(), ReosDuration( 1.0, ReosDuration::hour ), testFile( "distClasses.tif" ), 4 )
+  );
 
   gridOnWs->preCalculate();
 

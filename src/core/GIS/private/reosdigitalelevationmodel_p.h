@@ -25,7 +25,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosdigitalelevationmodel.h"
 
-class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
+class ReosDigitalElevationModelRaster : public ReosDigitalElevationModel
 {
   public:
     ReosDigitalElevationModelRaster( QgsRasterLayer *rasterLayer, const QgsCoordinateTransformContext &transformContext );
@@ -41,13 +41,10 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
     QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = nullptr ) const override;
     double averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const override;
     double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const override;
-    ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosMapExtent &destinationExtent,
-        ReosRasterExtent &outputRasterExtent,
-        float &maxValue,
-        const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const override;
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
-      const ReosRasterExtent &destinationRasterExtent,
-      ReosProcess *process = nullptr ) const override;
+      const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, float &maxValue, const QString &destinationCrs = QString(), ReosProcess *process = nullptr
+    ) const override;
+    ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosRasterExtent &destinationRasterExtent, ReosProcess *process = nullptr ) const override;
     QString source() const override;
     double noDataValue() const override;
 
@@ -60,7 +57,6 @@ class ReosDigitalElevationModelRaster: public ReosDigitalElevationModel
 
     //! Adjust the extent to the border of pixel of the raster (extent increase)
     ReosRasterExtent rasterExtent( const QgsRectangle &originalExtent ) const;
-
 };
 
 

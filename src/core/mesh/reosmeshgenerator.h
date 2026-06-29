@@ -38,19 +38,18 @@ class ReosTopographyCollection;
 //! Structure that contains mesh frame data
 struct ReosMeshFrameData
 {
-  QVector<double> vertexCoordinates;
-  QVector<QVector<int>> facesIndexes;
-  QRectF extent;
-  bool hasZ = false;
-  QVector<QVector<int>> boundaryVertices;
-  QVector<QVector<QVector<int>>> holesVertices;
+    QVector<double> vertexCoordinates;
+    QVector<QVector<int>> facesIndexes;
+    QRectF extent;
+    bool hasZ = false;
+    QVector<QVector<int>> boundaryVertices;
+    QVector<QVector<QVector<int>>> holesVertices;
 };
 
 
-class ReosMeshGeneratorProcess: public ReosProcess
+class ReosMeshGeneratorProcess : public ReosProcess
 {
   public:
-
     virtual ReosMeshFrameData meshResult() const = 0;
 };
 
@@ -76,7 +75,7 @@ class REOSCORE_EXPORT ReosMeshResolutionController : public ReosDataObject
 
   private:
     ReosMeshResolutionController( const ReosMeshResolutionController *other );
-    ReosParameterDouble  *mDefaultSize = nullptr;
+    ReosParameterDouble *mDefaultSize = nullptr;
     std::unique_ptr<ReosPolygonStructure> mPolygonStructure;
 };
 
@@ -87,11 +86,7 @@ class REOSCORE_EXPORT ReosMeshGenerator : public ReosDataObject
 {
     Q_OBJECT
   public:
-
-    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess(
-      ReosPolylinesStructure *structure,
-      ReosMeshResolutionController *resolutionControler,
-      const QString &destinationCrs = QString() ) const = 0;
+    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, const QString &destinationCrs = QString() ) const = 0;
 
     ReosParameterBoolean *autoUpdateParameter() const;
 
@@ -99,7 +94,7 @@ class REOSCORE_EXPORT ReosMeshGenerator : public ReosDataObject
     virtual ReosEncodedElement encode() const = 0;
 
     //! Static method that returns the type of this class
-    static QString staticType() {return QStringLiteral( "mesh-generator" );}
+    static QString staticType() { return QStringLiteral( "mesh-generator" ); }
 
   protected:
     ReosMeshGenerator( QObject *parent = nullptr );
@@ -110,14 +105,14 @@ class REOSCORE_EXPORT ReosMeshGenerator : public ReosDataObject
     ReosParameterBoolean *mAutoUpdateParameter = nullptr;
 };
 
-class ReosMeshGeneratorPoly2TriProcess: public ReosMeshGeneratorProcess
+class ReosMeshGeneratorPoly2TriProcess : public ReosMeshGeneratorProcess
 {
   public:
     explicit ReosMeshGeneratorPoly2TriProcess( const QPolygonF &domain );
 
     void start() override;
 
-    ReosMeshFrameData meshResult() const override {return mResult;}
+    ReosMeshFrameData meshResult() const override { return mResult; }
 
   private:
     QPolygonF mDomain;
@@ -131,19 +126,16 @@ class ReosMeshGeneratorPoly2TriProcess: public ReosMeshGeneratorProcess
 class REOSCORE_EXPORT ReosMeshGeneratorPoly2Tri : public ReosMeshGenerator
 {
   public:
-
-    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure,
-        ReosMeshResolutionController *resolutionControler, const QString &crs = QString() ) const override;
+    virtual ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, const QString &crs = QString() ) const override;
 
     //! Sets the \a domain to triangulate
     void setDomain( const QPolygonF &domain );
 
-    QString type() const override {return QStringLiteral( "poly2tri" );}
+    QString type() const override { return QStringLiteral( "poly2tri" ); }
     ReosEncodedElement encode() const override;
 
   private:
     QPolygonF mDomain;
-
 };
 
 

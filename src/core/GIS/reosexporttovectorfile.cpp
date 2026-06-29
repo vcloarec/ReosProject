@@ -33,12 +33,9 @@ static QgsFields constructQgisFields( const QList<ReosExportToVectorFile::Field>
   return qgsFields;
 }
 
-ReosExportToVectorFile::ReosExportToVectorFile( const QString &fileName,
-    const QList<ReosExportToVectorFile::Field> fields,
-    ReosExportToVectorFile::GeometryType geometryType,
-    const QString &crs ):
-  mType( geometryType ),
-  mFields( fields )
+ReosExportToVectorFile::ReosExportToVectorFile( const QString &fileName, const QList<ReosExportToVectorFile::Field> fields, ReosExportToVectorFile::GeometryType geometryType, const QString &crs )
+  : mType( geometryType )
+  , mFields( fields )
 {
   QgsFields qgsFields = constructQgisFields( fields );
 
@@ -64,13 +61,7 @@ ReosExportToVectorFile::ReosExportToVectorFile( const QString &fileName,
   options.fileEncoding = QStringLiteral( "utf-8" );
   options.driverName = QStringLiteral( "ESRI Shapefile" );
 
-  mFileWriter.reset( QgsVectorFileWriter::create(
-                       fileName,
-                       qgsFields,
-                       qgsGeometryType,
-                       qgsCrs,
-                       transformContext,
-                       options ) );
+  mFileWriter.reset( QgsVectorFileWriter::create( fileName, qgsFields, qgsGeometryType, qgsCrs, transformContext, options ) );
 }
 
 void ReosExportToVectorFile::addPolygon( const QPolygonF &polygon, const QVariantMap &attributes )

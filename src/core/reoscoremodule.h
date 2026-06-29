@@ -27,7 +27,6 @@ class REOSCORE_EXPORT ReosCoreModule : public ReosModule
 {
     Q_OBJECT
   public:
-
     //! Constructor
     ReosCoreModule( QObject *parent = nullptr );
 

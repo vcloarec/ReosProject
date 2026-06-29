@@ -16,14 +16,12 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodelcombobox.h"
 
 
-ReosDigitalElevationModelComboBox::ReosDigitalElevationModelComboBox( QWidget *parent, ReosGisEngine *gisEngine ): QComboBox( parent )
+ReosDigitalElevationModelComboBox::ReosDigitalElevationModelComboBox( QWidget *parent, ReosGisEngine *gisEngine )
+  : QComboBox( parent )
 {
   setGisEngine( gisEngine );
 
-  connect( this, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]()
-  {
-    emit this->currentDigitalElevationChanged( currentData().toString() );
-  } );
+  connect( this, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]() { emit this->currentDigitalElevationChanged( currentData().toString() ); } );
 }
 
 void ReosDigitalElevationModelComboBox::setGisEngine( ReosGisEngine *gisEngine )

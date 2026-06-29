@@ -72,11 +72,10 @@ class REOSCORE_EXPORT ReosHydraulicStructureProfile : public ReosDataObject
     void initParts() const;
     void buildProfile() const;
 
-    QPolygonF extractValue( const std::function<double ( ReosMeshPointValue )> &func ) const;
+    QPolygonF extractValue( const std::function<double( ReosMeshPointValue )> &func ) const;
 
     QRectF terrainExtent() const;
     QPolygonF resultsProfile( ReosHydraulicScheme *scheme, int datasetIndex, ReosHydraulicSimulationResults::DatasetType resultType ) const;
-
 };
 
 class ReosHydraulicStructureProfilesCollection : public QAbstractListModel

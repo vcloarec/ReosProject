@@ -45,40 +45,41 @@ struct ReosHydraulicNetworkElementCompatibilty;
 #ifndef SIP_RUN
 struct ReosSimulationData
 {
-  struct BoundaryVertices
-  {
-    QVector<int> verticesIndex;
-    QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
-  };
+    struct BoundaryVertices
+    {
+        QVector<int> verticesIndex;
+        QPointer<ReosHydraulicStructureBoundaryCondition> boundaryCondition;
+    };
 
-  QVector<BoundaryVertices> boundaryVertices;
-  QVector<QVector<QVector<int>>> holesVertices;
+    QVector<BoundaryVertices> boundaryVertices;
+    QVector<QVector<QVector<int>>> holesVertices;
 
-  ReosMeshData meshData;
+    ReosMeshData meshData;
 
-  std::shared_ptr<ReosPolygonStructureValues> roughnessValues;
-  double defaultRoughness = 0.03;
+    std::shared_ptr<ReosPolygonStructureValues> roughnessValues;
+    double defaultRoughness = 0.03;
 
-  ReosCoordinateSystemTransformer coordinateTransformer;
+    ReosCoordinateSystemTransformer coordinateTransformer;
 
-  enum IniLocation {None, Vertex, Face};
-  QVector<double> waterLevelIni;
-  IniLocation waterLevelIniLocation = None;
-  QVector<double> waterDepthIni;
-  IniLocation waterDepthIniLocation = None;
-  QVector<double> velocityIni;
-  IniLocation velocityIniLocation = None;
+    enum IniLocation
+    {
+      None,
+      Vertex,
+      Face
+    };
+    QVector<double> waterLevelIni;
+    IniLocation waterLevelIniLocation = None;
+    QVector<double> waterDepthIni;
+    IniLocation waterDepthIniLocation = None;
+    QVector<double> velocityIni;
+    IniLocation velocityIniLocation = None;
 };
 
-class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
+class REOSCORE_EXPORT ReosSimulationPreparationProcess : public ReosProcess
 {
     Q_OBJECT
   public:
-
-    ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure,
-                                      ReosHydraulicSimulation *simulation,
-                                      const ReosSimulationData &simData,
-                                      const ReosCalculationContext &context );
+    ReosSimulationPreparationProcess( ReosHydraulicStructure2D *hydraulicStructure, ReosHydraulicSimulation *simulation, const ReosSimulationData &simData, const ReosCalculationContext &context );
 
     void setDestination( const QDir &destination );
     void start() override;
@@ -90,6 +91,7 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
 
   private slots:
     void onBoundaryUpdated( const QString &id );
+
   private:
     QPointer<ReosHydraulicStructure2D> mStructure;
     QPointer<ReosHydraulicSimulation> mSimulation;
@@ -101,7 +103,6 @@ class REOSCORE_EXPORT ReosSimulationPreparationProcess: public ReosProcess
     int mBoundaryCount = 0;
 
     QString mDestinationPath;
-
 };
 
 
@@ -132,7 +133,6 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
 {
     Q_OBJECT
   public:
-
     enum class Capability
     {
       Hotstart = 1 << 0, //!< If the simulation support hot start
@@ -170,7 +170,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
 
     virtual QString engineName() const = 0;
 
-    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const =  0 SIP_SKIP;
+    virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0 SIP_SKIP;
 
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0 SIP_SKIP;
 
@@ -180,7 +180,7 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
 
     virtual ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const SIP_SKIP;
 
-    virtual QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) SIP_SKIP {return QFileInfoList();};
+    virtual QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) SIP_SKIP { return QFileInfoList(); };
 
     virtual void setHotStartSchemeId( const QString &schemeId ) {}
 
@@ -199,21 +199,19 @@ class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRA
   protected:
     ReosHydraulicStructure2D *mStructure = nullptr;
     QDir simulationDir( const QString &schemeId ) const;
-    virtual QString directoryName() const {return QString();}
+    virtual QString directoryName() const { return QString(); }
 
 #endif // No SIP_RUN
-
 };
 
 class REOSCORE_EXPORT ReosSimulationEngineFactory SIP_ABSTRACT
 {
     Q_GADGET
   public:
-
     enum SimulationEngineCapability
     {
       ImportStructure2D = 1 << 0, //!< If the simulation engine support importing 2D structure
-      CanBeCreated = 1 << 1 //!< If simulation of this engine can be created by a factory
+      CanBeCreated = 1 << 1       //!< If simulation of this engine can be created by a factory
     };
 
     Q_ENUM( SimulationEngineCapability )
@@ -225,7 +223,7 @@ class REOSCORE_EXPORT ReosSimulationEngineFactory SIP_ABSTRACT
 
     virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const = 0;
     virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const = 0;
-    virtual QString key() const  = 0;
+    virtual QString key() const = 0;
     virtual QString displayName() const = 0;
     virtual ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const = 0;
 
@@ -236,7 +234,6 @@ class REOSCORE_EXPORT ReosSimulationEngineFactory SIP_ABSTRACT
   protected:
     SimulationEngineCapabilities mCapabilities = QFlags<SimulationEngineCapability>();
 #endif // No SIP_RUN
-
 };
 
 
@@ -247,7 +244,7 @@ class REOSCORE_EXPORT ReosSimulationEngineRegistery
     ~ReosSimulationEngineRegistery();
 
     //! Creates and returns a simuation corresponding to the \a key
-    ReosHydraulicSimulation *createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const ;
+    ReosHydraulicSimulation *createSimulation( const QString &key, ReosHydraulicStructure2D *parent ) const;
 
     //! Creates and returns a simuation corresponding to the encoded \a element
     ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const SIP_SKIP;
@@ -282,10 +279,7 @@ class ReosSimulationProcessDummy : public ReosSimulationProcess
 {
     Q_OBJECT
   public:
-    ReosSimulationProcessDummy(
-      const ReosHydraulicSimulationDummy *sim,
-      const ReosCalculationContext &context,
-      const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
+    ReosSimulationProcessDummy( const ReosHydraulicSimulationDummy *sim, const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries );
 
     void start();
 
@@ -304,40 +298,46 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
 {
     Q_OBJECT
   public:
-    ReosHydraulicSimulationDummy( ReosHydraulicStructure2D *parent = nullptr ) : ReosHydraulicSimulation( parent )  {}
+    ReosHydraulicSimulationDummy( ReosHydraulicStructure2D *parent = nullptr )
+      : ReosHydraulicSimulation( parent )
+    {}
 
-    virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
-    virtual ReosEncodedElement encode() const override {return ReosEncodedElement();};
+    virtual QString key() const override { return QStringLiteral( "dummy-simulation" ); }
+    virtual ReosEncodedElement encode() const override { return ReosEncodedElement(); };
 
-    ReosModule::Message  prepareSimulationData( ReosSimulationData &, const QString & ) override {return ReosModule::Message();}
+    ReosModule::Message prepareSimulationData( ReosSimulationData &, const QString & ) override { return ReosModule::Message(); }
 
     virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext & ) override {};
 
     virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {};
 
-    virtual ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;;
+    virtual ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;
+    ;
 
-    virtual ReosDuration representativeTimeStep() const override {return ReosDuration( 5, ReosDuration::minute );}
+    virtual ReosDuration representativeTimeStep() const override { return ReosDuration( 5, ReosDuration::minute ); }
 
-    virtual ReosDuration representative2DTimeStep() const override {return ReosDuration( 5, ReosDuration::minute );}
+    virtual ReosDuration representative2DTimeStep() const override { return ReosDuration( 5, ReosDuration::minute ); }
 
-    virtual void saveSimulationResult( const QString &, ReosSimulationProcess *, bool ) const override;;
+    virtual void saveSimulationResult( const QString &, ReosSimulationProcess *, bool ) const override;
+    ;
 
-    virtual ReosHydraulicSimulationResults *loadSimulationResults( const QString &, QObject *parent ) const override;;
+    virtual ReosHydraulicSimulationResults *loadSimulationResults( const QString &, QObject *parent ) const override;
+    ;
 
-    virtual bool hasResult( const QString &schemeId ) const override;;
+    virtual bool hasResult( const QString &schemeId ) const override;
+    ;
 
     virtual void removeResults( const QString & ) const override {};
 
-    virtual QString engineName() const override {return QStringLiteral( "dummy" );}
+    virtual QString engineName() const override { return QStringLiteral( "dummy" ); }
 
     virtual void saveConfiguration( ReosHydraulicScheme * ) const override {};
 
     virtual void restoreConfiguration( ReosHydraulicScheme * ) override {};
 
-    ReosTimeWindow externalTimeWindow() const override {return ReosTimeWindow();}
+    ReosTimeWindow externalTimeWindow() const override { return ReosTimeWindow(); }
 
-    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override {return ReosTimeWindow();}
+    ReosTimeWindow externalBoundaryConditionTimeWindow( const QString & ) const override { return ReosTimeWindow(); }
 
   private:
     mutable QMap<QString, ReosHydrograph *> mLastHydrographs;
@@ -345,7 +345,8 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     mutable QSet<QString> mSchemeIdHasResult;
 
     friend class ReosHydraulicSimulationResultsDummy;
-    friend class ReosSimulationProcessDummy;;
+    friend class ReosSimulationProcessDummy;
+    ;
 };
 
 class ReosSimulationEngineFactoryDummy : public ReosSimulationEngineFactory
@@ -353,12 +354,12 @@ class ReosSimulationEngineFactoryDummy : public ReosSimulationEngineFactory
   public:
     ReosSimulationEngineFactoryDummy() {}
 
-    virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const override {return new ReosHydraulicSimulationDummy( parent );}
-    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &, ReosHydraulicStructure2D * ) const override { return nullptr;}
+    virtual ReosHydraulicSimulation *createSimulation( ReosHydraulicStructure2D *parent ) const override { return new ReosHydraulicSimulationDummy( parent ); }
+    virtual ReosHydraulicSimulation *createSimulation( const ReosEncodedElement &, ReosHydraulicStructure2D * ) const override { return nullptr; }
 
-    virtual QString key() const override {return QStringLiteral( "dummy-simulation" );}
-    QString displayName() const override {return QObject::tr( "Dummy" );}
-    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override {return nullptr;}
+    virtual QString key() const override { return QStringLiteral( "dummy-simulation" ); }
+    QString displayName() const override { return QObject::tr( "Dummy" ); }
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override { return nullptr; }
 
     void initializeSettings() override {}
 };

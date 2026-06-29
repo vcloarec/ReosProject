@@ -19,7 +19,7 @@
 #define SIP_NO_FILE
 
 #include <QString>
-#include<QMap>
+#include <QMap>
 #include "reoscore.h"
 
 class REOSCORE_EXPORT ReosNetCdfFile
@@ -48,13 +48,13 @@ class REOSCORE_EXPORT ReosNetCdfFile
     QVector<qint64> getInt64Array( const QString &variableName, int size );
 
     QVector<int> getIntArray( const QString &variableName, int size ) const;
-    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const ;
+    QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const;
 
     QVector<double > getDoubleArray( const QString &variableName, int size );
-    QVector<double > getDoubleArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const ;
+    QVector<double > getDoubleArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const;
 
 
-    QVector<qint16 > getShortArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts )const;
+    QVector<qint16 > getShortArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const;
 
   private:
     bool mIsValid = false;

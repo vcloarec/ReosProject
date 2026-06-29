@@ -119,7 +119,10 @@ ReosRasterMemory<double> ReosGdalDataset::values( int frameIndex ) const
   return valuesFromBand( frameIndex + 1 );
 }
 
-bool ReosGdalDataset::isValid() const {return mHDataset != nullptr;}
+bool ReosGdalDataset::isValid() const
+{
+  return mHDataset != nullptr;
+}
 
 int ReosGdalDataset::frameCount() const
 {
@@ -224,15 +227,8 @@ void ReosGdalDataset::resample( const ReosRasterExtent &newExtent, const QString
 
   GDALDriverH hMemDriver = GDALGetDriverByName( "MEM" );
 
-  GDALDatasetH hDstDS = GDALCreate( hMemDriver, "", outWidth, outHeight,
-                                    GDALGetRasterCount( mHDataset ),
-                                    GDALGetRasterDataType( GDALGetRasterBand( mHDataset, 1 ) ),
-                                    NULL );
-  double dstGeoTransform[6] =
-  {
-    minX, pixelSizeX, 0,
-    maxY, 0, pixelSizeY
-  };
+  GDALDatasetH hDstDS = GDALCreate( hMemDriver, "", outWidth, outHeight, GDALGetRasterCount( mHDataset ), GDALGetRasterDataType( GDALGetRasterBand( mHDataset, 1 ) ), NULL );
+  double dstGeoTransform[6] = { minX, pixelSizeX, 0, maxY, 0, pixelSizeY };
   GDALSetGeoTransform( hDstDS, dstGeoTransform );
   const char *proj = GDALGetProjectionRef( mHDataset );
   GDALSetProjection( hDstDS, newExtent.crs().toUtf8() );
@@ -273,7 +269,7 @@ bool ReosGdalDataset::writeByteRasterToCOGFile( const QString &fileName, ReosRas
   }
 
   int width = raster.columnCount();
-  int height =    raster.rowCount();
+  int height = raster.rowCount();
 
 
   GDALDatasetH hTempDS = GDALCreate( hMemDriver, "", width, height, 1, GDT_Byte, NULL );
@@ -291,9 +287,9 @@ bool ReosGdalDataset::writeByteRasterToCOGFile( const QString &fileName, ReosRas
 
   GDALRasterBandH hBand = GDALGetRasterBand( hTempDS, 1 );
   GDALSetRasterNoDataValue( hBand, 255 );
-  CPLErr err=GDALRasterIO( hBand, GF_Write, 0, 0, width, height, raster.data(), width, height, GDT_Byte, 0, 0 );
+  CPLErr err = GDALRasterIO( hBand, GF_Write, 0, 0, width, height, raster.data(), width, height, GDT_Byte, 0, 0 );
 
-  if (err!=CPLErr::CE_None)
+  if ( err != CPLErr::CE_None )
   {
     std::cout << ( stderr, "Failed to write to file.\n" );
     return false;
@@ -307,12 +303,7 @@ bool ReosGdalDataset::writeByteRasterToCOGFile( const QString &fileName, ReosRas
     return false;
   }
 
-  char *papszOptions[] =
-  {
-    ( char * )"COMPRESS=DEFLATE",
-    ( char * )"TILING_SCHEME=GoogleMapsCompatible",
-    NULL
-  };
+  char *papszOptions[] = { ( char * ) "COMPRESS=DEFLATE", ( char * ) "TILING_SCHEME=GoogleMapsCompatible", NULL };
 
   GDALDatasetH hCOG = GDALCreateCopy( hCOGDriver, fileName.toUtf8(), hTempDS, FALSE, papszOptions, NULL, NULL );
   if ( !hCOG )
@@ -327,7 +318,6 @@ bool ReosGdalDataset::writeByteRasterToCOGFile( const QString &fileName, ReosRas
   GDALClose( hTempDS );
 
   return true;
-
 }
 
 
@@ -378,12 +368,7 @@ bool ReosGdalDataset::writeIntRasterToFile( const QString &fileName, ReosRasterM
   if ( !driver )
     return false;
 
-  char *papszOptions[] =
-  {
-    const_cast<char *>( "COMPRESS=DEFLATE" ),
-    const_cast<char *>( "PREDICTOR=2" ),
-    nullptr
-  };
+  char *papszOptions[] = { const_cast<char *>( "COMPRESS=DEFLATE" ), const_cast<char *>( "PREDICTOR=2" ), nullptr };
 
   GDALDataset *dataSet = driver->Create( fileName.toStdString().c_str(), raster.columnCount(), raster.rowCount(), 1, GDALDataType::GDT_Int32, papszOptions );
   if ( !dataSet )
@@ -417,12 +402,7 @@ bool ReosGdalDataset::writeDoubleRasterToFile( const QString &fileName, ReosRast
   if ( !driver )
     return false;
 
-  char *papszOptions[] =
-  {
-    const_cast<char *>( "COMPRESS=DEFLATE" ),
-    const_cast<char *>( "PREDICTOR=1" ),
-    nullptr
-  };
+  char *papszOptions[] = { const_cast<char *>( "COMPRESS=DEFLATE" ), const_cast<char *>( "PREDICTOR=1" ), nullptr };
 
   GDALDataset *dataSet = driver->Create( fileName.toStdString().c_str(), raster.columnCount(), raster.rowCount(), 1, GDALDataType::GDT_Float64, papszOptions );
   if ( !dataSet )
@@ -450,6 +430,4 @@ bool ReosGdalDataset::writeDoubleRasterToFile( const QString &fileName, ReosRast
 }
 
 ReosGriddedDataSource::~ReosGriddedDataSource()
-{
-
-}
+{}

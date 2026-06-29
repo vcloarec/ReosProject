@@ -60,8 +60,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network,
-                                         const ReosGuiContext &context );
+    explicit ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, const ReosGuiContext &context );
     ~ReosHydraulicNetworkWidget();
 
     void closePropertiesWidget();
@@ -113,7 +112,7 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     ReosStructure2dToolBar *mStructure2dToolBar = nullptr;
     ReosHydraulicSchemeWidget *mSchemeWidget = nullptr;
 
-    typedef std::shared_ptr<ReosMapItem> NetworkItem ;
+    typedef std::shared_ptr<ReosMapItem> NetworkItem;
 
     QHash<ReosHydraulicNetworkElement *, NetworkItem> mMapItems;
     std::unique_ptr<ReosMapItem> mExtraItemSelection;
@@ -154,12 +153,11 @@ class REOSGUI_EXPORT ReosHydraulicNetworkWidget : public QWidget
     void changeCurrentScheme( ReosHydraulicScheme *scheme );
 };
 
-class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget: public ReosDockWidget
+class REOSGUI_EXPORT ReosHydraulicNetworkDockWidget : public ReosDockWidget
 {
     Q_OBJECT
   public:
-    ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network,
-                                    const ReosGuiContext &context );
+    ReosHydraulicNetworkDockWidget( ReosHydraulicNetwork *network, const ReosGuiContext &context );
 
     void closePropertieWidget();
 

@@ -19,7 +19,8 @@
 #include "reosmapextent.h"
 #include "reosstyleregistery.h"
 
-ReosMapPolylinesStructure_p::ReosMapPolylinesStructure_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+ReosMapPolylinesStructure_p::ReosMapPolylinesStructure_p( QgsMapCanvas *canvas )
+  : ReosMapItem_p( canvas )
 {}
 
 ReosMapItem_p *ReosMapPolylinesStructure_p::clone()
@@ -70,7 +71,8 @@ void ReosMapPolylinesStructure_p::setStructure( ReosPolylinesStructure *structur
 void ReosMapPolylinesStructure_p::paint( QPainter *painter )
 {}
 
-ReosMapStructureExteriorItem::ReosMapStructureExteriorItem( ReosMapPolylinesStructure_p *parent ): QGraphicsItem( parent )
+ReosMapStructureExteriorItem::ReosMapStructureExteriorItem( ReosMapPolylinesStructure_p *parent )
+  : QGraphicsItem( parent )
 {
   setZValue( 10 );
 }
@@ -95,7 +97,7 @@ void ReosMapStructureExteriorItem::updatePosition( const ReosPolylinesStructure 
     mIsSelected.append( classId == structure->selectedClass() );
   }
 
-  mBBox = mPolyInLocalView.boundingRect().adjusted( - 5, -5, 5, 5 );
+  mBBox = mPolyInLocalView.boundingRect().adjusted( -5, -5, 5, 5 );
 }
 
 QRectF ReosMapStructureExteriorItem::boundingRect() const
@@ -141,12 +143,11 @@ void ReosMapStructureExteriorItem::paint( QPainter *painter, const QStyleOptionG
       painter->setBrush( brush );
       painter->setPen( pen );
 
-      painter->drawEllipse( line.p1(),  mWidth / 5 * 4,  mWidth / 5 * 4 );
-      painter->drawEllipse( line.p2(),  mWidth / 5 * 4,  mWidth / 5 * 4 );
+      painter->drawEllipse( line.p1(), mWidth / 5 * 4, mWidth / 5 * 4 );
+      painter->drawEllipse( line.p2(), mWidth / 5 * 4, mWidth / 5 * 4 );
     }
     else
       continue;
-
   }
 
   painter->restore();
@@ -158,15 +159,13 @@ void ReosMapStructureExteriorItem::setWidth( double width )
   update();
 }
 
-ReosMapStructureLinesItem::ReosMapStructureLinesItem( ReosMapPolylinesStructure_p *parent ): QGraphicsItem( parent )
+ReosMapStructureLinesItem::ReosMapStructureLinesItem( ReosMapPolylinesStructure_p *parent )
+  : QGraphicsItem( parent )
 {
   setZValue( 10 );
 }
 
-void ReosMapStructureLinesItem::updatePosition(
-  const ReosPolylinesStructure *structure,
-  ReosMapPolylinesStructure_p *parent,
-  const QString &destinationCrs )
+void ReosMapStructureLinesItem::updatePosition( const ReosPolylinesStructure *structure, ReosMapPolylinesStructure_p *parent, const QString &destinationCrs )
 {
   prepareGeometryChange();
   mLinesInLocalView.clear();
@@ -176,11 +175,11 @@ void ReosMapStructureLinesItem::updatePosition(
 
   for ( const QLineF &line : mRawLines )
   {
-    mLinesInLocalView.append( QLineF( parent->toCanvasCoordinates( line.p1() ),  parent->toCanvasCoordinates( line.p2() ) ) );
+    mLinesInLocalView.append( QLineF( parent->toCanvasCoordinates( line.p1() ), parent->toCanvasCoordinates( line.p2() ) ) );
     extent.include( mLinesInLocalView.last().p1() );
     extent.include( mLinesInLocalView.last().p2() );
   }
-  mBBox = extent.toRectF().adjusted( - 5, -5, 5, 5 );
+  mBBox = extent.toRectF().adjusted( -5, -5, 5, 5 );
 }
 
 QRectF ReosMapStructureLinesItem::boundingRect() const
@@ -217,9 +216,9 @@ void ReosMapStructureLinesItem::paint( QPainter *painter, const QStyleOptionGrap
   for ( const QLineF &line : std::as_const( mLinesInLocalView ) )
   {
     const QPointF &pt1 = line.p1();
-    painter->drawEllipse( pt1,  mWidth / 5 * 4,  mWidth / 5 * 4 );
+    painter->drawEllipse( pt1, mWidth / 5 * 4, mWidth / 5 * 4 );
     const QPointF &pt2 = line.p2();
-    painter->drawEllipse( pt2,  mWidth / 5 * 4,  mWidth / 5 * 4 );
+    painter->drawEllipse( pt2, mWidth / 5 * 4, mWidth / 5 * 4 );
   }
 
   painter->restore();
@@ -230,7 +229,8 @@ void ReosMapStructureLinesItem::setWidth( double width )
   mWidth = width;
 }
 
-ReosMapStructureHolePointsItem::ReosMapStructureHolePointsItem( ReosMapPolylinesStructure_p *parent ): QGraphicsItem( parent )
+ReosMapStructureHolePointsItem::ReosMapStructureHolePointsItem( ReosMapPolylinesStructure_p *parent )
+  : QGraphicsItem( parent )
 {
   setZValue( 11 );
 }
@@ -248,12 +248,12 @@ void ReosMapStructureHolePointsItem::updatePosition( const ReosPolylinesStructur
 
   for ( const QPointF &pt : points )
   {
-    const QPointF vp = parent->toCanvasCoordinates( pt ) ;
+    const QPointF vp = parent->toCanvasCoordinates( pt );
     mViewPoints.append( vp );
     extent.include( vp );
     mPointValidity.append( !structure->searchPolygon( ReosSpatialPosition( pt, destinationCrs ), false ).isEmpty() );
   }
-  mBBox = extent.toRectF().adjusted( - 8, -8, 8, 8 );
+  mBBox = extent.toRectF().adjusted( -8, -8, 8, 8 );
 }
 
 QRectF ReosMapStructureHolePointsItem::boundingRect() const

@@ -36,7 +36,7 @@ ReosGriddedData::~ReosGriddedData() = default;
 
 ReosGriddedData::ReosGriddedData( const QString &dataSource, const QString &providerKey, QObject *parent )
   : ReosRenderedObject( parent )
-  , mProvider( qobject_cast<ReosGriddedDataProvider*>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) )
+  , mProvider( qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) )
 {
   if ( mProvider )
   {
@@ -99,7 +99,10 @@ void ReosGriddedData::updateData() const
 }
 
 
-QString ReosGriddedData::type() const {return staticType();}
+QString ReosGriddedData::type() const
+{
+  return staticType();
+}
 
 ReosObjectRenderer *ReosGriddedData::createRenderer( ReosRendererSettings *settings )
 {
@@ -119,7 +122,10 @@ ReosMapExtent ReosGriddedData::extent() const
   return rasterExtent();
 }
 
-QString ReosGriddedData::staticType() {return QStringLiteral( "gridded-data" );}
+QString ReosGriddedData::staticType()
+{
+  return QStringLiteral( "gridded-data" );
+}
 
 bool ReosGriddedData::isValid() const
 {
@@ -231,7 +237,7 @@ QPair<QDateTime, QDateTime> ReosGriddedData::timeExtent() const
   if ( count == 0 )
     return QPair<QDateTime, QDateTime>();
 
-  return {mProvider->startTime( 0 ), mProvider->endTime( count - 1 )};
+  return { mProvider->startTime( 0 ), mProvider->endTime( count - 1 ) };
 }
 
 ReosDuration ReosGriddedData::minimumTimeStep() const
@@ -262,7 +268,7 @@ bool ReosGriddedData::supportExtractSubGrid() const
 int ReosGriddedData::dataIndex( const QDateTime &time ) const
 {
   if ( !mProvider )
-    return  -1;
+    return -1;
 
   return mProvider->dataIndex( time );
 }
@@ -330,9 +336,7 @@ AverageCalculation *ReosDataGriddedOnWatershed::getCalculationProcess() const
   if ( mCurrentCalculation )
     mCurrentCalculation->stop( true );
 
-  if ( mWatershed.isNull()
-       || mGriddedData.isNull()
-       || mGriddedData->gridCount() == 0 )
+  if ( mWatershed.isNull() || mGriddedData.isNull() || mGriddedData->gridCount() == 0 )
   {
     setDataActualized();
     onDataChanged();
@@ -341,10 +345,7 @@ AverageCalculation *ReosDataGriddedOnWatershed::getCalculationProcess() const
 
   ReosArea watershedArea = mWatershed->areaParameter()->value();
   ReosRasterExtent rainExtent = mGriddedData->rasterExtent();
-  QRectF cellRect( ( rainExtent.xMapMax() + rainExtent.xMapMin() ) / 2,
-                   ( rainExtent.yMapMax() + rainExtent.yMapMin() ) / 2,
-                   std::fabs( rainExtent.xCellSize() ),
-                   std::fabs( rainExtent.yCellSize() ) );
+  QRectF cellRect( ( rainExtent.xMapMax() + rainExtent.xMapMin() ) / 2, ( rainExtent.yMapMax() + rainExtent.yMapMin() ) / 2, std::fabs( rainExtent.xCellSize() ), std::fabs( rainExtent.yCellSize() ) );
   ReosArea cellArea = ReosGisEngine::polygonAreaWithCrs( cellRect, rainExtent.crs() );
   qDebug() << QString( "Cell area is: %1" ).arg( cellArea.toString() );
 
@@ -363,8 +364,7 @@ void AverageCalculation::start()
 {
   mIsSuccessful = false;
 
-  rasterizedWatershed = ReosGeometryUtils::rasterizePolygon(
-                          watershedPolygon, gridExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
+  rasterizedWatershed = ReosGeometryUtils::rasterizePolygon( watershedPolygon, gridExtent, rasterizedExtent, xOri, yOri, usePrecision, this );
 
   mIsSuccessful = true;
 
@@ -379,8 +379,7 @@ void ReosDataGriddedOnWatershed::launchCalculation()
   if ( !newCalc )
     return;
 
-  QObject::connect( newCalc, &ReosProcess::finished, newCalc, [newCalc, this]
-  {
+  QObject::connect( newCalc, &ReosProcess::finished, newCalc, [newCalc, this] {
     if ( mCurrentCalculation == newCalc )
     {
       if ( newCalc->isSuccessful() )
@@ -412,7 +411,7 @@ void ReosDataGriddedOnWatershed::launchCalculation()
             mAreaDistributionGrid.setValues( distrValues );
 
             for ( int i = 0; i < mAreaCount; ++i )
-              mValuesPerAreas.append( std::make_shared < QVector<double>>() );
+              mValuesPerAreas.append( std::make_shared< QVector<double>>() );
           }
           else
           {
@@ -430,11 +429,7 @@ void ReosDataGriddedOnWatershed::launchCalculation()
   newCalc->startOnOtherThread();
 }
 
-ReosDataGriddedOnWatershed::ReosDataGriddedOnWatershed( ReosWatershed *watershed,
-    ReosGriddedData *griddeddata,
-    const ReosDuration &outputTimeStep,
-    const QString areaDistributionFilePath,
-    int areaCount )
+ReosDataGriddedOnWatershed::ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath, int areaCount )
   : mWatershed( watershed )
   , mGriddedData( griddeddata )
   , mOutputTimeStep( outputTimeStep )
@@ -468,8 +463,7 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
     effXori = 0;
     effYOri = 0;
     dataValues = ReosRasterMemory<double>( rasterizedYCount, rasterizedXCount );
-    dataValues.setValues( mGriddedData->valuesInGridExtent(
-                            griddedIndex, mYOri, mYOri + rasterizedYCount - 1, mXOri, mXOri + rasterizedXCount - 1 ) );
+    dataValues.setValues( mGriddedData->valuesInGridExtent( griddedIndex, mYOri, mYOri + rasterizedYCount - 1, mXOri, mXOri + rasterizedXCount - 1 ) );
   }
   else
   {
@@ -583,15 +577,11 @@ QVector<double> ReosDataGriddedOnWatershed::valuesForArea( int areaIndex ) const
 
 ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent )
   : ReosSeriesFromGriddedDataOnWatershed( watershed, griddedData, griddedData->minimumTimeStep(), QString(), 0, parent )
-{
-}
+{}
 
-ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed,
-    ReosGriddedData *griddedData,
-    const ReosDuration &outputTimeStep,
-    const QString areaDistributionFilePath,
-    int areaCount,
-    QObject *parent )
+ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed(
+  ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath, int areaCount, QObject *parent
+)
   : ReosTimeSeriesConstantInterval( parent )
   , ReosDataGriddedOnWatershed( watershed, griddedData, outputTimeStep, areaDistributionFilePath, areaCount )
 {
@@ -609,7 +599,6 @@ ReosSeriesFromGriddedDataOnWatershed::ReosSeriesFromGriddedDataOnWatershed( Reos
   }
 
   launchCalculation();
-
 }
 
 ReosSeriesFromGriddedDataOnWatershed::~ReosSeriesFromGriddedDataOnWatershed()
@@ -627,16 +616,12 @@ ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::crea
   return ret.release();
 }
 
-ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath, int areaCount )
+ReosSeriesFromGriddedDataOnWatershed *ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep(
+  ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath, int areaCount
+)
 {
   QEventLoop loop;
-  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret =
-    std::make_unique<ReosSeriesFromGriddedDataOnWatershed>(
-      watershed,
-      griddedData,
-      outputTimeStep,
-      areaDistributionFilePath,
-      areaCount );
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> ret = std::make_unique<ReosSeriesFromGriddedDataOnWatershed>( watershed, griddedData, outputTimeStep, areaDistributionFilePath, areaCount );
   connect( ret.get(), &ReosSeriesFromGriddedDataOnWatershed::calculationFinished, &loop, &QEventLoop::quit );
   loop.exec();
 

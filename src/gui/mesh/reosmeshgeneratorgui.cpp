@@ -44,8 +44,7 @@ ReosFormWidget *ReosFormGmshGeneratorWidgetFactory::createDataWidget( ReosDataOb
   combo->setCurrentIndex( combo->findData( generator->algorithm() ) );
   w->addWidget( algWidget );
 
-  QObject::connect( combo, QOverload<int>::of( &QComboBox::currentIndexChanged ), generator, [generator, combo]
-  {
+  QObject::connect( combo, QOverload<int>::of( &QComboBox::currentIndexChanged ), generator, [generator, combo] {
     generator->setAlgorithm( static_cast<ReosGmshGenerator::Algorithm>( combo->currentData().toInt() ) );
   } );
 

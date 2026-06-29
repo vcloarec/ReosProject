@@ -116,13 +116,13 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
     Q_OBJECT
   public:
     //! Constructor of a gridded rain item with \a name, \a description and \a data that is a ReosGriddedRainfall, takes ownership of the rainfall
-    ReosGriddedRainItem( const QString &name, const QString &description,  ReosGriddedRainfall *data );
+    ReosGriddedRainItem( const QString &name, const QString &description, ReosGriddedRainfall *data );
 
     explicit ReosGriddedRainItem( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
-    QString dataType() const override {return ReosGriddedRainfall::staticType();}
+    QString dataType() const override { return ReosGriddedRainfall::staticType(); }
     ReosGriddedRainfall *data() const override;
-    QString information() const override {return QObject::tr( "Gridded precipitation" );}
+    QString information() const override { return QObject::tr( "Gridded precipitation" ); }
 
     QIcon icone() const override;
     virtual bool accept( ReosRainfallItem *, bool = false ) const override;
@@ -134,7 +134,6 @@ class REOSCORE_EXPORT ReosGriddedRainItem : public ReosRainfallDataItem
 
   private:
     ReosGriddedRainfall *mGriddedRainfall = nullptr;
-
 };
 
 class ReosGriddedRainfallRendererFactory

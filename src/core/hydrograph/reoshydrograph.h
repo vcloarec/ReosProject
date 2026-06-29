@@ -38,8 +38,8 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
      */
     ReosHydrograph( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSeriesVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosTimeSeriesVariableTimeStep::staticType() + ':' + QStringLiteral( "hydrograph" ); }
 
     /**
      * Loads and returns an completly loaded hydrograph.
@@ -49,17 +49,17 @@ class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
     static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = nullptr ) SIP_FACTORY;
 
     ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
-    static ReosHydrograph *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr )  SIP_SKIP;
+    static ReosHydrograph *decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr ) SIP_SKIP;
 
-    bool hydrographIsObsolete() const  SIP_SKIP;
-    void setHydrographObsolete()  SIP_SKIP ;
+    bool hydrographIsObsolete() const SIP_SKIP;
+    void setHydrographObsolete() SIP_SKIP;
 
     QString formatKey( const QString &rawKey ) const override SIP_SKIP;
 
     bool isValid() const;
 
   protected:
-    ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr )  SIP_SKIP;
+    ReosHydrograph( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr ) SIP_SKIP;
     void updateData() const override SIP_SKIP;
 
     friend class ReosHydrographGroup;
@@ -82,11 +82,12 @@ class REOSCORE_EXPORT ReosHydrographCalculation : public ReosProcess
 };
 
 
-class REOSCORE_EXPORT ReosHydrographGroup: public ReosDataObject
+class REOSCORE_EXPORT ReosHydrographGroup : public ReosDataObject
 {
     Q_OBJECT
   public:
-    ReosHydrographGroup( QObject *parent = nullptr ) : ReosDataObject( parent )
+    ReosHydrographGroup( QObject *parent = nullptr )
+      : ReosDataObject( parent )
     {}
 
     //! Returns the count of hydrographs stored
@@ -137,15 +138,15 @@ class REOSCORE_EXPORT ReosHydrographsStore : public ReosHydrographGroup
     ReosEncodedElement encode( const ReosEncodeContext &context ) const;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosDataObject::staticType() + ':' +  QStringLiteral( "hydrograph-store" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosDataObject::staticType() + ':' + QStringLiteral( "hydrograph-store" ); }
 
   signals:
     void hydrographRemoved( int index );
     void hydrographChanged();
 
   private:
-    QList<ReosHydrograph *>  mHydrographs;
+    QList<ReosHydrograph *> mHydrographs;
 };
 
 
@@ -165,12 +166,11 @@ class ReosRunoff;
  * The current watershed is set with setWatershed(), then the runoff hydrograph produced by this watershed depending
  * of a meteoroloical model is obtains by hydrograph( ReosMeteorologicModel *meteoModel )
  */
-class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
+class REOSCORE_EXPORT ReosRunoffHydrographsStore : public ReosHydrographGroup
 {
     Q_OBJECT
   public:
-    explicit ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelCollection,
-                                         QObject *parent = nullptr );
+    explicit ReosRunoffHydrographsStore( ReosMeteorologicModelsCollection *meteoModelCollection, QObject *parent = nullptr );
 
     void setWatershed( ReosWatershed *watershed );
 
@@ -218,13 +218,13 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
   private:
     struct HydrographCalculationData
     {
-      QPointer<ReosSeriesRainfall> rainfall;
-      std::shared_ptr<ReosRunoff> runoff;
-      std::shared_ptr<ReosHydrograph> hydrograph;
-      bool hasBeenAsked = false;
+        QPointer<ReosSeriesRainfall> rainfall;
+        std::shared_ptr<ReosRunoff> runoff;
+        std::shared_ptr<ReosHydrograph> hydrograph;
+        bool hasBeenAsked = false;
     };
 
-    QMap < ReosMeteorologicModel *, HydrographCalculationData> mMeteoModelToHydrographCalculationData;
+    QMap< ReosMeteorologicModel *, HydrographCalculationData> mMeteoModelToHydrographCalculationData;
     QPointer<ReosMeteorologicModelsCollection> mMeteoModelsCollection;
     QPointer<ReosWatershed> mWatershed;
 
@@ -239,7 +239,6 @@ class REOSCORE_EXPORT ReosRunoffHydrographsStore: public ReosHydrographGroup
     int updateCount = 0;
 
     friend class ReosWatersehdTest;
-
 };
 #endif // no SIP_RUN
 

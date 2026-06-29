@@ -26,7 +26,7 @@ email                : vcloarec@gmail.com
 #include "reosprocess.h"
 
 
-class REOSCORE_EXPORT ReosRasterFilling: public ReosProcess
+class REOSCORE_EXPORT ReosRasterFilling : public ReosProcess
 {
   public:
     //! Constructor with the \a dem to fill
@@ -49,16 +49,14 @@ class REOSCORE_EXPORT ReosRasterFilling: public ReosProcess
     const ReosRasterMemory<float> &filledDEM() const;
 
   protected:
-
     ReosRasterMemory<float> mDem;
     float mMimimumSlope = 0.0001f;
     double mXSize = 0;
     double mYSize = 0;
-
 };
 
 
-class REOSCORE_EXPORT ReosRasterFillingWangLiu: public ReosRasterFilling
+class REOSCORE_EXPORT ReosRasterFillingWangLiu : public ReosRasterFilling
 {
   public:
     ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue );

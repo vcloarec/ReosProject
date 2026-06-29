@@ -73,7 +73,7 @@ void ReosHubEauConnection::onReplied( QNetworkReply *reply )
       mErrorString = reply->errorString();
   }
 
-  QJsonDocument mJsonResult = QJsonDocument::fromJson( reply->readAll());
+  QJsonDocument mJsonResult = QJsonDocument::fromJson( reply->readAll() );
   QVariant var = mJsonResult.toVariant();
   if ( var.type() != QVariant::Map )
   {
@@ -105,7 +105,8 @@ QVariantMap ReosHubEauConnection::result() const
 }
 
 
-ReosHubEauConnectionControler::ReosHubEauConnectionControler( QObject *parent ): QObject( parent )
+ReosHubEauConnectionControler::ReosHubEauConnectionControler( QObject *parent )
+  : QObject( parent )
 {
   mConnection = new ReosHubEauConnection();
   mThread = new QThread( this );
@@ -197,7 +198,15 @@ void ReosHubEauServer::setExtent( const ReosMapExtent &extent )
   double latMin = extent.yMapMin();
   double latMax = extent.yMapMax();
 
-  const QString request = QStringLiteral( "referentiel/stations?bbox=%1,%2,%3,%4&en_service=true&fields=code_station,libelle_station,type_station,longitude_station,latitude_station,en_service,date_ouverture_station,date_fermeture_station,influence_locale_station,commentaire_influence_locale_station,commentaire_station&format=json&pretty&page=1&size=2000" ).arg( lontMin ).arg( latMin ).arg( lontMax ).arg( latMax );
+  const QString request = QStringLiteral(
+                            "referentiel/"
+                            "stations?bbox=%1,%2,%3,%4&en_service=true&fields=code_station,libelle_station,type_station,longitude_station,latitude_station,en_service,date_ouverture_station,date_"
+                            "fermeture_station,influence_locale_station,commentaire_influence_locale_station,commentaire_station&format=json&pretty&page=1&size=2000"
+  )
+                            .arg( lontMin )
+                            .arg( latMin )
+                            .arg( lontMax )
+                            .arg( latMax );
   mStationsRequestControler->request( request );
 }
 

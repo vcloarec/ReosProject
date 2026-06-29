@@ -18,8 +18,7 @@
 
 ReosHdf5File::ReosHdf5File( const QString &fileName )
   : id( H5Fopen( fileName.toUtf8().constData(), H5F_ACC_RDONLY, H5P_DEFAULT ) )
-{
-}
+{}
 
 ReosHdf5File::~ReosHdf5File()
 {

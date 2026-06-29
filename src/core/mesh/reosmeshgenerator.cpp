@@ -15,7 +15,7 @@
  ***************************************************************************/
 #include "reosmeshgenerator.h"
 
-#include<QHash>
+#include <QHash>
 
 #include "poly2tri.h"
 #include "memory"
@@ -27,11 +27,9 @@
 #include "gmsh/reosgmshgenerator.h"
 #endif //WITH_GMSH
 
-ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure,
-    ReosMeshResolutionController *,
-    const QString & ) const
+ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *, const QString & ) const
 {
-  return new  ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
+  return new ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
 }
 
 void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
@@ -39,7 +37,10 @@ void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
   mDomain = domain;
 }
 
-ReosEncodedElement ReosMeshGeneratorPoly2Tri::encode() const {return ReosEncodedElement( QString() );}
+ReosEncodedElement ReosMeshGeneratorPoly2Tri::encode() const
+{
+  return ReosEncodedElement( QString() );
+}
 
 ReosMeshGenerator::ReosMeshGenerator( QObject *parent )
   : ReosDataObject( parent )
@@ -129,8 +130,7 @@ ReosEncodedElement ReosMeshResolutionController::encode() const
 }
 
 ReosMeshResolutionController::~ReosMeshResolutionController()
-{
-}
+{}
 
 ReosMeshResolutionController *ReosMeshResolutionController::clone() const
 {
@@ -208,7 +208,6 @@ void ReosMeshGeneratorPoly2TriProcess::start()
 
     qDeleteAll( polyDomain );
     mIsSuccessful = true;
-
   }
   catch ( ... )
   {

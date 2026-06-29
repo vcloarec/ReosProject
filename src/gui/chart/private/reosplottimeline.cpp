@@ -24,7 +24,8 @@
 
 #include "reosstyleregistery.h"
 
-ReosPlotTimeLine::ReosPlotTimeLine() : QwtPlotItem()
+ReosPlotTimeLine::ReosPlotTimeLine()
+  : QwtPlotItem()
 {
   setZ( 150 );
 }

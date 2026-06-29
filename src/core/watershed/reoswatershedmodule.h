@@ -33,7 +33,7 @@ class REOSCORE_EXPORT ReosWatershedModule : public ReosModule
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) SIP_SKIP;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
 
-    static QString staticName() SIP_SKIP {return QStringLiteral( "watershed-module" );}
+    static QString staticName() SIP_SKIP { return QStringLiteral( "watershed-module" ); }
 
   signals:
     void hasBeenReset() SIP_SKIP;

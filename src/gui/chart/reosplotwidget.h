@@ -63,6 +63,7 @@ class ReosPlotLegendController : public QToolButton
 
   signals:
     void legendVisible( bool b );
+
   private:
     ReosPlotWidget *mPlotWidget = nullptr;
     QSpinBox *mColumnSpinBox = nullptr;
@@ -70,7 +71,7 @@ class ReosPlotLegendController : public QToolButton
     QList<QToolButton *> mAlignmentButtons;
 };
 
-class REOSGUI_EXPORT ReosPlotItem: public QObject
+class REOSGUI_EXPORT ReosPlotItem : public QObject
 {
     Q_OBJECT
   public:
@@ -102,7 +103,7 @@ class REOSGUI_EXPORT ReosPlotItem: public QObject
 
     void setZ( double z );
 
-    virtual QColor color() const {return QColor();}
+    virtual QColor color() const { return QColor(); }
     virtual QPixmap icone( const QSize &size ) const;
 
   public slots:
@@ -133,6 +134,7 @@ class ReosPlotCurve : public ReosPlotItem
 
     void zoomOnExtent();
     void setWidth( double width ) override;
+
   private:
     ReosPlotCurve_p *curve();
 };
@@ -151,11 +153,15 @@ class ReosPlotPolygons : public ReosPlotItem
 };
 
 
-class REOSGUI_EXPORT ReosPlotWidget: public QWidget
+class REOSGUI_EXPORT ReosPlotWidget : public QWidget
 {
     Q_OBJECT
   public:
-    enum MagnifierType {normalMagnifier, positiveMagnifier};
+    enum MagnifierType
+    {
+      normalMagnifier,
+      positiveMagnifier
+    };
 
     enum AxeType
     {
@@ -264,7 +270,7 @@ class ReosDataPlotItemFactory
 };
 
 
-class REOSGUI_EXPORT ReosPlotItemFactories: public ReosModule
+class REOSGUI_EXPORT ReosPlotItemFactories : public ReosModule
 {
   public:
     static void instantiate( ReosModule *parent = nullptr );
@@ -282,7 +288,7 @@ class REOSGUI_EXPORT ReosPlotItemFactories: public ReosModule
     std::vector<Factory> mFactories;
 };
 
-class CoordinatesWidget: public QWidget
+class CoordinatesWidget : public QWidget
 {
     Q_OBJECT
   public:
@@ -305,7 +311,6 @@ class CoordinatesWidget: public QWidget
     ReosPlotWidget::AxeType mXType = ReosPlotWidget::AxeType::normal;
     bool mIsRightYEnabled = false;
 };
-
 
 
 #endif // REOSPLOTWIDGET_H

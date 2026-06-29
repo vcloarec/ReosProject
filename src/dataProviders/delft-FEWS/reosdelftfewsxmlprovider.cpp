@@ -77,21 +77,23 @@ QString ReosDelftFewsXMLProviderInterface::htmlDescriptionFromMetada( const QVar
   }
   else
   {
-
     htmlText += QStringLiteral( "<h2>" ) + metadata.value( QStringLiteral( "name" ) ).toString() + QStringLiteral( "</h2>\n<hr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + QObject::tr( "<b>Location Id</b>" ) + QStringLiteral( "</td><td>" )
+                + QObject::tr( "<b>Location Id</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "location-id" ) ).toString()
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + QObject::tr( "<b>Start date</b>" ) + QStringLiteral( "</td><td>" )
+                + QObject::tr( "<b>Start date</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "start-time" ) ).toDateTime().toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                + QObject::tr( "<b>End date</b>" ) + QStringLiteral( "</td><td>" )
+                + QObject::tr( "<b>End date</b>" )
+                + QStringLiteral( "</td><td>" )
                 + metadata.value( QStringLiteral( "end-time" ) ).toDateTime().toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -135,7 +137,6 @@ QDomElement ReosDelftFewsXMLProviderInterface::seriesElement( const QString &uri
 
       if ( !locationIdElement.isNull() && !startTimeElement.isNull() && !endTimeElement.isNull() )
       {
-
         const QString locationId = valueStringFromElement( locationIdElement );
         const QDateTime canditateStartTime = timefromElement( startTimeElement );
         const QDateTime candidateEndTime = timefromElement( endTimeElement );
@@ -158,10 +159,10 @@ QDomElement ReosDelftFewsXMLProviderInterface::seriesElement( const QString &uri
 }
 
 
-
-
-
-QString ReosDelftFewsXMLHydrographProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
+QString ReosDelftFewsXMLHydrographProvider::key() const
+{
+  return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();
+}
 
 QStringList ReosDelftFewsXMLHydrographProvider::fileSuffixes() const
 {
@@ -212,28 +213,55 @@ void ReosDelftFewsXMLHydrographProvider::load()
   emit dataChanged();
 }
 
-QDateTime ReosDelftFewsXMLHydrographProvider::referenceTime() const {return mReferenceTime;}
+QDateTime ReosDelftFewsXMLHydrographProvider::referenceTime() const
+{
+  return mReferenceTime;
+}
 
-QString ReosDelftFewsXMLHydrographProvider::valueUnit() const {return QString();}
+QString ReosDelftFewsXMLHydrographProvider::valueUnit() const
+{
+  return QString();
+}
 
-int ReosDelftFewsXMLHydrographProvider::valueCount() const {return mCacheValues.count();}
+int ReosDelftFewsXMLHydrographProvider::valueCount() const
+{
+  return mCacheValues.count();
+}
 
-double ReosDelftFewsXMLHydrographProvider::value( int i ) const {return mCacheValues.at( i );}
+double ReosDelftFewsXMLHydrographProvider::value( int i ) const
+{
+  return mCacheValues.at( i );
+}
 
-double ReosDelftFewsXMLHydrographProvider::firstValue() const {return mCacheValues.first();}
+double ReosDelftFewsXMLHydrographProvider::firstValue() const
+{
+  return mCacheValues.first();
+}
 
-double ReosDelftFewsXMLHydrographProvider::lastValue() const {return mCacheValues.last();}
+double ReosDelftFewsXMLHydrographProvider::lastValue() const
+{
+  return mCacheValues.last();
+}
 
-double *ReosDelftFewsXMLHydrographProvider::data() {return mCacheValues.data();}
+double *ReosDelftFewsXMLHydrographProvider::data()
+{
+  return mCacheValues.data();
+}
 
-const QVector<double> &ReosDelftFewsXMLHydrographProvider::constData() const {return mCacheValues;}
+const QVector<double> &ReosDelftFewsXMLHydrographProvider::constData() const
+{
+  return mCacheValues;
+}
 
 const QVector<ReosDuration> &ReosDelftFewsXMLHydrographProvider::constTimeData() const
 {
   return mCacheTimeValues;
 }
 
-QString ReosDelftFewsXMLRainfallProvider::key() const {return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();}
+QString ReosDelftFewsXMLRainfallProvider::key() const
+{
+  return ReosDelftFewsXMLProviderInterface::staticKey() + QStringLiteral( "::" ) + dataType();
+}
 
 QStringList ReosDelftFewsXMLRainfallProvider::fileSuffixes() const
 {
@@ -308,7 +336,7 @@ void ReosDelftFewsXMLRainfallProvider::load()
     if ( step > mTimeStep )
     {
       int count = step.numberOfFullyContainedIntervals( mTimeStep ) - 1;
-      for ( int i = 0; i < count ; ++i )
+      for ( int i = 0; i < count; ++i )
         mCacheValues.append( 0 );
     }
 
@@ -329,21 +357,45 @@ void ReosDelftFewsXMLRainfallProvider::load()
   emit dataChanged();
 }
 
-QDateTime ReosDelftFewsXMLRainfallProvider::referenceTime() const {return mReferenceTime;}
+QDateTime ReosDelftFewsXMLRainfallProvider::referenceTime() const
+{
+  return mReferenceTime;
+}
 
-QString ReosDelftFewsXMLRainfallProvider::valueUnit() const {return QString();}
+QString ReosDelftFewsXMLRainfallProvider::valueUnit() const
+{
+  return QString();
+}
 
-int ReosDelftFewsXMLRainfallProvider::valueCount() const {return mCacheValues.count();}
+int ReosDelftFewsXMLRainfallProvider::valueCount() const
+{
+  return mCacheValues.count();
+}
 
-double ReosDelftFewsXMLRainfallProvider::value( int i ) const {return mCacheValues.at( i );}
+double ReosDelftFewsXMLRainfallProvider::value( int i ) const
+{
+  return mCacheValues.at( i );
+}
 
-double ReosDelftFewsXMLRainfallProvider::firstValue() const {return mCacheValues.first();}
+double ReosDelftFewsXMLRainfallProvider::firstValue() const
+{
+  return mCacheValues.first();
+}
 
-double ReosDelftFewsXMLRainfallProvider::lastValue() const {return mCacheValues.last();}
+double ReosDelftFewsXMLRainfallProvider::lastValue() const
+{
+  return mCacheValues.last();
+}
 
-double *ReosDelftFewsXMLRainfallProvider::data() {return mCacheValues.data();}
+double *ReosDelftFewsXMLRainfallProvider::data()
+{
+  return mCacheValues.data();
+}
 
-const QVector<double> &ReosDelftFewsXMLRainfallProvider::constData() const {return mCacheValues;}
+const QVector<double> &ReosDelftFewsXMLRainfallProvider::constData() const
+{
+  return mCacheValues;
+}
 
 ReosEncodedElement ReosDelftFewsXMLRainfallProvider::encode( const ReosEncodeContext &context ) const
 {
@@ -378,9 +430,15 @@ void ReosDelftFewsXMLRainfallProvider::decode( const ReosEncodedElement &element
   setMetadata( meta );
 }
 
-ReosDuration ReosDelftFewsXMLRainfallProvider::timeStep() const {return mTimeStep;}
+ReosDuration ReosDelftFewsXMLRainfallProvider::timeStep() const
+{
+  return mTimeStep;
+}
 
-QString ReosDelftFewsXMLRainfallProvider::dataType() {return ReosSeriesRainfall::staticType();}
+QString ReosDelftFewsXMLRainfallProvider::dataType()
+{
+  return ReosSeriesRainfall::staticType();
+}
 
 QString ReosDelftFewsXMLRainfallProvider::oldDataType()
 {
@@ -421,13 +479,22 @@ void ReosDelftFewsXMLHydrographProvider::decode( const ReosEncodedElement &eleme
   setMetadata( meta );
 }
 
-ReosDuration ReosDelftFewsXMLHydrographProvider::relativeTimeAt( int i ) const {return mCacheTimeValues.at( i );}
+ReosDuration ReosDelftFewsXMLHydrographProvider::relativeTimeAt( int i ) const
+{
+  return mCacheTimeValues.at( i );
+}
 
-ReosDuration ReosDelftFewsXMLHydrographProvider::lastRelativeTime() const {return mCacheTimeValues.last();}
+ReosDuration ReosDelftFewsXMLHydrographProvider::lastRelativeTime() const
+{
+  return mCacheTimeValues.last();
+}
 
-QString ReosDelftFewsXMLHydrographProvider::dataType() {return ReosHydrograph::staticType();}
+QString ReosDelftFewsXMLHydrographProvider::dataType()
+{
+  return ReosHydrograph::staticType();
+}
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+#if QT_VERSION < QT_VERSION_CHECK( 5, 15, 0 )
 #define skipEmptyPart QString::SkipEmptyParts
 #else
 #define skipEmptyPart Qt::SplitBehaviorFlags::SkipEmptyParts
@@ -450,7 +517,6 @@ QString ReosDelftFewsXMLProviderInterface::stationIdFromUri( const QString &uri 
 
   QStringList splitSecondPart = splitUri.at( 1 ).split( QStringLiteral( "::" ), skipEmptyPart );
   return splitSecondPart.at( 0 );
-
 }
 
 QDateTime ReosDelftFewsXMLProviderInterface::startTimeFromUri( const QString &uri )
@@ -468,7 +534,6 @@ QDateTime ReosDelftFewsXMLProviderInterface::startTimeFromUri( const QString &ur
 
 QString ReosDelftFewsXMLProviderInterface::changeFileNameInUri( const QString &uri, const QString &fileName )
 {
-
   QString stationId = stationIdFromUri( uri );
   QDateTime startTime = startTimeFromUri( uri );
   QDateTime endTime = endTimeFromUri( uri );
@@ -476,16 +541,9 @@ QString ReosDelftFewsXMLProviderInterface::changeFileNameInUri( const QString &u
   return buildUri( fileName, stationId, startTime, endTime );
 }
 
-QString ReosDelftFewsXMLProviderInterface::buildUri(
-  const QString &fileName,
-  const QString &stationId,
-  const QDateTime &startTime,
-  const QDateTime &endTime )
+QString ReosDelftFewsXMLProviderInterface::buildUri( const QString &fileName, const QString &stationId, const QDateTime &startTime, const QDateTime &endTime )
 {
-  return QStringLiteral( "\"" ) + fileName + QStringLiteral( "\"::" )
-         + stationId + QStringLiteral( "::" )
-         + startTime.toString( Qt::ISODate ) + QStringLiteral( "::" )
-         + endTime.toString( Qt::ISODate );
+  return QStringLiteral( "\"" ) + fileName + QStringLiteral( "\"::" ) + stationId + QStringLiteral( "::" ) + startTime.toString( Qt::ISODate ) + QStringLiteral( "::" ) + endTime.toString( Qt::ISODate );
 }
 
 QDateTime ReosDelftFewsXMLProviderInterface::endTimeFromUri( const QString &uri )
@@ -530,8 +588,7 @@ bool ReosDelftFewsXMLProviderFactory::hasCapabilities( const QString &dataType, 
 
 bool ReosDelftFewsXMLProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosHydrograph::staticType() ) ||
-         dataType.contains( ReosSeriesRainfall::staticType() );
+  return dataType.contains( ReosHydrograph::staticType() ) || dataType.contains( ReosSeriesRainfall::staticType() );
 }
 
 QVariantMap ReosDelftFewsXMLProviderFactory::uriParameters( const QString &dataType ) const
@@ -551,11 +608,11 @@ QVariantMap ReosDelftFewsXMLProviderFactory::uriParameters( const QString &dataT
 
 QString ReosDelftFewsXMLProviderFactory::buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const
 {
-  if ( supportType( dataType ) &&
-       parameters.contains( QStringLiteral( "file-path" ) ) &&
-       parameters.contains( QStringLiteral( "station-id" ) ) &&
-       parameters.contains( QStringLiteral( "start-date-time" ) ) &&
-       parameters.contains( QStringLiteral( "end-date-time" ) ) )
+  if ( supportType( dataType )
+       && parameters.contains( QStringLiteral( "file-path" ) )
+       && parameters.contains( QStringLiteral( "station-id" ) )
+       && parameters.contains( QStringLiteral( "start-date-time" ) )
+       && parameters.contains( QStringLiteral( "end-date-time" ) ) )
   {
     const QDateTime start = QDateTime::fromString( parameters.value( QStringLiteral( "start-date-time" ) ).toString(), Qt::ISODate );
     const QDateTime end = QDateTime::fromString( parameters.value( QStringLiteral( "end-date-time" ) ).toString(), Qt::ISODate );
@@ -571,7 +628,4 @@ QString ReosDelftFewsXMLProviderFactory::buildUri( const QString &dataType, cons
 
   ok = false;
   return QString();
-
 }
-
-

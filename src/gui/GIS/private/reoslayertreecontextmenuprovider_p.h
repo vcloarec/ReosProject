@@ -7,7 +7,7 @@
 
 class ReosGisLayersWidget;
 
-class ReosGisLayerTreeContextMenuProvider: public QgsLayerTreeViewMenuProvider
+class ReosGisLayerTreeContextMenuProvider : public QgsLayerTreeViewMenuProvider
 {
   public:
     ReosGisLayerTreeContextMenuProvider( ReosGisLayersWidget *layerWidget, QgsLayerTreeView *layerTreeView, ReosMap *map );

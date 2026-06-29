@@ -29,8 +29,8 @@
 
 
 ReosHubEauWidget::ReosHubEauWidget( ReosMap *map, QWidget *parent )
-  :  ReosDataProviderSelectorWidget( parent )
-  ,  ui( new Ui::ReosHubEauWidget )
+  : ReosDataProviderSelectorWidget( parent )
+  , ui( new Ui::ReosHubEauWidget )
   , mMap( map )
   , mSelectStation( new ReosMapToolSelectMapItem( map, QStringLiteral( "hub-eau-station" ) ) )
 
@@ -174,7 +174,7 @@ void ReosHubEauWidget::onSelectStation( ReosMapItem *item, const QPointF & )
   mCurrentMarker = static_cast<ReosHubEauStationMarker *>( item );
   if ( mCurrentMarker )
   {
-    const ReosHubEauStation &station =  mStations.at( mCurrentMarker->stationIndex );
+    const ReosHubEauStation &station = mStations.at( mCurrentMarker->stationIndex );
     mCurrentStationId = station.id;
     mCurrentHubEauStationMeta = station.meta;
     mCurrentMetadata.clear();
@@ -271,7 +271,8 @@ void ReosHubEauWidget::formatMarker( ReosHubEauStationMarker *marker, const QVar
   }
 }
 
-ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point ): ReosMapMarkerFilledCircle( map, point )
+ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point )
+  : ReosMapMarkerFilledCircle( map, point )
 {
   setDescription( QStringLiteral( "hub-eau-station" ) );
 }
@@ -306,10 +307,12 @@ QIcon ReosHubEauHydrometryGuiFactory::icon() const
   return QIcon( QStringLiteral( ":/hub-eau-images/icon-hubeau-blue.svg" ) );
 }
 
-QString ReosHubEauHydrometryGuiFactory::displayText() const {return QStringLiteral( "Hub'Eau" );}
+QString ReosHubEauHydrometryGuiFactory::displayText() const
+{
+  return QStringLiteral( "Hub'Eau" );
+}
 
 REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 {
   return new ReosHubEauHydrometryGuiFactory();
 }
-

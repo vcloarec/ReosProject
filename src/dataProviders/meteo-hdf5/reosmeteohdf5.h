@@ -23,7 +23,7 @@
 #include "reosgriddedrainfallprovider.h"
 #include "reosmemoryraster.h"
 
-#define METEO_HDF5_KEY QStringLiteral("meteo-hdf5")
+#define METEO_HDF5_KEY QStringLiteral( "meteo-hdf5" )
 
 class ReosMeteoHdf5Provider : public ReosGriddedDataProvider
 {
@@ -34,7 +34,7 @@ class ReosMeteoHdf5Provider : public ReosGriddedDataProvider
     ReosMeteoHdf5Provider *clone() const override;
     void load() override;
     QStringList fileSuffixes() const override;
-    QString key() const override {return staticKey();}
+    QString key() const override { return staticKey(); }
     FileDetails details( const QString &, ReosModule::Message & ) const override;
     bool isValid() const override;
     int count() const override;
@@ -63,9 +63,9 @@ class ReosMeteoHdf5Provider : public ReosGriddedDataProvider
   private:
     struct Frame
     {
-      QString gdalUri;
-      QDateTime startTime;
-      QDateTime endTime;
+        QString gdalUri;
+        QDateTime startTime;
+        QDateTime endTime;
     };
     QList<Frame> mFrames;
     ReosRasterExtent mExtent;
@@ -85,7 +85,7 @@ class ReosMeteoHdf5Provider : public ReosGriddedDataProvider
     static void giveName( FileDetails &details );
 };
 
-class ReosMeteoHdf5ProviderFactory: public ReosDataProviderFactory
+class ReosMeteoHdf5ProviderFactory : public ReosDataProviderFactory
 {
   public:
     ReosMeteoHdf5Provider *createProvider( const QString &dataType ) const override;

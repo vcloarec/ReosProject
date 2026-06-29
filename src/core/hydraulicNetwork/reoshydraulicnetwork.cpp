@@ -35,8 +35,8 @@ QString ReosHydraulicNetworkElement::hydrographJunction()
 }
 
 
-ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent ):
-  ReosDataObject( parent )
+ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( ReosHydraulicNetwork *parent )
+  : ReosDataObject( parent )
   , mNetwork( parent )
   , mNameParameter( new ReosParameterString( tr( "Name" ), false, this ) )
 {
@@ -53,18 +53,12 @@ ReosHydraulicNetworkElement::ReosHydraulicNetworkElement( const ReosEncodedEleme
 {
   ReosDataObject::decode( encodedElement );
 
-  mConstantTimeStepInTable = ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "constant-time-step-in-table" ) ),
-                             false,
-                             tr( "Constant time step" ),
-                             this );
+  mConstantTimeStepInTable = ReosParameterDuration::decode( encodedElement.getEncodedData( QStringLiteral( "constant-time-step-in-table" ) ), false, tr( "Constant time step" ), this );
 
   if ( !mConstantTimeStepInTable->isValid() )
     mConstantTimeStepInTable->setValue( ReosDuration( 5, ReosDuration::minute ) );
 
-  mUseConstantTimeStepInTable = ReosParameterBoolean::decode( encodedElement.getEncodedData( QStringLiteral( "use-constant-time-step-in-table" ) ),
-                                false,
-                                tr( "Display constant time step" ),
-                                this );
+  mUseConstantTimeStepInTable = ReosParameterBoolean::decode( encodedElement.getEncodedData( QStringLiteral( "use-constant-time-step-in-table" ) ), false, tr( "Display constant time step" ), this );
   if ( !mUseConstantTimeStepInTable->isValid() )
     mUseConstantTimeStepInTable->setValue( false );
 
@@ -80,8 +74,7 @@ void ReosHydraulicNetworkElement::init()
 
 
 ReosHydraulicNetworkElement::~ReosHydraulicNetworkElement()
-{
-}
+{}
 
 void ReosHydraulicNetworkElement::destroy()
 {
@@ -101,7 +94,10 @@ ReosParameterString *ReosHydraulicNetworkElement::elementNameParameter() const
   return mNameParameter;
 }
 
-QString ReosHydraulicNetworkElement::elementName() const {return mNameParameter->value();}
+QString ReosHydraulicNetworkElement::elementName() const
+{
+  return mNameParameter->value();
+}
 
 ReosParameterDuration *ReosHydraulicNetworkElement::constantTimeStepInTable() const
 {
@@ -144,9 +140,11 @@ ReosModule::Message ReosHydraulicNetworkElement::lastMessage() const
   return mLastMessage;
 }
 
-void ReosHydraulicNetworkElement::saveConfiguration( ReosHydraulicScheme * ) const {}
+void ReosHydraulicNetworkElement::saveConfiguration( ReosHydraulicScheme * ) const
+{}
 
-void ReosHydraulicNetworkElement::restoreConfiguration( ReosHydraulicScheme * ) {}
+void ReosHydraulicNetworkElement::restoreConfiguration( ReosHydraulicScheme * )
+{}
 
 QFileInfoList ReosHydraulicNetworkElement::cleanScheme( ReosHydraulicScheme *scheme )
 {
@@ -174,7 +172,9 @@ ReosHydraulicNetwork *ReosHydraulicNetworkElement::network() const
 }
 
 ReosHydraulicNetworkElementCompatibilty ReosHydraulicNetworkElement::checkCompatiblity( ReosHydraulicScheme * ) const
-{return ReosHydraulicNetworkElementCompatibilty();}
+{
+  return ReosHydraulicNetworkElementCompatibilty();
+}
 
 void ReosHydraulicNetworkElement::calculationUpdated()
 {
@@ -240,7 +240,7 @@ ReosHydraulicNetworkElement *ReosHydraulicNetwork::addElement( ReosHydraulicNetw
   if ( !elem->elementNameParameter()->isValid() )
   {
     int index = mElementIndexesCounter.value( elem->type(), 0 ) + 1;
-    mElementIndexesCounter[ elem->type()] = index;
+    mElementIndexesCounter[elem->type()] = index;
     elem->elementNameParameter()->setValue( ( elem->defaultDisplayName() + QStringLiteral( " %1" ) ).arg( index ) );
   }
   emit elementAdded( elem, select );
@@ -267,7 +267,7 @@ void ReosHydraulicNetwork::removeElement( ReosHydraulicNetworkElement *elem )
   if ( node )
   {
     const QList<ReosHydraulicLink *> links = node->links();
-    for ( ReosHydraulicLink *link :  links )
+    for ( ReosHydraulicLink *link : links )
       removeElement( link );
   }
 
@@ -509,7 +509,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int schemeIndex )
 
   mCurrentSchemeIndex = schemeIndex;
 
-  for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
+  for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
     elem->restoreConfiguration( mHydraulicSchemeCollection->scheme( schemeIndex ) );
 
   currentScheme = mHydraulicSchemeCollection->scheme( mCurrentSchemeIndex );
@@ -519,7 +519,7 @@ void ReosHydraulicNetwork::setCurrentScheme( int schemeIndex )
     connect( currentScheme, &ReosHydraulicScheme::meteoTimeWindowChanged, this, &ReosHydraulicNetwork::onMapTimeWindowChanged );
   }
 
-  for ( ReosHydraulicNetworkElement *elem :  std::as_const( mElements ) )
+  for ( ReosHydraulicNetworkElement *elem : std::as_const( mElements ) )
     if ( elem->type().contains( ReosHydraulicStructure2D::staticType() ) )
       elem->updateCalculationContext( calculationContext() );
 
@@ -704,8 +704,7 @@ QString ReosHydraulicNetworkContext::currentSchemeId() const
 }
 
 ReosHydraulicNetworkElementFactory::ReosHydraulicNetworkElementFactory()
-{
+{}
 
-}
-
-ReosHydraulicNetworkElementFactory::~ReosHydraulicNetworkElementFactory() {}
+ReosHydraulicNetworkElementFactory::~ReosHydraulicNetworkElementFactory()
+{}

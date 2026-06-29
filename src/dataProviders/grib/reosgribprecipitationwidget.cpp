@@ -33,7 +33,7 @@ REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 ReosGribPrecipitationWidget::ReosGribPrecipitationWidget( QWidget *parent )
   : ReosGriddedRainDataProviderSelectorWidget( parent )
   , ui( new Ui::ReosGribPrecipitationWidget )
-  ,  mProvider( new ReosGribGriddedDataProvider )
+  , mProvider( new ReosGribGriddedDataProvider )
 {
   ui->setupUi( this );
 
@@ -78,7 +78,7 @@ ReosDataObject *ReosGribPrecipitationWidget::selectedData() const
   return mCurrentRainfall.get();
 }
 
-ReosGriddedRainfallProvider::FileDetails  ReosGribPrecipitationWidget::setSource( const QString &source, ReosModule::Message &message )
+ReosGriddedRainfallProvider::FileDetails ReosGribPrecipitationWidget::setSource( const QString &source, ReosModule::Message &message )
 {
   mSource = source;
   onPathChanged();
@@ -132,7 +132,6 @@ void ReosGribPrecipitationWidget::updateRainfall()
 }
 
 
-
 ReosDataProviderGuiFactory::GuiCapabilities ReosGribGuiFactory::capabilities() const
 {
   return GuiCapability::DataSelector;
@@ -165,4 +164,3 @@ QString ReosGribGuiFactory::displayText() const
 {
   return QObject::tr( "GRIB2 format" );
 }
-

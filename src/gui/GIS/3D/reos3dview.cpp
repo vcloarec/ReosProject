@@ -54,7 +54,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   setWindowTitle( tr( "3D View" ) );
 
   mCanvas = new Qgs3DMapCanvas();
-//mCanvas->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+  //mCanvas->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
   QgsMeshLayer *meshLayer = nullptr;
   if ( meshTerrain )
@@ -69,14 +69,10 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   if ( meshLayer )
     extent = meshLayer->extent();
   float dist = static_cast< float >( std::max( extent.width(), extent.height() ) );
-  settings->setExtent(extent);
+  settings->setExtent( extent );
   //settings->setOrigin( QgsVector3D( extent.center().x(), extent.center().y(), 0 ) );
 
-  settings->setTemporalRange(
-  {
-    context.map()->currentTime(),
-    context.map()->currentTime().addMSecs( context.map()->timeStep().valueMilliSecond() )
-  } );
+  settings->setTemporalRange( { context.map()->currentTime(), context.map()->currentTime().addMSecs( context.map()->timeStep().valueMilliSecond() ) } );
 
   mCanvas->setMapSettings( settings );
   mCanvas->setViewFromTop( extent.center(), dist, 0 );
@@ -92,8 +88,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
   ui->mToolBarLayout->addWidget( toolBar );
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   toolBar->addAction( mActionZoomExtent );
-  connect( mActionZoomExtent, &QAction::triggered, this, [this, meshLayer, settings]
-  {
+  connect( mActionZoomExtent, &QAction::triggered, this, [this, meshLayer, settings] {
     QgsRectangle extent;
     if ( meshLayer )
       extent = meshLayer->extent();
@@ -142,7 +137,7 @@ Reos3dView::Reos3dView( ReosMesh *meshTerrain, const ReosGuiContext &context )
 
   mCanvas->setMinimumSize( QSize( 200, 200 ) );
 
-  const QgsTemporalController *temporalController = qobject_cast<const QgsTemporalController *> ( context.map()->temporalController() );
+  const QgsTemporalController *temporalController = qobject_cast<const QgsTemporalController *>( context.map()->temporalController() );
   if ( temporalController )
     mCanvas->setTemporalController( const_cast< QgsTemporalController *>( temporalController ) );
 
@@ -201,7 +196,6 @@ Reos3dView::~Reos3dView()
   mCanvas->mapSettings()->setTerrainGenerator( new QgsFlatTerrainGenerator );
   mCanvas->setParent( nullptr );
   QTimer::singleShot( 0, mCanvas, &QObject::deleteLater );
-
 }
 
 void Reos3dView::addMesh( ReosMesh *mesh )
@@ -236,7 +230,7 @@ void Reos3dView::onLightChange()
   std::unique_ptr<QgsDirectionalLightSettings> lightSettings = std::make_unique<QgsDirectionalLightSettings>();
   lightSettings->setDirection( mLightWidget->direction() );
   lightSettings->setIntensity( mLightWidget->lightIntensity() );
-  mCanvas->mapSettings()->setLightSources( {lightSettings.release()} );
+  mCanvas->mapSettings()->setLightSources( { lightSettings.release() } );
 
   emit mapSettingsChanged();
 }

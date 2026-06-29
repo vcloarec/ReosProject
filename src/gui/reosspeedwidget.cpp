@@ -17,9 +17,9 @@
 #include "ui_reosspeedwidget.h"
 
 
-ReosSpeedWidget::ReosSpeedWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosSpeedWidget )
+ReosSpeedWidget::ReosSpeedWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosSpeedWidget )
 {
   ui->setupUi( this );
 

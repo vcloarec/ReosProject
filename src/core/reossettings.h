@@ -36,7 +36,6 @@ class REOSCORE_EXPORT ReosSettings
     QSettings settings;
 
     static bool pathSet;
-
 };
 
 

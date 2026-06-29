@@ -17,11 +17,11 @@ class REOSGUI_EXPORT ReosStructure2dToolBar : public QToolBar
 
   private:
     QToolButton *m3dButton = nullptr;
-    QToolButton  *mEditButton = nullptr;
-    QToolButton  *mRunButton = nullptr;
+    QToolButton *mEditButton = nullptr;
+    QToolButton *mRunButton = nullptr;
     QToolButton *mScalarButton = nullptr;
-    QToolButton  *mVectorButton = nullptr;
-    QToolButton  *mProfileButton = nullptr;
+    QToolButton *mVectorButton = nullptr;
+    QToolButton *mProfileButton = nullptr;
     QToolButton *mExportMesh = nullptr;
     ReosHydraulicStructure2DProperties *mPlaceHolder = nullptr;
 };

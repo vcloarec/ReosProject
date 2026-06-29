@@ -98,7 +98,11 @@ QString ReosPython::runStringUnsafe( const QString &command, bool single )
 
 QString ReosPython::getTraceback()
 {
-#define TRACEBACK_FETCH_ERROR(what) {errMsg = what; goto done;}
+#define TRACEBACK_FETCH_ERROR( what ) \
+  {                                   \
+    errMsg = what;                    \
+    goto done;                        \
+  }
 
   QString errMsg;
   QString result;
@@ -129,19 +133,15 @@ QString ReosPython::getTraceback()
   if ( !modTB )
     TRACEBACK_FETCH_ERROR( QStringLiteral( "can't import traceback" ) );
 
-  obResult = PyObject_CallMethod( modTB,  reinterpret_cast< const char * >( "print_exception" ),
-                                  reinterpret_cast< const char * >( "OOOOO" ),
-                                  type, value ? value : Py_None,
-                                  traceback ? traceback : Py_None,
-                                  Py_None,
-                                  obStringIO );
+  obResult
+    = PyObject_CallMethod( modTB, reinterpret_cast< const char * >( "print_exception" ), reinterpret_cast< const char * >( "OOOOO" ), type, value ? value : Py_None, traceback ? traceback : Py_None, Py_None, obStringIO );
 
   if ( !obResult )
     TRACEBACK_FETCH_ERROR( QStringLiteral( "traceback.print_exception() failed" ) );
 
   Py_DECREF( obResult );
 
-  obResult = PyObject_CallMethod( obStringIO,  reinterpret_cast< const char * >( "getvalue" ), nullptr );
+  obResult = PyObject_CallMethod( obStringIO, reinterpret_cast< const char * >( "getvalue" ), nullptr );
   if ( !obResult )
     TRACEBACK_FETCH_ERROR( QStringLiteral( "getvalue() failed." ) );
 
@@ -172,7 +172,7 @@ done:
 
 void ReosPython::initPython()
 {
-#if defined(PY_MAJOR_VERSION) && defined(PY_MINOR_VERSION) && ((PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 8) || PY_MAJOR_VERSION > 3)
+#if defined( PY_MAJOR_VERSION ) && defined( PY_MINOR_VERSION ) && ( ( PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 8 ) || PY_MAJOR_VERSION > 3 )
   PyStatus status;
   PyPreConfig preconfig;
   PyPreConfig_InitPythonConfig( &preconfig );
@@ -192,7 +192,7 @@ void ReosPython::initPython()
   mPythonEnabled = true;
 
   mMainModule = PyImport_AddModule( "__main__" ); // borrowed reference
-  mMainDict = PyModule_GetDict( mMainModule ); // borrowed reference
+  mMainDict = PyModule_GetDict( mMainModule );    // borrowed reference
 }
 
 void ReosPython::exitPython()

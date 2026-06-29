@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reos_testutils.h"
@@ -21,7 +21,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reosgisengine.h"
 
-class ReosMeteoHdf5Test: public QObject
+class ReosMeteoHdf5Test : public QObject
 {
     Q_OBJECT
 
@@ -35,7 +35,6 @@ class ReosMeteoHdf5Test: public QObject
   private:
     ReosModule mRootModule;
     ReosGisEngine *mGisEngine = nullptr;
-
 };
 
 void ReosMeteoHdf5Test::initTestCase()
@@ -49,7 +48,8 @@ void ReosMeteoHdf5Test::createProvider()
 {
   QString pathToFiles( testFile( QStringLiteral( "MF-mosaique" ) ) );
   std::unique_ptr<ReosGriddedDataProvider> provider(
-    qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( pathToFiles, ReosGriddedData::staticType() ) ) );
+    qobject_cast<ReosGriddedDataProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( pathToFiles, ReosGriddedData::staticType() ) )
+  );
   QVERIFY( provider );
   QVERIFY( provider->key().contains( METEO_HDF5_KEY ) );
 
@@ -87,8 +87,7 @@ void ReosMeteoHdf5Test::createGridData()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "meteo-hdf5" ), ReosMeteoHdf5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedRain =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
+  std::unique_ptr<ReosGriddedData> griddedRain = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
 
   QCOMPARE( griddedRain->gridCount(), 3 );
   QCOMPARE( griddedRain->startTime( 0 ), QDateTime( QDate( 2025, 03, 13 ), QTime( 15, 55, 0 ), Qt::UTC ) );
@@ -122,14 +121,14 @@ void ReosMeteoHdf5Test::rainOnWatershed()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "meteo-hdf5" ), ReosMeteoHdf5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedRain =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
+  std::unique_ptr<ReosGriddedData> griddedRain = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
   QPolygonF watershed_poly;
 
-  watershed_poly  << QPointF( 5.48210223811306463, 47.49347814632444909 )
-                  << QPointF( 5.05990854288562986, 47.96360649690521427 )
-                  << QPointF( 4.64508941002024667, 47.68706040832829274 )
-                  << QPointF( 4.94007190450229672, 47.03994256105829663 );
+  watershed_poly
+    << QPointF( 5.48210223811306463, 47.49347814632444909 )
+    << QPointF( 5.05990854288562986, 47.96360649690521427 )
+    << QPointF( 4.64508941002024667, 47.68706040832829274 )
+    << QPointF( 4.94007190450229672, 47.03994256105829663 );
 
   ReosWatershed watershed;
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 4326 ) );
@@ -151,10 +150,11 @@ void ReosMeteoHdf5Test::rainOnWatershed()
 
 
   watershed_poly.clear();
-  watershed_poly  << QPointF( 3.37651104703155402, 43.78221043303267379 )
-                  << QPointF( 3.33046804374244498, 43.86118930728770948 )
-                  << QPointF( 3.26493238212655967, 43.80943293862696208 )
-                  << QPointF( 3.28476112076931459, 43.76002913217806167 );
+  watershed_poly
+    << QPointF( 3.37651104703155402, 43.78221043303267379 )
+    << QPointF( 3.33046804374244498, 43.86118930728770948 )
+    << QPointF( 3.26493238212655967, 43.80943293862696208 )
+    << QPointF( 3.28476112076931459, 43.76002913217806167 );
 
   ReosWatershed watershed_2( watershed_poly, QPointF( 0, 0 ), ReosGisEngine::crsFromEPSG( 4326 ) );
   watershed_2.setGeographicalContext( mGisEngine );
@@ -170,8 +170,6 @@ void ReosMeteoHdf5Test::rainOnWatershed()
   QVERIFY( equal( values.at( 2 ), 0.01061135371179039, 6 ) );
   timeStep = gridOnWs->timeStep();
   QVERIFY( timeStep == ReosDuration( 5.0, ReosDuration::minute ) );
-
-
 }
 
 void ReosMeteoHdf5Test::rainOnWatershed_missing_file()
@@ -184,14 +182,14 @@ void ReosMeteoHdf5Test::rainOnWatershed_missing_file()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "meteo-hdf5" ), ReosMeteoHdf5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedRain =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
+  std::unique_ptr<ReosGriddedData> griddedRain = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "meteo-hdf5" ) );
   QPolygonF watershed_poly;
 
-  watershed_poly  << QPointF( 5.48210223811306463, 47.49347814632444909 )
-                  << QPointF( 5.05990854288562986, 47.96360649690521427 )
-                  << QPointF( 4.64508941002024667, 47.68706040832829274 )
-                  << QPointF( 4.94007190450229672, 47.03994256105829663 );
+  watershed_poly
+    << QPointF( 5.48210223811306463, 47.49347814632444909 )
+    << QPointF( 5.05990854288562986, 47.96360649690521427 )
+    << QPointF( 4.64508941002024667, 47.68706040832829274 )
+    << QPointF( 4.94007190450229672, 47.03994256105829663 );
 
   ReosWatershed watershed;
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 4326 ) );
@@ -212,10 +210,11 @@ void ReosMeteoHdf5Test::rainOnWatershed_missing_file()
 
 
   watershed_poly.clear();
-  watershed_poly  << QPointF( 3.37651104703155402, 43.78221043303267379 )
-                  << QPointF( 3.33046804374244498, 43.86118930728770948 )
-                  << QPointF( 3.26493238212655967, 43.80943293862696208 )
-                  << QPointF( 3.28476112076931459, 43.76002913217806167 );
+  watershed_poly
+    << QPointF( 3.37651104703155402, 43.78221043303267379 )
+    << QPointF( 3.33046804374244498, 43.86118930728770948 )
+    << QPointF( 3.26493238212655967, 43.80943293862696208 )
+    << QPointF( 3.28476112076931459, 43.76002913217806167 );
 
   ReosWatershed watershed_2( watershed_poly, QPointF( 0, 0 ), ReosGisEngine::crsFromEPSG( 4326 ) );
   watershed_2.setGeographicalContext( mGisEngine );
@@ -236,5 +235,3 @@ void ReosMeteoHdf5Test::rainOnWatershed_missing_file()
 
 QTEST_MAIN( ReosMeteoHdf5Test )
 #include "reos_meteo_hdf5_test.moc"
-
-

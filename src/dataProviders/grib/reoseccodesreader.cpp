@@ -97,9 +97,9 @@ static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &
     else if ( keys.hasKey( QStringLiteral( "earthIsOblate" ) ) )
     {
       //https://codes.ecmwf.int/grib/format/edition-independent/1/19/
-      long  earthIsOblate = keys.longValue( QStringLiteral( "earthIsOblate" ) );
+      long earthIsOblate = keys.longValue( QStringLiteral( "earthIsOblate" ) );
       if ( earthIsOblate == 0 )
-        //https://confluence.ecmwf.int/pages/viewpage.action?pageId=44245972
+      //https://confluence.ecmwf.int/pages/viewpage.action?pageId=44245972
       {
         long radius = 0;
         if ( keys.hasKey( QStringLiteral( "radius" ) ) )
@@ -109,7 +109,6 @@ static ReosEcCodesGridDescritpion gridDescription( const ReosEcCodesReaderKeys &
 
         ret.wktCrs = ReosGisEngine::projStringToWkt( QString( "+proj=longlat +a=%1 +b=%1 +no_defs" ).arg( radius ) );
       }
-
     }
 
     ret.width = keys.longValue( QStringLiteral( "Ni" ) );
@@ -175,8 +174,7 @@ ReosEcCodesReader::ReosEcCodesReader( const QString &gribFileName, const QVarian
 }
 
 ReosEcCodesReader::~ReosEcCodesReader()
-{
-}
+{}
 
 static ReosRasterExtent extentFromKeys( const ReosEcCodesReaderKeys &keys )
 {
@@ -335,13 +333,13 @@ int ReosEcCodesReader::frameCount() const
   if ( mFrameCount < 0 )
   {
     bool ok = false;
-    mFrameCount=0;
+    mFrameCount = 0;
     while ( codes_handle *handle = mIndex.nextHandle( ok ) )
     {
       if ( !ok )
       {
         codes_handle_delete( handle );
-        mFrameCount=-1;
+        mFrameCount = -1;
         break;
       }
       mFrameCount++;
@@ -354,7 +352,6 @@ int ReosEcCodesReader::frameCount() const
 ReosEcCodesReaderKeys ReosEcCodesReader::keys( int frameIndex ) const
 {
   return getKeys( frameIndex );
-
 }
 
 
@@ -379,7 +376,7 @@ ReosRasterMemory<double> ReosEcCodesReader::values( int index ) const
     bool jIncrementFirst = keys.longValue( QStringLiteral( "jScansPositively" ) ) == 1;
 
     size_t arraySize = 0;
-    if ( ! handleError( codes_get_size( handle, "values", &arraySize ) ) )
+    if ( !handleError( codes_get_size( handle, "values", &arraySize ) ) )
       return ret;
 
     QVector<double> data;
@@ -458,7 +455,7 @@ const ReosEcCodesReaderKeys &ReosEcCodesReader::getKeys( int index ) const
 
 QList<ReosEcCodesReader::Variable> ReosEcCodesReader::variables( const QString &fileName )
 {
-  QMap < QString, ReosEcCodesReader::Variable >  ret;
+  QMap< QString, ReosEcCodesReader::Variable > ret;
   int error = 0;
 
   FILE *file = fopen( fileName.toUtf8(), "rb" );
@@ -489,7 +486,7 @@ QList<ReosEcCodesReader::Variable> ReosEcCodesReader::variables( const QString &
 
     auto it = ret.constFind( name );
     if ( it == ret.constEnd() )
-      ret.insert( name, Variable( {name, shortName} ) );
+      ret.insert( name, Variable( { name, shortName } ) );
 
     count++;
   }
@@ -502,8 +499,7 @@ QList<ReosEcCodesReader::Variable> ReosEcCodesReader::variables( const QString &
 
 ReosEcCodesReaderKeys::ReosEcCodesReaderKeys( codes_handle *handle )
   : mMap( keys( handle ) )
-{
-}
+{}
 
 bool ReosEcCodesReaderKeys::hasKey( const QString &key ) const
 {
@@ -576,13 +572,10 @@ int ReosEcCodesDataset::frameCount() const
 ReosEcCodesMessage::ReosEcCodesMessage( FILE *file, long posInFile )
   : mFile( file )
   , mPosInFIle( posInFile )
-{
-
-}
+{}
 
 ReosEcCodesMessage::~ReosEcCodesMessage()
-{
-}
+{}
 
 ReosEcCodesIndex::ReosEcCodesIndex( const QString &fileName, const QVariantMap &variableKeys )
   : mFileName( fileName )
@@ -624,9 +617,10 @@ void ReosEcCodesIndex::reset()
   }
 
   const QString &keysString = keys.join( ',' );
-  mIndex = std::shared_ptr<codes_index>(
-             codes_index_new_from_file( nullptr, mFileName.toUtf8(), keysString.toUtf8(), &error ),
-  []( codes_index * index ) { if ( index ) codes_index_delete( index );} );
+  mIndex = std::shared_ptr<codes_index>( codes_index_new_from_file( nullptr, mFileName.toUtf8(), keysString.toUtf8(), &error ), []( codes_index *index ) {
+    if ( index )
+      codes_index_delete( index );
+  } );
   mNextIndex = 0;
 
   if ( error != 0 )
@@ -728,7 +722,6 @@ codes_handle *ReosEcCodesIndex::handle( int handleIndex )
   }
 
   return nullptr;
-
 }
 
 bool ReosEcCodesIndex::isValid() const

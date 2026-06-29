@@ -43,17 +43,17 @@ email                : vcloarec at gmail dot com
 #include "reoslayertreecontextmenuprovider_p.h"
 
 
-ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, QWidget *parent ):
-  QWidget( parent ),
-  mGisEngine( engine ),
-  mMap( map ),
-  mTreeView( new QgsLayerTreeView( this ) ),
-  mToolBar( new QToolBar( this ) ),
-  mActionLoadQGISProject( new QAction( QIcon( QStringLiteral( ":/images/openQGISProject.svg" ) ), tr( "Load QGIS Project" ), this ) ),
-  mActionLoadVectorLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddVectorLayer.svg" ) ), tr( "Add Vector Layer" ), this ) ),
-  mActionLoadRasterLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddRasterLayer.svg" ) ), tr( "Add Raster Layer" ), this ) ),
-  mActionLoadMeshLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddMeshLayer.svg" ) ), tr( "Add Mesh Layer" ), this ) ),
-  mActionSetProjectCrs( new QAction( QIcon( QStringLiteral( ":/images/CRS.svg" ) ), tr( "Project coordinate reference system" ), this ) )
+ReosGisLayersWidget::ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, QWidget *parent )
+  : QWidget( parent )
+  , mGisEngine( engine )
+  , mMap( map )
+  , mTreeView( new QgsLayerTreeView( this ) )
+  , mToolBar( new QToolBar( this ) )
+  , mActionLoadQGISProject( new QAction( QIcon( QStringLiteral( ":/images/openQGISProject.svg" ) ), tr( "Load QGIS Project" ), this ) )
+  , mActionLoadVectorLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddVectorLayer.svg" ) ), tr( "Add Vector Layer" ), this ) )
+  , mActionLoadRasterLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddRasterLayer.svg" ) ), tr( "Add Raster Layer" ), this ) )
+  , mActionLoadMeshLayer( new QAction( QIcon( QStringLiteral( ":/images/mActionAddMeshLayer.svg" ) ), tr( "Add Mesh Layer" ), this ) )
+  , mActionSetProjectCrs( new QAction( QIcon( QStringLiteral( ":/images/CRS.svg" ) ), tr( "Project coordinate reference system" ), this ) )
 {
   mToolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   connect( mGisEngine, &ReosGisEngine::updated, this, &ReosGisLayersWidget::onGISEngineUpdated );
@@ -138,7 +138,7 @@ void ReosGisLayersWidget::onLoadQGISProject()
   if ( !projectFileName.isEmpty() )
   {
     mGisEngine->loadQGISProject( projectFileName );
-    settings.setValue( QStringLiteral( "Path/GisProject" ), projectFileName ) ;
+    settings.setValue( QStringLiteral( "Path/GisProject" ), projectFileName );
   }
 }
 
@@ -168,8 +168,7 @@ void ReosGisLayersWidget::onLoadRasterLayer()
     bool isDEM = false;
     if ( mGisEngine->canBeRasterDem( rasterFileName ) )
     {
-      isDEM = QMessageBox::question( this, tr( "Loading Raster Layer" ),
-                                     tr( "This raster layer could be a DEM, do you want to register as a DEM?" ) ) == QMessageBox::Yes;
+      isDEM = QMessageBox::question( this, tr( "Loading Raster Layer" ), tr( "This raster layer could be a DEM, do you want to register as a DEM?" ) ) == QMessageBox::Yes;
     }
     if ( mGisEngine->addRasterLayer( rasterFileName, fileInfo.fileName(), &isDEM ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
@@ -193,12 +192,11 @@ void ReosGisLayersWidget::onLoadMeshLayer()
   if ( fileInfo.exists() )
     if ( mGisEngine->addMeshLayer( meshFileName, fileInfo.fileName() ).isEmpty() )
       QMessageBox::warning( this, tr( "Loading Raster Layer" ), tr( "Invalid raster layer, file not loaded." ) );
-
 }
 
 void ReosGisLayersWidget::onTreeLayerDoubleClick()
 {
-  if ( ! mTreeView && !mMap )
+  if ( !mTreeView && !mMap )
     return;
 
   QgsMapLayer *mapLayer = mTreeView->currentLayer();
@@ -227,7 +225,6 @@ void ReosGisLayersWidget::onTreeLayerDoubleClick()
 
   if ( dial )
     dial->exec();
-
 }
 
 void ReosGisLayersWidget::onSetCrs()
@@ -237,7 +234,6 @@ void ReosGisLayersWidget::onSetCrs()
   dial.setCrs( QgsCoordinateReferenceSystem::fromWkt( crs ) );
   if ( dial.exec() )
     mGisEngine->setCrs( dial.crs().toWkt( Qgis::CrsWktVariant::Preferred ) );
-
 }
 
 void ReosGisLayersWidget::updateLayerInsertionPoint() const

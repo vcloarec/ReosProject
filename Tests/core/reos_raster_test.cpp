@@ -27,23 +27,18 @@ email                : vcloarec at gmail dot com
 
 using namespace testing;
 
-class ReosRasterTesting: public Test
+class ReosRasterTesting : public Test
 {
   public:
-
   protected:
-    void SetUp() override
-    {}
+    void SetUp() override {}
 };
 
 void init_test()
-{
-
-}
+{}
 
 void finalize_test()
-{
-}
+{}
 
 TEST_F( ReosRasterTesting, ReosRasterExtent )
 {
@@ -260,29 +255,24 @@ TEST_F( ReosRasterTesting, ReosRasterTrace )
   ASSERT_EQ( trace.error(), 0 );
   QPolygon tr = trace.trace();
 
-  QPolygon testTrace( {QPoint( {50, 2} ), QPoint( {49, 2} ), QPoint( {49, 4} ), QPoint( {48, 4} ), QPoint( {48, 6} ), QPoint( {47, 6} ), QPoint( {47, 8} ),
-                       QPoint( {46, 8} ), QPoint( {46, 10} ), QPoint( {45, 10} ), QPoint( {45, 12} ), QPoint( {44, 12} ), QPoint( {44, 14} ),
-                       QPoint( {43, 14} ), QPoint( {43, 16} ), QPoint( {42, 16} ), QPoint( {42, 18} ), QPoint( {41, 18} ), QPoint( {41, 20} ),
-                       QPoint( {40, 20} ), QPoint( {40, 22} ), QPoint( {39, 22} ), QPoint( {39, 24} ), QPoint( {38, 24} ), QPoint( {38, 26} ),
-                       QPoint( {37, 26} ), QPoint( {37, 28} ), QPoint( {36, 28} ), QPoint( {36, 30} ), QPoint( {35, 30} ), QPoint( {35, 32} ),
-                       QPoint( {34, 32} ), QPoint( {34, 34} ), QPoint( {33, 34} ), QPoint( {33, 36} ), QPoint( {32, 36} ), QPoint( {32, 38} ),
-                       QPoint( {31, 38} ), QPoint( {31, 40} ), QPoint( {30, 40} ), QPoint( {30, 42} ), QPoint( {29, 42} ), QPoint( {29, 44} ),
-                       QPoint( {28, 44} ), QPoint( {28, 46} ), QPoint( {27, 46} ), QPoint( {27, 48} ), QPoint( {26, 48} ), QPoint( {26, 50} ),
-                       QPoint( {25, 50} ), QPoint( {25, 52} ), QPoint( {24, 52} ), QPoint( {24, 54} ), QPoint( {23, 54} ), QPoint( {23, 56} ),
-                       QPoint( {22, 56} ), QPoint( {22, 58} ), QPoint( {21, 58} ), QPoint( {21, 60} ), QPoint( {20, 60} ), QPoint( {20, 62} ),
-                       QPoint( {19, 62} ), QPoint( {19, 64} ), QPoint( {18, 64} ), QPoint( {18, 66} ), QPoint( {17, 66} ), QPoint( {17, 68} ),
-                       QPoint( {16, 68} ), QPoint( {16, 70} ), QPoint( {85, 70} ), QPoint( {85, 68} ), QPoint( {84, 68} ), QPoint( {84, 66} ),
-                       QPoint( {83, 66} ), QPoint( {83, 64} ), QPoint( {82, 64} ), QPoint( {82, 62} ), QPoint( {81, 62} ), QPoint( {81, 60} ),
-                       QPoint( {80, 60} ), QPoint( {80, 58} ), QPoint( {79, 58} ), QPoint( {79, 56} ), QPoint( {78, 56} ), QPoint( {78, 54} ),
-                       QPoint( {77, 54} ), QPoint( {77, 52} ), QPoint( {76, 52} ), QPoint( {76, 50} ), QPoint( {75, 50} ), QPoint( {75, 48} ),
-                       QPoint( {74, 48} ), QPoint( {74, 46} ), QPoint( {73, 46} ), QPoint( {73, 44} ), QPoint( {72, 44} ), QPoint( {72, 42} ),
-                       QPoint( {71, 42} ), QPoint( {71, 40} ), QPoint( {70, 40} ), QPoint( {70, 38} ), QPoint( {69, 38} ), QPoint( {69, 36} ),
-                       QPoint( {68, 36} ), QPoint( {68, 34} ), QPoint( {67, 34} ), QPoint( {67, 32} ), QPoint( {66, 32} ), QPoint( {66, 30} ),
-                       QPoint( {65, 30} ), QPoint( {65, 28} ), QPoint( {64, 28} ), QPoint( {64, 26} ), QPoint( {63, 26} ), QPoint( {63, 24} ),
-                       QPoint( {62, 24} ), QPoint( {62, 22} ), QPoint( {61, 22} ), QPoint( {61, 20} ), QPoint( {60, 20} ), QPoint( {60, 18} ),
-                       QPoint( {59, 18} ), QPoint( {59, 16} ), QPoint( {58, 16} ), QPoint( {58, 14} ), QPoint( {57, 14} ), QPoint( {57, 12} ),
-                       QPoint( {56, 12} ), QPoint( {56, 10} ), QPoint( {55, 10} ), QPoint( {55, 8} ), QPoint( {54, 8} ), QPoint( {54, 6} ),
-                       QPoint( {53, 6} ), QPoint( {53, 4} ), QPoint( {52, 4} ), QPoint( {52, 3} )} );
+  QPolygon testTrace( { QPoint( { 50, 2 } ),  QPoint( { 49, 2 } ),  QPoint( { 49, 4 } ),  QPoint( { 48, 4 } ),  QPoint( { 48, 6 } ),  QPoint( { 47, 6 } ),  QPoint( { 47, 8 } ),  QPoint( { 46, 8 } ),
+                        QPoint( { 46, 10 } ), QPoint( { 45, 10 } ), QPoint( { 45, 12 } ), QPoint( { 44, 12 } ), QPoint( { 44, 14 } ), QPoint( { 43, 14 } ), QPoint( { 43, 16 } ), QPoint( { 42, 16 } ),
+                        QPoint( { 42, 18 } ), QPoint( { 41, 18 } ), QPoint( { 41, 20 } ), QPoint( { 40, 20 } ), QPoint( { 40, 22 } ), QPoint( { 39, 22 } ), QPoint( { 39, 24 } ), QPoint( { 38, 24 } ),
+                        QPoint( { 38, 26 } ), QPoint( { 37, 26 } ), QPoint( { 37, 28 } ), QPoint( { 36, 28 } ), QPoint( { 36, 30 } ), QPoint( { 35, 30 } ), QPoint( { 35, 32 } ), QPoint( { 34, 32 } ),
+                        QPoint( { 34, 34 } ), QPoint( { 33, 34 } ), QPoint( { 33, 36 } ), QPoint( { 32, 36 } ), QPoint( { 32, 38 } ), QPoint( { 31, 38 } ), QPoint( { 31, 40 } ), QPoint( { 30, 40 } ),
+                        QPoint( { 30, 42 } ), QPoint( { 29, 42 } ), QPoint( { 29, 44 } ), QPoint( { 28, 44 } ), QPoint( { 28, 46 } ), QPoint( { 27, 46 } ), QPoint( { 27, 48 } ), QPoint( { 26, 48 } ),
+                        QPoint( { 26, 50 } ), QPoint( { 25, 50 } ), QPoint( { 25, 52 } ), QPoint( { 24, 52 } ), QPoint( { 24, 54 } ), QPoint( { 23, 54 } ), QPoint( { 23, 56 } ), QPoint( { 22, 56 } ),
+                        QPoint( { 22, 58 } ), QPoint( { 21, 58 } ), QPoint( { 21, 60 } ), QPoint( { 20, 60 } ), QPoint( { 20, 62 } ), QPoint( { 19, 62 } ), QPoint( { 19, 64 } ), QPoint( { 18, 64 } ),
+                        QPoint( { 18, 66 } ), QPoint( { 17, 66 } ), QPoint( { 17, 68 } ), QPoint( { 16, 68 } ), QPoint( { 16, 70 } ), QPoint( { 85, 70 } ), QPoint( { 85, 68 } ), QPoint( { 84, 68 } ),
+                        QPoint( { 84, 66 } ), QPoint( { 83, 66 } ), QPoint( { 83, 64 } ), QPoint( { 82, 64 } ), QPoint( { 82, 62 } ), QPoint( { 81, 62 } ), QPoint( { 81, 60 } ), QPoint( { 80, 60 } ),
+                        QPoint( { 80, 58 } ), QPoint( { 79, 58 } ), QPoint( { 79, 56 } ), QPoint( { 78, 56 } ), QPoint( { 78, 54 } ), QPoint( { 77, 54 } ), QPoint( { 77, 52 } ), QPoint( { 76, 52 } ),
+                        QPoint( { 76, 50 } ), QPoint( { 75, 50 } ), QPoint( { 75, 48 } ), QPoint( { 74, 48 } ), QPoint( { 74, 46 } ), QPoint( { 73, 46 } ), QPoint( { 73, 44 } ), QPoint( { 72, 44 } ),
+                        QPoint( { 72, 42 } ), QPoint( { 71, 42 } ), QPoint( { 71, 40 } ), QPoint( { 70, 40 } ), QPoint( { 70, 38 } ), QPoint( { 69, 38 } ), QPoint( { 69, 36 } ), QPoint( { 68, 36 } ),
+                        QPoint( { 68, 34 } ), QPoint( { 67, 34 } ), QPoint( { 67, 32 } ), QPoint( { 66, 32 } ), QPoint( { 66, 30 } ), QPoint( { 65, 30 } ), QPoint( { 65, 28 } ), QPoint( { 64, 28 } ),
+                        QPoint( { 64, 26 } ), QPoint( { 63, 26 } ), QPoint( { 63, 24 } ), QPoint( { 62, 24 } ), QPoint( { 62, 22 } ), QPoint( { 61, 22 } ), QPoint( { 61, 20 } ), QPoint( { 60, 20 } ),
+                        QPoint( { 60, 18 } ), QPoint( { 59, 18 } ), QPoint( { 59, 16 } ), QPoint( { 58, 16 } ), QPoint( { 58, 14 } ), QPoint( { 57, 14 } ), QPoint( { 57, 12 } ), QPoint( { 56, 12 } ),
+                        QPoint( { 56, 10 } ), QPoint( { 55, 10 } ), QPoint( { 55, 8 } ),  QPoint( { 54, 8 } ),  QPoint( { 54, 6 } ),  QPoint( { 53, 6 } ),  QPoint( { 53, 4 } ),  QPoint( { 52, 4 } ),
+                        QPoint( { 52, 3 } ) } );
 
 
   EXPECT_EQ( testTrace, tr );
@@ -305,7 +295,7 @@ int main( int argc, char **argv )
 {
   testing::InitGoogleTest( &argc, argv );
   init_test();
-  int ret =  RUN_ALL_TESTS();
+  int ret = RUN_ALL_TESTS();
   finalize_test();
   return ret;
 }

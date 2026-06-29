@@ -58,7 +58,6 @@ ReosInclusionType ReosGeometryUtils::polygonIsInsidePolygon( const QPolygonF &po
     return ReosInclusionType::Partial;
 
   return ReosInclusionType::None;
-
 }
 
 bool ReosGeometryUtils::polygonIntersectPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
@@ -71,7 +70,6 @@ bool ReosGeometryUtils::polygonIntersectPolygon( const QPolygonF &polygon1, cons
 
   QgsGeometry intersection = geom2.intersection( geom1 );
   return intersection.type() == Qgis::GeometryType::Polygon;
-
 }
 
 ReosInclusionType ReosGeometryUtils::polylineIsInsidePolygon( const QPolygonF &polyline, const QPolygonF &polygon )
@@ -123,9 +121,7 @@ QPolygonF ReosGeometryUtils::polygonFitInPolygon( const QPolygonF &polygon1, con
     // take the bigger part
     double area = 0;
     QgsGeometry selected;
-    for ( QgsAbstractGeometry::const_part_iterator it = intersection.const_parts_begin();
-          it != intersection.const_parts_end();
-          ++it )
+    for ( QgsAbstractGeometry::const_part_iterator it = intersection.const_parts_begin(); it != intersection.const_parts_end(); ++it )
     {
       if ( ( *it )->area() > area )
       {
@@ -140,7 +136,6 @@ QPolygonF ReosGeometryUtils::polygonFitInPolygon( const QPolygonF &polygon1, con
     ret.removeLast();
 
   return ret;
-
 }
 
 QPolygonF ReosGeometryUtils::polygonCutByPolygon( const QPolygonF &polygon1, const QPolygonF &polygon2 )
@@ -338,20 +333,16 @@ QRectF ReosGeometryUtils::boundingBox( const QPolygonF &polygon, bool &ok )
   return QRectF( xMin, yMin, xMax - xMin, yMax - yMin );
 }
 
-ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &polygon,
-    const ReosRasterExtent &rasterExtent,
-    ReosRasterExtent &finalRasterExtent,
-    int &xOri,
-    int &yOri,
-    bool precise,
-    ReosProcess *process )
+ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
+  const QPolygonF &polygon, const ReosRasterExtent &rasterExtent, ReosRasterExtent &finalRasterExtent, int &xOri, int &yOri, bool precise, ReosProcess *process
+)
 {
   ReosRasterMemory<double> ret;
 
   QgsGeometry polygeom( createQgsPolygon( polygon ) );
   QgsRectangle bbox = polygeom.boundingBox();
 
-  std::unique_ptr< QgsGeometryEngine > polyEngine( QgsGeometry::createGeometryEngine( polygeom.constGet( ) ) );
+  std::unique_ptr< QgsGeometryEngine > polyEngine( QgsGeometry::createGeometryEngine( polygeom.constGet() ) );
   if ( !polyEngine )
     return ret;
   polyEngine->prepareGeometry();
@@ -359,14 +350,16 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &p
   QPoint minXminY = rasterExtent.mapToCell( QPointF( bbox.xMinimum(), bbox.yMinimum() ) );
   QPoint maxXmaxY = rasterExtent.mapToCell( QPointF( bbox.xMaximum(), bbox.yMaximum() ) );
 
-  xOri = std::clamp( rasterExtent.xCellSize() > 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );;
-  yOri = std::clamp( rasterExtent.yCellSize() > 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );;
+  xOri = std::clamp( rasterExtent.xCellSize() > 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );
+  ;
+  yOri = std::clamp( rasterExtent.yCellSize() > 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );
+  ;
 
-  int xEnd =  std::clamp( rasterExtent.xCellSize() < 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );
-  int yEnd =  std::clamp( rasterExtent.yCellSize() < 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );
+  int xEnd = std::clamp( rasterExtent.xCellSize() < 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );
+  int yEnd = std::clamp( rasterExtent.yCellSize() < 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );
 
-  int colCount =  std::abs( xEnd - xOri )  + 1;
-  int rowCount =  std::abs( yEnd - yOri )  + 1;
+  int colCount = std::abs( xEnd - xOri ) + 1;
+  int rowCount = std::abs( yEnd - yOri ) + 1;
 
   double destXOri = rasterExtent.xMapOrigin() + xOri * rasterExtent.xCellSize();
   double destYOri = rasterExtent.yMapOrigin() + yOri * rasterExtent.yCellSize();
@@ -391,10 +384,8 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &p
       if ( precise )
       {
         //from QGIS code ( QgsRasterAnalysisUtils::statisticsFromPreciseIntersection() )
-        QgsRectangle cellRect( cellCenter.x() - rasterExtent.xCellSize() * 0.5,
-                               cellCenter.y() - rasterExtent.yCellSize() * 0.5,
-                               cellCenter.x() + rasterExtent.xCellSize() * 0.5,
-                               cellCenter.y() + rasterExtent.yCellSize() * 0.5 );
+        QgsRectangle
+          cellRect( cellCenter.x() - rasterExtent.xCellSize() * 0.5, cellCenter.y() - rasterExtent.yCellSize() * 0.5, cellCenter.x() + rasterExtent.xCellSize() * 0.5, cellCenter.y() + rasterExtent.yCellSize() * 0.5 );
         cellRect.normalize();
         pixelRectGeometry = QgsGeometry::fromRect( cellRect );
         QPolygonF polyTest = polygeom.asQPolygonF();
@@ -420,7 +411,6 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon( const QPolygonF &p
           ret.setValue( yi, xi, 1 );
         }
       }
-
     }
   }
 
@@ -447,5 +437,3 @@ QPolygonF ReosGeometryUtils::convexHull( const QList<QPointF> &points )
 
   return ret;
 }
-
-

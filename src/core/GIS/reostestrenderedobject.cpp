@@ -22,9 +22,7 @@
 #include "reosrenderersettings.h"
 
 ReosTestRenderedObject::ReosTestRenderedObject()
-{
-
-}
+{}
 
 QImage ReosTestRenderedObject::render( ReosRenderedObject *object, const QDateTime &time )
 {
@@ -49,11 +47,7 @@ QImage ReosTestRenderedObject::render( ReosRenderedObject *object, const QDateTi
   return renderer->image();
 }
 
-bool ReosTestRenderedObject::compareRendering(
-  ReosRenderedObject *object,
-  const QDateTime &time,
-  const QString &imageFile,
-  int tolerance )
+bool ReosTestRenderedObject::compareRendering( ReosRenderedObject *object, const QDateTime &time, const QString &imageFile, int tolerance )
 {
   QImage file( imageFile );
   QImage rendered = render( object, time );
@@ -67,22 +61,22 @@ bool ReosTestRenderedObject::compareRendering(
     diffImage.fill( Qt::white );
     int width = file.width();
     int height = file.height();
-    const QRgb *dataFile = reinterpret_cast <const QRgb *>( file.constBits() );
-    const QRgb *actualImage = reinterpret_cast <const QRgb *>( rendered.constBits() );
-    QRgb *diff = reinterpret_cast <QRgb *>( diffImage.bits() );
+    const QRgb *dataFile = reinterpret_cast<const QRgb *>( file.constBits() );
+    const QRgb *actualImage = reinterpret_cast<const QRgb *>( rendered.constBits() );
+    QRgb *diff = reinterpret_cast<QRgb *>( diffImage.bits() );
     for ( int i = 0; i < width; ++i )
     {
       for ( int j = 0; j < height; ++j )
       {
-
         size_t index = j * width + i;
-        if ( std::abs( qRed( dataFile[index] ) - qRed( actualImage[index] ) ) > tolerance ||
-             std::abs( qGreen( dataFile[index] ) - qGreen( actualImage[index] ) ) > tolerance ||
-             std::abs( qBlue( dataFile[index] ) - qBlue( actualImage[index] ) ) > tolerance ||
-             std::abs( qAlpha( dataFile[index] ) - qAlpha( actualImage[index] ) ) > tolerance )
+        if ( std::abs( qRed( dataFile[index] ) - qRed( actualImage[index] ) ) > tolerance
+             || std::abs( qGreen( dataFile[index] ) - qGreen( actualImage[index] ) ) > tolerance
+             || std::abs( qBlue( dataFile[index] ) - qBlue( actualImage[index] ) ) > tolerance
+             || std::abs( qAlpha( dataFile[index] ) - qAlpha( actualImage[index] ) ) > tolerance )
         {
           diff[index] = qRgb( 255, 0, 0 );
-          nbPixelDiff++; ;
+          nbPixelDiff++;
+          ;
         }
       }
     }

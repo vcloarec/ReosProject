@@ -65,7 +65,7 @@ class REOSCORE_EXPORT ReosCoordinateSystemTransformer
 /**
  * Reos module class that handles GIS layer
  */
-class REOSCORE_EXPORT ReosGisEngine: public ReosModule
+class REOSCORE_EXPORT ReosGisEngine : public ReosModule
 {
     Q_OBJECT
   public:
@@ -83,7 +83,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     ReosGisEngine( QObject *parent = nullptr );
     ~ReosGisEngine();
 
-    static QString staticName() {return QStringLiteral( "gis-engine" );}
+    static QString staticName() { return QStringLiteral( "gis-engine" ); }
 
     void initGisEngine();
 
@@ -129,7 +129,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     QString meshLayerFilters() const;
 
     //! Returns the coordinate reference system of the GIS project
-    QString crs() const ;
+    QString crs() const;
 
     //! Returns a WKT string of the CRS defined by the EPSG code \a epsgCode
     static QString crsFromEPSG( int epsgCode );
@@ -167,7 +167,7 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     bool isDigitalElevationModel( const QString &layerId ) const;
 
     //! Returns a pointer to a Digitial Elevation Model from a raster file with  \a uri
-    static ReosDigitalElevationModel *createRasterDigitalElevationModel( const QString &uri )  SIP_TRANSFER;
+    static ReosDigitalElevationModel *createRasterDigitalElevationModel( const QString &uri ) SIP_TRANSFER;
 
     //! Returns a pointer to a Digitial Elevation Model corresponding to the topest layer registered as DEM, caller take ownership
     ReosDigitalElevationModel *getTopDigitalElevationModel() const SIP_SKIP;
@@ -247,12 +247,9 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
      * Returns a resuling raster extent \a resultingExtent and a memory raster containing pairs (part,index) of the original raster
      * in each resulting cell.
      */
-    static ReosRasterMemory<QList<QPair<double, QPoint> > > transformRasterExtent( const ReosRasterExtent &extent,
-        const ReosMapExtent &destination,
-        double resolX,
-        double resolY,
-        ReosRasterExtent &resultingExtent,
-        bool &success ) SIP_SKIP;
+    static ReosRasterMemory<QList<QPair<double, QPoint> > > transformRasterExtent(
+      const ReosRasterExtent &extent, const ReosMapExtent &destination, double resolX, double resolY, ReosRasterExtent &resultingExtent, bool &success
+    ) SIP_SKIP;
 
     //! Returns the temporal range
     QPair<QDateTime, QDateTime> temporalRange() const;
@@ -266,14 +263,16 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
      *  the layers currently prensent in the project will be added to the new project
      */
     static bool createProjectFile( const QString &projectFileName, bool keepLayer = false );
-    static void addMeshLayerToExistingProject( const QString &projectFileName,
-        const QString &layerName,
-        const QString &uri,
-        const ReosEncodedElement &meshFrameSymbology,
-        const QMap<QString, ReosEncodedElement> &scalarSymbologies,
-        const QMap<QString, ReosEncodedElement> &vectorSymbologies,
-        const ReosDuration &timeStep,
-        ReosModule::Message &message ) SIP_SKIP;
+    static void addMeshLayerToExistingProject(
+      const QString &projectFileName,
+      const QString &layerName,
+      const QString &uri,
+      const ReosEncodedElement &meshFrameSymbology,
+      const QMap<QString, ReosEncodedElement> &scalarSymbologies,
+      const QMap<QString, ReosEncodedElement> &vectorSymbologies,
+      const ReosDuration &timeStep,
+      ReosModule::Message &message
+    ) SIP_SKIP;
 
     static QString gisEngineName();
     static QString gisEngineVersion();
@@ -302,7 +301,6 @@ class REOSCORE_EXPORT ReosGisEngine: public ReosModule
     void defaultstyleRasterLayer( QgsRasterLayer *layer );
 
     bool canBeRasterDem( QgsRasterLayer *layer ) const;
-
 };
 
 #endif // REOSGISENGINE_H

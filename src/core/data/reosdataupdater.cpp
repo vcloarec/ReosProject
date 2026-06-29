@@ -46,5 +46,5 @@ void ReosTimeSeriesUpdater::onDataCouldHaveChanged()
 
 ReosTimeWindow ReosTimeSeriesUpdater::lastNewTimeWindow() const
 {
-    return mLastNewTimeWindow;
+  return mLastNewTimeWindow;
 }

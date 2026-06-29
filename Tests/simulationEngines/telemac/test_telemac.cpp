@@ -12,18 +12,18 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
-#include <QObject>
 #include <filesystem>
+#include <QObject>
+#include <QtTest/QtTest>
 
-#include "reoshydraulicstructure2d.h"
+#include "reosapplication.h"
 #include "reoscoremodule.h"
+#include "reoshydraulicscheme.h"
+#include "reoshydraulicstructure2d.h"
 #include "reoshydraulicstructureboundarycondition.h"
 #include "reosparameter.h"
-#include "reostimeseries.h"
-#include "reoshydraulicscheme.h"
 #include "reossettings.h"
-#include "reosapplication.h"
+#include "reostimeseries.h"
 
 #include "reostelemac2dsimulation.h"
 
@@ -39,7 +39,6 @@ class ReosTelemacTesting : public QObject
   private:
     ReosCoreModule *coreModule;
     QTemporaryDir projectDir;
-
 };
 
 void ReosTelemacTesting::initTestCase()
@@ -58,9 +57,7 @@ void ReosTelemacTesting::initTestCase()
 }
 
 void ReosTelemacTesting::cleanupTestCase()
-{
-
-}
+{}
 
 void ReosTelemacTesting::buildStructure()
 {
@@ -72,34 +69,21 @@ void ReosTelemacTesting::buildStructure()
   domain << QPointF( 495994.43921691790455952, 1996437.55488462746143341 );
   domain << QPointF( 495988.20698646450182423, 1996813.04676946741528809 );
   ReosHydraulicNetworkContext context = coreModule->hydraulicNetwork()->context();
-  ReosHydraulicStructure2D *hydraulicStructure =
-    new ReosHydraulicStructure2D( domain, coreModule->gisEngine()->crsFromEPSG( 32620 ), context );
+  ReosHydraulicStructure2D *hydraulicStructure = new ReosHydraulicStructure2D( domain, coreModule->gisEngine()->crsFromEPSG( 32620 ), context );
   QVERIFY( hydraulicStructure );
   coreModule->hydraulicNetwork()->addElement( hydraulicStructure );
 
   // Boundary condition
-  ReosGeometryStructureVertex *vert1 =
-    hydraulicStructure->geometryStructure()->searchForVertex(
-      ReosMapExtent( ReosSpatialPosition( 495537, 1996798 ),
-                     ReosSpatialPosition( 495538, 1996799 ) ) );
+  ReosGeometryStructureVertex *vert1 = hydraulicStructure->geometryStructure()->searchForVertex( ReosMapExtent( ReosSpatialPosition( 495537, 1996798 ), ReosSpatialPosition( 495538, 1996799 ) ) );
   QVERIFY( vert1 );
 
-  ReosGeometryStructureVertex *vert2 =
-    hydraulicStructure->geometryStructure()->searchForVertex(
-      ReosMapExtent( ReosSpatialPosition( 495542, 1996649 ),
-                     ReosSpatialPosition( 495541, 1996650 ) ) );
+  ReosGeometryStructureVertex *vert2 = hydraulicStructure->geometryStructure()->searchForVertex( ReosMapExtent( ReosSpatialPosition( 495542, 1996649 ), ReosSpatialPosition( 495541, 1996650 ) ) );
   QVERIFY( vert2 );
 
-  ReosGeometryStructureVertex *vert3 =
-    hydraulicStructure->geometryStructure()->searchForVertex(
-      ReosMapExtent( ReosSpatialPosition( 495819, 1996435 ),
-                     ReosSpatialPosition( 495820, 1996436 ) ) );
+  ReosGeometryStructureVertex *vert3 = hydraulicStructure->geometryStructure()->searchForVertex( ReosMapExtent( ReosSpatialPosition( 495819, 1996435 ), ReosSpatialPosition( 495820, 1996436 ) ) );
   QVERIFY( vert3 );
 
-  ReosGeometryStructureVertex *vert4 =
-    hydraulicStructure->geometryStructure()->searchForVertex(
-      ReosMapExtent( ReosSpatialPosition( 495994., 1996437 ),
-                     ReosSpatialPosition( 495995, 1996438 ) ) );
+  ReosGeometryStructureVertex *vert4 = hydraulicStructure->geometryStructure()->searchForVertex( ReosMapExtent( ReosSpatialPosition( 495994., 1996437 ), ReosSpatialPosition( 495995, 1996438 ) ) );
   QVERIFY( vert4 );
 
   hydraulicStructure->geometryStructure()->addBoundaryCondition( vert1, vert2, QString( "Upstream" ) );
@@ -184,8 +168,7 @@ void ReosTelemacTesting::buildStructure()
   QCOMPARE( simData.waterLevelIniLocation, ReosSimulationData::None );
   QCOMPARE( simData.velocityIniLocation, ReosSimulationData::None );
 
-  ReosTelemac2DInitialConditionFromInterpolation *interCi =
-    dynamic_cast<ReosTelemac2DInitialConditionFromInterpolation *>( telemacSim->initialCondition() );
+  ReosTelemac2DInitialConditionFromInterpolation *interCi = dynamic_cast<ReosTelemac2DInitialConditionFromInterpolation *>( telemacSim->initialCondition() );
   interCi->firstValue()->setValue( 4 );
   interCi->secondValue()->setValue( 3 );
   QPolygonF interLine;

@@ -16,8 +16,8 @@
 #include "reosplotpicker_p.h"
 
 
-
-ReosPlotPicker_p::ReosPlotPicker_p( ReosPlot_p *plot ): QwtPlotPicker( plot->canvas() )
+ReosPlotPicker_p::ReosPlotPicker_p( ReosPlot_p *plot )
+  : QwtPlotPicker( plot->canvas() )
 {
   connect( plot, &ReosPlot_p::reploted, this, &ReosPlotPicker_p::update );
 }
@@ -62,7 +62,6 @@ void ReosPlotPicker_p::activate()
   {
     deactivate();
   }
-
 }
 
 void ReosPlotPicker_p::deactivate()
@@ -88,10 +87,9 @@ void ReosPlotPicker_p::askForStop()
   setEnabled( false );
 }
 
-ReosPickerMachineLineOneAfterOne_p::ReosPickerMachineLineOneAfterOne_p():
-  QwtPickerMachine( PolygonSelection )
-{
-}
+ReosPickerMachineLineOneAfterOne_p::ReosPickerMachineLineOneAfterOne_p()
+  : QwtPickerMachine( PolygonSelection )
+{}
 
 QList<QwtPickerMachine::Command> ReosPickerMachineLineOneAfterOne_p::transition( const QwtEventPattern &eventPattern, const QEvent *event )
 {
@@ -101,8 +99,7 @@ QList<QwtPickerMachine::Command> ReosPickerMachineLineOneAfterOne_p::transition(
   {
     case QEvent::MouseButtonPress:
     {
-      if ( eventPattern.mouseMatch( QwtEventPattern::MouseSelect1,
-                                    static_cast<const QMouseEvent *>( event ) ) )
+      if ( eventPattern.mouseMatch( QwtEventPattern::MouseSelect1, static_cast<const QMouseEvent *>( event ) ) )
       {
         if ( state() == 0 )
         {
@@ -116,8 +113,7 @@ QList<QwtPickerMachine::Command> ReosPickerMachineLineOneAfterOne_p::transition(
           cmdList += Append;
         }
       }
-      if ( eventPattern.mouseMatch( QwtEventPattern::MouseSelect2,
-                                    static_cast<const QMouseEvent *>( event ) ) )
+      if ( eventPattern.mouseMatch( QwtEventPattern::MouseSelect2, static_cast<const QMouseEvent *>( event ) ) )
       {
         if ( state() == 1 )
         {
@@ -140,7 +136,8 @@ QList<QwtPickerMachine::Command> ReosPickerMachineLineOneAfterOne_p::transition(
   return cmdList;
 }
 
-ReosPlotPickerDrawLines_p::ReosPlotPickerDrawLines_p( ReosPlot_p *plot ): ReosPlotPicker_p( plot )
+ReosPlotPickerDrawLines_p::ReosPlotPickerDrawLines_p( ReosPlot_p *plot )
+  : ReosPlotPicker_p( plot )
 {
   setStateMachine( new ReosPickerMachineLineOneAfterOne_p );
   setRubberBand( QwtPicker::PolygonRubberBand );
@@ -187,7 +184,8 @@ void ReosPlotPickerDrawLines_p::setCursor()
   plot()->canvas()->setCursor( QCursor( QStringLiteral( ":/cursors/linearDrawing.png" ), 4, 4 ) );
 }
 
-ReosPlotPickerEditPoint_p::ReosPlotPickerEditPoint_p( ReosPlot_p *plot ): ReosPlotPicker_p( plot )
+ReosPlotPickerEditPoint_p::ReosPlotPickerEditPoint_p( ReosPlot_p *plot )
+  : ReosPlotPicker_p( plot )
 {
   setStateMachine( new QwtPickerDragPointMachine );
   connect( this, &QwtPlotPicker::appended, this, &ReosPlotPickerEditPoint_p::beginMove );

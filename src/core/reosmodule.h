@@ -32,7 +32,6 @@ class REOSCORE_EXPORT ReosModule : public QObject
 {
     Q_OBJECT
   public:
-
     enum MessageType
     {
       Simple,
@@ -43,11 +42,11 @@ class REOSCORE_EXPORT ReosModule : public QObject
 
     struct REOSCORE_EXPORT Message
     {
-      void prefixMessage( const QString &prefix );
-      void addText( const QString &newText );
+        void prefixMessage( const QString &prefix );
+        void addText( const QString &newText );
 
-      MessageType type = Simple;
-      QString text = QString();
+        MessageType type = Simple;
+        QString text = QString();
     };
 
     ReosModule() = default;
@@ -61,7 +60,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
 
     virtual QFileInfoList uselessFiles( bool clean ) const;
 
-    QString moduleName() const {return mModuleName;}
+    QString moduleName() const { return mModuleName; }
 
     ReosModule *childModule( const QString &moduleName ) const;
     QStringList childModuleNames() const;
@@ -69,11 +68,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
     /**
      * Returns a pointer to the child module of type T, nullptr is this module does not exist
      */
-    template <typename T>
-    T module() const
-    {
-      return qobject_cast<T>( childModule( std::remove_pointer<T>::type::staticName() ) );
-    }
+    template<typename T> T module() const { return qobject_cast<T>( childModule( std::remove_pointer<T>::type::staticName() ) ); }
 
 #endif //SIP_RUN
   signals:
@@ -100,7 +95,7 @@ class REOSCORE_EXPORT ReosModule : public QObject
 
   private:
     QPointer<ReosModule> mReosParent;
-    QMap < QString, QPointer<ReosModule>> mReosChildren;
+    QMap< QString, QPointer<ReosModule>> mReosChildren;
     QString mProjectFileName;
     QString mModuleName;
 };

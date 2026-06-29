@@ -42,10 +42,9 @@ class ReosMeteorologicModelWidget : public ReosActionWidget
     Q_OBJECT
 
   public:
-    explicit ReosMeteorologicModelWidget( ReosWatershedItemModel *watershedModel,
-                                          ReosHydraulicNetwork *hydraulicNetwork,
-                                          ReosMeteorologicModelsCollection *meteoModelsCollection,
-                                          const ReosGuiContext &guiContext );
+    explicit ReosMeteorologicModelWidget(
+      ReosWatershedItemModel *watershedModel, ReosHydraulicNetwork *hydraulicNetwork, ReosMeteorologicModelsCollection *meteoModelsCollection, const ReosGuiContext &guiContext
+    );
 
     void setCurrentMeteorologicalModel( int index );
 

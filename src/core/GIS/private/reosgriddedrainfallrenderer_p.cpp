@@ -27,7 +27,6 @@
 #include <qgscolorrampimpl.h>
 
 
-
 ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( ReosGriddedData *rainfall )
   : ReosGriddedRainfallRendererFactory( rainfall )
   , mColorRampSettings( new ReosGriddedRainfallColorShaderSettings_p( this ) )
@@ -51,7 +50,7 @@ ReosGriddedRainfallRendererFactory_p::ReosGriddedRainfallRendererFactory_p( Reos
     renderer->setClassificationMax( 20 );
   }
 
-  renderer->createShader( colorRamp.release(),  Qgis::ShaderInterpolationMethod::Linear, Qgis::ShaderClassificationMethod::EqualInterval, 10, false );
+  renderer->createShader( colorRamp.release(), Qgis::ShaderInterpolationMethod::Linear, Qgis::ShaderClassificationMethod::EqualInterval, 10, false );
   mColorRampSettings->setShader( renderer->shader()->rasterShaderFunction() );
   mRasterLayer->setRenderer( renderer.release() );
 }
@@ -112,8 +111,7 @@ ReosColorShaderSettings *ReosGriddedRainfallRendererFactory_p::colorRampShaderSe
 
 void ReosGriddedRainfallRendererFactory_p::setColorRampShaderSettings( ReosColorShaderSettings *colorSettings )
 {
-  if ( ReosGriddedRainfallColorShaderSettings_p *newColorSettings =
-         qobject_cast<ReosGriddedRainfallColorShaderSettings_p *>( colorSettings ) )
+  if ( ReosGriddedRainfallColorShaderSettings_p *newColorSettings = qobject_cast<ReosGriddedRainfallColorShaderSettings_p *>( colorSettings ) )
   {
     mColorRampSettings.reset( newColorSettings );
     mColorRampSettings->mRendererfactory = this;
@@ -122,13 +120,12 @@ void ReosGriddedRainfallRendererFactory_p::setColorRampShaderSettings( ReosColor
   }
   else //not the good type, we have to destruct it because we take the ownership
     delete colorSettings;
-
 }
 
 
 QgsColorRampShader ReosGriddedRainfallRendererFactory_p::colorRampShader() const
 {
-  if ( mRasterLayer->renderer()->type() !=  QStringLiteral( "singlebandpseudocolor" ) )
+  if ( mRasterLayer->renderer()->type() != QStringLiteral( "singlebandpseudocolor" ) )
     return QgsColorRampShader();
 
   QgsSingleBandPseudoColorRenderer *renderer = dynamic_cast<QgsSingleBandPseudoColorRenderer *>( mRasterLayer->renderer() );
@@ -145,7 +142,7 @@ QgsColorRampShader ReosGriddedRainfallRendererFactory_p::colorRampShader() const
 
 void ReosGriddedRainfallRendererFactory_p::setColorRampShader( const QgsColorRampShader &colorRampShader )
 {
-  if ( mRasterLayer->renderer()->type() !=  QStringLiteral( "singlebandpseudocolor" ) )
+  if ( mRasterLayer->renderer()->type() != QStringLiteral( "singlebandpseudocolor" ) )
     return;
 
   QgsSingleBandPseudoColorRenderer *renderer = dynamic_cast<QgsSingleBandPseudoColorRenderer *>( mRasterLayer->renderer() );
@@ -205,13 +202,7 @@ int ReosGriddedRainfallRasterProvider_p::ySize() const
 //  return Size;
 //}
 
-bool ReosGriddedRainfallRasterProvider_p::readBlock(
-  int,
-  const QgsRectangle &viewExtent,
-  int width,
-  int height,
-  void *data,
-  QgsRasterBlockFeedback * )
+bool ReosGriddedRainfallRasterProvider_p::readBlock( int, const QgsRectangle &viewExtent, int width, int height, void *data, QgsRasterBlockFeedback * )
 {
   if ( mValues.isEmpty() )
     return false;
@@ -221,12 +212,11 @@ bool ReosGriddedRainfallRasterProvider_p::readBlock(
 
   GDALResampleAlg alg = GRA_Cubic;
 
-  gdal::dataset_unique_ptr memData =
-    QgsGdalUtils::blockToSingleBandMemoryDataset( pixelWidth, pixelHeight, mExtent, const_cast<double *>( mValues.constData() ),  GDALDataType::GDT_Float64 );
+  gdal::dataset_unique_ptr memData = QgsGdalUtils::blockToSingleBandMemoryDataset( pixelWidth, pixelHeight, mExtent, const_cast<double *>( mValues.constData() ), GDALDataType::GDT_Float64 );
 
   gdal::dataset_unique_ptr gdalDsOutput = QgsGdalUtils::blockToSingleBandMemoryDataset( width, height, viewExtent, data, GDT_Float64 );
 
-  if ( !memData || ! gdalDsOutput )
+  if ( !memData || !gdalDsOutput )
     return false;
 
   bool res = QgsGdalUtils::resampleSingleBandRaster( memData.get(), gdalDsOutput.get(), alg, nullptr );
@@ -268,13 +258,13 @@ bool ReosRendererGriddedRainfallMapTimeStamp_p::equal( ReosRendererObjectMapTime
   if ( !other_p )
     return false;
 
-  bool test = other_p->mDataIndex >= 0 || mDataIndex >= 0 ;
+  bool test = other_p->mDataIndex >= 0 || mDataIndex >= 0;
 
   return !( test && other_p->mDataIndex != mDataIndex );
 }
 
-ReosGriddedRainfallColorShaderSettings_p::ReosGriddedRainfallColorShaderSettings_p( ReosGriddedRainfallRendererFactory_p *rendererFactory ):
-  mRendererfactory( rendererFactory )
+ReosGriddedRainfallColorShaderSettings_p::ReosGriddedRainfallColorShaderSettings_p( ReosGriddedRainfallRendererFactory_p *rendererFactory )
+  : mRendererfactory( rendererFactory )
 {}
 
 ReosGriddedRainfallColorShaderSettings_p *ReosGriddedRainfallColorShaderSettings_p::clone() const
@@ -316,8 +306,7 @@ double ReosGriddedRainfallColorShaderSettings_p::opacity() const
 }
 
 void ReosGriddedRainfallColorShaderSettings_p::setOpacity( double )
-{
-}
+{}
 
 bool ReosGriddedRainfallColorShaderSettings_p::getDirectSourceMinMax( double &min, double &max ) const
 {

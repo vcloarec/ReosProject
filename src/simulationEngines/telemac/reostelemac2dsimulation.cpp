@@ -76,7 +76,7 @@ bool ReosTelemac2DSimulation::hasCapability( Capability cap ) const
   return mCapabilities.testFlag( cap );
 }
 
-ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulationData &simData, const QString &schemeId )
+ReosModule::Message ReosTelemac2DSimulation::prepareSimulationData( ReosSimulationData &simData, const QString &schemeId )
 {
   int vertCount = mStructure->mesh()->vertexCount();
 
@@ -161,11 +161,9 @@ ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulat
   if ( results )
   {
     int waterlevelGroupIndex = results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel );
-    if ( results->datasetCount( waterlevelGroupIndex ) >  timeStepIndex )
+    if ( results->datasetCount( waterlevelGroupIndex ) > timeStepIndex )
     {
-
-      const QVector<double> waterLevelvalues =
-        results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
+      const QVector<double> waterLevelvalues = results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterLevel ), timeStepIndex );
 
       if ( waterLevelvalues.count() == vertCount )
       {
@@ -173,17 +171,14 @@ ReosModule::Message  ReosTelemac2DSimulation::prepareSimulationData( ReosSimulat
         simData.waterDepthIniLocation = ReosSimulationData::Vertex;
         simData.velocityIniLocation = ReosSimulationData::Vertex;
         simData.waterLevelIni = waterLevelvalues;
-        simData.waterDepthIni =
-          results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
-        simData.velocityIni =
-          results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
+        simData.waterDepthIni = results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::WaterDepth ), timeStepIndex );
+        simData.velocityIni = results->datasetValues( results->groupIndex( ReosHydraulicSimulationResults::DatasetType::Velocity ), timeStepIndex );
       }
       else
       {
         retMes.type = ReosModule::Error;
         retMes.addText( tr( "Results incompatible with current mesh." ) );
       }
-
     }
     else
     {
@@ -238,7 +233,7 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
 ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent ) const
 {
   if ( element.description() == QStringLiteral( "telemac-2d-simulation" ) )
-    return new  ReosTelemac2DSimulation( element, parent );
+    return new ReosTelemac2DSimulation( element, parent );
   else
     return new ReosTelemac2DSimulation( parent );
 }
@@ -276,7 +271,8 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
     telDir = QDir( telemacPath );
     if ( telemacPath.isEmpty() || !telDir.exists() )
     {
-      txtStream << QString( "TELEMAC path not found. Unable to solve TELEMAC settings." ).arg( QString( TELEMAC_PATH ) ) << Qt::endl;;
+      txtStream << QString( "TELEMAC path not found. Unable to solve TELEMAC settings." ).arg( QString( TELEMAC_PATH ) ) << Qt::endl;
+      ;
       return;
     }
   }
@@ -334,15 +330,17 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
   settings.setValue( QStringLiteral( "/python_path" ), pythonDir.path() );
 
   txtStream << QStringLiteral( "TELEMAC settings resolved." ) << Qt::endl;
-  txtStream << QString( "Current settings are: \n"
-                        "Configuration file: %1\n"
-                        "Configuration name: %2\n"
-                        "Python interpreter path: %3\n"
-                        "Python script path: %4\n" ).arg(
-              configFileInfo.filePath(),
-              configName,
-              pythonDir.path(),
-              scriptsDir.filePath( QStringLiteral( "telemac2d.py" ) ) ) << Qt::endl;;
+  txtStream
+    << QString(
+         "Current settings are: \n"
+         "Configuration file: %1\n"
+         "Configuration name: %2\n"
+         "Python interpreter path: %3\n"
+         "Python script path: %4\n"
+       )
+         .arg( configFileInfo.filePath(), configName, pythonDir.path(), scriptsDir.filePath( QStringLiteral( "telemac2d.py" ) ) )
+    << Qt::endl;
+  ;
 }
 
 ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResult2D() const
@@ -421,8 +419,7 @@ bool ReosTelemac2DSimulation::hasResult( const QString &shemeId ) const
 
   bool isCompatible = false;
 
-  isCompatible = ( MDAL_M_vertexCount( meshH ) == mStructure->mesh()->vertexCount() ) &&
-                 ( MDAL_M_faceCount( meshH ) == mStructure->mesh()->faceCount() );
+  isCompatible = ( MDAL_M_vertexCount( meshH ) == mStructure->mesh()->vertexCount() ) && ( MDAL_M_faceCount( meshH ) == mStructure->mesh()->faceCount() );
 
   MDAL_CloseMesh( meshH );
 
@@ -461,7 +458,7 @@ ReosHydraulicSimulationResults *ReosTelemac2DSimulation::loadSimulationResults( 
   if ( !dir.exists() )
     return nullptr;
 
-  return new ReosTelemac2DSimulationResults( this, mStructure->mesh(),  dir.filePath( mResultFileName ), parent );
+  return new ReosTelemac2DSimulationResults( this, mStructure->mesh(), dir.filePath( mResultFileName ), parent );
 }
 
 void ReosTelemac2DSimulation::removeResults( const QString &shemeId ) const
@@ -527,7 +524,7 @@ void ReosTelemac2DSimulation::restoreConfiguration( ReosHydraulicScheme *scheme 
 
 QFileInfoList ReosTelemac2DSimulation::cleanScheme( ReosHydraulicScheme *scheme )
 {
-  return QFileInfoList( {QFileInfo( simulationDir( scheme->id() ).path() )} );
+  return QFileInfoList( { QFileInfo( simulationDir( scheme->id() ).path() ) } );
 }
 
 static ReosTelemac2DInitialConditionFromSimulation *getHotStartCondIni( const QList<ReosTelemac2DInitialCondition *> &initialConditions )
@@ -638,26 +635,23 @@ ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( const ReosCalculatio
     if ( bound.rank > 0 )
       telemacBounds.insert( bound.rank, bound );
 
-  return new ReosTelemac2DSimulationProcess( calculationContext, mTimeStep->value(),  dir.path(), mStructure->boundaryConditions(), telemacBounds );
+  return new ReosTelemac2DSimulationProcess( calculationContext, mTimeStep->value(), dir.path(), mStructure->boundaryConditions(), telemacBounds );
 }
 
 struct TelemacBoundary
 {
-  int LIHBOR = 2;
-  int LIUBOR = 2;
-  int LIVBOR = 2;
+    int LIHBOR = 2;
+    int LIUBOR = 2;
+    int LIVBOR = 2;
 
-  int LITBOR = 2;
+    int LITBOR = 2;
 
-  int vertIndex;
+    int vertIndex;
 };
 
-QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::createBoundaryFiles(
-  const ReosSimulationData &simulationData,
-  QVector<int> &verticesPosInBoundary,
-  const QDir &directory )
+QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::createBoundaryFiles( const ReosSimulationData &simulationData, QVector<int> &verticesPosInBoundary, const QDir &directory )
 {
-  const QVector<ReosSimulationData::BoundaryVertices> &boundSegments =  simulationData.boundaryVertices;
+  const QVector<ReosSimulationData::BoundaryVertices> &boundSegments = simulationData.boundaryVertices;
   // constraint for TElEMAC:
   // - Start from the vertices with X+Y is minimum
   // - counterclockwise
@@ -701,7 +695,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   //find the direction
   const ReosSimulationData::BoundaryVertices &seg = boundSegments.at( minYSgementIndex );
   const ReosSimulationData::BoundaryVertices &segPrev = boundSegments.at( ( minYSgementIndex + segCount - 1 ) % segCount );
-  const ReosSimulationData::BoundaryVertices &segNext = boundSegments.at( ( minYSgementIndex +  1 ) % segCount );
+  const ReosSimulationData::BoundaryVertices &segNext = boundSegments.at( ( minYSgementIndex + 1 ) % segCount );
   if ( seg.verticesIndex.isEmpty() || segPrev.verticesIndex.isEmpty() || segNext.verticesIndex.isEmpty() )
     return QList<ReosHydraulicStructureBoundaryCondition *>();
 
@@ -724,8 +718,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
     int segIndex = ( startSegmentIndex + i ) % segCount;
     const ReosSimulationData::BoundaryVertices &curSeg = boundSegments.at( segIndex );
     int vertCount = curSeg.verticesIndex.count();
-    if ( !curSeg.boundaryCondition.isNull() &&
-         ( ret.isEmpty() || curSeg.boundaryCondition != ret.last() ) )
+    if ( !curSeg.boundaryCondition.isNull() && ( ret.isEmpty() || curSeg.boundaryCondition != ret.last() ) )
       ret.append( curSeg.boundaryCondition );
 
     for ( int j = 0; j < vertCount; ++j )
@@ -774,7 +767,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   int boundCount = telemacBoundaries.count();
   if ( invertDirection )
   {
-    for ( int i = 0; i < ( boundCount - 1 ) / 2 ; ++i )
+    for ( int i = 0; i < ( boundCount - 1 ) / 2; ++i )
       std::swap( telemacBoundaries[i + 1], telemacBoundaries[boundCount - 1 - i] );
 
     for ( int i = 0; i < ret.count() / 2; ++i )
@@ -793,8 +786,8 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   for ( int i = 0; i < boundCount; ++i )
   {
     const TelemacBoundary &bound = telemacBoundaries.at( i );
-    stream << templateLine.arg( QString::number( bound.LIHBOR ), QString::number( bound.LIUBOR ), QString::number( bound.LIVBOR ),
-                                QString::number( bound.LITBOR ), QString::number( bound.vertIndex ), QString::number( i + 1 ) );
+    stream << templateLine
+                .arg( QString::number( bound.LIHBOR ), QString::number( bound.LIUBOR ), QString::number( bound.LIVBOR ), QString::number( bound.LITBOR ), QString::number( bound.vertIndex ), QString::number( i + 1 ) );
     verticesPosInBoundary[bound.vertIndex - 1] = i + 1;
   }
 
@@ -816,8 +809,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
 
       QPointF holeVert = rmesh->vertexPosition( holeVertices.at( i ).at( 0 ) );
 
-      if ( holeVert.x() < minX ||
-           ( holeVert.x() == minX && holeVert.y() < minY ) )
+      if ( holeVert.x() < minX || ( holeVert.x() == minX && holeVert.y() < minY ) )
       {
         minX = holeVert.x();
         minY = holeVert.y();
@@ -859,8 +851,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
 
     for ( int i = 0; i < telemacHole.count(); ++i )
     {
-      stream << templateLine.arg( QString::number( 2 ), QString::number( 2 ), QString::number( 2 ),
-                                  QString::number( 2 ), QString::number( telemacHole.at( i ) ), QString::number( fileIndex ) );
+      stream << templateLine.arg( QString::number( 2 ), QString::number( 2 ), QString::number( 2 ), QString::number( 2 ), QString::number( telemacHole.at( i ) ), QString::number( fileIndex ) );
 
       verticesPosInBoundary[telemacHole.at( i ) - 1] = fileIndex;
       fileIndex++;
@@ -870,8 +861,7 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   return ret;
 }
 
-template<typename T>
-void writeValue( T &value, QDataStream &out, bool changeEndianness = false )
+template<typename T> void writeValue( T &value, QDataStream &out, bool changeEndianness = false )
 {
   T v = value;
   char *const p = reinterpret_cast<char *>( &v );
@@ -885,11 +875,10 @@ void writeValue( T &value, QDataStream &out, bool changeEndianness = false )
 static bool isNativeLittleEndian()
 {
   int n = 1;
-  return ( *( char * )&n == 1 );
+  return ( *( char * ) &n == 1 );
 }
 
-template<typename T>
-static void writeValue( QDataStream &stream, T value )
+template<typename T> static void writeValue( QDataStream &stream, T value )
 {
   writeValue( value, stream, isNativeLittleEndian() );
 }
@@ -899,18 +888,17 @@ static void writeInt( QDataStream &stream, int i )
   writeValue( i, stream, isNativeLittleEndian() );
 }
 
-template<typename T>
-static void writeValueArrayRecord( QDataStream &stream, const QVector<T> &array )
+template<typename T> static void writeValueArrayRecord( QDataStream &stream, const QVector<T> &array )
 {
-  writeValue( stream, int( array.size()*sizeof( T ) ) );
+  writeValue( stream, int( array.size() * sizeof( T ) ) );
   for ( const T value : array )
     writeValue( stream, value );
-  writeValue( stream, int( array.size()*sizeof( T ) ) );
+  writeValue( stream, int( array.size() * sizeof( T ) ) );
 }
 
 static void writeStringRecord( QDataStream &stream, const QString &str )
 {
-  writeInt( stream,  str.count() );
+  writeInt( stream, str.count() );
   stream.writeRawData( str.toStdString().c_str(), str.count() );
   writeInt( stream, str.count() );
 }
@@ -933,9 +921,7 @@ static void setCounterClockwise( QVector<int> &triangle, const QPointF &v0, cons
 }
 
 
-void ReosTelemac2DSimulation::createSelafinMeshFrame(
-  const QVector<int> &verticesPosInBoundary,
-  const QString &fileName )
+void ReosTelemac2DSimulation::createSelafinMeshFrame( const QVector<int> &verticesPosInBoundary, const QString &fileName )
 {
   // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to know about the boundaies vertices,
   // wa can't use MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
@@ -973,7 +959,7 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
   QVector<int> elem( 4 );
   elem[0] = facesCount;
   elem[1] = verticesCount;
-  elem[2] = verticesPerFace ;
+  elem[2] = verticesPerFace;
   elem[3] = 1;
   writeValueArrayRecord( stream, elem );
 
@@ -989,7 +975,6 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
     setCounterClockwise( face, vp0, vp1, vp2 );
     for ( int f : std::as_const( face ) )
       writeInt( stream, f + 1 );
-
   }
   writeInt( stream, facesCount * verticesPerFace * 4 );
 
@@ -997,7 +982,7 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
 
   //Vertices
   QVector<double> xValues( verticesCount );
-  QVector<double>  yValues( verticesCount );
+  QVector<double> yValues( verticesCount );
   for ( int i = 0; i < verticesCount; ++i )
   {
     const QPointF vert = rmesh->vertexPosition( i );
@@ -1011,10 +996,7 @@ void ReosTelemac2DSimulation::createSelafinMeshFrame(
   file.close();
 }
 
-void ReosTelemac2DSimulation::createSelafinBaseFile(
-  const ReosSimulationData &simulationData,
-  const QVector<int> &verticesPosInBoundary,
-  const QString &fileName )
+void ReosTelemac2DSimulation::createSelafinBaseFile( const ReosSimulationData &simulationData, const QVector<int> &verticesPosInBoundary, const QString &fileName )
 {
   createSelafinMeshFrame( verticesPosInBoundary, fileName );
 
@@ -1022,11 +1004,7 @@ void ReosTelemac2DSimulation::createSelafinBaseFile(
 
   QgsMeshLayer::LayerOptions options;
   options.loadDefaultStyle = false;
-  std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
-        fileName,
-        QStringLiteral( "temp" ),
-        QStringLiteral( "mdal" ),
-        options );
+  std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique< QgsMeshLayer>( fileName, QStringLiteral( "temp" ), QStringLiteral( "mdal" ), options );
 
   //! Terrain elevation
   QgsMeshZValueDatasetGroup *zValueDatasetGroup = new QgsMeshZValueDatasetGroup( "BOTTOM", mesh );
@@ -1064,9 +1042,9 @@ void ReosTelemac2DSimulation::createSelafinBaseFile(
 
 void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimulationData &simulationData, const QVector<int> &verticesPosInBoundary, const QDir &directory )
 {
-  if ( simulationData.waterLevelIniLocation != ReosSimulationData::Vertex ||
-       simulationData.waterDepthIniLocation != ReosSimulationData::Vertex ||
-       simulationData.velocityIniLocation != ReosSimulationData::Vertex )
+  if ( simulationData.waterLevelIniLocation != ReosSimulationData::Vertex
+       || simulationData.waterDepthIniLocation != ReosSimulationData::Vertex
+       || simulationData.velocityIniLocation != ReosSimulationData::Vertex )
     return;
 
   const QString path = directory.filePath( mInitialConditionFile );
@@ -1085,9 +1063,7 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimul
   velocityDatasetU->values.resize( size );
   velocityDatasetV->values.resize( size );
 
-  if ( simulationData.waterLevelIni.count() != size ||
-       simulationData.waterDepthIni.count() != size ||
-       simulationData.velocityIni.count() != size * 2 )
+  if ( simulationData.waterLevelIni.count() != size || simulationData.waterDepthIni.count() != size || simulationData.velocityIni.count() != size * 2 )
     return;
 
   for ( int i = 0; i < size; ++i )
@@ -1139,11 +1115,7 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimul
   createSelafinBaseFile( simulationData, verticesPosInBoundary, path );
   QgsMeshLayer::LayerOptions options;
   options.loadDefaultStyle = false;
-  std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique < QgsMeshLayer>(
-        path,
-        QStringLiteral( "temp" ),
-        QStringLiteral( "mdal" ),
-        options );
+  std::unique_ptr<QgsMeshLayer> ouputMesh = std::make_unique< QgsMeshLayer>( path, QStringLiteral( "temp" ), QStringLiteral( "mdal" ), options );
 
   ouputMesh->addDatasets( waterLevelDatasetGroup.release() );
   ouputMesh->saveDataset( path, 2, QStringLiteral( "SELAFIN" ) );
@@ -1158,11 +1130,9 @@ void ReosTelemac2DSimulation::createSelafinInitialConditionFile( const ReosSimul
 }
 
 
-
 QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation::createBoundaryConditionFiles(
-  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
-  const ReosCalculationContext &context,
-  const QDir &directory )
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions, const ReosCalculationContext &context, const QDir &directory
+)
 {
   QSet<qint64> timeSteps;
   QList<TelemacBoundaryCondition> boundConds;
@@ -1229,13 +1199,13 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
   stream << "T";
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
     if ( bc.timeSeries )
-      stream << "\t" <<  bc.header.arg( QString::number( bc.rank ) );
+      stream << "\t" << bc.header.arg( QString::number( bc.rank ) );
   stream << "\n";
 
   stream << "s";
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
     if ( bc.timeSeries )
-      stream << "\t" <<  bc.unit;
+      stream << "\t" << bc.unit;
   stream << "\n";
 
   stream << QString::number( 0, 'f', 6 );
@@ -1249,14 +1219,14 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
     stream << QString::number( tms / 1000.0, 'f', 6 );
     for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
       if ( bc.timeSeries )
-        stream << "\t" <<  QString::number( bc.timeSeries->valueAtTime( startTime.addMSecs( tms ) ), 'f', 2 );
+        stream << "\t" << QString::number( bc.timeSeries->valueAtTime( startTime.addMSecs( tms ) ), 'f', 2 );
     stream << "\n";
   }
 
   stream << QString::number( startTime.msecsTo( endTime ) / 1000.0, 'f', 6 );
   for ( const TelemacBoundaryCondition &bc : std::as_const( boundConds ) )
     if ( bc.timeSeries )
-      stream <<  "\t" << QString::number( bc.timeSeries->valueAtTime( endTime ), 'f', 2 );
+      stream << "\t" << QString::number( bc.timeSeries->valueAtTime( endTime ), 'f', 2 );
   stream << "\n";
 
   return boundConds;
@@ -1267,7 +1237,8 @@ void ReosTelemac2DSimulation::createSteeringFile(
   const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
   const QVector<int> &verticesPosInBoundary,
   const ReosCalculationContext &context,
-  const QDir &directory )
+  const QDir &directory
+)
 {
   QString path = directory.filePath( mSteeringFileName );
   QFile file( path );
@@ -1304,9 +1275,9 @@ void ReosTelemac2DSimulation::createSteeringFile(
   }
 
   QDate startDate = context.timeWindow().start().date();
-  stream << QStringLiteral( "ORIGINAL DATE OF TIME : %1;%2;%3\n" ).arg( QString::number( startDate.year() ),  QString::number( startDate.month() ),  QString::number( startDate.day() ) );
+  stream << QStringLiteral( "ORIGINAL DATE OF TIME : %1;%2;%3\n" ).arg( QString::number( startDate.year() ), QString::number( startDate.month() ), QString::number( startDate.day() ) );
   QTime startTime = context.timeWindow().start().time();
-  stream << QStringLiteral( "ORIGINAL HOUR OF TIME : %1;%2;%3\n" ).arg( QString::number( startTime.hour() ),  QString::number( startTime.minute() ),  QString::number( startTime.second() ) );
+  stream << QStringLiteral( "ORIGINAL HOUR OF TIME : %1;%2;%3\n" ).arg( QString::number( startTime.hour() ), QString::number( startTime.minute() ), QString::number( startTime.second() ) );
   stream << QStringLiteral( "INITIAL TIME SET TO ZERO : YES\n" );
   stream << QStringLiteral( "TIME STEP : %1\n" ).arg( QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
   stream << QStringLiteral( "NUMBER OF TIME STEPS : %1\n" ).arg( QString::number( timeStepCount ) );
@@ -1385,19 +1356,19 @@ void ReosTelemac2DSimulation::createSteeringFile(
           vfScheme = QString( '0' );
           break;
         case VolumeFiniteScheme::Kinetic:
-          vfScheme =  QString( '1' );
+          vfScheme = QString( '1' );
           break;
         case VolumeFiniteScheme::Zokagoa:
-          vfScheme =  QString( '3' );
+          vfScheme = QString( '3' );
           break;
         case VolumeFiniteScheme::Tchamen:
-          vfScheme =  QString( '4' );
+          vfScheme = QString( '4' );
           break;
         case VolumeFiniteScheme::HLLC:
-          vfScheme =  QString( '5' );
+          vfScheme = QString( '5' );
           break;
         case VolumeFiniteScheme::WAF:
-          vfScheme =  QString( '6' );
+          vfScheme = QString( '6' );
           break;
       }
       stream << QStringLiteral( "FINITE VOLUME SCHEME: %1\n" ).arg( vfScheme );
@@ -1453,10 +1424,11 @@ void ReosTelemac2DSimulation::initInitialCondition()
 {
   QList<ReosTelemac2DInitialCondition::Type> types;
 
-  types << ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity
-        << ReosTelemac2DInitialCondition::Type::FromOtherSimulation
-        << ReosTelemac2DInitialCondition::Type::Interpolation
-        << ReosTelemac2DInitialCondition::Type::LastTimeStep;
+  types
+    << ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity
+    << ReosTelemac2DInitialCondition::Type::FromOtherSimulation
+    << ReosTelemac2DInitialCondition::Type::Interpolation
+    << ReosTelemac2DInitialCondition::Type::LastTimeStep;
 
   for ( ReosTelemac2DInitialCondition::Type type : std::as_const( types ) )
   {
@@ -1497,11 +1469,13 @@ void ReosTelemac2DSimulation::setVolumeFiniteEquationForScheme( VolumeFiniteSche
 }
 
 
-ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess( const ReosCalculationContext &context,
-    const ReosDuration &timeStep,
-    const QString &simulationfilePath,
-    const QList<ReosHydraulicStructureBoundaryCondition *> &boundElem,
-    const QMap<int, BoundaryCondition> &boundaries )
+ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess(
+  const ReosCalculationContext &context,
+  const ReosDuration &timeStep,
+  const QString &simulationfilePath,
+  const QList<ReosHydraulicStructureBoundaryCondition *> &boundElem,
+  const QMap<int, BoundaryCondition> &boundaries
+)
   : ReosSimulationProcess( context, boundElem )
   , mSimulationFilePath( simulationfilePath )
   , mTimeStep( timeStep )
@@ -1525,15 +1499,14 @@ void ReosTelemac2DSimulationProcess::start()
   const QString pythonPath = settings.value( QStringLiteral( "/python_path" ) ).toString();
   const QString telemScripts = settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString();
 
-  emit sendInformation( QString( "Current settings are: \n"
-                                 "Configuration file: %1\n"
-                                 "Configuration name: %2\n"
-                                 "Python interpreter path: %3\n"
-                                 "Python script path: %4\n" ).arg(
-                          envConfigFile,
-                          envConfigName,
-                          pythonPath,
-                          telemScripts ) );
+  emit sendInformation( QString(
+                          "Current settings are: \n"
+                          "Configuration file: %1\n"
+                          "Configuration name: %2\n"
+                          "Python interpreter path: %3\n"
+                          "Python script path: %4\n"
+  )
+                          .arg( envConfigFile, envConfigName, pythonPath, telemScripts ) );
 
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -1587,12 +1560,11 @@ void ReosTelemac2DSimulationProcess::start()
   QString script( QStringLiteral( "python3" ) );
 #endif
   QStringList arguments;
-  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString()
-            << QStringLiteral( "simulation.cas" );
+  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() << QStringLiteral( "simulation.cas" );
 
   int nbProc = settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt();
   if ( nbProc > 1 )
-    arguments <<  QStringLiteral( "--ncsize=%1" ).arg( nbProc );
+    arguments << QStringLiteral( "--ncsize=%1" ).arg( nbProc );
 
   mBlockRegEx = QRegularExpression( QStringLiteral( "(?s).*?((ITERATION .*?)\\n.*?=====)" ) );
   mBoundaryFlowRegEx = QRegularExpression( QStringLiteral( "(?s).*?FLUX BOUNDARY +([0-9])+: +([\\-0-9.E]+)" ) );
@@ -1602,8 +1574,7 @@ void ReosTelemac2DSimulationProcess::start()
   mIsPreparation = true;
   setMaxProgression( 100 );
   setCurrentProgression( 0 );
-  connect( mProcess, &QProcess::readyReadStandardOutput, mProcess, [this]
-  {
+  connect( mProcess, &QProcess::readyReadStandardOutput, mProcess, [this] {
     if ( mProcess )
     {
       addToOutput( mProcess->readAll() );
@@ -1649,10 +1620,12 @@ void ReosTelemac2DSimulationProcess::start()
   }
   else
   {
-    emit sendInformation( tr( "Telemac simulation can't start in folder \"%1\".\n"
-                              "Error: %2\n"
-                              "Check the settings of the Telemac engine." )
-                          .arg( mProcess->workingDirectory(), QString::number( mProcess->exitCode() ) ) );
+    emit sendInformation( tr(
+                            "Telemac simulation can't start in folder \"%1\".\n"
+                            "Error: %2\n"
+                            "Check the settings of the Telemac engine."
+    )
+                            .arg( mProcess->workingDirectory(), QString::number( mProcess->exitCode() ) ) );
 
     switch ( mProcess->error() )
     {
@@ -1726,7 +1699,7 @@ void ReosTelemac2DSimulationProcess::addToOutput( const QString &txt )
   }
 }
 
-void ReosTelemac2DSimulationProcess::extractInformation( const  QRegularExpressionMatch &blockMatch )
+void ReosTelemac2DSimulationProcess::extractInformation( const QRegularExpressionMatch &blockMatch )
 {
   QString timeString = blockMatch.captured( 2 );
   QStringList splited = timeString.split( ' ' );

@@ -27,8 +27,8 @@
 #include "reosconcentrationtimecalculation.h"
 #include "reosstyleregistery.h"
 
-ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
-  ReosActionWidget( parent )
+ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent )
+  : ReosActionWidget( parent )
   , ui( new Ui::ReosConcentrationTimeWidget )
   , mFormulasModel( new ReosConcentrationTimeFormulasModel( ReosConcentrationTimeFormulasRegistery::instance(), this ) )
   , mLengthParameterWidget( new ReosParameterDoubleWidget( this, tr( "Longest path" ) ) )
@@ -93,15 +93,13 @@ ReosConcentrationTimeWidget::ReosConcentrationTimeWidget( QWidget *parent ) :
 
   connect( mFormulasModel, &ReosConcentrationTimeFormulasModel::activeFormulasChanged, this, &ReosConcentrationTimeWidget::applyCalculation );
 
-  connect( ui->usedValue, &ReosParameterWidget::unitChanged, mFormulasModel, [this]()
-  {
+  connect( ui->usedValue, &ReosParameterWidget::unitChanged, mFormulasModel, [this]() {
     ReosParameterDuration *durationParameter = this->ui->usedValue->durationParameter();
     if ( durationParameter && durationParameter->isValid() )
       this->mFormulasModel->setCurrentTimeUnit( durationParameter->value().unit() );
   } );
 
   connect( ui->toolButtonForumulaDisplaying, &QToolButton::clicked, this, &ReosConcentrationTimeWidget::onFormulaDisplaying );
-
 }
 
 ReosConcentrationTimeWidget::~ReosConcentrationTimeWidget()
@@ -231,7 +229,6 @@ void ReosConcentrationTimeWidget::onSelectValid()
 
 void ReosConcentrationTimeWidget::onCopy()
 {
-
   QClipboard *clipBoard = QApplication::clipboard();
   QString copyText = mFormulasModel->textData();
 
@@ -280,8 +277,7 @@ void ReosConcentrationTimeWidget::onFormulaDisplaying()
   QVBoxLayout *vertLayout = new QVBoxLayout;
   dialog->setLayout( vertLayout );
 
-  auto addLine = [this, vertLayout]
-  {
+  auto addLine = [this, vertLayout] {
     QFrame *line = new QFrame( this );
     line->setFrameShape( QFrame::HLine );
     line->setFrameShadow( QFrame::Sunken );
@@ -304,7 +300,6 @@ void ReosConcentrationTimeWidget::onFormulaDisplaying()
       formulaLabel->setPixmap( registery->formula( formulaName )->formulaImage() );
       lay->addWidget( formulaLabel );
       addLine();
-
     }
   }
 

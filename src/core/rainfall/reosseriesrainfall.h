@@ -35,7 +35,7 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
   public:
     ReosSeriesRainfall( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return staticType();}
+    QString type() const override { return staticType(); }
 
 #ifndef SIP_RUN
 
@@ -50,7 +50,6 @@ class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
 #endif // No SIP_RUN
   private:
     void setupData();
-
 };
 
 class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeriesRainfall, public ReosDataGriddedOnWatershed
@@ -81,8 +80,8 @@ class REOSCORE_EXPORT ReosSeriesRainfallFromGriddedOnWatershed : public ReosSeri
 
   private slots:
     void onWatershedGeometryChanged();
-  private:
 
+  private:
 };
 
 

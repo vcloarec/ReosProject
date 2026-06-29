@@ -17,8 +17,8 @@
 #include "reosmapitem.h"
 #include "reosmap.h"
 
-ReosGuiContext::ReosGuiContext( QWidget *parent ):
-  mParent( parent )
+ReosGuiContext::ReosGuiContext( QWidget *parent )
+  : mParent( parent )
 {}
 
 ReosGuiContext::ReosGuiContext( const ReosGuiContext &other, QWidget *parent )

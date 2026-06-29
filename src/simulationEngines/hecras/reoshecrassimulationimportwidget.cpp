@@ -15,10 +15,7 @@ ReosHecRasSimulationImportWidget::ReosHecRasSimulationImportWidget( QWidget *par
 
   connect( ui->mProjectFileButton, &QToolButton::clicked, this, &ReosHecRasSimulationImportWidget::onProjectFileButtonPressed );
   connect( ui->mProjectFileLineEdit, &QLineEdit::textEdited, this, &ReosHecRasSimulationImportWidget::onFileNameChanged );
-  connect( ui->mCheckBoxCreateScheme, &QCheckBox::clicked, this, [this]( bool checked )
-  {
-    ui->mCheckBoxRemoveScheme->setEnabled( checked );
-  } );
+  connect( ui->mCheckBoxCreateScheme, &QCheckBox::clicked, this, [this]( bool checked ) { ui->mCheckBoxRemoveScheme->setEnabled( checked ); } );
 
   ui->mCheckBoxRemoveScheme->setEnabled( ui->mCheckBoxCreateScheme->isChecked() );
   onFileNameChanged();
@@ -40,11 +37,7 @@ void ReosHecRasSimulationImportWidget::onProjectFileButtonPressed()
 {
   ReosSettings settings;
   const QString dirName = settings.value( QStringLiteral( "ImportFile/directory" ) ).toString();
-  const QString fileName = QFileDialog::getOpenFileName(
-                             this,
-                             tr( "Choose HEC-RAS project file" ),
-                             dirName,
-                             tr( "HEC-RAS project file *.prj" ) );
+  const QString fileName = QFileDialog::getOpenFileName( this, tr( "Choose HEC-RAS project file" ), dirName, tr( "HEC-RAS project file *.prj" ) );
 
   if ( !fileName.isEmpty() )
   {
@@ -53,7 +46,6 @@ void ReosHecRasSimulationImportWidget::onProjectFileButtonPressed()
     settings.setValue( QStringLiteral( "ImportFile/directory" ), fileInfo.dir().path() );
     onFileNameChanged();
   }
-
 }
 
 void ReosHecRasSimulationImportWidget::onFileNameChanged()

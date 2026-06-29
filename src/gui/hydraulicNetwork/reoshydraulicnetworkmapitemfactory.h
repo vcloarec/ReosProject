@@ -26,7 +26,7 @@ typedef void ( *ReosHydraulicNetworkMapItemUpdateFunction )( ReosHydraulicNetwor
 typedef void ( *ReosHydraulicNetworkMapItemSelectFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
 typedef void ( *ReosHydraulicNetworkMapItemUnselectFunction )( ReosHydraulicNetworkElement *, ReosMapItem * );
 
-typedef ReosMapItem *( *ReosMapExtraItemSelectedFunction )( ReosHydraulicNetworkElement *,  ReosMap * );
+typedef ReosMapItem *( *ReosMapExtraItemSelectedFunction )( ReosHydraulicNetworkElement *, ReosMap * );
 
 class ReosHydraulicNetworkMapItemFactory
 {

@@ -17,14 +17,13 @@
 #include "reoshydraulicsimulation.h"
 #include "reosmesh.h"
 
-ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( QObject *parent )  : ReosMeshDatasetSource( parent )
-{
-}
+ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( QObject *parent )
+  : ReosMeshDatasetSource( parent )
+{}
 
 ReosHydraulicSimulationResults::ReosHydraulicSimulationResults( const ReosHydraulicSimulation *simulation, QObject *parent )
   : ReosMeshDatasetSource( parent )
-{
-}
+{}
 
 int ReosHydraulicSimulationResults::groupCount() const
 {
@@ -118,11 +117,7 @@ bool ReosHydraulicSimulationResults::groupIsScalar( int groupIndex ) const
   return false;
 }
 
-double ReosHydraulicSimulationResults::interpolateResultOnMesh(
-  ReosMesh *mesh,
-  const ReosSpatialPosition &position,
-  const QDateTime &time,
-  ReosHydraulicSimulationResults::DatasetType dataType )
+double ReosHydraulicSimulationResults::interpolateResultOnMesh( ReosMesh *mesh, const ReosSpatialPosition &position, const QDateTime &time, ReosHydraulicSimulationResults::DatasetType dataType )
 {
   int grInd = groupIndex( dataType );
   int dsInd = datasetIndexClosestBeforeTime( grInd, time );
@@ -130,13 +125,7 @@ double ReosHydraulicSimulationResults::interpolateResultOnMesh(
   return mesh->interpolateDatasetValueOnPoint( this, position, grInd, dsInd );
 }
 
-bool ReosHydraulicSimulationResults::rasterizeResultFromMesh(
-  ReosMesh *mesh,
-  const QString &filePath,
-  const QDateTime &time,
-  DatasetType dataType,
-  const QString &destinationCrs,
-  double resolution )
+bool ReosHydraulicSimulationResults::rasterizeResultFromMesh( ReosMesh *mesh, const QString &filePath, const QDateTime &time, DatasetType dataType, const QString &destinationCrs, double resolution )
 {
   const QString datasetId = groupId( dataType );
   int grInd = groupIndex( dataType );

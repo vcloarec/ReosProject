@@ -192,7 +192,7 @@ double ReosNetCdfFile::globalDoubleAttributeValue( const QString &attribureName 
 QString ReosNetCdfFile::globalStringAttributeValue( const QString &attribureName ) const
 {
   size_t len = 0;
-  int res  = nc_inq_attlen( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), &len );
+  int res = nc_inq_attlen( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), &len );
   if ( res != NC_NOERR )
     return QString();
   std::vector<char> retStr( len + 1 );
@@ -230,7 +230,7 @@ QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int 
   QVector<qint64> ret( size );
   int res = nc_get_var_longlong( mNcId, varId, ret.data() );
   if ( res != NC_NOERR )
-    return QVector<qint64> ();
+    return QVector<qint64>();
 
   return ret;
 }
@@ -241,7 +241,7 @@ QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, int size 
   QVector<int> ret( size );
   int res = nc_get_var_int( mNcId, varId, ret.data() );
   if ( res != NC_NOERR )
-    return QVector<int> ();
+    return QVector<int>();
 
   return ret;
 }
@@ -282,7 +282,7 @@ QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, int
   QVector<double> ret( size );
   int res = nc_get_var_double( mNcId, varId, ret.data() );
   if ( res != NC_NOERR )
-    return QVector<double> ();
+    return QVector<double>();
 
   return ret;
 }

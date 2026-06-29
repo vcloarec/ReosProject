@@ -35,15 +35,17 @@ class REOSGUI_EXPORT ReosGriddedRainDataProviderSelectorWidget : public ReosData
 {
     Q_OBJECT
   public:
-    ReosGriddedRainDataProviderSelectorWidget( QWidget *parent = nullptr ) : ReosDataProviderSelectorWidget( parent ) {}
+    ReosGriddedRainDataProviderSelectorWidget( QWidget *parent = nullptr )
+      : ReosDataProviderSelectorWidget( parent )
+    {}
 
-    ReosGriddedRainfall *createData( QObject *parent = nullptr )  const override;
+    ReosGriddedRainfall *createData( QObject *parent = nullptr ) const override;
 
     //! Set the datasource \a source to populate the selector, and returns details. Default implementation does nothing
-    virtual ReosGriddedRainfallProvider::FileDetails setSource( const QString &source, ReosModule::Message &message ) {return ReosGriddedRainfallProvider::FileDetails();};
+    virtual ReosGriddedRainfallProvider::FileDetails setSource( const QString &source, ReosModule::Message &message ) { return ReosGriddedRainfallProvider::FileDetails(); };
 
     //! Returns a name that represents the current selected data, default implementation returns an empty string
-    virtual QString dataName() const {return QString();}
+    virtual QString dataName() const { return QString(); }
 };
 
 //! Widget class used to select/defined gridded rainfall

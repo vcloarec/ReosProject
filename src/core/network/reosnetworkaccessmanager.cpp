@@ -32,7 +32,8 @@ ReosNetworkAccessManager *ReosNetworkAccessManager::instance()
   ReosNetworkAccessManager *nam = &sInstances.localData();
 
   if ( nam->thread() == qApp->thread() )
-    sMainNam = nam;;
+    sMainNam = nam;
+  ;
 
   return nam;
 }
@@ -46,16 +47,14 @@ QNetworkReply *ReosNetworkAccessManager::getBlocking( const QNetworkRequest &req
   bool isTimeOut = false;
 
 
-  connect( reply, &QNetworkReply::finished, &loop, [&]
-  {
+  connect( reply, &QNetworkReply::finished, &loop, [&] {
     timer.stop();
     loop.quit();
   } );
 
   if ( timeOut > 0 )
   {
-    connect( &timer, &QTimer::timeout, &loop, [ & ]
-    {
+    connect( &timer, &QTimer::timeout, &loop, [&] {
       isTimeOut = true;
       loop.quit();
     } );

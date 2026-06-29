@@ -86,7 +86,7 @@ class ReosWatershedGaugedHydrographWidget : public ReosActionStackedWidget
 {
     Q_OBJECT
   public:
-    ReosWatershedGaugedHydrographWidget( const ReosGuiContext  &guiContext );
+    ReosWatershedGaugedHydrographWidget( const ReosGuiContext &guiContext );
 
   public slots:
     void setCurrentWatershed( ReosWatershed *watershed );

@@ -41,8 +41,8 @@ class REOSCORE_EXPORT ReosHdf5Attribute
 
     struct Data
     {
-      hid_t id = 0;
-      int ref = 0;
+        hid_t id = 0;
+        int ref = 0;
     };
 
     std::shared_ptr<Data> mData;
@@ -67,8 +67,8 @@ class REOSCORE_EXPORT ReosHdf5Group
 
     struct Data
     {
-      hid_t id = 0;
-      int ref = 0;
+        hid_t id = 0;
+        int ref = 0;
     };
 
     std::shared_ptr<Data> mData;

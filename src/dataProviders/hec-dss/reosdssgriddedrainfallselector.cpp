@@ -24,9 +24,9 @@ REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
   return new ReosDssGuiFactory();
 }
 
-ReosDssGriddedRainfallSelector::ReosDssGriddedRainfallSelector( QWidget *parent ) :
-  ReosGriddedRainDataProviderSelectorWidget( parent ),
-  ui( new Ui::ReosDssGriddedRainfallSelector )
+ReosDssGriddedRainfallSelector::ReosDssGriddedRainfallSelector( QWidget *parent )
+  : ReosGriddedRainDataProviderSelectorWidget( parent )
+  , ui( new Ui::ReosDssGriddedRainfallSelector )
 {
   ui->setupUi( this );
   connect( ui->mPathesCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosDssGriddedRainfallSelector::onComboChanged );
@@ -50,7 +50,7 @@ QVariantMap ReosDssGriddedRainfallSelector::selectedMetadata() const
 
   if ( mProvider && mProvider->count() > 0 )
   {
-    QPair<QDateTime, QDateTime> timeExtent = {mProvider->startTime( 0 ), mProvider->endTime( mProvider->count() - 1 )};
+    QPair<QDateTime, QDateTime> timeExtent = { mProvider->startTime( 0 ), mProvider->endTime( mProvider->count() - 1 ) };
     ret.insert( QStringLiteral( "start" ), timeExtent.first );
     ret.insert( QStringLiteral( "end" ), timeExtent.second );
   }

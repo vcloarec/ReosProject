@@ -92,8 +92,7 @@ ReosEra5Provider::~ReosEra5Provider() = default;
 QStringList ReosEra5Provider::fileSuffixes() const
 {
   QStringList ret;
-  ret << QStringLiteral( "tif" )
-      << QStringLiteral( "tiff" );
+  ret << QStringLiteral( "tif" ) << QStringLiteral( "tiff" );
 
   return ret;
 }
@@ -107,22 +106,24 @@ QString ReosEra5Provider::htmlDescription() const
   htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + QStringLiteral( "ERA5" ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) )
+              + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "ERA5" )
+              + QStringLiteral( "</td></tr>\n" );
 
-  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
-              + dataSource() + QStringLiteral( "</td></tr>\n" );
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" ) + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" ) + dataSource() + QStringLiteral( "</td></tr>\n" );
 
   if ( count() > 0 )
   {
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) )
+                + QStringLiteral( "</td><td>" )
                 + startTime( 0 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) )
+                + QStringLiteral( "</td><td>" )
                 + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -251,7 +252,10 @@ void ReosEra5Provider::calculateMinMax( double &min, double &max ) const
   }
 }
 
-QString ReosEra5Provider::dataType() {return ReosGriddedData::staticType();}
+QString ReosEra5Provider::dataType()
+{
+  return ReosGriddedData::staticType();
+}
 
 QVariantMap ReosEra5Provider::decodeUri( const QString &uri, bool &ok )
 {
@@ -279,18 +283,14 @@ QVariantMap ReosEra5Provider::decodeUri( const QString &uri, bool &ok )
 
 QString ReosEra5Provider::buildUri( const QVariantMap &parameters, bool &ok )
 {
-  if ( parameters.contains( QStringLiteral( "file-or-dir-path" ) ) &&
-       parameters.contains( QStringLiteral( "var-short-name" ) ) )
+  if ( parameters.contains( QStringLiteral( "file-or-dir-path" ) ) && parameters.contains( QStringLiteral( "var-short-name" ) ) )
   {
     ok = true;
     QDateTime starTime = parameters.value( QStringLiteral( "start-date-time" ) ).toDateTime();
-    QDateTime endTime =  parameters.value( QStringLiteral( "end-date-time" ) ).toDateTime();
+    QDateTime endTime = parameters.value( QStringLiteral( "end-date-time" ) ).toDateTime();
     starTime.setTimeSpec( Qt::UTC );
     endTime.setTimeSpec( Qt::UTC );
-    return buildUri( parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString(),
-                     parameters.value( QStringLiteral( "var-short-name" ) ).toString(),
-                     starTime,
-                     endTime );
+    return buildUri( parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString(), parameters.value( QStringLiteral( "var-short-name" ) ).toString(), starTime, endTime );
   }
   else
   {
@@ -421,7 +421,10 @@ QString ReosEra5ProviderFactory::buildUri( const QString &dataType, const QVaria
 }
 
 ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, const QString &varName, const QDateTime &start, const QDateTime &end )
-  :  mFileName( fileName ), mVarName( varName ), mStart( start ), mEnd( end )
+  : mFileName( fileName )
+  , mVarName( varName )
+  , mStart( start )
+  , mEnd( end )
 {
   mFile.reset( new ReosNetCdfFile( mFileName ) );
   if ( mFile->isValid() )
@@ -470,7 +473,7 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
     for ( int i = 0; i < frameCount; ++i )
     {
       const QDateTime &time = timeOrigin.addSecs( timeUnit.valueSecond() * static_cast<qint64>( intTime.at( i ) ) );
-      if ( !mStart.isValid() || !mEnd.isValid()  || ( time >= mStart && time.addSecs( 3600 ) <= mEnd ) )
+      if ( !mStart.isValid() || !mEnd.isValid() || ( time >= mStart && time.addSecs( 3600 ) <= mEnd ) )
       {
         if ( !timeToFileIndex.contains( time ) )
           timeToFileIndex.insert( time, i );
@@ -483,7 +486,6 @@ ReosEra5NetCdfFilesReader::ReosEra5NetCdfFilesReader( const QString &fileName, c
 
   mFile.reset();
 }
-
 
 
 ReosEra5NetCdfFilesReader *ReosEra5NetCdfFilesReader::clone() const
@@ -511,10 +513,10 @@ QVector<double> ReosEra5NetCdfFilesReader::data( int index, bool &readLine ) con
 
   int fileIndex = mDataIndexToFileIndex.value( index, -1 );
 
-  const QVector<int> starts( {fileIndex, 0, 0} );
+  const QVector<int> starts( { fileIndex, 0, 0 } );
   int xCount = mExtent.xCellCount();
   int yCount = mExtent.yCellCount();
-  const QVector<int> counts( {1, yCount, xCount} );
+  const QVector<int> counts( { 1, yCount, xCount } );
 
   if ( mFile->isValid() )
   {
@@ -535,10 +537,10 @@ QVector<double> ReosEra5NetCdfFilesReader::dataInGridExtent( int index, int rowM
 
   int fileIndex = mDataIndexToFileIndex.value( index, -1 );
 
-  const QVector<int> starts( {fileIndex, colMin, rowMin} );
+  const QVector<int> starts( { fileIndex, colMin, rowMin } );
   int xCount = colMax - colMin + 1;
   int yCount = rowMax - rowMin + 1;
-  const QVector<int> counts( {1, xCount, yCount} );
+  const QVector<int> counts( { 1, xCount, yCount } );
 
   if ( mFile->isValid() )
   {
@@ -566,10 +568,10 @@ QVector<int> ReosEra5NetCdfFilesReader::qualifData( int index, bool &readLine ) 
 
   int fileIndex = mDataIndexToFileIndex.value( index, -1 );
 
-  const QVector<int> starts( {fileIndex, 0, 0} );
+  const QVector<int> starts( { fileIndex, 0, 0 } );
   int xCount = mExtent.xCellCount();
   int yCount = mExtent.yCellCount();
-  const QVector<int> counts( {1, xCount, yCount} );
+  const QVector<int> counts( { 1, xCount, yCount } );
 
   if ( mFile->isValid() )
   {
@@ -594,14 +596,14 @@ bool ReosEra5NetCdfFilesReader::canReadFile( const QString &uri )
   if ( !file.isValid() )
     return false;
 
-  if ( ! file.hasVariable( varName ) )
+  if ( !file.hasVariable( varName ) )
     return false;
 
   const QStringList dimensionNames = file.variableDimensionNames( varName );
 
-  return dimensionNames.contains( QStringLiteral( "latitude" ) ) &&
-         dimensionNames.contains( QStringLiteral( "longitude" ) ) &&
-         ( dimensionNames.contains( QStringLiteral( "time" ) ) || dimensionNames.contains( QStringLiteral( "valid_time" ) ) );
+  return dimensionNames.contains( QStringLiteral( "latitude" ) )
+         && dimensionNames.contains( QStringLiteral( "longitude" ) )
+         && ( dimensionNames.contains( QStringLiteral( "time" ) ) || dimensionNames.contains( QStringLiteral( "valid_time" ) ) );
 }
 
 void ReosEra5NetCdfFilesReader::reset()
@@ -618,7 +620,7 @@ QVector<double> ReosEra5NetCdfFilesReader::treatShortRawData( const QVector<qint
     qint16 rawValue = rawData.at( i );
     if ( rawValue != mFillingValue && rawValue != mMissingValue )
     {
-      ret[i] = std::max( 0.0,   rawValue * mScalefactor + mAddOffset );
+      ret[i] = std::max( 0.0, rawValue * mScalefactor + mAddOffset );
     }
   }
   return ret;
@@ -636,7 +638,10 @@ QVector<double> ReosEra5NetCdfFilesReader::treatFloatRawData( const QVector<doub
 }
 
 ReosEra5NetCdfFolderReader::ReosEra5NetCdfFolderReader( const QString &folderPath, const QString &varName, const QDateTime &start, const QDateTime &end )
-  : mFolderPath( folderPath ), mVarName( varName ), mStart( start ), mEnd( end )
+  : mFolderPath( folderPath )
+  , mVarName( varName )
+  , mStart( start )
+  , mEnd( end )
 {
   std::cout << "Parse folder " << folderPath.toStdString() << "." << std::endl;
   QDir dir( folderPath );
@@ -659,7 +664,7 @@ ReosEra5NetCdfFolderReader::ReosEra5NetCdfFolderReader( const QString &folderPat
       else if ( mExtent != fileReader->extent() )
         continue;
 
-      firstTimeToIndex.insert( fileReader->time( 0 ),  mFileReaders.size() );
+      firstTimeToIndex.insert( fileReader->time( 0 ), mFileReaders.size() );
       mFileReaders.emplace_back( fileReader.release() );
     }
   }
@@ -673,7 +678,7 @@ ReosEra5NetCdfFolderReader::ReosEra5NetCdfFolderReader( const QString &folderPat
     int frameCount = reader->frameCount();
     for ( int i = 0; i < frameCount; ++i )
     {
-      mGlobalIndexToReaderIndex.insert( count, InternalIndex{fileIndex, i} );
+      mGlobalIndexToReaderIndex.insert( count, InternalIndex { fileIndex, i } );
       count++;
     }
   }
@@ -788,4 +793,3 @@ bool ReosEra5NetCdfFolderReader::canReadFile( const QString &uri )
 
   return false;
 }
-

@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 #include <QModelIndexList>
 
@@ -27,7 +27,7 @@ email                : vcloarec at gmail dot com
 #include "reosrainfallmodel.h"
 #include "reosrainfallregistery.h"
 
-class ReoHydraulicStructure2DTest: public QObject
+class ReoHydraulicStructure2DTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -63,17 +63,18 @@ void ReoHydraulicStructure2DTest::initTestCase()
 void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 {
   QPolygonF domain;
-  domain << QPointF( 0, 0 )
-         << QPointF( 0, 0.5 )
-         << QPointF( 0, 1 )
-         << QPointF( 0.5, 1 )
-         << QPointF( 1, 1 )
-         << QPointF( 1, 0.5 )
-         << QPointF( 1, 0.5 ) //dupplicate vertex
-         << QPointF( 1, 0 )
-         << QPointF( 0.5, 0 );
+  domain
+    << QPointF( 0, 0 )
+    << QPointF( 0, 0.5 )
+    << QPointF( 0, 1 )
+    << QPointF( 0.5, 1 )
+    << QPointF( 1, 1 )
+    << QPointF( 1, 0.5 )
+    << QPointF( 1, 0.5 ) //dupplicate vertex
+    << QPointF( 1, 0 )
+    << QPointF( 0.5, 0 );
 
-  std::unique_ptr < ReosHydraulicStructure2D> structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
+  std::unique_ptr< ReosHydraulicStructure2D> structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
 
   domain.removeAt( 6 ); //remove the dupplicte vertex that has to be removed in the structure
 
@@ -95,7 +96,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   vert = geomStructure->searchForVertex( searchZone );
   QVERIFY( vert );
 
-  QVERIFY( !geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 1.5 ) ) ) ); //lines are crossing
+  QVERIFY( !geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 1.5 ) ) ) );    //lines are crossing
   QVERIFY( geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.991, 0.491 ) ) ) ); //just outside the tolerance
   QVERIFY( geomStructure->vertexCanBeMoved( vert, ReosSpatialPosition( QPointF( 0.5, 0.5 ) ) ) );
 
@@ -170,9 +171,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   QVERIFY( domain == structure2D->domain() );
 
   QPolygonF lines;
-  lines << QPointF( 0.749, 1.01 )
-        << QPointF( 0.8, 0.6 )
-        << QPointF( 0.6, 0.6 );
+  lines << QPointF( 0.749, 1.01 ) << QPointF( 0.8, 0.6 ) << QPointF( 0.6, 0.6 );
   geomStructure->addPolylines( lines );
 
   QVERIFY( domain == structure2D->domain() );
@@ -211,8 +210,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 
   // add new simple line intersecting the boundary with first vertex under tolerance from the boundary line
   lines.clear();
-  lines << QPointF( 0.995, 0.25 )
-        << QPointF( 0.8, 0.25 );
+  lines << QPointF( 0.995, 0.25 ) << QPointF( 0.8, 0.25 );
   geomStructure->addPolylines( lines );
 
   QVERIFY( domain != structure2D->domain() );
@@ -226,8 +224,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 
   //link two boundary line by internal link and add a vertex in the new line
   lines.clear();
-  lines << QPointF( 0.5, 0.5 )
-        << QPointF( 1.0, 0.0 );
+  lines << QPointF( 0.5, 0.5 ) << QPointF( 1.0, 0.0 );
   geomStructure->addPolylines( lines );
   QVERIFY( geomStructure->searchForLine( ReosMapExtent( 0.74, 0.24, 0.76, 0.26 ), lineId ) );
   QVERIFY( geomStructure->insertVertex( ReosSpatialPosition( 0.75, 0.25 ), lineId ) );
@@ -262,10 +259,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 
   // restart with a new structure
   domain.clear();
-  domain << QPointF( 1, 1 )
-         << QPointF( 0, 1 )
-         << QPointF( 0, 0 )
-         << QPointF( 1, 0 );
+  domain << QPointF( 1, 1 ) << QPointF( 0, 1 ) << QPointF( 0, 0 ) << QPointF( 1, 0 );
 
   structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
   geomStructure = structure2D->geometryStructure();
@@ -293,12 +287,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   geomStructure->undoStack()->redo();
 
   domain.clear();
-  domain << QPointF( 1, 1 )
-         << QPointF( 0, 1 )
-         << QPointF( 0, 0 )
-         << QPointF( 1, 0 )
-         << QPointF( 1, 0.3 )
-         << QPointF( 1, 0.7 );
+  domain << QPointF( 1, 1 ) << QPointF( 0, 1 ) << QPointF( 0, 0 ) << QPointF( 1, 0 ) << QPointF( 1, 0.3 ) << QPointF( 1, 0.7 );
 
   QVERIFY( domain == structure2D->domain() );
 
@@ -309,23 +298,14 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 
   // restart with a new structure
   domain.clear();
-  domain << QPointF( 1, 1 )
-         << QPointF( 0.5, 1.0 )
-         << QPointF( 0.0, 1.0 )
-         << QPointF( 0.0, 0.5 )
-         << QPointF( 0.0, 0.0 )
-         << QPointF( 0.5, 0.0 )
-         << QPointF( 1.0, 0.0 )
-         << QPointF( 1.0, 0.5 );
+  domain << QPointF( 1, 1 ) << QPointF( 0.5, 1.0 ) << QPointF( 0.0, 1.0 ) << QPointF( 0.0, 0.5 ) << QPointF( 0.0, 0.0 ) << QPointF( 0.5, 0.0 ) << QPointF( 1.0, 0.0 ) << QPointF( 1.0, 0.5 );
 
   structure2D = std::make_unique<ReosHydraulicStructure2D>( domain, QString(), mNetwork->context() );
   geomStructure = structure2D->geometryStructure();
   QCOMPARE( structure2D->domain(), domain );
 
   lines.clear();
-  lines << QPointF( 1.0, 1.0 )
-        << QPointF( 0.5, 0.5 )
-        << QPointF( 0.0, 0.0 );
+  lines << QPointF( 1.0, 1.0 ) << QPointF( 0.5, 0.5 ) << QPointF( 0.0, 0.0 );
 
   geomStructure->addPolylines( lines );
 
@@ -336,8 +316,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   QCOMPARE( data.vertices.count(), 9 );
 
   lines.clear();
-  lines << QPointF( 1.0, 0.0 )
-        << QPointF( 0.5, 0.5 );
+  lines << QPointF( 1.0, 0.0 ) << QPointF( 0.5, 0.5 );
 
   geomStructure->addPolylines( lines );
 
@@ -363,8 +342,7 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
   QCOMPARE( data.vertices.count(), 9 );
 
   lines.clear();
-  lines << QPointF( 0.1, 0.75 )
-        << QPointF( 0.2, 0.75 );
+  lines << QPointF( 0.1, 0.75 ) << QPointF( 0.2, 0.75 );
   geomStructure->addPolylines( lines );
   data = geomStructure->structuredLinesData();
   QCOMPARE( data.boundaryPointCount, 8 );
@@ -398,20 +376,12 @@ void ReoHydraulicStructure2DTest::createAndEditPolygonStructure()
   ReosSpatialPosition position( 12, 10 );
   std::unique_ptr<ReosPolygonStructureValues> values( polygonStructure->values( QString() ) );
   QCOMPARE( values->value( position.position().x(), position.position().y() ), 123 );
-
 }
 
 void ReoHydraulicStructure2DTest::createHydraulicStructure()
 {
   QPolygonF domain;
-  domain << QPointF( 0, 0 )
-         << QPointF( 10, 0 )
-         << QPointF( 10, 10 )
-         << QPointF( 20, 10 )
-         << QPointF( 20, 0 )
-         << QPointF( 30, 0 )
-         << QPointF( 30, 20 )
-         << QPointF( 0, 20 );
+  domain << QPointF( 0, 0 ) << QPointF( 10, 0 ) << QPointF( 10, 10 ) << QPointF( 20, 10 ) << QPointF( 20, 0 ) << QPointF( 30, 0 ) << QPointF( 30, 20 ) << QPointF( 0, 20 );
 
   mHydraulicStructure = new ReosHydraulicStructure2D( domain, QString(), mNetwork->context() );
   mHydraulicStructure->meshResolutionController()->defaultSize()->setValue( 1 );
@@ -426,11 +396,7 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
 #endif
 
   QPolygonF hole;
-  hole << QPointF( 2.5, 2.5 )
-       << QPointF( 7.5, 2.5 )
-       << QPointF( 7.5, 7.5 )
-       << QPointF( 2.5, 7.5 )
-       << QPointF( 2.5, 2.5 );
+  hole << QPointF( 2.5, 2.5 ) << QPointF( 7.5, 2.5 ) << QPointF( 7.5, 7.5 ) << QPointF( 2.5, 7.5 ) << QPointF( 2.5, 2.5 );
   mHydraulicStructure->geometryStructure()->addPolylines( hole );
   mHydraulicStructure->geometryStructure()->addHolePoint( ReosSpatialPosition( 5, 5 ) );
 
@@ -461,11 +427,7 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
 void ReoHydraulicStructure2DTest::profile()
 {
   QPolygonF profileGeom;
-  profileGeom << QPointF( -5, 5 )
-              << QPointF( 5, 5 )
-              << QPointF( 15, 5 )
-              << QPointF( 15, 5 )
-              << QPointF( 25, 15 );
+  profileGeom << QPointF( -5, 5 ) << QPointF( 5, 5 ) << QPointF( 15, 5 ) << QPointF( 15, 5 ) << QPointF( 25, 15 );
 
   int profileIndex = mHydraulicStructure->createProfile( QStringLiteral( "profile 1" ), profileGeom, QString() );
   ReosHydraulicStructureProfile *profile = mHydraulicStructure->profile( profileIndex );
@@ -532,8 +494,8 @@ void ReoHydraulicStructure2DTest::meteoModel()
 
   QString filePath = testFile( QStringLiteral( "/grib/W_fr-meteofrance,MODEL,AROME+0025+SP1+00H06H_C_LFPW_202211161200--.grib2" ) );
   QString variableName = QStringLiteral( "Total precipitation rate [kg/(m^2*s)]" );
-  ReosGriddedRainItem *rainItem = mRainfallModel->addGriddedRainfall( "gridded rain", "", mRainfallModel->itemToIndex( mRainZone1 ),
-                                  new ReosGriddedRainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ) ) ) ;
+  ReosGriddedRainItem *rainItem
+    = mRainfallModel->addGriddedRainfall( "gridded rain", "", mRainfallModel->itemToIndex( mRainZone1 ), new ReosGriddedRainfall( filePath + "::" + variableName + "::" + "cumulative", QStringLiteral( "grib" ) ) );
 
   QVERIFY( rainItem->data() );
 
@@ -563,7 +525,6 @@ void ReoHydraulicStructure2DTest::meteoModel()
   std::unique_ptr<ReosMeteorologicModel> otherModel( new ReosMeteorologicModel( encodedMeteoModel, nullptr, ReosRainfallRegistery::instance() ) );
   QVERIFY( otherModel->associatedRainfallItem( mHydraulicStructure ) == rainItem );
 }
-
 
 
 QTEST_MAIN( ReoHydraulicStructure2DTest )

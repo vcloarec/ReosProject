@@ -17,7 +17,6 @@
 #define REOSDATAPROVIDER_H
 
 
-
 #include <QObject>
 #include <QVariantMap>
 #include <map>
@@ -31,14 +30,13 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 {
     Q_OBJECT
   public:
-
     enum Capability
     {
       CanWrite = 1 << 0, //!< If the dataprovider support writting data
-      Spatial = 1 << 1, //!< If data is related to a spatial position
-      File = 1 << 2, //!< source of data is a file or a group of files
-      Memory = 1 << 3, //! Data are stored in memory and in the project files
-      Net = 1 << 4, //! Source of the data is on internet
+      Spatial = 1 << 1,  //!< If data is related to a spatial position
+      File = 1 << 2,     //!< source of data is a file or a group of files
+      Memory = 1 << 3,   //! Data are stored in memory and in the project files
+      Net = 1 << 4,      //! Source of the data is on internet
     };
 
     Q_ENUM( Capability )
@@ -49,7 +47,7 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
     virtual QString key() const = 0;
 
     //! Returns a html description of the data
-    virtual QString htmlDescription() const {return QString();}
+    virtual QString htmlDescription() const { return QString(); }
 
     //! Returns whether the provider can read the \a uri
     virtual bool canReadUri( const QString &uri ) const;
@@ -58,9 +56,9 @@ class REOSCORE_EXPORT ReosDataProvider : public QObject
 
     virtual QStringList fileSuffixes() const = 0;
 
-    virtual bool isLoading() const  {return false;}
+    virtual bool isLoading() const { return false; }
 
-    bool isValid() const {return mIsValid;}
+    bool isValid() const { return mIsValid; }
 
     QVariantMap metadata() const;
     void setMetadata( const QVariantMap &meta );
@@ -82,7 +80,7 @@ class REOSCORE_EXPORT ReosDataProviderFactory
     virtual ReosDataProvider *createProvider( const QString &dataType = QString() ) const = 0;
 
     //! Creates a new data source, \a uri has to be conform to the related provider
-    virtual bool createNewDataSource( const QString &uri, const QString &dataType, QString &error ) {return false;};
+    virtual bool createNewDataSource( const QString &uri, const QString &dataType, QString &error ) { return false; };
 
     //! Returns the provider key corresponding to this factory
     virtual QString key() const = 0;
@@ -98,7 +96,6 @@ class REOSCORE_EXPORT ReosDataProviderFactory
 
     //! Builds the uri coresponding to the  data type \a dataType with \a parameters
     virtual QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const = 0;
-
 };
 
 #endif // No SIP_RUN

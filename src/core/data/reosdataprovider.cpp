@@ -135,13 +135,13 @@ void ReosDataProviderRegistery::loadDynamicProvider()
   providerDir.setSorting( QDir::Name | QDir::IgnoreCase );
   providerDir.setFilter( QDir::Files | QDir::NoSymLinks );
 
-#if defined(Q_OS_WIN) || defined(__CYGWIN__)
+#if defined( Q_OS_WIN ) || defined( __CYGWIN__ )
   providerDir.setNameFilters( QStringList( "*.dll" ) );
 #else
   providerDir.setNameFilters( QStringList( QStringLiteral( "*.so" ) ) );
 #endif
 
-  typedef ReosDataProviderFactory *factory_function( );
+  typedef ReosDataProviderFactory *factory_function();
 
   const QFileInfoList files = providerDir.entryInfoList();
   for ( const QFileInfo &file : files )
@@ -191,16 +191,22 @@ ReosDataProviderFactory *ReosDataProviderRegistery::extractFactory( const QStrin
     return nullptr;
 }
 
-bool ReosDataProvider::canReadUri( const QString & ) const {return false;}
+bool ReosDataProvider::canReadUri( const QString & ) const
+{
+  return false;
+}
 
 QVariantMap ReosDataProvider::metadata() const
 {
-    return mMeta;
+  return mMeta;
 }
 
-void ReosDataProvider::setMetadata(const QVariantMap &meta)
+void ReosDataProvider::setMetadata( const QVariantMap &meta )
 {
-    mMeta = meta;
+  mMeta = meta;
 }
 
-bool ReosDataProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const {return false;}
+bool ReosDataProviderFactory::hasCapabilities( const QString &dataType, ReosDataProvider::Capabilities capabilities ) const
+{
+  return false;
+}

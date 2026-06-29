@@ -32,11 +32,7 @@ class REOSGUI_EXPORT ReosNetworkCompatibilityDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit ReosNetworkCompatibilityDialog(
-      const QString &introText,
-      const ReosHydraulicNetworkElementCompatibilty compatibility,
-      const QString &finalText,
-      const ReosGuiContext &context );
+    explicit ReosNetworkCompatibilityDialog( const QString &introText, const ReosHydraulicNetworkElementCompatibilty compatibility, const QString &finalText, const ReosGuiContext &context );
     ~ReosNetworkCompatibilityDialog();
 
   private:

@@ -72,7 +72,8 @@ void Reos3DMapSettings::setVerticalExaggeration( double verticalExaggeration )
   mVerticalExaggeration = verticalExaggeration;
 }
 
-Reos3DTerrainSettings::Reos3DTerrainSettings() {}
+Reos3DTerrainSettings::Reos3DTerrainSettings()
+{}
 
 Reos3DTerrainSettings::Reos3DTerrainSettings( const ReosEncodedElement &element )
 {

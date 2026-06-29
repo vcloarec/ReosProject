@@ -37,7 +37,6 @@ class ReosChartView : public QChartView
   private:
     QGraphicsLineItem *mHorizontalLine;
     QChartView *mChartView = nullptr;
-
 };
 
 

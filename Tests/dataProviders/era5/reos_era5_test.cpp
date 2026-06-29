@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reos_testutils.h"
@@ -24,7 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reosgriddeddata.h"
 
-class ReosEra5Test: public QObject
+class ReosEra5Test : public QObject
 {
     Q_OBJECT
 
@@ -53,8 +53,7 @@ void ReosEra5Test::initTestCase()
 
 void ReosEra5Test::createProvider()
 {
-  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider(
-        ERA5_FILES_PATH + QStringLiteral( "/nc.nc" ), ReosGriddedRainfall::staticType() ) );
+  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider( ERA5_FILES_PATH + QStringLiteral( "/nc.nc" ), ReosGriddedRainfall::staticType() ) );
   QVERIFY( !compatibleProvider );
 
   const QVariantMap &uriParamDescription = ReosDataProviderRegistery::instance()->uriParameters( QStringLiteral( "era5" ), ReosEra5Provider::dataType() );
@@ -114,8 +113,7 @@ void ReosEra5Test::createGridData()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
   QCOMPARE( griddedData->gridCount(), 3624 );
   QCOMPARE( griddedData->startTime( 0 ), QDateTime( QDate( 1990, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
@@ -157,15 +155,11 @@ void ReosEra5Test::griddedDataOnWatersed()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
   ReosWatershed watershed;
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
@@ -191,17 +185,13 @@ void ReosEra5Test::griddedDataOnWatersedAccuFile()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
   QVERIFY( griddedData->isValid() );
   QCOMPARE( griddedData->gridCount(), 744 );
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
   ReosWatershed watershed;
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
@@ -227,8 +217,7 @@ void ReosEra5Test::griddedDataOnWatersedAccuUnchunkedFile()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
   QVERIFY( griddedData->isValid() );
   QCOMPARE( griddedData->gridCount(), 744 );
@@ -241,10 +230,7 @@ void ReosEra5Test::griddedDataOnWatersedAccuUnchunkedFile()
   QCOMPARE( griddedData->endTime( 50 ), QDateTime( QDate( 1995, 8, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
   ReosWatershed watershed;
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
@@ -273,8 +259,7 @@ void ReosEra5Test::griddedDataOnWatersedDistArea()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosGriddedData::staticType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
   QString watershedCrs;
   const QPolygonF watershed_poly = ReosGisEngine::openPolygonVectorLayerSource( testFile( "watershed_clermont.shp" ), watershedCrs ).at( 0 );
@@ -282,12 +267,8 @@ void ReosEra5Test::griddedDataOnWatersedDistArea()
   ReosWatershed watershed( watershed_poly, QPointF(), watershedCrs );
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs(
-    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep(
-      &watershed,
-      griddedData.get(),
-      ReosDuration( 1.0, ReosDuration::hour ),
-      testFile( "area_distribution_clermont.tiff" ), 4
-    ) );
+    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, griddedData.get(), ReosDuration( 1.0, ReosDuration::hour ), testFile( "area_distribution_clermont.tiff" ), 4 )
+  );
 
   gridOnWs->preCalculate();
 
@@ -312,17 +293,13 @@ void ReosEra5Test::griddedDataOnWatersedInstantFile()
   const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosEra5Provider::dataType(), uriParam, ok );
   QVERIFY( ok );
 
-  std::unique_ptr<ReosGriddedData> griddedData =
-    std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
 
   QVERIFY( griddedData->isValid() );
   QCOMPARE( griddedData->gridCount(), 744 );
 
   QPolygonF watershed_poly;
-  watershed_poly  << QPointF( 279856., 6309772. )
-                  << QPointF( 346425., 6320051. )
-                  << QPointF( 348884., 6252486. )
-                  << QPointF( 283670., 6251741. );
+  watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
   ReosWatershed watershed;
   mGisEngine->setCrs( ReosGisEngine::crsFromEPSG( 9794 ) );
@@ -356,7 +333,6 @@ void ReosEra5Test::timeWindow()
   QCOMPARE( timeExtent.first, QDateTime( QDate( 1990, 2, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
   QCOMPARE( timeExtent.second, QDateTime( QDate( 1990, 4, 6 ), QTime( 12, 0, 0 ), Qt::UTC ) );
 }
-
 
 
 QTEST_MAIN( ReosEra5Test )

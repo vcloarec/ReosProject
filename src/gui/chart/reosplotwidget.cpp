@@ -56,7 +56,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   , mActionTimeLine( new QAction( QIcon( QStringLiteral( ":/images/temporalLine.svg" ) ), tr( "Time Line" ), this ) )
   , mActionCoordinates( new QAction( QIcon( QStringLiteral( ":/images/cursorCoordinates.svg" ) ), tr( "Display Coordinates on Cursor" ), this ) )
 {
-  QVBoxLayout *mainLayout = new QVBoxLayout ;
+  QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout( mainLayout );
   mainLayout->setContentsMargins( 0, 0, 0, 0 );
   mPlot = new ReosPlot_p( this );
@@ -133,8 +133,7 @@ ReosPlotWidget::ReosPlotWidget( QWidget *parent )
   mXAxisFormatCombobox = mToolBarRight->addWidget( xAxisFormatCombobox );
   xAxisFormatCombobox->addItem( tr( "X linear scale" ) );
   xAxisFormatCombobox->addItem( tr( "X logarithmic scale" ) );
-  connect( xAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index )
-  {
+  connect( xAxisFormatCombobox, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]( int index ) {
     if ( index == 0 )
       mPlot->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
 
@@ -302,7 +301,6 @@ void ReosPlotWidget::addPlotItem( ReosPlotItem *item )
 
   if ( item->isOnRightAxe() )
     mZoomerRight->setZoomBase( true );
-
 }
 
 void ReosPlotWidget::addOptionalPlotItem( ReosVariableTimeStepPlotListButton *optionalItemButton )
@@ -377,8 +375,7 @@ class ReoDateScaleEngine_p : public QwtDateScaleEngine
             maxNumSteps--;
         }
 
-      }
-      while ( !ok && maxNumSteps != 1  && stepSize > 0 );
+      } while ( !ok && maxNumSteps != 1 && stepSize > 0 );
     }
 
   private:
@@ -491,7 +488,7 @@ void ReosPlotWidget::enableTimeLine( bool b )
       mTimeLine->hide();
   }
 
-  if ( ( !b && mTimeLine ) &&  mAxeType != temporal )
+  if ( ( !b && mTimeLine ) && mAxeType != temporal )
   {
     mTimeLine->detach();
     mTimeLine.reset();
@@ -667,11 +664,14 @@ void ReosPlotItem::setZ( double z )
   }
 }
 
-void ReosPlotItem::setColor( const QColor & ) {}
+void ReosPlotItem::setColor( const QColor & )
+{}
 
-void ReosPlotItem::setStyle( Qt::PenStyle ) {}
+void ReosPlotItem::setStyle( Qt::PenStyle )
+{}
 
-void ReosPlotItem::setWidth( double ) {}
+void ReosPlotItem::setWidth( double )
+{}
 
 QPixmap ReosPlotItem::icone( const QSize & ) const
 {
@@ -690,10 +690,11 @@ void ReosPlotItem::setName( const QString &name )
     mPlotItem->setTitle( name );
 }
 
-class ReosPlotCurve_p: public QwtPlotCurve
+class ReosPlotCurve_p : public QwtPlotCurve
 {
   public:
-    ReosPlotCurve_p( const QString &name ): QwtPlotCurve( name )
+    ReosPlotCurve_p( const QString &name )
+      : QwtPlotCurve( name )
     {}
 
     QRectF dataRect() const override
@@ -732,9 +733,7 @@ class ReosPlotCurve_p: public QwtPlotCurve
     }
 
   protected:
-    void drawCurve( QPainter *painter, int style,
-                    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-                    const QRectF &canvasRect, int from, int to ) const override
+    void drawCurve( QPainter *painter, int style, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect, int from, int to ) const override
     {
       const QwtSeriesData<QPointF> *points = data();
       if ( !points )
@@ -743,8 +742,7 @@ class ReosPlotCurve_p: public QwtPlotCurve
       int tempFrom = from;
       int tempTo = from;
 
-      auto validPoint = [ points ]( int i )
-      {
+      auto validPoint = [points]( int i ) {
         if ( static_cast<size_t>( i ) >= points->size() )
           return false;
         const QPointF &pt = points->sample( static_cast<size_t>( i ) );
@@ -770,7 +768,8 @@ class ReosPlotCurve_p: public QwtPlotCurve
     }
 };
 
-ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width ): ReosPlotItem()
+ReosPlotCurve::ReosPlotCurve( const QString &name, const QColor &color, double width )
+  : ReosPlotItem()
 {
   mPlotItem = new ReosPlotCurve_p( name );
   mPlotItem->setRenderHint( QwtPlotItem::RenderAntialiased, true );
@@ -858,18 +857,24 @@ ReosPlotItem *ReosPlotItemFactories::buildPlotItem( ReosPlotWidget *plotWidget, 
   for ( const Factory &fact : mFactories )
     if ( data->type().contains( fact->datatype() ) )
     {
-      return fact->buildPlotItem( plotWidget, data );;
+      return fact->buildPlotItem( plotWidget, data );
+      ;
     }
 
   return nullptr;
 }
 
 ReosPlotItemFactories::ReosPlotItemFactories( ReosModule *parent )
-  : ReosModule( QStringLiteral( "plot-item-factories" ), parent ) {}
+  : ReosModule( QStringLiteral( "plot-item-factories" ), parent )
+{}
 
-void ReosDataPlotItemFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * ) {}
+void ReosDataPlotItemFactory::buildPlotItemsAndSetup( ReosPlotWidget *, ReosDataObject * )
+{}
 
-ReosPlotItem *ReosDataPlotItemFactory::buildPlotItem( ReosPlotWidget *, ReosDataObject * ) {return nullptr;}
+ReosPlotItem *ReosDataPlotItemFactory::buildPlotItem( ReosPlotWidget *, ReosDataObject * )
+{
+  return nullptr;
+}
 
 ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
   : QToolButton( plotWidget )
@@ -894,15 +899,16 @@ ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
   placementLayout->setContentsMargins( 3, 3, 3, 3 );
   placementLayout->setSpacing( 2 );
 
-  mLegendAlignments << Qt::Alignment( Qt::AlignTop | Qt::AlignLeft )
-                    << Qt::Alignment( Qt::AlignTop | Qt::AlignHCenter )
-                    << Qt::Alignment( Qt::AlignTop | Qt::AlignRight )
-                    << Qt::Alignment( Qt::AlignVCenter | Qt::AlignLeft )
-                    << Qt::Alignment( Qt::AlignVCenter | Qt::AlignHCenter )
-                    << Qt::Alignment( Qt::AlignVCenter | Qt::AlignRight )
-                    << Qt::Alignment( Qt::AlignBottom | Qt::AlignLeft )
-                    << Qt::Alignment( Qt::AlignBottom | Qt::AlignHCenter )
-                    << Qt::Alignment( Qt::AlignBottom | Qt::AlignRight );
+  mLegendAlignments
+    << Qt::Alignment( Qt::AlignTop | Qt::AlignLeft )
+    << Qt::Alignment( Qt::AlignTop | Qt::AlignHCenter )
+    << Qt::Alignment( Qt::AlignTop | Qt::AlignRight )
+    << Qt::Alignment( Qt::AlignVCenter | Qt::AlignLeft )
+    << Qt::Alignment( Qt::AlignVCenter | Qt::AlignHCenter )
+    << Qt::Alignment( Qt::AlignVCenter | Qt::AlignRight )
+    << Qt::Alignment( Qt::AlignBottom | Qt::AlignLeft )
+    << Qt::Alignment( Qt::AlignBottom | Qt::AlignHCenter )
+    << Qt::Alignment( Qt::AlignBottom | Qt::AlignRight );
   for ( int i = 0; i < 9; ++i )
   {
     QToolButton *tb = new QToolButton( widgetPlacement );
@@ -923,8 +929,7 @@ ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
 
   for ( int i = 0; i < 9; ++i )
   {
-    connect( mAlignmentButtons.at( i ), &QToolButton::clicked, this, [this, plotWidget, i]
-    {
+    connect( mAlignmentButtons.at( i ), &QToolButton::clicked, this, [this, plotWidget, i] {
       if ( !this->mAlignmentButtons.at( i )->isChecked() )
       {
         this->mAlignmentButtons.at( i )->setChecked( true );
@@ -952,10 +957,7 @@ ReosPlotLegendController::ReosPlotLegendController( ReosPlotWidget *plotWidget )
   columnSpinLayout->addWidget( mColumnSpinBox );
   legendWidget->layout()->addItem( columnSpinLayout );
 
-  connect( mColumnSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]
-  {
-    this->mPlotWidget->setLegendColumnCount( this->mColumnSpinBox->value() );
-  } );
+  connect( mColumnSpinBox, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this] { this->mPlotWidget->setLegendColumnCount( this->mColumnSpinBox->value() ); } );
 
   QWidgetAction *actionWidget = new QWidgetAction( this );
   actionWidget->setDefaultWidget( legendWidget );
@@ -1073,12 +1075,12 @@ void CoordinatesWidget::updatePosition( const QPoint &pos )
   QString prefix;
   if ( mIsRightYEnabled )
   {
-    prefix =  QObject::tr( "Y Left: " );
-    mLabelYRight->setText( QObject::tr( "Y Right: " ) +  QString::number( mPlot->canvasMap( QwtPlot::yRight ).invTransform( pos.y() ), 'f', 2 ) );
+    prefix = QObject::tr( "Y Left: " );
+    mLabelYRight->setText( QObject::tr( "Y Right: " ) + QString::number( mPlot->canvasMap( QwtPlot::yRight ).invTransform( pos.y() ), 'f', 2 ) );
   }
   else
   {
-    prefix =  QObject::tr( "Y: " );
+    prefix = QObject::tr( "Y: " );
   }
   mLabelYLeft->setText( prefix + QString::number( mPlot->canvasMap( QwtPlot::yLeft ).invTransform( pos.y() ), 'f', 2 ) );
 

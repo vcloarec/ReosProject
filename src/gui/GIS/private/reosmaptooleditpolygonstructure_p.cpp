@@ -16,8 +16,8 @@
 #include "reosmaptooleditpolygonstructure_p.h"
 #include "reosstyleregistery.h"
 
-#include<QUuid>
-#include<QMenu>
+#include <QUuid>
+#include <QMenu>
 
 ReosMapToolEditPolygonStructure_p::ReosMapToolEditPolygonStructure_p( QgsMapCanvas *mapCanvas )
   : ReosMapTool_p( mapCanvas )
@@ -32,7 +32,6 @@ ReosMapToolEditPolygonStructure_p::ReosMapToolEditPolygonStructure_p( QgsMapCanv
   mPolygonRubberBand->setZValue( 50 );
 
   mMainActionsGroup = new QActionGroup( this );
-
 }
 
 QgsMapTool::Flags ReosMapToolEditPolygonStructure_p::flags() const
@@ -153,9 +152,7 @@ void ReosMapToolEditPolygonStructure_p::resetTool()
 }
 
 void ReosMapToolEditPolygonStructure_p::addPolygon( const QPolygonF &polygon )
-{
-
-}
+{}
 
 bool ReosMapToolEditPolygonStructure_p::hasHelperPolygon() const
 {
@@ -209,21 +206,13 @@ bool ReosEditPolygonStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEv
     polyRubberBand->setVisible( false );
     polyRubberBand->setColor( ReosStyleRegistery::instance()->blueReos( 100 ) );
 
-    QObject::connect( menu, &QMenu::hovered, polyRubberBand, [polyRubberBand]
-    {
-      polyRubberBand->setVisible( false );
-    } );
+    QObject::connect( menu, &QMenu::hovered, polyRubberBand, [polyRubberBand] { polyRubberBand->setVisible( false ); } );
 
-    QObject::connect( actionStructurePoly, &QAction::hovered, polyRubberBand, [polyRubberBand]
-    {
-      polyRubberBand->setVisible( true );
-    } );
+    QObject::connect( actionStructurePoly, &QAction::hovered, polyRubberBand, [polyRubberBand] { polyRubberBand->setVisible( true ); } );
 
-    QObject::connect( menu, &QObject::destroyed, polyRubberBand, [polyRubberBand]
-    {polyRubberBand->deleteLater();} );
+    QObject::connect( menu, &QObject::destroyed, polyRubberBand, [polyRubberBand] { polyRubberBand->deleteLater(); } );
 
-    QObject::connect( actionStructurePoly, &QAction::triggered, mToolMap, [this, structurePolygon]
-    {
+    QObject::connect( actionStructurePoly, &QAction::triggered, mToolMap, [this, structurePolygon] {
       mToolMap->mStructure->addPolygon( structurePolygon, mToolMap->mCurrentClassId, mToolMap->mapCrs() );
     } );
     return true;

@@ -46,19 +46,10 @@ class DatasetSettingsWidgetAction : public QWidgetAction
       , mMenu( datasetMenu )
     {}
 
-    void setIcon( const QIcon &pm )
-    {
-      mIcon = pm;
-    }
-    void setToolTip( const QString &toolTip )
-    {
-      mToolTip = toolTip;
-    }
+    void setIcon( const QIcon &pm ) { mIcon = pm; }
+    void setToolTip( const QString &toolTip ) { mToolTip = toolTip; }
 
-    void setButtonEnable( bool b )
-    {
-      mButtonEnable = b;
-    }
+    void setButtonEnable( bool b ) { mButtonEnable = b; }
 
   protected:
     QWidget *createWidget( QWidget *parent ) override
@@ -104,8 +95,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mAction3DView->setCheckable( true );
   connect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
 
-  connect( mActionEditStructure, &QAction::triggered, this, [this]
-  {
+  connect( mActionEditStructure, &QAction::triggered, this, [this] {
     ReosEditHydraulicStructure2DWidget *editWidget = new ReosEditHydraulicStructure2DWidget( mStructure2D, mGuiContext );
     connect( editWidget, &ReosEditHydraulicStructure2DWidget::hidden, this, &ReosHydraulicStructure2DProperties::restoreResults );
     mScalarWidgetAction->setEnabled( false );
@@ -116,8 +106,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionRunSimulation, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onLaunchCalculation );
   connect( mActionExportSimulationFile, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onExportSimulation );
-  connect( mActionEngineConfiguration, &QAction::triggered, this, [this]
-  {
+  connect( mActionEngineConfiguration, &QAction::triggered, this, [this] {
     if ( mStructure2D && mStructure2D->currentSimulation() )
     {
       QString key = mStructure2D->currentSimulation()->key();
@@ -145,10 +134,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   if ( mStructure2D )
   {
     simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
-    connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this, simulationToolButton]
-    {
-      simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr );
-    } );
+    connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this, simulationToolButton] { simulationToolButton->setEnabled( mStructure2D->currentSimulation() != nullptr ); } );
   }
 
   toolBar->addSeparator();
@@ -158,11 +144,10 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   mScalarWidgetAction->setIcon( QIcon( QStringLiteral( ":/images/scalarContour.svg" ) ) );
   toolBar->addAction( mScalarWidgetAction );
   if ( mStructure2D )
-    connect( mActionScalarSettings, &QAction::triggered, this, [this]
-  {
-    emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh()->scalarColorShaderSettings(), mGuiContext ), true );
-    emit askForShow();
-  } );
+    connect( mActionScalarSettings, &QAction::triggered, this, [this] {
+      emit stackedPageWidgetOpened( new ReosMeshScalarRenderingWidget( mStructure2D->mesh()->scalarColorShaderSettings(), mGuiContext ), true );
+      emit askForShow();
+    } );
 
   mVectorWidgetAction = new DatasetSettingsWidgetAction( this, mVectorDatasetMenu );
   mVectorWidgetAction->setToolTip( tr( "Vector results settings" ) );
@@ -171,8 +156,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   if ( mStructure2D )
   {
     mCurrentVectorDatasetId = mStructure2D->currentActivatedVectorMeshDataset();
-    connect( mActionVectorSettings, &QAction::triggered, this, [this]
-    {
+    connect( mActionVectorSettings, &QAction::triggered, this, [this] {
       if ( mStructure2D->currentActivatedVectorMeshDataset().isEmpty() )
         return;
       emit stackedPageWidgetOpened( new ReosMeshVectorRenderingWidget( mStructure2D->mesh(), mStructure2D->currentActivatedVectorMeshDataset(), mGuiContext ), true );
@@ -182,8 +166,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
 
   connect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
   mActionVectorTraces->setCheckable( true );
-  connect( mActionVectorTraces, &QAction::toggled, this, [this]
-  {
+  connect( mActionVectorTraces, &QAction::toggled, this, [this] {
     if ( mStructure2D && mStructure2D->mesh() )
       mStructure2D->mesh()->activateDynamicTraces( mActionVectorTraces->isChecked() );
   } );
@@ -243,8 +226,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
     populateHydrograph();
     connect( mStructure2D, &ReosHydraulicStructure2D::boundariesChanged, this, &ReosHydraulicStructure2DProperties::populateHydrograph );
     connect( mStructure2D, &ReosHydraulicStructure2D::simulationFinished, this, &ReosHydraulicStructure2DProperties::onSimulationFinished );
-    connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this]
-    {
+    connect( mStructure2D, &ReosHydraulicStructure2D::currentSimulationChanged, this, [this] {
       if ( mStructure2D && mStructure2D->currentSimulation() )
         ui->mSimulationEngineName->setText( mStructure2D->currentSimulation()->engineName() );
     } );
@@ -253,8 +235,7 @@ ReosHydraulicStructure2DProperties::ReosHydraulicStructure2DProperties( ReosHydr
   if ( !mMap.isNull() )
     connect( mMap, &ReosMap::cursorMoved, this, &ReosHydraulicStructure2DProperties::onMapCursorMove );
 
-  connect( mActionExportAsMesh, &QAction::triggered, this, [this]
-  {
+  connect( mActionExportAsMesh, &QAction::triggered, this, [this] {
     QDialog *dial = new ReosHydraulicStructureResultExport( mStructure2D, mCalculationContext.schemeId(), this );
     dial->exec();
   } );
@@ -411,8 +392,8 @@ void ReosHydraulicStructure2DProperties::onLaunchCalculation()
   {
     if ( mStructure2D->hasResults( mCalculationContext.schemeId() ) )
     {
-      if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this model and this hydraulic scheme.\nDo you want to overwrite this results?" ),
-                                 QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
+      if ( QMessageBox::warning( this, tr( "Run Simulation" ), tr( "Results exist for this model and this hydraulic scheme.\nDo you want to overwrite this results?" ), QMessageBox::Yes | QMessageBox::No )
+           == QMessageBox::No )
         return;
     }
 
@@ -524,8 +505,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
     hasDatasetChecked |= hasToBeChecked;
     action->setChecked( hasToBeChecked );
     mScalarDatasetMenu->addAction( action );
-    connect( action, &QAction::triggered, this, [id, this]( bool checked )
-    {
+    connect( action, &QAction::triggered, this, [id, this]( bool checked ) {
       if ( checked )
       {
         mCurrentDatasetId = id;
@@ -536,10 +516,9 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
   }
   QAction *actionNone = new QAction( tr( "None" ), mScalarDatasetActions );
   actionNone->setCheckable( true );
-  actionNone->setChecked( ! hasDatasetChecked );
+  actionNone->setChecked( !hasDatasetChecked );
   mScalarDatasetMenu->addAction( actionNone );
-  connect( actionNone, &QAction::triggered, this, [ this]( bool checked )
-  {
+  connect( actionNone, &QAction::triggered, this, [this]( bool checked ) {
     if ( checked )
     {
       mCurrentDatasetId = QString();
@@ -558,10 +537,7 @@ void ReosHydraulicStructure2DProperties::updateScalarDatasetMenu()
     std::unique_ptr<ReosMeshWireframeSettingsWidget> meshSettingsWidget( new ReosMeshWireframeSettingsWidget );
     meshSettingsWidget->setSettings( mStructure2D->mesh()->wireFrameSettings() );
     ReosMeshWireframeSettingsWidget *ptr = meshSettingsWidget.get();
-    connect( meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr]
-    {
-      mStructure2D->mesh()->setWireFrameSettings( ptr->settings(), true );
-    } );
+    connect( meshSettingsWidget.get(), &ReosMeshWireframeSettingsWidget::changed, this, [this, ptr] { mStructure2D->mesh()->setWireFrameSettings( ptr->settings(), true ); } );
     wa->setDefaultWidget( meshSettingsWidget.release() );
     mScalarDatasetMenu->addAction( wa );
     mScalarDatasetActions->setExclusive( true );
@@ -586,8 +562,7 @@ void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
     action->setCheckable( true );
     action->setChecked( mStructure2D->currentActivatedVectorMeshDataset() == id );
     mVectorDatasetMenu->addAction( action );
-    connect( action, &QAction::triggered, this, [id, this]( bool checked )
-    {
+    connect( action, &QAction::triggered, this, [id, this]( bool checked ) {
       if ( checked )
       {
         mCurrentVectorDatasetId = id;
@@ -603,8 +578,7 @@ void ReosHydraulicStructure2DProperties::updateVectorDatasetMenu()
   actionNone->setCheckable( true );
   actionNone->setChecked( mCurrentVectorDatasetId.isEmpty() );
   mVectorDatasetMenu->addAction( actionNone );
-  connect( actionNone, &QAction::triggered, this, [ this]( bool checked )
-  {
+  connect( actionNone, &QAction::triggered, this, [this]( bool checked ) {
     if ( checked )
     {
       mCurrentVectorDatasetId = QString();
@@ -640,15 +614,9 @@ void ReosHydraulicStructure2DProperties::initialize3DView()
   mView3D->showWidgetAction();
   mView3D->setMapSettings( mStructure2D->map3dSettings(), false );
   mView3D->setTerrainSettings( mStructure2D->terrain3DSettings() );
-  connect( mView3D, &Reos3dView::mapSettingsChanged, this, [this]
-  {
-    mStructure2D->setMap3dSettings( mView3D->map3DSettings() );
-  } );
+  connect( mView3D, &Reos3dView::mapSettingsChanged, this, [this] { mStructure2D->setMap3dSettings( mView3D->map3DSettings() ); } );
 
-  connect( mView3D, &Reos3dView::terrainSettingsChanged, this, [this]
-  {
-    mStructure2D->setTerrain3DSettings( mView3D->terrainSettings() );
-  } );
+  connect( mView3D, &Reos3dView::terrainSettingsChanged, this, [this] { mStructure2D->setTerrain3DSettings( mView3D->terrainSettings() ); } );
 
   mView3D->addMesh( mStructure2D->mesh() );
   disconnect( mAction3DView, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::initialize3DView );
@@ -662,16 +630,10 @@ void ReosHydraulicStructure2DProperties::onProfileRequested()
   profWidget->setAction( mActionProfiles );
 
   // If the profile is detached, we diconnect the action and the profile request
-  connect( profWidget.get(), &ReosStackedPageWidget::detached, this, [this]
-  {
-    disconnect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
-  } );
+  connect( profWidget.get(), &ReosStackedPageWidget::detached, this, [this] { disconnect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested ); } );
 
   // until is not detached anymore (associated stacked widget close, or reattach)
-  connect( profWidget.get(), &ReosStackedPageWidget::undetached, this, [this]
-  {
-    connect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested );
-  } );
+  connect( profWidget.get(), &ReosStackedPageWidget::undetached, this, [this] { connect( mActionProfiles, &QAction::triggered, this, &ReosHydraulicStructure2DProperties::onProfileRequested ); } );
 
   emit stackedPageWidgetOpened( profWidget.release(), true );
 }
@@ -823,8 +785,7 @@ ReosMeshWireframeSettingsWidget::ReosMeshWireframeSettingsWidget( QWidget *paren
   mWidthSlider->setMaximum( 20 );
   layout()->addWidget( mWidthSlider );
 
-  connect( mEnableWireframeCheckBox, &QCheckBox::stateChanged, this, [this]
-  {
+  connect( mEnableWireframeCheckBox, &QCheckBox::stateChanged, this, [this] {
     mColorButton->setEnabled( mEnableWireframeCheckBox->isChecked() );
     mWidthSlider->setEnabled( mEnableWireframeCheckBox->isChecked() );
 

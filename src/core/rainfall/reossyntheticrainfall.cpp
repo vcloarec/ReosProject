@@ -15,19 +15,19 @@
  ***************************************************************************/
 #include "reossyntheticrainfall.h"
 
-ReosChicagoRainfall::ReosChicagoRainfall( QObject *parent ): ReosUniqueIdfCurveSyntheticRainfall( parent )
+ReosChicagoRainfall::ReosChicagoRainfall( QObject *parent )
+  : ReosUniqueIdfCurveSyntheticRainfall( parent )
 {
   connectParameters();
   mCenterCoefficient->setValueWithString( QStringLiteral( "0.5" ) );
   mTotalDuration->setValue( ReosDuration( 60, ReosDuration::minute ) );
 }
 
-ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( QObject *parent ): ReosSeriesRainfall( parent )
+ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( QObject *parent )
+  : ReosSeriesRainfall( parent )
   , mTotalDuration( new ReosParameterDuration( tr( "Total Duration" ), false, this ) )
   , mCenterCoefficient( new ReosParameterDouble( tr( "Eccentricity" ), false, this ) )
-{
-
-}
+{}
 
 ReosUniqueIdfCurveSyntheticRainfall::ReosUniqueIdfCurveSyntheticRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
   : ReosSeriesRainfall( element, context, parent )
@@ -163,7 +163,7 @@ void ReosChicagoRainfall::updateRainfall() const
   }
 
   //Need correction if values count not corresponding to total duration (but we can't have the last value greater than the before last value
-  if ( ( ts * data->valueCount()  < totalDuration ) )
+  if ( ( ts * data->valueCount() < totalDuration ) )
   {
     double hWanted = mIntensityDurationCurve->height( totalDuration, true );
     double hInc = hWanted - cumulativeHeight;
@@ -253,10 +253,9 @@ ReosIntensityDurationCurve *ReosDoubleTriangleRainfall::intensityDurationCurveTo
   return mIntensityDurationCurveTotal;
 }
 
-void ReosDoubleTriangleRainfall::setIntensityDurationCurve( ReosIntensityDurationCurve *intensityDurationCurveIntense,
-    ReosIntensityDurationCurve *intensityDurationCurveTotal,
-    const QString &intensityDurationUniqueIdIntense,
-    const QString &intensityDurationUniqueIdTotal )
+void ReosDoubleTriangleRainfall::setIntensityDurationCurve(
+  ReosIntensityDurationCurve *intensityDurationCurveIntense, ReosIntensityDurationCurve *intensityDurationCurveTotal, const QString &intensityDurationUniqueIdIntense, const QString &intensityDurationUniqueIdTotal
+)
 {
   if ( !mIntensityDurationCurveIntense.isNull() )
     deregisterUpstreamData( mIntensityDurationCurveIntense );
@@ -371,7 +370,6 @@ void ReosDoubleTriangleRainfall::updateRainfall() const
 
   setActualized();
   emit dataChanged();
-
 }
 
 ReosEncodedElement ReosDoubleTriangleRainfall::encode( const ReosEncodeContext &context ) const
@@ -385,8 +383,8 @@ ReosEncodedElement ReosDoubleTriangleRainfall::encode( const ReosEncodeContext &
   return element;
 }
 
-ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
-  ReosSeriesRainfall( element, context, parent )
+ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
+  : ReosSeriesRainfall( element, context, parent )
 {
   mTotalDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "total-duration" ) ), false, tr( "Total Duration" ), this );
   mIntenseDuration = ReosParameterDuration::decode( element.getEncodedData( QStringLiteral( "intense-duration" ) ), false, tr( "Intense Duration" ), this );
@@ -412,8 +410,8 @@ void ReosDoubleTriangleRainfall::connectParameters()
   connect( mCenterCoefficient, &ReosParameter::valueChanged, this, &ReosDoubleTriangleRainfall::dataChanged );
 }
 
-ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :
-  ReosSeriesRainfall( parent )
+ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent )
+  : ReosSeriesRainfall( parent )
   , mIntenseDuration( new ReosParameterDuration( tr( "Intense Duration" ), false, this ) )
   , mTotalDuration( new ReosParameterDuration( tr( "Total Duration" ), false, this ) )
   , mCenterCoefficient( new ReosParameterDouble( tr( "Eccentricity" ), false, this ) )
@@ -426,8 +424,8 @@ ReosDoubleTriangleRainfall::ReosDoubleTriangleRainfall( QObject *parent ) :
 }
 
 
-
-ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( QObject *parent ): ReosUniqueIdfCurveSyntheticRainfall( parent )
+ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( QObject *parent )
+  : ReosUniqueIdfCurveSyntheticRainfall( parent )
 {
   connectParameters();
   mCenterCoefficient->setValueWithString( QStringLiteral( "0.5" ) );
@@ -479,7 +477,7 @@ void ReosAlternatingBlockRainfall::updateRainfall() const
 
   eccentricityCoef = std::clamp( eccentricityCoef, 0.0, 1.0 );
 
-  int peakInterval = ( intervalCount * eccentricityCoef ) ;
+  int peakInterval = ( intervalCount * eccentricityCoef );
   peakInterval = std::min( peakInterval, intervalCount - 1 );
   data->resize( intervalCount );
 
@@ -524,8 +522,8 @@ void ReosAlternatingBlockRainfall::updateRainfall() const
   emit dataChanged();
 }
 
-ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent ):
-  ReosUniqueIdfCurveSyntheticRainfall( element, context, parent )
+ReosAlternatingBlockRainfall::ReosAlternatingBlockRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
+  : ReosUniqueIdfCurveSyntheticRainfall( element, context, parent )
 {
   connectParameters();
 }

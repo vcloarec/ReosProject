@@ -30,12 +30,9 @@
 #include "reosguicontext.h"
 #include "reosgisengine.h"
 
-ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
-  ReosHydraulicStructure2D *structure,
-  ReosTelemac2DSimulation *simulation,
-  const ReosGuiContext &guiContext ) :
-  QWidget( guiContext.parent() ),
-  ui( new Ui::ReosTelemacSimulationEditWidget )
+ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DSimulation *simulation, const ReosGuiContext &guiContext )
+  : QWidget( guiContext.parent() )
+  , ui( new Ui::ReosTelemacSimulationEditWidget )
   , mSimulation( simulation )
   , mStructure( structure )
   , mGuiContext( guiContext )
@@ -45,18 +42,13 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
   ui->mOutputPeriod2DWidget->setInteger( simulation->outputPeriodResult2D() );
   ui->mOutputPeriodHydWidget->setInteger( simulation->outputPeriodResultHydrograph() );
 
-  ui->mInitialConditionTypeCombo->addItem( tr( "Constant water level, no velocity" ),
-      static_cast<int>( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity ) );
-  ui->mInitialConditionTypeCombo->addItem( tr( "From other hydraulic scheme" ),
-      static_cast<int>( ReosTelemac2DInitialCondition::Type::FromOtherSimulation ) );
-  ui->mInitialConditionTypeCombo->addItem( tr( "Interpolation line" ),
-      static_cast<int>( ReosTelemac2DInitialCondition::Type::Interpolation ) );
-  ui->mInitialConditionTypeCombo->addItem( tr( "Use last time step of current result" ),
-      static_cast<int>( ReosTelemac2DInitialCondition::Type::LastTimeStep ) );
+  ui->mInitialConditionTypeCombo->addItem( tr( "Constant water level, no velocity" ), static_cast<int>( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity ) );
+  ui->mInitialConditionTypeCombo->addItem( tr( "From other hydraulic scheme" ), static_cast<int>( ReosTelemac2DInitialCondition::Type::FromOtherSimulation ) );
+  ui->mInitialConditionTypeCombo->addItem( tr( "Interpolation line" ), static_cast<int>( ReosTelemac2DInitialCondition::Type::Interpolation ) );
+  ui->mInitialConditionTypeCombo->addItem( tr( "Use last time step of current result" ), static_cast<int>( ReosTelemac2DInitialCondition::Type::LastTimeStep ) );
 
 
-  ui->mInitialConditionTypeCombo->setCurrentIndex( ui->mInitialConditionTypeCombo->findData(
-        static_cast<int>( simulation->initialCondition()->initialConditionType() ) ) );
+  ui->mInitialConditionTypeCombo->setCurrentIndex( ui->mInitialConditionTypeCombo->findData( static_cast<int>( simulation->initialCondition()->initialConditionType() ) ) );
   connect( ui->mInitialConditionTypeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosTelemacSimulationEditWidget::onInitialConditionChanged );
 
   onInitialConditionChanged();
@@ -76,18 +68,14 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget(
   ui->mVFSchemeComboBox->setCurrentIndex( ui->mVFSchemeComboBox->findData( static_cast<int>( simulation->volumeFiniteScheme() ) ) );
   ui->mVfCourantNumberParameter->setDouble( simulation->courantNumber() );
 
-  connect( ui->mEquationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation]
-  {
-    ReosTelemac2DSimulation::Equation eq =
-    static_cast<ReosTelemac2DSimulation::Equation>( ui->mEquationCombo->currentData().toInt() );
+  connect( ui->mEquationCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation] {
+    ReosTelemac2DSimulation::Equation eq = static_cast<ReosTelemac2DSimulation::Equation>( ui->mEquationCombo->currentData().toInt() );
     simulation->setEquation( eq );
     ui->mVolumeFiniteGroupBox->setVisible( eq == ReosTelemac2DSimulation::Equation::FiniteVolume );
   } );
 
-  connect( ui->mVFSchemeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation]
-  {
-    simulation->setVolumeFiniteEquation(
-      static_cast<ReosTelemac2DSimulation::VolumeFiniteScheme>( ui->mVFSchemeComboBox->currentData().toInt() ) );
+  connect( ui->mVFSchemeComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), simulation, [this, simulation] {
+    simulation->setVolumeFiniteEquation( static_cast<ReosTelemac2DSimulation::VolumeFiniteScheme>( ui->mVFSchemeComboBox->currentData().toInt() ) );
   } );
 }
 
@@ -98,8 +86,7 @@ ReosTelemacSimulationEditWidget::~ReosTelemacSimulationEditWidget()
 
 void ReosTelemacSimulationEditWidget::onInitialConditionChanged()
 {
-  ReosTelemac2DInitialCondition::Type type =
-    static_cast< ReosTelemac2DInitialCondition::Type>( ui->mInitialConditionTypeCombo->currentData().toInt() );
+  ReosTelemac2DInitialCondition::Type type = static_cast< ReosTelemac2DInitialCondition::Type>( ui->mInitialConditionTypeCombo->currentData().toInt() );
 
   if ( mCurrentInitialConditionWidget )
   {
@@ -143,32 +130,29 @@ QWidget *ReosTelemacSimulationEditWidgetFactory::simulationEngineDescription( QW
   return w;
 }
 
-ReosTelemacEngineConfigurationDialog::ReosTelemacEngineConfigurationDialog( QWidget *parent ):
-  QDialog( parent ),
-  ui( new Ui::ReosTelemacEngineConfigurationDialog )
+ReosTelemacEngineConfigurationDialog::ReosTelemacEngineConfigurationDialog( QWidget *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosTelemacEngineConfigurationDialog )
 {
   ui->setupUi( this );
 
   accordToSettings();
 
   connect( this, &QDialog::accepted, this, &ReosTelemacEngineConfigurationDialog::onAccepted );
-  connect( ui->mTelemac2DPythonScriptButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mTelemac2DPythonScriptButton, &QToolButton::clicked, this, [this] {
     const QFileInfo info( ui->mTelemac2DPythonScriptLineEdit->text() );
     QString filePath = QFileDialog::getOpenFileName( this, tr( "TELEMAC 2D Python Script" ), info.path() );
     if ( !filePath.isEmpty() )
       ui->mTelemac2DPythonScriptLineEdit->setText( filePath );
   } );
-  connect( ui->mTelemacConfigFileButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mTelemacConfigFileButton, &QToolButton::clicked, this, [this] {
     const QFileInfo info( ui->mTelemacConfigFileLineEdit->text() );
     QString filePath = QFileDialog::getOpenFileName( this, tr( "TELEMAC Configuration File" ), info.path() );
     if ( !filePath.isEmpty() )
       ui->mTelemacConfigFileLineEdit->setText( filePath );
   } );
 
-  connect( ui->mPythonPathButton, &QToolButton::clicked, this, [this]
-  {
+  connect( ui->mPythonPathButton, &QToolButton::clicked, this, [this] {
     const QFileInfo info( ui->mPythonPathLineEdit->text() );
     QString filePath = QFileDialog::getExistingDirectory( this, tr( "Python path" ), info.path() );
     if ( !filePath.isEmpty() )
@@ -191,10 +175,8 @@ void ReosTelemacEngineConfigurationDialog::onAccepted()
 
 void ReosTelemacEngineConfigurationDialog::onResetToDefault()
 {
-  if ( QMessageBox::warning( this,
-                             tr( "Reset default TELEMAC settings" ),
-                             tr( "This will erase definitly the current settings. Continue?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) ==
-       QMessageBox::Yes )
+  if ( QMessageBox::warning( this, tr( "Reset default TELEMAC settings" ), tr( "This will erase definitly the current settings. Continue?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+       == QMessageBox::Yes )
   {
     ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
     accordToSettings();
@@ -205,18 +187,14 @@ void ReosTelemacEngineConfigurationDialog::accordToSettings()
 {
   ReosSettings settings;
 
-  ui->mTelemac2DPythonScriptLineEdit->setText(
-    settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
+  ui->mTelemac2DPythonScriptLineEdit->setText( settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() );
 
-  ui->mTelemacConfigFileLineEdit->setText(
-    settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
+  ui->mTelemacConfigFileLineEdit->setText( settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString() );
 
-  ui->mLineEditConfig->setText(
-    settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
+  ui->mLineEditConfig->setText( settings.value( QStringLiteral( "/engine/telemac/telemac-configuration" ) ).toString() );
 
   if ( settings.contains( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ) )
-    ui->mCPUSpinBox->setValue(
-      settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
+    ui->mCPUSpinBox->setValue( settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt() );
   else
     ui->mCPUSpinBox->setValue( QThread::idealThreadCount() );
 
@@ -225,16 +203,12 @@ void ReosTelemacEngineConfigurationDialog::accordToSettings()
   ui->mDependenciesPathTextEdit->setText( settings.value( QStringLiteral( "/engine/telemac/additional_pathes" ) ).toString() );
 }
 
-QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget(
-  ReosHydraulicStructure2D *structure,
-  ReosTelemac2DInitialCondition *initialCondition,
-  const ReosGuiContext &guiContext )
+QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget( ReosHydraulicStructure2D *structure, ReosTelemac2DInitialCondition *initialCondition, const ReosGuiContext &guiContext )
 {
   switch ( initialCondition->initialConditionType() )
   {
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
-      return new  ReosTelemac2DInititalConditionFromOtherSimulationWidget(
-               qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition ), structure, guiContext.parent() );
+      return new ReosTelemac2DInititalConditionFromOtherSimulationWidget( qobject_cast<ReosTelemac2DInitialConditionFromSimulation *>( initialCondition ), structure, guiContext.parent() );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
     {
@@ -248,13 +222,12 @@ QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget(
     {
       ReosTelemac2DInitialConditionFromInterpolation *ciinter = qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition );
       Q_ASSERT( ciinter != nullptr );
-      return new  ReosTelemac2DInititalConditionInterpolationWidget(
-               qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition ), guiContext );
+      return new ReosTelemac2DInititalConditionInterpolationWidget( qobject_cast<ReosTelemac2DInitialConditionFromInterpolation *>( initialCondition ), guiContext );
     }
     break;
     case ReosTelemac2DInitialCondition::Type::LastTimeStep:
     {
-      return new  QWidget( guiContext.parent() );
+      return new QWidget( guiContext.parent() );
     }
     break;
   }
@@ -263,13 +236,13 @@ QWidget *ReosTelemac2DInitialConditionWidgetFactory::createWidget(
 }
 
 ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalConditionFromOtherSimulationWidget(
-  ReosTelemac2DInitialConditionFromSimulation *initialCondition,
-  ReosHydraulicStructure2D *structure, QWidget *parent )
+  ReosTelemac2DInitialConditionFromSimulation *initialCondition, ReosHydraulicStructure2D *structure, QWidget *parent
+)
   : QWidget( parent )
   , mInitialCondition( initialCondition )
   , mStructure( structure )
 {
-  ReosHydraulicNetwork *network =  structure->network();
+  ReosHydraulicNetwork *network = structure->network();
 
   QGridLayout *gridLayout = new QGridLayout( this );
   setLayout( gridLayout );
@@ -280,8 +253,7 @@ ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalCo
   gridLayout->addWidget( mSchemeCombo, 0, 1 );
   mSchemeCombo->setModel( network->hydraulicSchemeCollection() );
   mSchemeCombo->setCurrentIndex( network->schemeIndex( mInitialCondition->otherSchemeId() ) );
-  connect( mSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
-           this, &ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange );
+  connect( mSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange );
 
   gridLayout->addWidget( new QLabel( tr( "Time step" ), this ), 1, 0 );
   mTimeStepCombo = new QComboBox( this );
@@ -292,19 +264,14 @@ ReosTelemac2DInititalConditionFromOtherSimulationWidget::ReosTelemac2DInititalCo
 
   onSchemeChange();
 
-  connect( mTimeStepCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-  {
-    mInitialCondition->setTimeStepIndex( mTimeStepCombo->currentIndex() );
-  } );
-
-
+  connect( mTimeStepCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] { mInitialCondition->setTimeStepIndex( mTimeStepCombo->currentIndex() ); } );
 }
 
 void ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange()
 {
   mTimeStepCombo->clear();
 
-  ReosHydraulicNetwork *network =  mStructure->network();
+  ReosHydraulicNetwork *network = mStructure->network();
   ReosHydraulicScheme *otherScheme = network->scheme( mSchemeCombo->currentIndex() );
 
   if ( otherScheme && mStructure->results( otherScheme ) )
@@ -322,8 +289,7 @@ void ReosTelemac2DInititalConditionFromOtherSimulationWidget::onSchemeChange()
     mTimeStepCombo->setCurrentIndex( -1 );
 }
 
-ReosTelemac2DInititalConditionInterpolationWidget::ReosTelemac2DInititalConditionInterpolationWidget( ReosTelemac2DInitialConditionFromInterpolation *initialCondition,
-    const ReosGuiContext &guiContext )
+ReosTelemac2DInititalConditionInterpolationWidget::ReosTelemac2DInititalConditionInterpolationWidget( ReosTelemac2DInitialConditionFromInterpolation *initialCondition, const ReosGuiContext &guiContext )
   : QWidget( guiContext.parent() )
   , mMap( guiContext.map() )
   , mInitialCondition( initialCondition )
@@ -407,10 +373,10 @@ void ReosTelemac2DInititalConditionInterpolationWidget::onDrawLineMapToolMove( c
   if ( !mLine.empty() )
   {
     double dist = ReosGeometryUtils::projectedPointDistanceFromBegining( pt, mLine );
-    double ratio =  dist / mLineLength;
+    double ratio = dist / mLineLength;
     double firstValue = mInitialCondition->firstValue()->value();
     double secondValue = mInitialCondition->secondValue()->value();
-    mValueLabel->setText( tr( "Value under cursor: %1" ).arg( QLocale().toString( firstValue + ( secondValue - firstValue )*ratio, 'f', 2 ) ) );
+    mValueLabel->setText( tr( "Value under cursor: %1" ).arg( QLocale().toString( firstValue + ( secondValue - firstValue ) * ratio, 'f', 2 ) ) );
   }
   else
   {

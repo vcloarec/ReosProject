@@ -31,7 +31,10 @@ int ReosMeshDataProvider_p::faceCount() const
   return mMesh.faceCount();
 }
 
-int ReosMeshDataProvider_p::edgeCount() const {return 0;}
+int ReosMeshDataProvider_p::edgeCount() const
+{
+  return 0;
+}
 
 void ReosMeshDataProvider_p::populateMesh( QgsMesh *mesh ) const
 {
@@ -110,16 +113,7 @@ QgsMeshDatasetGroupMetadata ReosMeshDataProvider_p::datasetGroupMetadata( int gr
   const QDateTime referenceTime = mDatasetSource->groupReferenceTime( groupIndex );
   const QMap<QString, QString> extraOptions;
 
-  return QgsMeshDatasetGroupMetadata( name,
-                                      uri,
-                                      isScalar,
-                                      dataType,
-                                      minimum,
-                                      maximum,
-                                      maximumVerticalLevels,
-                                      referenceTime,
-                                      true,
-                                      extraOptions );
+  return QgsMeshDatasetGroupMetadata( name, uri, isScalar, dataType, minimum, maximum, maximumVerticalLevels, referenceTime, true, extraOptions );
 }
 
 QgsMeshDatasetMetadata ReosMeshDataProvider_p::datasetMetadata( QgsMeshDatasetIndex index ) const
@@ -169,7 +163,7 @@ QgsMeshDataBlock ReosMeshDataProvider_p::datasetValues( QgsMeshDatasetIndex inde
     if ( effectiveCount > 0 )
     {
       buffer.resize( effectiveCount );
-      memcpy( buffer.data(), &values[valueIndex], static_cast<size_t>( effectiveCount )*sizeof( double ) );
+      memcpy( buffer.data(), &values[valueIndex], static_cast<size_t>( effectiveCount ) * sizeof( double ) );
     }
   }
   ret.setValues( buffer );
@@ -181,7 +175,10 @@ QgsMesh3DDataBlock ReosMeshDataProvider_p::dataset3dValues( QgsMeshDatasetIndex,
   return QgsMesh3DDataBlock();
 }
 
-bool ReosMeshDataProvider_p::isFaceActive( QgsMeshDatasetIndex, int ) const {return true;}
+bool ReosMeshDataProvider_p::isFaceActive( QgsMeshDatasetIndex, int ) const
+{
+  return true;
+}
 
 QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex index, int valueIndex, int count ) const
 {
@@ -207,7 +204,7 @@ QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex ind
     if ( effectiveCount > 0 )
     {
       buffer.resize( effectiveCount );
-      memcpy( buffer.data(), &values[valueIndex], static_cast<size_t>( effectiveCount )*sizeof( int ) );
+      memcpy( buffer.data(), &values[valueIndex], static_cast<size_t>( effectiveCount ) * sizeof( int ) );
     }
   }
 
@@ -215,10 +212,22 @@ QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex ind
   return ret;
 }
 
-bool ReosMeshDataProvider_p::persistDatasetGroup( const QString &outputFilePath, const QString &outputDriver, const QgsMeshDatasetGroupMetadata &meta, const QVector<QgsMeshDataBlock> &datasetValues, const QVector<QgsMeshDataBlock> &datasetActive, const QVector<double> &times ) {return false;}
+bool ReosMeshDataProvider_p::persistDatasetGroup(
+  const QString &outputFilePath,
+  const QString &outputDriver,
+  const QgsMeshDatasetGroupMetadata &meta,
+  const QVector<QgsMeshDataBlock> &datasetValues,
+  const QVector<QgsMeshDataBlock> &datasetActive,
+  const QVector<double> &times
+)
+{
+  return false;
+}
 
 bool ReosMeshDataProvider_p::persistDatasetGroup( const QString &outputFilePath, const QString &outputDriver, QgsMeshDatasetSourceInterface *source, int datasetGroupIndex )
-{return false;}
+{
+  return false;
+}
 
 bool ReosMeshDataProvider_p::saveMeshFrame( const QgsMesh &mesh )
 {
@@ -233,11 +242,7 @@ QgsRectangle ReosMeshDataProvider_p::extent() const
 
 QgsMeshDriverMetadata ReosMeshDataProvider_p::driverMetadata() const
 {
-  return QgsMeshDriverMetadata( QStringLiteral( "ReosMeshMemory" ),
-                                QStringLiteral( "reos mesh" ),
-                                QgsMeshDriverMetadata::CanWriteMeshData, QString(),
-                                QStringLiteral( "*.nc" ),
-                                3 );
+  return QgsMeshDriverMetadata( QStringLiteral( "ReosMeshMemory" ), QStringLiteral( "reos mesh" ), QgsMeshDriverMetadata::CanWriteMeshData, QString(), QStringLiteral( "*.nc" ), 3 );
 }
 
 ReosMeshDatasetSource *ReosMeshDataProvider_p::datasetSource() const
@@ -265,9 +270,9 @@ void ReosMeshDataProvider_p::loadMeshFrame( const QString &filePath, ReosModule:
   }
 }
 
-ReosMeshDataProvider_p::ReosMeshDataProvider_p(): QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() )
-{
-}
+ReosMeshDataProvider_p::ReosMeshDataProvider_p()
+  : QgsMeshDataProvider( "mesh", QgsDataProvider::ProviderOptions() )
+{}
 
 QPointF ReosMeshDataProvider_p::vertexPosition( int vertexIndex ) const
 {
@@ -378,9 +383,7 @@ QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &r
   bool hasZ = reosMesh.hasZ;
   for ( int i = 0; i < ret.vertices.size(); ++i )
   {
-    ret.vertices[i] = QgsMeshVertex( reosMesh.vertexCoordinates[i * 3],
-                                     reosMesh.vertexCoordinates[i * 3 + 1],
-                                     reosMesh.vertexCoordinates[i * 3 + 2] );
+    ret.vertices[i] = QgsMeshVertex( reosMesh.vertexCoordinates[i * 3], reosMesh.vertexCoordinates[i * 3 + 1], reosMesh.vertexCoordinates[i * 3 + 2] );
     // if Z is NaN, constructor QgsMeshVertex create a 2D point, so need to set Z value to NaN after creation
     if ( !hasZ )
       ret.vertices[i].setZ( std::numeric_limits<double>::quiet_NaN() );
@@ -392,7 +395,9 @@ QgsMesh ReosMeshDataProvider_p::convertFrameFromReos( const ReosMeshFrameData &r
   return ret;
 }
 
-ReosMeshProviderMetaData::ReosMeshProviderMetaData() : QgsProviderMetadata( QStringLiteral( "ReosMesh" ), QStringLiteral( "reos mesh" ) ) {}
+ReosMeshProviderMetaData::ReosMeshProviderMetaData()
+  : QgsProviderMetadata( QStringLiteral( "ReosMesh" ), QStringLiteral( "reos mesh" ) )
+{}
 
 ReosMeshDataProvider_p *ReosMeshProviderMetaData::createProvider( const QString &, const QgsDataProvider::ProviderOptions &, Qgis::DataProviderReadFlags )
 {

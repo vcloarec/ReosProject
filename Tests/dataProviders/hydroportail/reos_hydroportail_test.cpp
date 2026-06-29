@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reos_testutils.h"
@@ -23,21 +23,21 @@
 #include "reoshydrograph.h"
 #include "reoshydroportailprovider.h"
 
-class ReosHydroportailTest: public QObject
+class ReosHydroportailTest : public QObject
 {
     Q_OBJECT
 
   private slots:
     void createProvider();
     void createHydrograph();
-
 };
 
 void ReosHydroportailTest::createProvider()
 {
   QString file( testFile( QStringLiteral( "hydroportail/J261401002_Q.csv" ) ) );
   std::unique_ptr<ReosTimeSerieVariableTimeStepProvider> provider(
-    qobject_cast<ReosTimeSerieVariableTimeStepProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( file, ReosHydrograph::staticType() ) ) );
+    qobject_cast<ReosTimeSerieVariableTimeStepProvider *>( ReosDataProviderRegistery::instance()->createCompatibleProvider( file, ReosHydrograph::staticType() ) )
+  );
 
   QVERIFY( provider );
 
@@ -65,7 +65,7 @@ void ReosHydroportailTest::createHydrograph()
   QCOMPARE( hydrograph.valueAt( 3688 ), 8.4 );
   QVERIFY( hydrograph.relativeTimeAt( 0 ) == ReosDuration( qint64( 0 ) ) );
   QVERIFY( hydrograph.relativeTimeAt( 1 ) == ReosDuration( 19, ReosDuration::hour ) + ReosDuration( 1, ReosDuration::minute ) );
-  QVERIFY( hydrograph.relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour )  + ReosDuration( 53, ReosDuration::minute ) );
+  QVERIFY( hydrograph.relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour ) + ReosDuration( 53, ReosDuration::minute ) );
 
   ReosEncodeContext context;
   context.setEncodeRelativePath( false );
@@ -80,7 +80,7 @@ void ReosHydroportailTest::createHydrograph()
   QCOMPARE( decodedHyd->valueAt( 3688 ), 8.4 );
   QVERIFY( decodedHyd->relativeTimeAt( 0 ) == ReosDuration( qint64( 0 ) ) );
   QVERIFY( decodedHyd->relativeTimeAt( 1 ) == ReosDuration( 19, ReosDuration::hour ) + ReosDuration( 1, ReosDuration::minute ) );
-  QVERIFY( decodedHyd->relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour )  + ReosDuration( 53, ReosDuration::minute ) );
+  QVERIFY( decodedHyd->relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour ) + ReosDuration( 53, ReosDuration::minute ) );
 
 
   ReosHydrograph hydrograph_ls( nullptr, "hydroportail", testFile( QStringLiteral( "hydroportail/J261401002_Q_ls.csv" ) ) );
@@ -92,7 +92,7 @@ void ReosHydroportailTest::createHydrograph()
   QCOMPARE( hydrograph_ls.valueAt( 3688 ), 8.4 );
   QVERIFY( hydrograph_ls.relativeTimeAt( 0 ) == ReosDuration( qint64( 0 ) ) );
   QVERIFY( hydrograph_ls.relativeTimeAt( 1 ) == ReosDuration( 19, ReosDuration::hour ) + ReosDuration( 1, ReosDuration::minute ) );
-  QVERIFY( hydrograph_ls.relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour )  + ReosDuration( 53, ReosDuration::minute ) );
+  QVERIFY( hydrograph_ls.relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour ) + ReosDuration( 53, ReosDuration::minute ) );
 
   ReosHydrograph hydrograph_mm3( nullptr, "hydroportail", testFile( QStringLiteral( "hydroportail/J261401002_Q_mm3.csv" ) ) );
 
@@ -103,7 +103,7 @@ void ReosHydroportailTest::createHydrograph()
   QCOMPARE( hydrograph_ls.valueAt( 3688 ), 8.4 );
   QVERIFY( hydrograph_ls.relativeTimeAt( 0 ) == ReosDuration( qint64( 0 ) ) );
   QVERIFY( hydrograph_ls.relativeTimeAt( 1 ) == ReosDuration( 19, ReosDuration::hour ) + ReosDuration( 1, ReosDuration::minute ) );
-  QVERIFY( hydrograph_ls.relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour )  + ReosDuration( 53, ReosDuration::minute ) );
+  QVERIFY( hydrograph_ls.relativeTimeAt( 3688 ) == ReosDuration( 365, ReosDuration::day ) + ReosDuration( 23, ReosDuration::hour ) + ReosDuration( 53, ReosDuration::minute ) );
 }
 
 QTEST_MAIN( ReosHydroportailTest )

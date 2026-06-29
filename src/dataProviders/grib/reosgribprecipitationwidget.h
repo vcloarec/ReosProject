@@ -29,7 +29,7 @@ namespace Ui
   class ReosGribPrecipitationWidget;
 }
 
-class ReosGribPrecipitationWidget :  public ReosGriddedRainDataProviderSelectorWidget
+class ReosGribPrecipitationWidget : public ReosGriddedRainDataProviderSelectorWidget
 {
     Q_OBJECT
 

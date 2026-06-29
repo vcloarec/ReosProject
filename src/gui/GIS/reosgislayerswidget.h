@@ -26,13 +26,11 @@ class QgsLayerTreeViewIndicator;
 class ReosGisEngine;
 class ReosMap;
 
-class REOSGUI_EXPORT ReosGisLayersWidget: public QWidget
+class REOSGUI_EXPORT ReosGisLayersWidget : public QWidget
 {
     Q_OBJECT
   public:
-    ReosGisLayersWidget( ReosGisEngine *engine,
-                         ReosMap *map,
-                         QWidget *parent = nullptr );
+    ReosGisLayersWidget( ReosGisEngine *engine, ReosMap *map, QWidget *parent = nullptr );
 
     bool isLayerDigitalElevationModel( const QString &layerId );
 

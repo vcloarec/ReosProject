@@ -65,7 +65,7 @@ QVariant ReosPlotItemListModel::data( const QModelIndex &index, int role ) const
       return std::get<1>( mPlot.at( index.row() ) )->name();
       break;
     case Qt::CheckStateRole:
-      return std::get<2>( mPlot.at( index.row() ) ) ?  Qt::CheckState::Checked : Qt::CheckState::Unchecked;
+      return std::get<2>( mPlot.at( index.row() ) ) ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
       break;
     case Qt::DecorationRole:
       return std::get<0>( mPlot.at( index.row() ) )->icone( QSize( 20, 12 ) );
@@ -75,7 +75,6 @@ QVariant ReosPlotItemListModel::data( const QModelIndex &index, int role ) const
   }
 
   return QVariant();
-
 }
 
 bool ReosPlotItemListModel::setData( const QModelIndex &index, const QVariant &value, int role )
@@ -89,9 +88,9 @@ bool ReosPlotItemListModel::setData( const QModelIndex &index, const QVariant &v
   if ( role == Qt::CheckStateRole )
   {
     if ( value == Qt::CheckState::Checked )
-      mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row() ] ), std::get<1>( mPlot[index.row() ] ), true );
+      mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row()] ), std::get<1>( mPlot[index.row()] ), true );
     else if ( value == Qt::CheckState::Unchecked )
-      mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row() ] ), std::get<1>( mPlot[index.row() ] ), false );
+      mPlot[index.row()] = std::make_tuple( std::get<0>( mPlot[index.row()] ), std::get<1>( mPlot[index.row()] ), false );
 
     updateItemVisibility( index.row(), true );
     return true;
@@ -108,7 +107,7 @@ ReosPlotItem *ReosPlotItemListModel::addData( ReosTimeSeriesVariableTimeStep *da
 {
   beginResetModel();
   std::unique_ptr<ReosPlotItem> item( ReosPlotItemFactories::instance()->buildPlotItem( mPlotWidget, data ) );
-  mPlot.append( {item.get(), data, true} );
+  mPlot.append( { item.get(), data, true } );
   mPlotWidget->addPlotItem( item.get() );
   updateItemVisibility( mPlot.count() - 1, true );
   endResetModel();
@@ -144,7 +143,7 @@ void ReosPlotItemListModel::setGlobalVisibilty( bool globalVisibilty )
 
 void ReosPlotItemListModel::updateItemVisibility( int itemIndex, bool replot )
 {
-  bool  isVisible = mGlobalVisibilty && std::get<2>( mPlot.at( itemIndex ) );
+  bool isVisible = mGlobalVisibilty && std::get<2>( mPlot.at( itemIndex ) );
   std::get<0>( mPlot.at( itemIndex ) )->setLegendActive( isVisible );
   std::get<0>( mPlot.at( itemIndex ) )->setVisible( isVisible, replot );
 }
@@ -182,7 +181,8 @@ void ReosVariableTimeStepPlotListButton::clear()
   setEnabled( false );
 }
 
-ReosVariableTimeStepPlotListView::ReosVariableTimeStepPlotListView( ReosPlotWidget *plotWidget, QWidget *parent ): QListView( parent )
+ReosVariableTimeStepPlotListView::ReosVariableTimeStepPlotListView( ReosPlotWidget *plotWidget, QWidget *parent )
+  : QListView( parent )
 {
   mModel = new ReosPlotItemListModel( plotWidget, this );
   setModel( mModel );

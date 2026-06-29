@@ -29,8 +29,8 @@
 #include "reosidfcurves.h"
 
 
-ReosIdfPlot_p::ReosIdfPlot_p( ReosIntensityDurationCurve *curve ) :
-  QwtPlotItem()
+ReosIdfPlot_p::ReosIdfPlot_p( ReosIntensityDurationCurve *curve )
+  : QwtPlotItem()
   , mCurve( curve )
 {
   setZ( 15 );
@@ -44,8 +44,7 @@ void ReosIdfPlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtS
 
   painter->save();
 
-  painter->setRenderHint( QPainter::Antialiasing,
-                          true );
+  painter->setRenderHint( QPainter::Antialiasing, true );
 
   for ( int i = 0; i < mCurve->intervalCount(); ++i )
   {
@@ -56,8 +55,7 @@ void ReosIdfPlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtS
 
     double start = timeInter.first.valueUnit( mUnit );
     double end = timeInter.second.valueUnit( mUnit );
-    if ( ( start < xMap.s1() && end < xMap.s1() ) ||
-         ( start > xMap.s2() + canvasRect.width() && end > xMap.s2() ) )
+    if ( ( start < xMap.s1() && end < xMap.s1() ) || ( start > xMap.s2() + canvasRect.width() && end > xMap.s2() ) )
       continue;
 
     int pointCount = 20;
@@ -83,7 +81,7 @@ void ReosIdfPlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtS
 
     for ( int i = 1; i < pointCount - 1; ++i )
     {
-      double x2 = startPlot + ( i ) * dx;
+      double x2 = startPlot + ( i ) *dx;
       double y2 = mCurve->intensity( ReosDuration( x2, mUnit ) );
 
       double xc1 = xMap.transform( x1 );
@@ -146,8 +144,7 @@ QwtGraphic ReosIdfPlot_p::legendIcon( int index, const QSizeF & ) const
   graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
 
   QPainter painter( &graphic );
-  painter.setRenderHint( QPainter::Antialiasing,
-                         testRenderHint( QwtPlotItem::RenderAntialiased ) );
+  painter.setRenderHint( QPainter::Antialiasing, testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
   QPen pen;
   pen.setColor( mColor );
@@ -160,5 +157,3 @@ QwtGraphic ReosIdfPlot_p::legendIcon( int index, const QSizeF & ) const
 
   return graphic;
 }
-
-

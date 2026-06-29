@@ -169,18 +169,13 @@ ReosHydraulicElementWidget *ReosHydraulicElementWidgetFactory::createWidget( Reo
   return ret;
 }
 
-ReosHydrauylicNetworkElementCalculationControler::ReosHydrauylicNetworkElementCalculationControler(
-  ReosHydraulicNetworkElement *element,
-  QObject *parent )
+ReosHydrauylicNetworkElementCalculationControler::ReosHydrauylicNetworkElementCalculationControler( ReosHydraulicNetworkElement *element, QObject *parent )
   : QObject( parent )
   , mElement( element )
 {
-  connect( mElement, &ReosHydraulicNetworkElement::calculationStart, this,
-           &ReosHydrauylicNetworkElementCalculationControler::onCalculationStart );
+  connect( mElement, &ReosHydraulicNetworkElement::calculationStart, this, &ReosHydrauylicNetworkElementCalculationControler::onCalculationStart );
 
-  connect( mElement, &ReosHydraulicNetworkElement::calculationIsUpdated, this,
-           &ReosHydrauylicNetworkElementCalculationControler::onCalculationStop );
-
+  connect( mElement, &ReosHydraulicNetworkElement::calculationIsUpdated, this, &ReosHydrauylicNetworkElementCalculationControler::onCalculationStop );
 }
 
 void ReosHydrauylicNetworkElementCalculationControler::setProgressBar( QProgressBar *progBar )

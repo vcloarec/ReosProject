@@ -24,7 +24,7 @@
 #include <QElapsedTimer>
 #include <QDebug>
 
-ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &element,  const ReosEncodeContext &context, QObject *parent )
+ReosGriddedRainfall *ReosGriddedRainfall::decode( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
 {
   if ( element.description() != ReosGriddedRainfall::staticType() )
     return nullptr;
@@ -41,8 +41,7 @@ ReosGriddedRainfall::ReosGriddedRainfall( QObject *parent )
 
 ReosGriddedRainfall::ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent )
   : ReosGriddedData( dataSource, formatKey( providerKey ), parent )
-{
-}
+{}
 
 ReosGriddedRainfall::ReosGriddedRainfall( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent )
   : ReosGriddedData( parent )
@@ -78,8 +77,7 @@ ReosEncodedElement ReosGriddedRainfall::encode( const ReosEncodeContext &context
 }
 
 ReosGriddedRainfall::~ReosGriddedRainfall()
-{
-}
+{}
 
 QString ReosGriddedRainfall::type() const
 {
@@ -104,8 +102,10 @@ ReosGriddedDataProvider *ReosGriddedRainfall::dataProvider() const
   return qobject_cast<ReosGriddedDataProvider *>( ReosGriddedData::dataProvider() );
 }
 
-QString ReosGriddedRainfall::staticType() {return QStringLiteral( "gridded-data" );}
-
+QString ReosGriddedRainfall::staticType()
+{
+  return QStringLiteral( "gridded-data" );
+}
 
 
 const QVector<double> ReosGriddedRainfall::intensityValues( int index ) const
@@ -225,7 +225,7 @@ ReosGriddedRainfall *ReosGriddedRainfall::transform( const ReosMapExtent &destin
 
     const QVector<double> sourceValue = dataProvider()->data( i );
     ReosRasterMemory<double> raster( yCount, xCount );
-    qDebug() << "Prt "<<i;
+    qDebug() << "Prt " << i;
     raster.reserveMemory();
 
     for ( int y = 0; y < yCount; ++y )
@@ -272,13 +272,11 @@ ReosGriddedRainItem::ReosGriddedRainItem( const QString &name, const QString &de
   if ( data )
   {
     data->setParent( this );
-    connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this]
-    {
+    connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this] {
       mGriddedRainfall->setName( ReosRainfallItem::name() );
       emit mGriddedRainfall->repaintRequested();
     } );
   }
-
 }
 
 ReosGriddedRainItem::ReosGriddedRainItem( const ReosEncodedElement &element, const ReosEncodeContext &context )
@@ -293,11 +291,10 @@ ReosGriddedRainItem::ReosGriddedRainItem( const ReosEncodedElement &element, con
     mGriddedRainfall = new ReosGriddedRainfall( this );
 
   if ( mGriddedRainfall )
-    connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this]
-  {
-    mGriddedRainfall->setName( ReosRainfallItem::name() );
-    emit mGriddedRainfall->repaintRequested();
-  } );
+    connect( this, &ReosRainfallItem::changed, mGriddedRainfall, [this] {
+      mGriddedRainfall->setName( ReosRainfallItem::name() );
+      emit mGriddedRainfall->repaintRequested();
+    } );
 }
 
 ReosGriddedRainfall *ReosGriddedRainItem::data() const
@@ -305,9 +302,15 @@ ReosGriddedRainfall *ReosGriddedRainItem::data() const
   return mGriddedRainfall;
 }
 
-QIcon ReosGriddedRainItem::icone() const {return QIcon( QStringLiteral( ":/images/griddedRainfall.svg" ) );}
+QIcon ReosGriddedRainItem::icone() const
+{
+  return QIcon( QStringLiteral( ":/images/griddedRainfall.svg" ) );
+}
 
-bool ReosGriddedRainItem::accept( ReosRainfallItem *, bool ) const {return false;}
+bool ReosGriddedRainItem::accept( ReosRainfallItem *, bool ) const
+{
+  return false;
+}
 
 bool ReosGriddedRainItem::canBeSubItem( const ReosRainfallItem *item, bool ) const
 {

@@ -15,7 +15,9 @@ email                : vcloarec@gmail.com
 
 #include "reosrasterline.h"
 
-ReosRasterLine::ReosRasterLine( bool thick ): mThick( thick ) {}
+ReosRasterLine::ReosRasterLine( bool thick )
+  : mThick( thick )
+{}
 
 void ReosRasterLine::addPoint( int row, int column )
 {
@@ -75,30 +77,30 @@ bool ReosRasterLine::contains( const ReosRasterCellPos &cell )
 void ReosRasterLine::drawLine( int ri, int ci, int rf, int cf )
 {
   //source :http://raphaello.univ-fcomte.fr/IG/Algorithme/Algorithmique.htm
-  int dr, dc, i, rinc, cinc, cumul, r, c ;
+  int dr, dc, i, rinc, cinc, cumul, r, c;
 
-  r = ri ;
-  c = ci ;
-  dr = rf - ri ;
-  dc = cf - ci ;
-  rinc = ( dr > 0 ) ? 1 : -1 ;
-  cinc = ( dc > 0 ) ? 1 : -1 ;
+  r = ri;
+  c = ci;
+  dr = rf - ri;
+  dc = cf - ci;
+  rinc = ( dr > 0 ) ? 1 : -1;
+  cinc = ( dc > 0 ) ? 1 : -1;
 
-  dr = abs( dr ) ;
-  dc = abs( dc ) ;
+  dr = abs( dr );
+  dc = abs( dc );
 
 
   if ( dr > dc )
   {
-    cumul = dr / 2 ;
-    for ( i = 1 ; i < dr ; i++ )
+    cumul = dr / 2;
+    for ( i = 1; i < dr; i++ )
     {
-      r += rinc ;
-      cumul += dc ;
+      r += rinc;
+      cumul += dc;
       if ( cumul >= dr )
       {
-        cumul -= dr ;
-        c += cinc ;
+        cumul -= dr;
+        c += cinc;
       }
 
       if ( mThick )
@@ -114,15 +116,15 @@ void ReosRasterLine::drawLine( int ri, int ci, int rf, int cf )
   }
   else
   {
-    cumul = dc / 2 ;
-    for ( i = 1 ; i < dc ; i++ )
+    cumul = dc / 2;
+    for ( i = 1; i < dc; i++ )
     {
-      c += cinc ;
-      cumul += dr ;
+      c += cinc;
+      cumul += dr;
       if ( cumul >= dc )
       {
-        cumul -= dc ;
-        r += rinc ;
+        cumul -= dc;
+        r += rinc;
       }
 
       if ( mThick )
@@ -175,4 +177,7 @@ bool ReosRasterLine::vectorContain( int row, int col ) const
   return ( std::find( mCells.begin(), mCells.end(), cell ) != mCells.end() );
 }
 
-unsigned ReosRasterLine::cellCount() const { return unsigned( mCells.size() );}
+unsigned ReosRasterLine::cellCount() const
+{
+  return unsigned( mCells.size() );
+}

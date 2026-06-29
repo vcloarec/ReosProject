@@ -28,8 +28,7 @@ ReosMapToolEditPolylineStructure::ReosMapToolEditPolylineStructure( ReosPolyline
   d->setStructure( structure );
   setCursor( Qt::CrossCursor );
 
-  std::unique_ptr<ReosEditPolylineStructureMenuPopulator> menuPopulator =
-    std::make_unique<ReosEditPolylineStructureMenuPopulator>( d );
+  std::unique_ptr<ReosEditPolylineStructureMenuPopulator> menuPopulator = std::make_unique<ReosEditPolylineStructureMenuPopulator>( d );
 
   setContextMenuPopulator( menuPopulator.release() );
 
@@ -60,11 +59,9 @@ ReosMapToolEditPolygonStructure::ReosMapToolEditPolygonStructure( ReosPolygonStr
   d->setStructure( structure );
   setCursor( Qt::CrossCursor );
 
-  std::unique_ptr<ReosEditPolygonStructureMenuPopulator> menuPopulator =
-    std::make_unique<ReosEditPolygonStructureMenuPopulator>( d );
+  std::unique_ptr<ReosEditPolygonStructureMenuPopulator> menuPopulator = std::make_unique<ReosEditPolygonStructureMenuPopulator>( d );
 
   setContextMenuPopulator( menuPopulator.release() );
-
 }
 
 ReosMapToolEditPolygonStructure::~ReosMapToolEditPolygonStructure()
@@ -92,7 +89,6 @@ ReosMapTool_p *ReosMapToolEditPolygonStructure::tool_p() const
 {
   return d;
 }
-
 
 
 ReosPolygonStructureClassModelList::ReosPolygonStructureClassModelList( ReosPolygonStructure *structure, QObject *parent )
@@ -182,10 +178,7 @@ QStringList ReosPolygonStructureClassModelList::orderedClasses() const
 {
   QStringList classes = mStructure->classes();
 
-  std::sort( classes.begin(), classes.end(), [this]( const QString & classId1, const QString & classId2 )
-  {
-    return mStructure->value( classId1 ) < mStructure->value( classId2 );
-  } );
+  std::sort( classes.begin(), classes.end(), [this]( const QString &classId1, const QString &classId2 ) { return mStructure->value( classId1 ) < mStructure->value( classId2 ); } );
 
   return classes;
 }
@@ -267,11 +260,7 @@ QStringList ReosPolylineStructureClassModelList::orderedClasses() const
 {
   QStringList classes = mStructure->classes();
 
-  std::sort( classes.begin(), classes.end(), [this]( const QString & classId1, const QString & classId2 )
-  {
-    return mStructure->value( classId1 ).toString() < mStructure->value( classId2 ).toString();
-  } );
+  std::sort( classes.begin(), classes.end(), [this]( const QString &classId1, const QString &classId2 ) { return mStructure->value( classId1 ).toString() < mStructure->value( classId2 ).toString(); } );
 
   return classes;
 }
-

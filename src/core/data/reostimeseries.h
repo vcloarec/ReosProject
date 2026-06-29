@@ -41,7 +41,7 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
   public:
     ReosTimeSeries( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return staticType();}
+    QString type() const override { return staticType(); }
 
     /**
      * Asks for Reloading data from provider.
@@ -63,7 +63,7 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     int valueCount() const;
 
     //! Returns the relative time frm the reference time for the value at position \a i
-    virtual ReosDuration relativeTimeAt( int i ) const = 0 ;
+    virtual ReosDuration relativeTimeAt( int i ) const = 0;
 
     //! returns the absolute time for the value at position \a i
     virtual QDateTime timeAt( int i ) const;
@@ -84,7 +84,7 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
     void removeValues( int fromPos, int count );
 
     //! Clears all values
-    virtual  void clear();
+    virtual void clear();
 
     //! Returns the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
     QPair<double, double> valueExent( bool withZero = false ) const SIP_SKIP;
@@ -119,10 +119,10 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
 #ifndef SIP_RUN
 
     virtual ReosTimeSerieProvider *dataProvider() const;
-    static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" );}
+    static QString staticType() { return ReosDataObject::staticType() + ':' + QStringLiteral( "time-serie" ); }
 
     //! Returns a pointer to the reference time parameter
-    ReosParameterDateTime *referenceTimeParameter() const {return mReferenceTimeParameter;}
+    ReosParameterDateTime *referenceTimeParameter() const { return mReferenceTimeParameter; }
 
   protected slots:
     virtual void onDataProviderChanged();
@@ -159,11 +159,10 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
  *  By default, value are considered as incremental value. Different modes (\see ValueMode) can be used to return
  *   intensity value ( incremental value divided by the time step) or cumulative value (sum from the begining).
  */
-class REOSCORE_EXPORT ReosTimeSeriesConstantInterval: public ReosTimeSeries
+class REOSCORE_EXPORT ReosTimeSeriesConstantInterval : public ReosTimeSeries
 {
     Q_OBJECT
   public:
-
     enum ValueMode
     {
       Value,
@@ -177,8 +176,8 @@ class REOSCORE_EXPORT ReosTimeSeriesConstantInterval: public ReosTimeSeries
     QPair<QDateTime, QDateTime> timeExtent() const override SIP_SKIP;
     double valueAt( int i ) const override;
     void setValueAt( int i, double value ) override;
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSeries::staticType() + ':' + QStringLiteral( "constant-interval" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosTimeSeries::staticType() + ':' + QStringLiteral( "constant-interval" ); }
 
     //! Set all values with the array \a vals
     void setValues( const QVector<double> &vals );
@@ -264,7 +263,7 @@ class REOSCORE_EXPORT ReosTimeSeriesConstantInterval: public ReosTimeSeries
   protected:
     void connectParameters();
     ReosTimeSeriesConstantInterval( const ReosEncodedElement &element, const ReosEncodeContext &context, QObject *parent = nullptr );
-    ReosTimeSeriesConstantInterval( ReosTimeSerieConstantTimeStepProvider *provider,  QObject *parent = nullptr );
+    ReosTimeSeriesConstantInterval( ReosTimeSerieConstantTimeStepProvider *provider, QObject *parent = nullptr );
 
     QString formatKey( const QString &rawKey ) const override;
 #endif //no SIP_RUN
@@ -282,14 +281,14 @@ class REOSCORE_EXPORT ReosTimeSeriesConstantInterval: public ReosTimeSeries
 };
 
 
-class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
+class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep : public ReosTimeSeries
 {
     Q_OBJECT
   public:
     ReosTimeSeriesVariableTimeStep( QObject *parent = nullptr, const QString &providerKey = QString(), const QString &dataSource = QString() );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosTimeSeries::staticType() + ':' + QStringLiteral( "variable-time-step" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosTimeSeries::staticType() + ':' + QStringLiteral( "variable-time-step" ); }
 
     //! Returns the relative time at \a i
     ReosDuration relativeTimeAt( int i ) const override;
@@ -376,10 +375,9 @@ class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStep: public ReosTimeSeries
     void displayColorChanged( const QColor &color );
 
   protected:
-
     //! Encodes/Decodes base information in/from the \a element
     virtual void baseEncode( ReosEncodedElement &element, const ReosEncodeContext &context ) const override;
-    virtual bool  decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
+    virtual bool decodeBase( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
     QString formatKey( const QString &rawKey ) const override;
 
@@ -419,7 +417,6 @@ class REOSCORE_EXPORT ReosTimeSerieModel : public QAbstractTableModel
   public slots:
     virtual void deleteRows( const QModelIndex &fromIndex, int count ) = 0;
     virtual void insertRows( const QModelIndex &fromIndex, int count ) = 0;
-
 };
 
 //! Model used to handle AND edit time series with constant time step
@@ -454,7 +451,7 @@ class REOSCORE_EXPORT ReosTimeSeriesConstantIntervalModel : public ReosTimeSerie
 };
 
 //! Model used to handle AND edit time series with variable time step
-class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepModel: public ReosTimeSerieModel
+class REOSCORE_EXPORT ReosTimeSeriesVariableTimeStepModel : public ReosTimeSerieModel
 {
     Q_OBJECT
   public:

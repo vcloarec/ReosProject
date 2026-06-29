@@ -47,8 +47,6 @@ class ReosDssProviderUriWidget : public ReosDataProviderUriWidget
 
   private:
     Ui::ReosDssProviderUriWidget *ui;
-
-
 };
 
 #endif // REOSDSSPROVIDERURIWIDGET_H

@@ -36,7 +36,7 @@ REOSEXTERN ReosDataProviderGuiFactory *providerGuiFactory()
 
 ReosMeteoFranceAromeApiWidget::ReosMeteoFranceAromeApiWidget( ReosMap *map, QWidget *parent )
   : ReosGriddedRainDataProviderSelectorWidget( parent )
-  ,  ui( new Ui::ReosMeteoFranceAromeApiWidget )
+  , ui( new Ui::ReosMeteoFranceAromeApiWidget )
   , mMap( map )
   , mMapToolDrawExtent( new ReosMapToolDrawExtent( this, mMap ) )
   , mActionDrawExtent( new QAction( QIcon( QStringLiteral( ":/images/extentOnMap.svg" ) ), tr( "Draw extent" ), this ) )
@@ -76,7 +76,7 @@ ReosMeteoFranceAromeApiWidget::ReosMeteoFranceAromeApiWidget( ReosMap *map, QWid
     if ( mModels.contains( model.zone ) )
       mModels[model.zone].append( model.resol );
     else
-      mModels.insert( model.zone, QStringList( {model.resol} ) );
+      mModels.insert( model.zone, QStringList( { model.resol } ) );
   }
 
   const QStringList zones = mModels.keys();
@@ -87,7 +87,7 @@ ReosMeteoFranceAromeApiWidget::ReosMeteoFranceAromeApiWidget( ReosMap *map, QWid
   connect( ui->mResolCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosMeteoFranceAromeApiWidget::resetModel );
   onZoneChange();
 
-  connect( ui->mRunCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {emit dataSelectionChanged( true );} );
+  connect( ui->mRunCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] { emit dataSelectionChanged( true ); } );
 }
 
 ReosMeteoFranceAromeApiWidget::~ReosMeteoFranceAromeApiWidget()
@@ -98,12 +98,8 @@ ReosMeteoFranceAromeApiWidget::~ReosMeteoFranceAromeApiWidget()
 ReosGriddedRainfall *ReosMeteoFranceAromeApiWidget::createData( QObject *parent ) const
 {
   ReosOverrideCursor overrideCursor;
-  QString uri = ReosMeteoFranceAromeApiProvider::uri(
-                  ui->mKeyFileLineEdit->text(),
-                  ui->mZoneCombo->currentData().toString(),
-                  ui->mResolCombo->currentData().toString(),
-                  mExtent,
-                  ui->mRunCombo->currentIndex() );
+  QString uri
+    = ReosMeteoFranceAromeApiProvider::uri( ui->mKeyFileLineEdit->text(), ui->mZoneCombo->currentData().toString(), ui->mResolCombo->currentData().toString(), mExtent, ui->mRunCombo->currentIndex() );
 
 
   ui->mProgressBar->setMinimum( 0 );
@@ -155,7 +151,7 @@ void ReosMeteoFranceAromeApiWidget::onApiKeyFileButton()
   QFileInfo fileInfo( keyFile );
   settings.setValue( settingsPath, fileInfo.dir().path() );
 
-  ui->mKeyFileLineEdit->setText(keyFile);
+  ui->mKeyFileLineEdit->setText( keyFile );
 
   if ( testKey() )
     settings.setValue( settingsFile, fileInfo.filePath() );
@@ -170,7 +166,7 @@ void ReosMeteoFranceAromeApiWidget::onConnectButton()
   ui->mRunCombo->setEnabled( false );
   ui->mExtentButton->setEnabled( false );
 
-  ReosMeteoFranceApiArome::Model model {zone, resol};
+  ReosMeteoFranceApiArome::Model model { zone, resol };
 
   ReosOverrideCursor overrideCursor;
   mApi.reset( new ReosMeteoFranceApiArome( ui->mKeyFileLineEdit->text() ) );
@@ -284,8 +280,7 @@ void ReosMeteoFranceAromeApiWidget::setExtent( const ReosMapExtent &extent, bool
     mMap->setExtent( extent );
 
   QStringList valExtent = ReosMeteoFranceApiArome::extentToLonLatList( extent, 2 );
-  ui->mExtentButton->setText( tr( "Longitude(%1,%2), Latitude(%3,%4)" ).
-                              arg( valExtent.at( 0 ), valExtent.at( 1 ), valExtent.at( 2 ), valExtent.at( 3 ) ) );
+  ui->mExtentButton->setText( tr( "Longitude(%1,%2), Latitude(%3,%4)" ).arg( valExtent.at( 0 ), valExtent.at( 1 ), valExtent.at( 2 ), valExtent.at( 3 ) ) );
 
   emit dataSelectionChanged( true );
 }

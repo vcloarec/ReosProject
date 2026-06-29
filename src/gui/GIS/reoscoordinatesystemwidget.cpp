@@ -20,9 +20,8 @@
 
 ReosCoordinateSystemWidget::ReosCoordinateSystemWidget( QWidget *parent )
   : QWidget( parent )
-  ,   mQgsWidget( new QgsProjectionSelectionWidget( this ) )
+  , mQgsWidget( new QgsProjectionSelectionWidget( this ) )
 {
-
   QHBoxLayout *lay = new QHBoxLayout( this );
   setLayout( lay );
   lay->setContentsMargins( 0, 0, 0, 0 );

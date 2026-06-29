@@ -65,7 +65,7 @@ class ReosHydraulicHydrographNodePropertiesWidgetFactory : public ReosHydraulicE
     virtual QString elementType();
 };
 
-class ReosFormBaseJunctionNodeWidget: public ReosFormWidget
+class ReosFormBaseJunctionNodeWidget : public ReosFormWidget
 {
     Q_OBJECT
   public:
@@ -81,18 +81,19 @@ class ReosFormBaseJunctionNodeWidget: public ReosFormWidget
     virtual ReosHydrographJunction *node() const = 0;
 };
 
-class ReosFormJunctionNodeWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormJunctionNodeWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
-class ReosFormJunctionNodeWidget: public ReosFormBaseJunctionNodeWidget
+class ReosFormJunctionNodeWidget : public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:
     ReosFormJunctionNodeWidget( ReosHydrographJunction *junction, const ReosGuiContext &context = ReosGuiContext() );
+
   protected:
     ReosHydrographJunction *node() const override;
 
@@ -104,14 +105,14 @@ class ReosFormJunctionNodeWidget: public ReosFormBaseJunctionNodeWidget
     QCheckBox *mCheckBoxGauged = nullptr;
 };
 
-class ReosFormWatershedNodeWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormWatershedNodeWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     virtual QString datatype() const;
 };
 
-class ReosFormWatershedNodeWidget: public ReosFormBaseJunctionNodeWidget
+class ReosFormWatershedNodeWidget : public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:
@@ -130,7 +131,7 @@ class ReosFormWatershedNodeWidget: public ReosFormBaseJunctionNodeWidget
 };
 
 
-class ReosFormJunctionBoundaryConditionWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormJunctionBoundaryConditionWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     virtual ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
@@ -138,7 +139,7 @@ class ReosFormJunctionBoundaryConditionWidgetFactory: public ReosFormWidgetDataF
 };
 
 
-class ReosFormJunctionBoundaryConditionWidget: public ReosFormBaseJunctionNodeWidget
+class ReosFormJunctionBoundaryConditionWidget : public ReosFormBaseJunctionNodeWidget
 {
     Q_OBJECT
   public:

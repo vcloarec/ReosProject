@@ -196,7 +196,7 @@ const QVector<double> ReosMeteoHdf5Provider::data( int index ) const
   ReosRasterMemory<double> raster = dataset.valuesFromBand( 1 );
   QVector<double> rawValues = raster.values();
 
-  std::unique_ptr<QVector<double>> values = std::make_unique<QVector<double>>( raster.values().count(),  std::numeric_limits<double>::quiet_NaN() );
+  std::unique_ptr<QVector<double>> values = std::make_unique<QVector<double>>( raster.values().count(), std::numeric_limits<double>::quiet_NaN() );
   for ( int i = 0; i < rawValues.count(); ++i )
   {
     if ( raster.values().at( i ) != 65535 )
@@ -207,7 +207,6 @@ const QVector<double> ReosMeteoHdf5Provider::data( int index ) const
   mCache.insert( index, values.release(), rawValues.size() * 16 );
 
   return ret;
-
 }
 
 bool ReosMeteoHdf5Provider::getDirectMinMax( double &min, double &max ) const
@@ -251,22 +250,28 @@ QString ReosMeteoHdf5Provider::htmlDescription() const
   htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + QStringLiteral( "GRIB 2" ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) )
+              + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "GRIB 2" )
+              + QStringLiteral( "</td></tr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
-              + sourcePathFromUri( dataSource() ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) )
+              + QStringLiteral( "</td><td>" )
+              + sourcePathFromUri( dataSource() )
+              + QStringLiteral( "</td></tr>\n" );
 
   if ( count() > 0 )
   {
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) )
+                + QStringLiteral( "</td><td>" )
                 + startTime( 0 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) )
+                + QStringLiteral( "</td><td>" )
                 + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -279,7 +284,10 @@ ReosRasterExtent ReosMeteoHdf5Provider::extent() const
   return mExtent;
 }
 
-QString ReosMeteoHdf5Provider::dataType() {return ReosGriddedData::staticType();}
+QString ReosMeteoHdf5Provider::dataType()
+{
+  return ReosGriddedData::staticType();
+}
 
 QString ReosMeteoHdf5Provider::staticKey()
 {
@@ -329,7 +337,6 @@ bool ReosMeteoHdf5Provider::sourceIsValid( const QString &source, ReosModule::Me
   }
 
   return true;
-
 }
 
 ReosEncodedElement ReosMeteoHdf5Provider::encode( const ReosEncodeContext &context ) const
@@ -358,7 +365,6 @@ void ReosMeteoHdf5Provider::decode( const ReosEncodedElement &element, const Reo
     source = uri( sourcePath );
     setDataSource( source );
   }
-
 }
 
 
@@ -376,8 +382,7 @@ QStringList ReosMeteoHdf5Provider::getFiles( const QString &path ) const
     while ( it.hasNext() )
       files << it.next();
   }
-  else if ( fileInfo.isFile() &&
-            ( fileInfo.suffix() == QStringLiteral( "h5" ) ) )
+  else if ( fileInfo.isFile() && ( fileInfo.suffix() == QStringLiteral( "h5" ) ) )
   {
     files << path;
   }

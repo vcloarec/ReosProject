@@ -28,7 +28,13 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 class REOSCORE_EXPORT ReosArea
 {
   public:
-    enum Unit {m2, a, ha, km2};
+    enum Unit
+    {
+      m2,
+      a,
+      ha,
+      km2
+    };
     ReosArea( double value = 0 );
     ReosArea( double value, Unit unit );
     ReosArea( const QPolygonF polygon, Unit unit );

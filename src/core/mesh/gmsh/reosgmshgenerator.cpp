@@ -24,8 +24,7 @@ ReosGmshEngine *ReosGmshEngine::sInstance = nullptr;
 
 ReosGmshGenerator::ReosGmshGenerator( QObject *parent )
   : ReosMeshGenerator( parent )
-{
-}
+{}
 
 ReosGmshGenerator::ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent )
   : ReosMeshGenerator( element, parent )
@@ -35,9 +34,7 @@ ReosGmshGenerator::ReosGmshGenerator( const ReosEncodedElement &element, QObject
   mAlgorithm = static_cast<Algorithm>( algInt );
 }
 
-ReosMeshGeneratorProcess *ReosGmshGenerator::getGenerateMeshProcess( ReosPolylinesStructure *structure,
-    ReosMeshResolutionController *resolutionControler,
-    const QString &destinationCrs ) const
+ReosMeshGeneratorProcess *ReosGmshGenerator::getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, const QString &destinationCrs ) const
 {
   return new ReosMeshGeneratorGmshProcess( structure, resolutionControler, mAlgorithm, destinationCrs );
 }
@@ -84,12 +81,12 @@ QString ReosGmshGenerator::algorithmName( ReosGmshGenerator::Algorithm alg )
     case ReosGmshGenerator::BAMG:
       return tr( "BAMG" );
       break;
-//    case ReosGmshGenerator::FrontalDelaunayForQuads:
-//      return tr( "Frontal Delaunay for Quads" );
-//      break;
-//    case ReosGmshGenerator::PackingOfParallelograms:
-//      return tr( "Packing of Parallelograms" );
-//      break;
+      //    case ReosGmshGenerator::FrontalDelaunayForQuads:
+      //      return tr( "Frontal Delaunay for Quads" );
+      //      break;
+      //    case ReosGmshGenerator::PackingOfParallelograms:
+      //      return tr( "Packing of Parallelograms" );
+      //      break;
     case ReosGmshGenerator::AlgCount:
       return QString();
       break;
@@ -103,10 +100,9 @@ QString ReosGmshGenerator::version()
   return QString( GMSH_API_VERSION );
 }
 
-ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
-    ReosMeshResolutionController *resolutionControler,
-    ReosGmshGenerator::Algorithm alg,
-    const QString &destinationCrs )
+ReosMeshGeneratorGmshProcess::ReosMeshGeneratorGmshProcess(
+  ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, ReosGmshGenerator::Algorithm alg, const QString &destinationCrs
+)
   : mAlgorithm( alg )
   , mDestinationCrs( destinationCrs )
 {
@@ -138,10 +134,7 @@ ReosGmshEngine *ReosGmshEngine::instance()
   return sInstance;
 }
 
-ReosMeshFrameData ReosGmshEngine::generateMesh(
-  const ReosPolylinesStructure::Data &data,
-  ReosPolygonStructureValues *resolutionValues,
-  ReosGmshGenerator::Algorithm alg )
+ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Data &data, ReosPolygonStructureValues *resolutionValues, ReosGmshGenerator::Algorithm alg )
 {
   QMutexLocker locker( &mMutex );
   ReosMeshFrameData result;
@@ -164,7 +157,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
     int boundVertCount = data.boundaryPointCount;
 
     std::vector<int> externalBoundary;
-    for ( int i = 0; i < data.boundaryPointCount ; ++i )
+    for ( int i = 0; i < data.boundaryPointCount; ++i )
     {
       gmsh::model::geo::addLine( i + 1, ( i + 1 ) % boundVertCount + 1, i + 1 );
       externalBoundary.push_back( i + 1 );
@@ -173,7 +166,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
     int internalLineStartIndex = boundVertCount;
 
     std::vector<int> internalLines( data.internalLines.count() );
-    for ( int i = 0; i < data.internalLines.count() ; ++i )
+    for ( int i = 0; i < data.internalLines.count(); ++i )
     {
       const QVector<int> &dataLine = data.internalLines.at( i );
       gmsh::model::geo::addLine( dataLine.at( 0 ) + 1, dataLine.at( 1 ) + 1, internalLineStartIndex + i + 1 );
@@ -202,14 +195,13 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     gmsh::option::setNumber( "Mesh.Algorithm", alg + 1 );
 
-    auto sizeFallBack = [resolutionValues, defaultSize]( int dim, int, double x, double y, double, double lc )
-    {
+    auto sizeFallBack = [resolutionValues, defaultSize]( int dim, int, double x, double y, double, double lc ) {
       if ( !resolutionValues )
         return lc;
 
       double sizeValue = resolutionValues->value( x, y, dim == 1 || dim == 0 );
 
-      if ( std::isnan( sizeValue )  || sizeValue <= 0 )
+      if ( std::isnan( sizeValue ) || sizeValue <= 0 )
         return defaultSize;
 
       return sizeValue;
@@ -219,14 +211,14 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     gmsh::model::mesh::generate( 2 );
 
-    std::vector<std::size_t>nodeTags;
-    std::vector<double>  coord;
-    std::vector<double>  parametricCoord;
+    std::vector<std::size_t> nodeTags;
+    std::vector<double> coord;
+    std::vector<double> parametricCoord;
 
     // get all the vertices
     gmsh::model::mesh::getNodes( nodeTags, coord, parametricCoord, -1, -1, false, true );
     result.vertexCoordinates.resize( static_cast<int>( coord.size() ) );
-    memcpy( result.vertexCoordinates.data(), coord.data(), coord.size()*sizeof( double ) );
+    memcpy( result.vertexCoordinates.data(), coord.data(), coord.size() * sizeof( double ) );
 
     QHash<size_t, int> tagToVertexIndex;
     for ( size_t i = 0; i < nodeTags.size(); ++i )
@@ -269,8 +261,8 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
     //now we have to retrieve the paricular nodes, as boundary
     std::vector<std::size_t> nodeBoundTags;
-    std::vector<double>  coordBound;
-    std::vector<double>  parametricCoordBound;
+    std::vector<double> coordBound;
+    std::vector<double> parametricCoordBound;
     for ( int i = 0; i < boundVertCount; ++i )
     {
       QVector<int> vertexTagBound;
@@ -285,7 +277,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
       int iniSize = vertexTagBound.count();
       vertexTagBound.resize( iniSize + static_cast<int>( nodeBoundTags.size() ) );
       for ( int nt = 0; nt < static_cast<int>( nodeBoundTags.size() ); ++nt )
-        vertexTagBound[iniSize + nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
+        vertexTagBound[iniSize + nt] = tagToVertexIndex.value( nodeBoundTags.at( nt ) );
 
       result.boundaryVertices.append( vertexTagBound );
     }
@@ -301,7 +293,7 @@ ReosMeshFrameData ReosGmshEngine::generateMesh(
 
         QVector<int> lineVertices( static_cast<int>( nodeBoundTags.size() ) - 1 );
         for ( int nt = 0; nt < static_cast<int>( nodeBoundTags.size() ) - 1; ++nt )
-          lineVertices[nt] =  tagToVertexIndex.value( nodeBoundTags.at( nt ) );
+          lineVertices[nt] = tagToVertexIndex.value( nodeBoundTags.at( nt ) );
 
         holeVertices.append( lineVertices );
       }
@@ -327,5 +319,4 @@ void ReosGmshEngine::instantiate( QObject *parent )
 
 ReosGmshEngine::ReosGmshEngine( QObject *parent )
   : ReosModule( staticName(), parent )
-{
-}
+{}

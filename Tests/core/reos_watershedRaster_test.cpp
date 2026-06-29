@@ -24,13 +24,11 @@ email                : vcloarec at gmail dot com
 
 using namespace testing;
 
-class ReosRasterWatershedTest: public Test
+class ReosRasterWatershedTest : public Test
 {
   public:
-
   protected:
-    void SetUp() override
-    {}
+    void SetUp() override {}
 };
 
 void init_test()
@@ -39,8 +37,7 @@ void init_test()
 }
 
 void finalize_test()
-{
-}
+{}
 
 TEST_F( ReosRasterWatershedTest, RasterFilling )
 {
@@ -132,11 +129,25 @@ TEST_F( ReosRasterWatershedTest, Delineate )
   rasterToVector.start();
   QPolygonF watershedPolygon = rasterToVector.watershed();
 
-  QPolygonF testWatershedPolygon( {QPointF( 4, 9 ), QPointF( 4, 8 ), QPointF( 3, 8 ), QPointF( 3, 6 ),
-                                   QPointF( 4, 6 ), QPointF( 4, 4 ), QPointF( 6, 4 ), QPointF( 6, 5 ),
-                                   QPointF( 7, 5 ), QPointF( 7, 6 ), QPointF( 8, 6 ), QPointF( 8, 7 ),
-                                   QPointF( 9, 7 ), QPointF( 9, 8 ), QPointF( 10, 8 ), QPointF( 10, 9 ),
-                                   QPointF( 5, 9 )} );
+  QPolygonF testWatershedPolygon(
+    { QPointF( 4, 9 ),
+      QPointF( 4, 8 ),
+      QPointF( 3, 8 ),
+      QPointF( 3, 6 ),
+      QPointF( 4, 6 ),
+      QPointF( 4, 4 ),
+      QPointF( 6, 4 ),
+      QPointF( 6, 5 ),
+      QPointF( 7, 5 ),
+      QPointF( 7, 6 ),
+      QPointF( 8, 6 ),
+      QPointF( 8, 7 ),
+      QPointF( 9, 7 ),
+      QPointF( 9, 8 ),
+      QPointF( 10, 8 ),
+      QPointF( 10, 9 ),
+      QPointF( 5, 9 ) }
+  );
 
   EXPECT_TRUE( watershedPolygon == testWatershedPolygon );
 
@@ -156,7 +167,7 @@ int main( int argc, char **argv )
 {
   testing::InitGoogleTest( &argc, argv );
   init_test();
-  int ret =  RUN_ALL_TESTS();
+  int ret = RUN_ALL_TESTS();
   finalize_test();
   return ret;
 }

@@ -15,15 +15,14 @@
 
 struct ReosEcCodesGridDescritpion
 {
-  QString wktCrs;
-  int width;
-  int height;
-  double north;
-  double south;
-  double west;
-  double east;
-  bool yAscendant;
-
+    QString wktCrs;
+    int width;
+    int height;
+    double north;
+    double south;
+    double west;
+    double east;
+    bool yAscendant;
 };
 
 class ReosEcCodesReaderKeys
@@ -39,6 +38,7 @@ class ReosEcCodesReaderKeys
     double doubleValue( const QString &key ) const;
 
     QVariantMap map() const;
+
   private:
     QVariantMap mMap;
 };
@@ -67,8 +67,6 @@ class ReosEcCodesDataset
 };
 
 
-
-
 class ReosEcCodesIndex
 {
   public:
@@ -91,10 +89,9 @@ class ReosEcCodesIndex
 };
 
 
-class ReosEcCodesReader: public ReosGriddedDataSource
+class ReosEcCodesReader : public ReosGriddedDataSource
 {
   public:
-
     enum StepType
     {
       Accum,
@@ -104,18 +101,18 @@ class ReosEcCodesReader: public ReosGriddedDataSource
 
     struct Variable
     {
-      QString name;
-      QString shortName;
+        QString name;
+        QString shortName;
     };
 
     struct FrameMetadata
     {
-      ReosRasterExtent extent;
-      ReosDuration stepDuration;
-      QDateTime dataTime;
-      QDateTime frameTime;
-      QPair<int, int> stepRange;
-      StepType stepType;
+        ReosRasterExtent extent;
+        ReosDuration stepDuration;
+        QDateTime dataTime;
+        QDateTime frameTime;
+        QPair<int, int> stepRange;
+        StepType stepType;
     };
 
 
@@ -125,7 +122,7 @@ class ReosEcCodesReader: public ReosGriddedDataSource
     bool nextFrameMetadata( ReosEcCodesReader::FrameMetadata &meta ) const;
 
     ReosRasterExtent extent( int frameIndex ) const override;
-    ReosRasterMemory<double>  values( int index ) const override;
+    ReosRasterMemory<double> values( int index ) const override;
     bool isValid() const override;
 
     int frameCount() const override;
@@ -136,7 +133,7 @@ class ReosEcCodesReader: public ReosGriddedDataSource
     QDateTime validityTime( int index ) const;
 
     StepType stepType( int index ) const;
-    QPair<int, int> stepRange( int index ) const ;
+    QPair<int, int> stepRange( int index ) const;
     ReosDuration stepDuration( int index ) const;
 
     static QList<Variable> variables( const QString &fileName );
@@ -156,7 +153,6 @@ class ReosEcCodesReader: public ReosGriddedDataSource
     mutable int mCacheValuesIndex = -1;
 
     const ReosEcCodesReaderKeys &getKeys( int index ) const;
-
 };
 
 

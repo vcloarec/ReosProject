@@ -67,9 +67,9 @@ void ReosHydraulicSchemeWidget::onMeteoModelChange()
   }
 }
 
-ReosHydraulicSchemeListView::ReosHydraulicSchemeListView( QWidget *parent ): QListView( parent )
-{
-}
+ReosHydraulicSchemeListView::ReosHydraulicSchemeListView( QWidget *parent )
+  : QListView( parent )
+{}
 
 void ReosHydraulicSchemeListView::setSchemeCollection( ReosHydraulicSchemeCollection *collection )
 {

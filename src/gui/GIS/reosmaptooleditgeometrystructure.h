@@ -31,7 +31,6 @@ class ReosPolygonStructure;
 class ReosMapToolEditPolylineStructure : public ReosMapTool
 {
   public:
-
     ReosMapToolEditPolylineStructure( ReosPolylinesStructure *structure, QObject *parent, ReosMap *map );
     ~ReosMapToolEditPolylineStructure();
 
@@ -40,13 +39,11 @@ class ReosMapToolEditPolylineStructure : public ReosMapTool
   private:
     QPointer<ReosMapToolEditPolylineStructure_p> d;
     ReosMapTool_p *tool_p() const;
-
 };
 
 class ReosMapToolEditPolygonStructure : public ReosMapTool
 {
   public:
-
     ReosMapToolEditPolygonStructure( ReosPolygonStructure *structure, QObject *parent, ReosMap *map );
     ~ReosMapToolEditPolygonStructure();
 
@@ -62,7 +59,7 @@ class ReosMapToolEditPolygonStructure : public ReosMapTool
 };
 
 
-class ReosPolygonStructureClassModelList: public QAbstractListModel
+class ReosPolygonStructureClassModelList : public QAbstractListModel
 {
     Q_OBJECT
   public:
@@ -83,11 +80,10 @@ class ReosPolygonStructureClassModelList: public QAbstractListModel
   private:
     QPointer<ReosPolygonStructure> mStructure;
     QStringList orderedClasses() const;
-
 };
 
 
-class ReosPolylineStructureClassModelList: public QAbstractListModel
+class ReosPolylineStructureClassModelList : public QAbstractListModel
 {
     Q_OBJECT
   public:
@@ -108,7 +104,6 @@ class ReosPolylineStructureClassModelList: public QAbstractListModel
   private:
     QPointer<ReosPolylinesStructure> mStructure;
     QStringList orderedClasses() const;
-
 };
 
 

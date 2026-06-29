@@ -31,9 +31,9 @@
 #include "reosstyleregistery.h"
 #include "reosguicontext.h"
 
-ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( const ReosGuiContext &context ) :
-  ReosActionWidget( context.parent() ),
-  ui( new Ui::ReosLongitudinalProfileWidget )
+ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( const ReosGuiContext &context )
+  : ReosActionWidget( context.parent() )
+  , ui( new Ui::ReosLongitudinalProfileWidget )
   , mMap( context.map() )
   , mCurrentStreamLine( context.map() )
   , mActionDrawStreamLine( new QAction( QIcon( QStringLiteral( ":/images/drawStreamLine.svg" ) ), tr( "Draw Flow Path on Map" ), this ) )
@@ -51,7 +51,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( const ReosGuiConte
   ui->mSplitter->setStretchFactor( 0, 3 );
   ui->mSplitter->setStretchFactor( 1, 1 );
 
-//**** set up editable profile
+  //**** set up editable profile
   mDemCurve = new ReosPlotCurve( "Profile on current DEM", QColor( 0, 155, 242 ), 3 );
   mProfile = new ReosEditableProfile();
   ui->mPlotWidget->setLegendAlignement( Qt::AlignRight );
@@ -67,7 +67,7 @@ ReosLongitudinalProfileWidget::ReosLongitudinalProfileWidget( const ReosGuiConte
   profileToolBar->addActions( mProfile->actionsToolBar() );
   ui->mWidgetToolProfile->layout()->addWidget( profileToolBar );
 
-//****** set up stream line tools
+  //****** set up stream line tools
   mMapToolDrawStreamLine = new ReosMapToolDrawPolyline( mMap );
   mMapToolDrawStreamLine->setAction( mActionDrawStreamLine );
   mActionGroupStreamLineMapTool->addAction( mActionDrawStreamLine );
@@ -228,13 +228,12 @@ void ReosLongitudinalProfileWidget::updateProfile()
   }
   else
   {
-    drop = profile.first().y() - profile.last().y() ;
+    drop = profile.first().y() - profile.last().y();
     txtDrop = ReosParameter::doubleToString( drop );
   }
 
   ui->mLabelTotalLength->setText( txtLength );
   ui->mLabelDrop->setText( txtDrop );
-
 }
 
 void ReosLongitudinalProfileWidget::onProfileCursorMove( const QPointF &point )
@@ -288,7 +287,7 @@ void ReosLongitudinalProfileWidget::updateDEMProfile()
     ReosProcessControler *controler = new ReosProcessControler( &pr, this );
     controler->exec();
 
-    profile = pr.resultProfile();//dem->elevationOnPolyline( streamLine, mMap->engine()->crs() );
+    profile = pr.resultProfile(); //dem->elevationOnPolyline( streamLine, mMap->engine()->crs() );
     if ( profile.count() > 1 )
     {
       mDemCurve->setData( profile );
@@ -333,7 +332,6 @@ void ReosLongitudinalProfileWidget::zoomOnDEMProfileExtent()
     mDemCurve->zoomOnExtent();
 
   ui->mPlotWidget->resetZoomBase();
-
 }
 
 void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const QPointF &point )
@@ -350,11 +348,8 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const Q
   {
     const ReosRasterExtent &rasterExtent = mCurrentWatershed->directionExtent( demLayerId );
     const ReosRasterCellPos pos = rasterExtent.mapToCellPos( point );
-    std::unique_ptr<ReosRasterWatershedTraceDownstream> pr = std::make_unique<ReosRasterWatershedTraceDownstream>(
-          mCurrentWatershed->directions( demLayerId ),
-          mCurrentWatershed->delineating(),
-          rasterExtent,
-          pos );
+    std::unique_ptr<ReosRasterWatershedTraceDownstream> pr
+      = std::make_unique<ReosRasterWatershedTraceDownstream>( mCurrentWatershed->directions( demLayerId ), mCurrentWatershed->delineating(), rasterExtent, pos );
 
     ReosProcessControler *controler = new ReosProcessControler( pr.get(), this );
     controler->exec();
@@ -364,7 +359,6 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const Q
 
     controler->deleteLater();
   }
-
 }
 
 void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
@@ -382,11 +376,8 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
       entryLine.addPoint( rasterExtent.mapToCellPos( pt ) );
 
     // First search the longest path;
-    std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> pr_1 =
-      std::make_unique<ReosRasterWatershedFromDirectionAndDownStreamLine>(
-        mCurrentWatershed->directions( demLayerId ),
-        entryLine,
-        new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating() ) );
+    std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> pr_1 = std::make_unique<
+      ReosRasterWatershedFromDirectionAndDownStreamLine>( mCurrentWatershed->directions( demLayerId ), entryLine, new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating() ) );
 
     pr_1->setInformation( tr( "Searching for the longest path" ) );
     std::unique_ptr<ReosProcessControler> controler = std::make_unique<ReosProcessControler>( pr_1.get(), this );
@@ -399,11 +390,8 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
 
       pr_1.reset(); //not needd anymore
 
-      std::unique_ptr<ReosRasterWatershedTraceDownstream> pr_2 = std::make_unique<ReosRasterWatershedTraceDownstream>(
-            mCurrentWatershed->directions( demLayerId ),
-            mCurrentWatershed->delineating(),
-            rasterExtent,
-            upstreamPos );
+      std::unique_ptr<ReosRasterWatershedTraceDownstream> pr_2
+        = std::make_unique<ReosRasterWatershedTraceDownstream>( mCurrentWatershed->directions( demLayerId ), mCurrentWatershed->delineating(), rasterExtent, upstreamPos );
 
       pr_2->setInformation( tr( "trace longer path" ) );
 
@@ -412,7 +400,6 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
 
       if ( pr_2->isSuccessful() )
         onStreamLineChanged( pr_2->resultPolyline() );
-
     }
   }
 }

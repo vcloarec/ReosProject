@@ -23,7 +23,7 @@
 
 #include "reosplotwidget.h"
 
-class ReosProfilePlot_p: public QwtPlotItem
+class ReosProfilePlot_p : public QwtPlotItem
 {
   public:
     ReosProfilePlot_p( const QPolygonF &points );
@@ -41,7 +41,6 @@ class ReosProfilePlot_p: public QwtPlotItem
     QBrush mBrushTxtBackground;
     QPen mPenTxtBackground;
     bool mDisplayingSlope = true;
-
 };
 
 #endif // REOSPROFILEPLOT_P_H

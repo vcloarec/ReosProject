@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reostimeseries.h"
@@ -20,7 +20,7 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 #include "reoshydrograph.h"
 
-class ReosDataTesting: public QObject
+class ReosDataTesting : public QObject
 {
     Q_OBJECT
   private slots:
@@ -28,7 +28,6 @@ class ReosDataTesting: public QObject
     void encode_variable_time_step();
     void hydrograph();
     void duration();
-
 };
 
 void ReosDataTesting::variable_time_step_time_model()
@@ -300,7 +299,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // data with not valid time regarding the existing one
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "0.5" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "0.5" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "21.5" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "22.5" ) ) << QVariant( "5.0" ) );
   data << ( QVariantList() << QVariant( QString( "23.5" ) ) << QVariant( "2.23" ) );
@@ -340,7 +339,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // data with not valid time regarding the existing one
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "2.0" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "2.0" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "1.5" ) ) << QVariant( "5.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "2.23" ) );
@@ -377,9 +376,9 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
   QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
 
-// data time valid
+  // data time valid
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "1.2" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "1.2" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.25" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "1.5" ) ) << QVariant( "5.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "2.23" ) );
@@ -419,7 +418,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // set value from end
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "46" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "46" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "47" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "48" ) ) << QVariant( "5.0" ) );
 
@@ -592,10 +591,7 @@ void ReosDataTesting::encode_variable_time_step()
   QVector<double> values;
   QVector<ReosDuration> timeValues;
   values << 1.23 << 3.45 << 6.78 << 9.12;
-  timeValues << ReosDuration( 0.0, ReosDuration::minute )
-             << ReosDuration( 1.0, ReosDuration::hour )
-             << ReosDuration( 7200, ReosDuration::second )
-             << ReosDuration( 1.0, ReosDuration::day );
+  timeValues << ReosDuration( 0.0, ReosDuration::minute ) << ReosDuration( 1.0, ReosDuration::hour ) << ReosDuration( 7200, ReosDuration::second ) << ReosDuration( 1.0, ReosDuration::day );
 
   providerElement.addData( QStringLiteral( "values" ), values );
   QList<ReosEncodedElement> encodedTimeValues;
@@ -777,7 +773,6 @@ void ReosDataTesting::duration()
   QVERIFY( timeSerie.totalDuration() == ReosDuration( 74, ReosDuration::day ) );
   QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
 }
-
 
 
 QTEST_MAIN( ReosDataTesting )

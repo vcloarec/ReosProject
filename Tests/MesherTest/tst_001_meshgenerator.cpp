@@ -9,10 +9,9 @@
 
 using namespace testing;
 
-class MeshGeneratorTesting: public Test
+class MeshGeneratorTesting : public Test
 {
   public:
-
     HdMeshGeneratorTriangleFile meshGeneratorTriangleFile;
 
     void populateWithVertex()
@@ -37,12 +36,12 @@ class MeshGeneratorTesting: public Test
     }
 
     ///TODO
-//    void triangulateWithSegment(std::vector<VertexBasic> &oVert,std::vector<Face> &oFaces)
-//    {
-//        populateSegment();
+    //    void triangulateWithSegment(std::vector<VertexBasic> &oVert,std::vector<Face> &oFaces)
+    //    {
+    //        populateSegment();
 
-//       // meshGeneratorTriangleFile.triangulateTIN(verticesList,segmentList,oFaces);
-//    }
+    //       // meshGeneratorTriangleFile.triangulateTIN(verticesList,segmentList,oFaces);
+    //    }
 
     HdMeshBasic inputMesh;
     std::vector<Segment> segmentList;
@@ -97,4 +96,3 @@ TEST_F( MeshGeneratorTesting, VertexCount )
 
   ASSERT_THAT( outputMesh.verticesCount(), Eq( 5 ) );
 }
-

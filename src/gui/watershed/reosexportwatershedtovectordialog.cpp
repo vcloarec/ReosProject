@@ -23,11 +23,11 @@
 #include "reoswatershed.h"
 
 
-ReosExportWatershedToVectorDialog::ReosExportWatershedToVectorDialog( const QList<ReosWatershed *> &watersheds, const QString &crs, QWidget *parent ) :
-  QDialog( parent ),
-  ui( new Ui::ReosExportWatershedToVectorDialog ),
-  mWatersheds( watersheds ),
-  mCrs( crs )
+ReosExportWatershedToVectorDialog::ReosExportWatershedToVectorDialog( const QList<ReosWatershed *> &watersheds, const QString &crs, QWidget *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosExportWatershedToVectorDialog )
+  , mWatersheds( watersheds )
+  , mCrs( crs )
 {
   ui->setupUi( this );
   connect( ui->toolButtonChooseDelineatingFile, &QAbstractButton::clicked, this, &ReosExportWatershedToVectorDialog::onChooseDelineatingFile );
@@ -42,17 +42,14 @@ ReosExportWatershedToVectorDialog::~ReosExportWatershedToVectorDialog()
 
 void ReosExportWatershedToVectorDialog::onChooseDelineatingFile()
 {
-  QString fileName = QFileDialog::getSaveFileName( nullptr, tr( "Export watershed delineating" ),
-                     "", "*.shp" );
+  QString fileName = QFileDialog::getSaveFileName( nullptr, tr( "Export watershed delineating" ), "", "*.shp" );
 
   ui->lineEditDelineatingFile->setText( fileName );
-
 }
 
 void ReosExportWatershedToVectorDialog::onChooseStreamPathFile()
 {
-  QString fileName = QFileDialog::getSaveFileName( nullptr, tr( "Export watershed longest path" ),
-                     "", "*.shp" );
+  QString fileName = QFileDialog::getSaveFileName( nullptr, tr( "Export watershed longest path" ), "", "*.shp" );
 
   ui->lineEditStreamPathFile->setText( fileName );
 }
@@ -62,8 +59,8 @@ void ReosExportWatershedToVectorDialog::accept()
   if ( ui->groupBoxDelineating->isChecked() )
   {
     QList<ReosExportToVectorFile::Field> fields;
-    fields.append( {tr( "Name" ), QMetaType::QString, "string", 255} );
-    fields.append( {tr( "Area" ), QMetaType::Double, "double", 16} );
+    fields.append( { tr( "Name" ), QMetaType::QString, "string", 255 } );
+    fields.append( { tr( "Area" ), QMetaType::Double, "double", 16 } );
     ReosExportToVectorFile exportToFile( ui->lineEditDelineatingFile->text(), fields, ReosExportToVectorFile::Polygon, mCrs );
 
     for ( ReosWatershed *ws : mWatersheds )
@@ -78,10 +75,10 @@ void ReosExportWatershedToVectorDialog::accept()
   if ( ui->groupBoxPath->isChecked() )
   {
     QList<ReosExportToVectorFile::Field> fields;
-    fields.append( {tr( "Name" ),  QMetaType::QString, "string", 255} );
-    fields.append( {tr( "Length" ), QMetaType::Double, "double", 16} );
-    fields.append( {tr( "Slope" ), QMetaType::Double, "double", 16} );
-    fields.append( {tr( "Drop" ), QMetaType::Double, "double", 16} );
+    fields.append( { tr( "Name" ), QMetaType::QString, "string", 255 } );
+    fields.append( { tr( "Length" ), QMetaType::Double, "double", 16 } );
+    fields.append( { tr( "Slope" ), QMetaType::Double, "double", 16 } );
+    fields.append( { tr( "Drop" ), QMetaType::Double, "double", 16 } );
     ReosExportToVectorFile exportToFile( ui->lineEditStreamPathFile->text(), fields, ReosExportToVectorFile::Polyline, mCrs );
 
     for ( ReosWatershed *ws : mWatersheds )

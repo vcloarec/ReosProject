@@ -24,8 +24,7 @@ class QDomDocument;
 class ReosDelftFewsXMLProviderInterface
 {
   public:
-
-    static QString staticKey() {return QStringLiteral( "delft-fews-xml" );}
+    static QString staticKey() { return QStringLiteral( "delft-fews-xml" ); }
     static QDateTime timefromElement( const QDomElement &element );
     static double doubleValueFromElement( const QDomElement &element, const QString &noData );
     static QString valueStringFromElement( const QDomElement &element );
@@ -48,11 +47,10 @@ class ReosDelftFewsXMLProviderInterface
     QVariantMap mMeta;
 };
 
-class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProvider, public ReosDelftFewsXMLProviderInterface
+class ReosDelftFewsXMLRainfallProvider : public ReosTimeSerieConstantTimeStepProvider, public ReosDelftFewsXMLProviderInterface
 {
     Q_OBJECT
   public:
-
     QString key() const override;
     QStringList fileSuffixes() const override;
     QString htmlDescription() const override;
@@ -81,11 +79,10 @@ class ReosDelftFewsXMLRainfallProvider: public ReosTimeSerieConstantTimeStepProv
     QVector<double> mCacheValues;
 };
 
-class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepProvider, public ReosDelftFewsXMLProviderInterface
+class ReosDelftFewsXMLHydrographProvider : public ReosTimeSerieVariableTimeStepProvider, public ReosDelftFewsXMLProviderInterface
 {
     Q_OBJECT
   public:
-
     QString key() const override;
     QStringList fileSuffixes() const override;
     QString htmlDescription() const override;
@@ -114,7 +111,7 @@ class ReosDelftFewsXMLHydrographProvider: public ReosTimeSerieVariableTimeStepPr
     QVector<double> mCacheValues;
 };
 
-class ReosDelftFewsXMLProviderFactory: public ReosDataProviderFactory
+class ReosDelftFewsXMLProviderFactory : public ReosDataProviderFactory
 {
   public:
     ReosTimeSerieProvider *createProvider( const QString &dataType ) const override;
@@ -125,7 +122,7 @@ class ReosDelftFewsXMLProviderFactory: public ReosDataProviderFactory
     QString buildUri( const QString &dataType, const QVariantMap &parameters, bool &ok ) const override;
 
   private:
-    ReosDataProvider::Capabilities mCapabilities = {ReosDataProvider::Spatial | ReosDataProvider::File};
+    ReosDataProvider::Capabilities mCapabilities = { ReosDataProvider::Spatial | ReosDataProvider::File };
 };
 
 #endif // REOSDELFTFEWSXMLPROVIDER_H

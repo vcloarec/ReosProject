@@ -95,7 +95,6 @@ class ReosEditMeshElementWidget : public QWidget
     QPointer<QgsRubberBand> mMaximumAreaChangeBand;
 
     void startCheckQuality( bool controled );
-
 };
 
 #endif // REOSEDITMESHELEMENTWIDGET_H

@@ -25,7 +25,7 @@
 #include "reosgriddeddata.h"
 #include "reosmemoryraster.h"
 
-#define GRIB_KEY QStringLiteral("grib")
+#define GRIB_KEY QStringLiteral( "grib" )
 
 
 class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
@@ -37,7 +37,7 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     ReosGriddedDataProvider *clone() const override;
     void load() override;
     QStringList fileSuffixes() const override;
-    QString key() const override {return staticKey();}
+    QString key() const override { return staticKey(); }
     FileDetails details( const QString &, ReosModule::Message & ) const override;
     bool isValid() const override;
     int count() const override;
@@ -73,7 +73,6 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
   private:
-
     enum GribReader
     {
       GDAL,
@@ -82,11 +81,11 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
 
     struct GribFrame
     {
-      QString file;
-      int frameNo = 0;
-      qint64 frameTime = 0;
-      GribReader reader = GDAL;
-      ReosDuration timeRange;
+        QString file;
+        int frameNo = 0;
+        qint64 frameTime = 0;
+        GribReader reader = GDAL;
+        ReosDuration timeRange;
     };
 
     QList<GribFrame> mFrames;
@@ -103,21 +102,15 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
 
     struct CacheValues
     {
-      QVector<double> values;
-      ValueType typeCalculatedFrom;
+        QVector<double> values;
+        ValueType typeCalculatedFrom;
     };
 
     mutable QCache<int, CacheValues> mCache;
 
-    void parseFileWithGDAL( const QString &fileName,
-                            const QString &varName,
-                            qint64 &refTime,
-                            QMap<qint64, GribFrame> &pathes,
-                            ReosRasterExtent &extent );
+    void parseFileWithGDAL( const QString &fileName, const QString &varName, qint64 &refTime, QMap<qint64, GribFrame> &pathes, ReosRasterExtent &extent );
 
-    void parseFileWithEcCodes( const QString &fileName,
-                               QMap<qint64, GribFrame> &pathes,
-                               ReosRasterExtent &extent );
+    void parseFileWithEcCodes( const QString &fileName, QMap<qint64, GribFrame> &pathes, ReosRasterExtent &extent );
 
     QStringList getFiles( const QString &path, QDir &dir ) const;
 
@@ -129,7 +122,7 @@ class ReosGribGriddedDataProvider : public ReosGriddedDataProvider
     mutable QString mCurrentFile;
 };
 
-class ReosGribProviderFactory: public ReosDataProviderFactory
+class ReosGribProviderFactory : public ReosDataProviderFactory
 {
   public:
     ReosGriddedDataProvider *createProvider( const QString &dataType ) const override;

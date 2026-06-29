@@ -34,8 +34,7 @@ int main( int argc, char *argv[] )
   QSystemTrayIcon *trayIcon = new QSystemTrayIcon( a.get() );
 
   QAction *actionStartLekan = new QAction( QObject::tr( "Open Lekan" ), trayIcon );
-  QObject::connect( actionStartLekan, &QAction::triggered, a.get(), [&]
-  {
+  QObject::connect( actionStartLekan, &QAction::triggered, a.get(), [&] {
     if ( !lekan )
       lekan.reset( new LekanMainWindow( a->coreModule() ) );
 
@@ -63,5 +62,4 @@ int main( int argc, char *argv[] )
   int ret = a->exec();
 
   return ret;
-
 }

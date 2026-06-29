@@ -23,9 +23,9 @@
 #include "reossettings.h"
 #include "reosgriddedrainitem.h"
 
-ReosDssProviderUriWidget::ReosDssProviderUriWidget( QWidget *parent ) :
-  ReosDataProviderUriWidget( parent ),
-  ui( new Ui::ReosDssProviderUriWidget )
+ReosDssProviderUriWidget::ReosDssProviderUriWidget( QWidget *parent )
+  : ReosDataProviderUriWidget( parent )
+  , ui( new Ui::ReosDssProviderUriWidget )
 {
   ui->setupUi( this );
 
@@ -100,11 +100,7 @@ void ReosDssProviderUriWidget::onFileButtonPressed()
       path = settings.value( QStringLiteral( "Rainfall/fileDirectory" ) ).toString();
   }
 
-  const QString fileName = QFileDialog::getSaveFileName(
-                             this,
-                             tr( "DSS File" ),
-                             path,
-                             tr( "DSS file (*.dss)" ) );
+  const QString fileName = QFileDialog::getSaveFileName( this, tr( "DSS File" ), path, tr( "DSS file (*.dss)" ) );
 
   if ( !fileName.isEmpty() )
     ui->mFile->setText( fileName );

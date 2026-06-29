@@ -16,7 +16,8 @@
 #include "reosdockwidget.h"
 #include <QShowEvent>
 
-ReosDockWidget::ReosDockWidget( const QString &title, QWidget *parent ) : QDockWidget( title, parent )
+ReosDockWidget::ReosDockWidget( const QString &title, QWidget *parent )
+  : QDockWidget( title, parent )
 {}
 
 void ReosDockWidget::showEvent( QShowEvent *e )

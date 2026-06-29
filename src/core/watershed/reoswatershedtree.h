@@ -28,7 +28,7 @@ email                : vcloarec at gmail dot com
 class QPolygonF;
 class ReosGisEngine;
 
-class REOSCORE_EXPORT ReosWatershedTree: public QObject
+class REOSCORE_EXPORT ReosWatershedTree : public QObject
 {
     Q_OBJECT
   public:
@@ -117,7 +117,7 @@ class REOSCORE_EXPORT ReosWatershedTree: public QObject
 
 #ifndef SIP_RUN
 
-class REOSCORE_EXPORT ReosWatershedItemModel: public QAbstractItemModel
+class REOSCORE_EXPORT ReosWatershedItemModel : public QAbstractItemModel
 {
     Q_OBJECT
   public:

@@ -12,20 +12,20 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reospython.h"
 
-class ReosPythonTesting: public QObject
+class ReosPythonTesting : public QObject
 {
     Q_OBJECT
   private slots:
     void initTestCase();
 
     void reosCoreModule();
-  private:
 
+  private:
     ReosPython python;
 };
 
@@ -64,7 +64,6 @@ void ReosPythonTesting::reosCoreModule()
   QCOMPARE( ret, QStringLiteral( "True" ) );
 
   QVERIFY( python.runString( QStringLiteral( "hydrograph = ReosHydrograph(None, 'hub-eau-hydrometry', 'J881301001')" ), errMsg ) );
-
 }
 
 QTEST_MAIN( ReosPythonTesting )

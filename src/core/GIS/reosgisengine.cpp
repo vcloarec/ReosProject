@@ -53,7 +53,7 @@ email                : vcloarec at gmail dot com
 #include <qgsunittypes.h>
 
 
-#define  mLayerTreeModel _layerTreeModel(mAbstractLayerTreeModel)
+#define mLayerTreeModel _layerTreeModel( mAbstractLayerTreeModel )
 static QgsLayerTreeModel *_layerTreeModel( QAbstractItemModel *sourceModel )
 {
   return qobject_cast<QgsLayerTreeModel *>( sourceModel );
@@ -91,9 +91,7 @@ QPolygonF ReosCoordinateSystemTransformer::transformToCoordinates( const QString
   if ( !d )
     return sourcePolygon;
 
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
-                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
-                                    d->mTransformContext );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ), QgsCoordinateReferenceSystem::fromWkt( destinationCrs ), d->mTransformContext );
 
   const QgsGeometry geom = QgsGeometry::fromQPolygonF( sourcePolygon );
   QgsGeometry transfromGeom = geom;
@@ -130,8 +128,7 @@ ReosGisEngine::ReosGisEngine( QObject *parent )
   mLayerTreeModel->setAutoCollapseLegendNodes( 10 );
 
   connect( QgsProject::instance(), &QgsProject::layerRemoved, this, &ReosGisEngine::onLayerRemoved );
-  connect( QgsProject::instance(), &QgsProject::crsChanged, this, [this]
-  {
+  connect( QgsProject::instance(), &QgsProject::crsChanged, this, [this] {
     QString wktCrs = QgsProject::instance()->crs().toWkt();
     emit crsChanged( wktCrs );
   } );
@@ -148,15 +145,14 @@ ReosGisEngine::~ReosGisEngine()
 
 void ReosGisEngine::initGisEngine()
 {
-
-  if (ReosApplication::isRunningFromBuildDir())
+  if ( ReosApplication::isRunningFromBuildDir() )
   {
-      QString qgisPrefix(QGIS_PREFIX);
-      //QgsApplication::setPrefixPath(qgisPrefix);
+    QString qgisPrefix( QGIS_PREFIX );
+    //QgsApplication::setPrefixPath(qgisPrefix);
 #ifdef _WIN32
-      _putenv_s( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str() );
+    _putenv_s( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str() );
 #else
-      setenv( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str() ,1);
+    setenv( "QGIS_PREFIX_PATH", qgisPrefix.toStdString().c_str(), 1 );
 #endif
   }
   QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::AppDataLocation ).value( 0 );
@@ -219,7 +215,7 @@ void ReosGisEngine::initGisEngine()
   if ( srsDatabaseFile.exists() )
     qDebug() << QStringLiteral( "QGIS CRS database found at %1" ).arg( srsDatabase );
   else
-    qDebug() <<  QStringLiteral( "QGIS CRS database not found at %1" ).arg( srsDatabase );
+    qDebug() << QStringLiteral( "QGIS CRS database not found at %1" ).arg( srsDatabase );
 
   mAbstractLayerTreeModel = new QgsLayerTreeModel( QgsProject::instance()->layerTreeRoot(), this );
 
@@ -282,7 +278,8 @@ QString ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
   {
     QgsMapLayer *mapLayer = QgsProject::instance()->addMapLayer( meshLayer.release() );
     message( tr( "Mesh layer loaded: %1" ).arg( uri ) );
-    return mapLayer->id();;
+    return mapLayer->id();
+    ;
   }
   else
   {
@@ -291,7 +288,10 @@ QString ReosGisEngine::addMeshLayer( const QString &uri, const QString &name )
   }
 }
 
-QAbstractItemModel *ReosGisEngine::layerTreeModel() {return mLayerTreeModel;}
+QAbstractItemModel *ReosGisEngine::layerTreeModel()
+{
+  return mLayerTreeModel;
+}
 
 QString ReosGisEngine::vectorLayerFilters() const
 {
@@ -330,7 +330,8 @@ QString ReosGisEngine::crsFromEPSG( int epsgCode )
 
 QString ReosGisEngine::crsFromProj( const QString &projtring )
 {
-  return QgsCoordinateReferenceSystem::fromProj( projtring ).toWkt( Qgis::CrsWktVariant::Preferred );;
+  return QgsCoordinateReferenceSystem::fromProj( projtring ).toWkt( Qgis::CrsWktVariant::Preferred );
+  ;
 }
 
 QString ReosGisEngine::crsWkt1( const QString &crs )
@@ -405,19 +406,21 @@ bool ReosGisEngine::registerLayerAsDigitalElevationModel( const QString &layerId
     {
       mAsDEMRegisteredLayer.append( layerId );
       QgsRectangle layerExtent = layer->extent();
-      if ( QgsProject::instance()->crs().isGeographic() &&
-           !layer->crs().isValid() &&
-           ( std::fabs( layerExtent.xMinimum() ) > 360 ||
-             std::fabs( layerExtent.xMaximum() ) > 360 ||
-             std::fabs( layerExtent.yMinimum() ) > 360 ||
-             std::fabs( layerExtent.yMaximum() ) > 360 ) )
-        warning( tr( "This layer doesn't have a valid or known coordinates system, and calculation on DEM will "
-                     "be done considering its coordinate system is the same as the project.\n"
-                     "The project's coordinates system is a geographic reference system (latitude/longitude) and "
-                     "the extent of this layer suggests that it is actually a projected coordinates system.\n"
-                     "If so, the result of area or distance calculation will be incorrect.\n"
-                     "To fix this, set an appropriate map coordinate system in the layer properties "
-                     "or/and for the project coordinate project." ), true );
+      if ( QgsProject::instance()->crs().isGeographic()
+           && !layer->crs().isValid()
+           && ( std::fabs( layerExtent.xMinimum() ) > 360 || std::fabs( layerExtent.xMaximum() ) > 360 || std::fabs( layerExtent.yMinimum() ) > 360 || std::fabs( layerExtent.yMaximum() ) > 360 ) )
+        warning(
+          tr(
+            "This layer doesn't have a valid or known coordinates system, and calculation on DEM will "
+            "be done considering its coordinate system is the same as the project.\n"
+            "The project's coordinates system is a geographic reference system (latitude/longitude) and "
+            "the extent of this layer suggests that it is actually a projected coordinates system.\n"
+            "If so, the result of area or distance calculation will be incorrect.\n"
+            "To fix this, set an appropriate map coordinate system in the layer properties "
+            "or/and for the project coordinate project."
+          ),
+          true
+        );
 
       emit updated();
       return true;
@@ -626,15 +629,14 @@ ReosCoordinateSystemTransformer ReosGisEngine::getCoordinateTransformer() const
   return ret;
 }
 
-QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri, QString &crs, const QString &provider, const ReosMapExtent  &mapExtent )
+QList<QPolygonF> ReosGisEngine::openPolygonVectorLayerSource( const QString &uri, QString &crs, const QString &provider, const ReosMapExtent &mapExtent )
 {
   std::unique_ptr<QgsVectorLayer> layer( new QgsVectorLayer( uri, "poly_layer", provider.isEmpty() ? QStringLiteral( "ogr" ) : provider ) );
 
   QList<QPolygonF> ret;
 
-  if ( ! layer->isValid() )
+  if ( !layer->isValid() )
     return ret;
-
 
 
   QgsFeatureIterator it;
@@ -678,9 +680,7 @@ ReosMapExtent ReosGisEngine::transformExtent( const ReosMapExtent &extent, const
   if ( extent.crs() == crs )
     return extent;
 
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
-                                    QgsCoordinateReferenceSystem::fromWkt( crs ),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ), QgsCoordinateReferenceSystem::fromWkt( crs ), QgsProject::instance()->transformContext() );
 
   QgsRectangle qgsExtent( extent.toRectF() );
   ReosMapExtent ret;
@@ -706,9 +706,7 @@ ReosMapExtent ReosGisEngine::transformToProjectExtent( const ReosMapExtent &exte
 
 ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &extent, const QString &wktCrs ) const
 {
-  QgsCoordinateTransform transform( QgsProject::instance()->crs(),
-                                    QgsCoordinateReferenceSystem::fromWkt( wktCrs ),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsProject::instance()->crs(), QgsCoordinateReferenceSystem::fromWkt( wktCrs ), QgsProject::instance()->transformContext() );
 
   QgsRectangle qgsExtent( extent.toRectF() );
   ReosMapExtent ret;
@@ -729,9 +727,7 @@ ReosMapExtent ReosGisEngine::transformFromProjectExtent( const ReosMapExtent &ex
 
 QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPointF &sourcePoint ) const
 {
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
-                                    QgsProject::instance()->crs(),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ), QgsProject::instance()->crs(), QgsProject::instance()->transformContext() );
 
   try
   {
@@ -751,9 +747,7 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition 
 
 QPolygonF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon ) const
 {
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
-                                    QgsProject::instance()->crs(),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ), QgsProject::instance()->crs(), QgsProject::instance()->transformContext() );
 
   QgsGeometry geom = QgsGeometry::fromQPolygonF( sourcePolygon );
   QgsGeometry transformGeom = geom;
@@ -776,9 +770,7 @@ QPolygonF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS
 
 QPointF ReosGisEngine::transformToCoordinates( const ReosSpatialPosition &position, const QString &destinationCrs )
 {
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( position.crs() ),
-                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( position.crs() ), QgsCoordinateReferenceSystem::fromWkt( destinationCrs ), QgsProject::instance()->transformContext() );
 
   try
   {
@@ -810,7 +802,7 @@ double ReosGisEngine::locateOnPolyline( const QPointF &point, const QPolygonF &p
   distanceArea.setSourceCrs( qgisCrs, QgsProject::instance()->transformContext() );
 
   Qgis::DistanceUnit unit = distanceArea.lengthUnits();
-  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit,  Qgis::DistanceUnit::Meters );
+  double factor = QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::DistanceUnit::Meters );
 
   QgsGeometry geomPoly = QgsGeometry::fromQPolygonF( polyline );
 
@@ -850,8 +842,7 @@ QPointF ReosGisEngine::setPointOnPolyline( double distance, const QPolygonF &pol
     const QPointF &p1 = polyline.at( i );
     const QPointF &p2 = polyline.at( i + 1 );
     distFromBegin += distanceArea.measureLine( p1, p2 ) * factor;
-  }
-  while ( distance >= distFromBegin && ++i < polyline.count() - 1 );
+  } while ( distance >= distFromBegin && ++i < polyline.count() - 1 );
 
   if ( distance > distFromBegin )
   {
@@ -876,9 +867,7 @@ QPointF ReosGisEngine::setPointOnPolyline( double distance, const QPolygonF &pol
 
 QPolygonF ReosGisEngine::transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs )
 {
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ),
-                                    QgsCoordinateReferenceSystem::fromWkt( destinationCrs ),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( sourceCRS ), QgsCoordinateReferenceSystem::fromWkt( destinationCrs ), QgsProject::instance()->transformContext() );
 
   const QgsGeometry geom = QgsGeometry::fromQPolygonF( sourcePolygon );
   QgsGeometry transfromGeom = geom;
@@ -903,22 +892,16 @@ double ReosGisEngine::factorUnitToMeter( const QString &crs )
 {
   Qgis::DistanceUnit unit = QgsCoordinateReferenceSystem::fromWkt( crs ).mapUnits();
 
-  return QgsUnitTypes::fromUnitToUnitFactor( unit,  Qgis::DistanceUnit::Meters );
+  return QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::DistanceUnit::Meters );
 }
 
-ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterExtent(
-  const ReosRasterExtent &extent,
-  const ReosMapExtent &destination,
-  double resolX,
-  double resolY,
-  ReosRasterExtent &resultingExtent,
-  bool &success )
+ReosRasterMemory<QList<QPair<double, QPoint>>> ReosGisEngine::transformRasterExtent(
+  const ReosRasterExtent &extent, const ReosMapExtent &destination, double resolX, double resolY, ReosRasterExtent &resultingExtent, bool &success
+)
 {
   ReosRasterMemory<QList<QPair<double, QPoint>>> ret;
 
-  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ),
-                                    QgsCoordinateReferenceSystem::fromWkt( destination.crs() ),
-                                    QgsProject::instance()->transformContext() );
+  QgsCoordinateTransform transform( QgsCoordinateReferenceSystem::fromWkt( extent.crs() ), QgsCoordinateReferenceSystem::fromWkt( destination.crs() ), QgsProject::instance()->transformContext() );
 
   if ( transform.isValid() )
   {
@@ -931,7 +914,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
       return ret;
     }
 
-    QVector<QVector<QgsPointXY>> sourceExtentVerticesInDestination( xCount + 1, QVector < QgsPointXY>( yCount + 1 ) );
+    QVector<QVector<QgsPointXY>> sourceExtentVerticesInDestination( xCount + 1, QVector< QgsPointXY>( yCount + 1 ) );
     QgsRectangle destExtent;
 
     double sourceDx = std::fabs( extent.xCellSize() );
@@ -940,7 +923,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
     destExtent.setNull();
     for ( int iy = 0; iy < yCount + 1; ++iy )
     {
-      for ( int ix = 0; ix < xCount + 1 ; ++ix )
+      for ( int ix = 0; ix < xCount + 1; ++ix )
       {
         const QgsPointXY sourcePoint = QgsPointXY( extent.xMapMin() + ix * sourceDx, extent.yMapMax() - iy * sourceDy );
         QgsPointXY destPoint;
@@ -958,8 +941,8 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
       }
     }
 
-    int xDestCount = static_cast<int>( std::round( destination.width() / std::fabs( resolX ) ) ); // + 1;
-    int yDestCount =  static_cast<int>( std::round( destination.height() / std::fabs( resolY ) ) ); // + 1;
+    int xDestCount = static_cast<int>( std::round( destination.width() / std::fabs( resolX ) ) );  // + 1;
+    int yDestCount = static_cast<int>( std::round( destination.height() / std::fabs( resolY ) ) ); // + 1;
 
     ret.reserveMemory( yDestCount, xDestCount );
 
@@ -967,7 +950,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
     double effHeight = yDestCount * std::fabs( resolY );
 
     double xOri = resolX > 0 ? destination.xMapMin() - ( effWidth - destination.width() ) / 2 : destination.xMapMax() + ( effWidth - destination.width() ) / 2;
-    double yOri =  resolY > 0 ? destination.yMapMin() - ( effHeight - destination.height() ) / 2 : destination.yMapMax() + ( effHeight - destination.height() ) / 2;
+    double yOri = resolY > 0 ? destination.yMapMin() - ( effHeight - destination.height() ) / 2 : destination.yMapMax() + ( effHeight - destination.height() ) / 2;
     //double xMax = xMin + effWidth;
     //double yMax = yMin + effHeight;
 
@@ -977,7 +960,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
     QgsFeatureId id = 0;
     for ( int iy = 0; iy < yCount; ++iy )
     {
-      for ( int ix = 0; ix < xCount ; ++ix )
+      for ( int ix = 0; ix < xCount; ++ix )
       {
         QgsRectangle cellBB;
         cellBB.setNull();
@@ -994,8 +977,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
     {
       for ( int idx = 0; idx < xDestCount; ++idx )
       {
-        QgsRectangle cell( idx * resolX + xOri, ( idy + 1 ) * resolY + yOri,
-                           ( idx + 1 ) * resolX + xOri, idy * resolY + yOri, true );
+        QgsRectangle cell( idx * resolX + xOri, ( idy + 1 ) * resolY + yOri, ( idx + 1 ) * resolX + xOri, idy * resolY + yOri, true );
         QList<QgsFeatureId> sourceInter = spatialIndex.intersects( cell );
 
         QList<QPair<double, QPoint>> destIntersect;
@@ -1003,8 +985,8 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
 
         for ( QgsFeatureId id : sourceInter )
         {
-          int destRow = id /  xCount;
-          int destCol = id - destRow * ( xCount ) ;
+          int destRow = id / xCount;
+          int destCol = id - destRow * ( xCount );
           QgsPolygonXY sourceCell;
           QgsPolylineXY outer;
           outer << sourceExtentVerticesInDestination.at( destCol ).at( destRow );
@@ -1019,7 +1001,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
           {
             double area = intersect.area();
             Q_ASSERT( destRow < yCount && destCol < xCount );
-            destIntersect.append( {area, QPoint( destCol, destRow )} );
+            destIntersect.append( { area, QPoint( destCol, destRow ) } );
             areaSum += area;
           }
         }
@@ -1028,7 +1010,7 @@ ReosRasterMemory<QList<QPair<double, QPoint>>>  ReosGisEngine::transformRasterEx
         {
           for ( int i = 0; i < destIntersect.count(); ++i )
           {
-            destIntersect[i] = {destIntersect.at( i ).first / areaSum, destIntersect.at( i ).second};
+            destIntersect[i] = { destIntersect.at( i ).first / areaSum, destIntersect.at( i ).second };
           }
 
           ret.setValue( idy, idx, destIntersect );
@@ -1054,7 +1036,7 @@ QPair<QDateTime, QDateTime> ReosGisEngine::temporalRange() const
 {
   QgsProjectTimeSettings *timeSettings = QgsProject::instance()->timeSettings();
   if ( timeSettings )
-    return QPair<QDateTime, QDateTime>( {timeSettings->temporalRange().begin(), timeSettings->temporalRange().end()} );
+    return QPair<QDateTime, QDateTime>( { timeSettings->temporalRange().begin(), timeSettings->temporalRange().end() } );
 
   return QPair<QDateTime, QDateTime>();
 }
@@ -1089,7 +1071,7 @@ bool ReosGisEngine::createProjectFile( const QString &projectFileName, bool keep
   return project->write( projectFileName );
 }
 
-void  ReosGisEngine::addMeshLayerToExistingProject(
+void ReosGisEngine::addMeshLayerToExistingProject(
   const QString &projectFileName,
   const QString &layerName,
   const QString &uri,
@@ -1097,7 +1079,8 @@ void  ReosGisEngine::addMeshLayerToExistingProject(
   const QMap<QString, ReosEncodedElement> &scalarSymbologies,
   const QMap<QString, ReosEncodedElement> &vectorSymbologies,
   const ReosDuration &timeStep,
-  ReosModule::Message &message )
+  ReosModule::Message &message
+)
 {
   std::unique_ptr<QgsProject> project = std::make_unique<QgsProject>();
   project->read( projectFileName );
@@ -1193,7 +1176,7 @@ void  ReosGisEngine::addMeshLayerToExistingProject(
   };
   project->timeSettings()->setTimeStep( timeStep.valueUnit() );
 
-  if ( ! project->write( projectFileName ) )
+  if ( !project->write( projectFileName ) )
   {
     message.type = ReosModule::Error;
     message.addText( tr( "Unable to add a mesh layer to the QGIS project file" ) );
@@ -1291,7 +1274,7 @@ void ReosGisEngine::defaultstyleRasterLayer( QgsRasterLayer *layer )
 {
   if ( !canBeRasterDem( layer ) )
     return;
-  QString defaultStylePath =  QgsApplication::pkgDataPath() + QStringLiteral( "/resources/" );
+  QString defaultStylePath = QgsApplication::pkgDataPath() + QStringLiteral( "/resources/" );
   bool ok;
   layer->loadNamedStyle( defaultStylePath + QStringLiteral( "dem.qml" ), ok );
 }

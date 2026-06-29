@@ -59,7 +59,6 @@ class REOSCORE_EXPORT ReosEncodeContext
 class REOSCORE_EXPORT ReosEncodedElement
 {
   public:
-
     //! Constructor of an empty encoded element with only the description
     explicit ReosEncodedElement() = default;
 
@@ -73,7 +72,7 @@ class REOSCORE_EXPORT ReosEncodedElement
     QByteArray bytes() const;
 
     //! Returns the desctiption of the encoded element
-    QString description() const {return mDescription;}
+    QString description() const { return mDescription; }
 
     //! Adds data \a value with a \a key to the encoded element
     void addEncodedData( const QString &key, const ReosEncodedElement &element );
@@ -82,8 +81,7 @@ class REOSCORE_EXPORT ReosEncodedElement
 
 #ifndef SIP_RUN
     //! Adds data \a value with a \a key to the encoded element
-    template<typename T>
-    void addData( const QString &key, T &&value )
+    template<typename T> void addData( const QString &key, T &&value )
     {
       QByteArray byteArray;
       QDataStream stream( &byteArray, QIODevice::WriteOnly );
@@ -93,8 +91,7 @@ class REOSCORE_EXPORT ReosEncodedElement
     }
 
     //! Gets the data \a value with the \a key from the encoded element
-    template<typename T>
-    bool getData( QString key, T &value ) const
+    template<typename T> bool getData( QString key, T &value ) const
     {
       if ( !mData.contains( key ) )
         return false;
@@ -119,7 +116,6 @@ class REOSCORE_EXPORT ReosEncodedElement
     QString mDescription;
 
     static QDataStream::Version sVersion;
-
 };
 
 #endif // REOSENCODEDELEMENT_H

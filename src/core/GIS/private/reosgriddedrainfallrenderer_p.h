@@ -28,7 +28,7 @@ class QgsRasterLayer;
 class ReosGriddedRainfallRasterProvider_p;
 class ReosGriddedRainfallColorShaderSettings_p;
 
-class ReosRendererGriddedRainfallMapTimeStamp_p: public ReosRendererObjectMapTimeStamp
+class ReosRendererGriddedRainfallMapTimeStamp_p : public ReosRendererObjectMapTimeStamp
 {
   public:
     ReosRendererGriddedRainfallMapTimeStamp_p( int index );
@@ -59,7 +59,7 @@ class ReosGriddedRainfallRendererFactory_p : public ReosGriddedRainfallRendererF
     QPointer<ReosGriddedRainfallRasterProvider_p> mDataProvider;
     std::unique_ptr<ReosGriddedRainfallColorShaderSettings_p> mColorRampSettings;
 
-    friend class  ReosGriddedRainfallColorShaderSettings_p;
+    friend class ReosGriddedRainfallColorShaderSettings_p;
 
     void init();
 };
@@ -99,29 +99,29 @@ class ReosGriddedRainfallRasterProvider_p : public QgsRasterDataProvider
     ReosGriddedRainfallRasterProvider_p() = default;
     ReosGriddedRainfallRasterProvider_p( const QString &uri );
 
-    int bandCount() const override {return 1;}
+    int bandCount() const override { return 1; }
 
     // QgsDataProvider interface
-    QgsCoordinateReferenceSystem crs() const  override {return mCrs;}
-    bool isValid() const override {return true;}
-    QString name() const override {return QString();}
-    QString description() const override {return QString();}
+    QgsCoordinateReferenceSystem crs() const override { return mCrs; }
+    bool isValid() const override { return true; }
+    QString name() const override { return QString(); }
+    QString description() const override { return QString(); }
 
     // QgsRasterDataProvider interface
-    QString htmlMetadata() const override {return QString();}
-    QString lastErrorTitle() override {return QString();}
-    QString lastError() override {return QString();}
-    Qgis::DataType sourceDataType( int ) const override {return Qgis::DataType::Float64;}
+    QString htmlMetadata() const override { return QString(); }
+    QString lastErrorTitle() override { return QString(); }
+    QString lastError() override { return QString(); }
+    Qgis::DataType sourceDataType( int ) const override { return Qgis::DataType::Float64; }
 
     // QgsRasterInterface interface
     QgsRasterDataProvider *clone() const override;
-    Qgis::DataType dataType( int ) const  override {return Qgis::DataType::Float64;}
+    Qgis::DataType dataType( int ) const override { return Qgis::DataType::Float64; }
     QgsRectangle extent() const override;
     int xSize() const override;
     int ySize() const override;
     //int capabilities() const override;
 
-    bool readBlock( int bandNo, QgsRectangle  const &viewExtent, int width, int height, void *data, QgsRasterBlockFeedback *feedback = nullptr ) override;
+    bool readBlock( int bandNo, QgsRectangle const &viewExtent, int width, int height, void *data, QgsRasterBlockFeedback *feedback = nullptr ) override;
 
     void setData( const QVector<double> values );
     void setExtent( const ReosRasterExtent &extent );
@@ -132,18 +132,14 @@ class ReosGriddedRainfallRasterProvider_p : public QgsRasterDataProvider
     QgsRectangle mExtent;
     int mXCount = 0;
     int mYCount = 0;
-
 };
 
-class ReosGriddedRainfallProviderMetaData: public QgsProviderMetadata
+class ReosGriddedRainfallProviderMetaData : public QgsProviderMetadata
 {
   public:
     ReosGriddedRainfallProviderMetaData();
 
-    ReosGriddedRainfallRasterProvider_p *createProvider(
-      const QString &,
-      const QgsDataProvider::ProviderOptions &,
-      Qgis::DataProviderReadFlags ) override;
+    ReosGriddedRainfallRasterProvider_p *createProvider( const QString &, const QgsDataProvider::ProviderOptions &, Qgis::DataProviderReadFlags ) override;
 };
 
 

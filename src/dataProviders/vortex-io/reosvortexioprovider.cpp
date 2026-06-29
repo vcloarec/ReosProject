@@ -24,7 +24,7 @@
 
 #include "reoshydrograph.h"
 
-#define VORTEXIO_KEY QStringLiteral("vortexio")
+#define VORTEXIO_KEY QStringLiteral( "vortexio" )
 
 
 REOSEXTERN ReosVortexIoProviderFactory *providerFactory()
@@ -35,10 +35,17 @@ REOSEXTERN ReosVortexIoProviderFactory *providerFactory()
 ReosVortexIoProvider::ReosVortexIoProvider()
   : mNetworkManager( new QNetworkAccessManager( this ) )
 {
-  mBaseUri = QStringLiteral( "https://www.hydro.eaufrance.fr/stationhydro/ajax/%1/series?hydro_series[startAt]=%2&hydro_series[endAt]=%3&hydro_series[variableType]=simple_and_interpolated_and_hourly_variable&hydro_series[simpleAndInterpolatedAndHourlyVariable]=Q&hydro_series[statusData]=%4" );
+  mBaseUri = QStringLiteral(
+    "https://www.hydro.eaufrance.fr/stationhydro/ajax/%1/"
+    "series?hydro_series[startAt]=%2&hydro_series[endAt]=%3&hydro_series[variableType]=simple_and_interpolated_and_hourly_variable&hydro_series[simpleAndInterpolatedAndHourlyVariable]=Q&hydro_series["
+    "statusData]=%4"
+  );
 }
 
-QString ReosVortexIoProvider::key() const {return staticKey();}
+QString ReosVortexIoProvider::key() const
+{
+  return staticKey();
+}
 
 QStringList ReosVortexIoProvider::fileSuffixes() const
 {
@@ -94,11 +101,8 @@ void ReosVortexIoProvider::load()
 
     QEventLoop *loop = new QEventLoop( this );
 
-    QNetworkReply *waitedReply  = mNetworkManager->get( QNetworkRequest( url ) );
-    connect( waitedReply, &QNetworkReply::finished, this, [ = ]()
-    {
-      loop->quit();
-    } );
+    QNetworkReply *waitedReply = mNetworkManager->get( QNetworkRequest( url ) );
+    connect( waitedReply, &QNetworkReply::finished, this, [=]() { loop->quit(); } );
 
     loop->exec();
     loop->deleteLater();
@@ -149,7 +153,6 @@ void ReosVortexIoProvider::load()
       QVariantList data = series.value( QStringLiteral( "data" ) ).toList();
       if ( data.size() != 0 )
       {
-
         mValues.resize( mValues.size() + data.size() );
         mTimes.resize( mTimes.size() + data.size() );
 
@@ -193,18 +196,20 @@ void ReosVortexIoProvider::load()
             valIndex += 1;
           }
 
-          mValues[valIndex] = value * unitFactor ;
+          mValues[valIndex] = value * unitFactor;
           mTimes[valIndex] = relTime;
           valIndex += 1;
         }
       }
     }
     pageStart = pageEnd.addDays( 1 );
-  }
-  while ( pageStart < end );
+  } while ( pageStart < end );
 }
 
-QDateTime ReosVortexIoProvider::referenceTime() const {return mReferenceTime;}
+QDateTime ReosVortexIoProvider::referenceTime() const
+{
+  return mReferenceTime;
+}
 
 int ReosVortexIoProvider::valueCount() const
 {
@@ -296,7 +301,6 @@ QVariantMap ReosVortexIoProvider::decodeUri( const QString &uri, bool &ok )
   ok = true;
 
   return ret;
-
 }
 
 
@@ -353,11 +357,13 @@ QString ReosVortexIoProviderFactory::buildUri( const QString &dataType, const QV
        && parameters.contains( QStringLiteral( "end" ) ) )
   {
     ok = true;
-    QString ret = QString( "%1::%2::%3::%4" ).
-                  arg( parameters.value( QStringLiteral( "maelstrom-key" ) ).toString(),
-                       parameters.value( QStringLiteral( "station-id" ) ).toString(),
-                       parameters.value( QStringLiteral( "start" ) ).toString(),
-                       parameters.value( QStringLiteral( "end" ) ).toString() ) ;
+    QString ret = QString( "%1::%2::%3::%4" )
+                    .arg(
+                      parameters.value( QStringLiteral( "maelstrom-key" ) ).toString(),
+                      parameters.value( QStringLiteral( "station-id" ) ).toString(),
+                      parameters.value( QStringLiteral( "start" ) ).toString(),
+                      parameters.value( QStringLiteral( "end" ) ).toString()
+                    );
 
     if ( parameters.contains( QStringLiteral( "data-validation" ) ) )
       ret = ret.append( QString( ":%1" ).arg( parameters.value( QStringLiteral( "data-validation" ) ).toString() ) );

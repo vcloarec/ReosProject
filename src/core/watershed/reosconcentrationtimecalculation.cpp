@@ -176,8 +176,7 @@ ReosConcentrationTimeFormula::~ReosConcentrationTimeFormula() = default;
 ReosConcentrationTimeFormulasRegistery *ReosConcentrationTimeFormulasRegistery::sInstance = nullptr;
 
 ReosConcentrationTimeFormulasRegistery::ReosConcentrationTimeFormulasRegistery()
-{
-}
+{}
 
 ReosConcentrationTimeFormulasRegistery::~ReosConcentrationTimeFormulasRegistery()
 {
@@ -248,8 +247,7 @@ bool ReosConcentrationTimeFormulaKirpich::canBeCalculated( const ReosConcentrati
 {
   double S = parameters.slope;
   double L = parameters.length;
-  return L > 0 && S > 0 ;
-
+  return L > 0 && S > 0;
 }
 
 ReosDuration ReosConcentrationTimeFormulaPassini::concentrationTime( const ReosConcentrationTimeFormula::Parameters &parameters ) const
@@ -272,7 +270,6 @@ bool ReosConcentrationTimeFormulaPassini::isInValidityDomain( const ReosConcentr
   double A = parameters.area.valueKm2();
   double L = parameters.length;
   return ( A > 0 && L > 0 && S > 0 );
-
 }
 
 bool ReosConcentrationTimeFormulaPassini::canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const
@@ -379,7 +376,8 @@ ReosDuration ReosConcentrationTimeFormulaGiandotti::concentrationTime( const Reo
     return ReosDuration( valueInHour, ReosDuration::hour );
   }
 
-  return ReosDuration();;
+  return ReosDuration();
+  ;
 }
 
 bool ReosConcentrationTimeFormulaGiandotti::isInValidityDomain( const ReosConcentrationTimeFormula::Parameters &parameters ) const
@@ -391,14 +389,14 @@ bool ReosConcentrationTimeFormulaGiandotti::isInValidityDomain( const ReosConcen
 bool ReosConcentrationTimeFormulaGiandotti::canBeCalculated( const ReosConcentrationTimeFormula::Parameters &parameters ) const
 {
   double A = parameters.area.valueKm2();
-  double L = parameters.length ;
+  double L = parameters.length;
   double H = parameters.relativeAverageElevation;
 
   return ( A > 0 && L > 0 && H > 0 );
 }
 
-ReosConcentrationTimeFormulasModel::ReosConcentrationTimeFormulasModel( ReosConcentrationTimeFormulasRegistery *registery, QObject *parent ):
-  QAbstractTableModel( parent )
+ReosConcentrationTimeFormulasModel::ReosConcentrationTimeFormulasModel( ReosConcentrationTimeFormulasRegistery *registery, QObject *parent )
+  : QAbstractTableModel( parent )
   , mRegistery( registery )
 {}
 
@@ -490,8 +488,7 @@ QVariant ReosConcentrationTimeFormulasModel::data( const QModelIndex &index, int
       }
       break;
     case Qt::ForegroundRole:
-      if ( index.column() == 0 &&
-           !mRegistery->formula( formulaName )->isInValidityDomain( mParameters ) )
+      if ( index.column() == 0 && !mRegistery->formula( formulaName )->isInValidityDomain( mParameters ) )
         return QColor( Qt::red );
       else
         return QColor( Qt::black );
@@ -512,10 +509,8 @@ QVariant ReosConcentrationTimeFormulasModel::data( const QModelIndex &index, int
       break;
     default:
       return QVariant();
-
   }
   return QVariant();
-
 }
 
 Qt::ItemFlags ReosConcentrationTimeFormulasModel::flags( const QModelIndex &index ) const
@@ -620,4 +615,3 @@ void ReosConcentrationTimeFormulasModel::setCurrentTimeUnit( const ReosDuration:
   mCurrentTimeUnit = currentTimeUnit;
   emit dataChanged( index( 0, 0, QModelIndex() ), index( rowCount( QModelIndex() ), 1, QModelIndex() ) );
 }
-
