@@ -33,6 +33,8 @@ jobs:
           echo "REOS_INSTALL=${{github.workspace}}\REOS_Install" >> $env:GITHUB_ENV
           echo "NSI_DESTINATION=${{github.workspace}}" >> $env:GITHUB_ENV
           echo "LEKAN_EXPERIMENTAL_VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+
+          git lfs pull
       
     - name: Cache CYGWIN
       id: cache-cygwin
