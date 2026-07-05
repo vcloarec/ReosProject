@@ -120,7 +120,10 @@ void ReosHecrasTesting::initTestCase()
 void ReosHecrasTesting::cleanupTestCase()
 {
   QDir dir( mPathToSimpleToRun );
-  dir.removeRecursively();
+  if (!dir.removeRecursively())
+  {
+    qDebug() << "Failed to remove directory: " << mPathToSimpleToRun;
+  }
 }
 
 #ifdef _WIN32
@@ -757,6 +760,14 @@ void ReosHecrasTesting::dssInterval()
 
 void ReosHecrasTesting::importAndLaunchStructure()
 {
+  QDir dir( mPathToSimpleToRun );
+  if ( !dir.removeRecursively() )
+  {
+    qDebug() << "Failed to remove directory: " << mPathToSimpleToRun;
+  }
+
+  copySimple();
+
   QString path( mPathToSimpleToRun + QStringLiteral( "/simple.prj" ) );
 
   ReosHydraulicNetwork *network = new ReosHydraulicNetwork( &mRootModule, mGisEngine, mWatershedModule );
