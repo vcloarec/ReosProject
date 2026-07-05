@@ -16,8 +16,9 @@ email                : vcloarec@gmail.com
 #include "reosrastercompressed.h"
 
 
-ReosRasterByteCompressed::ReosRasterByteCompressed( const ReosRasterMemory<unsigned char> &raster ):
-  mRowCount( raster.rowCount() ), mColumnCount( raster.columnCount() )
+ReosRasterByteCompressed::ReosRasterByteCompressed( const ReosRasterMemory<unsigned char> &raster )
+  : mRowCount( raster.rowCount() )
+  , mColumnCount( raster.columnCount() )
 {
   mData.clear();
   for ( int row = 0; row < mRowCount; ++row )
@@ -28,9 +29,7 @@ ReosRasterByteCompressed::ReosRasterByteCompressed( const ReosRasterMemory<unsig
       unsigned char currentValue = raster.value( row, column );
       unsigned char sameValueCount = 0;
       unsigned char nextValue = currentValue;
-      while ( ( column < mColumnCount ) &&
-              ( nextValue == currentValue ) &&
-              ( sameValueCount < 15 ) )
+      while ( ( column < mColumnCount ) && ( nextValue == currentValue ) && ( sameValueCount < 15 ) )
       {
         sameValueCount++;
         column++;

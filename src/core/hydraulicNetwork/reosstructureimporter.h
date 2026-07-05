@@ -53,14 +53,11 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const = 0;
 
     //! Updates the boundary condition, remove not exising add new ones
-    virtual void updateBoundaryConditions(
-      const QSet<QString> &currentBoundaryId,
-      ReosHydraulicStructure2D *structure,
-      const ReosHydraulicNetworkContext &context ) const = 0;
+    virtual void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;
 
     virtual bool isValid() const = 0;
 
-    virtual  const ReosStructureImporterSource *source() const = 0;
+    virtual const ReosStructureImporterSource *source() const = 0;
 
   protected:
     ReosHydraulicNetwork *mNetWork = nullptr;
@@ -92,7 +89,7 @@ class ReosStructureImporterDummy : public ReosStructureImporter
 
     ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
     QString crs() const override;
-    QPolygonF domain() const  override;
+    QPolygonF domain() const override;
     ReosMesh *mesh( const QString & ) const override;
     ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const override;
 
@@ -100,7 +97,8 @@ class ReosStructureImporterDummy : public ReosStructureImporter
 
     QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D * ) const override;
 
-    void updateBoundaryConditions( const QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const override;;
+    void updateBoundaryConditions( const QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const override;
+    ;
 
     bool isValid() const override;
 

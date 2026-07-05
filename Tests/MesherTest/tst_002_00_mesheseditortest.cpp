@@ -11,10 +11,9 @@
 
 using namespace testing;
 
-class MeshEditorTesting: public Test
+class MeshEditorTesting : public Test
 {
   public:
-
     HdMeshBasic mesh;
     std::vector<Segment> inputSegments;
 
@@ -34,15 +33,12 @@ class MeshEditorTesting: public Test
       meshEditor.addVertex( 10, 10 );
       meshEditor.addVertex( 10, 5 );
     }
-
 };
 
 TEST_F( MeshEditorTesting, inputVertexCount )
 {
-
   meshEditor.addVertex( 1, 1 );
   ASSERT_THAT( meshEditor.verticesCount(), Eq( 1 ) );
-
 }
 
 TEST_F( MeshEditorTesting, containMeshGenerator )
@@ -110,7 +106,6 @@ TEST_F( MeshEditorTesting, addDupplicatePoint )
   meshEditor.addVertex( VertexBasic( 10.0001, 14.99999 ) );
 
   ASSERT_THAT( meshEditor.verticesCount(), Eq( 3 ) );
-
 }
 
 TEST_F( MeshEditorTesting, addSegmentHardline )
@@ -136,12 +131,10 @@ TEST_F( MeshEditorTesting, addDupplicateSegmentHardline )
 }
 
 
-class TinEditingTesting: public Test
+class TinEditingTesting : public Test
 {
   public:
     ReosTin tin;
-
-
 };
 
 TEST_F( TinEditingTesting, tinCreation )
@@ -292,7 +285,6 @@ TEST_F( TinEditingTesting, removeFirstHardLineFromSegment )
   ASSERT_THAT( neighbours_central.size(), Eq( 2 ) );
   ASSERT_THAT( tin.verticesCount(), Eq( 5 ) );
   ASSERT_THAT( tin.hardNeighbours( centralVertexPointer ).size(), Eq( 2 ) );
-
 }
 
 TEST_F( TinEditingTesting, removeFirstHardLineFromExtremities )
@@ -330,14 +322,11 @@ TEST_F( TinEditingTesting, removeFirstHardLineFromExtremities )
   ASSERT_THAT( neighbours_central.size(), Eq( 4 ) );
   ASSERT_THAT( tin.verticesCount(), Eq( 5 ) );
   ASSERT_THAT( tin.hardNeighbours( centralVertexPointer ).size(), Eq( 4 ) );
-
-
 }
 
 
 TEST_F( TinEditingTesting, removeVertex )
 {
-
   auto vert1 = tin.addVertex( 0, 5 );
   auto vert2 = tin.addVertex( 5, 0 );
   auto vert3 = tin.addVertex( 0, 0 );
@@ -350,7 +339,6 @@ TEST_F( TinEditingTesting, removeVertex )
   tin.removeVertex( vert3 );
 
   ASSERT_THAT( tin.verticesCount(), Eq( 3 ) );
-
 }
 
 TEST_F( TinEditingTesting, removeVertexOnHardLineWithRemoveVertex )
@@ -378,67 +366,62 @@ TEST_F( TinEditingTesting, removeVertexOnHardLineWithRemoveVertex )
 
   ASSERT_THAT( tin.verticesCount(), Eq( 5 ) );
   ASSERT_THAT( tin.hardNeighbours( centralVertexPointer ).size(), Eq( 4 ) );
-
 }
 
 TEST_F( TinEditingTesting, removeVertexOnHardLineWithRemoveVertexOnHardline )
 {
-//    auto vert1=tin.addVertex(0,5);
-//    auto vert2=tin.addVertex(5,0);
-//    auto vert3=tin.addVertex(0,0);
-//    auto vert4=tin.addVertex(5,5);
+  //    auto vert1=tin.addVertex(0,5);
+  //    auto vert2=tin.addVertex(5,0);
+  //    auto vert3=tin.addVertex(0,0);
+  //    auto vert4=tin.addVertex(5,5);
 
-//    std::list<VertexPointer> newVertices_1=tin.addHardLine(vert1,vert2);
-//    std::list<VertexPointer> newVertices_2=tin.addHardLine(vert3,vert4);
+  //    std::list<VertexPointer> newVertices_1=tin.addHardLine(vert1,vert2);
+  //    std::list<VertexPointer> newVertices_2=tin.addHardLine(vert3,vert4);
 
-//    ASSERT_THAT(tin.verticesCount(),Eq(5));
-//    ASSERT_THAT(tin.hardNeighbours(vert1).size(),Eq(1));
+  //    ASSERT_THAT(tin.verticesCount(),Eq(5));
+  //    ASSERT_THAT(tin.hardNeighbours(vert1).size(),Eq(1));
 
-//    auto centralVertex=newVertices_2.begin();
-//    centralVertex++;
-//    auto centralVertexPointer=static_cast<VertexPointer>((*centralVertex));
+  //    auto centralVertex=newVertices_2.begin();
+  //    centralVertex++;
+  //    auto centralVertexPointer=static_cast<VertexPointer>((*centralVertex));
 
-//    tin.removeVertexOnHardLine(centralVertexPointer);
+  //    tin.removeVertexOnHardLine(centralVertexPointer);
 
-//    ASSERT_THAT(tin.verticesCount(),Eq(4));
+  //    ASSERT_THAT(tin.verticesCount(),Eq(4));
   //can't work while the potential CGAL issue is not resolved
-//    ASSERT_THAT(tin.hardNeighbours(vert1).size(),Eq(1));
-//    ASSERT_THAT(tin.hardNeighbours(vert2).size(),Eq(1));
-//    ASSERT_THAT(tin.hardNeighbours(vert3).size(),Eq(1));
-//    ASSERT_THAT(tin.hardNeighbours(vert4).size(),Eq(1));
+  //    ASSERT_THAT(tin.hardNeighbours(vert1).size(),Eq(1));
+  //    ASSERT_THAT(tin.hardNeighbours(vert2).size(),Eq(1));
+  //    ASSERT_THAT(tin.hardNeighbours(vert3).size(),Eq(1));
+  //    ASSERT_THAT(tin.hardNeighbours(vert4).size(),Eq(1));
 }
 
 TEST_F( TinEditingTesting, removeVertexOnHardLineWithRemoveVertexOnHardline_2 )
 {
-//    auto vert1=tin.addVertex(0,0);
-//    auto vert2=tin.addVertex(0,5);
-//    auto vert3=tin.addVertex(6,0);
-//    auto vert4=tin.addVertex(6,5);
-//    auto vert5=tin.addVertex(-1,2.5);
-//    auto vert6=tin.addVertex(7,2.5);
+  //    auto vert1=tin.addVertex(0,0);
+  //    auto vert2=tin.addVertex(0,5);
+  //    auto vert3=tin.addVertex(6,0);
+  //    auto vert4=tin.addVertex(6,5);
+  //    auto vert5=tin.addVertex(-1,2.5);
+  //    auto vert6=tin.addVertex(7,2.5);
 
-//    std::list<VertexPointer> newVertices_1=tin.addHardLine(vert1,vert2);
-//    std::list<VertexPointer> newVertices_2=tin.addHardLine(vert3,vert4);
+  //    std::list<VertexPointer> newVertices_1=tin.addHardLine(vert1,vert2);
+  //    std::list<VertexPointer> newVertices_2=tin.addHardLine(vert3,vert4);
 
-//    std::list<VertexPointer> newVertices_3=tin.addHardLine(vert5,vert6);
+  //    std::list<VertexPointer> newVertices_3=tin.addHardLine(vert5,vert6);
 
-//    auto centralVertex=newVertices_3.begin();
-//    centralVertex++;
-//    auto centralVertexPointer=static_cast<VertexPointer>((*centralVertex));
+  //    auto centralVertex=newVertices_3.begin();
+  //    centralVertex++;
+  //    auto centralVertexPointer=static_cast<VertexPointer>((*centralVertex));
 
-//    tin.removeHardLine(vert1,vert2);
-//    tin.removeVertexOnHardLine(centralVertexPointer);
-
-
+  //    tin.removeHardLine(vert1,vert2);
+  //    tin.removeVertexOnHardLine(centralVertexPointer);
 }
 
 
 TEST_F( TinEditingTesting, addRemoveHardLines )
 {
-
   ASSERT_TRUE( testCDTP_4() );
 }
-
 
 
 TEST_F( TinEditingTesting, flipFaces )
@@ -468,7 +451,6 @@ TEST_F( TinEditingTesting, flipFaces )
 
 TEST_F( TinEditingTesting, writeUGRIDEmptyFile )
 {
-
   ASSERT_THAT( tin.verticesCount(), Eq( 0 ) );
   ASSERT_THAT( tin.facesCount(), Eq( 0 ) );
 
@@ -755,7 +737,6 @@ TEST_F( TinEditingTesting, flipFacesPersistentAfterSaving )
 
   ASSERT_THAT( face3->isVertexContained( newVert4 ), Eq( true ) );
   ASSERT_THAT( face4->isVertexContained( newVert2 ), Eq( true ) );
-
 }
 
 TEST_F( TinEditingTesting, flipFacesPersistentAfterSavingWithHardline )
@@ -796,7 +777,6 @@ TEST_F( TinEditingTesting, flipFacesPersistentAfterSavingWithHardline )
 
   ASSERT_THAT( face3->isVertexContained( newVert4 ), Eq( true ) );
   ASSERT_THAT( face4->isVertexContained( newVert2 ), Eq( true ) );
-
 }
 
 TEST_F( TinEditingTesting, writeUGRIDSmallFileWithZSpecifier )

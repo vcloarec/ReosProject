@@ -38,8 +38,8 @@
 #include "reostableview.h"
 #include "reosmap.h"
 
-ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext ) :
-  ReosActionWidget( guiContext.parent() )
+ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *watershedModule, const ReosGuiContext &guiContext )
+  : ReosActionWidget( guiContext.parent() )
   , ui( new Ui::ReosRunoffHydrographWidget )
   , mWatershedModule( watershedModule )
   , mWatershedRunoffModelsModel( new ReosWatershedRunoffModelsModel( this ) )
@@ -61,7 +61,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
   ui->tableViewRunoff->horizontalHeader()->setSectionResizeMode( 2, QHeaderView::ResizeToContents );
   ui->tableViewRunoff->horizontalHeader()->setStretchLastSection( true );
   ui->tableViewRunoff->setContextMenuPolicy( Qt::CustomContextMenu );
-  connect( ui->tableViewRunoff, &QWidget::customContextMenuRequested, this,  &ReosRunoffHydrographWidget::onRunoffTableViewContextMenu );
+  connect( ui->tableViewRunoff, &QWidget::customContextMenuRequested, this, &ReosRunoffHydrographWidget::onRunoffTableViewContextMenu );
 
   mRainfallHistogram = new ReosPlotTimeHistogram( tr( "Rainfall" ), true );
   mRainfallHistogram->setBorderColor( Qt::blue );
@@ -126,8 +126,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
 
   ui->constantHydrographTimeStep->setDuration( new ReosParameterDuration( QString(), false, this ) );
 
-  connect( ui->checkBoxUseConstantTimeStep, &QCheckBox::toggled, this, [this]
-  {
+  connect( ui->checkBoxUseConstantTimeStep, &QCheckBox::toggled, this, [this] {
     bool usedConstantTimeStep = ui->checkBoxUseConstantTimeStep->isChecked();
 
     if ( usedConstantTimeStep && ui->constantHydrographTimeStep->durationParameter()->value() == ReosDuration() && mCurrentRunoff )
@@ -143,8 +142,7 @@ ReosRunoffHydrographWidget::ReosRunoffHydrographWidget( ReosWatershedModule *wat
     ui->tableViewHydrographResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
   } );
 
-  connect( ui->constantHydrographTimeStep, &ReosParameterDurationWidget::valueChanged, this, [this]
-  {
+  connect( ui->constantHydrographTimeStep, &ReosParameterDurationWidget::valueChanged, this, [this] {
     if ( mCurrentWatershed )
       mCurrentWatershed->setTimeStepForOutputHydrograph( ui->constantHydrographTimeStep->durationParameter()->value() );
     mHydrographResultModel->setTimeStep( ui->constantHydrographTimeStep->durationParameter()->value() );
@@ -263,8 +261,7 @@ static void copyResultValues( ReosTimeSeriesTableModel *model, QItemSelectionMod
     {
       QStringList lineData;
       for ( int w = 0; w < range.width(); ++w )
-        lineData.append( model->data(
-                           model->index( range.top() + h, range.left() + w, QModelIndex() ), Qt::DisplayRole ).toString() );
+        lineData.append( model->data( model->index( range.top() + h, range.left() + w, QModelIndex() ), Qt::DisplayRole ).toString() );
 
       lines.append( lineData.join( QStringLiteral( "\t" ) ) );
     }
@@ -388,9 +385,7 @@ void ReosRunoffHydrographWidget::onHydrographReady( ReosHydrograph *hydrograph )
     ui->tableViewHydrographResult->horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
     ui->tableViewHydrographResult->verticalHeader()->resizeSections( QHeaderView::ResizeToContents );
 
-    if ( mCurrentWatershed &&
-         ui->checkBoxUseConstantTimeStep->isChecked() &&
-         mCurrentWatershed->timeStepForOutputHydrograph() == ReosDuration() )
+    if ( mCurrentWatershed && ui->checkBoxUseConstantTimeStep->isChecked() && mCurrentWatershed->timeStepForOutputHydrograph() == ReosDuration() )
     {
       ui->constantHydrographTimeStep->durationParameter()->setValue( mCurrentRunoff->timeStep() );
       mCurrentWatershed->setTimeStepForOutputHydrograph( mCurrentRunoff->timeStep() );
@@ -438,8 +433,7 @@ void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
     for ( int i = 0; i < collection.runoffModelsCount(); ++i )
     {
       ReosRunoffModel *rom = collection.runoffModel( i );
-      typeMenu->addAction( rom->name()->value(), this, [this, rom, row]
-      {
+      typeMenu->addAction( rom->name()->value(), this, [this, rom, row] {
         if ( mWatershedRunoffModelsModel->runoffCount() == row )
           mWatershedRunoffModelsModel->addRunoffModel( rom );
         else
@@ -450,15 +444,12 @@ void ReosRunoffHydrographWidget::buildRunoffChoiceMenu( QMenu *menu, int row )
   }
 
   if ( row < mWatershedRunoffModelsModel->runoffCount() && mWatershedRunoffModelsModel->canBeRemoved( row ) )
-    menu->addAction( tr( "Remove this model" ), menu, [this, row]
-  {
-    mWatershedRunoffModelsModel->removeRunoffModel( row );
-  } );
+    menu->addAction( tr( "Remove this model" ), menu, [this, row] { mWatershedRunoffModelsModel->removeRunoffModel( row ); } );
 }
 
 void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *function )
 {
-  if ( ! ReosTransferFunctionFactories::isInstantiate() )
+  if ( !ReosTransferFunctionFactories::isInstantiate() )
     return;
 
   ReosTransferFunctionFactories *factories = ReosTransferFunctionFactories::instance();
@@ -487,7 +478,6 @@ void ReosRunoffHydrographWidget::syncTransferFunction( ReosTransferFunction *fun
   mCurrentTransferFunctionForm = ReosFormWidgetFactories::instance()->createDataFormWidget( function );
   if ( mCurrentTransferFunctionForm )
     ui->widgetTransferFunction->layout()->addWidget( mCurrentTransferFunctionForm );
-
 }
 
 void ReosRunoffHydrographWidget::updateGaugedHydrograph()
@@ -533,7 +523,7 @@ void ReosRunoffHydrographWidget::updateOtherRunoffHydrograph()
 {
   mOtherRunoffHydrographButton->clear();
 
-  if ( mCurrentWatershed &&  mWatershedModule &&  mWatershedModule->meteoModelsCollection() )
+  if ( mCurrentWatershed && mWatershedModule && mWatershedModule->meteoModelsCollection() )
   {
     ReosMeteorologicModelsCollection *meteoCollection = mWatershedModule->meteoModelsCollection();
 
@@ -569,15 +559,9 @@ void ReosRunoffHydrographWidget::hydrographTabContextMenu( const QPoint &pos )
 {
   QMenu contextMenu;
 
-  contextMenu.addAction( tr( "Copy selected values" ), &contextMenu, [this]
-  {
-    this->copyHydrographSelected( false );
-  } );
+  contextMenu.addAction( tr( "Copy selected values" ), &contextMenu, [this] { this->copyHydrographSelected( false ); } );
 
-  contextMenu.addAction( tr( "Copy selected values with headers" ), &contextMenu, [this]
-  {
-    this->copyHydrographSelected( true );
-  } );
+  contextMenu.addAction( tr( "Copy selected values with headers" ), &contextMenu, [this] { this->copyHydrographSelected( true ); } );
 
   contextMenu.exec( ui->tableViewHydrographResult->mapToGlobal( pos ) );
 }
@@ -586,15 +570,9 @@ void ReosRunoffHydrographWidget::rainfallRunoffTabContextMenu( const QPoint &pos
 {
   QMenu contextMenu;
 
-  contextMenu.addAction( tr( "Copy selected values" ), &contextMenu, [this]
-  {
-    this->copyRainfallRunoffSelected( false );
-  } );
+  contextMenu.addAction( tr( "Copy selected values" ), &contextMenu, [this] { this->copyRainfallRunoffSelected( false ); } );
 
-  contextMenu.addAction( tr( "Copy selected values with headers" ), &contextMenu, [this]
-  {
-    this->copyRainfallRunoffSelected( true );
-  } );
+  contextMenu.addAction( tr( "Copy selected values with headers" ), &contextMenu, [this] { this->copyRainfallRunoffSelected( true ); } );
 
   contextMenu.exec( ui->tableViewRunoffResult->mapToGlobal( pos ) );
 }
@@ -643,8 +621,10 @@ void ReosRunoffHydrographWidget::onTransferFunctionFormulation()
     dial->show();
 
     textBrowser->document()->setTextWidth( 400 );
-    dial->resize( textBrowser->document()->size().width() + dial->contentsMargins().left() + dial->contentsMargins().right() + 20,
-                  textBrowser->document()->size().height() + dial->contentsMargins().top() + dial->contentsMargins().bottom() + 50 );
+    dial->resize(
+      textBrowser->document()->size().width() + dial->contentsMargins().left() + dial->contentsMargins().right() + 20,
+      textBrowser->document()->size().height() + dial->contentsMargins().top() + dial->contentsMargins().bottom() + 50
+    );
   }
 }
 
@@ -717,7 +697,6 @@ bool ReosWatershedRunoffModelsModel::portionEditable() const
   }
 
   return false;
-
 }
 
 void ReosWatershedRunoffModelsModel::allDataChanged()
@@ -778,7 +757,9 @@ bool ReosWatershedRunoffModelsModel::replacePortion( int position, double portio
   return true;
 }
 
-ReosWatershedRunoffModelsModel::ReosWatershedRunoffModelsModel( QObject *parent ): QAbstractTableModel( parent ) {}
+ReosWatershedRunoffModelsModel::ReosWatershedRunoffModelsModel( QObject *parent )
+  : QAbstractTableModel( parent )
+{}
 
 QModelIndex ReosWatershedRunoffModelsModel::index( int row, int column, const QModelIndex & ) const
 {
@@ -854,7 +835,7 @@ QVariant ReosWatershedRunoffModelsModel::data( const QModelIndex &index, int rol
       switch ( role )
       {
         case Qt::DisplayRole:
-        case  Qt::EditRole:
+        case Qt::EditRole:
           return portion->toString( 2 );
           break;
         case Qt::ForegroundRole:
@@ -940,7 +921,6 @@ bool ReosWatershedRunoffModelsModel::setData( const QModelIndex &index, const QV
   }
 
   return false;
-
 }
 
 Qt::ItemFlags ReosWatershedRunoffModelsModel::flags( const QModelIndex &index ) const
@@ -1043,30 +1023,26 @@ ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosData
   double fact = transferFunction->factorToLagTime()->value();
   lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
 
-  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced]
-  {
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced] {
     bool useConcTime = transferFunction->useConcentrationTime()->value();
     lagTimeWidget->setVisible( !useConcTime );
     factorWidget->setVisible( useConcTime );
     lagTimeDeduced->setVisible( useConcTime );
   } );
 
-  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     double fact = transferFunction->factorToLagTime()->value();
     lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
   } );
 
-  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     double fact = transferFunction->factorToLagTime()->value();
     lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
   } );
 
-  QObject::connect( transferFunction->factorToLagTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->factorToLagTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     double fact = transferFunction->factorToLagTime()->value();
     lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
@@ -1075,7 +1051,11 @@ ReosFormWidget *ReosFormLinearReservoirWidgetFactory::createDataWidget( ReosData
   return form.release();
 }
 
-QString ReosFormLinearReservoirWidgetFactory::datatype() const {return ReosTransferFunctionLinearReservoir::staticType();;}
+QString ReosFormLinearReservoirWidgetFactory::datatype() const
+{
+  return ReosTransferFunctionLinearReservoir::staticType();
+  ;
+}
 
 ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
 {
@@ -1092,9 +1072,14 @@ ReosFormWidget *ReosFormGeneralizedRationalMethodWidgetFactory::createDataWidget
   return form.release();
 }
 
-QString ReosFormGeneralizedRationalMethodWidgetFactory::datatype() const {return ReosTransferFunctionGeneralizedRationalMethod::staticType();}
+QString ReosFormGeneralizedRationalMethodWidgetFactory::datatype() const
+{
+  return ReosTransferFunctionGeneralizedRationalMethod::staticType();
+}
 
-ReosTimeSeriesTableModel::ReosTimeSeriesTableModel( QObject *parent ): QAbstractTableModel( parent ) {}
+ReosTimeSeriesTableModel::ReosTimeSeriesTableModel( QObject *parent )
+  : QAbstractTableModel( parent )
+{}
 
 QModelIndex ReosTimeSeriesTableModel::index( int row, int column, const QModelIndex & ) const
 {
@@ -1124,7 +1109,6 @@ int ReosTimeSeriesTableModel::columnCount( const QModelIndex & ) const
     return 0;
 
   return mTimeSeries.count() + 1;
-
 }
 
 QVariant ReosTimeSeriesTableModel::data( const QModelIndex &index, int role ) const
@@ -1159,7 +1143,8 @@ QVariant ReosTimeSeriesTableModel::data( const QModelIndex &index, int role ) co
 
         return serie->valueAt( row );
       }
-      break;;
+      break;
+        ;
     }
   }
 
@@ -1248,30 +1233,26 @@ ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDa
   double fact = transferFunction->factorToLagTime()->value();
   lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
 
-  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, factorWidget, lagTimeWidget, lagTimeDeduced, lagTimeDeducedtext] {
     bool useConcTime = transferFunction->useConcentrationTime()->value();
     lagTimeWidget->setVisible( !useConcTime );
     factorWidget->setVisible( useConcTime );
     lagTimeDeduced->setVisible( useConcTime );
   } );
 
-  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     double fact = transferFunction->factorToLagTime()->value();
     lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
   } );
 
-  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     double fact = transferFunction->factorToLagTime()->value();
     lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
   } );
 
-  QObject::connect( transferFunction->factorToLagTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext]
-  {
+  QObject::connect( transferFunction->factorToLagTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, lagTimeDeduced, lagTimeDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
     double fact = transferFunction->factorToLagTime()->value();
     lagTimeDeduced->setText( lagTimeDeducedtext.arg( ( concTime * fact ).toString( 2 ) ) );
@@ -1280,8 +1261,10 @@ ReosFormWidget *ReosFormSCSUnithydrographWidgetFactory::createDataWidget( ReosDa
   return form.release();
 }
 
-QString ReosFormSCSUnithydrographWidgetFactory::datatype() const {return ReosTransferFunctionSCSUnitHydrograph::staticType();}
-
+QString ReosFormSCSUnithydrographWidgetFactory::datatype() const
+{
+  return ReosTransferFunctionSCSUnitHydrograph::staticType();
+}
 
 
 ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context )
@@ -1308,38 +1291,33 @@ ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosD
 
   QString KDeducedtext = QObject::tr( "K parameter from concentration time: %1" );
   ReosDuration concTime = transferFunction->concentrationTime()->value();
-  ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+  ReosDuration deducedK = concTime / transferFunction->nParam()->value();
   deducedK.setAdaptedUnit();
   KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) ) );
 
-  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, kWidget, KDeducedLabel, KDeducedtext]
-  {
+  QObject::connect( transferFunction->useConcentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, kWidget, KDeducedLabel, KDeducedtext] {
     bool useConcTime = transferFunction->useConcentrationTime()->value();
     kWidget->setVisible( !useConcTime );
     KDeducedLabel->setVisible( useConcTime );
-
   } );
 
-  QObject::connect( transferFunction->nParam(), &ReosParameter::valueChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
-  {
+  QObject::connect( transferFunction->nParam(), &ReosParameter::valueChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
-    ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+    ReosDuration deducedK = concTime / transferFunction->nParam()->value();
     deducedK.setAdaptedUnit();
     KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) + ' ' + deducedK.unitToString() ) );
   } );
 
-  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
-  {
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::valueChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
-    ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+    ReosDuration deducedK = concTime / transferFunction->nParam()->value();
     deducedK.setAdaptedUnit();
     KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) ) );
   } );
 
-  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext]
-  {
+  QObject::connect( transferFunction->concentrationTime(), &ReosParameter::unitChanged, form.get(), [transferFunction, KDeducedLabel, KDeducedtext] {
     ReosDuration concTime = transferFunction->concentrationTime()->value();
-    ReosDuration deducedK = concTime /  transferFunction->nParam()->value();
+    ReosDuration deducedK = concTime / transferFunction->nParam()->value();
     deducedK.setAdaptedUnit();
     KDeducedLabel->setText( KDeducedtext.arg( ( deducedK ).toString( 2 ) ) );
   } );
@@ -1347,4 +1325,7 @@ ReosFormWidget *ReosFormNashUnithydrographWidgetFactory::createDataWidget( ReosD
   return form.release();
 }
 
-QString ReosFormNashUnithydrographWidgetFactory::datatype() const {return ReosTransferFunctionNashUnitHydrograph::staticType();}
+QString ReosFormNashUnithydrographWidgetFactory::datatype() const
+{
+  return ReosTransferFunctionNashUnitHydrograph::staticType();
+}

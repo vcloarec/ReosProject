@@ -56,8 +56,8 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
     //! Restores the encoded configuration of the element \a elementId, if not exist, creates empty one for the element
     ReosEncodedElement restoreElementConfig( const QString &elementId ) SIP_SKIP;
 
-    QString type() const override SIP_SKIP {return staticType();}
-    static QString staticType() SIP_SKIP {return QStringLiteral( "scheme" );}
+    QString type() const override SIP_SKIP { return staticType(); }
+    static QString staticType() SIP_SKIP { return QStringLiteral( "scheme" ); }
 
     ReosCalculationContext calculationContext() const;
 
@@ -72,7 +72,6 @@ class REOSCORE_EXPORT ReosHydraulicScheme : public ReosDataObject
     ReosParameterString *mSchemeName = nullptr;
 
     QHash<QString, QByteArray> mElementsConfig;
-
 };
 
 #ifndef SIP_RUN

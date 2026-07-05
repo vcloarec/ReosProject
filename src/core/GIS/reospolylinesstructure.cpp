@@ -40,4 +40,3 @@ void ReosPolylinesStructure::setSelectedClass( const QString &selectedClass )
 {
   mSelectedClass = selectedClass;
 }
-

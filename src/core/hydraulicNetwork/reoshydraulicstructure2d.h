@@ -21,7 +21,10 @@
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
 #include "reoshydraulicsimulation.h"
-#include "reosgmshgenerator.h"
+#ifdef WITH_GMSH
+#include "gmsh/reosgmshgenerator.h"
+#endif //WITH GMSH
+#include "reosmeshgenerator.h"
 #include "reosmesh.h"
 #include "reos3dmapsettings.h"
 #include "reoshydraulicsimulationresults.h"
@@ -38,12 +41,11 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 {
     Q_OBJECT
   public:
-
     enum Structure2DCapability
     {
-      GeometryEditable = 1 << 0, //!< If the structure have geometry editable (structure or mesh)
-      MultiSimulation = 1 << 1, //!< If the structure can have multiple simulations
-      DefinedExternally = 1 << 2, //!< If the structure is defined externally
+      GeometryEditable = 1 << 0,    //!< If the structure have geometry editable (structure or mesh)
+      MultiSimulation = 1 << 1,     //!< If the structure can have multiple simulations
+      DefinedExternally = 1 << 2,   //!< If the structure is defined externally
       GriddedPrecipitation = 1 << 3 //!< If the structure can accept gridded precipitation on its domain
     };
 
@@ -56,18 +58,18 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ~ReosHydraulicStructure2D();
 
     //! Creates a structure from \a encodedElement and a \a context
-    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext  &context ) SIP_SKIP;
+    static ReosHydraulicStructure2D *create( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context ) SIP_SKIP;
 
     //! Creates a structure from \a structureImporter
     static ReosHydraulicStructure2D *create( ReosStructureImporter *structureImporter, const ReosHydraulicNetworkContext &context ) SIP_SKIP;
 
-    static QString staticType() {return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" );}
+    static QString staticType() { return ReosHydraulicNetworkElement::staticType() + QString( ':' ) + QStringLiteral( "structure2D" ); }
 
-    QString type() const override {return staticType();}
+    QString type() const override { return staticType(); }
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override SIP_SKIP;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override SIP_SKIP;
     ReosMapExtent extent() const override;
-    QString defaultDisplayName() const override {return tr( "Hydraulic structure 2D" );}
+    QString defaultDisplayName() const override { return tr( "Hydraulic structure 2D" ); }
     ReosDuration currentElementTimeStep() const override;
     ReosDuration mapTimeStep() const override;
     ReosTimeWindow timeWindow() const override;
@@ -75,7 +77,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     ReosHydraulicNetworkElementCompatibilty checkCompatiblity( ReosHydraulicScheme *scheme ) const override SIP_SKIP;
     QFileInfoList cleanScheme( ReosHydraulicScheme *scheme ) override SIP_SKIP;
 
-    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange )  SIP_SKIP {}
+    void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicStructureBoundaryCondition *boundaryCondition, bool upstreamWillChange ) SIP_SKIP {}
     bool updateCalculationContextFromDownstream( const ReosCalculationContext &context ) SIP_SKIP { return false; }
 
     //! Returns the directory where data and simulation will be stored on the disk
@@ -179,7 +181,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 #ifndef SIP_RUN
 
     //! Returns the count of simulation
-    int simulationCount() const {return mSimulations.count();}
+    int simulationCount() const { return mSimulations.count(); }
 
     //! Returns the index of the current simulation
     int currentSimulationIndex() const;
@@ -238,10 +240,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
 
 #endif // No SIP_RUN
     //! Returns the value of the results with type \a datasetType for the specified \a context, \a position and \a time
-    double resultsValueAt( const QDateTime &time,
-                           const ReosSpatialPosition &position,
-                           ReosHydraulicSimulationResults::DatasetType datasetType,
-                           const QString &schemeId );
+    double resultsValueAt( const QDateTime &time, const ReosSpatialPosition &position, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
 
     //! Returns a translated string corresponding to the unit of the results associated with \a context and to the type  \a datasetType
     QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
@@ -251,12 +250,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
      *  with coordinates reference système (WKT) \a destination CRS, and with \a resolution in map unit of \a destinationCrs.
      *  Return True if successful.
      */
-    bool rasterizeResult( const QDateTime &time,
-                          ReosHydraulicSimulationResults::DatasetType datasetType,
-                          const QString &schemeId,
-                          const QString &fileName,
-                          const QString &destinationCrs,
-                          double resolution );
+    bool rasterizeResult( const QDateTime &time, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId, const QString &fileName, const QString &destinationCrs, double resolution );
 #ifndef SIP_RUN
 
     //! Removes and erase all results related to the structure, also from sources (disk).
@@ -356,7 +350,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     void onBoundaryConditionRemoved( const QString &bid );
     void onGeometryStructureChange();
     void onFlowsFromSolverReceived( const QDateTime &time, const QStringList &boundId, const QList<double> &values );
-    void onSimulationFinished( ReosHydraulicSimulation *simulation,  const QString &schemeId, ReosSimulationProcess *process, bool success );
+    void onSimulationFinished( ReosHydraulicSimulation *simulation, const QString &schemeId, ReosSimulationProcess *process, bool success );
 
   private:
     ReosHydraulicStructure2D( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
@@ -372,7 +366,7 @@ class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElem
     // Geometry editor helper existing when geometry is editable
     ReosMeshGenerator *mMeshGenerator = nullptr;
     ReosMeshResolutionController *mMeshResolutionController = nullptr;
-    ReosTopographyCollection    *mTopographyCollection = nullptr;
+    ReosTopographyCollection *mTopographyCollection = nullptr;
     std::unique_ptr<ReosRoughnessStructure > mRoughnessStructure;
 
     QVector<QVector<int>> mBoundaryVertices;

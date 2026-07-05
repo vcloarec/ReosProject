@@ -64,9 +64,7 @@ static QList<QgsMapToolIdentify::IdentifyResult> searchFeatureOnMap( QgsMapMouse
           qDebug() << QStringLiteral( "Could not transform geometry to layer CRS" );
         }
 
-        QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
-                                 .setFilterRect( rect )
-                                 .setFlags( QgsFeatureRequest::ExactIntersect ) );
+        QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest().setFilterRect( rect ).setFlags( Qgis::FeatureRequestFlag::ExactIntersect ) );
         QgsFeature f;
         while ( fit.nextFeature( f ) )
         {
@@ -103,9 +101,7 @@ bool ReosMapTool_p::hasFeatureOnMap( const QPointF &mapPoint ) const
         qDebug() << QStringLiteral( "Could not transform geometry to layer CRS" );
       }
 
-      QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest()
-                               .setFilterRect( rect )
-                               .setFlags( QgsFeatureRequest::ExactIntersect ) );
+      QgsFeatureIterator fit = vectorLayer->getFeatures( QgsFeatureRequest().setFilterRect( rect ).setFlags( Qgis::FeatureRequestFlag::ExactIntersect ) );
       QgsFeature feat;
       if ( fit.nextFeature( feat ) )
         return true;
@@ -116,11 +112,10 @@ bool ReosMapTool_p::hasFeatureOnMap( const QPointF &mapPoint ) const
 }
 
 
-ReosMapTool_p::ReosMapTool_p( QgsMapCanvas *canvas ):
-  QgsMapTool( canvas ), mContextMenuPopulator( new ReosMenuPopulator )
-{
-
-}
+ReosMapTool_p::ReosMapTool_p( QgsMapCanvas *canvas )
+  : QgsMapTool( canvas )
+  , mContextMenuPopulator( new ReosMenuPopulator )
+{}
 
 void ReosMapTool_p::activate()
 {
@@ -139,7 +134,7 @@ void ReosMapTool_p::deactivate()
 }
 
 
-bool ReosMapTool_p::populateContextMenuWithEvent( QMenu *menu,  QgsMapMouseEvent *e )
+bool ReosMapTool_p::populateContextMenuWithEvent( QMenu *menu, QgsMapMouseEvent *e )
 {
   if ( mContextMenuPopulator )
     return mContextMenuPopulator->populate( menu, e );
@@ -187,7 +182,6 @@ void ReosMapToolDrawPolyline_p::deactivate()
     mRubberBand->reset( mClosed ? Qgis::GeometryType::Polygon : Qgis::GeometryType::Line );
   ReosMapTool_p::deactivate();
 }
-
 
 
 void ReosMapToolDrawPolyline_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -249,8 +243,6 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
         updateColor();
       }
     }
-
-
   }
 }
 
@@ -281,7 +273,7 @@ bool ReosMapToolDrawPolyline_p::selfIntersect( bool complete ) const
   else
   {
     QPolygonF poly = mRubberBand->asGeometry().asQPolygonF();
-    if ( ! poly.isEmpty() )
+    if ( !poly.isEmpty() )
     {
       poly.removeLast();
       geom = QgsGeometry::fromQPolygonF( poly );
@@ -307,9 +299,8 @@ void ReosMapToolDrawPolyline_p::updateColor()
 }
 
 
-
-
-ReosMapToolDrawExtent_p::ReosMapToolDrawExtent_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+ReosMapToolDrawExtent_p::ReosMapToolDrawExtent_p( QgsMapCanvas *map )
+  : ReosMapTool_p( map )
 {
   mRubberBand = new QgsRubberBand( map, Qgis::GeometryType::Polygon );
 }
@@ -364,8 +355,8 @@ void ReosMapToolDrawExtent_p::drawExtent()
 }
 
 
-ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription ):
-  ReosMapTool_p( map )
+ReosMapToolSelectMapItem_p::ReosMapToolSelectMapItem_p( QgsMapCanvas *map, const QString &targetDescription )
+  : ReosMapTool_p( map )
 {
   addSearchTargetDescription( targetDescription );
   setSearchZoneSize( QSizeF( 5, 5 ) );
@@ -381,7 +372,6 @@ void ReosMapToolSelectMapItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     emit found( mapItem->base, e->mapPoint().toQPointF() );
   else
     emit found( nullptr, e->mapPoint().toQPointF() );
-
 }
 
 void ReosMapToolSelectMapItem_p::canvasDoubleClickEvent( QgsMapMouseEvent *e )
@@ -404,10 +394,10 @@ bool ReosMapToolSelectMapItem_p::populateContextMenuWithEvent( QMenu *menu, QgsM
 
 ReosMapToolDrawPoint_p::ReosMapToolDrawPoint_p( QgsMapCanvas *map )
   : ReosMapTool_p( map )
-{
-}
+{}
 
-ReosMapToolDrawPoint_p::~ReosMapToolDrawPoint_p() {}
+ReosMapToolDrawPoint_p::~ReosMapToolDrawPoint_p()
+{}
 
 void ReosMapToolDrawPoint_p::canvasReleaseEvent( QgsMapMouseEvent *e )
 {
@@ -415,10 +405,9 @@ void ReosMapToolDrawPoint_p::canvasReleaseEvent( QgsMapMouseEvent *e )
     emit pointDrawn( e->mapPoint().toQPointF() );
 }
 
-ReosMapToolEditPolygon_p::ReosMapToolEditPolygon_p( QgsMapCanvas *map ):
-  ReosMapTool_p( map )
-{
-}
+ReosMapToolEditPolygon_p::ReosMapToolEditPolygon_p( QgsMapCanvas *map )
+  : ReosMapTool_p( map )
+{}
 
 void ReosMapToolEditPolygon_p::setMapPolygon( ReosMapPolygon_p *polygon )
 {
@@ -459,22 +448,19 @@ bool ReosMapToolEditPolygon_p::populateContextMenuWithEvent( QMenu *menu, QgsMap
     return false;
 
   const QPointF mapPoint = event->mapPoint().toQPointF();
-  menu->addAction( tr( "Insert vertex" ), this, [mapPoint, this]
-  {
+  menu->addAction( tr( "Insert vertex" ), this, [mapPoint, this] {
     int index = ReosGeometryUtils::closestSegment( mapPoint, mPolygon->geometry() );
     if ( index != -1 )
     {
       mPolygon->insertVertex( index, mapPoint );
       emit this->polygonEdited();
     }
-
   } );
 
   int existingVertex = mPolygon->findVertexInView( viewSearchZone( event->pos() ) );
   if ( existingVertex >= 0 )
   {
-    menu->addAction( tr( "Remove vertex" ), this, [existingVertex, this]
-    {
+    menu->addAction( tr( "Remove vertex" ), this, [existingVertex, this] {
       mPolygon->removeVertex( existingVertex );
       mPolygon->updatePosition();
       emit this->polygonEdited();
@@ -498,7 +484,6 @@ void ReosMapToolEditPolygon_p::canvasMoveEvent( QgsMapMouseEvent *e )
     return;
   mIsEdited = true;
   mPolygon->moveVertex( mMovingVertex, e->mapPoint().toQPointF() );
-
 }
 
 void ReosMapToolEditPolygon_p::canvasReleaseEvent( QgsMapMouseEvent * )
@@ -513,18 +498,18 @@ void ReosMapToolEditPolygon_p::canvasReleaseEvent( QgsMapMouseEvent * )
 QRectF ReosMapTool_p::viewSearchZone( const QPoint &pt )
 {
   QPoint zone( mSearchZone.width() / 2, mSearchZone.height() / 2 );
-  return QRectF( QPointF( pt - zone ),  QPointF( pt + zone ) );
+  return QRectF( QPointF( pt - zone ), QPointF( pt + zone ) );
 }
 
 ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
 {
   QList<QGraphicsItem *> listItems;
   if ( mUnderPoint )
-    listItems  = canvas()->scene()->items( p );
+    listItems = canvas()->scene()->items( p );
   else
   {
     QRectF rectf( p - QPointF( mSearchZone.width() / 2, mSearchZone.height() / 2 ), mSearchZone );
-    listItems  = canvas()->scene()->items( rectf );
+    listItems = canvas()->scene()->items( rectf );
   }
 
   QGraphicsItem *item = nullptr;
@@ -544,8 +529,7 @@ ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
 
 QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
 {
-  const QList<QgsMapToolIdentify::IdentifyResult> &results =
-    searchFeatureOnMap( e, mCanvas, QList<Qgis::GeometryType>() << Qgis::GeometryType::Polygon << Qgis::GeometryType::Line );
+  const QList<QgsMapToolIdentify::IdentifyResult> &results = searchFeatureOnMap( e, mCanvas, QList<Qgis::GeometryType>() << Qgis::GeometryType::Polygon << Qgis::GeometryType::Line );
 
   QgsIdentifyMenu *menu = new QgsIdentifyMenu( mCanvas );
   menu->setExecWithSingleResult( true );
@@ -565,7 +549,8 @@ QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
     catch ( QgsCsException & )
     {}
 
-    return geom;;
+    return geom;
+    ;
   }
 
   return QgsGeometry();
@@ -574,8 +559,7 @@ QgsGeometry ReosMapTool_p::selectFeatureOnMap( QgsMapMouseEvent *e )
 double ReosMapTool_p::tolerance() const
 {
   const QgsSnappingConfig &snapConfig = QgsProject::instance()->snappingConfig();
-  return QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(),
-         nullptr, canvas()->mapSettings(), snapConfig.units() );
+  return QgsTolerance::toleranceInProjectUnits( snapConfig.tolerance(), nullptr, canvas()->mapSettings(), snapConfig.units() );
 }
 
 bool ReosMapTool_p::isRecognized( const QString &candidateDescription ) const
@@ -665,11 +649,12 @@ void ReosMapTool_p::keyPressEvent( QKeyEvent *e )
 
 QString ReosMapTool_p::mapCrs() const
 {
-  return canvas()->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return canvas()->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
 
-ReosMapToolMoveItem_p::ReosMapToolMoveItem_p( QgsMapCanvas *map ): ReosMapTool_p( map )
+ReosMapToolMoveItem_p::ReosMapToolMoveItem_p( QgsMapCanvas *map )
+  : ReosMapTool_p( map )
 {}
 
 ReosMapToolMoveItem_p::~ReosMapToolMoveItem_p()
@@ -696,7 +681,6 @@ void ReosMapToolMoveItem_p::canvasPressEvent( QgsMapMouseEvent *e )
   mMovingItem->externalColor = mMovingColor;
   mStartPoint = e->mapPoint().toQPointF();
   mIsMoving = true;
-
 }
 
 void ReosMapToolMoveItem_p::canvasMoveEvent( QgsMapMouseEvent *e )
@@ -730,14 +714,13 @@ bool ReosMapToolMoveItem_p::isItemUnderPoint( const QPoint &p )
 {
   QList<QGraphicsItem *> listItems;
 
-  listItems  = canvas()->scene()->items( viewSearchZone( p ) );
+  listItems = canvas()->scene()->items( viewSearchZone( p ) );
 
   for ( QGraphicsItem *item : std::as_const( listItems ) )
     if ( item == mCurrentItem )
       return true;
 
   return false;
-
 }
 
 void ReosMapToolMoveItem_p::setMovingColor( const QColor &movingColor )
@@ -745,7 +728,8 @@ void ReosMapToolMoveItem_p::setMovingColor( const QColor &movingColor )
   mMovingColor = movingColor;
 }
 
-ReosMapToolDrawHydraulicNetworkLink_p::ReosMapToolDrawHydraulicNetworkLink_p( QgsMapCanvas *mapCanvas ): ReosMapTool_p( mapCanvas )
+ReosMapToolDrawHydraulicNetworkLink_p::ReosMapToolDrawHydraulicNetworkLink_p( QgsMapCanvas *mapCanvas )
+  : ReosMapTool_p( mapCanvas )
 {
   mRubberBand = new QgsRubberBand( mCanvas );
 }

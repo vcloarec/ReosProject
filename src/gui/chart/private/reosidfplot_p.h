@@ -24,7 +24,7 @@
 class ReosIntensityDurationCurve;
 
 
-class ReosIdfPlot_p: public QwtPlotItem
+class ReosIdfPlot_p : public QwtPlotItem
 {
   public:
     ReosIdfPlot_p( ReosIntensityDurationCurve *curve );
@@ -40,7 +40,6 @@ class ReosIdfPlot_p: public QwtPlotItem
     QPointer<ReosIntensityDurationCurve> mCurve;
     ReosDuration::Unit mUnit = ReosDuration::minute;
     QColor mColor;
-
 };
 
 #endif // REOSIDFPLOT_P_H

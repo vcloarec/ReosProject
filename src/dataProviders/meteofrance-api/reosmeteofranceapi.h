@@ -42,26 +42,24 @@ class ReosRemoteForecastApiService
      * \param index a interger that represent the returned run,  0 corresponding to the last run available.
      */
     //virtual ReosGriddedRainfall *rainfallForecast( const QString &name, const ReosMapExtent &extent, int index = 0 ) const = 0;
-
 };
 
 class ReosMeteoFranceApiArome : public QObject
 {
     Q_OBJECT
   public:
-
     struct Model
     {
-      QString zone;
-      QString resol;
+        QString zone;
+        QString resol;
     };
 
     struct RunInfo
     {
-      ReosMapExtent extent;
-      QDateTime startTime;
-      QDateTime endTime;
-      int frameCount = 0;
+        ReosMapExtent extent;
+        QDateTime startTime;
+        QDateTime endTime;
+        int frameCount = 0;
     };
 
     //! Constructors
@@ -132,12 +130,12 @@ class ReosMeteoFranceApiArome : public QObject
 
     struct ServiceVersion
     {
-      QString service;
-      QString version;
-      QString language;
+        QString service;
+        QString version;
+        QString language;
     };
 
-    ServiceVersion mVersion = {QStringLiteral( "WCS" ), QStringLiteral( "2.0.1" ), QStringLiteral( "eng" )};
+    ServiceVersion mVersion = { QStringLiteral( "WCS" ), QStringLiteral( "2.0.1" ), QStringLiteral( "eng" ) };
 
     QMap<QDateTime, QString> mCoverageIds;
 

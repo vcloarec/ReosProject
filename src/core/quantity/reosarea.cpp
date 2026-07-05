@@ -17,12 +17,14 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reosparameter.h"
 
 
-ReosArea::ReosArea( double value ): mValueM2( value )
+ReosArea::ReosArea( double value )
+  : mValueM2( value )
 {
   setUnitAuto();
 }
 
-ReosArea::ReosArea( double value, Unit unit ): mUnit( unit )
+ReosArea::ReosArea( double value, Unit unit )
+  : mUnit( unit )
 {
   switch ( mUnit )
   {
@@ -41,7 +43,8 @@ ReosArea::ReosArea( double value, Unit unit ): mUnit( unit )
   }
 }
 
-ReosArea::ReosArea( const QPolygonF polygon, ReosArea::Unit unit ): mUnit( unit )
+ReosArea::ReosArea( const QPolygonF polygon, ReosArea::Unit unit )
+  : mUnit( unit )
 {
   double cumul = 0;
   int pointCount = polygon.count();
@@ -170,7 +173,6 @@ double ReosArea::valueInUnit( ReosArea::Unit unit ) const
     case ReosArea::km2:
       returnValue = valueKm2();
       break;
-
   }
 
   return returnValue;
@@ -246,7 +248,6 @@ QString ReosArea::unitToString( ReosArea::Unit u )
     case ReosArea::km2:
       return QStringLiteral( "km" ).append( QChar( 0x00B2 ) );
       break;
-
   }
   return QString();
 }
@@ -277,4 +278,3 @@ ReosArea ReosArea::decode( const ReosEncodedElement &element )
 
   return ret;
 }
-

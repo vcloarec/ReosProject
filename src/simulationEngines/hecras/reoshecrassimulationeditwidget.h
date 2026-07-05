@@ -14,7 +14,7 @@ namespace Ui
 {
   class ReosHecRasSimulationEditWidget;
   class ReosHecrasConfigurationEngineDialog;
-}
+} //namespace Ui
 
 class ReosHecRasIntervalComputationCombo : public QComboBox
 {

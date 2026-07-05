@@ -16,15 +16,20 @@
 #include "reostimeseriesprovider.h"
 #include "reostimeseries.h"
 
-ReosTimeSerieProvider::~ReosTimeSerieProvider() {}
+ReosTimeSerieProvider::~ReosTimeSerieProvider()
+{}
 
-void ReosTimeSerieProvider::setReferenceTime( const QDateTime & ) {}
+void ReosTimeSerieProvider::setReferenceTime( const QDateTime & )
+{}
 
-void ReosTimeSerieProvider::setValue( int, double ) {}
+void ReosTimeSerieProvider::setValue( int, double )
+{}
 
-void ReosTimeSerieProvider::removeValues( int, int ) {}
+void ReosTimeSerieProvider::removeValues( int, int )
+{}
 
-void ReosTimeSerieProvider::clear() {}
+void ReosTimeSerieProvider::clear()
+{}
 
 QString ReosTimeSerieProvider::dataSource() const
 {
@@ -38,19 +43,26 @@ void ReosTimeSerieProvider::setDataSource( const QString &dataSource, bool loadA
     load();
 }
 
-ReosTimeSerieConstantTimeStepProvider::~ReosTimeSerieConstantTimeStepProvider() {}
+ReosTimeSerieConstantTimeStepProvider::~ReosTimeSerieConstantTimeStepProvider()
+{}
 
-void ReosTimeSerieConstantTimeStepProvider::resize( int ) {}
+void ReosTimeSerieConstantTimeStepProvider::resize( int )
+{}
 
-void ReosTimeSerieConstantTimeStepProvider::appendValue( double ) {}
+void ReosTimeSerieConstantTimeStepProvider::appendValue( double )
+{}
 
-void ReosTimeSerieConstantTimeStepProvider::prependValue( double ) {}
+void ReosTimeSerieConstantTimeStepProvider::prependValue( double )
+{}
 
-void ReosTimeSerieConstantTimeStepProvider::insertValue( int, double ) {}
+void ReosTimeSerieConstantTimeStepProvider::insertValue( int, double )
+{}
 
-void ReosTimeSerieConstantTimeStepProvider::setTimeStep( const ReosDuration & ) {}
+void ReosTimeSerieConstantTimeStepProvider::setTimeStep( const ReosDuration & )
+{}
 
-void ReosTimeSerieConstantTimeStepProvider::copy( ReosTimeSerieConstantTimeStepProvider * ) {}
+void ReosTimeSerieConstantTimeStepProvider::copy( ReosTimeSerieConstantTimeStepProvider * )
+{}
 
 void ReosTimeSerieConstantTimeStepProvider::setValues( const QVector<double> &vals )
 {}
@@ -102,7 +114,7 @@ double ReosTimeSerieConstantTimeStepMemoryProvider::firstValue() const
 
 double ReosTimeSerieConstantTimeStepMemoryProvider::lastValue() const
 {
-  return  mValues.last();
+  return mValues.last();
 }
 
 void ReosTimeSerieConstantTimeStepMemoryProvider::setValue( int i, double v )
@@ -125,7 +137,10 @@ void ReosTimeSerieConstantTimeStepMemoryProvider::insertValue( int fromPos, doub
   mValues.insert( fromPos, v );
 }
 
-bool ReosTimeSerieConstantTimeStepMemoryProvider::isEditable() const {return true;}
+bool ReosTimeSerieConstantTimeStepMemoryProvider::isEditable() const
+{
+  return true;
+}
 
 ReosDuration ReosTimeSerieConstantTimeStepMemoryProvider::timeStep() const
 {
@@ -204,25 +219,30 @@ QString ReosTimeSerieConstantTimeStepMemoryProvider::staticType()
 }
 
 ReosTimeSerieVariableTimeStepProvider::~ReosTimeSerieVariableTimeStepProvider()
+{}
+
+void ReosTimeSerieVariableTimeStepProvider::setRelativeTimeAt( int, const ReosDuration & )
+{}
+
+void ReosTimeSerieVariableTimeStepProvider::appendValue( const ReosDuration &, double )
+{}
+
+void ReosTimeSerieVariableTimeStepProvider::prependValue( const ReosDuration &, double )
+{}
+
+void ReosTimeSerieVariableTimeStepProvider::insertValue( int, const ReosDuration &, double )
+{}
+
+void ReosTimeSerieVariableTimeStepProvider::copy( ReosTimeSerieVariableTimeStepProvider * )
+{}
+
+bool ReosTimeSerieVariableTimeStepProvider::writeSeries( ReosTimeSeriesVariableTimeStep *, const QString & )
 {
-
+  return false;
 }
-
-void ReosTimeSerieVariableTimeStepProvider::setRelativeTimeAt( int, const ReosDuration & ) {}
-
-void ReosTimeSerieVariableTimeStepProvider::appendValue( const ReosDuration &, double ) {}
-
-void ReosTimeSerieVariableTimeStepProvider::prependValue( const ReosDuration &, double ) {}
-
-void ReosTimeSerieVariableTimeStepProvider::insertValue( int, const ReosDuration &, double ) {}
-
-void ReosTimeSerieVariableTimeStepProvider::copy( ReosTimeSerieVariableTimeStepProvider * ) {}
-
-bool ReosTimeSerieVariableTimeStepProvider::writeSeries( ReosTimeSeriesVariableTimeStep *, const QString & ) {return false;}
 
 int ReosTimeSerieVariableTimeStepProvider::timeValueIndex( const ReosDuration &time, bool &exact ) const
 {
-
   if ( valueCount() == 0 || time < relativeTimeAt( 0 ) )
   {
     exact = false;
@@ -264,7 +284,7 @@ int ReosTimeSerieVariableTimeStepProvider::timeValueIndex( const ReosDuration &t
   }
 }
 
-double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &relativeTime ) const
+double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval ) const
 {
   bool exact = false;
   int index = timeValueIndex( relativeTime, exact );
@@ -273,10 +293,13 @@ double ReosTimeSerieVariableTimeStepProvider::valueAtTime( const ReosDuration &r
     return value( index );
 
   if ( index < 0 || index >= valueCount() - 1 )
-    return 0;
+    return 0.0;
 
   const ReosDuration time1 = relativeTimeAt( index );
   const ReosDuration time2 = relativeTimeAt( index + 1 );
+
+  if ( maxInterval != ReosDuration() && time2 - time1 > maxInterval )
+    return std::numeric_limits<double>::quiet_NaN();
 
   double ratio = ( relativeTime - time1 ) / ( time2 - time1 );
 
@@ -305,18 +328,30 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::setReferenceTime( const QDateT
   emit dataChanged();
 }
 
-QString ReosTimeSerieVariableTimeStepMemoryProvider::valueUnit() const {return QString();}
+QString ReosTimeSerieVariableTimeStepMemoryProvider::valueUnit() const
+{
+  return QString();
+}
 
-int ReosTimeSerieVariableTimeStepMemoryProvider::valueCount() const {return mValues.count();}
+int ReosTimeSerieVariableTimeStepMemoryProvider::valueCount() const
+{
+  return mValues.count();
+}
 
 double ReosTimeSerieVariableTimeStepMemoryProvider::value( int i ) const
 {
   return mValues.at( i );
 }
 
-double ReosTimeSerieVariableTimeStepMemoryProvider::firstValue() const {return mValues.first();}
+double ReosTimeSerieVariableTimeStepMemoryProvider::firstValue() const
+{
+  return mValues.first();
+}
 
-double ReosTimeSerieVariableTimeStepMemoryProvider::lastValue() const {return mValues.last();}
+double ReosTimeSerieVariableTimeStepMemoryProvider::lastValue() const
+{
+  return mValues.last();
+}
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::setValue( int i, double v )
 {
@@ -328,7 +363,10 @@ ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::relativeTimeAt( int i 
   return mTimeValues.at( i );
 }
 
-ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::lastRelativeTime() const {return mTimeValues.last();}
+ReosDuration ReosTimeSerieVariableTimeStepMemoryProvider::lastRelativeTime() const
+{
+  return mTimeValues.last();
+}
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::setRelativeTimeAt( int i, const ReosDuration &relativeTime )
 {

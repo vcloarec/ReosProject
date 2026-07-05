@@ -53,8 +53,7 @@ ReosStructureImporterSource *ReosHecRasSimulationEngineFactory::createImporterSo
 }
 
 void ReosHecRasSimulationEngineFactory::initializeSettings()
-{
-}
+{}
 
 ReosHecRasStructureImporter::ReosHecRasStructureImporter( const QString &fileName, const ReosHydraulicNetworkContext &context, const ReosHecRasStructureImporterSource *source )
   : ReosStructureImporter( context )
@@ -75,7 +74,10 @@ int ReosHecRasStructureImporter::planCount() const
   return mProject->planIds().count();
 }
 
-const ReosStructureImporterSource *ReosHecRasStructureImporter::source() const {return mSource;}
+const ReosStructureImporterSource *ReosHecRasStructureImporter::source() const
+{
+  return mSource;
+}
 
 void ReosHecRasStructureImporter::setCreationOption( const CreationOptions &creationOption )
 {
@@ -166,9 +168,7 @@ ReosMesh *ReosHecRasStructureImporter::mesh( ReosHydraulicStructure2D *structure
   return nullptr;
 }
 
-QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::createBoundaryConditions(
-  ReosHydraulicStructure2D *structure,
-  const ReosHydraulicNetworkContext &context ) const
+QList<ReosHydraulicStructureBoundaryCondition *> ReosHecRasStructureImporter::createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const
 {
   QList<ReosHydraulicStructureBoundaryCondition *> ret;
   const QList<ReosHecRasGeometry::BoundaryCondition> bcs = mProject->currentGeometry().allBoundariesConditions();
@@ -247,12 +247,14 @@ void ReosHecRasStructureImporter::updateBoundaryConditions( const QSet<QString> 
   ReosHecRasSimulation::updateBoundaryConditions( mProject.get(), currentBoundaryId, structure, context );
 }
 
-bool ReosHecRasStructureImporter::isValid() const { return mIsValid; }
+bool ReosHecRasStructureImporter::isValid() const
+{
+  return mIsValid;
+}
 
 ReosHecRasSimulation::ReosHecRasSimulation( ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
-{
-}
+{}
 
 ReosHecRasSimulation::ReosHecRasSimulation( const ReosEncodedElement &element, ReosHydraulicStructure2D *parent )
   : ReosHydraulicSimulation( parent )
@@ -303,8 +305,7 @@ ReosEncodedElement ReosHecRasSimulation::encode() const
   return element;
 }
 
-void ReosHecRasSimulation::prepareInput( const ReosSimulationData &data,
-    const ReosCalculationContext &calculationContext )
+void ReosHecRasSimulation::prepareInput( const ReosSimulationData &data, const ReosCalculationContext &calculationContext )
 {
   const ReosHecRasPlan currentPlan = mProject->plan( mCurrentPlan );
   ReosHecRasFlow flow = mProject->flow( currentPlan.flowFile() );
@@ -511,7 +512,6 @@ ReosTimeWindow ReosHecRasSimulation::externalBoundaryConditionTimeWindow( const 
     {
       QFileInfo projectFile( mProject->fileName() );
       bcFlow.dssFile = projectFile.dir().filePath( bcFlow.dssFile );
-
     }
     ReosDssFile dssFile( bcFlow.dssFile );
     if ( dssFile.isValid() )
@@ -881,7 +881,7 @@ ReosHydraulicNetworkElementCompatibilty ReosHecRasSimulation::checkPlanCompabili
     ReosHydraulicNetworkElementCompatibilty ret;
     int schemeCount = mStructure->network()->schemeCount();
     for ( int i = 0; i < schemeCount; ++i )
-      ret.combine( mProject->checkCompatibility( planId, mStructure, mStructure->network()->scheme( i ) ) ) ;
+      ret.combine( mProject->checkCompatibility( planId, mStructure, mStructure->network()->scheme( i ) ) );
 
     return ret;
   }
@@ -984,10 +984,9 @@ void ReosHecRasSimulation::accordCurrentPlan()
     mProject->setCurrentPlan( mCurrentPlan );
 }
 
-ReosHecRasSimulationProcess::ReosHecRasSimulationProcess( const ReosHecRasProject &hecRasProject,
-    const QString &planId,
-    const ReosCalculationContext &context,
-    const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries )
+ReosHecRasSimulationProcess::ReosHecRasSimulationProcess(
+  const ReosHecRasProject &hecRasProject, const QString &planId, const ReosCalculationContext &context, const QList<ReosHydraulicStructureBoundaryCondition *> &boundaries
+)
   : ReosSimulationProcess( context, boundaries )
   , mProject( hecRasProject )
   , mPlan( hecRasProject.plan( planId ) )

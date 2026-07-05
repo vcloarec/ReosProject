@@ -27,10 +27,9 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosgeometryutils.h"
 
-ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas ):
-  ReosMapPolygonBase_p( canvas )
-{
-}
+ReosMapPolygon_p::ReosMapPolygon_p( QgsMapCanvas *canvas )
+  : ReosMapPolygonBase_p( canvas )
+{}
 
 ReosMapPolygon_p *ReosMapPolygon_p::clone()
 {
@@ -39,7 +38,8 @@ ReosMapPolygon_p *ReosMapPolygon_p::clone()
   return other.release();
 }
 
-ReosMapPolygonBase_p::ReosMapPolygonBase_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+ReosMapPolygonBase_p::ReosMapPolygonBase_p( QgsMapCanvas *canvas )
+  : ReosMapItem_p( canvas )
 {}
 
 QRectF ReosMapPolygonBase_p::boundingRect() const
@@ -76,7 +76,7 @@ QPainterPath ReosMapPolygonBase_p::shape() const
   QPainterPath path;
   path.addPolygon( mViewPolygon );
   path.closeSubpath();
-  return path ;
+  return path;
 }
 
 void ReosMapPolygonBase_p::setEditing( bool b )
@@ -111,8 +111,7 @@ void ReosMapPolygonBase_p::setMarkerDistance( double d )
     return;
   }
 
-  mMarkerposition = ReosGisEngine::setPointOnPolyline( d, mapPoly,
-                    mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED ), mSegmentMarker );
+  mMarkerposition = ReosGisEngine::setPointOnPolyline( d, mapPoly, mMapCanvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred ), mSegmentMarker );
   updatePosition();
 }
 
@@ -124,8 +123,7 @@ void ReosMapPolygonBase_p::setMarkerArrow( bool b )
 void ReosMapPolygonBase_p::setMarkerAtMid()
 {
   const QPolygonF &mapPoly = geometry();
-  mMarkerposition = ReosGisEngine::setPointOnPolyline( ReosGeometryUtils::length( mapPoly ) / 2, mapPoly,
-                    mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED ), mSegmentMarker );
+  mMarkerposition = ReosGisEngine::setPointOnPolyline( ReosGeometryUtils::length( mapPoly ) / 2, mapPoly, mMapCanvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred ), mSegmentMarker );
   updatePosition();
 }
 
@@ -174,7 +172,7 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
         normDir = QVector2D( dir.y(), -dir.x() );
         QPolygonF arrow( 3 );
         QPointF arrowPos = mMarkerPositionOnView - dir.toPointF() * arrowSize - pos();
-        arrow[0] =  arrowPos + dir.toPointF() * arrowSize * 2;
+        arrow[0] = arrowPos + dir.toPointF() * arrowSize * 2;
         arrow[1] = arrowPos + normDir.toPointF() * arrowSize;
         arrow[2] = arrowPos - normDir.toPointF() * arrowSize;
         painter->setPen( pen );
@@ -183,7 +181,6 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
 
       pen.setStyle( Qt::SolidLine );
     }
-
   }
 
   pen.setWidthF( width );
@@ -218,7 +215,6 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
       QRectF rect( pt - QPointF( width, width ), QSizeF( width * 2, width * 2 ) );
       painter->drawRect( rect );
     }
-
   }
 
   if ( mSegmentMarker >= 0 )
@@ -233,7 +229,7 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
     {
       QPolygonF arrow( 3 );
       QPointF arrowPos = mMarkerPositionOnView - dir.toPointF() * arrowSize - pos();
-      arrow[0] =  arrowPos + dir.toPointF() * arrowSize * 2;
+      arrow[0] = arrowPos + dir.toPointF() * arrowSize * 2;
       arrow[1] = arrowPos + normDir.toPointF() * arrowSize;
       arrow[2] = arrowPos - normDir.toPointF() * arrowSize;
       painter->setPen( pen );
@@ -254,10 +250,11 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
   painter->restore();
 }
 
-ReosMapPolygonBase_p::ReosMapPolygonBase_p( ReosMapPolygonBase_p *other ): ReosMapItem_p( mMapCanvas )
+ReosMapPolygonBase_p::ReosMapPolygonBase_p( ReosMapPolygonBase_p *other )
+  : ReosMapItem_p( mMapCanvas )
 {
   color = other->color;
-  externalColor  = other->externalColor;
+  externalColor = other->externalColor;
   width = other->width;
   externalWidth = other->externalWidth;
   style = other->style;
@@ -331,8 +328,8 @@ ReosMapPolygon_p::ReosMapPolygon_p( ReosMapPolygon_p *other )
   mMapPolygon = other->mMapPolygon;
 }
 
-ReosMapPolyline_p::ReosMapPolyline_p( QgsMapCanvas *canvas ):
-  ReosMapPolygon_p( canvas )
+ReosMapPolyline_p::ReosMapPolyline_p( QgsMapCanvas *canvas )
+  : ReosMapPolygon_p( canvas )
 {}
 
 ReosMapPolyline_p *ReosMapPolyline_p::clone()
@@ -382,7 +379,8 @@ void ReosMapPolyline_p::draw( QPainter *painter )
     painter->drawPolyline( mViewPolygon );
 }
 
-ReosMapMarkerFilledCircle_p::ReosMapMarkerFilledCircle_p( QgsMapCanvas *canvas ): ReosMapMarker_p( canvas )
+ReosMapMarkerFilledCircle_p::ReosMapMarkerFilledCircle_p( QgsMapCanvas *canvas )
+  : ReosMapMarker_p( canvas )
 {}
 
 ReosMapMarkerFilledCircle_p *ReosMapMarkerFilledCircle_p::clone()
@@ -414,7 +412,8 @@ void ReosMapMarker_p::setMapPosition( const QgsPointXY &pos )
   updatePosition();
 }
 
-ReosMapMarker_p::ReosMapMarker_p( QgsMapCanvas *canvas ): ReosMapItem_p( canvas )
+ReosMapMarker_p::ReosMapMarker_p( QgsMapCanvas *canvas )
+  : ReosMapItem_p( canvas )
 {}
 
 void ReosMapMarker_p::updatePosition()
@@ -440,7 +439,10 @@ void ReosMapMarker_p::translate( const QPointF &translation )
   updatePosition();
 }
 
-QPointF ReosMapMarker_p::mapPos() const {return mapPoint;}
+QPointF ReosMapMarker_p::mapPos() const
+{
+  return mapPoint;
+}
 
 void ReosMapMarkerFilledCircle_p::paint( QPainter *painter )
 {
@@ -468,7 +470,8 @@ void ReosMapMarkerFilledCircle_p::paint( QPainter *painter )
   painter->restore();
 }
 
-ReosMapMarkerEmptySquare_p::ReosMapMarkerEmptySquare_p( QgsMapCanvas *canvas ):  ReosMapMarker_p( canvas )
+ReosMapMarkerEmptySquare_p::ReosMapMarkerEmptySquare_p( QgsMapCanvas *canvas )
+  : ReosMapMarker_p( canvas )
 {}
 
 ReosMapMarkerEmptySquare_p *ReosMapMarkerEmptySquare_p::clone()
@@ -525,7 +528,8 @@ void ReosMapMarkerEmptySquare_p::paint( QPainter *painter )
   painter->restore();
 }
 
-ReosMapMarkerEmptyCircle_p::ReosMapMarkerEmptyCircle_p( QgsMapCanvas *canvas ):  ReosMapMarker_p( canvas )
+ReosMapMarkerEmptyCircle_p::ReosMapMarkerEmptyCircle_p( QgsMapCanvas *canvas )
+  : ReosMapMarker_p( canvas )
 {}
 
 ReosMapMarkerEmptyCircle_p *ReosMapMarkerEmptyCircle_p::clone()
@@ -705,9 +709,10 @@ ReosMapStructureEnvelop_p::ReosMapStructureEnvelop_p( ReosMapStructureEnvelop_p 
 }
 
 ReosMapItem_p::ReosMapItem_p( QgsMapCanvas *canvas )
-  : QgsMapCanvasItem( canvas ) {}
+  : QgsMapCanvasItem( canvas )
+{}
 
 QString ReosMapItem_p::crs() const
 {
-  return mMapCanvas->mapSettings().destinationCrs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mMapCanvas->mapSettings().destinationCrs().toWkt( Qgis::CrsWktVariant::Preferred );
 }

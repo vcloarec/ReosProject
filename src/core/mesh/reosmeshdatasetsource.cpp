@@ -17,5 +17,4 @@
 
 ReosMeshDatasetSource::ReosMeshDatasetSource( QObject *parent )
   : QObject( parent )
-{
-}
+{}

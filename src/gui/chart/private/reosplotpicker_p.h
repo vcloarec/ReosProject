@@ -26,7 +26,7 @@
 #include "reosplot_p.h"
 
 
-class ReosPlotPicker_p: public QwtPlotPicker
+class ReosPlotPicker_p : public QwtPlotPicker
 {
     Q_OBJECT
   public:
@@ -55,7 +55,7 @@ class ReosPlotPicker_p: public QwtPlotPicker
 };
 
 
-class ReosPickerMachineLineOneAfterOne_p: public QwtPickerMachine
+class ReosPickerMachineLineOneAfterOne_p : public QwtPickerMachine
 {
   public:
     ReosPickerMachineLineOneAfterOne_p();
@@ -63,7 +63,7 @@ class ReosPickerMachineLineOneAfterOne_p: public QwtPickerMachine
 };
 
 
-class ReosPlotPickerDrawLines_p: public ReosPlotPicker_p
+class ReosPlotPickerDrawLines_p : public ReosPlotPicker_p
 {
     Q_OBJECT
   public:
@@ -81,7 +81,7 @@ class ReosPlotPickerDrawLines_p: public ReosPlotPicker_p
 };
 
 
-class ReosPlotPickerEditPoint_p: public ReosPlotPicker_p
+class ReosPlotPickerEditPoint_p : public ReosPlotPicker_p
 {
     Q_OBJECT
   public:

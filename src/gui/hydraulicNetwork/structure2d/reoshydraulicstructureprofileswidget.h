@@ -44,7 +44,7 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     void showBackButton();
     void hideBackButton();
 
-    bool canBeDetached() const {return true;}
+    bool canBeDetached() const { return true; }
     void switchDetachButton();
 
   protected:

@@ -252,9 +252,9 @@ double ReosMeshPointValue::value( ReosMeshDatasetSource *source, int groupIndex,
   if ( d )
   {
     if ( source->groupIsScalar( groupIndex ) )
-      return d->interpolateValue( source->datasetValues( groupIndex, index ),  location );
+      return d->interpolateValue( source->datasetValues( groupIndex, index ), location );
     else
-      return d->interpolateVectorValue( source->datasetValues( groupIndex, index ),  location );
+      return d->interpolateVectorValue( source->datasetValues( groupIndex, index ), location );
   }
 
   return std::numeric_limits<double>::quiet_NaN();
@@ -269,11 +269,12 @@ double ReosMeshPointValue::terrainElevation( ReosMesh *mesh ) const
 }
 
 ReosMeshPointValue_p::ReosMeshPointValue_p( const QPointF &point )
-    : ref( 0 )
-    , mPoint( point )
+  : ref( 0 )
+  , mPoint( point )
 {}
 
-ReosMeshPointValue_p::~ReosMeshPointValue_p() {}
+ReosMeshPointValue_p::~ReosMeshPointValue_p()
+{}
 
 ReosMeshPointValueOnVertex::ReosMeshPointValueOnVertex( int vertexIndex, int faceindex, const QPointF &point )
   : ReosMeshPointValue_p( point )
@@ -328,8 +329,7 @@ ReosMeshPointValueOnEdge::ReosMeshPointValueOnEdge( int vertexIndex1, int vertex
   , mFace1( face1 )
   , mFace2( face2 )
   , mPosInEdge( posInEdge )
-{
-}
+{}
 
 int ReosMeshPointValueOnEdge::vertex1() const
 {
@@ -355,8 +355,8 @@ double ReosMeshPointValueOnEdge::interpolateValue( const QVector<double> &values
     case ReosMeshDatasetSource::Location::Face:
     {
       double value1 = mFace1 >= 0 ? values.at( mFace1 ) : 0;
-      double value2 =  mFace2 >= 0 ? values.at( mFace2 ) : 0;
-      int count = ( mFace1 >= 0 && !std::isnan( value1 )  ? 1 : 0 ) + ( mFace2 >= 0 && !std::isnan( value1 ) ? 1 : 0 );
+      double value2 = mFace2 >= 0 ? values.at( mFace2 ) : 0;
+      int count = ( mFace1 >= 0 && !std::isnan( value1 ) ? 1 : 0 ) + ( mFace2 >= 0 && !std::isnan( value1 ) ? 1 : 0 );
       if ( std::isnan( value1 ) )
         value1 = 0;
       if ( std::isnan( value2 ) )
@@ -381,8 +381,7 @@ double ReosMeshPointValueOnEdge::interpolateVectorValue( const QVector<double> &
       double value21 = values.at( mVertex2 * 2 );
       double value22 = values.at( mVertex2 * 2 + 1 );
 
-      return interpolateValueOnEdge( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ),
-                                     sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) );
+      return interpolateValueOnEdge( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ), sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) );
     }
     break;
     case ReosMeshDatasetSource::Location::Face:
@@ -391,8 +390,7 @@ double ReosMeshPointValueOnEdge::interpolateVectorValue( const QVector<double> &
       double value12 = mFace1 >= 0 ? values.at( mFace1 * 2 + 1 ) : 0;
       double value21 = mFace2 >= 0 ? values.at( mFace2 * 2 ) : 0;
       double value22 = mFace2 >= 0 ? values.at( mFace2 * 2 + 1 ) : 0;
-      int count = ( mFace1 >= 0 && !std::isnan( value11 ) && !std::isnan( value12 ) ? 1 : 0 ) +
-                  ( mFace2 >= 0 && !std::isnan( value21 ) && !std::isnan( value22 ) ? 1 : 0 );
+      int count = ( mFace1 >= 0 && !std::isnan( value11 ) && !std::isnan( value12 ) ? 1 : 0 ) + ( mFace2 >= 0 && !std::isnan( value21 ) && !std::isnan( value22 ) ? 1 : 0 );
 
       if ( std::isnan( value11 ) )
         value11 = 0;
@@ -405,8 +403,7 @@ double ReosMeshPointValueOnEdge::interpolateVectorValue( const QVector<double> &
         value22 = 0;
 
       if ( count != 0 )
-        return ( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ) +
-                 sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) ) / count;
+        return ( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ) + sqrt( pow( value21, 2 ) + pow( value22, 2 ) ) ) / count;
     }
     break;
   }
@@ -428,10 +425,7 @@ double ReosMeshPointValueOnEdge::interpolateValueOnEdge( double value1, double v
   return value1 + ( value2 - value1 ) * mPosInEdge;
 }
 
-ReosMeshPointValueOnFace::ReosMeshPointValueOnFace(
-  int vertexIndex1, int vertexIndex2, int vertexIndex3,
-  int face,
-  double lam1, double lam2, double lam3, const QPointF &point )
+ReosMeshPointValueOnFace::ReosMeshPointValueOnFace( int vertexIndex1, int vertexIndex2, int vertexIndex3, int face, double lam1, double lam2, double lam3, const QPointF &point )
   : ReosMeshPointValue_p( point )
   , mVertex1( vertexIndex1 )
   , mVertex2( vertexIndex2 )
@@ -461,7 +455,6 @@ double ReosMeshPointValueOnFace::interpolateValue( const QVector<double> &values
   }
 
   return std::numeric_limits<double>::quiet_NaN();
-
 }
 
 double ReosMeshPointValueOnFace::interpolateVectorValue( const QVector<double> &values, ReosMeshDatasetSource::Location location ) const
@@ -477,9 +470,7 @@ double ReosMeshPointValueOnFace::interpolateVectorValue( const QVector<double> &
       double value31 = values.at( 2 * mVertex3 );
       double value32 = values.at( 2 * mVertex3 + 1 );
 
-      return interpolateValueOnFace( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ),
-                                     sqrt( pow( value21, 2 ) + pow( value22, 2 ) ),
-                                     sqrt( pow( value31, 2 ) + pow( value32, 2 ) ) );
+      return interpolateValueOnFace( sqrt( pow( value11, 2 ) + pow( value12, 2 ) ), sqrt( pow( value21, 2 ) + pow( value22, 2 ) ), sqrt( pow( value31, 2 ) + pow( value32, 2 ) ) );
     }
     break;
     case ReosMeshDatasetSource::Location::Face:
@@ -513,7 +504,7 @@ ReosMeshData::ReosMeshData( Data *data )
   mData.reset( data );
 }
 
-const  void *ReosMeshData::data() const
+const void *ReosMeshData::data() const
 {
-  return mData->data() ;
+  return mData->data();
 }

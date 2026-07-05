@@ -66,26 +66,27 @@ class ReosHydrographRoutingPropertiesWidget : public ReosHydraulicElementWidget
 class ReosHydrographRoutingPropertiesWidgetFactory : public ReosHydraulicElementWidgetFactory
 {
   public:
-    ReosHydrographRoutingPropertiesWidgetFactory( QObject *parent = nullptr ): ReosHydraulicElementWidgetFactory( parent ) {}
+    ReosHydrographRoutingPropertiesWidgetFactory( QObject *parent = nullptr )
+      : ReosHydraulicElementWidgetFactory( parent )
+    {}
 
     ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
     QString elementType();
 };
 
-class ReosFormHydrographRountingMuskingumWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormHydrographRountingMuskingumWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     QString datatype() const;
 };
 
-class ReosFormHydrographRountingLagWidgetFactory: public ReosFormWidgetDataFactory
+class ReosFormHydrographRountingLagWidgetFactory : public ReosFormWidgetDataFactory
 {
   public:
     ReosFormWidget *createDataWidget( ReosDataObject *dataObject, const ReosGuiContext &context = ReosGuiContext() );
     QString datatype() const;
 };
-
 
 
 #endif // REOSHYDROGRAPHPROPERTIESWIDGET_H

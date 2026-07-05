@@ -139,7 +139,9 @@ Returns the surface of a cell
 
     bool operator!=( const ReosRasterExtent &other ) const;
 
+    ReosEncodedElement encode() const;
 
+    static ReosRasterExtent decode( const ReosEncodedElement &element );
 
 };
 
@@ -152,7 +154,7 @@ class ReosFloat64GridBlock
 %End
   public:
     ReosFloat64GridBlock( int rowCount, int colCount );
-    void setValues( const QVector<double> values );
+    void setValues( const QVector<double> &values );
 
     const QVector<double> values() const;
     const QByteArray data() const;

@@ -22,20 +22,16 @@
 #include "reosgriddedrainitem.h"
 #include "reoshydraulicstructure2d.h"
 
-ReosMeteorologicModel::ReosMeteorologicModel( const QString &name, QObject *parent ):
-  ReosDataObject( parent )
+ReosMeteorologicModel::ReosMeteorologicModel( const QString &name, QObject *parent )
+  : ReosDataObject( parent )
   , mName( new ReosParameterString( QObject::tr( "Meteorologic model name" ), false, nullptr ) )
 {
   mName->setValue( name );
   mColor = ReosStyleRegistery::instance()->curveColor();
 }
 
-ReosMeteorologicModel::ReosMeteorologicModel(
-  const ReosEncodedElement &element,
-  ReosWatershedTree *watershedTree,
-  ReosRainfallRegistery *rainfallregistery,
-  QObject *parent ):
-  ReosDataObject( parent )
+ReosMeteorologicModel::ReosMeteorologicModel( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery, QObject *parent )
+  : ReosDataObject( parent )
   , mName( ReosParameterString::decode( element.getEncodedData( QStringLiteral( "name" ) ), false, QObject::tr( "Meteorologic model name" ), nullptr ) )
 {
   ReosDataObject::decode( element );
@@ -56,21 +52,19 @@ ReosMeteorologicModel::ReosMeteorologicModel(
   for ( const QString &watershedUri : keys )
   {
     ReosWatershed *ws = watershedTree->uriToWatershed( watershedUri );
-    ReosRainfallDataItem *rainfall = qobject_cast<ReosRainfallDataItem *>
-                                     ( rainfallregistery->itemByUniqueId( associations.value( watershedUri ) ) );
+    ReosRainfallDataItem *rainfall = qobject_cast<ReosRainfallDataItem *>( rainfallregistery->itemByUniqueId( associations.value( watershedUri ) ) );
 
     if ( ws && rainfall )
     {
-      mAssociations.append( {QPointer<ReosWatershed>( ws ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr} );
+      mAssociations.append( { QPointer<ReosWatershed>( ws ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr } );
       connect( ws, &QObject::destroyed, this, &ReosMeteorologicModel::purge );
     }
   }
 
   for ( auto it = structureAssociations.constBegin(); it != structureAssociations.constEnd(); ++it )
   {
-    ReosGriddedRainItem *rainfall = qobject_cast<ReosGriddedRainItem *>
-                                    ( rainfallregistery->itemByUniqueId( it.value() ) );
-    mTemporaryStructureAssocations.insert( it.key(), {nullptr, QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr} );
+    ReosGriddedRainItem *rainfall = qobject_cast<ReosGriddedRainItem *>( rainfallregistery->itemByUniqueId( it.value() ) );
+    mTemporaryStructureAssocations.insert( it.key(), { nullptr, QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr } );
   }
 }
 
@@ -165,7 +159,7 @@ void ReosMeteorologicModel::associate( ReosWatershed *watershed, ReosRainfallDat
     mAssociations[index].resultingRainfall.reset();
   }
   else
-    mAssociations.append( {QPointer<ReosWatershed>( watershed ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr} );
+    mAssociations.append( { QPointer<ReosWatershed>( watershed ), QPointer<ReosRainfallDataItem>( rainfall ), nullptr, nullptr } );
 
   purge();
 
@@ -194,7 +188,7 @@ void ReosMeteorologicModel::associate( ReosHydraulicStructure2D *structure, Reos
   }
   else
   {
-    mAssociations.append( {nullptr, QPointer<ReosRainfallDataItem>( rainfall ), nullptr, structure} );
+    mAssociations.append( { nullptr, QPointer<ReosRainfallDataItem>( rainfall ), nullptr, structure } );
   }
 
   purge();
@@ -338,7 +332,7 @@ void ReosMeteorologicModel::resolveStructureAssociation( ReosHydraulicStructure2
   if ( mTemporaryStructureAssocations.contains( structure->id() ) )
   {
     ReosRainfallDataItem *item = mTemporaryStructureAssocations.value( structure->id() ).rainfallDataItem;
-    mAssociations.append( {nullptr, item, nullptr, structure} );
+    mAssociations.append( { nullptr, item, nullptr, structure } );
     mTemporaryStructureAssocations.remove( structure->id() );
   }
 }
@@ -348,8 +342,7 @@ void ReosMeteorologicModel::purge() const
   int i = 0;
   while ( i < mAssociations.count() )
   {
-    if ( ( mAssociations.at( i ).watershed.isNull() && mAssociations.at( i ).structure2D.isNull() )
-         || mAssociations.at( i ).rainfallDataItem.isNull() )
+    if ( ( mAssociations.at( i ).watershed.isNull() && mAssociations.at( i ).structure2D.isNull() ) || mAssociations.at( i ).rainfallDataItem.isNull() )
       mAssociations.removeAt( i );
     else
       ++i;
@@ -409,13 +402,16 @@ ReosDuration ReosMeteorologicModel::mapTimeStep() const
 }
 
 
-ReosMeteorologicItemModel::ReosMeteorologicItemModel( ReosWatershedItemModel *watershedModel, QObject *parent ):
-  QIdentityProxyModel( parent )
+ReosMeteorologicItemModel::ReosMeteorologicItemModel( ReosWatershedItemModel *watershedModel, QObject *parent )
+  : QIdentityProxyModel( parent )
 {
   setSourceModel( watershedModel );
 }
 
-int ReosMeteorologicItemModel::columnCount( const QModelIndex & ) const {return 2;}
+int ReosMeteorologicItemModel::columnCount( const QModelIndex & ) const
+{
+  return 2;
+}
 
 QVariant ReosMeteorologicItemModel::data( const QModelIndex &index, int role ) const
 {
@@ -446,13 +442,12 @@ QVariant ReosMeteorologicItemModel::data( const QModelIndex &index, int role ) c
   }
 
   return QVariant();
-
 }
 
 static ReosRainfallDataItem *rainfallDataInRainfallModel( const QString &uri )
 {
   if ( ReosRainfallRegistery::isInstantiate() )
-    return  qobject_cast<ReosRainfallDataItem *>( ReosRainfallRegistery::instance()->itemByUri( uri ) ) ;
+    return qobject_cast<ReosRainfallDataItem *>( ReosRainfallRegistery::instance()->itemByUri( uri ) );
 
   return nullptr;
 }
@@ -545,7 +540,8 @@ ReosRainfallDataItem *ReosMeteorologicItemModel::rainfallDataInMeteorologicModel
   return mCurrentMeteoModel->associatedRainfallItem( ws );
 }
 
-ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection( QObject *parent ): QAbstractListModel( parent )
+ReosMeteorologicModelsCollection::ReosMeteorologicModelsCollection( QObject *parent )
+  : QAbstractListModel( parent )
 {
   reset();
 }
@@ -661,10 +657,7 @@ ReosEncodedElement ReosMeteorologicModelsCollection::encode( ReosWatershedTree *
   return element;
 }
 
-void ReosMeteorologicModelsCollection::decode(
-  const ReosEncodedElement &element,
-  ReosWatershedTree *watershedTree,
-  ReosRainfallRegistery *rainfallregistery )
+void ReosMeteorologicModelsCollection::decode( const ReosEncodedElement &element, ReosWatershedTree *watershedTree, ReosRainfallRegistery *rainfallregistery )
 {
   clearModels();
 
@@ -678,14 +671,12 @@ void ReosMeteorologicModelsCollection::decode(
 
   for ( ReosMeteorologicModel *model : std::as_const( mMeteoModels ) )
     connect( model, &ReosMeteorologicModel::dataChanged, this, &ReosMeteorologicModelsCollection::changed );
-
 }
 
 ReosMeteorologicStructureItemModel::ReosMeteorologicStructureItemModel( ReosHydraulicNetwork *hydraulicNetwork, QObject *parent )
   : QAbstractListModel( parent )
   , mNetwork( hydraulicNetwork )
 {
-
   connect( mNetwork, &ReosHydraulicNetwork::elementAdded, this, &ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved );
   connect( mNetwork, &ReosHydraulicNetwork::elementRemoved, this, &ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved );
 
@@ -764,7 +755,7 @@ QVariant ReosMeteorologicStructureItemModel::headerData( int section, Qt::Orient
 
 bool ReosMeteorologicStructureItemModel::canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const
 {
-  ReosRainfallDataItem   *item = rainfallDataInRainfallModel( data->text() );
+  ReosRainfallDataItem *item = rainfallDataInRainfallModel( data->text() );
   if ( !item || !parent.isValid() )
     return false;
 
@@ -779,7 +770,7 @@ bool ReosMeteorologicStructureItemModel::dropMimeData( const QMimeData *data, Qt
   if ( !mCurrentMeteoModel )
     return false;
 
-  ReosRainfallDataItem   *item = rainfallDataInRainfallModel( data->text() );
+  ReosRainfallDataItem *item = rainfallDataInRainfallModel( data->text() );
   if ( !item || !parent.isValid() )
     return false;
 
@@ -799,7 +790,7 @@ bool ReosMeteorologicStructureItemModel::dropMimeData( const QMimeData *data, Qt
 
 Qt::ItemFlags ReosMeteorologicStructureItemModel::flags( const QModelIndex &index ) const
 {
-  return  QAbstractItemModel::flags( index ) | Qt::ItemIsDropEnabled;
+  return QAbstractItemModel::flags( index ) | Qt::ItemIsDropEnabled;
 }
 
 QStringList ReosMeteorologicStructureItemModel::mimeTypes() const
@@ -839,7 +830,7 @@ void ReosMeteorologicStructureItemModel::removeAssociation( const QModelIndex &i
 
 Qt::DropActions ReosMeteorologicStructureItemModel::supportedDropActions() const
 {
-  return Qt::CopyAction | Qt::MoveAction ;
+  return Qt::CopyAction | Qt::MoveAction;
 }
 
 void ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved()
@@ -854,8 +845,7 @@ void ReosMeteorologicStructureItemModel::onHydraulicNetworkElementAddedRemoved()
       if ( struct2D->hasCapability( ReosHydraulicStructure2D::Structure2DCapability::GriddedPrecipitation ) )
         mStructures.append( struct2D );
 
-  std::sort( mStructures.begin(), mStructures.end(), []( ReosHydraulicStructure2D * elem1, ReosHydraulicStructure2D * elem2 )->bool
-  {
+  std::sort( mStructures.begin(), mStructures.end(), []( ReosHydraulicStructure2D *elem1, ReosHydraulicStructure2D *elem2 ) -> bool {
     if ( elem1 && elem2 )
       return elem1->elementNameParameter()->value() < elem2->elementNameParameter()->value();
 

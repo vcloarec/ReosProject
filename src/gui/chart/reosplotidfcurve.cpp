@@ -16,7 +16,7 @@
 #include "reosplotidfcurve.h"
 #include "reosidfplot_p.h"
 
-ReosPlotIdfCurve::ReosPlotIdfCurve( ReosIntensityDurationCurve *curve,  const QString &name )
+ReosPlotIdfCurve::ReosPlotIdfCurve( ReosIntensityDurationCurve *curve, const QString &name )
 {
   mPlotItem = new ReosIdfPlot_p( curve );
   mPlotItem->setTitle( name );

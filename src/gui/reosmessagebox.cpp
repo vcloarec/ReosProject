@@ -17,9 +17,9 @@ email                : vcloarec at gmail dot com
 #include "ui_reosmessagebox.h"
 #include "QMessageBox"
 
-ReosMessageBox::ReosMessageBox( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosMessageBox )
+ReosMessageBox::ReosMessageBox( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosMessageBox )
 {
   ui->setupUi( this );
 }

@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include "reospolygonstructure_p.h"
 
+#include <qgis.h>
 #include <qgsvectorlayer.h>
 #include <qgscategorizedsymbolrenderer.h>
 #include <qgslinestring.h>
@@ -26,7 +27,8 @@
 
 #include "reosstyleregistery.h"
 
-ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs ): ReosGeometryStructure_p( QStringLiteral( "Polygon" ), wktCrs )
+ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs )
+  : ReosGeometryStructure_p( QStringLiteral( "Polygon" ), wktCrs )
 {
   init();
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
@@ -38,11 +40,7 @@ ReosPolygonStructure_p::ReosPolygonStructure_p( const ReosEncodedElement &elemen
     return;
   QString wktCrs;
   element.getData( QStringLiteral( "crs" ), wktCrs );
-  mVectorLayer.reset( new QgsVectorLayer( QStringLiteral( "Polygon?crs=" )
-                                          + wktCrs
-                                          + QStringLiteral( "&index=yes" )
-                                          , QStringLiteral( "internalLayer" ),
-                                          QStringLiteral( "memory" ) ) );
+  mVectorLayer.reset( new QgsVectorLayer( QStringLiteral( "Polygon?crs=" ) + wktCrs + QStringLiteral( "&index=yes" ), QStringLiteral( "internalLayer" ), QStringLiteral( "memory" ) ) );
 
   init();
 
@@ -81,7 +79,7 @@ void ReosPolygonStructure_p::init()
 
   mVectorLayer->undoStack()->blockSignals( true );
   QgsField field;
-  field.setType( QVariant::String );
+  field.setType( QMetaType::QString );
   field.setName( QStringLiteral( "classId" ) );
   mVectorLayer->addAttribute( field );
   mRenderer = new QgsCategorizedSymbolRenderer( QStringLiteral( "classId" ) );
@@ -128,7 +126,7 @@ ReosEncodedElement ReosPolygonStructure_p::encode() const
 
 QString ReosPolygonStructure_p::crs() const
 {
-  return mVectorLayer->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED_SIMPLIFIED );
+  return mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
 ReosPolygonStructure_p::~ReosPolygonStructure_p()
@@ -465,8 +463,7 @@ double ReosPolygonStructureValues_p::value( double x, double y, bool acceptClose
   {
     QgsGeometryEngine *engine = mGeomEngines.at( fid ).get();
 
-    if ( ( acceptClose && engine->distance( &point ) < mTolerance )
-         || ( engine->contains( &point ) ) )
+    if ( ( acceptClose && engine->distance( &point ) < mTolerance ) || ( engine->contains( &point ) ) )
     {
       double v = mValues.value( fid );
       foundValues++;

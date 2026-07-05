@@ -16,9 +16,7 @@
 #include "reosrainfalldata.h"
 
 ReosRainfallData::ReosRainfallData()
-{
-
-}
+{}
 
 int ReosRainfallData::valueCount() const
 {

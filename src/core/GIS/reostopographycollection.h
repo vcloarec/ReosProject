@@ -61,7 +61,6 @@ class REOSCORE_EXPORT ReosTopographyCollection : public ReosDataObject
     ReosGisEngine *mGisEngine = nullptr;
     QStringList mTopographyIds;
     ReosParameterBoolean *mAutoApply;
-
 };
 
 
@@ -91,10 +90,7 @@ class REOSCORE_EXPORT ReosTopographyCollectionListModel : public QAbstractListMo
 
   private:
     QPointer<ReosTopographyCollection> mCollection;
-
 };
-
-
 
 
 #endif // REOSTOPOGRAPHYCOLLECTION_H

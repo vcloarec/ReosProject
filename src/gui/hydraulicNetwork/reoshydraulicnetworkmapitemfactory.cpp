@@ -334,5 +334,4 @@ ReosMapItem *ReosHydraulicNetworkMapItemFactory::createExtraItemSelected( ReosHy
     return it.value()( element, map );
 
   return nullptr;
-
 }

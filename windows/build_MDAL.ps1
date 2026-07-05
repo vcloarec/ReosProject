@@ -10,18 +10,19 @@ ls $OSGEO_DIR
 
 $mdal_source=Join-Path $starter_path MDAL
 
-md MDAL_building
+md MDAL_building -Force | Out-Null
 cd MDAL_building
 
 Write-Host "============================= MDAL will be installed in the following folder:"
 $MDAL_DIR
-md $MDAL_DIR
+md $MDAL_DIR -Force | Out-Null
 
 Write-Host "===================================== Current PATH:"
 $env:Path
 
 cmake   -S $mdal_source `
 		-B . `
+        -D CMAKE_PREFIX_PATH="$OSGEO_DIR" `
         -D BUILD_EXTERNAL_DRIVERS=FALSE `
         -D BUILD_PLY=TRUE `
         -D BUILD_SHARED=TRUE `
@@ -43,9 +44,34 @@ cmake --build .  --config Release
 
 cmake --install .
 
-Copy-Item '.\mdal\Release\mdal.lib' $MDAL_DIR\lib\mdal.lib
+$mdalLibDestination = Join-Path $MDAL_DIR "lib\mdal.lib"
+New-Item -ItemType Directory -Path (Join-Path $MDAL_DIR "lib") -Force | Out-Null
+
+if ( -not ( Test-Path $mdalLibDestination ) )
+{
+    $mdalLibCandidates = @(
+        '.\mdal\Release\mdal.lib',
+        '.\Release\mdal.lib',
+        '.\lib\mdal.lib',
+        '.\bin\mdal.lib'
+    )
+
+    foreach ( $candidate in $mdalLibCandidates )
+    {
+        if ( Test-Path $candidate )
+        {
+            Copy-Item $candidate $mdalLibDestination -Force
+            break
+        }
+    }
+}
+
+if ( -not ( Test-Path $mdalLibDestination ) )
+{
+    Write-Error "Unable to find mdal.lib after MDAL build/install."
+    exit 1
+}
 
 cd ..
 
 Remove-Item MDAL_building -Recurse
-

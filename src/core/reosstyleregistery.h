@@ -20,7 +20,7 @@
 
 #include "reosmodule.h"
 
-class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
+class REOSCORE_EXPORT ReosStyleRegistery : public ReosModule
 {
   public:
     ReosStyleRegistery( ReosModule *parent = nullptr );
@@ -34,30 +34,15 @@ class REOSCORE_EXPORT ReosStyleRegistery: public ReosModule
 
     QColor fillColor( int &index, int alpha = 255 ) const;
 
-    QColor blueReos( int alpha = 255 ) const
-    {
-      return QColor( 0, 155, 242, alpha );
-    }
+    QColor blueReos( int alpha = 255 ) const { return QColor( 0, 155, 242, alpha ); }
 
-    QColor orangeReos( int alpha = 255 ) const
-    {
-      return QColor( 250, 175, 100, alpha );
-    }
+    QColor orangeReos( int alpha = 255 ) const { return QColor( 250, 175, 100, alpha ); }
 
-    QColor redReos( int alpha = 255 ) const
-    {
-      return QColor( 255, 20, 20, alpha );
-    }
+    QColor redReos( int alpha = 255 ) const { return QColor( 255, 20, 20, alpha ); }
 
-    QColor greenReos( int alpha = 255 ) const
-    {
-      return QColor( 20, 200, 100, alpha );
-    }
+    QColor greenReos( int alpha = 255 ) const { return QColor( 20, 200, 100, alpha ); }
 
-    QColor invalidColor( int alpha = 255 ) const
-    {
-      return QColor( 255, 0, 0, alpha );
-    }
+    QColor invalidColor( int alpha = 255 ) const { return QColor( 255, 0, 0, alpha ); }
 
     QSize toolBarIconSize( QWidget *widget = nullptr, double ratio = 1 ) const;
 

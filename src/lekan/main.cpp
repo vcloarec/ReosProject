@@ -46,11 +46,15 @@ LONG WINAPI handleCrash( LPEXCEPTION_POINTERS exception )
 {
   QMessageBox messBox( QMessageBox::Critical, QObject::tr( "Lekan Crashes" ), "", QMessageBox::Close );
   messBox.setTextFormat( Qt::RichText );
-  messBox.setText( QObject::tr( "Lekan just crahes....<br>"
-                                "Hopping you don't loose your work...<br><br>"
-                                "If you are not too angry, and if you manage to reproduce this crash,<br>"
-                                "you are cordially invited to report it (see <a href = \"https://www.reos.site/en/how-to-support/\"> here </a> how to).<br><br>"
-                                "By this, you participate to improve this software and also your future uses." ) );
+  messBox.setText(
+    QObject::tr(
+      "Lekan just crahes....<br>"
+      "Hopping you don't loose your work...<br><br>"
+      "If you are not too angry, and if you manage to reproduce this crash,<br>"
+      "you are cordially invited to report it (see <a href = \"https://www.reos.site/en/how-to-support/\"> here </a> how to).<br><br>"
+      "By this, you participate to improve this software and also your future uses."
+    )
+  );
   messBox.exec();
   return TRUE;
 }
@@ -93,8 +97,7 @@ int main( int argc, char *argv[] )
   starting->move( mainWindow->screen()->geometry().center() - starting->rect().center() );
   starting->setBan( QPixmap( ":/images/lekan.svg" ) );
 
-  QTimer::singleShot( 1, starting, [starting]
-  {
+  QTimer::singleShot( 1, starting, [starting] {
     starting->exec();
     starting->deleteLater();
   } );
@@ -102,5 +105,4 @@ int main( int argc, char *argv[] )
   int ret = a->exec();
 
   return ret;
-
 }

@@ -31,10 +31,7 @@ class REOSCORE_EXPORT ReosTestRenderedObject
 
     QImage render( ReosRenderedObject *object, const QDateTime &time );
 
-    bool compareRendering( ReosRenderedObject *object,
-                           const QDateTime &time,
-                           const QString &imageFile,
-                           int tolerance = 5 );
+    bool compareRendering( ReosRenderedObject *object, const QDateTime &time, const QString &imageFile, int tolerance = 5 );
 
   private:
     QSize mOutputSize = QSize( 256, 256 );

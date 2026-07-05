@@ -18,11 +18,10 @@
 #include <QtDebug>
 
 ReosChart::ReosChart()
-{
+{}
 
-}
-
-ReosXYChartEditableSeries::ReosXYChartEditableSeries( QObject *parent ): QLineSeries( parent )
+ReosXYChartEditableSeries::ReosXYChartEditableSeries( QObject *parent )
+  : QLineSeries( parent )
 {
   setPointsVisible( true );
   setPointLabelsVisible( true );

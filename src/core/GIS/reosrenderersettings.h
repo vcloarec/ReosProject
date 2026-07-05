@@ -47,8 +47,8 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
 
     virtual bool isValid() const = 0;
 
-    bool isActive() const {return mIsActive;}
-    void setActive( bool active ) {mIsActive = active;}
+    bool isActive() const { return mIsActive; }
+    void setActive( bool active ) { mIsActive = active; }
 
     virtual double classificationMinimum() const = 0;
     virtual void setClassificationMinimum( double newClassificationMinimum ) = 0;
@@ -63,11 +63,11 @@ class REOSCORE_EXPORT ReosColorShaderSettings : public QObject
     virtual bool getDirectSourceMinMax( double &min, double &max ) const = 0;
     virtual void calculateSourceMinMax( double &min, double &max ) const {};
 
-    virtual void onSettingsUpdated() = 0 ;
+    virtual void onSettingsUpdated() = 0;
 
     virtual QLinearGradient gradient() const = 0;
 
-    virtual QString title() const {return QString();};
+    virtual QString title() const { return QString(); };
 
   signals:
     void settingsChangedFromObject();

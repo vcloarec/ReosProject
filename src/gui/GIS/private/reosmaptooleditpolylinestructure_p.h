@@ -21,7 +21,7 @@
 class ReosGeometryStructureVertex;
 class ReosMapToolEditPolylineStructure_p;
 
-class ReosEditPolylineStructureMenuPopulator: public ReosMenuPopulator
+class ReosEditPolylineStructureMenuPopulator : public ReosMenuPopulator
 {
   public:
     ReosEditPolylineStructureMenuPopulator( ReosMapToolEditPolylineStructure_p *toolMap );
@@ -38,7 +38,7 @@ class ReosEditPolylineStructureMenuPopulator: public ReosMenuPopulator
     void populateHoleAction( int holeIndex, QMenu *menu );
 };
 
-class ReosMapToolEditPolylineStructure_p: public ReosMapTool_p
+class ReosMapToolEditPolylineStructure_p : public ReosMapTool_p
 {
     Q_OBJECT
   public:

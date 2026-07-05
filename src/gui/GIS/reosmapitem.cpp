@@ -21,9 +21,11 @@ email                : vcloarec at gmail dot com
 #include "reosmappolygonstructure_p.h"
 #include "reosgisengine.h"
 
-ReosMapItem::ReosMapItem() {}
+ReosMapItem::ReosMapItem()
+{}
 
-ReosMapItem::ReosMapItem( ReosMap *map ): mMap( map )
+ReosMapItem::ReosMapItem( ReosMap *map )
+  : mMap( map )
 {}
 
 bool ReosMapItem::isItem( QGraphicsItem *item ) const
@@ -83,10 +85,12 @@ void ReosMapItem::updatePosition()
   d_->updatePosition();
 }
 
-ReosMapPolygon::ReosMapPolygon(): ReosMapItem()
+ReosMapPolygon::ReosMapPolygon()
+  : ReosMapItem()
 {}
 
-ReosMapPolygon::ReosMapPolygon( ReosMap *map ): ReosMapItem( map )
+ReosMapPolygon::ReosMapPolygon( ReosMap *map )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -96,7 +100,8 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map ): ReosMapItem( map )
   }
 }
 
-ReosMapPolygon::ReosMapPolygon( ReosMap *map, const QPolygonF &polygon ): ReosMapItem( map )
+ReosMapPolygon::ReosMapPolygon( ReosMap *map, const QPolygonF &polygon )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -107,7 +112,8 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map, const QPolygonF &polygon ): ReosMa
   }
 }
 
-ReosMapPolygon::ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure ): ReosMapItem( map )
+ReosMapPolygon::ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -154,7 +160,6 @@ void ReosMapPolygon::movePoint( int pointIndex, const QPointF &p )
   if ( !isMapExist() || !d_ )
     return;
   static_cast<ReosMapPolygonBase_p *>( d_ )->moveVertex( pointIndex, p );
-
 }
 
 
@@ -224,11 +229,17 @@ double ReosMapItem::ZValue() const
   return d_->zValue();
 }
 
-QString ReosMapItem::description() const {return mDescription;}
+QString ReosMapItem::description() const
+{
+  return mDescription;
+}
 
-ReosMapPolyline::ReosMapPolyline(): ReosMapItem() {}
+ReosMapPolyline::ReosMapPolyline()
+  : ReosMapItem()
+{}
 
-ReosMapPolyline::ReosMapPolyline( ReosMap *map ): ReosMapItem( map )
+ReosMapPolyline::ReosMapPolyline( ReosMap *map )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -238,7 +249,8 @@ ReosMapPolyline::ReosMapPolyline( ReosMap *map ): ReosMapItem( map )
   }
 }
 
-ReosMapPolyline::ReosMapPolyline( ReosMap *map, const QPolygonF &polyline ): ReosMapItem( map )
+ReosMapPolyline::ReosMapPolyline( ReosMap *map, const QPolygonF &polyline )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -279,7 +291,7 @@ void ReosMapPolyline::movePoint( int pointIndex, const QPointF &p )
 
 void ReosMapPolyline::activeMarker( bool b )
 {
-  static_cast<ReosMapPolyline_p *>( d_ )->activeMarker( b ) ;
+  static_cast<ReosMapPolyline_p *>( d_ )->activeMarker( b );
 }
 
 void ReosMapPolyline::setMarkerDistance( double d )
@@ -303,9 +315,12 @@ void ReosMapPolyline::setExtremityDistance( double d )
 }
 
 
-ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle(): ReosMapMarker() {}
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle()
+  : ReosMapMarker()
+{}
 
-ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map ): ReosMapMarker( map )
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -315,7 +330,8 @@ ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map ): ReosMapMar
   }
 }
 
-ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map, const QPointF &point ): ReosMapMarker( map )
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map, const QPointF &point )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -471,10 +487,12 @@ void ReosMapPolylineFormater::setColor( const QColor &color )
   mColor = color;
 }
 
-ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare(): ReosMapMarker()
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare()
+  : ReosMapMarker()
 {}
 
-ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map ): ReosMapMarker( map )
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -484,7 +502,8 @@ ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map ): ReosMapMarke
   }
 }
 
-ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point ): ReosMapMarker( map )
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -503,10 +522,12 @@ ReosMapMarkerEmptySquare::~ReosMapMarkerEmptySquare()
     delete d_; //deleting this will remove it from the map
 }
 
-ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle(): ReosMapMarker()
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle()
+  : ReosMapMarker()
 {}
 
-ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map ): ReosMapMarker( map )
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -516,7 +537,8 @@ ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map ): ReosMapMarke
   }
 }
 
-ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point ): ReosMapMarker( map )
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -529,7 +551,8 @@ ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF 
   }
 }
 
-ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const ReosSpatialPosition &position ): ReosMapMarker( map )
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const ReosSpatialPosition &position )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -549,10 +572,12 @@ ReosMapMarkerEmptyCircle::~ReosMapMarkerEmptyCircle()
     delete d_; //deleting this will remove it from the map
 }
 
-ReosMapMarkerSvg::ReosMapMarkerSvg(): ReosMapMarker()
+ReosMapMarkerSvg::ReosMapMarkerSvg()
+  : ReosMapMarker()
 {}
 
-ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map ): ReosMapMarker( map )
+ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -562,7 +587,8 @@ ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map ): Reo
   }
 }
 
-ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map, const ReosSpatialPosition &position ): ReosMapMarker( map )
+ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map, const ReosSpatialPosition &position )
+  : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -582,7 +608,8 @@ ReosMapMarkerSvg::~ReosMapMarkerSvg()
     delete d_; //deleting this will remove it from the map
 }
 
-ReosMapPolylineStructure::ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure ): ReosMapItem( map )
+ReosMapPolylineStructure::ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
@@ -605,7 +632,8 @@ void ReosMapPolylineStructure::setLineWidth( double width )
 }
 
 
-ReosMapPolygonStructure::ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure ): ReosMapItem( map )
+ReosMapPolygonStructure::ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure )
+  : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )

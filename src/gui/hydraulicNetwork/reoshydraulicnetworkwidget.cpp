@@ -37,8 +37,8 @@
 #include "reoshydraulicschemewidget.h"
 
 
-ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, const ReosGuiContext &context ) :
-  QWidget( context.parent() )
+ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *network, const ReosGuiContext &context )
+  : QWidget( context.parent() )
   , ui( new Ui::ReosHydraulicNetworkWidget )
   , mGuiContext( context )
   , mHydraulicNetwork( network )
@@ -54,7 +54,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   , mMapToolAddHydrographRouting( new ReosMapToolDrawHydrographRouting( mHydraulicNetwork, mMap ) )
   , mActionHydraulicNetworkProperties( new QAction( QIcon( QStringLiteral( ":/images/hydraulicProperties.svg" ) ), tr( "Hydraulic Element Properties" ), this ) )
   , mElementPropertiesWidget( new ReosHydraulicElementPropertiesActionWidget( network, ReosGuiContext( context, this ) ) )
-  , mActionMoveHydrographJunction( new QAction( QIcon( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ),  tr( "Move Junction" ), this ) )
+  , mActionMoveHydrographJunction( new QAction( QIcon( QStringLiteral( ":/images/moveHydrographJunction.svg" ) ), tr( "Move Junction" ), this ) )
   , mMapToolMoveHydrographJunction( new ReosMapToolMoveHydraulicNetworkElement( network, context.map() ) )
   , mActionNewStructure2D( new QAction( QIcon( QStringLiteral( ":/images/addHydraulicStructure2D.svg" ) ), tr( "Structure 2D" ), this ) )
   , mMapToolNewStructure2D( new ReosMapToolNewStructure2D( network, mMap ) )
@@ -75,8 +75,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   ui->mElementListView->setModel( mElementModel );
 
-  connect( ui->mElementListView, &QListView::clicked, this, [this]( const QModelIndex index )
-  {
+  connect( ui->mElementListView, &QListView::clicked, this, [this]( const QModelIndex index ) {
     ReosHydraulicNetworkElement *elem = mElementModel->indexToElement( index );
     if ( !elem )
       return;
@@ -98,8 +97,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
 
   mActionAddHydrographJunction->setCheckable( true );
 
-  QStringList spatialHydrographProvider =
-    ReosDataProviderRegistery::instance()->withCapabilities( ReosHydrograph::staticType(), ReosDataProvider::Spatial );
+  QStringList spatialHydrographProvider = ReosDataProviderRegistery::instance()->withCapabilities( ReosHydrograph::staticType(), ReosDataProvider::Spatial );
   if ( spatialHydrographProvider.isEmpty() )
     toolBar->addAction( mActionAddHydrographJunction );
   else
@@ -161,8 +159,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::elementPositionHasChanged, this, &ReosHydraulicNetworkWidget::onElementChanged );
   connect( mHydraulicNetwork, &ReosHydraulicNetwork::loaded, this, &ReosHydraulicNetworkWidget::onNetworkLoaded );
 
-  connect( mMapToolAddHydrographJunction, &ReosMapToolDrawPoint::drawn, this, [this]( const QPointF & p )
-  {
+  connect( mMapToolAddHydrographJunction, &ReosMapToolDrawPoint::drawn, this, [this]( const QPointF &p ) {
     ReosSpatialPosition sp( p, mMap->mapCrs() );
     ReosHydraulicNetworkElement *elem = mHydraulicNetwork->addElement( new ReosHydrographJunction( sp, mHydraulicNetwork ) );
     onElementSelected( mMapItems.value( elem ).get() );
@@ -185,10 +182,7 @@ ReosHydraulicNetworkWidget::ReosHydraulicNetworkWidget( ReosHydraulicNetwork *ne
   connect( ui->mHydraulicShcemeRenameButton, &QToolButton::clicked, this, &ReosHydraulicNetworkWidget::onRenameHydraulicScheme );
   connect( ui->mHydraulicSchemeCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosHydraulicNetworkWidget::onCurrentSchemeChange );
 
-  connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this]
-  {
-    emit mapTimeStepChanged();
-  } );
+  connect( mHydraulicNetwork, &ReosHydraulicNetwork::timeStepChanged, this, [this] { emit mapTimeStepChanged(); } );
 
   mSchemeWidget = new ReosHydraulicSchemeWidget( network->context(), this );
   mSchemeWidget->hideName();
@@ -230,7 +224,7 @@ void ReosHydraulicNetworkWidget::onElementAdded( ReosHydraulicNetworkElement *el
   NetworkItem item;
   item.reset( mMapItemFactory.createMapItem( elem, mMap ) );
   if ( item )
-    mMapItems[elem] =  item ;
+    mMapItems[elem] = item;
 
   addGeometryStructure( elem );
 
@@ -285,7 +279,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   if ( !elem )
   {
     mElementPropertiesWidget->setCurrentElement( nullptr, ReosGuiContext( this ) );
-    mExtraItemSelection.reset( );
+    mExtraItemSelection.reset();
     ui->mElementListView->setCurrentIndex( QModelIndex() );
     emit mapTimeStepChanged();
     return;
@@ -305,8 +299,7 @@ void ReosHydraulicNetworkWidget::onElementSelected( ReosMapItem *item )
   connect( elem, &ReosHydraulicNetworkElement::mapTimeStepChanged, this, &ReosHydraulicNetworkWidget::mapTimeStepChanged );
 
   mElementPropertiesWidget->setCurrentElement( elem, guiContext );
-  mStructure2dToolBar->setCurrentStructure2DPropertiesWidget(
-    qobject_cast<ReosHydraulicStructure2DProperties *>( mElementPropertiesWidget->currentElementWidget() ) );
+  mStructure2dToolBar->setCurrentStructure2DPropertiesWidget( qobject_cast<ReosHydraulicStructure2DProperties *>( mElementPropertiesWidget->currentElementWidget() ) );
 
   mCurrentSelectedElement = elem;
 
@@ -331,9 +324,18 @@ void ReosHydraulicNetworkWidget::onSelectedElementRemoved()
   if ( !mCurrentSelectedElement )
     return;
 
-  if ( QMessageBox::warning( this, tr( "Remove Hydraulic Network Element" ), tr( "This action will remove definitly the element \"%1\"\n"
-                             "Do you want to proceed?" ).arg( mCurrentSelectedElement->elementNameParameter()->value() ),
-                             QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+  if ( QMessageBox::warning(
+         this,
+         tr( "Remove Hydraulic Network Element" ),
+         tr(
+           "This action will remove definitly the element \"%1\"\n"
+           "Do you want to proceed?"
+         )
+           .arg( mCurrentSelectedElement->elementNameParameter()->value() ),
+         QMessageBox::Yes | QMessageBox::No,
+         QMessageBox::No
+       )
+       == QMessageBox::No )
     return;
 
   if ( mCurrentSelectedElement )
@@ -387,9 +389,8 @@ void ReosHydraulicNetworkWidget::onRemoveHydraulicScheme()
   ReosHydraulicScheme *scheme = mHydraulicNetwork->scheme( currentSchemeIndex );
   if ( scheme )
   {
-    if ( QMessageBox::warning( this, tr( "Remove Hydraulic Scheme" ),
-                               tr( "Do you want to remove the hydraulic scheme: \n\n%1" ).arg( scheme->schemeName()->value() ),
-                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+    if ( QMessageBox::warning( this, tr( "Remove Hydraulic Scheme" ), tr( "Do you want to remove the hydraulic scheme: \n\n%1" ).arg( scheme->schemeName()->value() ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+         == QMessageBox::No )
       return;
 
     mHydraulicNetwork->removeScheme( currentSchemeIndex );
@@ -433,13 +434,18 @@ void ReosHydraulicNetworkWidget::onCurrentSchemeChange( int index )
 
   if ( !compatibility.isCompatible )
   {
-    ReosNetworkCompatibilityDialog *diag =
-      new ReosNetworkCompatibilityDialog( tr( "The new selected scheme is incompatible with the state"
-                                          " of the hydraulic network for the following reason(s):" ),
-                                          compatibility,
-                                          tr( "If you continue, some elements of the network could be altered or removed definitively.\n"
-                                              "Do you want to continue ?" ),
-                                          ReosGuiContext( mGuiContext, this ) );
+    ReosNetworkCompatibilityDialog *diag = new ReosNetworkCompatibilityDialog(
+      tr(
+        "The new selected scheme is incompatible with the state"
+        " of the hydraulic network for the following reason(s):"
+      ),
+      compatibility,
+      tr(
+        "If you continue, some elements of the network could be altered or removed definitively.\n"
+        "Do you want to continue ?"
+      ),
+      ReosGuiContext( mGuiContext, this )
+    );
     if ( !diag->exec() )
     {
       ui->mHydraulicSchemeCombo->blockSignals( true );
@@ -532,7 +538,7 @@ void ReosHydraulicNetworkWidget::addGeometryStructure( ReosHydraulicNetworkEleme
       if ( isVisible() )
         mMap->addSnappableStructure( structure );
       mGeometryStructures.append( structure );
-      connect( structure, &ReosDataObject::dataChanged, this, [this, elem] {onElementChanged( elem );} );
+      connect( structure, &ReosDataObject::dataChanged, this, [this, elem] { onElementChanged( elem ); } );
     }
   }
 }

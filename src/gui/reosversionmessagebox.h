@@ -26,7 +26,7 @@ email                : vcloarec at gmail dot com
 #include "reosgui.h"
 
 //! Widget that give information to the user of avaibaility of new version of the application
-class REOSGUI_EXPORT ReosVersionMessageBox: public QMessageBox
+class REOSGUI_EXPORT ReosVersionMessageBox : public QMessageBox
 {
     Q_OBJECT
   public:

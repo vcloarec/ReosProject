@@ -21,7 +21,7 @@
 
 using namespace QtCharts;
 
-class ReosXYChartEditableSeries: public QLineSeries
+class ReosXYChartEditableSeries : public QLineSeries
 {
     Q_OBJECT
   public:
@@ -30,9 +30,8 @@ class ReosXYChartEditableSeries: public QLineSeries
 
   private slots:
     void onPressed( const QPointF &point );
+
   private:
-
-
 };
 
 class ReosChart

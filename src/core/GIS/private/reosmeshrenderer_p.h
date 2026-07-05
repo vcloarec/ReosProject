@@ -30,32 +30,32 @@ class ReosMeshRenderer_p;
 
 struct DynamicTracesSettings
 {
-  int lifeTime = 15;
-  int maxSpeed = 200;
-  int fps = 15;
-  double persistence = 0.2;
-  double tailFactor = 1.0;
-  double traceWidth = 2.0;
+    int lifeTime = 15;
+    int maxSpeed = 200;
+    int fps = 15;
+    double persistence = 0.2;
+    double tailFactor = 1.0;
+    double traceWidth = 2.0;
 };
 
 class ReosMovingTracesRenderer : public QObject
 {
     Q_OBJECT
   public:
-    ReosMovingTracesRenderer( QgsMeshLayer *layer,
-                              int datasetGroupindex,
-                              const QgsRenderContext &context,
-                              const QgsMeshDataBlock &datasetVectorValues,
-                              const QgsMeshDataBlock &scalarActiveFaceFlagValues,
-                              double magnitudeMaximum,
-                              const DynamicTracesSettings &tracesSettings );
+    ReosMovingTracesRenderer(
+      QgsMeshLayer *layer,
+      int datasetGroupindex,
+      const QgsRenderContext &context,
+      const QgsMeshDataBlock &datasetVectorValues,
+      const QgsMeshDataBlock &scalarActiveFaceFlagValues,
+      double magnitudeMaximum,
+      const DynamicTracesSettings &tracesSettings
+    );
 
     //! Resets vector data without removing traces data, fo now does nothing, in plave for memory
-    void resetVectorDataset( const QgsMeshDataBlock &datasetVectorValues,
-                             const QgsMeshDataBlock &scalarActiveFaceFlagValues,
-                             double magnitudeMaximum );
+    void resetVectorDataset( const QgsMeshDataBlock &datasetVectorValues, const QgsMeshDataBlock &scalarActiveFaceFlagValues, double magnitudeMaximum );
 
-    QgsFeedback *feedback() const {return mFeedBack.get();}
+    QgsFeedback *feedback() const { return mFeedBack.get(); }
 
   public slots:
     void start();
@@ -85,10 +85,7 @@ class ReosMovingTracesController : public QObject
 
     ~ReosMovingTracesController();
 
-    void resetData( QgsMeshLayer *layer,
-                    const QgsRenderContext &context,
-                    int vectorDatasetGroupIndex,
-                    const DynamicTracesSettings &tracesSettings );
+    void resetData( QgsMeshLayer *layer, const QgsRenderContext &context, int vectorDatasetGroupIndex, const DynamicTracesSettings &tracesSettings );
 
     void start();
     void stop();

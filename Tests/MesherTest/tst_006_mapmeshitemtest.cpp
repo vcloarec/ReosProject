@@ -15,7 +15,6 @@ using namespace testing;
 class MeshItemTesting : public Test
 {
   public:
-
     ReosMap *map;
     QgsMapCanvas *mapCanvas;
     ReosTinEditorUi *uiEditor;
@@ -49,10 +48,7 @@ class MeshItemTesting : public Test
       provider = static_cast<TINProvider *>( meshLayer->dataProvider() );
     }
 
-    void TearDown() override
-    {
-      delete mapCanvas;
-    }
+    void TearDown() override { delete mapCanvas; }
 };
 
 
@@ -69,7 +65,8 @@ TEST_F( MeshItemTesting, associateMeshToEditor )
   uiEditor->setMeshLayer( meshLayer );
   populateEditorWithVertex();
 
-  ReosMapMeshEditorItemDomain *domain = uiEditor->domain();;
+  ReosMapMeshEditorItemDomain *domain = uiEditor->domain();
+  ;
 
 
   ASSERT_THAT( domain->verticesCount(), Eq( 5 ) );
@@ -101,5 +98,3 @@ TEST_F( MeshItemTesting, associateNewMeshAfterPopulateToEditor )
 
   ASSERT_THAT( uiEditor->domain()->verticesCount(), Eq( 5 ) );
 }
-
-

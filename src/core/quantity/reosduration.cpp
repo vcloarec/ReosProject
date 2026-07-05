@@ -32,7 +32,8 @@ ReosDuration::ReosDuration( qint64 milliseconds )
   mValue = milliseconds;
 }
 
-ReosDuration::ReosDuration( double value ): mValue( value )
+ReosDuration::ReosDuration( double value )
+  : mValue( value )
 {}
 
 ReosDuration::ReosDuration( double value, ReosDuration::Unit un )
@@ -93,10 +94,10 @@ QString ReosDuration::unitToString( ReosDuration::Unit unit ) const
   switch ( unit )
   {
     case millisecond:
-      return QObject::tr( "ms" ) ;
+      return QObject::tr( "ms" );
       break;
     case second:
-      return QObject::tr( "s" ) ;
+      return QObject::tr( "s" );
       break;
     case minute:
       return QObject::tr( "mn" );
@@ -110,7 +111,7 @@ QString ReosDuration::unitToString( ReosDuration::Unit unit ) const
     case week:
       val = valueWeek();
       if ( val > 1 )
-        return  QObject::tr( "weeks" );
+        return QObject::tr( "weeks" );
       else
         return QObject::tr( "week" );
       break;
@@ -119,12 +120,12 @@ QString ReosDuration::unitToString( ReosDuration::Unit unit ) const
       if ( val > 1 )
         return QObject::tr( "monthes" );
       else
-        return  QObject::tr( "month" );
+        return QObject::tr( "month" );
       break;
     case year:
       val = valueYear();
       if ( val > 1 )
-        return  QObject::tr( "years" );
+        return QObject::tr( "years" );
       else
         return QObject::tr( "year" );
       break;
@@ -217,19 +218,40 @@ qint64 ReosDuration::valueMilliSecond() const
   return mValue;
 }
 
-double ReosDuration::valueSecond() const {return mValue / static_cast<double>( SECOND_IN_MILLISECONDS );}
+double ReosDuration::valueSecond() const
+{
+  return mValue / static_cast<double>( SECOND_IN_MILLISECONDS );
+}
 
-double ReosDuration::valueMinute() const {return mValue / static_cast<double>( MINUTE_IN_MILLISECONDS );}
+double ReosDuration::valueMinute() const
+{
+  return mValue / static_cast<double>( MINUTE_IN_MILLISECONDS );
+}
 
-double ReosDuration::valueHour() const {return mValue / static_cast<double>( HOUR_IN_MILLISECONDS );}
+double ReosDuration::valueHour() const
+{
+  return mValue / static_cast<double>( HOUR_IN_MILLISECONDS );
+}
 
-double ReosDuration::valueDay() const {return mValue / static_cast<double>( DAY_IN_MILLISECONDS );}
+double ReosDuration::valueDay() const
+{
+  return mValue / static_cast<double>( DAY_IN_MILLISECONDS );
+}
 
-double ReosDuration::valueWeek() const {return mValue / static_cast<double>( WEEK_IN_MILLISECOND );}
+double ReosDuration::valueWeek() const
+{
+  return mValue / static_cast<double>( WEEK_IN_MILLISECOND );
+}
 
-double ReosDuration::valueMonth() const {return mValue / static_cast<double>( MONTH_IN_MILLISECOND );}
+double ReosDuration::valueMonth() const
+{
+  return mValue / static_cast<double>( MONTH_IN_MILLISECOND );
+}
 
-double ReosDuration::valueYear() const {return mValue / static_cast<double>( YEAR_IN_MILLISECOND );}
+double ReosDuration::valueYear() const
+{
+  return mValue / static_cast<double>( YEAR_IN_MILLISECOND );
+}
 
 double ReosDuration::valueUnit() const
 {
@@ -270,7 +292,10 @@ double ReosDuration::valueUnit( ReosDuration::Unit un ) const
   return val;
 }
 
-ReosDuration::Unit ReosDuration::unit() const {return mUnit;}
+ReosDuration::Unit ReosDuration::unit() const
+{
+  return mUnit;
+}
 
 void ReosDuration::setUnit( ReosDuration::Unit u )
 {
@@ -375,7 +400,7 @@ ReosTimeWindow ReosTimeWindow::unite( const ReosTimeWindow &other ) const
   if ( !isValid() )
     return other;
 
-  if ( ! other.isValid() )
+  if ( !other.isValid() )
     return *this;
 
   ret.mStart = std::min( mStart, other.mStart );
@@ -391,7 +416,7 @@ ReosTimeWindow ReosTimeWindow::intersection( const ReosTimeWindow &other ) const
   if ( !isValid() )
     return other;
 
-  if ( ! other.isValid() )
+  if ( !other.isValid() )
     return *this;
 
   ret.mStart = std::max( mStart, other.mStart );

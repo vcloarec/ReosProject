@@ -36,10 +36,8 @@ class REOSCORE_EXPORT ReosSpatialPosition
 
     bool isValid() const;
 
-#ifndef SIP_RUN
     static ReosSpatialPosition decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
-#endif //ifndef SIP_RUN
 
   private:
     QPointF mPosition;
@@ -55,7 +53,6 @@ Q_DECLARE_METATYPE( ReosSpatialPosition )
 class REOSCORE_EXPORT ReosMapExtent
 {
   public:
-
     //! Default constrcutor
     ReosMapExtent() = default;
 
@@ -78,7 +75,7 @@ class REOSCORE_EXPORT ReosMapExtent
     double width() const;
 
     //! Returns the height of the extent
-    double height()const;
+    double height() const;
 
     //! Returns the x min
     double xMapMin() const;
@@ -96,11 +93,16 @@ class REOSCORE_EXPORT ReosMapExtent
     bool contains( const QPointF &point ) const;
 
     //! Return true if the extent cotains, even partially, the \a line
-    bool containsPartialy( const  QPolygonF &line ) const;
+    bool containsPartialy( const QPolygonF &line ) const;
 
     //! Extends the extent by adding a point
     void addPointToExtent( const QPointF &pt );
+
+    //! Extends the extent combining it with \a other extent.
     void extendWithExtent( const ReosMapExtent &other );
+
+    //! Extents the extent with a \a buffer distance.
+    void extendByBuffer( double buffer );
 
     //! Returns the WKT coordinates system of this extent
     QString crs() const;

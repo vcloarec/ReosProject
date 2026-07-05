@@ -15,8 +15,8 @@
  ***************************************************************************/
 #include "reosstructureimporter.h"
 
-ReosStructureImporter::ReosStructureImporter( const ReosHydraulicNetworkContext &context ):
-  mNetWork( context.network() )
+ReosStructureImporter::ReosStructureImporter( const ReosHydraulicNetworkContext &context )
+  : mNetWork( context.network() )
 {}
 
 ReosStructureImporterSource *ReosStructureImporterSourceDummy::clone() const
@@ -28,7 +28,10 @@ ReosStructureImporterSourceDummy::ReosStructureImporterSourceDummy( const ReosEn
   : mElement( element )
 {}
 
-ReosStructureImporter *ReosStructureImporterSourceDummy::createImporter() const {return nullptr;}
+ReosStructureImporter *ReosStructureImporterSourceDummy::createImporter() const
+{
+  return nullptr;
+}
 
 ReosEncodedElement ReosStructureImporterSourceDummy::encode( const ReosHydraulicNetworkContext & ) const
 {
@@ -38,18 +41,32 @@ ReosEncodedElement ReosStructureImporterSourceDummy::encode( const ReosHydraulic
 ReosStructureImporterDummy::ReosStructureImporterDummy( const ReosEncodedElement &element, const ReosHydraulicNetworkContext &context )
   : ReosStructureImporter( context )
   , mElement( element )
+{}
+
+QString ReosStructureImporterDummy::importerKey() const
 {
+  return QString();
 }
 
-QString ReosStructureImporterDummy::importerKey() const {return QString();}
+ReosHydraulicStructure2D::Structure2DCapabilities ReosStructureImporterDummy::capabilities() const
+{
+  return ReosHydraulicStructure2D::Structure2DCapabilities();
+}
 
-ReosHydraulicStructure2D::Structure2DCapabilities ReosStructureImporterDummy::capabilities() const {return ReosHydraulicStructure2D::Structure2DCapabilities();}
+QString ReosStructureImporterDummy::crs() const
+{
+  return QString();
+}
 
-QString ReosStructureImporterDummy::crs() const {return QString();}
+QPolygonF ReosStructureImporterDummy::domain() const
+{
+  return QPolygonF();
+}
 
-QPolygonF ReosStructureImporterDummy::domain() const {return QPolygonF();}
-
-ReosMesh *ReosStructureImporterDummy::mesh( const QString & ) const {return nullptr;}
+ReosMesh *ReosStructureImporterDummy::mesh( const QString & ) const
+{
+  return nullptr;
+}
 
 ReosMesh *ReosStructureImporterDummy::mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const
 {
@@ -57,11 +74,19 @@ ReosMesh *ReosStructureImporterDummy::mesh( ReosHydraulicStructure2D *structure,
 }
 
 QList<ReosHydraulicStructureBoundaryCondition *> ReosStructureImporterDummy::createBoundaryConditions( ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const
-{return QList<ReosHydraulicStructureBoundaryCondition *>();}
+{
+  return QList<ReosHydraulicStructureBoundaryCondition *>();
+}
 
-QList<ReosHydraulicSimulation *> ReosStructureImporterDummy::createSimulations( ReosHydraulicStructure2D * ) const {return QList<ReosHydraulicSimulation *>();}
+QList<ReosHydraulicSimulation *> ReosStructureImporterDummy::createSimulations( ReosHydraulicStructure2D * ) const
+{
+  return QList<ReosHydraulicSimulation *>();
+}
 
-void ReosStructureImporterDummy::updateBoundaryConditions( const QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const {}
+void ReosStructureImporterDummy::updateBoundaryConditions( const QSet<QString> &, ReosHydraulicStructure2D *, const ReosHydraulicNetworkContext & ) const
+{}
 
-bool ReosStructureImporterDummy::isValid() const {return false;}
-
+bool ReosStructureImporterDummy::isValid() const
+{
+  return false;
+}

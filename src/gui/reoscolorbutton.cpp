@@ -20,7 +20,8 @@
 
 #include <qgscolorwidgets.h>
 
-ReosColorButton::ReosColorButton( QWidget *parent ): QToolButton( parent )
+ReosColorButton::ReosColorButton( QWidget *parent )
+  : QToolButton( parent )
 {
   setAutoRaise( true );
 

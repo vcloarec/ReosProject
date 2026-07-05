@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 #include <QPointer>
 
@@ -23,7 +23,7 @@
 #include "reosgisengine.h"
 #include "reosmap.h"
 
-class ReosGisGuiTest: public QObject
+class ReosGisGuiTest : public QObject
 {
     Q_OBJECT
   private slots:

@@ -16,12 +16,15 @@
 #include "reosprofileplot_p.h"
 #include "reosparameter.h"
 
+#include <QFontMetrics>
+#include <QPainter>
+
 #include <qwt_scale_map.h>
 
 
-ReosProfilePlot_p::ReosProfilePlot_p( const QPolygonF &points ):
-  QwtPlotItem(),
-  mPoints( points )
+ReosProfilePlot_p::ReosProfilePlot_p( const QPolygonF &points )
+  : QwtPlotItem()
+  , mPoints( points )
 {
   mPenLine = QPen( QColor( 0, 0, 0, 100 ) );
   mPenLine.setWidth( 3 );
@@ -76,7 +79,7 @@ void ReosProfilePlot_p::draw( QPainter *painter, const QwtScaleMap &xMap, const 
         }
         else
         {
-          slope =  ReosParameter::doubleToString( slp * 100,  2 );
+          slope = ReosParameter::doubleToString( slp * 100, 2 );
           slope.append( QStringLiteral( " %" ) );
         }
       }

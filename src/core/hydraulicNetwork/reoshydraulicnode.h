@@ -62,7 +62,6 @@ class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement SIP
 
     friend class ReosHydraulicLink;
 #endif //No SIP_RUN
-
 };
 
 #endif // REOSHYDRAULICNODE_H

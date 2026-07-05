@@ -19,11 +19,14 @@
 #include "reosplotpicker_p.h"
 
 #include <QMenu>
+#include <QPen>
 #include <QPixmap>
 
+#include <qwt_scale_map.h>
 
-ReosEditableProfile::ReosEditableProfile():
-  ReosPlotItem()
+
+ReosEditableProfile::ReosEditableProfile()
+  : ReosPlotItem()
   , mActionEditProfile( new QAction( QIcon( QStringLiteral( ":/images/editProfile.svg" ) ), tr( "Edit Profile" ), this ) )
   , mActionCreateNewProfile( new QAction( QIcon( QStringLiteral( ":/images/drawProfile.svg" ) ), tr( "Create New Profile" ), this ) )
   , mActionGroup( new QActionGroup( this ) )
@@ -61,7 +64,7 @@ void ReosEditableProfile::attach( ReosPlot_p *plot )
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::rightClick, this, &ReosEditableProfile::contextMenuEdition );
   connect( mPickerEditPoint, &ReosPlotPicker_p::activated, this, &ReosEditableProfile::pickerActivated );
   connect( mPickerEditPoint, &ReosPlotPicker_p::deactivated, this, &ReosEditableProfile::activateZoomer );
-  connect( mPickerEditPoint, &ReosPlotPicker_p::deactivated, mPlot, [this] {mPlot->enableAutoScale( true );} );
+  connect( mPickerEditPoint, &ReosPlotPicker_p::deactivated, mPlot, [this] { mPlot->enableAutoScale( true ); } );
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::purposeBeginMove, this, &ReosEditableProfile::beginMove );
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::moved, this, &ReosEditableProfile::movePoint );
   connect( mPickerEditPoint, &ReosPlotPickerEditPoint_p::moveFinished, this, &ReosEditableProfile::endMovePoint );
@@ -70,7 +73,7 @@ void ReosEditableProfile::attach( ReosPlot_p *plot )
   mPickerNewProfile = new ReosPlotPickerDrawLines_p( plot );
   connect( mPickerNewProfile, &ReosPlotPicker_p::activated, this, &ReosEditableProfile::pickerActivated );
   connect( mPickerNewProfile, &ReosPlotPicker_p::deactivated, this, &ReosEditableProfile::activateZoomer );
-  connect( mPickerNewProfile, &ReosPlotPicker_p::deactivated, mPlot, [this] {mPlot->enableAutoScale( true );} );
+  connect( mPickerNewProfile, &ReosPlotPicker_p::deactivated, mPlot, [this] { mPlot->enableAutoScale( true ); } );
   connect( mPickerNewProfile, &ReosPlotPicker_p::appended, this, &ReosEditableProfile::createProfileNewPoint );
   //connect( mPickerNewProfile, &QwtPlotPicker::selected, this, &ReosEditableProfile::finishProfile ); //don't know why (not investigate a lot) but do not work
   connect( mPickerNewProfile, SIGNAL( selected( const QVector< QPointF > ) ), this, SLOT( finishProfile( const QVector< QPointF > ) ) ); //so instead use the "old way"
@@ -84,7 +87,6 @@ void ReosEditableProfile::attach( ReosPlot_p *plot )
 
   mPickerEditPoint->setAction( mActionEditProfile );
   mPickerNewProfile->setAction( mActionCreateNewProfile );
-
 }
 
 QAbstractTableModel *ReosEditableProfile::tableModel()
@@ -152,7 +154,6 @@ void ReosEditableProfile::finishProfile( const QVector<QPointF> &pts )
   emit itemChanged();
 
   mPickerNewProfile->deactivate();
-
 }
 
 void ReosEditableProfile::pickerActivated( ReosPlotPicker_p *picker )
@@ -247,9 +248,9 @@ void ReosEditableProfile::setProfile( const QPolygonF &prof )
   emit itemChanged();
 }
 
-ReosEditableProfileModel::ReosEditableProfileModel( QObject *parent ): QAbstractTableModel( parent )
-{
-}
+ReosEditableProfileModel::ReosEditableProfileModel( QObject *parent )
+  : QAbstractTableModel( parent )
+{}
 
 int ReosEditableProfileModel::rowCount( const QModelIndex &parent ) const
 {
@@ -286,12 +287,12 @@ QVariant ReosEditableProfileModel::data( const QModelIndex &index, int role ) co
     {
       if ( index.column() == 0 )
       {
-        return  ReosParameter::doubleToString( mPoints.at( index.row() ).x(),  0 );
+        return ReosParameter::doubleToString( mPoints.at( index.row() ).x(), 0 );
       }
 
       if ( index.column() == 1 )
       {
-        return  ReosParameter::doubleToString( mPoints.at( index.row() ).y(),  2 );
+        return ReosParameter::doubleToString( mPoints.at( index.row() ).y(), 2 );
       }
     }
   }
@@ -328,13 +329,12 @@ bool ReosEditableProfileModel::setData( const QModelIndex &index, const QVariant
       {
         int r = index.row();
         beginInsertRows( QModelIndex(), r, r );
-        mPoints.append( {x, y} );
+        mPoints.append( { x, y } );
         mTemporaryNewX.clear();
         mTemporaryNewY.clear();
         endInsertRows();
         emit pointInserted( r );
       }
-
     }
     else if ( index.row() < mPoints.count() )
     {

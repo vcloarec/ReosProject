@@ -28,17 +28,10 @@ class ReosDuration;
 class ReosGriddedRainfall;
 
 
-class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
+class REOSCORE_EXPORT ReosGriddedDataProvider : public ReosDataProvider
 {
     Q_OBJECT
   public:
-    enum class ValueType
-    {
-      Intensity,
-      Height,
-      CumulativeHeight
-    };
-
     enum SupportedGridOrigin
     {
       TopLeft = 1 << 0,
@@ -51,34 +44,43 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     Q_DECLARE_FLAGS( SupportedGridOrigins, SupportedGridOrigin )
     Q_FLAG( SupportedGridOrigins )
 
-    enum PrecipitationGridCapability
+    enum GridCapability
     {
+      NoOption = 0,
       SubGridExtract = 1 << 0,
       QualificationValue = 1 << 1,
     };
-    Q_ENUM( PrecipitationGridCapability )
-    Q_DECLARE_FLAGS( PrecipitationGridCapabilities, PrecipitationGridCapability )
-    Q_FLAG( PrecipitationGridCapabilities )
+    Q_ENUM( GridCapability )
+    Q_DECLARE_FLAGS( GridCapabilities, GridCapability )
+    Q_FLAG( GridCapabilities )
+
+    enum class ValueType
+    {
+      Instantaneous,
+      CumulativeOnTimeStep,
+      Cumulative,
+      CumulativeOnDay
+    };
 
     struct FileDetails
     {
-      QStringList availableVariables;
-      ReosMapExtent extent;
-      QStringList files;
-      QString deducedName;
+        QStringList availableVariables;
+        ReosMapExtent extent;
+        QStringList files;
+        QString deducedName;
     };
 
-    ~ReosGriddedRainfallProvider();
+    ~ReosGriddedDataProvider();
 
-    virtual ReosGriddedRainfallProvider *clone() const = 0;
+    virtual ReosGriddedDataProvider *clone() const = 0;
 
-    virtual SupportedGridOrigins supportedOrigin() const {return TopLeft;}
+    virtual SupportedGridOrigins supportedOrigin() const { return TopLeft; }
 
     QString dataSource() const;
 
     void setDataSource( const QString &uri );
 
-    virtual FileDetails details( const QString &, ReosModule::Message & ) const {return FileDetails();}
+    virtual FileDetails details( const QString &, ReosModule::Message & ) const { return FileDetails(); }
 
     virtual bool isValid() const = 0;
 
@@ -88,56 +90,69 @@ class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosDataProvider
     virtual QDateTime endTime( int index ) const = 0;
     ReosDuration intervalDuration( int index ) const;
 
+    virtual int dataIndex( const QDateTime &time ) const;
+
     virtual const QVector<double> data( int index ) const = 0;
 
-    virtual bool hasPrecipitationCapability( PrecipitationGridCapability capability ) const;
-
-    virtual const QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const {return QVector<double>();}
-
-    virtual const QVector<double> qualifData( int index ) const;
+    virtual const QVector<double> dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax ) const { return QVector<double>(); }
 
     virtual ReosRasterExtent extent() const = 0;
 
-    virtual void copyFrom( ReosGriddedRainfallProvider * ) {};
+    virtual void copyFrom( ReosGriddedDataProvider * ) {};
 
-    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
-    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
-
-    virtual int dataIndex( const QDateTime &time ) const;
-
-    virtual bool getDirectMinMax( double &, double & ) const {return false;}
+    virtual bool getDirectMinMax( double &, double & ) const { return false; }
 
     virtual void calculateMinMax( double &, double & ) const {};
 
     virtual bool hasData( const QString &uri, const ReosTimeWindow &timeWindow = ReosTimeWindow() ) const;
 
-    virtual bool write(
-      ReosGriddedRainfall *rainfall,
-      const QString &uri,
-      const ReosRasterExtent &destination,
-      const ReosTimeWindow &timeWindow ) const;
+    virtual bool hasCapability( GridCapability capability ) const;
+
+    virtual ReosEncodedElement encode( const ReosEncodeContext &context ) const = 0;
+    virtual void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) = 0;
+
+    virtual void exportToTiff( int index, const QString &fileName ) const {};
+
+    virtual bool write( ReosGriddedRainfall *rainfall, const QString &uri, const ReosRasterExtent &destination, const ReosTimeWindow &timeWindow ) const { return false; }
+
+    virtual const QVector<double> qualifData( int ) const { return QVector<double>(); }
+
+    virtual ReosDuration minimumTimeStep() const;
+
+    virtual double timeStepRatio( int index, const ReosDuration &timeStep ) const;
 
   protected:
-    ValueType mSourceValueType = ValueType::Height;
-
-  private:
     QString mDataSource;
+
+  protected:
+    ValueType mSourceValueType = ValueType::CumulativeOnTimeStep;
+
+    mutable int mLastFrameIndex = -1;
 };
 
-class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRainfallProvider
+
+class REOSCORE_EXPORT ReosGriddedRainfallProvider : public ReosGriddedDataProvider
+{
+    Q_OBJECT
+  public:
+    ~ReosGriddedRainfallProvider();
+    virtual ReosGriddedRainfallProvider *clone() const = 0;
+};
+
+class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedDataProvider
 {
   public:
-    ReosGriddedRainfallProvider *clone() const override;
+    ReosGriddedDataProvider *clone() const override;
 
     void load() override {};
     QString key() const override;
-    QStringList fileSuffixes() const override {return QStringList();}
-    bool isValid() const override {return true;}
+    QStringList fileSuffixes() const override { return QStringList(); }
+    bool isValid() const override { return true; }
     int count() const override;
-    QDateTime startTime( int index ) const  override;
-    QDateTime endTime( int index ) const  override;
-    const QVector<double> data( int index ) const  override;
-    ReosRasterExtent extent() const  override;
+    QDateTime startTime( int index ) const override;
+    QDateTime endTime( int index ) const override;
+    const QVector<double> data( int index ) const override;
+    ReosRasterExtent extent() const override;
     ReosEncodedElement encode( const ReosEncodeContext &context ) const override;
     void decode( const ReosEncodedElement &element, const ReosEncodeContext &context ) override;
 
@@ -150,24 +165,24 @@ class REOSCORE_EXPORT ReosGriddedRainfallMemoryProvider : public ReosGriddedRain
 
     void setExtent( const ReosRasterExtent &newExtent );
 
-    void copyFrom( ReosGriddedRainfallProvider *other ) override;
+    void copyFrom( ReosGriddedDataProvider *other ) override;
 
   private:
     struct Frame
     {
-      QDateTime startTime;
-      QDateTime endTime;
-      ReosRasterMemory<double> raster;
+        QDateTime startTime;
+        QDateTime endTime;
+        ReosRasterMemory<double> raster;
     };
 
     QList<Frame> mRasters;
     ReosRasterExtent mExtent;
 };
 
-class ReosGriddedRainfallMemoryProviderFactory: public ReosDataProviderFactory
+class ReosGriddedRainfallMemoryProviderFactory : public ReosDataProviderFactory
 {
   public:
-    ReosGriddedRainfallProvider *createProvider( const QString &dataType ) const override;
+    ReosGriddedDataProvider *createProvider( const QString &dataType ) const override;
     QString key() const override;
 };
 

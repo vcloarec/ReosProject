@@ -39,7 +39,7 @@ class ReosRainfallIntensityDurationCurveItem;
 class ReosGriddedRainfall;
 class ReosGriddedRainItem;
 
-class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
+class REOSCORE_EXPORT ReosRainfallModel : public QAbstractItemModel
 {
     Q_OBJECT
   public:
@@ -55,8 +55,8 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
     bool canDropMimeData( const QMimeData *data, Qt::DropAction, int, int, const QModelIndex &parent ) const override;
     bool dropMimeData( const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent ) override;
     QMimeData *mimeData( const QModelIndexList &indexes ) const override;
-    Qt::DropActions supportedDropActions() const override {return Qt::MoveAction;}
-    Qt::DropActions supportedDragActions() const override {return Qt::MoveAction | Qt::CopyAction;}
+    Qt::DropActions supportedDropActions() const override { return Qt::MoveAction; }
+    Qt::DropActions supportedDragActions() const override { return Qt::MoveAction | Qt::CopyAction; }
     QStringList mimeTypes() const override;
 
     //! Add a zone to the hierarchical tree, if \a index is invalid, add to the roots return fals if it fails
@@ -113,7 +113,6 @@ class REOSCORE_EXPORT ReosRainfallModel: public QAbstractItemModel
 
     //! Connects item and all the children
     void connectItem( ReosRainfallItem *item );
-
 };
 
 #endif // REOSRAINFALLMODEL_H

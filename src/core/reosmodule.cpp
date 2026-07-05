@@ -91,7 +91,7 @@ void ReosModule::sendMessage( QString mes, MessageType type, bool messageBox ) c
     mReosParent->sendMessage( mes, type, messageBox );
   else
   {
-    emit emitMessage( {type, mes}, messageBox );
+    emit emitMessage( { type, mes }, messageBox );
     switch ( type )
     {
       case Simple:

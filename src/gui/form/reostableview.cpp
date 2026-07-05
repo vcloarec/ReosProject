@@ -23,13 +23,14 @@
 
 #include "reostimeseries.h"
 
-ReosHorizontalHeaderView::ReosHorizontalHeaderView( QWidget *parent ) : QHeaderView( Qt::Horizontal, parent )
+ReosHorizontalHeaderView::ReosHorizontalHeaderView( QWidget *parent )
+  : QHeaderView( Qt::Horizontal, parent )
 {
   //setSectionResizeMode( QHeaderView::ResizeToContents );
   setSectionResizeMode( QHeaderView::Stretch );
   setStretchLastSection( true );
   setCascadingSectionResizes( true );
-  setDefaultAlignment( Qt::AlignCenter | ( Qt::Alignment )Qt::TextWordWrap );
+  setDefaultAlignment( Qt::AlignCenter | ( Qt::Alignment ) Qt::TextWordWrap );
 }
 
 QSize ReosHorizontalHeaderView::sectionSizeFromContents( int logicalIndex ) const
@@ -46,7 +47,8 @@ QSize ReosHorizontalHeaderView::sectionSizeFromContents( int logicalIndex ) cons
   return rect.size() + textMarginBuffer;
 }
 
-ReosTimeSerieTableView::ReosTimeSerieTableView( QWidget *parent ): QTableView( parent )
+ReosTimeSerieTableView::ReosTimeSerieTableView( QWidget *parent )
+  : QTableView( parent )
 {
   setHorizontalHeader( new ReosHorizontalHeaderView( this ) );
   setSelectionBehavior( QAbstractItemView::SelectRows );
@@ -98,15 +100,13 @@ void ReosTimeSerieTableView::contextMenuEvent( QContextMenuEvent *event )
 {
   QMenu menu;
 
-  menu.addAction( tr( "Delete %n selected rows", nullptr, selectionModel()->selectedRows( 0 ).count() ), this, [this]()
-  {
+  menu.addAction( tr( "Delete %n selected rows", nullptr, selectionModel()->selectedRows( 0 ).count() ), this, [this]() {
     int count = this->selectionModel()->selectedRows( 0 ).count();
     if ( count > 0 )
       timeSerieModel()->deleteRows( this->selectionModel()->selectedIndexes().first(), count );
   } );
 
-  menu.addAction( tr( "Insert %n rows", nullptr, selectionModel()->selectedRows( 0 ).count() ), this, [this]()
-  {
+  menu.addAction( tr( "Insert %n rows", nullptr, selectionModel()->selectedRows( 0 ).count() ), this, [this]() {
     int count = this->selectionModel()->selectedRows( 0 ).count();
     if ( count > 0 )
       timeSerieModel()->insertRows( this->selectionModel()->selectedIndexes().first(), count );
@@ -116,8 +116,7 @@ void ReosTimeSerieTableView::contextMenuEvent( QContextMenuEvent *event )
   if ( values.count() > 0 )
   {
     menu.addSeparator();
-    menu.addAction( tr( "Insert %n rows from clipboard", nullptr, values.count() ), this, [this, values]()
-    {
+    menu.addAction( tr( "Insert %n rows from clipboard", nullptr, values.count() ), this, [this, values]() {
       int count = this->selectionModel()->selectedIndexes().count();
 
       if ( values.count() > 0 && count > 0 )
@@ -126,8 +125,7 @@ void ReosTimeSerieTableView::contextMenuEvent( QContextMenuEvent *event )
       }
     } );
 
-    menu.addAction( tr( "Paste %n rows from clipboard", nullptr, values.count() ), this, [this, values]()
-    {
+    menu.addAction( tr( "Paste %n rows from clipboard", nullptr, values.count() ), this, [this, values]() {
       int count = this->selectionModel()->selectedIndexes().count();
       if ( values.count() > 0 && count > 0 )
       {
@@ -137,15 +135,9 @@ void ReosTimeSerieTableView::contextMenuEvent( QContextMenuEvent *event )
   }
 
   menu.addSeparator();
-  menu.addAction( tr( "Copy selected values" ), this, [this]
-  {
-    this->copySelectedToClipBoard( false );
-  } );
+  menu.addAction( tr( "Copy selected values" ), this, [this] { this->copySelectedToClipBoard( false ); } );
 
-  menu.addAction( tr( "Copy selected values with headers" ), this, [this]
-  {
-    this->copySelectedToClipBoard( true );
-  } );
+  menu.addAction( tr( "Copy selected values with headers" ), this, [this] { this->copySelectedToClipBoard( true ); } );
 
 
   menu.exec( viewport()->mapToGlobal( event->pos() ) );
@@ -153,9 +145,7 @@ void ReosTimeSerieTableView::contextMenuEvent( QContextMenuEvent *event )
 
 QModelIndex ReosTimeSerieTableView::moveCursor( QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers )
 {
-  if ( cursorAction == QAbstractItemView::MoveNext &&
-       !mEditableColumn.isEmpty() &&
-       currentIndex().column() == mEditableColumn.last() )
+  if ( cursorAction == QAbstractItemView::MoveNext && !mEditableColumn.isEmpty() && currentIndex().column() == mEditableColumn.last() )
   {
     resizeColumnsToContents();
     horizontalHeader()->resizeSections( QHeaderView::Stretch );
@@ -228,7 +218,7 @@ void ReosTimeSerieTableView::copySelectedToClipBoard( bool withHeader )
       // headers
       for ( int w = 0; w < range.width(); ++w )
       {
-        QString header =   model()->headerData( range.left() + w, Qt::Horizontal, Qt::DisplayRole ).toString();
+        QString header = model()->headerData( range.left() + w, Qt::Horizontal, Qt::DisplayRole ).toString();
         header.replace( QStringLiteral( "\n" ), QString( ' ' ) );
         headers.append( header );
       }
@@ -238,8 +228,7 @@ void ReosTimeSerieTableView::copySelectedToClipBoard( bool withHeader )
     {
       QStringList lineData;
       for ( int w = 0; w < range.width(); ++w )
-        lineData.append( model()->data(
-                           model()->index( range.top() + h, range.left() + w, QModelIndex() ), Qt::DisplayRole ).toString() );
+        lineData.append( model()->data( model()->index( range.top() + h, range.left() + w, QModelIndex() ), Qt::DisplayRole ).toString() );
 
       lines.append( lineData.join( QStringLiteral( "\t" ) ) );
     }

@@ -49,12 +49,9 @@ ReosVariableTimeStepTimeSeriesGroupWidget::ReosVariableTimeStepTimeSeriesGroupWi
   toolBar->setIconSize( ReosStyleRegistery::instance()->toolBarIconSize( this ) );
   ui->mWidgetToolBar->layout()->addWidget( toolBar );
 
-  mActionAddSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ),
-                                         tr( "Add %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onAddSeries );
-  mActionDeleteSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ),
-                        tr( "Delete %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onRemoveSeries );
-  mActionRenameSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ),
-                        tr( "Rename %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onRenameSeries );
+  mActionAddSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/add.svg" ) ), tr( "Add %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onAddSeries );
+  mActionDeleteSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/remove.svg" ) ), tr( "Delete %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onRemoveSeries );
+  mActionRenameSeries = toolBar->addAction( QIcon( QStringLiteral( ":/images/rename.svg" ) ), tr( "Rename %1" ).arg( mGenericSeriesName ), this, &ReosVariableTimeStepTimeSeriesGroupWidget::onRenameSeries );
 
   ui->mWidgetProviderToolBar->setLayout( new QHBoxLayout );
   ui->mWidgetProviderToolBar->layout()->setContentsMargins( 0, 0, 0, 0 );
@@ -147,9 +144,9 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onRemoveSeries()
   if ( !timeSeriesToRemove )
     return;
 
-  if ( QMessageBox::warning( this, tr( "Remove %1" ).arg( mGenericSeriesName ),
-                             tr( "Do you want to remove the %1 '%2'?" ).arg( mGenericSeriesName, timeSeriesToRemove->name() ),
-                             QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+  if ( QMessageBox::
+         warning( this, tr( "Remove %1" ).arg( mGenericSeriesName ), tr( "Do you want to remove the %1 '%2'?" ).arg( mGenericSeriesName, timeSeriesToRemove->name() ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No )
+       == QMessageBox::Yes )
   {
     mGroup->removeTimeSeries( currentIndex );
     ui->mComboBoxTimeSeriesName->removeItem( currentIndex );
@@ -222,8 +219,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onCurrentSeriesChanged()
 
   if ( !mCurrentSeries.isNull() )
   {
-    newSettingsProviderWidget.reset(
-      ReosDataProviderGuiRegistery::instance()->createProviderSettingsWidget( mCurrentSeries->dataProvider() ) );
+    newSettingsProviderWidget.reset( ReosDataProviderGuiRegistery::instance()->createProviderSettingsWidget( mCurrentSeries->dataProvider() ) );
     newEditingWidget.reset( ReosFormWidgetFactories::instance()->createDataFormWidget( mCurrentSeries ) );
     connect( mCurrentSeries, &ReosDataObject::dataChanged, this, &ReosVariableTimeStepTimeSeriesGroupWidget::updatePlotExtent );
   }
@@ -254,9 +250,7 @@ void ReosVariableTimeStepTimeSeriesGroupWidget::onCurrentSeriesChanged()
 }
 
 void ReosVariableTimeStepTimeSeriesGroupWidget::updatePlotExtent()
-{
-
-}
+{}
 
 ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget( ReosTimeSeriesVariableTimeStep *timeSeries, QWidget *parent )
   : ReosFormWidget( parent, Qt::Vertical, false )
@@ -274,17 +268,14 @@ ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget
     addParameter( mIsUseConstantTimeStepForNewEntry );
 
     ReosDuration newEntryFixedTimeStep( 5, ReosDuration::minute );
-    if ( settings.contains( QStringLiteral( "/time-series/new-entry-time-step-value" ) ) &&
-         settings.contains( QStringLiteral( "/time-series/new-entry-time-step-unit" ) ) )
+    if ( settings.contains( QStringLiteral( "/time-series/new-entry-time-step-value" ) ) && settings.contains( QStringLiteral( "/time-series/new-entry-time-step-unit" ) ) )
     {
       double timeStepValue = settings.value( QStringLiteral( "/time-series/new-entry-time-step-value" ) ).toDouble();
-      ReosDuration::Unit unit = static_cast<ReosDuration::Unit>(
-                                  settings.value( QStringLiteral( "/time-series/new-entry-time-step-value" ) ).toInt() );
+      ReosDuration::Unit unit = static_cast<ReosDuration::Unit>( settings.value( QStringLiteral( "/time-series/new-entry-time-step-value" ) ).toInt() );
 
       newEntryFixedTimeStep = ReosDuration( timeStepValue, unit );
     }
     mConstantTimeStepForNewEntry->setValue( newEntryFixedTimeStep );
-
 
 
     if ( settings.contains( QStringLiteral( "/time-series/new-entry-use-constant-time-step" ) ) )
@@ -295,8 +286,7 @@ ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget
     ReosDuration::Unit timeStepUnit = ReosDuration::minute;
     if ( settings.contains( QStringLiteral( "/time-series/time-step-unit" ) ) )
     {
-      timeStepUnit = static_cast<ReosDuration::Unit>(
-                       settings.value( QStringLiteral( "/time-series/time-step-unit" ) ).toInt() );
+      timeStepUnit = static_cast<ReosDuration::Unit>( settings.value( QStringLiteral( "/time-series/time-step-unit" ) ).toInt() );
     }
 
     QWidget *relativeTimeUnitWidget = new QWidget( this );
@@ -310,8 +300,7 @@ ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget
     mConstantTimeStepForNewEntryWidget->setVisible( mIsUseConstantTimeStepForNewEntry->value() );
     mDataModel->setNewRowWithFixedTimeStep( mIsUseConstantTimeStepForNewEntry->value() );
 
-    connect( mIsUseConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this, relativeTimeUnitWidget]
-    {
+    connect( mIsUseConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this, relativeTimeUnitWidget] {
       bool useConstantTimeStep = mIsUseConstantTimeStepForNewEntry->value();
       ReosSettings settings;
       settings.setValue( QStringLiteral( "/time-series/new-entry-use-constant-time-step" ), useConstantTimeStep );
@@ -320,22 +309,19 @@ ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget
       relativeTimeUnitWidget->setVisible( !useConstantTimeStep );
     } );
 
-    connect( mConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this]
-    {
+    connect( mConstantTimeStepForNewEntry, &ReosParameter::valueChanged, this, [this] {
       mDataModel->setFixedTimeStep( mConstantTimeStepForNewEntry->value() );
       ReosSettings settings;
       settings.value( QStringLiteral( "/time-series/new-entry-time-step-value" ), mConstantTimeStepForNewEntry->value().valueUnit() );
       settings.value( QStringLiteral( "/time-series/new-entry-time-step-unit" ), mConstantTimeStepForNewEntry->value().unit() );
     } );
 
-    connect( mTimeStepUnitCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this]
-    {
+    connect( mTimeStepUnitCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, [this] {
       ReosDuration::Unit unit = mTimeStepUnitCombo->currentUnit();
       mDataModel->setVariableTimeStepUnit( unit );
       ReosSettings settings;
       settings.value( QStringLiteral( "/time-series/time-step-unit" ), unit );
     } );
-
   }
 
   ReosTimeSerieTableView *tableView = new ReosTimeSerieTableView( this );
@@ -345,9 +331,7 @@ ReosVariableTimeStepSeriesEditingWidget::ReosVariableTimeStepSeriesEditingWidget
 }
 
 ReosVariableTimeStepSeriesEditingWidget::~ReosVariableTimeStepSeriesEditingWidget()
-{
-
-}
+{}
 
 QString ReosVariableTimeStepSeriesEditingWidgetFactory::datatype() const
 {

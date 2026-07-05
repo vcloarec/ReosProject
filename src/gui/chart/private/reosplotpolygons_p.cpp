@@ -14,10 +14,14 @@
  *                                                                         *
  ***************************************************************************/
 #include "reosplotpolygons_p.h"
+
+#include <QPainter>
+
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 
-ReosPlotPolygons_p::ReosPlotPolygons_p(): QwtPlotItem()
+ReosPlotPolygons_p::ReosPlotPolygons_p()
+  : QwtPlotItem()
 {}
 
 void ReosPlotPolygons_p::draw( QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRectF &canvasRect ) const

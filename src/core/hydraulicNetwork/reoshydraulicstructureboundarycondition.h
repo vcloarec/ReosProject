@@ -31,9 +31,9 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
   public:
     enum class Type
     {
-      NotDefined, //!< Not Defined,
-      InputFlow, //!< Input flow boundary condition
-      OutputLevel, //!< Water level boundary condition, leading to an ouput flow
+      NotDefined,        //!< Not Defined,
+      InputFlow,         //!< Input flow boundary condition
+      OutputLevel,       //!< Water level boundary condition, leading to an ouput flow
       DefinedExternally, //! Externally defined boundary condition, this condition will depends on the simulation engine
     };
 
@@ -44,32 +44,25 @@ class REOSCORE_EXPORT ReosHydraulicStructureBoundaryCondition : public ReosHydro
       ConnectedToDownstreamLink,
     };
 
-    ReosHydraulicStructureBoundaryCondition(
-      ReosHydraulicStructure2D *hydStructure,
-      const QString &boundaryConditionId,
-      const ReosHydraulicNetworkContext &context );
+    ReosHydraulicStructureBoundaryCondition( ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosHydraulicNetworkContext &context );
 
-    ReosHydraulicStructureBoundaryCondition(
-      ReosHydraulicStructure2D *hydStructure,
-      const QString &boundaryConditionId,
-      const ReosSpatialPosition &position,
-      const ReosHydraulicNetworkContext &context );
+    ReosHydraulicStructureBoundaryCondition( ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosSpatialPosition &position, const ReosHydraulicNetworkContext &context );
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "structure-boundary-condition" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return ReosHydrographJunction::staticType() + QString( ':' ) + QStringLiteral( "structure-boundary-condition" ); }
     static ReosHydraulicStructureBoundaryCondition *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
     QPointF position( const QString &destinationCrs ) const override;
     ReosSpatialPosition spatialPosition() const override;
     void setPosition( const ReosSpatialPosition & ) override {};
     bool isAutoSelectable() const override;
-    bool isRemovable() const override {return false;}
+    bool isRemovable() const override { return false; }
     bool canAcceptLink( const QString &linkId, int positionInLink ) override;
     void updateCalculationContextFromUpstream( const ReosCalculationContext &context, ReosHydraulicNetworkElement *upstreamElement, bool upstreamWillChange ) override;
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     QString outputPrefixName() const override;
-    QIcon icon() const override {return QIcon( ":/images/boundaryNode.svg" );}
+    QIcon icon() const override { return QIcon( ":/images/boundaryNode.svg" ); }
     ReosTimeWindow timeWindow() const override;
 
     //! Returns the boundary condition Id string that is different than ReosDataObject::id()

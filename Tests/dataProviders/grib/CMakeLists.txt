@@ -6,11 +6,13 @@
 
 SET(REOS_GRIB_SOURCES
      ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/reosgribprovider.cpp
+     ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/reoseccodesreader.cpp
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.cpp
 )
 
 SET(REOS_GRIB_HEADERS
      ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/reosgribprovider.h
+     ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/reoseccodesreader.h
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.h
  )
 
@@ -21,6 +23,11 @@ TARGET_LINK_LIBRARIES(test_grib
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )
+
+IF (HAS_ECCODES)
+    TARGET_LINK_LIBRARIES(test_grib
+        ${ECCODES_LIB})
+ENDIF(HAS_ECCODES)
 
 ADD_TEST(NAME test_grib
          COMMAND "test_grib"
@@ -36,3 +43,7 @@ set_target_properties(test_grib
 INCLUDE_DIRECTORIES(
       ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/
   )
+
+IF (HAS_ECCODES)
+    INCLUDE_DIRECTORIES(${ECCODES_INCLUDE_DIR})
+ENDIF(HAS_ECCODES)

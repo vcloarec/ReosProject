@@ -39,8 +39,7 @@ ReosGriddedRainfallExportOptionsWidget::ReosGriddedRainfallExportOptionsWidget( 
   ui->mResolutionHori->setDouble( mHorizontalResolution );
   ui->mResolutionVerti->setDouble( mVerticalResolution );
 
-  connect( ui->mUse00Origin, &QCheckBox::clicked, this, [this]
-  {
+  connect( ui->mUse00Origin, &QCheckBox::clicked, this, [this] {
     ui->mRadioButtonBottomLeft->setEnabled( !ui->mUse00Origin->isChecked() );
     ui->mRadioButtonTopLeft->setEnabled( !ui->mUse00Origin->isChecked() );
     ui->mRadioButtonBottomRight->setEnabled( !ui->mUse00Origin->isChecked() );
@@ -55,10 +54,7 @@ ReosGriddedRainfallExportOptionsWidget::ReosGriddedRainfallExportOptionsWidget( 
   connect( ui->mAdjustResolution, &QToolButton::clicked, this, &ReosGriddedRainfallExportOptionsWidget::onAdjustResolution );
   connect( ui->mAdjustExtent, &QToolButton::clicked, this, &ReosGriddedRainfallExportOptionsWidget::onAdjustExtent );
 
-  connect( ui->mRainFallExtent, &QToolButton::clicked, this, [this]
-  {
-    setExtent( mRainfallExtent );
-  } );
+  connect( ui->mRainFallExtent, &QToolButton::clicked, this, [this] { setExtent( mRainfallExtent ); } );
 
   connect( ui->mCrsWidget, &ReosCoordinateSystemWidget::crsChanged, this, &ReosGriddedRainfallExportOptionsWidget::reprojectExtent );
 
@@ -83,11 +79,13 @@ void ReosGriddedRainfallExportOptionsWidget::syncRainfall( ReosGriddedRainfall *
 
 void ReosGriddedRainfallExportOptionsWidget::setSupportedGridOrigin( ReosGriddedRainfallProvider::SupportedGridOrigins origins )
 {
-  bool onlyZeroOrigin = origins.testFlag( ReosGriddedRainfallProvider::ZeroBottomLeft ) &&
-                        ( !( origins.testFlag( ReosGriddedRainfallProvider::TopLeft ) ||
-                             origins.testFlag( ReosGriddedRainfallProvider::TopRight ) ||
-                             origins.testFlag( ReosGriddedRainfallProvider::BottomLeft ) ||
-                             origins.testFlag( ReosGriddedRainfallProvider::BottomRight ) ) );
+  bool onlyZeroOrigin = origins.testFlag( ReosGriddedRainfallProvider::ZeroBottomLeft )
+                        && ( !(
+                          origins.testFlag( ReosGriddedRainfallProvider::TopLeft )
+                          || origins.testFlag( ReosGriddedRainfallProvider::TopRight )
+                          || origins.testFlag( ReosGriddedRainfallProvider::BottomLeft )
+                          || origins.testFlag( ReosGriddedRainfallProvider::BottomRight )
+                        ) );
 
   ui->mUse00Origin->setEnabled( !onlyZeroOrigin && origins.testFlag( ReosGriddedRainfallProvider::ZeroBottomLeft ) );
   ui->mRadioButtonTopLeft->setEnabled( origins.testFlag( ReosGriddedRainfallProvider::TopLeft ) );
@@ -171,12 +169,9 @@ ReosRasterExtent ReosGriddedRainfallExportOptionsWidget::rasterExtent() const
     int xCount = xPixelTopRight - xPixelBottomLeft + 1;
     int yCount = yPixelTopRight - yPixelBottomLeft + 1;
 
-    ret = ReosRasterExtent( ( xPixelBottomLeft - 1 ) * mHorizontalResolution->value(),
-                            ( yPixelBottomLeft - 1 ) * mVerticalResolution->value(),
-                            xCount,
-                            yCount,
-                            mHorizontalResolution->value(),
-                            mHorizontalResolution->value() );
+    ret = ReosRasterExtent(
+      ( xPixelBottomLeft - 1 ) * mHorizontalResolution->value(), ( yPixelBottomLeft - 1 ) * mVerticalResolution->value(), xCount, yCount, mHorizontalResolution->value(), mHorizontalResolution->value()
+    );
   }
   else
   {
@@ -188,45 +183,20 @@ ReosRasterExtent ReosGriddedRainfallExportOptionsWidget::rasterExtent() const
 
     if ( ui->mRadioButtonTopLeft->isChecked() )
     {
-      ret = ReosRasterExtent(
-              mWestParam->value(),
-              mNorthParam->value(),
-              xCount,
-              yCount,
-              mHorizontalResolution->value(),
-              -mVerticalResolution->value() );
+      ret = ReosRasterExtent( mWestParam->value(), mNorthParam->value(), xCount, yCount, mHorizontalResolution->value(), -mVerticalResolution->value() );
     }
     if ( ui->mRadioButtonBottomLeft->isChecked() )
     {
-      ret = ReosRasterExtent(
-              mWestParam->value(),
-              mSouthParam->value(),
-              xCount,
-              yCount,
-              mHorizontalResolution->value(),
-              mVerticalResolution->value() );
+      ret = ReosRasterExtent( mWestParam->value(), mSouthParam->value(), xCount, yCount, mHorizontalResolution->value(), mVerticalResolution->value() );
     }
     if ( ui->mRadioButtonBottomRight->isChecked() )
     {
-      ret = ReosRasterExtent(
-              mEastParam->value(),
-              mSouthParam->value(),
-              xCount,
-              yCount,
-              -mHorizontalResolution->value(),
-              mVerticalResolution->value() );
+      ret = ReosRasterExtent( mEastParam->value(), mSouthParam->value(), xCount, yCount, -mHorizontalResolution->value(), mVerticalResolution->value() );
     }
     if ( ui->mRadioButtonTopRight->isChecked() )
     {
-      ret = ReosRasterExtent(
-              mEastParam->value(),
-              mNorthParam->value(),
-              xCount,
-              yCount,
-              -mHorizontalResolution->value(),
-              -mVerticalResolution->value() );
+      ret = ReosRasterExtent( mEastParam->value(), mNorthParam->value(), xCount, yCount, -mHorizontalResolution->value(), -mVerticalResolution->value() );
     }
-
   }
 
   ret.setCrs( ui->mCrsWidget->crs() );
@@ -301,7 +271,7 @@ void ReosGriddedRainfallExportOptionsWidget::onAdjustExtent()
     int xCount = xPixelTopRight - xPixelBottomLeft;
     int yCount = yPixelTopRight - yPixelBottomLeft;
 
-    mWestParam->setValue( xPixelBottomLeft  * mHorizontalResolution->value() );
+    mWestParam->setValue( xPixelBottomLeft * mHorizontalResolution->value() );
     mSouthParam->setValue( yPixelBottomLeft * mVerticalResolution->value() );
     mEastParam->setValue( mWestParam->value() + xCount * mHorizontalResolution->value() );
     mNorthParam->setValue( mSouthParam->value() + yCount * mVerticalResolution->value() );
@@ -338,8 +308,6 @@ void ReosGriddedRainfallExportOptionsWidget::onAdjustExtent()
       mNorthParam->setValue( mSouthParam->value() + yCount * mVerticalResolution->value() );
     }
   }
-
-
 }
 
 void ReosGriddedRainfallExportOptionsWidget::onTimeFromChanged()

@@ -16,14 +16,14 @@
 #include "reoshydraulicsimulationconsole.h"
 #include "ui_reoshydraulicsimulationconsole.h"
 
-#include<QMessageBox>
+#include <QMessageBox>
 
 #include "reosguicontext.h"
 #include "reoshydraulicstructure2d.h"
 
 ReosHydraulicSimulationConsole::ReosHydraulicSimulationConsole( ReosSimulationProcess *process, const ReosGuiContext &context )
-  :  ReosStackedPageWidget( context.parent() )
-  ,  ui( new Ui::ReosHydraulicSimulationConsole )
+  : ReosStackedPageWidget( context.parent() )
+  , ui( new Ui::ReosHydraulicSimulationConsole )
   , mProcess( process )
 {
   ui->setupUi( this );
@@ -37,7 +37,7 @@ ReosHydraulicSimulationConsole::ReosHydraulicSimulationConsole( ReosSimulationPr
     connect( process, &ReosProcess::sendInformation, this, &ReosHydraulicSimulationConsole::receiveInformation );
 
     connect( ui->mStopButton, &QPushButton::clicked, this, &ReosHydraulicSimulationConsole::onStopSimulation );
-    connect( mProcess, &ReosProcess::finished, ui->mStopButton, [this] {ui->mStopButton->setEnabled( false );} );
+    connect( mProcess, &ReosProcess::finished, ui->mStopButton, [this] { ui->mStopButton->setEnabled( false ); } );
     connect( ui->mButtonBack, &QToolButton::clicked, this, &ReosHydraulicSimulationConsole::backToPreviousPage );
   }
   else

@@ -2,10 +2,10 @@
 #include "ui_reosprocesscontroler.h"
 #include <QPushButton>
 
-ReosProcessControler::ReosProcessControler( ReosProcess *process, QWidget *parent ) :
-  QDialog( parent ),
-  ui( new Ui::ReosProcessControler ),
-  mProcess( process )
+ReosProcessControler::ReosProcessControler( ReosProcess *process, QWidget *parent )
+  : QDialog( parent )
+  , ui( new Ui::ReosProcessControler )
+  , mProcess( process )
 {
   ui->setupUi( this );
   setWindowFlag( Qt::Dialog );
@@ -60,7 +60,6 @@ void ReosProcessControler::refresh()
   ui->labelInformationText->setText( mProcess->currentInformation() );
   ui->progressBar->setMaximum( mProcess->maxProgression() );
   ui->progressBar->setValue( mProcess->currentProgression() );
-
 }
 
 void ReosProcessControler::onCancel()

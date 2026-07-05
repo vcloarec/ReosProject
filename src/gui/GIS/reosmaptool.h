@@ -87,7 +87,7 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     QPointer<ReosMap> mMap = nullptr;
 };
 
-class ReosMapToolNeutral: public ReosMapTool
+class ReosMapToolNeutral : public ReosMapTool
 {
   public:
     explicit ReosMapToolNeutral( ReosMap *map );
@@ -100,11 +100,11 @@ class ReosMapToolNeutral: public ReosMapTool
 };
 
 
-class ReosMapToolDrawPoint: public ReosMapTool
+class ReosMapToolDrawPoint : public ReosMapTool
 {
     Q_OBJECT
   public:
-    explicit  ReosMapToolDrawPoint( ReosMap *map );
+    explicit ReosMapToolDrawPoint( ReosMap *map );
     ReosMapToolDrawPoint( QObject *parent, ReosMap *map );
     ~ReosMapToolDrawPoint();
 
@@ -134,6 +134,7 @@ class REOSGUI_EXPORT ReosMapToolDrawPolyRubberBand : public ReosMapTool
 
   protected:
     QPointer<ReosMapToolDrawPolyline_p> d;
+
   private:
     ReosMapTool_p *tool_p() const override;
 };
@@ -162,7 +163,7 @@ class ReosMapToolDrawPolygon : public ReosMapToolDrawPolyRubberBand
     void drawn( const QPolygonF &polygon );
 };
 
-class REOSGUI_EXPORT ReosMapToolDrawExtent: public ReosMapTool
+class REOSGUI_EXPORT ReosMapToolDrawExtent : public ReosMapTool
 {
     Q_OBJECT
   public:
@@ -218,6 +219,7 @@ class ReosMapToolEditMapPolyline : public ReosMapTool
 
   signals:
     void polylineEdited();
+
   private:
     QPointer<ReosMapToolEditPolygon_p> d;
     ReosMapTool_p *tool_p() const override;
@@ -236,12 +238,13 @@ class ReosMapToolEditMapPolygon : public ReosMapTool
 
   signals:
     void polygonEdited();
+
   private:
     QPointer<ReosMapToolEditPolygon_p> d;
     ReosMapTool_p *tool_p() const override;
 };
 
-class ReosMapToolMoveMapItem: public ReosMapTool
+class ReosMapToolMoveMapItem : public ReosMapTool
 {
     Q_OBJECT
   public:

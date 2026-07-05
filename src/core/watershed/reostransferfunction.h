@@ -37,8 +37,8 @@ class REOSCORE_EXPORT ReosTransferFunction : public ReosDataObject
     ReosTransferFunction( ReosWatershed *watershed = nullptr );
     virtual ~ReosTransferFunction() = default;
 
-    static QString staticType() {return ReosDataObject::staticType() + ':' + QStringLiteral( "transfer-function" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosDataObject::staticType() + ':' + QStringLiteral( "transfer-function" ); }
+    QString type() const override { return staticType(); }
 
     //! Returns an hydrograph from the \a runoff
     virtual ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const = 0;
@@ -83,14 +83,13 @@ class REOSCORE_EXPORT ReosTransferFunctionFactory
     virtual ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const = 0;
 
     //! Returns a presentation text of the transfer function
-    virtual QString presentationText() const {return QString();};
+    virtual QString presentationText() const { return QString(); };
     //! Returns a image that represent the formulation of the transfer
-    virtual QPixmap formulation() const {return QPixmap();}
+    virtual QPixmap formulation() const { return QPixmap(); }
     //! Returns the variable descritpion of the transfer function
-    virtual QString variablesDescription() const {return QString();}
+    virtual QString variablesDescription() const { return QString(); }
     //! Returns the path of a image that represent the formulation
-    virtual QString formulationResource() const {return QString();};
-
+    virtual QString formulationResource() const { return QString(); };
 };
 
 //! List model class that is used to display transfer function list
@@ -109,7 +108,6 @@ class ReosTransferFunctionFactoriesModel : public QAbstractListModel
   private:
     using Factory = std::unique_ptr<ReosTransferFunctionFactory>;
     std::vector<Factory> &mFactories;
-
 };
 
 //! Singleton class used to store and to acces to transfer function factory
@@ -174,8 +172,8 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     ReosTransferFunctionLinearReservoir( ReosWatershed *parent = nullptr );
     ~ReosTransferFunctionLinearReservoir();
 
-    static QString staticType() {return ReosTransferFunction::staticType() + ':' + QStringLiteral( "transfer-function-linear-reservoir" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosTransferFunction::staticType() + ':' + QStringLiteral( "transfer-function-linear-reservoir" ); }
+    QString type() const override { return staticType(); }
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
 
@@ -194,14 +192,10 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     ReosParameterBoolean *mUseConcentrationTime = nullptr;
     ReosParameterDouble *mFactorToLagTime = nullptr;
 
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
-        Calculation( const QVector<double> runoffData,
-                     ReosDuration  lagTime,
-                     const ReosArea &area,
-                     const ReosDuration &timeStep,
-                     const QDateTime &referenceTime );
+        Calculation( const QVector<double> runoffData, ReosDuration lagTime, const ReosArea &area, const ReosDuration &timeStep, const QDateTime &referenceTime );
 
         void start() override;
 
@@ -222,18 +216,17 @@ class REOSCORE_EXPORT ReosTransferFunctionLinearReservoir : public ReosTransferF
     ReosDuration mPeakTime;
     double mPeakFactor;
     ReosArea mArea;
-
-
 };
 
-class REOSCORE_EXPORT ReosTransferFunctionLinearReservoirFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionLinearReservoirFactory : public ReosTransferFunctionFactory
 {
   public:
-    QString type() const override {return ReosTransferFunctionLinearReservoir::staticType();}
-    QString displayText() const override {return QObject::tr( "Linear reservoir" );}
+    QString type() const override { return ReosTransferFunctionLinearReservoir::staticType(); }
+    QString displayText() const override { return QObject::tr( "Linear reservoir" ); }
     ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
-    QString presentationText() const override;;
+    QString presentationText() const override;
+    ;
     QPixmap formulation() const override;
     QString formulationResource() const override;
     QString variablesDescription() const override;
@@ -247,8 +240,8 @@ class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethod : public Reo
   public:
     ReosTransferFunctionGeneralizedRationalMethod( ReosWatershed *watershed = nullptr );
 
-    static QString staticType() {return ReosTransferFunction::staticType() + ':' + QStringLiteral( "generalized-rational-method" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosTransferFunction::staticType() + ':' + QStringLiteral( "generalized-rational-method" ); }
+    QString type() const override { return staticType(); }
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *hydrographParent = nullptr ) const override;
     ReosEncodedElement encode() const override;
@@ -259,14 +252,10 @@ class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethod : public Reo
   private:
     ReosTransferFunctionGeneralizedRationalMethod( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
-        Calculation( const QVector<double> runoffData,
-                     const ReosDuration &concentrationTime,
-                     const ReosArea &area,
-                     const ReosDuration &timeStep,
-                     const QDateTime &referenceTime );
+        Calculation( const QVector<double> runoffData, const ReosDuration &concentrationTime, const ReosArea &area, const ReosDuration &timeStep, const QDateTime &referenceTime );
 
         void start() override;
 
@@ -279,14 +268,15 @@ class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethod : public Reo
     };
 };
 
-class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethodFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionGeneralizedRationalMethodFactory : public ReosTransferFunctionFactory
 {
   public:
-    QString type() const override {return ReosTransferFunctionGeneralizedRationalMethod::staticType();}
-    QString displayText() const override {return QObject::tr( "Generalized Rational Method" );}
+    QString type() const override { return ReosTransferFunctionGeneralizedRationalMethod::staticType(); }
+    QString displayText() const override { return QObject::tr( "Generalized Rational Method" ); }
     ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
-    QString presentationText() const override;;
+    QString presentationText() const override;
+    ;
     QPixmap formulation() const override;
     QString formulationResource() const override;
     QString variablesDescription() const override;
@@ -302,8 +292,8 @@ class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrograph : public ReosTransfe
   public:
     ReosTransferFunctionSCSUnitHydrograph( ReosWatershed *watershed = nullptr );
 
-    static QString staticType() {return ReosTransferFunction::staticType() + ':' + QStringLiteral( "scs-unit-hydrograph" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosTransferFunction::staticType() + ':' + QStringLiteral( "scs-unit-hydrograph" ); }
+    QString type() const override { return staticType(); }
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *parent = nullptr ) const override;
     ReosEncodedElement encode() const override;
@@ -318,24 +308,20 @@ class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrograph : public ReosTransfe
 
     struct UH_SCS_dimensionneless
     {
-      int peakRateFactor;
-      double dimensionlessTimeStep;
-      QVector<double> dimensionlessRate;
+        int peakRateFactor;
+        double dimensionlessTimeStep;
+        QVector<double> dimensionlessRate;
     };
 
   private:
     ReosTransferFunctionSCSUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
-        Calculation( const QVector<double> runoffData,
-                     int reduceTimeStepFactor,
-                     const ReosDuration &timeStep,
-                     const QDateTime &referenceTime,
-                     const ReosDuration &peakTime,
-                     double peakFactor,
-                     const ReosArea &area );
+        Calculation(
+          const QVector<double> runoffData, int reduceTimeStepFactor, const ReosDuration &timeStep, const QDateTime &referenceTime, const ReosDuration &peakTime, double peakFactor, const ReosArea &area
+        );
 
         void start() override;
 
@@ -360,17 +346,17 @@ class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrograph : public ReosTransfe
 
     // returns the index in the table of the peak factor just greater or equal
     static int indexInTable( double peakRateFactor, bool &exact );
-
 };
 
-class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrographFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionSCSUnitHydrographFactory : public ReosTransferFunctionFactory
 {
   public:
-    QString type() const override {return ReosTransferFunctionSCSUnitHydrograph::staticType();}
-    QString displayText() const override {return QObject::tr( "SCS Unit Hydrograph" );}
+    QString type() const override { return ReosTransferFunctionSCSUnitHydrograph::staticType(); }
+    QString displayText() const override { return QObject::tr( "SCS Unit Hydrograph" ); }
     ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
-    QString presentationText() const override;;
+    QString presentationText() const override;
+    ;
     QPixmap formulation() const override;
     QString formulationResource() const override;
     QString variablesDescription() const override;
@@ -386,8 +372,8 @@ class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrograph : public ReosTransf
   public:
     ReosTransferFunctionNashUnitHydrograph( ReosWatershed *watershed = nullptr );
 
-    static QString staticType() {return ReosTransferFunction::staticType() + ':' + QStringLiteral( "nash-unit-hydrograph" );}
-    QString type() const override {return staticType();}
+    static QString staticType() { return ReosTransferFunction::staticType() + ':' + QStringLiteral( "nash-unit-hydrograph" ); }
+    QString type() const override { return staticType(); }
 
     ReosHydrograph *applyFunction( ReosRunoff *runoff, QObject *parent = nullptr ) const override;
     ReosEncodedElement encode() const override;
@@ -403,15 +389,10 @@ class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrograph : public ReosTransf
   private:
     ReosTransferFunctionNashUnitHydrograph( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr );
 
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
-        Calculation( const QVector<double> runoffData,
-                     const ReosDuration &timeStep,
-                     const QDateTime &referenceTime,
-                     const ReosDuration KParam,
-                     int nParam,
-                     const ReosArea &area );
+        Calculation( const QVector<double> runoffData, const ReosDuration &timeStep, const QDateTime &referenceTime, const ReosDuration KParam, int nParam, const ReosArea &area );
 
         void start() override;
 
@@ -432,21 +413,21 @@ class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrograph : public ReosTransf
     ReosParameterBoolean *mUseConcentrationTime = nullptr;
 };
 
-class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrographFactory: public ReosTransferFunctionFactory
+class REOSCORE_EXPORT ReosTransferFunctionNashUnitHydrographFactory : public ReosTransferFunctionFactory
 {
   public:
-    QString type() const override {return ReosTransferFunctionNashUnitHydrograph::staticType();}
-    QString displayText() const override {return QObject::tr( "Nash Unit Hydrograph" );}
+    QString type() const override { return ReosTransferFunctionNashUnitHydrograph::staticType(); }
+    QString displayText() const override { return QObject::tr( "Nash Unit Hydrograph" ); }
     ReosTransferFunction *createTransferFunction( ReosWatershed *watershed ) const override;
     ReosTransferFunction *createTransferFunction( const ReosEncodedElement &element, ReosWatershed *watershed = nullptr ) const override;
-    QString presentationText() const override;;
+    QString presentationText() const override;
+    ;
     QPixmap formulation() const override;
     QString formulationResource() const override;
     QString variablesDescription() const override;
 };
 
 //**********************************************************
-
 
 
 #endif // REOSTRANSFERFUNCTION_H

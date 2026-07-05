@@ -34,8 +34,8 @@ class REOSCORE_EXPORT ReosHydrographRoutingMethod : public ReosDataObject
     ReosHydrographRoutingMethod( ReosHydrographRoutingLink *routingLink );
     virtual void calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext &context ) = 0;
 
-    QString type() const override {return staticType();}
-    static QString staticType() {return QStringLiteral( "hydrographRoutingMethod" );}
+    QString type() const override { return staticType(); }
+    static QString staticType() { return QStringLiteral( "hydrographRoutingMethod" ); }
 
     virtual ReosHydrographCalculation *calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context ) = 0;
 
@@ -116,16 +116,16 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     //! Returns the output hydrograph
     virtual ReosHydrograph *outputHydrograph() const;
 
-    QString type() const override {return staticType();}
-    QString static staticType() {return ReosHydraulicLink::staticType() + QString( ':' ) + QStringLiteral( "routing" ); }
-    QString defaultDisplayName() const override {return tr( "Hydrograph routing" );}
+    QString type() const override { return staticType(); }
+    QString static staticType() { return ReosHydraulicLink::staticType() + QString( ':' ) + QStringLiteral( "routing" ); }
+    QString defaultDisplayName() const override { return tr( "Hydrograph routing" ); }
     bool calculationInProgress() const override;
     int calculationMaxProgression() const override;
     int calculationProgression() const override;
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
     ReosTimeWindow timeWindow() const override;
-    QIcon icon() const override {return QIcon( ":/images/hydrographRouting.svg" );}
+    QIcon icon() const override { return QIcon( ":/images/hydrographRouting.svg" ); }
 
     static ReosHydrographRoutingLink *decode( const ReosEncodedElement &encodedElement, const ReosHydraulicNetworkContext &context );
 
@@ -139,10 +139,7 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
     void calculateRouting();
 
   protected:
-    ReosHydrographRoutingLink( ReosHydrographSource *hydrographSource,
-                               ReosHydrographNode *destination,
-                               const ReosEncodedElement &encodedElement,
-                               ReosHydraulicNetwork *parent = nullptr );
+    ReosHydrographRoutingLink( ReosHydrographSource *hydrographSource, ReosHydrographNode *destination, const ReosEncodedElement &encodedElement, ReosHydraulicNetwork *parent = nullptr );
 
   private slots:
     void onSourceUpdated();
@@ -158,12 +155,12 @@ class REOSCORE_EXPORT ReosHydrographRoutingLink : public ReosHydraulicLink
 
     ReosHydrograph *mOutputHydrograph = nullptr;
 
-    void encodeData( ReosEncodedElement &element,  const ReosHydraulicNetworkContext &context ) const override;
+    void encodeData( ReosEncodedElement &element, const ReosHydraulicNetworkContext &context ) const override;
 
     void init();
 };
 
-class ReosHydrographRoutingLinkFactory: public ReosHydraulicNetworkElementFactory
+class ReosHydrographRoutingLinkFactory : public ReosHydraulicNetworkElementFactory
 {
   public:
     ReosHydrographRoutingLinkFactory() = default;
@@ -172,21 +169,19 @@ class ReosHydrographRoutingLinkFactory: public ReosHydraulicNetworkElementFactor
 };
 
 //! Class that transfers hydrograph between node without altering the hydrograph
-class REOSCORE_EXPORT ReosHydrographRoutingMethodDirect: public ReosHydrographRoutingMethod
+class REOSCORE_EXPORT ReosHydrographRoutingMethodDirect : public ReosHydrographRoutingMethod
 {
     Q_OBJECT
   public:
     ReosHydrographRoutingMethodDirect( ReosHydrographRoutingLink *routingLink );
     ReosHydrographRoutingMethodDirect( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *parent = nullptr );
 
-    void calculateOutputHydrograph( ReosHydrograph *inputHydrograph,
-                                    ReosHydrograph *outputHydrograph,
-                                    const ReosCalculationContext &context ) override;
+    void calculateOutputHydrograph( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosCalculationContext &context ) override;
 
     ReosHydrographCalculation *calculationProcess( ReosHydrograph *inputHydrograph, const ReosCalculationContext &context ) override;
 
-    QString type() const override {return staticType();}
-    QString static staticType() {return ReosHydrographRoutingMethod::staticType() + QString( ':' ) + QStringLiteral( "direct" ); }
+    QString type() const override { return staticType(); }
+    QString static staticType() { return ReosHydrographRoutingMethod::staticType() + QString( ':' ) + QStringLiteral( "direct" ); }
 
     ReosEncodedElement encode() const override;
 
@@ -194,12 +189,13 @@ class REOSCORE_EXPORT ReosHydrographRoutingMethodDirect: public ReosHydrographRo
     void restoreConfiguration( ReosHydraulicScheme * ) override {}
 
   private:
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
         Calculation( ReosHydrograph *inputHydrograph );
 
         void start();
+
       private:
         std::unique_ptr<ReosHydrograph> mInputHydrograph;
     };
@@ -210,11 +206,12 @@ class ReosHydrographRoutingMethodDirectFactory : public ReosHydrographRoutingMet
   public:
     ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const override;
 
-    ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;;
+    ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;
+    ;
 
     virtual QString type() const override;
 
-    QString displayName() const override {return QObject::tr( "Without distortion" );}
+    QString displayName() const override { return QObject::tr( "Without distortion" ); }
 
     QString htmlDescription() const override;
 };
@@ -243,12 +240,13 @@ class REOSCORE_EXPORT ReosHydrographRoutingMethodMuskingum : public ReosHydrogra
     static void calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &K, double x, ReosProcess *process = nullptr );
 
   private:
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
         Calculation( ReosHydrograph *inputHydrograph, const ReosDuration &K, double X );
 
         void start() override;
+
       private:
         std::unique_ptr<ReosHydrograph> mInputHydrograph;
         ReosDuration mK;
@@ -265,7 +263,7 @@ class ReosHydrographRoutingMethodMuskingumFactory : public ReosHydrographRouting
     ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const override;
     ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;
     QString type() const override;
-    QString displayName() const override {return QObject::tr( "Muskingum" );}
+    QString displayName() const override { return QObject::tr( "Muskingum" ); }
     QString htmlDescription() const override;
 };
 
@@ -292,12 +290,13 @@ class REOSCORE_EXPORT ReosHydrographRoutingMethodLag : public ReosHydrographRout
     static void calculate( ReosHydrograph *inputHydrograph, ReosHydrograph *outputHydrograph, const ReosDuration &lag, ReosProcess *process = nullptr );
 
   private:
-    class Calculation: public ReosHydrographCalculation
+    class Calculation : public ReosHydrographCalculation
     {
       public:
         Calculation( ReosHydrograph *inputHydrograph, const ReosDuration &lag );
 
         void start() override;
+
       private:
         std::unique_ptr<ReosHydrograph> mInputHydrograph;
         ReosDuration mLag;
@@ -312,7 +311,7 @@ class ReosHydrographRoutingMethodLagFactory : public ReosHydrographRoutingMethod
     ReosHydrographRoutingMethod *createRoutingMethod( ReosHydrographRoutingLink *routingLink ) const override;
     ReosHydrographRoutingMethod *createRoutingMethod( const ReosEncodedElement &encodedElement, ReosHydrographRoutingLink *routingLink ) const override;
     QString type() const override;
-    QString displayName() const override {return QObject::tr( "Lag routing" );}
+    QString displayName() const override { return QObject::tr( "Lag routing" ); }
     QString htmlDescription() const override;
 };
 

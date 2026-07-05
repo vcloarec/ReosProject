@@ -26,9 +26,9 @@
 #include "reosoverridecursor.h"
 
 
-ReosSaveGriddedRainfallAsDialog::ReosSaveGriddedRainfallAsDialog( ReosGriddedRainfall *rainfall, const ReosGuiContext &context ) :
-  QDialog( context.parent() ),
-  ui( new Ui::ReosSaveGriddedRainfallAsDialog )
+ReosSaveGriddedRainfallAsDialog::ReosSaveGriddedRainfallAsDialog( ReosGriddedRainfall *rainfall, const ReosGuiContext &context )
+  : QDialog( context.parent() )
+  , ui( new Ui::ReosSaveGriddedRainfallAsDialog )
 {
   ui->setupUi( this );
   ui->mOptionWidget->syncRainfall( rainfall );
@@ -43,8 +43,7 @@ ReosSaveGriddedRainfallAsDialog::ReosSaveGriddedRainfallAsDialog( ReosGriddedRai
     ui->mFormatCombo->addItem( name, provKey );
   }
 
-  connect( ui->mFormatCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ),
-           this, &ReosSaveGriddedRainfallAsDialog::onFormatChanged );
+  connect( ui->mFormatCombo, QOverload<int>::of( &QComboBox::currentIndexChanged ), this, &ReosSaveGriddedRainfallAsDialog::onFormatChanged );
 
   onFormatChanged();
   if ( mUriWidget )
@@ -111,7 +110,6 @@ void ReosSaveGriddedRainfallAsDialog::onFormatChanged()
 
 std::unique_ptr<ReosDataProvider> ReosSaveGriddedRainfallAsDialog::currentFormatProvider() const
 {
-  std::unique_ptr<ReosDataProvider> provider(
-    ReosDataProviderRegistery::instance()->createProvider( mCurrentProviderKey, ReosGriddedRainfall::staticType() ) );
+  std::unique_ptr<ReosDataProvider> provider( ReosDataProviderRegistery::instance()->createProvider( mCurrentProviderKey, ReosGriddedRainfall::staticType() ) );
   return provider;
 }

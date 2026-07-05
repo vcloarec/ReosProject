@@ -20,9 +20,8 @@
 
 ReosCoordinateSystemWidget::ReosCoordinateSystemWidget( QWidget *parent )
   : QWidget( parent )
-  ,   mQgsWidget( new QgsProjectionSelectionWidget( this ) )
+  , mQgsWidget( new QgsProjectionSelectionWidget( this ) )
 {
-
   QHBoxLayout *lay = new QHBoxLayout( this );
   setLayout( lay );
   lay->setContentsMargins( 0, 0, 0, 0 );
@@ -33,7 +32,7 @@ ReosCoordinateSystemWidget::ReosCoordinateSystemWidget( QWidget *parent )
 
 QString ReosCoordinateSystemWidget::crs() const
 {
-  return mQgsWidget->crs().toWkt( QgsCoordinateReferenceSystem::WKT_PREFERRED );
+  return mQgsWidget->crs().toWkt( Qgis::CrsWktVariant::Preferred );
 }
 
 void ReosCoordinateSystemWidget::setCrs( const QString &crs )

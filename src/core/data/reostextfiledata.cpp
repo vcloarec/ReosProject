@@ -62,23 +62,14 @@ void ReosTextFileData::setDelimiters( const QStringList &delimiters )
 {
   mDelimiters = delimiters;
   QStringList special;
-  special << QString( '[' )
-          << QString( ']' )
-          << QString( '(' )
-          << QString( ')' )
-          << QString( '#' )
-          << QString( '&' )
-          << QString( '$' )
-          << QString( '%' )
-          << QString( '^' )
-          << QString( '|' ) ;
+  special << QString( '[' ) << QString( ']' ) << QString( '(' ) << QString( ')' ) << QString( '#' ) << QString( '&' ) << QString( '$' ) << QString( '%' ) << QString( '^' ) << QString( '|' );
 
   QStringList list;
   for ( const QString &str : delimiters )
   {
     if ( str == tr( "space" ) )
       list.append( QStringLiteral( " +" ) );
-    else  if ( str.size() > 1 )
+    else if ( str.size() > 1 )
       list.append( str + QString( '+' ) );
     else if ( special.contains( str ) )
       list.append( QStringLiteral( "\\" ) + str );
@@ -124,11 +115,11 @@ QVariant ReosTextFileData::data( const QModelIndex &index, int role ) const
   {
     int r = index.row();
     int c = index.column();
-    int lineIndex = mFirstDataLine - 1 +  r;
+    int lineIndex = mFirstDataLine - 1 + r;
 
     if ( lineIndex < mPreviewData.count() )
     {
-      QString line = mPreviewData.at( mFirstDataLine - 1 +  r );
+      QString line = mPreviewData.at( mFirstDataLine - 1 + r );
       QStringList data = splitLine( line );
       if ( c < data.count() )
         return data.at( c );
@@ -152,7 +143,6 @@ QVariant ReosTextFileData::headerData( int section, Qt::Orientation orientation,
   }
 
   return QVariant();
-
 }
 
 QVector<QString> ReosTextFileData::columnValues( int columnIndex )
@@ -193,7 +183,10 @@ QStringList ReosTextFileData::delimiters() const
   return mDelimiters;
 }
 
-QStringList ReosTextFileData::headers() const {return mHeaders;}
+QStringList ReosTextFileData::headers() const
+{
+  return mHeaders;
+}
 
 bool ReosTextFileData::parsePreview()
 {
@@ -238,12 +231,10 @@ bool ReosTextFileData::parsePreview()
 
 QStringList ReosTextFileData::splitLine( const QString &line ) const
 {
-
   if ( mRegExpDelimiters.isValid() && !mRegExpDelimiters.pattern().isEmpty() )
     return line.split( mRegExpDelimiters );
   else
     return QStringList( line );
-
 }
 
 void ReosTextFileData::findEOL( QTextStream &stream )

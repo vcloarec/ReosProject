@@ -15,7 +15,7 @@
  ***************************************************************************/
 #include "reosmeshgenerator.h"
 
-#include<QHash>
+#include <QHash>
 
 #include "poly2tri.h"
 #include "memory"
@@ -23,13 +23,13 @@
 #include "reosparameter.h"
 #include "reospolylinesstructure.h"
 #include "reospolygonstructure.h"
-#include "reosgmshgenerator.h"
+#ifdef WITH_GMSH
+#include "gmsh/reosgmshgenerator.h"
+#endif //WITH_GMSH
 
-ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure,
-    ReosMeshResolutionController *,
-    const QString & ) const
+ReosMeshGeneratorProcess *ReosMeshGeneratorPoly2Tri::getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *, const QString & ) const
 {
-  return new  ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
+  return new ReosMeshGeneratorPoly2TriProcess( structure->boundary() );
 }
 
 void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
@@ -37,7 +37,10 @@ void ReosMeshGeneratorPoly2Tri::setDomain( const QPolygonF &domain )
   mDomain = domain;
 }
 
-ReosEncodedElement ReosMeshGeneratorPoly2Tri::encode() const {return ReosEncodedElement( QString() );}
+ReosEncodedElement ReosMeshGeneratorPoly2Tri::encode() const
+{
+  return ReosEncodedElement( QString() );
+}
 
 ReosMeshGenerator::ReosMeshGenerator( QObject *parent )
   : ReosDataObject( parent )
@@ -53,6 +56,7 @@ ReosParameterBoolean *ReosMeshGenerator::autoUpdateParameter() const
 
 ReosMeshGenerator *ReosMeshGenerator::createMeshGenerator( const ReosEncodedElement &element, QObject *parent )
 {
+#ifdef WITH_GMSH
   if ( element.description() == QStringLiteral( "mesh-generator" ) )
   {
     QString type;
@@ -65,6 +69,9 @@ ReosMeshGenerator *ReosMeshGenerator::createMeshGenerator( const ReosEncodedElem
   }
 
   return new ReosGmshGenerator( parent );
+#else
+  return nullptr;
+#endif // WITH_GMSH
 }
 
 ReosMeshGenerator::ReosMeshGenerator( const ReosEncodedElement &element, QObject *parent )
@@ -123,8 +130,7 @@ ReosEncodedElement ReosMeshResolutionController::encode() const
 }
 
 ReosMeshResolutionController::~ReosMeshResolutionController()
-{
-}
+{}
 
 ReosMeshResolutionController *ReosMeshResolutionController::clone() const
 {
@@ -182,7 +188,7 @@ void ReosMeshGeneratorPoly2TriProcess::start()
     if ( triangles.size() > INT32_MAX )
       throw std::exception();
 
-    int triangleCount = static_cast<int>(triangles.size());
+    int triangleCount = static_cast<int>( triangles.size() );
 
     mResult.facesIndexes.fill( QVector<int>( 3 ), triangleCount );
 
@@ -202,7 +208,6 @@ void ReosMeshGeneratorPoly2TriProcess::start()
 
     qDeleteAll( polyDomain );
     mIsSuccessful = true;
-
   }
   catch ( ... )
   {

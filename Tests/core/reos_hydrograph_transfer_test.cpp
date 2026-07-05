@@ -13,7 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reos_testutils.h"
@@ -27,7 +27,7 @@
 #define WAITING_TIME_FOR_LOOP 100
 
 
-class ReosHydrographTransferTest: public QObject
+class ReosHydrographTransferTest : public QObject
 {
     Q_OBJECT
   private slots:
@@ -84,18 +84,18 @@ void ReosHydrographTransferTest::initTestCase()
 void ReosHydrographTransferTest::test_junction()
 {
   ReosCalculationContext context;
-  ReosHydrographJunction junction{ ReosSpatialPosition()};
+  ReosHydrographJunction junction { ReosSpatialPosition() };
 
-  ReosHydrograph *inputHydrograph_1 = mSource1.outputHydrograph( );
-  ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph( );
-  ReosHydrograph *inputHydrograph_3 = mSource3.outputHydrograph( );
+  ReosHydrograph *inputHydrograph_1 = mSource1.outputHydrograph();
+  ReosHydrograph *inputHydrograph_2 = mSource2.outputHydrograph();
+  ReosHydrograph *inputHydrograph_3 = mSource3.outputHydrograph();
 
   ReosHydrographRoutingLink transfer1;
   transfer1.setInputHydrographSource( &mSource1 );
   transfer1.setDestination( &junction );
 
   junction.updateCalculationContext( context );
-  ReosHydrograph *junctionHydrograph = junction.outputHydrograph( );
+  ReosHydrograph *junctionHydrograph = junction.outputHydrograph();
 
   QVERIFY( junctionHydrograph );
 
@@ -115,7 +115,7 @@ void ReosHydrographTransferTest::test_junction()
   transfer2.setDestination( &junction );
 
   junction.updateCalculationContext( context );
-  junctionHydrograph = junction.outputHydrograph( );
+  junctionHydrograph = junction.outputHydrograph();
 
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
@@ -125,18 +125,16 @@ void ReosHydrographTransferTest::test_junction()
   for ( int i = 0; i < inputHydrograph_1->valueCount(); ++i )
   {
     QDateTime time = inputHydrograph_1->timeAt( i );
-    QCOMPARE( junctionHydrograph->valueAtTime( time ),
-              inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) );
+    QCOMPARE( junctionHydrograph->valueAtTime( time ), inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) );
   }
 
   for ( int i = 0; i < inputHydrograph_2->valueCount(); ++i )
   {
     QDateTime time = inputHydrograph_2->timeAt( i );
-    QCOMPARE( junctionHydrograph->valueAtTime( time ),
-              inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) );
+    QCOMPARE( junctionHydrograph->valueAtTime( time ), inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) );
   }
 
-  ReosHydrographJunction junction2{ ReosSpatialPosition()};
+  ReosHydrographJunction junction2 { ReosSpatialPosition() };
 
   ReosHydrographRoutingLink transfer3;
   transfer3.setInputHydrographSource( &mSource3 );
@@ -151,33 +149,24 @@ void ReosHydrographTransferTest::test_junction()
   timer.start( WAITING_TIME_FOR_LOOP );
   loop.exec();
 
-  ReosHydrograph *junctionHydrograph2 = junction2.outputHydrograph( );
+  ReosHydrograph *junctionHydrograph2 = junction2.outputHydrograph();
 
   for ( int i = 0; i < inputHydrograph_1->valueCount(); ++i )
   {
     QDateTime time = inputHydrograph_1->timeAt( i );
-    QCOMPARE( junctionHydrograph2->valueAtTime( time ),
-              inputHydrograph_1->valueAtTime( time ) +
-              inputHydrograph_2->valueAtTime( time ) +
-              inputHydrograph_3->valueAtTime( time ) );
+    QCOMPARE( junctionHydrograph2->valueAtTime( time ), inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) + inputHydrograph_3->valueAtTime( time ) );
   }
 
   for ( int i = 0; i < inputHydrograph_2->valueCount(); ++i )
   {
     QDateTime time = inputHydrograph_2->timeAt( i );
-    QCOMPARE( junctionHydrograph2->valueAtTime( time ),
-              inputHydrograph_1->valueAtTime( time ) +
-              inputHydrograph_2->valueAtTime( time ) +
-              inputHydrograph_3->valueAtTime( time ) );
+    QCOMPARE( junctionHydrograph2->valueAtTime( time ), inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) + inputHydrograph_3->valueAtTime( time ) );
   }
 
   for ( int i = 0; i < inputHydrograph_3->valueCount(); ++i )
   {
     QDateTime time = inputHydrograph_3->timeAt( i );
-    QCOMPARE( junctionHydrograph2->valueAtTime( time ),
-              inputHydrograph_1->valueAtTime( time ) +
-              inputHydrograph_2->valueAtTime( time ) +
-              inputHydrograph_3->valueAtTime( time ) );
+    QCOMPARE( junctionHydrograph2->valueAtTime( time ), inputHydrograph_1->valueAtTime( time ) + inputHydrograph_2->valueAtTime( time ) + inputHydrograph_3->valueAtTime( time ) );
   }
 }
 
@@ -392,7 +381,7 @@ void ReosHydrographTransferTest::test_watershed_and_routing()
 
   //back the link 2 to junction 1
   link2->setDestination( &junction1 );
-  link1.updateCalculationContext( context ); //test the update of context in a parallel but sharing same network
+  link1.updateCalculationContext( context );     //test the update of context in a parallel but sharing same network
   junction3.updateCalculationContext( context ); //need to
 
   timer.start( WAITING_TIME_FOR_LOOP );

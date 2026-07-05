@@ -73,28 +73,25 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
      *
      */
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
-      const ReosMapExtent &extent,
-      ReosRasterExtent &rasterExtent,
-      float &maxValue,
-      const QString &destinationCrs = QString(), ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
+      const ReosMapExtent &extent, ReosRasterExtent &rasterExtent, float &maxValue, const QString &destinationCrs = QString(), ReosProcess *process = nullptr
+    ) const
+      = 0 SIP_SKIP;
 
     /**
      * Extract a memory raster with simple precision from the DEM in \a a rasterExtent.
      * Destination CRS, resolution and extent are stored in \a rasterExtent.
      * If destinantion crs the output will be in the same coordinate system as the souce of the DEM
      */
-    virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
-      const ReosRasterExtent &destinationRasterExtent,
-      ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
+    virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosRasterExtent &destinationRasterExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
     //! Returns the no data value for this DEM
-    virtual double noDataValue() const = 0 ;
+    virtual double noDataValue() const = 0;
 };
 
 #ifndef SIP_RUN
 
 //! Process class that extract elevation on a polyline from a digital elevation model
-class REOSCORE_EXPORT ReosElevationOnPolylineProcess: public ReosProcess
+class REOSCORE_EXPORT ReosElevationOnPolylineProcess : public ReosProcess
 {
   public:
     //! Constructor
@@ -119,7 +116,6 @@ class REOSCORE_EXPORT ReosElevationOnPolylineProcess: public ReosProcess
 #endif // No SIP_RUN
 
 //! Process that calculate the average elevation of the DEM in a watershed defined
-
 
 
 #endif // REOSDIGITALELEVATIONMODEL_H

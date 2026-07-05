@@ -18,7 +18,7 @@
 
 #include "reoshydrograph.h"
 
-#define HYDROPORTAIL_KEY QStringLiteral("hydroportail")
+#define HYDROPORTAIL_KEY QStringLiteral( "hydroportail" )
 
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
@@ -27,11 +27,12 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
 }
 
 ReosHydroportailProvider::ReosHydroportailProvider()
+{}
+
+QString ReosHydroportailProvider::key() const
 {
-
+  return staticKey();
 }
-
-QString ReosHydroportailProvider::key() const {return staticKey();}
 
 QStringList ReosHydroportailProvider::fileSuffixes() const
 {
@@ -93,7 +94,10 @@ void ReosHydroportailProvider::load()
   }
 }
 
-QDateTime ReosHydroportailProvider::referenceTime() const {return mReferenceTime;}
+QDateTime ReosHydroportailProvider::referenceTime() const
+{
+  return mReferenceTime;
+}
 
 int ReosHydroportailProvider::valueCount() const
 {
@@ -169,7 +173,6 @@ bool ReosHydroportailProvider::canReadUri( const QString &uri ) const
   QString headerLine = stream.readLine();
 
   return headerLine.contains( QStringLiteral( "Date (TU)" ) ) && headerLine.contains( QStringLiteral( "Valeur (en" ) );
-
 }
 
 QString ReosHydroportailProvider::staticKey()

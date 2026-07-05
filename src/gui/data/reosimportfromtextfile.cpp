@@ -23,9 +23,9 @@
 #include "reostextfiledata.h"
 
 
-ReosImportFromTextFile::ReosImportFromTextFile( ReosTextFileData *data, QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosImportFromTextFile )
+ReosImportFromTextFile::ReosImportFromTextFile( ReosTextFileData *data, QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosImportFromTextFile )
   , mData( data )
 {
   ui->setupUi( this );
@@ -58,8 +58,7 @@ QComboBox *ReosImportFromTextFile::createAvailableFieldComboBox( QWidget *parent
 
   cmb->addItems( mData->headers() );
 
-  connect( mData, &ReosTextFileData::headersChanged, cmb, [cmb]( const QStringList & headers )
-  {
+  connect( mData, &ReosTextFileData::headersChanged, cmb, [cmb]( const QStringList &headers ) {
     cmb->clear();
     cmb->addItems( headers );
   } );
@@ -87,7 +86,6 @@ void ReosImportFromTextFile::onFileNameButton()
 
   ui->lineEditFileName->setText( fileName );
   ui->spinBoxHeaderLine->setFocus();
-
 }
 
 void ReosImportFromTextFile::onFileNameEdited()

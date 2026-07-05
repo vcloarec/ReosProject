@@ -19,18 +19,20 @@
 
 ReosStyleRegistery *ReosStyleRegistery::sInstance = nullptr;
 
-ReosStyleRegistery::ReosStyleRegistery( ReosModule *parent ): ReosModule( QStringLiteral("style-registery"), parent )
+ReosStyleRegistery::ReosStyleRegistery( ReosModule *parent )
+  : ReosModule( QStringLiteral( "style-registery" ), parent )
 {
-  mColors << QColor( "#00c842" )
-          << QColor( "#e48100" )
-          << QColor( "#e40098" )
-          << QColor( "#007ae4" )
-          << QColor( "#5b9800" )
-          << QColor( "#986300" )
-          << QColor( "#e18dff" )
-          << QColor( "#3fecff" )
-          << QColor( "#c9d000" )
-          << QColor( "#676767" );
+  mColors
+    << QColor( "#00c842" )
+    << QColor( "#e48100" )
+    << QColor( "#e40098" )
+    << QColor( "#007ae4" )
+    << QColor( "#5b9800" )
+    << QColor( "#986300" )
+    << QColor( "#e18dff" )
+    << QColor( "#3fecff" )
+    << QColor( "#c9d000" )
+    << QColor( "#676767" );
 
   ReosSettings settings;
   if ( settings.contains( QStringLiteral( "StyleRegistery/last-index-curve-color" ) ) )

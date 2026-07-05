@@ -33,7 +33,7 @@ namespace Ui
 {
   class ReosEditStructure2DWidget;
   class ReosEditStructureGeometry2DWidget;
-}
+} //namespace Ui
 
 class ReosStructureInformationWidget : public QWidget
 {
@@ -43,6 +43,7 @@ class ReosStructureInformationWidget : public QWidget
 
   private slots:
     void update();
+
   private:
     QPointer<ReosHydraulicStructure2D> mHydraulicStructure;
     QLabel *mLabelVerticesCount = nullptr;
@@ -78,7 +79,6 @@ class ReosEditHydraulicStructure2DWidget : public ReosStackedPageWidget
     ReosGmshResolutionControllerWidget *mResolutionWidget = nullptr;
     bool mIsWireFrameActiveBefore = false;
 };
-
 
 
 #endif // REOSEDITSTRUCTURE2DWIDGET_H

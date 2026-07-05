@@ -26,24 +26,30 @@ email                : vcloarec at gmail dot com
 #include "reoswatershed.h"
 #include "reosrasterwatershed.h"
 #include "reosdigitalelevationmodel.h"
+#include "reosrastercompressed.h"
 
 class ReosRasterFillingWangLiu;
 class ReosWatershedTree;
 
 #ifndef SIP_RUN
-class ReosWatershedDelineatingProcess: public ReosProcess
+class ReosWatershedDelineatingProcess : public ReosProcess
 {
     Q_OBJECT
   public:
-    ReosWatershedDelineatingProcess( ReosDigitalElevationModel *dem,
-                                     const ReosMapExtent &mapExtent,
-                                     const QPolygonF &downtreamLine,
-                                     const QList<QPolygonF> &burningLines,
-                                     bool calculateAverageElevation = false );
+    ReosWatershedDelineatingProcess(
+      ReosDigitalElevationModel *dem, const ReosMapExtent &mapExtent, const QPolygonF &downtreamLine, const QString &downstreamLineCrs, const QList<QPolygonF> &burningLines, bool calculateAverageElevation = false
+    );
 
-    ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed,
-                                     const QPolygonF &downtreamLine,
-                                     const QString &layerId );
+    ReosWatershedDelineatingProcess( ReosWatershed *downstreamWatershed, const QPolygonF &downstreamLine, const QString &downstreamLineCrs, const QString &layerId, bool calculateAverageElevation = false );
+
+    ReosWatershedDelineatingProcess(
+      ReosDigitalElevationModel *dem,
+      const ReosRasterWatershed::Directions &directions,
+      const ReosRasterExtent &directionsExtent,
+      const QPolygonF &downstreamLine,
+      const QString &downstreamLineCrs,
+      bool calculateAverageElevation = false
+    );
 
     void start() override;
 
@@ -52,12 +58,14 @@ class ReosWatershedDelineatingProcess: public ReosProcess
 
     ReosRasterWatershed::Directions directions() const;
     ReosRasterWatershed::Watershed rasterizedWatershed() const;
+    ReosRasterWatershed::DistanceClasses distanceClasses() const;
 
     //! Returns the entry extent matching to dem raster resolution
     ReosRasterExtent predefinedRasterExtent() const;
     ReosRasterExtent outputRasterExtent() const;
 
     double averageElevation() const;
+    QVector<int> distanceArea() const;
 
     bool calculateAverageElevation() const;
 
@@ -66,17 +74,18 @@ class ReosWatershedDelineatingProcess: public ReosProcess
     std::unique_ptr<ReosDigitalElevationModel> mEntryDem;
     const QPolygonF mDownstreamLine;
     const QList<QPolygonF> mBurningLines;
+    QString mOutputCrs;
 
     ReosRasterWatershed::Directions mDirections;
     ReosRasterWatershed::Watershed mRasterizedWatershed;
+    ReosRasterWatershed::DistanceClasses mDistanceClasses;
+    QVector<int> mDistanceToArea;
     QPolygonF mOutputWatershed;
     QPolygonF mOutputStreamline;
     ReosRasterExtent mPredefinedRasterExtent;
     ReosRasterExtent mOutputRasterExtent;
     bool mCalculateAverageElevation = false;
     double mAverageElevation = 0;
-
-    static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent );
 };
 
 #endif //No SIP_RUN
@@ -109,8 +118,11 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Sets the DEM to operate
     bool setDigitalElevationModelDEM( const QString &layerId );
 
-    //! Sets the downstream line, return true if sucessful
-    bool setDownstreamLine( const QPolygonF &downstreamLine );
+    /**
+     *  Sets the downstream line and its crs, return true if sucessful.
+     *  If the crs is not provided, it is supposed the crs is the same than other inputs (extent or at least DEM crs)
+     */
+    bool setDownstreamLine( const QPolygonF &downstreamLine, const QString &lineCrs = QString() );
 
     //! Sets the predefined extent, return true if sucessful
     bool setPreDefinedExtent( const ReosMapExtent &extent );
@@ -166,19 +178,46 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     //! Clears all the data from the delineating tool
     void clear();
 
-    static QString staticName() {return QStringLiteral( "watershed-delineating" );}
+    static QString staticName() { return QStringLiteral( "watershed-delineating" ); }
+
+    struct DelineateResult
+    {
+        ReosRasterExtent outputRasterExtent;
+        QPolygonF delineateWatershed;
+        QPolygonF streamLine;
+        double averageElevation;
+        QVector<int> distanceArea;
+    };
+
+    static DelineateResult delineateWatershed(
+      const QString &demLayerId, const QString &directionFile, const QPolygonF &downstreamLine, const QString &dsLineCrs, ReosGisEngine *gisEngine, const QString &distanceClassesOutputFile = QString()
+    );
+
+    static bool directionFromDem(
+      const QString &demLayerId,
+      const ReosMapExtent &extent,
+      ReosGisEngine *gisEngine,
+      const QString &fileName,
+      const QString &burningLinesLayerUri = QString(),
+      const QString &burningLinesLayerProvider = QString(),
+      bool cogOutput = true
+    );
+
+    static void burnRasterDem( ReosRasterMemory<float> &rasterDem, const QList<QPolygonF> &burningLines, const ReosRasterExtent &rasterExtent ) SIP_SKIP;
 
   signals:
     void hasBeenReset();
 
   private slots:
     void onDelineatingFinished();
+
   private:
     ReosWatershedTree *mWatershedTree;
     ReosGisEngine *mGisEngine = nullptr;
     QString mDEMLayerId;
     State mCurrentState = NoDigitalElevationModel;
     QPolygonF mDownstreamLine;
+    QString mDSLineCrs;
     ReosMapExtent mExtent;
     ReosWatershed *mDownstreamWatershed = nullptr;
     QList<QPolygonF> mBurningLines;
@@ -188,7 +227,6 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
     std::unique_ptr<ReosWatershedDelineatingProcess> mProcess;
 
     std::unique_ptr<ReosWatershed> mCurrentWatershed;
-
 };
 
 #endif // REOSWATERSHEDDELINEATING_H

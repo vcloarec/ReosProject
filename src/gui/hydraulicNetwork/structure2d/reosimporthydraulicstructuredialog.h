@@ -69,7 +69,6 @@ class REOSGUI_EXPORT ReosImportHydraulicStructureWidget : public QWidget
 
   signals:
     void isValidated( bool valid );
-
 };
 
 #endif // REOSIMPORTHYDRAULICSTRUCTUREDIALOG_H

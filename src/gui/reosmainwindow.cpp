@@ -35,7 +35,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reosplotwidget.h"
 #include "reosstyleregistery.h"
-#include "reosgmshgenerator.h"
+#include "gmsh/reosgmshgenerator.h"
 
 
 ReosMainWindow::ReosMainWindow( ReosModule *rootModule, QWidget *parent )
@@ -66,10 +66,7 @@ ReosMainWindow::ReosMainWindow( ReosModule *rootModule, QWidget *parent )
   centralWidget->setLayout( centralLayout );
   centralLayout->setContentsMargins( 0, 0, 0, 0 );
 
-  connect( rootModule, &ReosModule::dirtied, this, [this]
-  {
-    mProjectIsDirty = true;
-  } );
+  connect( rootModule, &ReosModule::dirtied, this, [this] { mProjectIsDirty = true; } );
 }
 
 ReosMainWindow::~ReosMainWindow()
@@ -133,8 +130,8 @@ void ReosMainWindow::init()
   connect( mActionLanguageSelection, &QAction::triggered, this, &ReosMainWindow::languageSelection );
   connect( mActionAbout, &QAction::triggered, this, &ReosMainWindow::about );
   connect( mActionNewVersionAvailable, &QAction::triggered, this, &ReosMainWindow::newVersionAvailable );
-  connect( mActionDocumentation, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mDocumentationUrl );} );
-  connect( mActionHowToSupport, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mHowToSupportUrl );} );
+  connect( mActionDocumentation, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mDocumentationUrl ); } );
+  connect( mActionHowToSupport, &QAction::triggered, this, [this] { QDesktopServices::openUrl( mHowToSupportUrl ); } );
 
   connect( mRootModule, &ReosModule::emitMessage, messageBox, &ReosMessageBox::receiveMessage );
 }
@@ -293,17 +290,16 @@ void ReosMainWindow::languageSelection()
     settings.setValue( QStringLiteral( "Locale-language" ), dial.language() );
     settings.setValue( QStringLiteral( "Locale-global" ), dial.global() );
   }
-
 }
 
 void ReosMainWindow::newVersionAvailable()
 {
-    new ReosVersionMessageBox( this, version(), false );
+  new ReosVersionMessageBox( this, version(), false );
 }
 
 ReosModule *ReosMainWindow::rootModule() const
 {
-    return mRootModule;
+  return mRootModule;
 }
 
 ReosModule *ReosMainWindow::guiRootModule() const
@@ -333,10 +329,7 @@ void ReosMainWindow::setRecentProjects( const QStringList &recentProjects )
   {
     QFileInfo fileInfo( filePath );
     QString text = fileInfo.completeBaseName() + QStringLiteral( " (%1)" ).arg( QDir::toNativeSeparators( fileInfo.filePath() ) );
-    QAction *action = mMenuRecentProjects->addAction( text, this, [this, filePath]
-    {
-      openFileWithPath( filePath );
-    } );
+    QAction *action = mMenuRecentProjects->addAction( text, this, [this, filePath] { openFileWithPath( filePath ); } );
 
     action->setEnabled( fileInfo.exists() );
   }
@@ -356,8 +349,8 @@ void ReosMainWindow::about()
   about->setVersion( version().softwareNameWithVersion() );
   about->setWebAddress( webSite );
   about->addLibrary( "Qt", qVersion(), "www.qt.io" );
-  about->addLibrary( ReosGisEngine::gisEngineName(), ReosGisEngine::gisEngineVersion(),  ReosGisEngine::gisEngineLink() );
-  about->addLibrary( ReosPlotWidget::plotEngineName(),  ReosPlotWidget::plotEngineVersion(),  ReosPlotWidget::plotEngineLink() );
+  about->addLibrary( ReosGisEngine::gisEngineName(), ReosGisEngine::gisEngineVersion(), ReosGisEngine::gisEngineLink() );
+  about->addLibrary( ReosPlotWidget::plotEngineName(), ReosPlotWidget::plotEngineVersion(), ReosPlotWidget::plotEngineLink() );
   about->addLibrary( QStringLiteral( "Gmsh" ), ReosGmshGenerator::version(), QStringLiteral( "gmsh.info/" ) );
 
   QString licenceTxt;
@@ -393,8 +386,7 @@ void ReosMainWindow::closeEvent( QCloseEvent *event )
 {
   if ( mProjectIsDirty )
   {
-    if ( QMessageBox::question( this, tr( "Closing current project" ), tr( "The current project has been modified, do you want to save it?" ) )
-         == QMessageBox::Yes )
+    if ( QMessageBox::question( this, tr( "Closing current project" ), tr( "The current project has been modified, do you want to save it?" ) ) == QMessageBox::Yes )
       save();
   }
   else
@@ -420,7 +412,8 @@ QString ReosMainWindow::projectFileSuffix() const
 }
 
 
-ReosRecentProjectModel::ReosRecentProjectModel( QObject *parent ): QAbstractListModel( parent )
+ReosRecentProjectModel::ReosRecentProjectModel( QObject *parent )
+  : QAbstractListModel( parent )
 {}
 
 int ReosRecentProjectModel::rowCount( const QModelIndex & ) const

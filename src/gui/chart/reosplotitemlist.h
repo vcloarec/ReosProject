@@ -48,7 +48,7 @@ class ReosPlotItemListModel : public QAbstractListModel
     void setGlobalVisibilty( bool globalVisibilty );
 
   private:
-    QList < std::tuple<ReosPlotItem *, ReosTimeSeriesVariableTimeStep *, bool>> mPlot;
+    QList< std::tuple<ReosPlotItem *, ReosTimeSeriesVariableTimeStep *, bool>> mPlot;
     bool mGlobalVisibilty = false;
     ReosPlotWidget *mPlotWidget = nullptr;
 
@@ -73,11 +73,10 @@ class ReosVariableTimeStepPlotListView : public QListView
 
   private:
     ReosPlotItemListModel *mModel;
-
 };
 
 
-class ReosVariableTimeStepPlotListButton: public QToolButton
+class ReosVariableTimeStepPlotListButton : public QToolButton
 {
   public:
     ReosVariableTimeStepPlotListButton( const QString &title, ReosPlotWidget *parent );

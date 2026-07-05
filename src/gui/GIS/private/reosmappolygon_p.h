@@ -25,7 +25,7 @@ email                : vcloarec at gmail dot com
 class ReosMapItem;
 class ReosPolylinesStructure;
 
-class ReosMapItem_p: public QgsMapCanvasItem
+class ReosMapItem_p : public QgsMapCanvasItem
 {
   public:
     ReosMapItem_p( QgsMapCanvas *canvas );
@@ -51,7 +51,7 @@ class ReosMapItem_p: public QgsMapCanvasItem
     ReosMapItem *base;
 };
 
-class ReosMapMarker_p: public ReosMapItem_p
+class ReosMapMarker_p : public ReosMapItem_p
 {
   public:
     ReosMapMarker_p( QgsMapCanvas *canvas );
@@ -59,17 +59,17 @@ class ReosMapMarker_p: public ReosMapItem_p
     void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
     QRectF boundingRect() const override;
-    void setMapPosition( const QgsPointXY &pos ) override;;
+    void setMapPosition( const QgsPointXY &pos ) override;
+    ;
 
     QPointF mapPoint;
     bool isEmpty = true;
 
   protected:
     QPointF mViewPoint;
-
 };
 
-class ReosMapMarkerFilledCircle_p: public ReosMapMarker_p
+class ReosMapMarkerFilledCircle_p : public ReosMapMarker_p
 {
   public:
     ReosMapMarkerFilledCircle_p( QgsMapCanvas *canvas );
@@ -81,7 +81,7 @@ class ReosMapMarkerFilledCircle_p: public ReosMapMarker_p
 };
 
 
-class ReosMapMarkerEmptySquare_p: public ReosMapMarker_p
+class ReosMapMarkerEmptySquare_p : public ReosMapMarker_p
 {
   public:
     ReosMapMarkerEmptySquare_p( QgsMapCanvas *canvas );
@@ -92,7 +92,7 @@ class ReosMapMarkerEmptySquare_p: public ReosMapMarker_p
     void paint( QPainter *painter ) override;
 };
 
-class ReosMapMarkerEmptyCircle_p: public ReosMapMarker_p
+class ReosMapMarkerEmptyCircle_p : public ReosMapMarker_p
 {
   public:
     ReosMapMarkerEmptyCircle_p( QgsMapCanvas *canvas );
@@ -103,7 +103,7 @@ class ReosMapMarkerEmptyCircle_p: public ReosMapMarker_p
     void paint( QPainter *painter ) override;
 };
 
-class ReosMapMarkerSvg_p: public ReosMapMarker_p
+class ReosMapMarkerSvg_p : public ReosMapMarker_p
 {
   public:
     ReosMapMarkerSvg_p( QgsMapCanvas *canvas, const QString &filePath );
@@ -119,7 +119,7 @@ class ReosMapMarkerSvg_p: public ReosMapMarker_p
 };
 
 
-class ReosMapPolygonBase_p: public ReosMapItem_p
+class ReosMapPolygonBase_p : public ReosMapItem_p
 {
   public:
     ReosMapPolygonBase_p( QgsMapCanvas *canvas );
@@ -156,13 +156,12 @@ class ReosMapPolygonBase_p: public ReosMapItem_p
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;
 
-    virtual  void draw( QPainter *painter );
+    virtual void draw( QPainter *painter );
 };
 
-class ReosMapPolygon_p: public ReosMapPolygonBase_p
+class ReosMapPolygon_p : public ReosMapPolygonBase_p
 {
   public:
-
     ReosMapPolygon_p( QgsMapCanvas *canvas );
 
     ReosMapPolygon_p *clone() override;
@@ -177,15 +176,14 @@ class ReosMapPolygon_p: public ReosMapPolygonBase_p
 
   protected:
     QPolygonF mMapPolygon;
+
   private:
     ReosMapPolygon_p( ReosMapPolygon_p *other );
-
 };
 
-class ReosMapStructureEnvelop_p: public ReosMapPolygonBase_p
+class ReosMapStructureEnvelop_p : public ReosMapPolygonBase_p
 {
   public:
-
     ReosMapStructureEnvelop_p( QgsMapCanvas *canvas );
 
     ReosMapStructureEnvelop_p *clone() override;
@@ -205,7 +203,7 @@ class ReosMapStructureEnvelop_p: public ReosMapPolygonBase_p
     ReosPolylinesStructure *mStructure = nullptr;
 };
 
-class ReosMapPolyline_p: public ReosMapPolygon_p
+class ReosMapPolyline_p : public ReosMapPolygon_p
 {
   public:
     ReosMapPolyline_p( QgsMapCanvas *canvas );

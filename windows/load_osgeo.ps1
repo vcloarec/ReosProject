@@ -2,7 +2,7 @@
 
 $starter_path = Get-Location
 
-md $env:OSGEO4W_ROOT
+md $env:OSGEO4W_ROOT -Force | Out-Null
 
 # Download installer if not exists
 if (-Not (Test-Path "$env:OSGEO4W_ROOT\osgeo4w-setup.exe" -PathType leaf )) {
@@ -35,9 +35,8 @@ Write-Host "================================================="
     --autoaccept `
     --delete-orphans `
     --local-package-dir "$env:APPDATA/OSGeo4W-Packages" `
-    --menu-name "QGIS LTR" `
     --no-desktop `
-    --packages qgis-deps `
+    --packages qgis-ltr-deps,libaec-devel `
     --root $osgeo_root_install `
     --quiet-mode `
     --site "http://download.osgeo.org/osgeo4w/v2" `

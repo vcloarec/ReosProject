@@ -15,15 +15,18 @@ email                : vcloarec@gmail.com
 
 #include "reosrasterfilling.h"
 
-ReosRasterFilling::ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue ):
-  mDem( dem ), mXSize( XSize ), mYSize( YSize )
+ReosRasterFilling::ReosRasterFilling( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue )
+  : mDem( dem )
+  , mXSize( XSize )
+  , mYSize( YSize )
 {
   int dt = int( std::log10( std::fabs( maxValue ) ) + 1 );
   int acceptableDigitAfteroint = std::max( 7 - dt, 0 );
   mMimimumSlope = ( 1 / pow( 10.0, acceptableDigitAfteroint ) ) / std::min( fabs( mYSize ), fabs( mXSize ) );
 }
 
-ReosRasterFilling::~ReosRasterFilling() {}
+ReosRasterFilling::~ReosRasterFilling()
+{}
 
 float ReosRasterFilling::mimimumSlope() const
 {
@@ -45,10 +48,13 @@ void ReosRasterFilling::setYSize( float value )
   mYSize = value;
 }
 
-const ReosRasterMemory<float> &ReosRasterFilling::filledDEM() const {return mDem;}
+const ReosRasterMemory<float> &ReosRasterFilling::filledDEM() const
+{
+  return mDem;
+}
 
-ReosRasterFillingWangLiu::ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue ):
-  ReosRasterFilling( dem, XSize, YSize, maxValue )
+ReosRasterFillingWangLiu::ReosRasterFillingWangLiu( const ReosRasterMemory<float> &dem, double XSize, double YSize, float maxValue )
+  : ReosRasterFilling( dem, XSize, YSize, maxValue )
 {}
 
 bool ReosRasterFillingWangLiu::initialize()
@@ -63,7 +69,7 @@ bool ReosRasterFillingWangLiu::initialize()
 
   mRasterChar.fill( false );
   mRasterChar.setNodata( true );
-  setMaxProgression( mDem.rowCount()*mDem.columnCount() );
+  setMaxProgression( mDem.rowCount() * mDem.columnCount() );
   return true;
 }
 
@@ -214,11 +220,3 @@ void ReosRasterFillingWangLiu::start()
 
   return;
 }
-
-
-
-
-
-
-
-

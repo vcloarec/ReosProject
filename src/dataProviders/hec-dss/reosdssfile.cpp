@@ -20,7 +20,8 @@
 #include <QDebug>
 #include <cmath>
 
-extern "C" {
+extern "C"
+{
 #include "heclib.h"
 }
 
@@ -110,7 +111,6 @@ bool ReosDssFile::pathExist( const ReosDssPath &path, bool considerInterval ) co
 {
   QList<ReosDssPath> pathes = searchRecordsPath( path, considerInterval );
   return !pathes.empty();
-
 }
 
 bool ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, ReosDuration &timeStep, QDateTime &startTime ) const
@@ -128,7 +128,7 @@ bool ReosDssFile::getSeries( const ReosDssPath &path, QVector<double> &values, R
   {
     int valueCount = timeSeries->numberValues;
     values.resize( valueCount );
-    memcpy( values.data(), timeSeries->doubleValues, static_cast<size_t>( valueCount )*sizeof( double ) );
+    memcpy( values.data(), timeSeries->doubleValues, static_cast<size_t>( valueCount ) * sizeof( double ) );
 
     int daySince1900 = timeSeries->startJulianDate;
     int startTimeSeconds = timeSeries->startTimeSeconds;
@@ -159,11 +159,7 @@ bool ReosDssFile::getSeries( const ReosDssPath &path, const ReosTimeWindow &time
   const QString dssStartTime = ReosDssUtils::timeToDssTime( timeWindow.start().time() );
   const QString dssEndDate = ReosDssUtils::dateToDssDate( timeWindow.end().date() );
   const QString dssEndTime = ReosDssUtils::timeToDssTime( timeWindow.end().time() );
-  zStructTimeSeries *timeSeries( zstructTsNewTimes( allDatapath.c_pathString(),
-                                 dssStartDate.toUtf8().data(),
-                                 dssStartTime.toUtf8().data(),
-                                 dssEndDate.toUtf8().data(),
-                                 dssEndTime.toUtf8().data() ) );
+  zStructTimeSeries *timeSeries( zstructTsNewTimes( allDatapath.c_pathString(), dssStartDate.toUtf8().data(), dssStartTime.toUtf8().data(), dssEndDate.toUtf8().data(), dssEndTime.toUtf8().data() ) );
 
   int status = ztsRetrieve( mIfltab->data(), timeSeries, -3, 2, 0 );
 
@@ -171,7 +167,7 @@ bool ReosDssFile::getSeries( const ReosDssPath &path, const ReosTimeWindow &time
   {
     int valueCount = timeSeries->numberValues;
     values.resize( valueCount );
-    memcpy( values.data(), timeSeries->doubleValues, static_cast<size_t>( valueCount )*sizeof( double ) );
+    memcpy( values.data(), timeSeries->doubleValues, static_cast<size_t>( valueCount ) * sizeof( double ) );
 
     int daySince1900 = timeSeries->startJulianDate;
     int startTimeSeconds = timeSeries->startTimeSeconds;
@@ -280,12 +276,7 @@ bool ReosDssFile::createConstantIntervalSeries( const ReosDssPath &path, QString
   return writeConstantIntervalSeries( path, QDateTime( startDate, startTime ), intervalDuration, values, error );
 }
 
-bool ReosDssFile::writeConstantIntervalSeries(
-  const ReosDssPath &path,
-  const QDateTime &startTime,
-  const ReosDuration &timeStep,
-  const QVector<double> &values,
-  QString &error )
+bool ReosDssFile::writeConstantIntervalSeries( const ReosDssPath &path, const QDateTime &startTime, const ReosDuration &timeStep, const QVector<double> &values, QString &error )
 {
   if ( !mIsOpen || !mIsValid || !mIfltab )
   {
@@ -300,8 +291,7 @@ bool ReosDssFile::writeConstantIntervalSeries(
   return writeConstantIntervalSeriesPrivate( path, startTime, timeStep, values, error );
 }
 
-template<typename T >
-static void *allocValue( T value )
+template<typename T > static void *allocValue( T value )
 {
   void *ptr = malloc( sizeof( T ) * 1 );
   *( static_cast<T *>( ptr ) ) = value;
@@ -312,7 +302,7 @@ static void *allocValue( T value )
 static char *allocCopyString( const QString &string )
 {
   size_t len = static_cast<size_t>( string.count() );
-  char *str = ( char * )malloc( string.count() + 1 );
+  char *str = ( char * ) malloc( string.count() + 1 );
   std::string stdString = string.toStdString();
   strncpy( str, stdString.c_str(), len + 1 );
   return str;
@@ -345,23 +335,12 @@ bool ReosDssFile::writeGriddedData( ReosGriddedRainfall *griddedrainFall, const 
   return writeGriddedDataPrivate( griddedrainFall, path, griddedrainFall->extent(), -1, ReosTimeWindow(), true );
 }
 
-bool ReosDssFile::writeGriddedData(
-  ReosGriddedRainfall *griddedRainFall,
-  const ReosDssPath &path,
-  const ReosMapExtent &destination,
-  double resolution,
-  const ReosTimeWindow &timeWindow )
+bool ReosDssFile::writeGriddedData( ReosGriddedRainfall *griddedRainFall, const ReosDssPath &path, const ReosMapExtent &destination, double resolution, const ReosTimeWindow &timeWindow )
 {
   return writeGriddedDataPrivate( griddedRainFall, path, destination, resolution, timeWindow, false );
 }
 
-bool ReosDssFile::writeGriddedDataPrivate(
-  ReosGriddedRainfall *griddedRainFall,
-  const ReosDssPath &path,
-  const ReosMapExtent &destination,
-  double resolution,
-  const ReosTimeWindow &timeWindow,
-  bool reduce )
+bool ReosDssFile::writeGriddedDataPrivate( ReosGriddedRainfall *griddedRainFall, const ReosDssPath &path, const ReosMapExtent &destination, double resolution, const ReosTimeWindow &timeWindow, bool reduce )
 {
   bool res = true;
   const ReosRasterExtent extent = griddedRainFall->rasterExtent();
@@ -384,15 +363,15 @@ bool ReosDssFile::writeGriddedDataPrivate(
   {
     xCellBottomLeft = static_cast<int>( std::ceil( destination.xMapMin() / destResolution ) );
     ycellBottomLeft = static_cast<int>( std::ceil( destination.yMapMin() / destResolution ) );
-    xCellTopRight = static_cast<int>( std::floor( destination.xMapMax() / destResolution ) ) ;
-    yCellTopRight = static_cast<int>( std::floor( destination.yMapMax() / destResolution ) ) ;
+    xCellTopRight = static_cast<int>( std::floor( destination.xMapMax() / destResolution ) );
+    yCellTopRight = static_cast<int>( std::floor( destination.yMapMax() / destResolution ) );
   }
   else
   {
     xCellBottomLeft = static_cast<int>( std::floor( destination.xMapMin() / destResolution ) );
     ycellBottomLeft = static_cast<int>( std::floor( destination.yMapMin() / destResolution ) );
-    xCellTopRight =  static_cast<int>( std::ceil( destination.xMapMax() / destResolution ) ) ;
-    yCellTopRight = static_cast<int>( std::ceil( destination.yMapMax() / destResolution ) ) ;
+    xCellTopRight = static_cast<int>( std::ceil( destination.xMapMax() / destResolution ) );
+    yCellTopRight = static_cast<int>( std::ceil( destination.yMapMax() / destResolution ) );
   }
 
   double xMinDestin = xCellBottomLeft * destResolution;
@@ -403,8 +382,7 @@ bool ReosDssFile::writeGriddedDataPrivate(
   ReosMapExtent destExtent( xMinDestin, yMinDestin, xMaxDestin, yMaxDestin );
   destExtent.setCrs( destination.crs() );
 
-  std::unique_ptr<ReosGriddedRainfall> transformedGriddedRainfall(
-    griddedRainFall->transform( destExtent, destResolution, destResolution, timeWindow ) );
+  std::unique_ptr<ReosGriddedRainfall> transformedGriddedRainfall( griddedRainFall->transform( destExtent, destResolution, destResolution, timeWindow ) );
 
   ReosRasterExtent transformedExtent = transformedGriddedRainfall->rasterExtent();
 
@@ -419,9 +397,9 @@ bool ReosDssFile::writeGriddedDataPrivate(
     effPath.setTimeInterval( ReosDssUtils::dateToHecRasDate( endDateTime.date() ) + ':' + endDateTime.time().toString( "HHmm" ) );
     zStructSpatialGrid *grid = zstructSpatialGridNew( effPath.c_pathString() );
 
-    grid->_type = 430;     //*************************
+    grid->_type = 430; //*************************
     grid->_version = 1;
-    QString units = "MM";  //*************************
+    QString units = "MM"; //*************************
     grid->_dataUnits = allocCopyString( units );
     grid->_dataType = PER_CUM;
     QString source = "INTERNAL";
@@ -442,7 +420,8 @@ bool ReosDssFile::writeGriddedDataPrivate(
     grid->_srsDefinitionType = 0;
     QString crsName = ( "---" );
     grid->_srsName = allocCopyString( crsName );
-    QString crs = ReosGisEngine::crsEsriWkt( transformedExtent.crs() );;
+    QString crs = ReosGisEngine::crsEsriWkt( transformedExtent.crs() );
+    ;
     grid->_srsDefinition = allocCopyString( crs );
 
     const QVector<double> values = transformedGriddedRainfall->intensityValues( i );
@@ -460,7 +439,7 @@ bool ReosDssFile::writeGriddedDataPrivate(
         continue;
       }
       static_cast<float *>( grid->_data )[static_cast<size_t>( di )] = val;
-      if ( val  < min )
+      if ( val < min )
         min = val;
       if ( val > max )
         max = val;
@@ -482,12 +461,7 @@ bool ReosDssFile::writeGriddedDataPrivate(
   return res;
 }
 
-bool ReosDssFile::writeConstantIntervalSeriesPrivate(
-  const ReosDssPath &path,
-  const QDateTime &startDateTime,
-  const ReosDuration &timeStep,
-  const QVector<double> &values,
-  QString &error )
+bool ReosDssFile::writeConstantIntervalSeriesPrivate( const ReosDssPath &path, const QDateTime &startDateTime, const ReosDuration &timeStep, const QVector<double> &values, QString &error )
 {
   ReosDssPath pathToWrite = path;
   QString ePart = getEPart( timeStep );
@@ -508,14 +482,15 @@ bool ReosDssFile::writeConstantIntervalSeriesPrivate(
   milliSeconds = milliSeconds - seconds * 1000;
   secondsToTimeString( seconds, milliSeconds, 3, strTime.data(), strTime.size() );
 
-  zStructTimeSeries *timeSerie(
-    zstructTsNewRegDoubles( pathToWrite.c_pathString(),
-                            const_cast<double *>( values.data() ),
-                            values.count(),
-                            strDate.data(),
-                            strTime.data(),
-                            "", // for now, we do not care about unit
-                            "" ) ); // for now, we do not care about type f value
+  zStructTimeSeries *timeSerie( zstructTsNewRegDoubles(
+    pathToWrite.c_pathString(),
+    const_cast<double *>( values.data() ),
+    values.count(),
+    strDate.data(),
+    strTime.data(),
+    "", // for now, we do not care about unit
+    ""
+  ) ); // for now, we do not care about type f value
 
   int res = ztsStore( mIfltab->data(), timeSerie, 0 );
   zstructFree( timeSerie );
@@ -774,12 +749,11 @@ ReosDuration ReosDssPath::timeIntervalDuration() const
 bool ReosDssPath::isEquivalent( const ReosDssPath &other ) const
 {
   bool cond1 = ( group().isEmpty() || other.group().isEmpty() || group().toLower() == other.group().toLower() );
-  bool cond2 = ( location().isEmpty() || other.location().isEmpty() || location().toLower() == other.location().toLower() ) ;
-  bool cond3 = ( parameter().isEmpty() || other.parameter().isEmpty() || parameter().toLower() == other.parameter().toLower() ) ;
+  bool cond2 = ( location().isEmpty() || other.location().isEmpty() || location().toLower() == other.location().toLower() );
+  bool cond3 = ( parameter().isEmpty() || other.parameter().isEmpty() || parameter().toLower() == other.parameter().toLower() );
   bool cond4 = ( version().isEmpty() || other.version().isEmpty() || version().toLower() == other.version().toLower() );
 
   return cond1 && cond2 && cond3 && cond4;
-
 }
 
 QString ReosDssPath::toQString( Part part ) const
@@ -798,7 +772,7 @@ void ReosDssPath::stringToData( const QString &str, Part part )
   QVector<char> strChar( str.count() + 1 );
   std::string source = str.toStdString();
   memcpy( strChar.data(), source.data(), source.size() );
-  strChar[ str.count()] = '\0';
+  strChar[str.count()] = '\0';
 
   mData[part] = strChar;
 }

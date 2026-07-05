@@ -33,8 +33,7 @@ void ReosActionWidget::setAction( QAction *action )
   mAction = action;
   action->setCheckable( true );
   action->setChecked( isVisible() );
-  connect( action, &QAction::triggered, this, [this]
-  {
+  connect( action, &QAction::triggered, this, [this] {
     if ( mAction->isChecked() )
     {
       showWidgetAction();
@@ -88,7 +87,8 @@ void ReosActionWidget::restore()
   restoreGeometry( encodedGeom );
 }
 
-ReosActionStackedWidget::ReosActionStackedWidget( QWidget *parent ): ReosActionWidget( parent )
+ReosActionStackedWidget::ReosActionStackedWidget( QWidget *parent )
+  : ReosActionWidget( parent )
 {
   setLayout( new QHBoxLayout );
   mStackedWidget = new QStackedWidget( this );
@@ -249,7 +249,7 @@ ReosActionStackedWidget *ReosStackedPageWidget::detach( QWidget *newParent )
 
 void ReosStackedPageWidget::reattach()
 {
-  if ( !mIsDetached || ! mOriginalStackedWidget )
+  if ( !mIsDetached || !mOriginalStackedWidget )
     return;
 
   ReosSettings settings;
@@ -298,7 +298,8 @@ void ReosStackedPageWidget::setAction( QAction *newAction )
   mAction = newAction;
 }
 
-ReosStackedPageWidget::ReosStackedPageWidget( QWidget *parent ): QWidget( parent )
+ReosStackedPageWidget::ReosStackedPageWidget( QWidget *parent )
+  : QWidget( parent )
 {}
 
 ReosStackedPageWidget::~ReosStackedPageWidget()

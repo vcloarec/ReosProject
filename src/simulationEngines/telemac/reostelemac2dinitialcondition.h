@@ -23,7 +23,7 @@
 class ReosParameterDouble;
 class ReosHydraulicScheme;
 
-class ReosTelemac2DInitialCondition: public ReosDataObject
+class ReosTelemac2DInitialCondition : public ReosDataObject
 {
   public:
     enum class Type
@@ -42,17 +42,16 @@ class ReosTelemac2DInitialCondition: public ReosDataObject
 
     virtual void saveConfiguration( ReosHydraulicScheme *scheme ) const = 0;
     virtual void restoreConfiguration( ReosHydraulicScheme *scheme ) = 0;
-
 };
 
-class ReosTelemac2DInitialConstantWaterLevel: public ReosTelemac2DInitialCondition
+class ReosTelemac2DInitialConstantWaterLevel : public ReosTelemac2DInitialCondition
 {
     Q_OBJECT
   public:
     ReosTelemac2DInitialConstantWaterLevel( QObject *parent = nullptr );
     ReosTelemac2DInitialConstantWaterLevel( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    Type initialConditionType() const override {return Type::ConstantLevelNoVelocity;}
+    Type initialConditionType() const override { return Type::ConstantLevelNoVelocity; }
     ReosEncodedElement encode() const override;
 
     ReosParameterDouble *initialWaterLevel() const;
@@ -64,14 +63,14 @@ class ReosTelemac2DInitialConstantWaterLevel: public ReosTelemac2DInitialConditi
     ReosParameterDouble *mInitialWaterLevel = nullptr;
 };
 
-class ReosTelemac2DInitialConditionFromSimulation: public ReosTelemac2DInitialCondition
+class ReosTelemac2DInitialConditionFromSimulation : public ReosTelemac2DInitialCondition
 {
     Q_OBJECT
   public:
     ReosTelemac2DInitialConditionFromSimulation( QObject *parent = nullptr );
     explicit ReosTelemac2DInitialConditionFromSimulation( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    Type initialConditionType() const override {return Type::FromOtherSimulation;}
+    Type initialConditionType() const override { return Type::FromOtherSimulation; }
     ReosEncodedElement encode() const override;
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
@@ -91,14 +90,14 @@ class ReosTelemac2DInitialConditionFromSimulation: public ReosTelemac2DInitialCo
     bool mUseLastTimeStep = false;
 };
 
-class ReosTelemac2DInitialConditionFromInterpolation: public ReosTelemac2DInitialCondition
+class ReosTelemac2DInitialConditionFromInterpolation : public ReosTelemac2DInitialCondition
 {
     Q_OBJECT
   public:
     ReosTelemac2DInitialConditionFromInterpolation( QObject *parent = nullptr );
     ReosTelemac2DInitialConditionFromInterpolation( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    Type initialConditionType() const override {return Type::Interpolation;}
+    Type initialConditionType() const override { return Type::Interpolation; }
     ReosEncodedElement encode() const override;
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;
     void restoreConfiguration( ReosHydraulicScheme *scheme ) override;
@@ -117,14 +116,14 @@ class ReosTelemac2DInitialConditionFromInterpolation: public ReosTelemac2DInitia
     QString mCrs;
 };
 
-class ReosTelemac2DInitialConditionUseLastTimeStep: public ReosTelemac2DInitialCondition
+class ReosTelemac2DInitialConditionUseLastTimeStep : public ReosTelemac2DInitialCondition
 {
     Q_OBJECT
   public:
     ReosTelemac2DInitialConditionUseLastTimeStep( QObject *parent = nullptr );
     ReosTelemac2DInitialConditionUseLastTimeStep( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    Type initialConditionType() const override {return Type::LastTimeStep;}
+    Type initialConditionType() const override { return Type::LastTimeStep; }
     ReosEncodedElement encode() const override;
 
     void saveConfiguration( ReosHydraulicScheme *scheme ) const override;

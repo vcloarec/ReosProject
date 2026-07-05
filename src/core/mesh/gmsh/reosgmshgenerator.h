@@ -34,7 +34,6 @@ class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
 {
     Q_OBJECT
   public:
-
     enum Algorithm
     {
       MeshAdapt,
@@ -51,14 +50,12 @@ class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
     ReosGmshGenerator( QObject *parent = nullptr );
     explicit ReosGmshGenerator( const ReosEncodedElement &element, QObject *parent = nullptr );
 
-    ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure,
-        ReosMeshResolutionController *resolutionControler,
-        const QString &destinationCrs = QString() ) const override;
+    ReosMeshGeneratorProcess *getGenerateMeshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, const QString &destinationCrs = QString() ) const override;
 
-    QString type() const override {return staticType();}
+    QString type() const override { return staticType(); }
     ReosEncodedElement encode() const override;
 
-    static QString staticType() {return ReosMeshGenerator::staticType() + ':' + QStringLiteral( "gmsh" );}
+    static QString staticType() { return ReosMeshGenerator::staticType() + ':' + QStringLiteral( "gmsh" ); }
 
     Algorithm algorithm() const;
     void setAlgorithm( const Algorithm &algorithm );
@@ -69,7 +66,6 @@ class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
 
   private:
     Algorithm mAlgorithm = FrontalDelaunay;
-
 };
 
 class ReosGmshEngine : public ReosModule
@@ -78,13 +74,11 @@ class ReosGmshEngine : public ReosModule
   public:
     static ReosGmshEngine *instance();
 
-    ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data,
-                                    ReosPolygonStructureValues *resolutionValues,
-                                    ReosGmshGenerator::Algorithm alg );
+    ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data, ReosPolygonStructureValues *resolutionValues, ReosGmshGenerator::Algorithm alg );
 
     static void instantiate( QObject *parent );
 
-    static QString staticName() {return QStringLiteral( "gmsh-engine" );}
+    static QString staticName() { return QStringLiteral( "gmsh-engine" ); }
 
   signals:
     void startGenerate();
@@ -96,18 +90,15 @@ class ReosGmshEngine : public ReosModule
 };
 
 
-class ReosMeshGeneratorGmshProcess: public ReosMeshGeneratorProcess
+class ReosMeshGeneratorGmshProcess : public ReosMeshGeneratorProcess
 {
     Q_OBJECT
   public:
-    ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure,
-                                  ReosMeshResolutionController *resolutionControler,
-                                  ReosGmshGenerator::Algorithm alg,
-                                  const QString &destinationCrs = QString() );
+    ReosMeshGeneratorGmshProcess( ReosPolylinesStructure *structure, ReosMeshResolutionController *resolutionControler, ReosGmshGenerator::Algorithm alg, const QString &destinationCrs = QString() );
 
     void start() override;
 
-    ReosMeshFrameData meshResult() const override {return mResult;}
+    ReosMeshFrameData meshResult() const override { return mResult; }
 
   private:
     ReosMeshFrameData mResult;

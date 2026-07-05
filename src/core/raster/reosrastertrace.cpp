@@ -15,18 +15,15 @@ email                : vcloarec@gmail.com
 
 #include "reosrastertrace.h"
 
-ReosRasterTraceBetweenCells::ReosRasterTraceBetweenCells( const QPoint &start,
-    const QPoint &origin,
-    const QVector<QPoint> &stopLine,
-    QList<QPoint> &elimination ):
-  mStart( start ),
-  mStopLine( stopLine ),
-  mCellsToEliminate( elimination ),
-  mOrigin( origin ),
-  mTreatedCells( 0 ),
-  mCellStart( fromBetweenAndDirectionToCells( mStart, mOrigin ) ),
-  mErrorCode( -100 ),
-  mIsStopped( false )
+ReosRasterTraceBetweenCells::ReosRasterTraceBetweenCells( const QPoint &start, const QPoint &origin, const QVector<QPoint> &stopLine, QList<QPoint> &elimination )
+  : mStart( start )
+  , mStopLine( stopLine )
+  , mCellsToEliminate( elimination )
+  , mOrigin( origin )
+  , mTreatedCells( 0 )
+  , mCellStart( fromBetweenAndDirectionToCells( mStart, mOrigin ) )
+  , mErrorCode( -100 )
+  , mIsStopped( false )
 {}
 
 void ReosRasterTraceBetweenCells::savePosition( bool saveBetweePosition )
@@ -87,9 +84,15 @@ int ReosRasterTraceBetweenCells::isInStopLine( const QPoint &p, const QPoint &di
   return retour;
 }
 
-QPolygon ReosRasterTraceBetweenCells::trace() {return mTrace;}
+QPolygon ReosRasterTraceBetweenCells::trace()
+{
+  return mTrace;
+}
 
-int ReosRasterTraceBetweenCells::error() const {return mErrorCode;}
+int ReosRasterTraceBetweenCells::error() const
+{
+  return mErrorCode;
+}
 
 ReosRasterTraceBetweenCells::~ReosRasterTraceBetweenCells()
 {}
@@ -105,7 +108,7 @@ bool ReosRasterTraceBetweenCells::startTracing()
   while ( !isStopped() )
   {
     //Consider all possible directions and remove origin one
-    QList<QPoint> listDir = {QPoint( 0, 1 ), QPoint( 1, 0 ), QPoint( 0, -1 ), QPoint( -1, 0 )};
+    QList<QPoint> listDir = { QPoint( 0, 1 ), QPoint( 1, 0 ), QPoint( 0, -1 ), QPoint( -1, 0 ) };
     listDir.removeOne( mOrigin );
 
     // Reduvce direction list to retain ony valid one (valid ones are following criteria and not "has to be eliminated";
@@ -121,7 +124,6 @@ bool ReosRasterTraceBetweenCells::startTracing()
     //Only one valid direction, simply move to this direction
     if ( listDir.count() == 1 )
     {
-
       mDirection = listDir.last();
 
       mErrorCode = testPosition( mPosition, mDirection, mTreatedCells );
@@ -214,7 +216,6 @@ bool ReosRasterTraceBetweenCells::startTracing()
 
         if ( selectedTraceIndex < 0 )
           selectedTraceIndex = 0;
-
       }
 
       // join resulting trace with current trace
@@ -276,7 +277,6 @@ int ReosRasterTraceBetweenCells::testPosition( const QPoint &p, const QPoint &di
     return 2;
 
   return ret;
-
 }
 
 void ReosRasterTraceBetweenCells::setToBeEliminated( const QPoint &p )
@@ -302,7 +302,8 @@ QVector<QPoint> ReosRasterTraceBetweenCells::fromBetweenAndDirectionToCells( con
   if ( dir.y() == -1 )
   {
     px1 = interpixel + QPoint( -1, -1 );
-    px2 = interpixel + QPoint( 0, -1 );;
+    px2 = interpixel + QPoint( 0, -1 );
+    ;
   }
 
   if ( dir.y() == 1 )
@@ -323,7 +324,7 @@ QVector<QPoint> ReosRasterTraceBetweenCells::fromBetweenAndDirectionToCells( con
     px2 = interpixel + QPoint( 0, 0 );
   }
 
-  QVector<QPoint> retour = {px1, px2};
+  QVector<QPoint> retour = { px1, px2 };
 
   return retour;
 }

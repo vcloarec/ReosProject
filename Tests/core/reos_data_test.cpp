@@ -12,7 +12,7 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include<QtTest/QtTest>
+#include <QtTest/QtTest>
 #include <QObject>
 
 #include "reostimeseries.h"
@@ -20,14 +20,14 @@ email                : vcloarec at gmail dot com
 #include "reos_testutils.h"
 #include "reoshydrograph.h"
 
-class ReosDataTesting: public QObject
+class ReosDataTesting : public QObject
 {
     Q_OBJECT
   private slots:
     void variable_time_step_time_model();
     void encode_variable_time_step();
     void hydrograph();
-
+    void duration();
 };
 
 void ReosDataTesting::variable_time_step_time_model()
@@ -299,7 +299,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // data with not valid time regarding the existing one
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "0.5" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "0.5" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "21.5" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "22.5" ) ) << QVariant( "5.0" ) );
   data << ( QVariantList() << QVariant( QString( "23.5" ) ) << QVariant( "2.23" ) );
@@ -339,7 +339,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // data with not valid time regarding the existing one
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "2.0" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "2.0" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "1.5" ) ) << QVariant( "5.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "2.23" ) );
@@ -376,9 +376,9 @@ void ReosDataTesting::variable_time_step_time_model()
   QVERIFY( timeSerie.relativeTimeAt( 13 ) == ReosDuration( 45, ReosDuration::minute ) );
   QCOMPARE( timeSerie.valueAt( 13 ), 14.2 );
 
-// data time valid
+  // data time valid
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "1.2" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "1.2" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.25" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "1.5" ) ) << QVariant( "5.0" ) );
   data << ( QVariantList() << QVariant( QString( "1.75" ) ) << QVariant( "2.23" ) );
@@ -418,7 +418,7 @@ void ReosDataTesting::variable_time_step_time_model()
 
   // set value from end
   data.clear();
-  data << ( QVariantList() <<  QVariant( QString( "46" ) ) << QVariant( "2.0" ) );
+  data << ( QVariantList() << QVariant( QString( "46" ) ) << QVariant( "2.0" ) );
   data << ( QVariantList() << QVariant( QString( "47" ) ) << QVariant( "4.2" ) );
   data << ( QVariantList() << QVariant( QString( "48" ) ) << QVariant( "5.0" ) );
 
@@ -591,10 +591,7 @@ void ReosDataTesting::encode_variable_time_step()
   QVector<double> values;
   QVector<ReosDuration> timeValues;
   values << 1.23 << 3.45 << 6.78 << 9.12;
-  timeValues << ReosDuration( 0.0, ReosDuration::minute )
-             << ReosDuration( 1.0, ReosDuration::hour )
-             << ReosDuration( 7200, ReosDuration::second )
-             << ReosDuration( 1.0, ReosDuration::day );
+  timeValues << ReosDuration( 0.0, ReosDuration::minute ) << ReosDuration( 1.0, ReosDuration::hour ) << ReosDuration( 7200, ReosDuration::second ) << ReosDuration( 1.0, ReosDuration::day );
 
   providerElement.addData( QStringLiteral( "values" ), values );
   QList<ReosEncodedElement> encodedTimeValues;
@@ -651,6 +648,8 @@ void ReosDataTesting::hydrograph()
   QString file( testFile( QStringLiteral( "hydroportail/J261401002_Q_2000.csv" ) ) );
   ReosHydrograph hydrograph( nullptr, "hydroportail", file );
 
+  QCOMPARE( hydrograph.valueCount(), 1304 );
+
   QDateTime timeMax;
   double max = 0;
   for ( int i = 0; i < hydrograph.valueCount(); ++i )
@@ -668,10 +667,113 @@ void ReosDataTesting::hydrograph()
   ReosFloat64GridBlock data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ) );
   QVector<double> values = data.values();
 
+  QDateTime refTime = hydrograph.referenceTime();
+
   QCOMPARE( values.count(), 87812 );
+  QVERIFY( equal( values.at( 0 ), 6.66, 0.001 ) );
   QVERIFY( equal( values.at( 500 ), 5.1281, 0.001 ) );
   QVERIFY( equal( values.at( 1000 ), 4.4908, 0.001 ) );
+
+  QDateTime newRef = QDateTime( refTime.date(), QTime( refTime.time().hour(), 0, 0 ), Qt::UTC );
+
+  data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), newRef );
+  values = data.values();
+
+  QVERIFY( equal( values.at( 0 ), 0.0, 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), 0.0, 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), 0.0, 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), 6.66, 0.001 ) );
+
+  QVERIFY( equal( values.at( 0 ), hydrograph.valueAtTime( newRef ), 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), hydrograph.valueAtTime( newRef.addSecs( 360 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), hydrograph.valueAtTime( newRef.addSecs( 720 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), hydrograph.valueAtTime( newRef.addSecs( 1080 ) ), 0.001 ) );
+
+  newRef = QDateTime( refTime.date(), QTime( refTime.time().hour() + 1, 0, 0 ), Qt::UTC );
+  data = hydrograph.toConstantTimeStep( ReosDuration( 0.1, ReosDuration::hour ), QDateTime( refTime.date(), QTime( refTime.time().hour() + 1, 0, 0 ), Qt::UTC ) );
+  values = data.values();
+
+  QVERIFY( equal( values.at( 0 ), 6.626, 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), 6.621, 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), 6.616, 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), 6.612, 0.001 ) );
+
+  QVERIFY( equal( values.at( 0 ), hydrograph.valueAtTime( newRef ), 0.001 ) );
+  QVERIFY( equal( values.at( 1 ), hydrograph.valueAtTime( newRef.addSecs( 360 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 2 ), hydrograph.valueAtTime( newRef.addSecs( 720 ) ), 0.001 ) );
+  QVERIFY( equal( values.at( 3 ), hydrograph.valueAtTime( newRef.addSecs( 1080 ) ), 0.001 ) );
+
+
+  ReosTimeWindow tw = hydrograph.timeWindow();
+  ReosHydrograph hyrographToComplete;
+  hyrographToComplete.copyFrom( &hydrograph );
+  ReosHydrograph hydroForCompleting_1;
+  hydroForCompleting_1.setValue( tw.end().addMSecs( -3600 ), 1.0 );
+  hydroForCompleting_1.setValue( tw.end(), 2.0 );
+  hydroForCompleting_1.setValue( tw.end().addMSecs( 3600 ), 3.0 );
+  hydroForCompleting_1.setValue( tw.end().addMSecs( 4152 ), 4.0 );
+
+  hyrographToComplete.completeAfter( &hydroForCompleting_1 );
+
+  QCOMPARE( hyrographToComplete.valueCount(), 1306 );
+
+  double val = hyrographToComplete.valueAt( 1304 );
+  QDateTime time = hyrographToComplete.timeAt( 1304 );
+
+  QVERIFY( equal( val, 3.0, 0.001 ) );
+  QCOMPARE( tw.end().addMSecs( 3600 ), time );
+
+  val = hyrographToComplete.valueAt( 1305 );
+  time = hyrographToComplete.timeAt( 1305 );
+
+  QVERIFY( equal( val, 4.0, 0.001 ) );
+  QCOMPARE( tw.end().addMSecs( 4152 ), time );
 }
+
+void ReosDataTesting::duration()
+{
+  ReosTimeSeriesVariableTimeStep timeSerie;
+  timeSerie.setReferenceTime( QDateTime( QDate( 2020, 02, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( qint64( 0 ) ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( qint64( 0 ) ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 01 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( qint64( 0 ) ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( qint64( 0 ) ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 03, 01 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 29, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 15 ), QTime( 2, 0, 0 ), Qt::UTC ), std::numeric_limits<double>::quiet_NaN() );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 0, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 02 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 1, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 02, 28 ), QTime( 2, 0, 0 ), Qt::UTC ), 1.0 );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 29, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 03, 15 ), QTime( 2, 0, 0 ), Qt::UTC ), std::numeric_limits<double>::quiet_NaN() );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 43, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
+
+  timeSerie.setValue( QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ), std::numeric_limits<double>::quiet_NaN() );
+
+  QVERIFY( timeSerie.totalDuration() == ReosDuration( 74, ReosDuration::day ) );
+  QVERIFY( timeSerie.duration() == ReosDuration( 3, ReosDuration::day ) );
+}
+
 
 QTEST_MAIN( ReosDataTesting )
 #include "reos_data_test.moc"

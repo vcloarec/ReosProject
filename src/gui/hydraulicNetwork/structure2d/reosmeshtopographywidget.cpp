@@ -28,11 +28,7 @@
 #include "reosstyleregistery.h"
 #include "reosprocesscontroler.h"
 
-ReosMeshTopographyStackedWidget::ReosMeshTopographyStackedWidget(
-  ReosMesh *mesh,
-  ReosTopographyCollection *topographyCollection,
-  const QString &topographyDatasetId,
-  const ReosGuiContext &guiContext )
+ReosMeshTopographyStackedWidget::ReosMeshTopographyStackedWidget( ReosMesh *mesh, ReosTopographyCollection *topographyCollection, const QString &topographyDatasetId, const ReosGuiContext &guiContext )
   : ReosActionStackedWidget( guiContext.parent() )
 {
   layout()->setContentsMargins( 0, 0, 0, 0 );
@@ -78,8 +74,7 @@ void ReosMeshTopographyWidget::onAddTopography()
 
   if ( mTopographyCollection->contains( topoId ) )
   {
-    QMessageBox::information( this, tr( "Add a Topography to the Collection" ),
-                              tr( "The topography collection already contains this topography." ) );
+    QMessageBox::information( this, tr( "Add a Topography to the Collection" ), tr( "The topography collection already contains this topography." ) );
     return;
   }
   mTopographyCollection->insertTopography( 0, topoId );
@@ -108,13 +103,9 @@ void ReosMeshTopographyWidget::onViewContextMenuRequest( const QPoint &pos )
 
   QMenu *menu = new QMenu( this );
   int row = index.row();
-  QAction *action = menu->addAction( tr( "Remove selected topography" ), menu, [this, row]
-  {
-    mTopographyCollection->removeTopography( row );
-  } );
+  QAction *action = menu->addAction( tr( "Remove selected topography" ), menu, [this, row] { mTopographyCollection->removeTopography( row ); } );
 
   action->setIcon( QIcon( QStringLiteral( ":/images/remove.svg" ) ) );
 
   menu->exec( ui->mTopographyCollectionView->viewport()->mapToGlobal( pos ) );
-
 }

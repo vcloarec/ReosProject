@@ -38,7 +38,6 @@ class ReosSpeedWidget : public QWidget
 
   private:
     Ui::ReosSpeedWidget *ui;
-
 };
 
 #endif // REOSSPEEDWIDGET_H

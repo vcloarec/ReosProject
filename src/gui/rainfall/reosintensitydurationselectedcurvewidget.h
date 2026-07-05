@@ -60,7 +60,7 @@ class ReosIntensityDurationSelectedCurveWidget : public QWidget
     QPointer<ReosRainfallIntensityDurationCurveItem> mCurveItem = nullptr;
 };
 
-class ReosRainfallItemSelectionDialog: public QDialog
+class ReosRainfallItemSelectionDialog : public QDialog
 {
   public:
     Q_OBJECT
@@ -77,7 +77,7 @@ class ReosRainfallItemSelectionDialog: public QDialog
     QTreeView *mTreeView;
     ReosRainfallModel *mModel = nullptr;
     ReosRainfallItem::Type mSelectionType = ReosRainfallItem::Zone;
-    QString  mSelectionDataType;
+    QString mSelectionDataType;
     QLabel *mTextLabel;
     QDialogButtonBox *mButtonBox = nullptr;
 };

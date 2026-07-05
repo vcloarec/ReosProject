@@ -43,12 +43,14 @@ class ReosHydraulicElementWidgetFactory : public QObject
 {
     Q_OBJECT
   public:
-    ReosHydraulicElementWidgetFactory( QObject *parent = nullptr ): QObject( parent ) {}
+    ReosHydraulicElementWidgetFactory( QObject *parent = nullptr )
+      : QObject( parent )
+    {}
     virtual ReosHydraulicElementWidget *createWidget( ReosHydraulicNetworkElement *element, const ReosGuiContext &context = ReosGuiContext() );
-    virtual QString elementType() {return QString();}
+    virtual QString elementType() { return QString(); }
 };
 
-class ReosHydrauylicNetworkElementCalculationControler: public QObject
+class ReosHydrauylicNetworkElementCalculationControler : public QObject
 {
     Q_OBJECT
   public:

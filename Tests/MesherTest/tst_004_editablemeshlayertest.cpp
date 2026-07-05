@@ -9,7 +9,7 @@
 
 using namespace testing;
 
-class TinLayerTesting: public Test
+class TinLayerTesting : public Test
 {
   public:
     QgsProviderRegistry *providerRegistery = QgsProviderRegistry::instance();
@@ -34,19 +34,12 @@ class TinLayerTesting: public Test
       provider->tin()->addVertex( 0, 5 );
     }
 
-    void registerProvider()
-    {
-      providerRegistery->registerProvider( new HdTinEditorProviderMetaData() );
-    }
-
+    void registerProvider() { providerRegistery->registerProvider( new HdTinEditorProviderMetaData() ); }
 
 
     // Test interface
   protected:
-    void SetUp() override
-    {
-      providerRegistery->registerProvider( new HdTinEditorProviderMetaData() );
-    }
+    void SetUp() override { providerRegistery->registerProvider( new HdTinEditorProviderMetaData() ); }
 };
 
 TEST_F( TinLayerTesting, registerProvider )
@@ -77,7 +70,6 @@ TEST_F( TinLayerTesting, layerIsValid )
 
   ASSERT_TRUE( layer->isValid() );
 }
-
 
 
 TEST_F( TinLayerTesting, verticesCount )
@@ -126,7 +118,6 @@ TEST_F( TinLayerTesting, extentMesh )
   QgsRectangle extent = layer->dataProvider()->extent();
 
   ASSERT_TRUE( extent == QgsRectangle( 0, 0, 5, 5 ) );
-
 }
 
 TEST_F( TinLayerTesting, save )
@@ -137,7 +128,6 @@ TEST_F( TinLayerTesting, save )
 
   ReosTin *tin = static_cast<TINProvider *>( layer->dataProvider() )->tin();
   ASSERT_THAT( tin->writeUGRIDFormat( "tinTestEditor.tin" ), Eq( 0 ) );
-
 }
 
 TEST_F( TinLayerTesting, open )
@@ -150,4 +140,3 @@ TEST_F( TinLayerTesting, open )
   ASSERT_THAT( layerToRead->dataProvider()->vertexCount(), Eq( 4 ) );
   ASSERT_THAT( layerToRead->dataProvider()->faceCount(), Eq( 2 ) );
 }
-

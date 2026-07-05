@@ -59,7 +59,7 @@ class ReosQgisLayerRenderer_p : public ReosObjectRenderer
     QgsRenderContext mRenderContext;
 };
 
-class ReosRasterRenderer_p: public ReosObjectRenderer
+class ReosRasterRenderer_p : public ReosObjectRenderer
 {
   public:
     bool isRenderingStopped() const override;

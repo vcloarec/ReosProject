@@ -55,6 +55,9 @@ the Free Software Foundation; either version 2 of the License, or     *
     explicit ReosModule( const QString &moduleName, QObject *parent = 0 );
     virtual ~ReosModule();
 
+  signals:
+    void emitMessage( const Message &message, bool messageBox ) const;
+
 
 };
 

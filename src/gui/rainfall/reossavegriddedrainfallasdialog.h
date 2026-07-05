@@ -50,7 +50,6 @@ class ReosSaveGriddedRainfallAsDialog : public QDialog
     QString mCurrentProviderKey;
     std::unique_ptr<ReosDataProvider> currentFormatProvider() const;
     ReosDataProviderUriWidget *mUriWidget = nullptr;
-
 };
 
 #endif // REOSSAVEGRIDDEDRAINFALLASDIALOG_H

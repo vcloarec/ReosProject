@@ -23,7 +23,8 @@
 
 
 ReosMapToolDrawHydraulicNetworkLink::ReosMapToolDrawHydraulicNetworkLink( ReosHydraulicNetwork *network, ReosMap *map )
-  : ReosMapTool( map, map ), ReosMapToolHydraulicElement( network )
+  : ReosMapTool( map, map )
+  , ReosMapToolHydraulicElement( network )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolDrawHydraulicNetworkLink_p( canvas );
@@ -90,8 +91,8 @@ ReosMapTool_p *ReosMapToolDrawHydraulicNetworkLink::tool_p() const
   return d;
 }
 
-ReosMapToolDrawHydrographRouting::ReosMapToolDrawHydrographRouting( ReosHydraulicNetwork *network, ReosMap *map ):
-  ReosMapToolDrawHydraulicNetworkLink( network, map )
+ReosMapToolDrawHydrographRouting::ReosMapToolDrawHydrographRouting( ReosHydraulicNetwork *network, ReosMap *map )
+  : ReosMapToolDrawHydraulicNetworkLink( network, map )
 {}
 
 bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
@@ -115,8 +116,7 @@ bool ReosMapToolDrawHydrographRouting::acceptItem( ReosMapItem *item )
   {
     if ( item->description().contains( ReosHydraulicStructureBoundaryCondition::staticType() ) )
     {
-      ReosHydraulicStructureBoundaryCondition *firstBoundary = qobject_cast<ReosHydraulicStructureBoundaryCondition *>
-          ( mNetwork->getElement( linkedItems().at( 0 )->description() ) );
+      ReosHydraulicStructureBoundaryCondition *firstBoundary = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( mNetwork->getElement( linkedItems().at( 0 )->description() ) );
       if ( firstBoundary ) //first node of the link is a boundary
       {
         ReosHydraulicStructureBoundaryCondition *secondBoundary = static_cast<ReosHydraulicStructureBoundaryCondition *>( nodeElem );
@@ -164,8 +164,7 @@ ReosMapToolMoveHydraulicNetworkElement::ReosMapToolMoveHydraulicNetworkElement( 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   d = new ReosMapToolMoveHydraulicNetworkNode_p( canvas );
 
-  connect( d, &ReosMapToolMoveHydraulicNetworkNode_p::itemMoved, this, [this]( const QString & elemId, const QPointF & position )
-  {
+  connect( d, &ReosMapToolMoveHydraulicNetworkNode_p::itemMoved, this, [this]( const QString &elemId, const QPointF &position ) {
     ReosHydrographNode *node = qobject_cast<ReosHydrographNode *>( mNetwork->getElement( elemId ) );
     if ( node )
       node->setPosition( ReosSpatialPosition( position ) );
@@ -185,7 +184,8 @@ ReosMapTool_p *ReosMapToolMoveHydraulicNetworkElement::tool_p() const
 
 
 ReosMapToolNewStructure2D::ReosMapToolNewStructure2D( ReosHydraulicNetwork *network, ReosMap *map )
-  : ReosMapToolDrawPolygon( map, map ), ReosMapToolHydraulicElement( network )
+  : ReosMapToolDrawPolygon( map, map )
+  , ReosMapToolHydraulicElement( network )
 {
   setStrokeWidth( 2 );
   setColor( ReosStyleRegistery::instance()->blueReos() );
@@ -206,6 +206,6 @@ void ReosMapToolNewStructure2D::onDomainDrawn( const QPolygonF &polygon )
   mNetwork->addElement( new ReosHydraulicStructure2D( polygon, map()->mapCrs(), mNetwork->context() ) );
 }
 
-ReosMapToolHydraulicElement::ReosMapToolHydraulicElement( ReosHydraulicNetwork *network ):
-  mNetwork( network )
+ReosMapToolHydraulicElement::ReosMapToolHydraulicElement( ReosHydraulicNetwork *network )
+  : mNetwork( network )
 {}

@@ -16,8 +16,6 @@ email                : vcloarec@gmail.com
 #ifndef REOSENCODEDELEMENT_H
 #define REOSENCODEDELEMENT_H
 
-#define SIP_NO_FILE
-
 #include <QByteArray>
 #include <QMap>
 #include <QString>
@@ -61,28 +59,29 @@ class REOSCORE_EXPORT ReosEncodeContext
 class REOSCORE_EXPORT ReosEncodedElement
 {
   public:
-
     //! Constructor of an empty encoded element with only the description
     explicit ReosEncodedElement() = default;
 
     //! Constructor of an empty encoded element with only the description
-    explicit ReosEncodedElement( const QString &description ): mDescription( description )
-    {}
+    explicit ReosEncodedElement( const QString &description );
 
     //! Contructor of an encoded element from a \a byte array than contains data and description
     explicit ReosEncodedElement( const QByteArray &byteArray );
 
+    //! Returns byte of the encoded element that can be store in files or in another encoded element
+    QByteArray bytes() const;
+
     //! Returns the desctiption of the encoded element
-    QString description() const {return mDescription;}
+    QString description() const { return mDescription; }
 
     //! Adds data \a value with a \a key to the encoded element
     void addEncodedData( const QString &key, const ReosEncodedElement &element );
 
     ReosEncodedElement getEncodedData( const QString &key ) const;
 
+#ifndef SIP_RUN
     //! Adds data \a value with a \a key to the encoded element
-    template<typename T>
-    void addData( const QString &key, T &&value )
+    template<typename T> void addData( const QString &key, T &&value )
     {
       QByteArray byteArray;
       QDataStream stream( &byteArray, QIODevice::WriteOnly );
@@ -92,8 +91,7 @@ class REOSCORE_EXPORT ReosEncodedElement
     }
 
     //! Gets the data \a value with the \a key from the encoded element
-    template<typename T>
-    bool getData( QString key, T &value ) const
+    template<typename T> bool getData( QString key, T &value ) const
     {
       if ( !mData.contains( key ) )
         return false;
@@ -107,12 +105,10 @@ class REOSCORE_EXPORT ReosEncodedElement
     void addListEncodedData( const QString &key, const QList<ReosEncodedElement> &list );
     QList<ReosEncodedElement> getListEncodedData( const QString &key ) const;
 
-    //! Returns byte of the encoded element that can be store in files or in another encoded element
-    QByteArray bytes() const;
-
     bool hasEncodedData() const;
     bool hasEncodedData( const QString &key ) const;
 
+#endif // not SIP_RUN
     static void setSerialisationVersion( QDataStream::Version version );
 
   private:
@@ -120,7 +116,6 @@ class REOSCORE_EXPORT ReosEncodedElement
     QString mDescription;
 
     static QDataStream::Version sVersion;
-
 };
 
 #endif // REOSENCODEDELEMENT_H

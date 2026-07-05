@@ -22,8 +22,6 @@
 class ReosHydraulicNetWork;
 
 class ReosMapToolHydraulicNetwork_p : public ReosMapTool_p
-{
-
-};
+{};
 
 #endif // REOSMAPTOOLHYDRAULICNETWORK_P_H

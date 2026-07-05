@@ -17,10 +17,10 @@ email                : vcloarec at gmail dot com
 #include "reosremoteinformation.h"
 
 
-ReosVersionMessageBox::ReosVersionMessageBox( QWidget *parent, const ReosVersion &version, bool start ):
-  QMessageBox( QMessageBox::Information, tr( "New version available" ), "", QMessageBox::Ok, parent ),
-  mVersion( version ),
-  mStart( start )
+ReosVersionMessageBox::ReosVersionMessageBox( QWidget *parent, const ReosVersion &version, bool start )
+  : QMessageBox( QMessageBox::Information, tr( "New version available" ), "", QMessageBox::Ok, parent )
+  , mVersion( version )
+  , mStart( start )
 {
   setTextFormat( Qt::RichText );
 
@@ -99,7 +99,6 @@ void ReosVersionMessageBox::onReceiveInformation( const QVariantMap &map )
       message = message.arg( map.value( QStringLiteral( "downloadUrl" ) ).toString() );
 
       setText( message );
-
     }
     else
     {

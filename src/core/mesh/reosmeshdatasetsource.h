@@ -27,7 +27,6 @@ class REOSCORE_EXPORT ReosMeshDatasetSource : public QObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
-
     enum class Location
     {
       Vertex,
@@ -50,7 +49,6 @@ class REOSCORE_EXPORT ReosMeshDatasetSource : public QObject SIP_ABSTRACT
     virtual QVector<double> datasetValues( int groupIndex, int index ) const = 0;
     virtual QVector<int> activeFaces( int index ) const = 0;
     virtual int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const = 0;
-
 };
 
 #endif // REOSMESHDATASETSOURCE_H

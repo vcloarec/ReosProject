@@ -121,6 +121,14 @@ Returns the maximum of values of this time serie
 %End
 
     const QVector<double> &constData() const;
+%Docstring
+Returns the values as a const array
+%End
+
+    const QVariantMap metadata() const;
+%Docstring
+Returns eventual metadata related to the time series
+%End
 
 
 };
@@ -299,9 +307,19 @@ Sets the relative time ``relativeTime`` at postion ``i`` regardless of the value
 Returns the relative times from the reference time
 %End
 
+    const QVector<int> relativeTimesDataSeconds() const;
+%Docstring
+Returns the relative times from the reference time in seconds, convenient for storing elsewhere.
+%End
+
     ReosDuration totalDuration() const;
 %Docstring
-Return the total durarion of the serie
+Returns the total durarion of the serie
+%End
+
+    ReosDuration duration() const;
+%Docstring
+Returns the duration of the serie taking account of hole in the series
 %End
 
     void setValue( const ReosDuration &relativeTime, double value );
@@ -314,9 +332,16 @@ Sets the value at ``relative`` time with ``value``, if the ``relative`` time is 
 Sets the value at ``time`` with ``value``, if the ``time`` is not present insert a new couple (time, value)
 %End
 
-    double valueAtTime( const ReosDuration &relativeTime ) const;
+    void setValues( const QVector<int> &relativeTime, const QVector<double> &values );
 %Docstring
-Returns the value at relative time ``relative`` time, interpolate if relative time is between two time values, return 0 if before first one or after last one
+Sets values with a relative times ``relativeTimeSecond`` in seconds.
+%End
+
+    double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;
+%Docstring
+Returns the value at relative time ``relative`` time, interpolate if relative time is between two time values,
+return 0 if before first one or after last one.
+The argument ``maxInteval`` can be used to avoid interpolation between interval of time creater than this value.
 %End
 
     double valueAtTime( const QDateTime &time ) const;
@@ -327,6 +352,11 @@ Returns the value at time ``time``, interpolate if time is between two time valu
     void addOther( const ReosTimeSeriesVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 %Docstring
 Adds another instance to this the values of this ones, create new time steps if needed
+%End
+
+    void completeAfter( const ReosTimeSeriesVariableTimeStep *other );
+%Docstring
+Completes this instance with the other series when time is after the last time of this
 %End
 
     QString unitString() const;
@@ -351,7 +381,7 @@ Sets the color used to render the time serie
 
     void copyFrom( const ReosTimeSeriesVariableTimeStep *other );
 
-    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime() ) const;
+    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime(), const ReosDuration &maxVoidInter = ReosDuration() ) const;
 %Docstring
 Returns a 1D blocl of discretized hydrograph with a time step ``timeStep``.
 If start time is not valid, discretization start and is centered at the first value of the hydrograph.

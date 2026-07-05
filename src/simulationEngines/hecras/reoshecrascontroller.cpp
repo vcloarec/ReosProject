@@ -75,44 +75,26 @@ QStringList ReosHecRasController::availableVersion()
   ///learn.microsoft.com/en-us/windows/win32/sysinfo/enumerating-registry-subkeys
   QStringList ret;
 #ifdef _WIN32
-  TCHAR    achClass[MAX_PATH] = TEXT( "" );
-  DWORD    cchClassName = MAX_PATH;
-  DWORD    cSubKeys = 0;
-  DWORD    cbMaxSubKey;
-  DWORD    cValues;
-  DWORD    cchMaxValue;
-  DWORD    cbMaxValueData;
-  DWORD    cbSecurityDescriptor;
+  TCHAR achClass[MAX_PATH] = TEXT( "" );
+  DWORD cchClassName = MAX_PATH;
+  DWORD cSubKeys = 0;
+  DWORD cbMaxSubKey;
+  DWORD cValues;
+  DWORD cchMaxValue;
+  DWORD cbMaxValueData;
+  DWORD cbSecurityDescriptor;
   FILETIME ftLastWriteTime;
 
-  DWORD res = RegQueryInfoKey( HKEY_CLASSES_ROOT,
-                               achClass,
-                               &cchClassName,
-                               nullptr,
-                               &cSubKeys,
-                               &cbMaxSubKey,
-                               &cchClassName,
-                               &cValues,
-                               &cchMaxValue,
-                               &cbMaxValueData,
-                               &cbSecurityDescriptor,
-                               &ftLastWriteTime );
+  DWORD res = RegQueryInfoKey( HKEY_CLASSES_ROOT, achClass, &cchClassName, nullptr, &cSubKeys, &cbMaxSubKey, &cchClassName, &cValues, &cchMaxValue, &cbMaxValueData, &cbSecurityDescriptor, &ftLastWriteTime );
 
   if ( cSubKeys )
   {
-    DWORD    cbName;
-    TCHAR    achKey[MAX_KEY_LENGTH];
+    DWORD cbName;
+    TCHAR achKey[MAX_KEY_LENGTH];
     for ( DWORD i = 0; i < cSubKeys; i++ )
     {
       cbName = MAX_KEY_LENGTH;
-      res = RegEnumKeyEx( HKEY_CLASSES_ROOT,
-                          i,
-                          achKey,
-                          &cbName,
-                          NULL,
-                          NULL,
-                          NULL,
-                          &ftLastWriteTime );
+      res = RegEnumKeyEx( HKEY_CLASSES_ROOT, i, achKey, &cbName, NULL, NULL, NULL, &ftLastWriteTime );
       if ( res == ERROR_SUCCESS )
       {
         String str( achKey );
@@ -151,7 +133,7 @@ ReosHecRasController::ReosHecRasController( const QString &version )
   if ( !SUCCEEDED( CLSIDFromProgID( controllerString.c_str(), &ClassID ) ) )
     return;
 
-  if ( !SUCCEEDED( CoCreateInstance( ClassID, nullptr, CLSCTX_LOCAL_SERVER, IID_IDispatch, ( void ** )&mDispatch ) ) )
+  if ( !SUCCEEDED( CoCreateInstance( ClassID, nullptr, CLSCTX_LOCAL_SERVER, IID_IDispatch, ( void ** ) &mDispatch ) ) )
     return;
 
   ITypeInfo *typeInfo;
@@ -220,7 +202,7 @@ QString ReosHecRasController::version() const
 #ifdef _WIN32
   DISPID id = mFunctionNames.value( QStringLiteral( "HECRASVersion" ) );
 
-  DISPPARAMS par = {nullptr, nullptr, 0, 0};
+  DISPPARAMS par = { nullptr, nullptr, 0, 0 };
 
   VARIANT result;
   EXCEPINFO excepInfo;
@@ -332,7 +314,6 @@ QStringList ReosHecRasController::planNames() const
       }
       SafeArrayUnlock( array );
     }
-
   }
 
   SafeArrayDestroy( array );
@@ -438,7 +419,6 @@ QStringList ReosHecRasController::computeCurrentPlan()
       }
       SafeArrayUnlock( array );
     }
-
   }
 
   SafeArrayDestroy( array );

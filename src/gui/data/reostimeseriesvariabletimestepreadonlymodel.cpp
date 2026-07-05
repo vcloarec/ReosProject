@@ -86,7 +86,8 @@ QVariant ReosTimeSeriesVariableTimeStepReadOnlyModel::data( const QModelIndex &i
         break;
       default:
         return valueAt( row, index.column() );
-        break;;
+        break;
+        ;
     }
   }
 
@@ -129,15 +130,13 @@ void ReosTimeSeriesVariableTimeStepReadOnlyModel::addTimeSerie( ReosTimeSeriesVa
   mHeaderName.append( name );
   endResetModel();
   connect( timeSerie, &ReosDataObject::dataChanged, this, &ReosTimeSeriesVariableTimeStepReadOnlyModel::updateTimeStep );
-  connect( timeSerie, &ReosDataObject::dataChanged, this, [this]
-  {
+  connect( timeSerie, &ReosDataObject::dataChanged, this, [this] {
     beginResetModel();
     emit hasBeenReset();
     endResetModel();
   } );
   updateTimeStep();
   emit hasBeenReset();
-
 }
 
 void ReosTimeSeriesVariableTimeStepReadOnlyModel::clearSerie()
@@ -226,7 +225,7 @@ void ReosTimeSeriesVariableTimeStepReadOnlyModel::copyResultHydrographValues( QI
       // headers
       for ( int w = 0; w < range.width(); ++w )
       {
-        QString header =   headerData( range.left() + w, Qt::Horizontal, Qt::DisplayRole ).toString();
+        QString header = headerData( range.left() + w, Qt::Horizontal, Qt::DisplayRole ).toString();
         header.replace( QStringLiteral( "\n" ), QString( ' ' ) );
         headers.append( header );
       }
@@ -236,8 +235,7 @@ void ReosTimeSeriesVariableTimeStepReadOnlyModel::copyResultHydrographValues( QI
     {
       QStringList lineData;
       for ( int w = 0; w < range.width(); ++w )
-        lineData.append( data(
-                           index( range.top() + h, range.left() + w, QModelIndex() ), Qt::DisplayRole ).toString() );
+        lineData.append( data( index( range.top() + h, range.left() + w, QModelIndex() ), Qt::DisplayRole ).toString() );
 
       lines.append( lineData.join( QStringLiteral( "\t" ) ) );
     }
@@ -295,7 +293,8 @@ void ReosTimeSeriesVariableTimeStepReadOnlyModel::setIsFixedTimeStep( bool isFix
   emit hasBeenReset();
 }
 
-ReosTimeSeriesVariableTimeStepReadOnlyTableView::ReosTimeSeriesVariableTimeStepReadOnlyTableView( QWidget *parent ) : QTableView( parent )
+ReosTimeSeriesVariableTimeStepReadOnlyTableView::ReosTimeSeriesVariableTimeStepReadOnlyTableView( QWidget *parent )
+  : QTableView( parent )
 {
   setHorizontalHeader( new ReosHorizontalHeaderView( this ) );
   horizontalHeader()->setStretchLastSection( true );
@@ -312,25 +311,16 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTableView::setTableModel( ReosTimeSer
 {
   mModel = model;
   setModel( model );
-  connect( mModel, &ReosTimeSeriesVariableTimeStepReadOnlyModel::hasBeenReset, this, [this]
-  {
-    horizontalHeader()->resizeSections( QHeaderView::ResizeToContents );
-  } );
+  connect( mModel, &ReosTimeSeriesVariableTimeStepReadOnlyModel::hasBeenReset, this, [this] { horizontalHeader()->resizeSections( QHeaderView::ResizeToContents ); } );
 }
 
 void ReosTimeSeriesVariableTimeStepReadOnlyTableView::onContextMenu( const QPoint &pos )
 {
   QMenu contextMenu;
 
-  contextMenu.addAction( tr( "Copy selected values" ), &contextMenu, [this]
-  {
-    this->copySelected( false );
-  } );
+  contextMenu.addAction( tr( "Copy selected values" ), &contextMenu, [this] { this->copySelected( false ); } );
 
-  contextMenu.addAction( tr( "Copy selected values with headers" ), &contextMenu, [this]
-  {
-    this->copySelected( true );
-  } );
+  contextMenu.addAction( tr( "Copy selected values with headers" ), &contextMenu, [this] { this->copySelected( true ); } );
 
   contextMenu.exec( mapToGlobal( pos ) );
 }
@@ -341,7 +331,8 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTableView::copySelected( bool withHea
   mModel->copyResultHydrographValues( selecModel, withHeader );
 }
 
-ReosTimeSeriesVariableTimeStepReadOnlyTablesView::ReosTimeSeriesVariableTimeStepReadOnlyTablesView( QWidget *parent ) : QWidget( parent )
+ReosTimeSeriesVariableTimeStepReadOnlyTablesView::ReosTimeSeriesVariableTimeStepReadOnlyTablesView( QWidget *parent )
+  : QWidget( parent )
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout( mainLayout );
@@ -380,19 +371,15 @@ void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setConstantTimeStepParame
 
   mTimeStepWidget->setVisible( useConstantTimeStepParameter->value() );
 
-  connect( constantTimeSepParameter, &ReosParameterDuration::valueChanged, mModel, [this, constantTimeSepParameter]
-  {
-    mModel->setTimeStep( constantTimeSepParameter->value() );
-  } );
+  connect( constantTimeSepParameter, &ReosParameterDuration::valueChanged, mModel, [this, constantTimeSepParameter] { mModel->setTimeStep( constantTimeSepParameter->value() ); } );
 
-  connect( useConstantTimeStepParameter, &ReosParameterBoolean::valueChanged, mModel, [this, useConstantTimeStepParameter]
-  {
+  connect( useConstantTimeStepParameter, &ReosParameterBoolean::valueChanged, mModel, [this, useConstantTimeStepParameter] {
     mModel->setIsFixedTimeStep( useConstantTimeStepParameter->value() );
     mTimeStepWidget->setVisible( useConstantTimeStepParameter->value() );
   } );
 }
 
-void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setSeries( QList < ReosTimeSeriesVariableTimeStep *> series, const QString &unit )
+void ReosTimeSeriesVariableTimeStepReadOnlyTablesView::setSeries( QList< ReosTimeSeriesVariableTimeStep *> series, const QString &unit )
 {
   for ( ReosTimeSeriesVariableTimeStep *serie : std::as_const( series ) )
     mModel->addTimeSerie( serie, QStringLiteral( "%1\n(%2)" ).arg( serie->name(), unit ) );

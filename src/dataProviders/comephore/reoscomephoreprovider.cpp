@@ -17,7 +17,7 @@
 
 #include <QLocale>
 
-#include "reosgriddedrainitem.h"
+#include "reosgriddeddata.h"
 #include "reosgdalutils.h"
 #include "reosgisengine.h"
 
@@ -28,10 +28,10 @@ REOSEXTERN ReosDataProviderFactory *providerFactory()
 
 ReosComephoreProvider::ReosComephoreProvider()
 {
-  mCache.setMaxCost( 20000000 );
+  mCache.setMaxCost( 2000000 );
 }
 
-ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
+ReosGriddedDataProvider *ReosComephoreProvider::clone() const
 {
   std::unique_ptr<ReosComephoreProvider> other = std::make_unique<ReosComephoreProvider>();
 
@@ -45,12 +45,18 @@ ReosGriddedRainfallProvider *ReosComephoreProvider::clone() const
 void ReosComephoreProvider::load()
 {
   mIsValid = false;
-  QFileInfo sourceInfo( dataSource() );
+  const QString &uri = dataSource();
+  const QString path = pathFromUri( uri );
+
+  QFileInfo sourceInfo( path );
 
   if ( sourceInfo.isDir() )
   {
     if ( ReosComephoreTiffFilesReader::canReadFile( dataSource() ) )
+    {
       mFileReader.reset( new ReosComephoreTiffFilesReader( dataSource() ) );
+      mCapabilities = { NoOption };
+    }
     else
       mFileReader.reset( new ReosComephoreNetCdfFolderReader( dataSource() ) );
   }
@@ -74,8 +80,7 @@ ReosComephoreProvider::~ReosComephoreProvider() = default;
 QStringList ReosComephoreProvider::fileSuffixes() const
 {
   QStringList ret;
-  ret << QStringLiteral( "tif" )
-      << QStringLiteral( "tiff" );
+  ret << QStringLiteral( "tif" ) << QStringLiteral( "tiff" );
 
   return ret;
 }
@@ -89,22 +94,24 @@ QString ReosComephoreProvider::htmlDescription() const
   htmlText += QStringLiteral( "<h2>" ) + tr( "Gridded Precipitation" ) + QStringLiteral( "</h2>\n<hr>\n" );
 
   htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) ) + QStringLiteral( "</td><td>" )
-              + QStringLiteral( "COMEPHORE" ) + QStringLiteral( "</td></tr>\n" );
+              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Format" ) )
+              + QStringLiteral( "</td><td>" )
+              + QStringLiteral( "COMEPHORE" )
+              + QStringLiteral( "</td></tr>\n" );
 
-  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-              + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" )
-              + dataSource() + QStringLiteral( "</td></tr>\n" );
+  htmlText += QStringLiteral( "<tr><td class=\"highlight\">" ) + QStringLiteral( "<b>%1</b>" ).arg( tr( "Source" ) ) + QStringLiteral( "</td><td>" ) + dataSource() + QStringLiteral( "</td></tr>\n" );
 
   if ( count() > 0 )
   {
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "Start date" ) )
+                + QStringLiteral( "</td><td>" )
                 + startTime( 0 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
 
     htmlText += QStringLiteral( "<tr><td class=\"highlight\">" )
-                +  QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) ) + QStringLiteral( "</td><td>" )
+                + QStringLiteral( "<b>%1</b>" ).arg( tr( "End date" ) )
+                + QStringLiteral( "</td><td>" )
                 + endTime( count() - 1 ).toString( QLocale().dateTimeFormat() )
                 + QStringLiteral( "</td></tr>\n" );
   }
@@ -112,7 +119,7 @@ QString ReosComephoreProvider::htmlDescription() const
   return htmlText;
 }
 
-bool ReosComephoreProvider::hasPrecipitationCapability( PrecipitationGridCapability capability ) const
+bool ReosComephoreProvider::hasCapability( GridCapability capability ) const
 {
   return mCapabilities.testFlag( capability );
 }
@@ -132,7 +139,7 @@ int ReosComephoreProvider::count() const
 QDateTime ReosComephoreProvider::startTime( int index ) const
 {
   if ( mFileReader )
-    return mFileReader->time( index );
+    return mFileReader->time( index ).addSecs( -3600 );
 
   return QDateTime();
 }
@@ -140,7 +147,7 @@ QDateTime ReosComephoreProvider::startTime( int index ) const
 QDateTime ReosComephoreProvider::endTime( int index ) const
 {
   if ( mFileReader )
-    return mFileReader->time( index ).addSecs( 3600 );
+    return mFileReader->time( index );
 
   return QDateTime();
 }
@@ -222,7 +229,6 @@ const QVector<double> ReosComephoreProvider::dataInGridExtent( int index, int ro
 
     QVector<double> ret = *values;
 
-
     return ret;
   }
 
@@ -265,7 +271,7 @@ const QVector<double> ReosComephoreProvider::qualifData( int index ) const
             ( *values )[retIndex] = rawValue;
           }
           else
-            ( * values )[retIndex] = static_cast<double>( rawValue );
+            ( *values )[retIndex] = static_cast<double>( rawValue );
         }
       }
 
@@ -297,17 +303,15 @@ bool ReosComephoreProvider::canReadUri( const QString &uri ) const
   return false;
 }
 
-static QFileInfoList tiffFiles( const QString &folderPath )
+static QFileInfoList tiffFiles( const QString &uri )
 {
+  QString folderPath = ReosComephoreProvider::pathFromUri( uri );
   QFileInfoList ret;
   QFileInfo sourceInfo( folderPath );
   if ( !sourceInfo.isDir() )
     return ret;
 
   QDir sourceDir( folderPath );
-
-  if ( !sourceDir.cd( QStringLiteral( "RR" ) ) )
-    return ret;
 
   QStringList filters;
   filters << QStringLiteral( "*_RR.gtif" );
@@ -318,7 +322,7 @@ static QFileInfoList tiffFiles( const QString &folderPath )
   return fileInfoList;
 }
 
-ReosGriddedRainfallProvider::FileDetails ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
+ReosGriddedDataProvider::FileDetails ReosComephoreProvider::details( const QString &source, ReosModule::Message &message ) const
 {
   FileDetails ret;
 
@@ -348,7 +352,7 @@ void ReosComephoreProvider::decode( const ReosEncodedElement &element, const Reo
   QString source;
   if ( element.getData( QStringLiteral( "data-source" ), source ) )
   {
-    const QString sourcePath =  context.resolvePath( source );
+    const QString sourcePath = context.resolvePath( source );
     setDataSource( sourcePath );
   }
 }
@@ -380,55 +384,118 @@ void ReosComephoreProvider::calculateMinMax( double &min, double &max ) const
   }
 }
 
-QString ReosComephoreProvider::dataType() {return ReosGriddedRainfall::staticType();}
+void ReosComephoreProvider::exportToTiff( int index, const QString &fileName ) const
+{
+  if ( mFileReader )
+  {
+    bool readLine = true;
+    const QVector<int> rawValues = mFileReader->data( index, readLine );
+    ReosRasterMemory<int> rast( mExtent.yCellCount(), mExtent.xCellCount() );
+    if ( rast.reserveMemory() )
+    {
+      int xCount = mExtent.xCellCount();
+      int yCount = mExtent.yCellCount();
+
+      Q_ASSERT( xCount * yCount == rawValues.count() );
+
+      for ( int xi = 0; xi < xCount; ++xi )
+        for ( int yi = 0; yi < yCount; ++yi )
+        {
+          int retIndex = xi + yi * xCount;
+          int rawIndex = readLine ? retIndex : yi + xi * yCount;
+
+          rast.setValue( yi, xi, rawValues.at( rawIndex ) );
+        }
+      ReosGdalDataset::writeIntRasterToFile( fileName, rast, mExtent );
+    }
+  }
+}
+
+QString ReosComephoreProvider::dataType()
+{
+  return ReosGriddedData::staticType();
+}
 
 QString ReosComephoreProvider::staticKey()
 {
   return COMEPHORES_KEY + QString( "::" ) + dataType();
 }
 
-ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &folderPath )
+ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &uri )
 {
-  const QFileInfoList fileInfoList = tiffFiles( folderPath );
+  const QFileInfoList fileInfoList = tiffFiles( ReosComephoreProvider::pathFromUri( uri ) );
+
+  const QDateTime startTime = ReosComephoreProvider::startFromUri( uri );
+  const QDateTime endTime = ReosComephoreProvider::endFromUri( uri );
 
   for ( const QFileInfo &fi : fileInfoList )
   {
     const QString timeString = fi.baseName().remove( QStringLiteral( "_RR" ) );
     QDateTime time = QDateTime::fromString( timeString, QStringLiteral( "yyyyMMddHH" ) );
     time.setTimeSpec( Qt::UTC );
-    mFilesNames.insert( time, fi.filePath() );
-    mTimes.append( time );
+    if ( ( time >= startTime && time.addMSecs( 3600 ) <= endTime ) || !startTime.isValid() || !endTime.isValid() )
+    {
+      mFilesNames.insert( time, fi.filePath() );
+    }
+  }
+
+  if ( mFilesNames.count() > 0 )
+  {
+    const QDateTime &firstTime = mFilesNames.firstKey();
+    const QDateTime &lastTime = mFilesNames.lastKey();
+
+    ReosDuration duration( firstTime, lastTime );
+    mFrameCount = duration.numberOfFullyContainedIntervals( ReosDuration( 1, ReosDuration::hour ) ) + 1;
+
+    mFirstStartTime = firstTime.addSecs( -3600 );
   }
 }
 
 ReosComephoreFilesReader *ReosComephoreTiffFilesReader::clone() const
 {
   std::unique_ptr<ReosComephoreTiffFilesReader> other( new ReosComephoreTiffFilesReader );
+
+  other->mFrameCount = mFrameCount;
+  other->mFirstStartTime = mFirstStartTime;
   other->mFilesNames = mFilesNames;
-  other->mTimes = mTimes;
   return other.release();
 }
 
 int ReosComephoreTiffFilesReader::frameCount() const
 {
-  return mFilesNames.count();
+  return mFrameCount;
 }
 
 QDateTime ReosComephoreTiffFilesReader::time( int i ) const
 {
-  return mTimes.at( i );
+  return mFirstStartTime.addSecs( 3600 * i );
 }
 
 QVector<int> ReosComephoreTiffFilesReader::data( int index, bool &readLine ) const
 {
-  const QDateTime &time = mTimes.at( index );
-  const QString fileName = mFilesNames.value( time );
-  ReosGdalDataset dataset( fileName );
+  if ( mFrameCount == 0 )
+    return QVector<int>();
 
-  const ReosRasterMemory<int> values = dataset.valuesInt( 1 );
+  const QDateTime &time = this->time( index );
   readLine = true;
 
-  return values.values();
+  auto frameIt = mFilesNames.find( ( time ) );
+  if ( frameIt != mFilesNames.constEnd() )
+  {
+    const QString fileName = mFilesNames.value( time );
+    ReosGdalDataset dataset( fileName );
+    const ReosRasterMemory<int> values = dataset.valuesInt( 1 );
+    return values.values();
+  }
+  else
+  {
+    const ReosRasterExtent &dataExtent = extent();
+    QVector<int> ret;
+    ret.resize( dataExtent.xCellCount() * dataExtent.yCellCount() );
+    ret.fill( 65535 );
+
+    return ret;
+  }
 }
 
 ReosRasterExtent ReosComephoreTiffFilesReader::extent() const
@@ -451,9 +518,9 @@ bool ReosComephoreTiffFilesReader::canReadFile( const QString &uri )
   return !tiffFiles( uri ).isEmpty();
 }
 
-ReosGriddedRainfallProvider::FileDetails ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
+ReosGriddedDataProvider::FileDetails ReosComephoreTiffFilesReader::details( const QString &source, bool *ok )
 {
-  ReosGriddedRainfallProvider::FileDetails ret;
+  ReosGriddedDataProvider::FileDetails ret;
 
   ReosComephoreTiffFilesReader fileReader( source );
   if ( fileReader.frameCount() == 0 )
@@ -475,7 +542,7 @@ ReosGriddedRainfallProvider::FileDetails ReosComephoreTiffFilesReader::details( 
 
 ReosComephoreTiffFilesReader::~ReosComephoreTiffFilesReader() = default;
 
-ReosGriddedRainfallProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
+ReosGriddedDataProvider *ReosComephoresProviderFactory::createProvider( const QString &dataType ) const
 {
   if ( ReosComephoreProvider::dataType() == dataType )
     return new ReosComephoreProvider;
@@ -490,7 +557,7 @@ QString ReosComephoresProviderFactory::key() const
 
 bool ReosComephoresProviderFactory::supportType( const QString &dataType ) const
 {
-  return dataType.contains( ReosGriddedRainfall::staticType() );
+  return dataType.contains( ReosGriddedData::staticType() );
 }
 
 QVariantMap ReosComephoresProviderFactory::uriParameters( const QString &dataType ) const
@@ -498,7 +565,11 @@ QVariantMap ReosComephoresProviderFactory::uriParameters( const QString &dataTyp
   QVariantMap ret;
 
   if ( supportType( dataType ) )
+  {
     ret.insert( QStringLiteral( "file-or-dir-path" ), QObject::tr( "File or directory where are stored the data" ) );
+    ret.insert( QStringLiteral( "start-date-time" ), QObject::tr( "Start date time (iso format) of requested data, optional." ) );
+    ret.insert( QStringLiteral( "end-date-time" ), QObject::tr( "End date time (iso format) of requested data, optional.)" ) );
+  }
 
   return ret;
 }
@@ -507,8 +578,13 @@ QString ReosComephoresProviderFactory::buildUri( const QString &dataType, const 
 {
   if ( supportType( dataType ) && parameters.contains( QStringLiteral( "file-or-dir-path" ) ) )
   {
+    QString uri = parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+    if ( parameters.contains( QStringLiteral( "start-date-time" ) ) && parameters.contains( QStringLiteral( "end-date-time" ) ) )
+    {
+      uri = uri + QStringLiteral( "::%1::%2" ).arg( parameters.value( QStringLiteral( "start-date-time" ) ).toString(), parameters.value( QStringLiteral( "end-date-time" ) ).toString() );
+    }
     ok = true;
-    return parameters.value( QStringLiteral( "file-or-dir-path" ) ).toString();
+    return uri;
   }
   else
   {
@@ -517,10 +593,93 @@ QString ReosComephoresProviderFactory::buildUri( const QString &dataType, const 
   }
 }
 
-ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &filePath )
-  :  mFileName( filePath )
+QVariantMap ReosComephoreProvider::decodeUri( const QString &uri, bool &ok )
+{
+  QVariantMap ret;
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+
+  if ( parts.count() != 1 || parts.count() != 3 )
+  {
+    ok = false;
+    return ret;
+  }
+
+  if ( parts.count() >= 1 )
+  {
+    const QString path = parts[0];
+    const QFileInfo fileInfo( path );
+    if ( fileInfo.isFile() || fileInfo.isDir() )
+    {
+      ret["file-or-dir-path"] = pathFromUri( uri );
+    }
+    else
+    {
+      ok = false;
+      return ret;
+    }
+  }
+
+  if ( parts.count() == 3 )
+  {
+    const QDateTime start = startFromUri( uri );
+    const QDateTime end = endFromUri( uri );
+    if ( start.isValid() && end.isValid() )
+    {
+      ret["start-date-time"] = start;
+      ret["end-date-time"] = end;
+    }
+    else
+    {
+      ok = false;
+      return ret;
+    }
+  }
+
+  ok = true;
+  return ret;
+}
+
+QString ReosComephoreProvider::pathFromUri( const QString &uri )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 0 )
+    return parts[0];
+  return QString();
+}
+
+QDateTime ReosComephoreProvider::startFromUri( const QString &uri )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 1 )
+    return QDateTime::fromString( parts[1], Qt::ISODate );
+
+  return QDateTime();
+}
+
+QDateTime ReosComephoreProvider::endFromUri( const QString &uri )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  if ( parts.count() > 2 )
+    return QDateTime::fromString( parts[2], Qt::ISODate );
+
+  return QDateTime();
+}
+
+QString ReosComephoreProvider::replacePathInUri( const QString &uri, const QString &newPth )
+{
+  QStringList parts = uri.split( QStringLiteral( "::" ) );
+  parts[0] = newPth;
+  return parts.join( QStringLiteral( "::" ) );
+}
+
+
+ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &uri )
+  : mFileName( ReosComephoreProvider::pathFromUri( uri ) )
 {
   mFile.reset( new ReosNetCdfFile( mFileName ) );
+  const QDateTime startTime = ReosComephoreProvider::startFromUri( uri );
+  const QDateTime endTime = ReosComephoreProvider::endFromUri( uri );
+
   if ( mFile->isValid() )
   {
     const QString proj4Crs = mFile->globalStringAttributeValue( QStringLiteral( "crs_proj4_string" ) );
@@ -546,8 +705,11 @@ ReosComephoreNetCdfFilesReader::ReosComephoreNetCdfFilesReader( const QString &f
     for ( int i = 0; i < frameCount; ++i )
     {
       const QDateTime time = oriTime.addSecs( 3600 * intTime.at( i ) );
-      if ( !timeToFileIndex.contains( time ) )
-        timeToFileIndex.insert( time, i );
+      if ( ( time >= startTime && time.addSecs( 3600 ) <= endTime ) || !startTime.isValid() || !endTime.isValid() )
+      {
+        if ( !timeToFileIndex.contains( time ) )
+          timeToFileIndex.insert( time, i );
+      }
     }
     mTimes = timeToFileIndex.keys();
     for ( int i = 0; i < mTimes.count(); ++i )
@@ -582,10 +744,10 @@ QVector<int> ReosComephoreNetCdfFilesReader::data( int index, bool &readLine ) c
 
   int fileIndex = mRainIndexToFileIndex.value( index, -1 );
 
-  const QVector<int> starts( {fileIndex, 0, 0} );
+  const QVector<int> starts( { fileIndex, 0, 0 } );
   int xCount = mExtent.xCellCount();
   int yCount = mExtent.yCellCount();
-  const QVector<int> counts( {1, xCount, yCount} );
+  const QVector<int> counts( { 1, xCount, yCount } );
 
   if ( mFile->isValid() )
   {
@@ -603,10 +765,10 @@ QVector<int> ReosComephoreNetCdfFilesReader::dataInGridExtent( int index, int ro
 
   int fileIndex = mRainIndexToFileIndex.value( index, -1 );
 
-  const QVector<int> starts( {fileIndex, colMin, rowMin} );
+  const QVector<int> starts( { fileIndex, colMin, rowMin } );
   int xCount = colMax - colMin + 1;
   int yCount = rowMax - rowMin + 1;
-  const QVector<int> counts( {1, xCount, yCount} );
+  const QVector<int> counts( { 1, xCount, yCount } );
 
   if ( mFile->isValid() )
   {
@@ -634,10 +796,10 @@ QVector<int> ReosComephoreNetCdfFilesReader::qualifData( int index, bool &readLi
 
   int fileIndex = mRainIndexToFileIndex.value( index, -1 );
 
-  const QVector<int> starts( {fileIndex, 0, 0} );
+  const QVector<int> starts( { fileIndex, 0, 0 } );
   int xCount = mExtent.xCellCount();
   int yCount = mExtent.yCellCount();
-  const QVector<int> counts( {1, xCount, yCount} );
+  const QVector<int> counts( { 1, xCount, yCount } );
 
   if ( mFile->isValid() )
   {
@@ -650,13 +812,12 @@ QVector<int> ReosComephoreNetCdfFilesReader::qualifData( int index, bool &readLi
 
 bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
 {
-  ReosNetCdfFile file( uri );
+  const QString path = ReosComephoreProvider::pathFromUri( uri );
+  ReosNetCdfFile file( path );
   if ( !file.isValid() )
     return false;
 
-  if ( !( file.hasVariable( QStringLiteral( "RR" ) ) &&
-          file.hasVariable( QStringLiteral( "QUALIF" ) ) &&
-          file.hasVariable( QStringLiteral( "ERR" ) ) ) )
+  if ( !file.hasVariable( QStringLiteral( "RR" ) ) )
     return false;
 
   const QStringList dimensionNames = file.variableDimensionNames( QStringLiteral( "RR" ) );
@@ -664,10 +825,15 @@ bool ReosComephoreNetCdfFilesReader::canReadFile( const QString &uri )
   return dimensionNames.contains( QStringLiteral( "X" ) ) && dimensionNames.contains( QStringLiteral( "Y" ) );
 }
 
-ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString &folderPath )
-  : mFolderPath( folderPath )
+void ReosComephoreNetCdfFilesReader::reset()
 {
-  QDir dir( folderPath );
+  mFile.reset();
+}
+
+ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString &uri )
+  : mFolderPath( ReosComephoreProvider::pathFromUri( uri ) )
+{
+  QDir dir( mFolderPath );
 
   QStringList filters;
   filters << "*.nc";
@@ -677,9 +843,10 @@ ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString 
   for ( const QString &file : entries )
   {
     const QString filePath = dir.filePath( file );
-    if ( ReosComephoreNetCdfFilesReader::canReadFile( filePath ) )
+    const QString fileUri = ReosComephoreProvider::replacePathInUri( uri, filePath );
+    if ( ReosComephoreNetCdfFilesReader::canReadFile( fileUri ) )
     {
-      std::unique_ptr<ReosComephoreNetCdfFilesReader> fileReader = std::make_unique<ReosComephoreNetCdfFilesReader>( filePath );
+      std::unique_ptr<ReosComephoreNetCdfFilesReader> fileReader = std::make_unique<ReosComephoreNetCdfFilesReader>( fileUri );
       if ( fileReader->frameCount() == 0 )
         continue;
       if ( !mExtent.isValid() )
@@ -687,7 +854,7 @@ ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString 
       else if ( mExtent != fileReader->extent() )
         continue;
 
-      firstTimeToIndex.insert( fileReader->time( 0 ),  mFileReaders.size() );
+      firstTimeToIndex.insert( fileReader->time( 0 ), mFileReaders.size() );
       mFileReaders.emplace_back( fileReader.release() );
     }
   }
@@ -701,10 +868,12 @@ ReosComephoreNetCdfFolderReader::ReosComephoreNetCdfFolderReader( const QString 
     int frameCount = reader->frameCount();
     for ( int i = 0; i < frameCount; ++i )
     {
-      mGlobalIndexToReaderIndex.insert( count, InternalIndex{fileIndex, i} );
+      mGlobalIndexToReaderIndex.insert( count, InternalIndex { fileIndex, i } );
       count++;
     }
   }
+
+  mLastFileIndex = mFileReaders.size();
 }
 
 ReosComephoreFilesReader *ReosComephoreNetCdfFolderReader::clone() const
@@ -726,20 +895,43 @@ QDateTime ReosComephoreNetCdfFolderReader::time( int i ) const
   return QDateTime();
 }
 
-QVector<int> ReosComephoreNetCdfFolderReader::data( int index, bool &readLine ) const
+ReosComephoreNetCdfFilesReader *ReosComephoreNetCdfFolderReader::fileReader( int index, int &interIndex ) const
 {
   auto it = mGlobalIndexToReaderIndex.find( index );
   if ( it != mGlobalIndexToReaderIndex.constEnd() )
-    return mFileReaders.at( it.value().fileIndex )->data( it.value().internIndex, readLine );
+  {
+    size_t fileIndex = it.value().internIndex;
+    ReosComephoreNetCdfFilesReader *ret = mFileReaders.at( it.value().fileIndex ).get();
+    interIndex = it.value().internIndex;
+    if ( mLastFileIndex != mFileReaders.size() && mLastFileIndex != fileIndex )
+    {
+      mFileReaders.at( mLastFileIndex )->reset();
+      mLastFileIndex = fileIndex;
+    }
+
+    return ret;
+  }
+
+  return nullptr;
+}
+
+
+QVector<int> ReosComephoreNetCdfFolderReader::data( int index, bool &readLine ) const
+{
+  int interIndex = -1;
+  ReosComephoreNetCdfFilesReader *fr = fileReader( index, interIndex );
+  if ( fr )
+    return fr->data( interIndex, readLine );
 
   return QVector<int>();
 }
 
 QVector<int> ReosComephoreNetCdfFolderReader::dataInGridExtent( int index, int rowMin, int rowMax, int colMin, int colMax, bool &readLine ) const
 {
-  auto it = mGlobalIndexToReaderIndex.find( index );
-  if ( it != mGlobalIndexToReaderIndex.constEnd() )
-    return mFileReaders.at( it.value().fileIndex )->dataInGridExtent( it.value().internIndex, rowMin, rowMax, colMin, colMax, readLine );
+  int interIndex = -1;
+  ReosComephoreNetCdfFilesReader *fr = fileReader( index, interIndex );
+  if ( fr )
+    return fr->dataInGridExtent( interIndex, rowMin, rowMax, colMin, colMax, readLine );
 
   return QVector<int>();
 }
@@ -765,7 +957,7 @@ QVector<int> ReosComephoreNetCdfFolderReader::qualifData( int index, bool &readL
 
 bool ReosComephoreNetCdfFolderReader::canReadFile( const QString &uri )
 {
-  QDir dir( uri );
+  QDir dir( ReosComephoreProvider::pathFromUri( uri ) );
   if ( !dir.exists() )
     return false;
   QStringList filters;

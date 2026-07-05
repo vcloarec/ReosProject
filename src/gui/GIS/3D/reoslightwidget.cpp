@@ -20,22 +20,20 @@
 
 #include <QVector3D>
 
-ReosLightWidget::ReosLightWidget( QWidget *parent ) :
-  QWidget( parent ),
-  ui( new Ui::ReosLightWidget )
+ReosLightWidget::ReosLightWidget( QWidget *parent )
+  : QWidget( parent )
+  , ui( new Ui::ReosLightWidget )
 {
   ui->setupUi( this );
 
-  connect( ui->mDialAzimuth, &QDial::valueChanged, this, [this]( int value )
-  {
+  connect( ui->mDialAzimuth, &QDial::valueChanged, this, [this]( int value ) {
     ui->mSpinBoxAzimuth->blockSignals( true );
     ui->mSpinBoxAzimuth->setValue( value );
     ui->mSpinBoxAzimuth->blockSignals( false );
     emit lightChanged();
   } );
 
-  connect( ui->mSpinBoxAzimuth, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value )
-  {
+  connect( ui->mSpinBoxAzimuth, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value ) {
     ui->mDialAzimuth->blockSignals( true );
     ui->mDialAzimuth->setValue( value );
     ui->mDialAzimuth->blockSignals( false );
@@ -43,26 +41,21 @@ ReosLightWidget::ReosLightWidget( QWidget *parent ) :
   } );
 
 
-  connect( ui->mSliderAltitude, &QSlider::valueChanged, this, [this]( int value )
-  {
+  connect( ui->mSliderAltitude, &QSlider::valueChanged, this, [this]( int value ) {
     ui->mSpinBoxAltitude->blockSignals( true );
     ui->mSpinBoxAltitude->setValue( value );
     ui->mSpinBoxAltitude->blockSignals( false );
     emit lightChanged();
   } );
 
-  connect( ui->mSpinBoxAltitude, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value )
-  {
+  connect( ui->mSpinBoxAltitude, QOverload<int>::of( &QSpinBox::valueChanged ), this, [this]( int value ) {
     ui->mSliderAltitude->blockSignals( true );
     ui->mSliderAltitude->setValue( value );
     ui->mSliderAltitude->blockSignals( false );
     emit lightChanged();
   } );
 
-  connect( ui->mIntensitySlider,  &QSlider::valueChanged, this, [this]
-  {
-    emit lightChanged();
-  } );
+  connect( ui->mIntensitySlider, &QSlider::valueChanged, this, [this] { emit lightChanged(); } );
 }
 
 ReosLightWidget::~ReosLightWidget()

@@ -41,8 +41,8 @@ class ReosHecRasGeometry
   public:
     struct FlowArea2D
     {
-      QString name;
-      QPolygonF surface;
+        QString name;
+        QPolygonF surface;
     };
 
     class BoundaryCondition
@@ -63,7 +63,7 @@ class ReosHecRasGeometry
     ReosHecRasGeometry() = default;
     explicit ReosHecRasGeometry( const QString &fileName );
 
-    const QString &title() const {return mTitle;}
+    const QString &title() const { return mTitle; }
 
     int area2dCount() const;
     QString area2dName( int i ) const;
@@ -159,7 +159,6 @@ class ReosHecRasPlan
 class ReosHecRasFlow
 {
   public:
-
     enum class Type
     {
       None,
@@ -170,9 +169,7 @@ class ReosHecRasFlow
 
     class BoundaryFlow
     {
-
       public:
-
         BoundaryFlow();
 
         BoundaryFlow( const QString &location, const QString &name );
@@ -190,7 +187,7 @@ class ReosHecRasFlow
 
         QString id() const;
 
-        ReosDssPath buildDssFlowRatePath(const ReosHecRasPlan& plan) const;
+        ReosDssPath buildDssFlowRatePath( const ReosHecRasPlan &plan ) const;
 
       private:
         ReosHecRasBoundaryConditionId mId;
@@ -229,7 +226,7 @@ class ReosHecRasFlow
 
     bool isValid() const;
 
-private:
+  private:
     QString mFileName;
     bool mIsValid = false;
     QString mTitle;
@@ -244,7 +241,6 @@ private:
     bool mGriddedPrecipitationActivated = false;
     QString mGriddedPrecipitationFile;
     ReosDssPath mGriddedPrecipitationPath;
-
 };
 
 class ReosHecRasProject
@@ -287,14 +283,11 @@ class ReosHecRasProject
 
     void setCurrentPlan( const QString &newCurrentPlan );
 
-    ReosHydraulicNetworkElementCompatibilty checkCompatibility(
-      const QString &planId,
-      ReosHydraulicStructure2D *structure,
-      ReosHydraulicScheme *scheme ) const;
+    ReosHydraulicNetworkElementCompatibilty checkCompatibility( const QString &planId, ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme ) const;
 
     bool isValid() const;
 
-private:
+  private:
     QString mFileName;
     bool mIsValid = false;
     QMap<QString, ReosHecRasPlan> mPlans;
@@ -305,7 +298,6 @@ private:
     QString mCrs;
 
     bool parseProjectFile();
-
 };
 
 #endif // REOSHECRASPROJECT_H

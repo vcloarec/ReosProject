@@ -6,11 +6,11 @@
 #include "reosrainfallregistery.h"
 #include "reostransferfunction.h"
 
-ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine ):
-  ReosModule( ReosWatershedModule::staticName(), parent ),
-  mWatershedTree( new ReosWatershedTree( gisEngine, this ) ),
-  mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) ),
-  mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection( this ) )
+ReosWatershedModule::ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine )
+  : ReosModule( ReosWatershedModule::staticName(), parent )
+  , mWatershedTree( new ReosWatershedTree( gisEngine, this ) )
+  , mDelineatingModule( new ReosWatershedDelineating( this, mWatershedTree, gisEngine ) )
+  , mMeteorologicModelsCollection( new ReosMeteorologicModelsCollection( this ) )
 {
   ReosTransferFunctionFactories::instantiate( this );
   ReosTransferFunctionFactories::instance()->addFactory( new ReosTransferFunctionLinearReservoirFactory );
@@ -29,6 +29,16 @@ ReosWatershedModule::~ReosWatershedModule()
 {
   if ( ReosConcentrationTimeFormulasRegistery::isInstantiate() )
     delete ReosConcentrationTimeFormulasRegistery::instance();
+}
+
+ReosWatershed *ReosWatershedModule::addWatershed( const QPolygonF &delineating, const QPointF &ouletPoint )
+{
+  return mWatershedTree->addWatershed( new ReosWatershed( delineating, ouletPoint ) );
+}
+
+void ReosWatershedModule::removeWaterhsed( ReosWatershed *watershed )
+{
+  std::unique_ptr<ReosWatershed> removed( mWatershedTree->extractWatershed( watershed ) );
 }
 
 ReosWatershedTree *ReosWatershedModule::watershedTree() const
@@ -52,10 +62,7 @@ void ReosWatershedModule::decode( const ReosEncodedElement &element, const ReosE
 
   if ( ReosRainfallRegistery::isInstantiate() )
   {
-    mMeteorologicModelsCollection->decode(
-      element.getEncodedData( QStringLiteral( "meteo-models-collection" ) ),
-      mWatershedTree,
-      ReosRainfallRegistery::instance() );
+    mMeteorologicModelsCollection->decode( element.getEncodedData( QStringLiteral( "meteo-models-collection" ) ), mWatershedTree, ReosRainfallRegistery::instance() );
   }
 
   emit hasBeenReset();
