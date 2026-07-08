@@ -43,7 +43,7 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual QString crs() const = 0;
     virtual QPolygonF domain() const = 0;
 
-    //! Creates and returnd a mesh
+    //! Creates and returns a mesh
     virtual ReosMesh *mesh( const QString &destinationCrs ) const = 0;
 
     //! Creates and returnd a mesh for a specific \a scheme associated to a \a structure

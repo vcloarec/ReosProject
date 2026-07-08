@@ -1,0 +1,121 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reoshydraulicstructure2d.h                 *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+
+class ReosHydraulicStructure2D : ReosHydraulicNetworkElement
+{
+%Docstring(signature="appended")
+*************************************************************************
+reoshydraulicstructure2d.h - ReosHydraulicStructure2D
+
+---------------------
+  begin                : 9.1.2022
+  copyright            : (C) 2022 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reoshydraulicstructure2d.h"
+%End
+  public:
+    enum Structure2DCapability
+    {
+      GeometryEditable,
+      MultiSimulation,
+      DefinedExternally,
+      GriddedPrecipitation
+    };
+
+    typedef QFlags<ReosHydraulicStructure2D::Structure2DCapability> Structure2DCapabilities;
+
+
+    ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
+%Docstring
+Contructor from a ``domain``, ccordinate system ``crs`` and a ``context``
+%End
+    ~ReosHydraulicStructure2D();
+
+
+
+    static QString staticType();
+
+    virtual QString type() const;
+    virtual ReosMapExtent extent() const;
+
+    virtual QString defaultDisplayName() const;
+    virtual ReosDuration currentElementTimeStep() const;
+
+    virtual ReosDuration mapTimeStep() const;
+
+    virtual ReosTimeWindow timeWindow() const;
+
+    virtual QIcon icon() const;
+
+
+
+    QDir structureDirectory() const;
+%Docstring
+Returns the directory where data and simulation will be stored on the disk
+%End
+
+    bool hasCapability( Structure2DCapability capability ) const;
+%Docstring
+Returns whether the structure supports the ``capability``
+%End
+
+    ReosTimeWindowSettings *timeWindowSettings() const;
+%Docstring
+Returns a pointer to the time windows settings
+%End
+
+    ReosHydraulicSimulation *currentSimulation() const;
+%Docstring
+Returns a pointer to the current simulation
+%End
+    bool runSimulation( const ReosCalculationContext &context );
+%Docstring
+Start running a simulation and wait the simulation finishes
+%End
+
+    double resultsValueAt( const QDateTime &time, const ReosSpatialPosition &position, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
+%Docstring
+Returns the value of the results with type ``datasetType`` for the specified ``context``, ``position`` and ``time``
+%End
+
+    QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
+%Docstring
+Returns a translated string corresponding to the unit of the results associated with ``context`` and to the type  ``datasetType``
+%End
+
+    bool rasterizeResult( const QDateTime &time, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId, const QString &fileName, const QString &destinationCrs, double resolution );
+%Docstring
+Creates a raster file ``fileName`` with results of type ``datasetType``, for the scheme ``schemeId``, at ``time``,
+with coordinates reference système (WKT) ``destination`` CRS, and with ``resolution`` in map unit of ``destinationCrs``.
+Return True if successful.
+%End
+};
+
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reoshydraulicstructure2d.h                 *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

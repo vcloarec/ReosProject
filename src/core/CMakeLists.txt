@@ -1,5 +1,5 @@
 # Reos licence GPL version 2
-# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
+set(QT_LRELEASE_EXECUTABLE Qt6::lrelease)
 
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
@@ -278,15 +278,15 @@ TARGET_INCLUDE_DIRECTORIES(reosCore
   )
 
 TARGET_LINK_LIBRARIES(reosCore PUBLIC
-        ${Qt5Xml_LIBRARIES}
-        ${Qt5Core_LIBRARIES}
-        ${Qt5Gui_LIBRARIES}
-        ${Qt5Widgets_LIBRARIES}
-        ${Qt5Svg_LIBRARIES}
-        ${Qt5PrintSupport_LIBRARIES}
-        ${Qt5Network_LIBRARIES}
-        ${Qt5Sql_LIBRARIES}
-        ${Qt5Concurrent_LIBRARIES}
+        ${Qt6Xml_LIBRARIES}
+        ${Qt6Core_LIBRARIES}
+        ${Qt6Gui_LIBRARIES}
+        ${Qt6Widgets_LIBRARIES}
+        ${Qt6Svg_LIBRARIES}
+        ${Qt6PrintSupport_LIBRARIES}
+        ${Qt6Network_LIBRARIES}
+        ${Qt6Sql_LIBRARIES}
+        ${Qt6Concurrent_LIBRARIES}
         ${QGIS_CORE_LIB}
         ${QGIS_ANALYSIS_LIB}
         ${NETCDF_LIBRARY}

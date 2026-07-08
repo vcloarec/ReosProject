@@ -1,0 +1,4 @@
+Metadata-Version: 2.1
+Name: reos
+Version: @COMPLETE_VERSION@
+Summary: REOS Python bindings
