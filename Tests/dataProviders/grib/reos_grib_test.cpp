@@ -139,7 +139,7 @@ void ReosGribTest::griddedRainInFile()
 
 void ReosGribTest::eccodesReader()
 {
-  QString fileName = testFile( QStringLiteral( "grib/ecmwf/000-oper.grib2" ) );
+  QString fileName = GRIB_TEST_FILES_PATH + QStringLiteral( "/ecmwf/000-oper.grib2" );
 
   const QList<ReosEcCodesReader::Variable> variables = ReosEcCodesReader::variables( fileName );
 
@@ -209,7 +209,7 @@ void ReosGribTest::eccodesReader()
 
   ReosRasterExtent extent = reader.extent( 0 );
 
-  fileName = testFile( QStringLiteral( "grib/318-oper.grib2" ) );
+  fileName = GRIB_TEST_FILES_PATH + QStringLiteral( "/318-oper.grib2" );
 
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -229,7 +229,7 @@ void ReosGribTest::eccodesReader()
   QCOMPARE( expected, range );
   QVERIFY( stepType == ReosEcCodesReader::Accum );
 
-  fileName = testFile( QStringLiteral( "grib/AROME_2025-04-02T12_15_00Z.grib2" ) );
+  fileName = GRIB_TEST_FILES_PATH + QStringLiteral( "/AROME_2025-04-02T12_15_00Z.grib2" );
   keys.clear();
   keys.insert( "shortName", "tp" );
   reader = ReosEcCodesReader( fileName, keys );
@@ -254,7 +254,7 @@ void ReosGribTest::eccodesReader()
 
 void ReosGribTest::aromeGribFiles()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/arome" ) ) );
+  QString gribFile( GRIB_TEST_FILES_PATH + QStringLiteral( "/arome" ) );
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -287,7 +287,7 @@ void ReosGribTest::aromeGribFiles()
 
 void ReosGribTest::aromePiGribFiles()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/arome-pi" ) ) );
+  QString gribFile( GRIB_TEST_FILES_PATH + QStringLiteral( "/arome-pi" ) );
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -316,7 +316,7 @@ void ReosGribTest::aromePiGribFiles()
 
 void ReosGribTest::ERA5GribFiles()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/1990-02.grib" ) ) );
+  QString gribFile( GRIB_TEST_FILES_PATH + QStringLiteral( "/1990-02.grib" ) );
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -380,7 +380,7 @@ void ReosGribTest::ERA5GribFiles()
 
 void ReosGribTest::ecmwfGribFiles()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/ecmwf" ) ) );
+  QString gribFile( GRIB_TEST_FILES_PATH + QStringLiteral( "/ecmwf" ) );
 
   QString shortName = "tp";
   QVariantMap keys;
@@ -456,7 +456,7 @@ void ReosGribTest::uri()
 
 void ReosGribTest::ERA5RecentGribFiles()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/era-recent/2025-10-04.grib" ) ) );
+  QString gribFile( GRIB_TEST_FILES_PATH + QStringLiteral( "/era-recent/2025-10-04.grib" ) );
 
   const QList<ReosEcCodesReader::Variable> variables = ReosEcCodesReader::variables( gribFile );
 
@@ -521,7 +521,7 @@ void ReosGribTest::ERA5RecentGribFiles()
 
 void ReosGribTest::griddedAromePiaf()
 {
-  QString gribFile( testFile( QStringLiteral( "grib/arome-piaf/" ) ) );
+  QString gribFile( GRIB_TEST_FILES_PATH + QStringLiteral( "/arome-piaf/" ) );
   QString shortName = "tp";
   QVariantMap keys;
   keys.insert( "shortName", shortName );
