@@ -24,6 +24,7 @@ email                :   vcloarec at gmail dot com
 
 #include "reosencodedelement.h"
 
+//! Represents a time window between two date-time values.
 class REOSCORE_EXPORT ReosTimeWindow
 {
   public:

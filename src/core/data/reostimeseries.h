@@ -34,7 +34,7 @@ class ReosTimeSeriesVariableTimeStepModel;
 
 class ReosTimeSeriesVariableTimeStepModel;
 
-//! Class that handle time serie data
+//! Handles time series data.
 class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT
@@ -154,7 +154,7 @@ class REOSCORE_EXPORT ReosTimeSeries : public ReosDataObject SIP_ABSTRACT
 
 
 /**
- *  Class that handle time serie data with constant time interval
+ *  Handles time series data with a constant time interval.
  *
  *  By default, value are considered as incremental value. Different modes (\see ValueMode) can be used to return
  *   intensity value ( incremental value divided by the time step) or cumulative value (sum from the begining).

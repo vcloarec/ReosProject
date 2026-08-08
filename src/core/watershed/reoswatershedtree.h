@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 class QPolygonF;
 class ReosGisEngine;
 
+//! Stores watersheds in a hierarchical tree.
 class REOSCORE_EXPORT ReosWatershedTree : public QObject
 {
     Q_OBJECT

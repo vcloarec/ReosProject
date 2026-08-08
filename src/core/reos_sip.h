@@ -227,6 +227,12 @@
 #define SIP_TYPEHINT( type )
 
 /*
+ * Prevent generation of PEP 484 type hints for declarations using C++ types
+ * unsupported by SIP's type-hint generator.
+ */
+#define SIP_NOTYPEHINT
+
+/*
  * Sip supports the final keyword since version 4.19.0, earlier than that
  * we will have build issues because it tries to override final methods.
  */

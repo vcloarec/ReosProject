@@ -20,7 +20,7 @@ email                : vcloarec@gmail.com
 
 
 /**
- * Class used to store unsigned char raser that has value unde 128 by a compress way
+ * Stores compressed unsigned char rasters with values under 128.
  *
  */
 class REOSCORE_EXPORT ReosRasterByteCompressed

@@ -23,7 +23,9 @@ email                : vcloarec at gmail dot com
 #include "reosprocess.h"
 
 /**
- * The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
+ * Interface for digital elevation models.
+ *
+ * Implementations can represent TIN, raster, or other elevation model types.
 */
 class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
 {

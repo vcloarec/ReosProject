@@ -37,6 +37,7 @@ class ReosStructureImporter;
 class ReosTimeWindowSettings;
 class QDir;
 
+//! Hydraulic network element representing a two-dimensional hydraulic structure.
 class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT

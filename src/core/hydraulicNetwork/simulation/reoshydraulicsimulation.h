@@ -129,6 +129,7 @@ class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
 
 #endif // No SIP_RUN
 
+//! Base class for hydraulic simulations.
 class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT

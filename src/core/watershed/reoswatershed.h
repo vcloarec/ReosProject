@@ -36,6 +36,7 @@ class ReosTransferFunction;
 class ReosSeriesRainfall;
 class ReosHydrograph;
 
+//! Represents a watershed and its hydrological properties.
 class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
 {
     Q_OBJECT

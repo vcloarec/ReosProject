@@ -223,7 +223,7 @@ void ReosGisEngine::initGisEngine()
   QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
   QgsProviderRegistry::instance()->registerProvider( new ReosGriddedRainfallProviderMetaData() );
 
-  qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
+  //qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
