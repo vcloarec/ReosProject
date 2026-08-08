@@ -231,6 +231,14 @@ QPointF ReosRasterExtent::cellCenterToMap( const QPoint &cellPos ) const
   return QPointF( x, y );
 }
 
+QPointF ReosRasterExtent::cellCenterToMap( const QPointF &cellPos ) const
+{
+  double x = xMapOrigin() + mXCellSize * ( cellPos.x() + 0.5 );
+  double y = yMapOrigin() + mYCellSize * ( cellPos.y() + 0.5 );
+
+  return QPointF( x, y );
+}
+
 QPointF ReosRasterExtent::cellCenterToMap( const ReosRasterCellPos &cellPos ) const
 {
   double x = xMapOrigin() + mXCellSize * ( cellPos.column() + 0.5 );
@@ -247,7 +255,23 @@ QPointF ReosRasterExtent::cellMinMinCornerToMap( const QPoint &cellPos ) const
   return QPointF( x, y );
 }
 
+QPointF ReosRasterExtent::cellMinMinCornerToMap( const QPointF &cellPos ) const
+{
+  double x = cellXBeforeToMap( cellPos.x() );
+  double y = cellYBeforeToMap( cellPos.y() );
+
+  return QPointF( x, y );
+}
+
 QPointF ReosRasterExtent::cellMaxMaxCornerToMap( const QPoint &cellPos ) const
+{
+  double x = cellXAfterToMap( cellPos.x() );
+  double y = cellYAfterToMap( cellPos.y() );
+
+  return QPointF( x, y );
+}
+
+QPointF ReosRasterExtent::cellMaxMaxCornerToMap( const QPointF &cellPos ) const
 {
   double x = cellXAfterToMap( cellPos.x() );
   double y = cellYAfterToMap( cellPos.y() );
@@ -263,7 +287,16 @@ QPointF ReosRasterExtent::cellMinMaxCornerToMap( const QPoint &cellPos ) const
   return QPointF( x, y );
 }
 
-QPointF ReosRasterExtent::cellMaxMinCornerToMap( const QPoint &cellPos ) const
+
+QPointF ReosRasterExtent::cellMinMaxCornerToMap( const QPointF &cellPos ) const
+{
+  double x = cellXBeforeToMap( cellPos.x() );
+  double y = cellYAfterToMap( cellPos.y() );
+
+  return QPointF( x, y );
+}
+
+QPointF ReosRasterExtent::cellMaxMinCornerToMap( const QPointF &cellPos ) const
 {
   double x = cellXAfterToMap( cellPos.x() );
   double y = cellYAfterToMap( cellPos.y() );
@@ -271,7 +304,7 @@ QPointF ReosRasterExtent::cellMaxMinCornerToMap( const QPoint &cellPos ) const
   return QPointF( x, y );
 }
 
-QRect ReosRasterExtent::mapExtentToCellRect( const ReosMapExtent &mapExtent ) const
+QRectF ReosRasterExtent::mapExtentToCellRect( const ReosMapExtent &mapExtent ) const
 {
   double x0;
   double y0;
@@ -306,15 +339,14 @@ QRect ReosRasterExtent::mapExtentToCellRect( const ReosMapExtent &mapExtent ) co
   pt0 = mapToCell( QPointF( x0, y0 ) );
   pt1 = mapToCell( QPointF( x1, y1 ) );
 
-  QRect ret( pt0, pt1 );
+  QRectF ret( pt0, pt1 );
 
   return ret.normalized();
-  ;
 }
 
-ReosMapExtent ReosRasterExtent::cellRectToMapExtent( const QRect &cellRect, const Position &position ) const
+ReosMapExtent ReosRasterExtent::cellRectToMapExtent( const QRectF &cellRect, const Position &position ) const
 {
-  QRect cr = cellRect.normalized();
+  QRectF cr = cellRect.normalized();
 
   QPointF pt0;
   QPointF pt1;
