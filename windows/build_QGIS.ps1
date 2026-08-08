@@ -4,41 +4,11 @@ cd QGIS
 $env:QGIS_SRC=Get-Location
 
 $OSGEO_DIR=$env:OSGEO4W_ROOT
+$QT_ROOT=Join-Path $OSGEO_DIR "apps\Qt6"
 $BUILDCONF="Release"
 $PYTHONHOME=Join-Path $OSGEO_DIR "apps\Python312"
 Write-Host "=== Python HOME"
 ls $PYTHONHOME
-
-# --- Qt5 / MSVC 2026 compatibility patch ----------------------------------
-# Newer MSVC (VS 17.10+ / VS 2026) fully removed stdext::checked_array_iterator
-# and stdext::unchecked_array_iterator (the _HAS_DEPRECATED_STDEXT_ARRAY_ITERATORS
-# re-enable macro no longer exists either). Qt5's qcompilerdetection.h still
-# expands QT_MAKE_(UN)CHECKED_ARRAY_ITERATOR to those removed symbols on MSVC,
-# which breaks compilation of any TU including qvector.h / qlist.h / qvarlengtharray.h.
-# Patch the Qt header in-place to use the passthrough fallback Qt itself provides
-# for non-MSVC compilers. Idempotent via a sentinel comment.
-$qtCompilerDet = Join-Path $OSGEO_DIR "apps\Qt5\include\QtCore\qcompilerdetection.h"
-if (Test-Path $qtCompilerDet) {
-    $sentinel = "// REOS_PATCH_STDEXT_ARRAY_ITERATOR"
-    $content = Get-Content -LiteralPath $qtCompilerDet -Raw
-    if ($content -notmatch [regex]::Escape($sentinel)) {
-        Write-Host "=== Patching Qt5 qcompilerdetection.h for MSVC 2026 stdext removal"
-        Copy-Item -LiteralPath $qtCompilerDet -Destination "$qtCompilerDet.reos.bak" -Force
-        $patched = $content `
-            -replace '#  define QT_MAKE_UNCHECKED_ARRAY_ITERATOR\(x\) stdext::make_unchecked_array_iterator\(x\)[^\r\n]*', "#  define QT_MAKE_UNCHECKED_ARRAY_ITERATOR(x) (x) $sentinel" `
-            -replace '#  define QT_MAKE_CHECKED_ARRAY_ITERATOR\(x, N\) stdext::make_checked_array_iterator\(x, size_t\(N\)\)[^\r\n]*', "#  define QT_MAKE_CHECKED_ARRAY_ITERATOR(x, N) (x) $sentinel"
-        if ($patched -eq $content) {
-            Write-Warning "Qt5 header patch did not match expected macro definitions; leaving file untouched."
-        } else {
-            Set-Content -LiteralPath $qtCompilerDet -Value $patched -NoNewline
-        }
-    } else {
-        Write-Host "=== Qt5 qcompilerdetection.h already patched, skipping"
-    }
-} else {
-    Write-Warning "Qt5 qcompilerdetection.h not found at $qtCompilerDet; skipping stdext patch"
-}
-# --------------------------------------------------------------------------
 
 Write-Host "=== Start building QGIS ..."
 Write-Host "=== Osgeo directory:"
@@ -92,7 +62,8 @@ cmake -S $env:QGIS_SRC `
       -D CMAKE_BUILD_TYPE=$BUILDCONF `
       -D CMAKE_CONFIGURATION_TYPES=$BUILDCONF `
       -D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
-      -D CMAKE_PREFIX_PATH="$OSGEO_DIR;$OSGEO_DIR/apps/Qt5" `
+      -D Qt6_DIR=$QT_ROOT/lib/cmake/Qt6 `
+      -D CMAKE_PREFIX_PATH="$OSGEO_DIR;$QT_ROOT" `
       -D CMAKE_INSTALL_PREFIX=$env:QGIS_BUILT `
       -D CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS=TRUE
 

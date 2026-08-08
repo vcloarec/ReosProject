@@ -53,7 +53,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{env.OSGEO4W_ROOT}}
-        key: ${{ runner.os }}-osgeo4w
+        key: ${{ runner.os }}-osgeo4w-qt6
         
     - name: load OSGEO dependencies
       if: steps.cache-osgeo.outputs.cache-hit != 'true'

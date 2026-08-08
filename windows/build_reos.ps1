@@ -6,6 +6,7 @@ $REOS_INSTALL=$env:REOS_INSTALL
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $QGIS_INSTALL=$env:QGIS_BUILT
 $REOS_BUILD=$env:REOS_BUILDING
+$QT_ROOT=Join-Path $OSGEO_DIR "apps/Qt6"
 
 Write-Host "============================= dependencies directory:"
 Write-Host "=== OSGEO:"
@@ -19,7 +20,7 @@ $env:MDAL_ROOT
 ls $env:MDAL_ROOT\lib
 
 Write-Host "=== Qwt folder:"
-$QWT_INCLUDE=Join-Path $OSGEO_DIR "apps/Qt5/include/qwt6"
+$QWT_INCLUDE=Join-Path $QT_ROOT "include/qwt6"
 $QWT_INCLUDE
 ls $QWT_INCLUDE
 
@@ -107,6 +108,36 @@ if ( -not $MDAL_LIB )
     }
 }
 
+$QCA_INCLUDE = Get-FirstExistingPath @(
+    "$QT_ROOT/include/QtCrypto",
+    "$QT_ROOT/include/Qca-qt6/QtCrypto",
+    "$QT_ROOT/include/qt6/QtCrypto"
+)
+$QCA_LIB = Get-FirstExistingPath @(
+    "$QT_ROOT/qca-qt6.lib",
+    "$QT_ROOT/lib/qca-qt6.lib",
+    "$QT_ROOT/lib/qca2-qt6.lib",
+    "$QT_ROOT/lib/qca.lib"
+)
+$QTKEYCHAIN_INCLUDE = Get-FirstExistingPath @(
+    "$QT_ROOT/include/qt6keychain",
+    "$QT_ROOT/include/qtkeychain"
+)
+$QTKEYCHAIN_LIB = Get-FirstExistingPath @(
+    "$QT_ROOT/lib/qt6keychain.lib",
+    "$QT_ROOT/lib/qtkeychain.lib"
+)
+$QWT_INCLUDE = Get-FirstExistingPath @(
+    "$QT_ROOT/include/qwt6",
+    "$QT_ROOT/include/qwt",
+    "$QT_ROOT/include/qt6/qwt"
+)
+$QWT_LIB = Get-FirstExistingPath @(
+    "$QT_ROOT/lib/qwt.lib",
+    "$QT_ROOT/lib/qwt-qt6.lib",
+    "$QT_ROOT/lib/qwt6-qt6.lib"
+)
+
 cmake   -S $env:REOS_SOURCE `
 		-B . `
 		"-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
@@ -136,15 +167,15 @@ cmake   -S $env:REOS_SOURCE `
         -D MDAL_LIB=$MDAL_LIB `
         -D ECCODES_INCLUDE_DIR=$ECCODES_INCLUDE `
         -D ECCODES_LIB=$ECCODES_LIB `
-        -D Qt5_DIR=$OSGEO_DIR/apps/Qt5/lib/cmake/Qt5 `
-        -D QT_QMAKE_EXECUTABLE=$OSGEO_DIR/apps/Qt5/bin/qmake `
-        -D QCA_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/QtCrypto `
-        -D QCA_LIBRARY=$OSGEO_DIR/apps/Qt5/qca-qt5.lib `
+        -D Qt6_DIR=$QT_ROOT/lib/cmake/Qt6 `
+        -D QT_QMAKE_EXECUTABLE=$QT_ROOT/bin/qmake `
+        -D QCA_INCLUDE_DIR=$QCA_INCLUDE `
+        -D QCA_LIBRARY=$QCA_LIB `
         -D QSCISCINTILLA_INCLUDE_DIR:PATH= `
-        -D QTKEYCHAIN_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/qt5keychain `
-        -D QTKEYCHAIN_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qt5keychain.lib `
-        -D QWT_INCLUDE=$OSGEO_DIR/apps/Qt5/include/qwt6 `
-        -D QWT_LIB=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
+        -D QTKEYCHAIN_INCLUDE_DIR=$QTKEYCHAIN_INCLUDE `
+        -D QTKEYCHAIN_LIBRARY=$QTKEYCHAIN_LIB `
+        -D QWT_INCLUDE=$QWT_INCLUDE `
+        -D QWT_LIB=$QWT_LIB `
         -D WITH_QTWEBKIT:BOOL=FALSE `
 		-D ENABLE_HECRAS=TRUE `
         -D ENABLE_HEC_DSS=TRUE `

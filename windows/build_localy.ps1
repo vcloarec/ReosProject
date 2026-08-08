@@ -214,7 +214,7 @@ else
 # ---------------------------------------------------------------------------
 # 3. "load OSGEO dependencies" step
 # ---------------------------------------------------------------------------
-$osgeoMarker = Join-Path $env:OSGEO4W_ROOT 'etc\ini'
+$osgeoMarker = Join-Path $env:OSGEO4W_ROOT 'apps\Qt6\bin\qmake.exe'
 if ($SkipOsgeo -or (Test-StepComplete $osgeoMarker))
 {
     Write-Host "[SKIP] OSGeo4W already present at $env:OSGEO4W_ROOT"
