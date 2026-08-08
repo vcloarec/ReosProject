@@ -22,7 +22,7 @@ SET(REOS_ERA5_HEADERS
 ADD_EXECUTABLE(test_era5 ${REOS_ERA5_HEADERS} ${REOS_ERA5_SOURCES} reos_era5_test.cpp)
 TARGET_LINK_LIBRARIES(test_era5
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )
