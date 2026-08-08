@@ -77,7 +77,7 @@ jobs:
       with:
         repository: qgis/QGIS
         path: QGIS
-        ref: final-3_44_11
+        ref: final-4_2_1
     
     - name: check QGIS hash
       id: getQgisHash
