@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/rainfall/reosseriesrainfall.h                               *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -12,21 +12,7 @@
 class ReosSeriesRainfall : ReosTimeSeriesConstantInterval
 {
 %Docstring(signature="appended")
-*************************************************************************
-reosseriesrainfall.h - ReosSeriesRainfall
-
----------------------
-  begin                : 22.11.2022
-  copyright            : (C) 2022 by Vincent Cloarec
-  email                : vcloarec at gmail dot com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Represents rainfall as a time series.
 %End
 
 %TypeHeaderCode
@@ -41,7 +27,6 @@ the Free Software Foundation; either version 2 of the License, or     *
 
 class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall, ReosDataGriddedOnWatershed
 {
-
 %TypeHeaderCode
 #include "reosseriesrainfall.h"
 %End
@@ -51,7 +36,8 @@ class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall, ReosDataGri
 
     static ReosSeriesRainfallFromGriddedOnWatershed *create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall ) /Factory/;
 %Docstring
-Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Caller takes ownership.
+Returns a new created instance from ``watershed`` and ``gridded``
+rainfall. Caller takes ownership.
 %End
 
     virtual double valueAt( int i ) const;
@@ -72,5 +58,5 @@ Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Call
  *                                                                      *
  * src/core/rainfall/reosseriesrainfall.h                               *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

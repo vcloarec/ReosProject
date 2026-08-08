@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/data/reosdataupdater.h                                      *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -13,7 +13,7 @@
 class ReosDataUpdater : QObject /Abstract/
 {
 %Docstring(signature="appended")
-The ReosDataUpdater class is an abstract class used to update regulary data object
+Abstract class used to update data objects regularly.
 %End
 
 %TypeHeaderCode
@@ -52,7 +52,6 @@ Emitted when the data object is updated
 
 class ReosTimeSeriesUpdater : ReosDataUpdater
 {
-
 %TypeHeaderCode
 #include "reosdataupdater.h"
 %End
@@ -74,5 +73,5 @@ Returns the time windows which is new comparing to the former series
  *                                                                      *
  * src/core/data/reosdataupdater.h                                      *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

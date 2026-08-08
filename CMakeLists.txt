@@ -127,9 +127,14 @@ ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 SET(ENABLE_ECCODES_READER TRUE CACHE BOOL "Enable ecCodes reader for grib format")
 
 IF(ENABLE_ECCODES_READER)
+  FIND_PATH(ECCODES_INCLUDE_DIR eccodes.h CACHE PATH "Path to ecCodes headers.")
+  FIND_LIBRARY(ECCODES_LIB eccodes CACHE FILEPATH "Path to ecCodes lib.")
+  IF(ECCODES_INCLUDE_DIR AND ECCODES_LIB)
     SET(HAS_ECCODES TRUE)
-    SET(ECCODES_INCLUDE_DIR CACHE PATH "Path to ecCodes headers.")
-    SET(ECCODES_LIB CACHE FILEPATH "Path to ecCodes lib.")
+  ELSE()
+    SET(HAS_ECCODES FALSE)
+    MESSAGE(WARNING "ecCodes reader requested but ecCodes headers/library were not found; GRIB provider will not be built")
+  ENDIF()
 ENDIF(ENABLE_ECCODES_READER)
 
 ################################ QT

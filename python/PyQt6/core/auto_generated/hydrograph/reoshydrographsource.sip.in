@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/hydrograph/reoshydrographsource.h                           *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -15,7 +15,7 @@
 class ReosHydrographNode : ReosHydraulicNode /Abstract/
 {
 %Docstring(signature="appended")
-Abstract class that represent a node for hydrograph transfer
+Abstract node for hydrograph transfer.
 %End
 
 %TypeHeaderCode
@@ -35,7 +35,7 @@ Abstract class that represent a node for hydrograph transfer
 class ReosHydrographSource : ReosHydrographNode /Abstract/
 {
 %Docstring(signature="appended")
-Abstract class that represent a hydrograph source, that is a node that has a hydrograph as output
+Abstract hydrograph node that has a hydrograph as output.
 %End
 
 %TypeHeaderCode
@@ -56,14 +56,14 @@ Abstract class that represent a hydrograph source, that is a node that has a hyd
 class ReosHydrographJunction : ReosHydrographSource
 {
 %Docstring(signature="appended")
-Class that represents an node that can collect and sum hydrograph
+Represents a node that can collect and sum hydrographs.
 %End
 
 %TypeHeaderCode
 #include "reoshydrographsource.h"
 %End
   public:
-    enum InternalHydrographOrigin
+    enum InternalHydrographOrigin /BaseType=IntEnum/
     {
       None,
       RunoffHydrograph,
@@ -120,5 +120,5 @@ Emitted when the internal hydrograph pointer change
  *                                                                      *
  * src/core/hydrograph/reoshydrographsource.h                           *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

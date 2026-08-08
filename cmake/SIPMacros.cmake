@@ -57,10 +57,15 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
   # If this is not need anymore (using input configuration file for SIP files)
   # SIP could be run in the source rather than in binary directory
   SET(_configured_module_sip ${CMAKE_CURRENT_BINARY_DIR}/${_module_path}/${_module_path}.sip)
+  IF(SIP_SOURCE_ROOT_DIR)
+    SET(_sip_source_root ${SIP_SOURCE_ROOT_DIR})
+  ELSE(SIP_SOURCE_ROOT_DIR)
+    SET(_sip_source_root ${CMAKE_CURRENT_SOURCE_DIR})
+  ENDIF(SIP_SOURCE_ROOT_DIR)
   FOREACH (_sip_file ${SIP_FILES})
     GET_FILENAME_COMPONENT(_sip_file_path ${_sip_file} PATH)
     GET_FILENAME_COMPONENT(_sip_file_name_we ${_sip_file} NAME_WE)
-    FILE(RELATIVE_PATH _sip_file_relpath ${CMAKE_CURRENT_SOURCE_DIR} "${_sip_file_path}/${_sip_file_name_we}")
+    FILE(RELATIVE_PATH _sip_file_relpath ${_sip_source_root} "${_sip_file_path}/${_sip_file_name_we}")
     SET(_out_sip_file "${CMAKE_CURRENT_BINARY_DIR}/${_sip_file_relpath}.sip")
     CONFIGURE_FILE(${_sip_file} ${_out_sip_file})
   ENDFOREACH (_sip_file)
@@ -155,7 +160,7 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
 
   ADD_CUSTOM_TARGET(generate_sip_${MODULE_NAME}_cpp_files DEPENDS ${_sip_output_files})
 
-  SET(CPP_FILES ${sip_output_files})
+  SET(${CPP_FILES} ${_sip_output_files})
 ENDMACRO(GENERATE_SIP_PYTHON_MODULE_CODE)
 
 # Will compile and link the module
@@ -172,7 +177,7 @@ MACRO(BUILD_SIP_PYTHON_MODULE MODULE_NAME SIP_FILES EXTRA_OBJECTS)
 
   ADD_LIBRARY(${_logical_name} MODULE ${_sip_output_files} ${EXTRA_OBJECTS})
   SET_PROPERTY(TARGET ${_logical_name} PROPERTY AUTOMOC OFF)
-  TARGET_INCLUDE_DIRECTORIES(${_logical_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${_module_path}/build)
+  TARGET_INCLUDE_DIRECTORIES(${_logical_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${_module_path}/build ${Python_INCLUDE_DIRS})
 
   IF (${SIP_VERSION_STR} VERSION_LESS 5.0.0)
     # require c++14 only -- sip breaks with newer versions due to reliance on throw(...) annotations removed in c++17

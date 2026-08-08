@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/watershed/reoswatersheddelineating.h                        *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -15,12 +15,15 @@
 
 class ReosWatershedDelineating : ReosModule
 {
+%Docstring(signature="appended")
+Coordinates watershed delineation workflows.
+%End
 
 %TypeHeaderCode
 #include "reoswatersheddelineating.h"
 %End
   public:
-    enum State
+    enum State /BaseType=IntEnum/
     {
       NoDigitalElevationModel,
       WaitingForDownstream,
@@ -47,8 +50,9 @@ Sets the DEM to operate
 
     bool setDownstreamLine( const QPolygonF &downstreamLine, const QString &lineCrs = QString() );
 %Docstring
-Sets the downstream line and its crs, return true if sucessful.
-If the crs is not provided, it is supposed the crs is the same than other inputs (extent or at least DEM crs)
+Sets the downstream line and its crs, return true if sucessful. If the
+crs is not provided, it is supposed the crs is the same than other
+inputs (extent or at least DEM crs)
 %End
 
     bool setPreDefinedExtent( const ReosMapExtent &extent );
@@ -68,7 +72,8 @@ Returns all burning lines
 
     void setCalculateAverageElevation( bool calculate );
 %Docstring
-Sets whether the average elevation of the watershed is calculated after delineating
+Sets whether the average elevation of the watershed is calculated after
+delineating
 %End
 
     bool hasDirectionData() const;
@@ -106,7 +111,8 @@ Returns the last downstream line polyline delineated
 
     bool validateWatershed( bool &needAdjusting );
 %Docstring
-Validates the watershed and returns true if modification of delineating in necessary to add it
+Validates the watershed and returns true if modification of delineating
+in necessary to add it
 %End
 
     ReosWatershed *storeWatershed( bool adjustIfNeeded );
@@ -117,7 +123,8 @@ Store the watershed in the tree, returns pointer to the new watershed
 
     void testPredefinedExtentValidity();
 %Docstring
-Considering result, test if the predefined extent is valid, if not return false and set the state to WaitingWithBroughtBackExtent
+Considering result, test if the predefined extent is valid, if not
+return false and set the state to WaitingWithBroughtBackExtent
 %End
 
     void reset();
@@ -138,7 +145,6 @@ Clears all the data from the delineating tool
         QPolygonF delineateWatershed;
         QPolygonF streamLine;
         double averageElevation;
-        QVector<int> distanceArea;
     };
 
     static DelineateResult delineateWatershed(
@@ -166,5 +172,5 @@ Clears all the data from the delineating tool
  *                                                                      *
  * src/core/watershed/reoswatersheddelineating.h                        *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

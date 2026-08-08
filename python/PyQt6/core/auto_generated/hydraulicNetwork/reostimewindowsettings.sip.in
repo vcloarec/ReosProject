@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/hydraulicNetwork/reostimewindowsettings.h                   *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -11,34 +11,20 @@
 class ReosTimeWindowSettings : ReosDataObject
 {
 %Docstring(signature="appended")
-*************************************************************************
-reostimewindowsettings.h - ReosTimeWindowSettings
-
----------------------
-  begin                : 2.1.2023
-  copyright            : (C) 2023 by Vincent Cloarec
-  email                : vcloarec at gmail dot com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Settings used to define a time window from offsets or fixed dates.
 %End
 
 %TypeHeaderCode
 #include "reostimewindowsettings.h"
 %End
   public:
-    enum OffsetOrigin
+    enum OffsetOrigin /BaseType=IntEnum/
     {
       Begin,
       End,
     };
 
-    enum CombineMethod
+    enum CombineMethod /BaseType=IntEnum/
     {
       Intersection,
       Union,
@@ -48,7 +34,8 @@ the Free Software Foundation; either version 2 of the License, or     *
 
     ReosTimeWindow timeWindow( const ReosTimeWindow &input ) const;
 %Docstring
-Returns a time window defined by the settings, using input if time window is defined automatically
+Returns a time window defined by the settings, using input if time
+window is defined automatically
 %End
 
     OffsetOrigin originStart() const;
@@ -75,5 +62,5 @@ Returns a time window defined by the settings, using input if time window is def
  *                                                                      *
  * src/core/hydraulicNetwork/reostimewindowsettings.h                   *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

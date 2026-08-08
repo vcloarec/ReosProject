@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/quantity/reosduration.h                                     *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -12,20 +12,7 @@
 class ReosTimeWindow
 {
 %Docstring(signature="appended")
-*************************************************************************
-reosduration.h
---------------------------------------
-  Date                 : 21-08-2018
-  Copyright            : (C) 2018 by Vincent Cloarec
-  email                :   vcloarec at gmail dot com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Represents a time window between two date-time values.
 %End
 
 %TypeHeaderCode
@@ -34,7 +21,6 @@ the Free Software Foundation; either version 2 of the License, or     *
   public:
     ReosTimeWindow();
     ReosTimeWindow( const QDateTime &startTime, const QDateTime &endTime );
-    explicit ReosTimeWindow( const QPair< QDateTime, QDateTime> &timeExtent );
 
     const QDateTime &start() const;
     void setStart( const QDateTime &newStart );
@@ -61,12 +47,11 @@ Return whether this time window intersect with ``other``
 
 class ReosDuration
 {
-
 %TypeHeaderCode
 #include "reosduration.h"
 %End
   public:
-    enum Unit
+    enum Unit /BaseType=IntEnum/
     {
       millisecond,
       second,
@@ -127,5 +112,5 @@ class ReosDuration
  *                                                                      *
  * src/core/quantity/reosduration.h                                     *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

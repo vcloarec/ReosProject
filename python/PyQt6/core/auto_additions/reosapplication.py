@@ -1,10 +1,10 @@
 # The following has been generated automatically from src/core/reosapplication.h
 try:
-    .initializationReos = staticmethod(.initializationReos)
-    .enginesPath = staticmethod(.enginesPath)
-    .dataProviderpath = staticmethod(.dataProviderpath)
-    .gisProviderPath = staticmethod(.gisProviderPath)
-    .isRunningFromBuildDir = staticmethod(.isRunningFromBuildDir)
-    .__overridden_methods__ = ['notify']
+    ReosApplication.initializationReos = staticmethod(ReosApplication.initializationReos)
+    ReosApplication.enginesPath = staticmethod(ReosApplication.enginesPath)
+    ReosApplication.dataProviderpath = staticmethod(ReosApplication.dataProviderpath)
+    ReosApplication.gisProviderPath = staticmethod(ReosApplication.gisProviderPath)
+    ReosApplication.isRunningFromBuildDir = staticmethod(ReosApplication.isRunningFromBuildDir)
+    ReosApplication.__overridden_methods__ = ['notify']
 except (NameError, AttributeError):
     pass

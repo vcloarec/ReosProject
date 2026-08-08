@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/data/reostimeseries.h                                       *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -14,7 +14,7 @@
 class ReosTimeSeries : ReosDataObject /Abstract/
 {
 %Docstring(signature="appended")
-Class that handle time serie data
+Handles time series data.
 %End
 
 %TypeHeaderCode
@@ -27,14 +27,16 @@ Class that handle time serie data
 
     void reload();
 %Docstring
-Asks for Reloading data from provider.
-In case of remote data, data are not available just after calling this method but once data aare effectivly loading.
-If caller need data just after calling, see :py:func:`~ReosTimeSeries.reloadBlocking`.
+Asks for Reloading data from provider. In case of remote data, data are
+not available just after calling this method but once data aare
+effectivly loading. If caller need data just after calling, see
+:py:func:`~ReosTimeSeries.reloadBlocking`.
 %End
 
     void reloadBlocking( int timeout = -1, bool repeat = false );
 %Docstring
-Reload data from provider and wait until the data is effectivly reloaded.
+Reload data from provider and wait until the data is effectivly
+reloaded.
 %End
 
     void setReferenceTime( const QDateTime &dateTime );
@@ -54,7 +56,8 @@ Returns the count of value in the time serie
 
     virtual ReosDuration relativeTimeAt( int i ) const = 0;
 %Docstring
-Returns the relative time frm the reference time for the value at position ``i``
+Returns the relative time frm the reference time for the value at
+position ``i``
 %End
 
     virtual QDateTime timeAt( int i ) const;
@@ -91,7 +94,8 @@ Clears all values
 
     void valuesExtent( double &min /Out/, double &max /Out/, bool withZero ) const;
 %Docstring
-Returns the value extent of the serie, if withZero, zeo will be a extrem if all values are positive or negative
+Returns the value extent of the serie, if withZero, zeo will be a extrem
+if all values are positive or negative
 %End
 
     QString valueUnit() const;
@@ -120,10 +124,6 @@ Returns the maximum of values of this time serie
 Returns the maximum of values of this time serie
 %End
 
-    const QVector<double> &constData() const;
-%Docstring
-Returns the values as a const array
-%End
 
     const QVariantMap metadata() const;
 %Docstring
@@ -137,17 +137,19 @@ Returns eventual metadata related to the time series
 class ReosTimeSeriesConstantInterval : ReosTimeSeries
 {
 %Docstring(signature="appended")
-Class that handle time serie data with constant time interval
+Handles time series data with a constant time interval.
 
-By default, value are considered as incremental value. Different modes (see ValueMode) can be used to return
-intensity value ( incremental value divided by the time step) or cumulative value (sum from the begining).
+By default, value are considered as incremental value. Different modes
+(see ValueMode) can be used to return intensity value ( incremental
+value divided by the time step) or cumulative value (sum from the
+begining).
 %End
 
 %TypeHeaderCode
 #include "reostimeseries.h"
 %End
   public:
-    enum ValueMode
+    enum ValueMode /BaseType=IntEnum/
     {
       Value,
       Intensity,
@@ -165,10 +167,6 @@ intensity value ( incremental value divided by the time step) or cumulative valu
     virtual QString type() const;
     static QString staticType();
 
-    void setValues( const QVector<double> &vals );
-%Docstring
-Set all values with the array ``vals``
-%End
 
     void appendValue( double value );
 %Docstring
@@ -177,7 +175,7 @@ Appends a value at the end of the series
 
     void insertValues( int fromPos, int count, double value );
 %Docstring
-Inserts  value ``count`` time from position ``fromPos``
+Inserts value ``count`` time from position ``fromPos``
 %End
 
     ValueMode valueMode() const;
@@ -241,17 +239,20 @@ Returns the color attributed to the current mode
 
     void setValueModeColor( ValueMode mode, const QColor &color );
 %Docstring
-Set the ``color`` used to display this time series following the ``ValueMode``
+Set the ``color`` used to display this time series following the
+``ValueMode``
 %End
 
     bool addCumultive() const;
 %Docstring
-Returns a flag to make this instance using cumulative mode in addition to the current mode
+Returns a flag to make this instance using cumulative mode in addition
+to the current mode
 %End
 
     void setAddCumulative( bool addCumulative );
 %Docstring
-Sets a flag to make this instance using cumulative mode in addition to the current mode
+Sets a flag to make this instance using cumulative mode in addition to
+the current mode
 %End
 
     void syncWith( ReosTimeSeriesConstantInterval *other );
@@ -274,7 +275,6 @@ Copy the serie ``other`` in ``this``.
 
 class ReosTimeSeriesVariableTimeStep : ReosTimeSeries
 {
-
 %TypeHeaderCode
 #include "reostimeseries.h"
 %End
@@ -292,24 +292,19 @@ Returns the relative time at ``i``
 
     bool setRelativeTimeAt( int i, const ReosDuration &relativeTime );
 %Docstring
-Sets the relative time ``relativeTime`` at postion ``i``. If the value is not compatible with previous or next values, do nothing and return false.
+Sets the relative time ``relativeTime`` at postion ``i``. If the value
+is not compatible with previous or next values, do nothing and return
+false.
 %End
 
     void setAnyRelativeTimeAt( int i, const ReosDuration &relativeTime );
 %Docstring
-Sets the relative time ``relativeTime`` at postion ``i`` regardless of the value of ``relativeTime`` and of other time values
+Sets the relative time ``relativeTime`` at postion ``i`` regardless of
+the value of ``relativeTime`` and of other time values
 %End
 
 
-    const QVector<ReosDuration> relativeTimesData() const;
-%Docstring
-Returns the relative times from the reference time
-%End
 
-    const QVector<int> relativeTimesDataSeconds() const;
-%Docstring
-Returns the relative times from the reference time in seconds, convenient for storing elsewhere.
-%End
 
     ReosDuration totalDuration() const;
 %Docstring
@@ -323,39 +318,41 @@ Returns the duration of the serie taking account of hole in the series
 
     void setValue( const ReosDuration &relativeTime, double value );
 %Docstring
-Sets the value at ``relative`` time with ``value``, if the ``relative`` time is not present insert a new couple (time, value)
+Sets the value at ``relative`` time with ``value``, if the ``relative``
+time is not present insert a new couple (time, value)
 %End
 
     void setValue( const QDateTime &time, double value );
 %Docstring
-Sets the value at ``time`` with ``value``, if the ``time`` is not present insert a new couple (time, value)
+Sets the value at ``time`` with ``value``, if the ``time`` is not
+present insert a new couple (time, value)
 %End
 
-    void setValues( const QVector<int> &relativeTime, const QVector<double> &values );
-%Docstring
-Sets values with a relative times ``relativeTimeSecond`` in seconds.
-%End
 
     double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;
 %Docstring
-Returns the value at relative time ``relative`` time, interpolate if relative time is between two time values,
-return 0 if before first one or after last one.
-The argument ``maxInteval`` can be used to avoid interpolation between interval of time creater than this value.
+Returns the value at relative time ``relative`` time, interpolate if
+relative time is between two time values, return 0 if before first one
+or after last one. The argument ``maxInteval`` can be used to avoid
+interpolation between interval of time creater than this value.
 %End
 
     double valueAtTime( const QDateTime &time ) const;
 %Docstring
-Returns the value at time ``time``, interpolate if time is between two time values, return 0 if before first one or after last one
+Returns the value at time ``time``, interpolate if time is between two
+time values, return 0 if before first one or after last one
 %End
 
     void addOther( const ReosTimeSeriesVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
 %Docstring
-Adds another instance to this the values of this ones, create new time steps if needed
+Adds another instance to this the values of this ones, create new time
+steps if needed
 %End
 
     void completeAfter( const ReosTimeSeriesVariableTimeStep *other );
 %Docstring
-Completes this instance with the other series when time is after the last time of this
+Completes this instance with the other series when time is after the
+last time of this
 %End
 
     QString unitString() const;
@@ -382,8 +379,9 @@ Sets the color used to render the time serie
 
     ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime(), const ReosDuration &maxVoidInter = ReosDuration() ) const;
 %Docstring
-Returns a 1D blocl of discretized hydrograph with a time step ``timeStep``.
-If start time is not valid, discretization start and is centered at the first value of the hydrograph.
+Returns a 1D blocl of discretized hydrograph with a time step
+``timeStep``. If start time is not valid, discretization start and is
+centered at the first value of the hydrograph.
 %End
 
     bool operator==( const ReosTimeSeriesVariableTimeStep &other ) const;
@@ -396,5 +394,5 @@ If start time is not valid, discretization start and is centered at the first va
  *                                                                      *
  * src/core/data/reostimeseries.h                                       *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/watershed/reoswatershedtree.h                               *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -16,20 +16,7 @@
 class ReosWatershedTree : QObject
 {
 %Docstring(signature="appended")
-*************************************************************************
-reoswatershedtree.h
---------------------------------------
-  Date                 : 04-10-2020
-  Copyright            : (C) 2020 by Vincent Cloarec
-  email                : vcloarec at gmail dot com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Stores watersheds in a hierarchical tree.
 %End
 
 %TypeHeaderCode
@@ -41,8 +28,9 @@ the Free Software Foundation; either version 2 of the License, or     *
 
     ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
 %Docstring
-Adds a watershed to the store, in the ``downstreamWatershed`` (or in one of its sub watershed).
-Take ownership and returns a pointer to the added watershed
+Adds a watershed to the store, in the ``downstreamWatershed`` (or in one
+of its sub watershed). Take ownership and returns a pointer to the added
+watershed
 %End
 
     ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
@@ -52,7 +40,8 @@ If there is no watershed downstrean, return None
 
     ReosWatershed *watershed( const QPointF &point );
 %Docstring
-Returns the smallest watershed (the more upstream that contains the points
+Returns the smallest watershed (the more upstream that contains the
+points
 %End
 
     int watershedCount() const;
@@ -72,7 +61,8 @@ Returns a pointer to master watershed with ``index``
 
     int masterWatershedPosition( ReosWatershed *watershed ) const;
 %Docstring
-Returns the position of the master watershed, if not a master watershed, returns -1
+Returns the position of the master watershed, if not a master watershed,
+returns -1
 %End
 
     QList<ReosWatershed *> allWatershedsFromUSToDS() const;
@@ -88,9 +78,9 @@ Returns a list of all the watershed sorted from downstream to upstream
 
     ReosWatershed *extractWatershed( ReosWatershed *ws ) /Transfer/;
 %Docstring
-Removes (if present) the watershed from the watershed ``ws``, but do not delete it, returns a pointer to it.
-Caller takes ownership
-Do not maintained sub watershed but move them to downstream.
+Removes (if present) the watershed from the watershed ``ws``, but do not
+delete it, returns a pointer to it. Caller takes ownership Do not
+maintained sub watershed but move them to downstream.
 %End
 
 
@@ -119,12 +109,15 @@ Emitted before a watershed will be added
 
     void watershedAdded( ReosWatershed * );
 %Docstring
-emitted when watershed is added with the pointer to the directly downsteam watershed (None if added watershed is a the extreme downstream)
+emitted when watershed is added with the pointer to the directly
+downsteam watershed (None if added watershed is a the extreme
+downstream)
 %End
 
     void watershedWillBeRemoved( ReosWatershed * );
 %Docstring
-Emitted when a watershed will be remove with a pointer to the removed watershed
+Emitted when a watershed will be remove with a pointer to the removed
+watershed
 %End
 
     void watershedRemoved();
@@ -145,5 +138,5 @@ Emitted when a watershed changed
  *                                                                      *
  * src/core/watershed/reoswatershedtree.h                               *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

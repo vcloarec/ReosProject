@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/quantity/reosarea.h                                         *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -13,27 +13,14 @@
 class ReosArea
 {
 %Docstring(signature="appended")
-*************************************************************************
-reosarea.h
---------------------------------------
-  Date                 : 18-11-2018
-  Copyright            : (C) 2018 by Vincent Cloarec
-  email                : vcloarec@gmail.com projetreos@gmail.com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Represents an area with a display unit.
 %End
 
 %TypeHeaderCode
 #include "reosarea.h"
 %End
   public:
-    enum Unit
+    enum Unit /BaseType=IntEnum/
     {
       m2,
       a,
@@ -81,5 +68,5 @@ the Free Software Foundation; either version 2 of the License, or     *
  *                                                                      *
  * src/core/quantity/reosarea.h                                         *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/reosencodedelement.h                                        *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -12,7 +12,7 @@
 class ReosEncodeContext
 {
 %Docstring(signature="appended")
-Class that sore information about the context of encoding
+Class that sore information about the context of encoding.
 %End
 
 %TypeHeaderCode
@@ -21,24 +21,24 @@ Class that sore information about the context of encoding
   public:
     QString pathToEncode( const QString &filePath ) const;
 %Docstring
-Returns the path to encode depending of the context
+Returns the path to encode depending of the context.
 %End
 
     QString resolvePath( const QString &path ) const;
 %Docstring
-Resolves the path depending of the context
+Resolves the path depending of the context.
 %End
 
     void setBaseDir( const QDir &newBaseDir );
 %Docstring
-Sets the base direcory used for relative pathes
+Sets the base direcory used for relative pathes.
 
 .. seealso:: :py:func:`setEncodeRelativePath`
 %End
 
     void setEncodeRelativePath( bool isRelative );
 %Docstring
-Sets whether pathes are relative
+Sets whether pathes are relative.
 
 .. seealso:: :py:func:`setBaseDir`
 %End
@@ -48,7 +48,7 @@ Sets whether pathes are relative
 class ReosEncodedElement
 {
 %Docstring(signature="appended")
-Class used to store data under byte array
+Stores data in a byte array.
 %End
 
 %TypeHeaderCode
@@ -67,12 +67,14 @@ Constructor of an empty encoded element with only the description
 
     explicit ReosEncodedElement( const QByteArray &byteArray );
 %Docstring
-Contructor of an encoded element from a ``byte`` array than contains data and description
+Contructor of an encoded element from a ``byte`` array than contains
+data and description
 %End
 
     QByteArray bytes() const;
 %Docstring
-Returns byte of the encoded element that can be store in files or in another encoded element
+Returns byte of the encoded element that can be store in files or in
+another encoded element
 %End
 
     QString description() const;
@@ -96,5 +98,5 @@ Adds data ``value`` with a ``key`` to the encoded element
  *                                                                      *
  * src/core/reosencodedelement.h                                        *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/raster/reosrastercompressed.h                               *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -11,7 +11,7 @@
 class ReosRasterByteCompressed
 {
 %Docstring(signature="appended")
-Class used to store unsigned char raser that has value unde 128 by a compress way
+Stores compressed unsigned char rasters with values under 128.
 %End
 
 %TypeHeaderCode
@@ -47,5 +47,5 @@ Creates a new instance of this class by decoding the ``element``
  *                                                                      *
  * src/core/raster/reosrastercompressed.h                               *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

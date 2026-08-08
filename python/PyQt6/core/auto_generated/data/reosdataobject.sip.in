@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/data/reosdataobject.h                                       *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -12,7 +12,7 @@
 class ReosDataObject : QObject
 {
 %Docstring(signature="appended")
-Base class uses to be an interface for data
+Base class used as an interface for data.
 %End
 
 %TypeHeaderCode
@@ -55,5 +55,5 @@ Return true whether the data need to be calculated or updated
  *                                                                      *
  * src/core/data/reosdataobject.h                                       *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

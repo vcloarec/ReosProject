@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/GIS/reosgisengine.h                                         *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -15,14 +15,14 @@
 class ReosGisEngine : ReosModule
 {
 %Docstring(signature="appended")
-Reos module class that handles GIS layer
+Handles GIS layers.
 %End
 
 %TypeHeaderCode
 #include "reosgisengine.h"
 %End
   public:
-    enum LayerType
+    enum LayerType /BaseType=IntEnum/
     {
       NoLayer,
       VectorLayer,
@@ -43,23 +43,27 @@ Constructor
 
     QString addVectorLayer( const QString &uri, const QString &name = QString() );
 %Docstring
-Adds a vector layer, if the loaded vector layer is invalid, do nothing and return false
+Adds a vector layer, if the loaded vector layer is invalid, do nothing
+and return false
 %End
 
-    QString addRasterLayer( const QString &uri, const QString &name = QString());
+    QString addRasterLayer( const QString &uri, const QString &name = QString() );
 %Docstring
-Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false.
-If the rasgter layer as to be registered as a DEM, ``isDem`` has to point to a bool with true value.
+Adds a raster layer, if the loaded vector layer is invalid, do nothing
+and return false. If the rasgter layer as to be registered as a DEM,
+``isDem`` has to point to a bool with true value.
 %End
 
     QString addDemRasterLayer( const QString &uri, const QString &name = QString() );
 %Docstring
-Adds a dem raster layer, if the loaded vector layer is invalid, do nothing and return false.
+Adds a dem raster layer, if the loaded vector layer is invalid, do
+nothing and return false.
 %End
 
     QString addMeshLayer( const QString &uri, const QString &name = QString() );
 %Docstring
-Adds a raster layer, if the loaded vector layer is invalid, do nothing and return false
+Adds a raster layer, if the loaded vector layer is invalid, do nothing
+and return false
 %End
 
     LayerType layerType( const QString &layerId ) const;
@@ -115,12 +119,14 @@ Returns a WKT string of the CRS defined by a Proj string ``epsgCode``
 
     static QString crsWkt1( const QString &crs );
 %Docstring
-Return the WKT1 string of the crs defined by watherver WKT string ``crs``
+Return the WKT1 string of the crs defined by watherver WKT string
+``crs``
 %End
 
     static QString crsEsriWkt( const QString &crs );
 %Docstring
-Return the ESRI WKT string of the crs defined by watherver WKT string ``crs``
+Return the ESRI WKT string of the crs defined by watherver WKT string
+``crs``
 %End
 
     void setCrs( const QString &crsString );
@@ -147,12 +153,14 @@ Saves the GIS project as a QGIS project
 
     bool registerLayerAsDigitalElevationModel( const QString &layerId );
 %Docstring
-Registers the layer with ``layerId`` unique as a Digital Elevation Model, returns true is sucessful
+Registers the layer with ``layerId`` unique as a Digital Elevation
+Model, returns true is sucessful
 %End
 
     void unRegisterLayerAsDigitalElevationModel( const QString &layerId );
 %Docstring
-Unregisters the layer with ``layerId`` unique as a Digital Elevation Model, does nothing if no valid layer Id
+Unregisters the layer with ``layerId`` unique as a Digital Elevation
+Model, does nothing if no valid layer Id
 %End
 
     bool isDigitalElevationModel( const QString &layerId ) const;
@@ -162,7 +170,8 @@ Returns whether the layrId is registered as a Digigtal Elevation Model
 
     static ReosDigitalElevationModel *createRasterDigitalElevationModel( const QString &uri ) /Transfer/;
 %Docstring
-Returns a pointer to a Digitial Elevation Model from a raster file with  ``uri``
+Returns a pointer to a Digitial Elevation Model from a raster file with
+``uri``
 %End
 
 
@@ -171,17 +180,20 @@ Returns a pointer to a Digitial Elevation Model from a raster file with  ``uri``
 
     ReosArea polygonArea( const QPolygonF &polygon, const QString &crs = QString() ) const;
 %Docstring
-Returns area of ``polygon`` considering the coordinate reference system ``crs``. If no crs is provided, the crs of the project is used
+Returns area of ``polygon`` considering the coordinate reference system
+``crs``. If no crs is provided, the crs of the project is used
 %End
 
     static ReosArea polygonAreaWithCrs( const QPolygonF &polygon, const QString &crs );
 %Docstring
-Returns area of ``polygon`` considering the coordinate reference system ``crs``.
+Returns area of ``polygon`` considering the coordinate reference system
+``crs``.
 %End
 
     double convertLengthFromMeterToMapunit( double length );
 %Docstring
-Convert a length from meter to map unit considering the coordinate reference system of the project
+Convert a length from meter to map unit considering the coordinate
+reference system of the project
 %End
 
 
@@ -196,7 +208,8 @@ Clears the GIS project
 
     static QList<QPolygonF> openPolygonVectorLayerSource( const QString &uri, QString &crs /Out/, const QString &provider = QString(), const ReosMapExtent &mapExtent = ReosMapExtent() );
 %Docstring
-Opens a polygon vector layer from ``uri`` and returns a  list of its polygons and the related ``crs``.
+Opens a polygon vector layer from ``uri`` and returns a list of its
+polygons and the related ``crs``.
 %End
 
 
@@ -224,38 +237,40 @@ Transforms the spatial position ``position`` to given ``crs``
 
     static double distance( const QPointF &point1, const QPointF &point2, const QString &pointCrs );
 %Docstring
-Calculates and returns distance in meters between ``point1`` and ``point2`` that are in ``pointsCrs`` coordinates system
+Calculates and returns distance in meters between ``point1`` and
+``point2`` that are in ``pointsCrs`` coordinates system
 %End
 
     static double locateOnPolyline( const QPointF &point, const QPolygonF &polyline, const QString &crs );
 %Docstring
-Calculates and returns location of ``point`` from begining of ``polyline`` in meters, point and polyline are in ``crs`` coordinates system
+Calculates and returns location of ``point`` from begining of
+``polyline`` in meters, point and polyline are in ``crs`` coordinates
+system
 %End
 
     static QPointF setPointOnPolyline( double distance, const QPolygonF &polyline, const QString &crs, int &segmentVertex );
 %Docstring
-Sets and returns a point on ``polyline`` with ``distance`` from beginning in meters with returned point and ``polyline`` in ``crs`` coordinates
+Sets and returns a point on ``polyline`` with ``distance`` from
+beginning in meters with returned point and ``polyline`` in ``crs``
+coordinates
 %End
 
     static QPolygonF transformToCoordinates( const QString &sourceCRS, const QPolygonF &sourcePolygon, const QString &destinationCrs );
 %Docstring
-Transforms the ``sourcePolygon`` with crs ``sourceCrs``  to given ``crs``
+Transforms the ``sourcePolygon`` with crs ``sourceCrs`` to given ``crs``
 %End
 
     static double factorUnitToMeter( const QString &crs );
 
 
-    QPair<QDateTime, QDateTime> temporalRange() const;
-%Docstring
-Returns the temporal range
-%End
 
 
 
     static bool createProjectFile( const QString &projectFileName, bool keepLayer = false );
 %Docstring
-Creates new project file with the current project, returns true if succefull. if ``keepLayer`` is true,
-the layers currently prensent in the project will be added to the new project
+Creates new project file with the current project, returns true if
+succefull. if ``keepLayer`` is true, the layers currently prensent in
+the project will be added to the new project
 %End
 
     static QString gisEngineName();
@@ -283,5 +298,5 @@ Sets the temporal range
  *                                                                      *
  * src/core/GIS/reosgisengine.h                                         *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

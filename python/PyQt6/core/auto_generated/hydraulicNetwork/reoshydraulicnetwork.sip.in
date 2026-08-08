@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/hydraulicNetwork/reoshydraulicnetwork.h                     *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -13,6 +13,9 @@
 
 class ReosHydraulicNetworkElement : ReosDataObject /Abstract/
 {
+%Docstring(signature="appended")
+Base class for hydraulic network elements.
+%End
 
 %TypeHeaderCode
 #include "reoshydraulicnetwork.h"
@@ -71,7 +74,8 @@ Called when the position of the item is changed
 
     virtual bool calculationInProgress() const;
 %Docstring
-Returns whether calculation is in progress, default implementation returns false
+Returns whether calculation is in progress, default implementation
+returns false
 %End
 
     virtual int calculationMaxProgression() const;
@@ -162,7 +166,6 @@ Emitted whrn the map time step of the element is changed
 
 class ReosHydraulicNetworkContext
 {
-
 %TypeHeaderCode
 #include "reoshydraulicnetwork.h"
 %End
@@ -184,7 +187,6 @@ class ReosHydraulicNetworkContext
 
 class ReosHydraulicNetwork : ReosModule
 {
-
 %TypeHeaderCode
 #include "reoshydraulicnetwork.h"
 %End
@@ -207,14 +209,15 @@ Returns the count of elements present in the network
 
     QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
 %Docstring
-Returns a list of elements of ``type``. Returns all element if type is empty or not prvided
+Returns a list of elements of ``type``. Returns all element if type is
+empty or not prvided
 %End
 
-;
 
     void removeElement( ReosHydraulicNetworkElement *elem );
 %Docstring
-Removes the element ``elem``. The element is destoyed by calling this method.
+Removes the element ``elem``. The element is destoyed by calling this
+method.
 %End
 
 
@@ -225,7 +228,8 @@ Clears the network
 
     void reset();
 %Docstring
-Reset the network, that is, clear all and creates just one hydraulic scheme
+Reset the network, that is, clear all and creates just one hydraulic
+scheme
 %End
 
     ReosGisEngine *gisEngine() const;
@@ -275,8 +279,8 @@ Returns the current scheme Name
 
     ReosHydraulicScheme *addNewScheme( const QString &schemeName );
 %Docstring
-Creates and Adds a new scheme to the network with ``schemeName``.
-The associated meteo model will be the first one available.
+Creates and Adds a new scheme to the network with ``schemeName``. The
+associated meteo model will be the first one available.
 %End
 
 
@@ -304,7 +308,8 @@ Return time window including all element that can be rendered on map
 
     void schemeChanged();
 %Docstring
-Emited when the current scheme had changes or had been changed (not the same current scheme anymore)
+Emited when the current scheme had changes or had been changed (not the
+same current scheme anymore)
 %End
     void loaded();
     void timeStepChanged();
@@ -319,5 +324,5 @@ Emited when the current scheme had changes or had been changed (not the same cur
  *                                                                      *
  * src/core/hydraulicNetwork/reoshydraulicnetwork.h                     *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

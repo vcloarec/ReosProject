@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/GIS/reosdigitalelevationmodel.h                             *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -12,7 +12,10 @@
 class ReosDigitalElevationModel /Abstract/
 {
 %Docstring(signature="appended")
-The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
+Interface for digital elevation models.
+
+Implementations can represent TIN, raster, or other elevation model
+types.
 %End
 
 %TypeHeaderCode
@@ -29,7 +32,8 @@ Returns elevation value at ``point`` in DEM coordinate
 
     virtual QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = 0 ) const = 0;
 %Docstring
-Returns a profile corresponding on the elevation on the DEM, resolution depends on the DEM type
+Returns a profile corresponding on the elevation on the DEM, resolution
+depends on the DEM type
 
 :param polyline: the polyline that support the projection of elevation
 :param polylineCrs: is the CRS of ``polyline``
@@ -50,19 +54,10 @@ Calculates and returns the average elevation
 
     virtual QString source() const = 0;
 %Docstring
-Returns the source of the DEM, if it is a map layer, returns the layer Id
+Returns the source of the DEM, if it is a map layer, returns the layer
+Id
 %End
 
-    virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
-      const ReosMapExtent &extent, ReosRasterExtent &rasterExtent, float &maxValue, const QString &destinationCrs = QString(), ReosProcess *process = 0
-    ) const;
-%Docstring
-Extract a memory raster with simple precision from the DEM in ``extent``.
-The resolution of the raster will depend on the DEM specification.
-Resulting resolution and adjusted extent are stored in ``rasterExtent``.
-Destination coordinate reference system ``destinationCrs`` can be provided to override the extent crs
-If destinantion crs and extent crs are invalid, the output will be in the same coordinate system as the souce of the DEM
-%End
 
 
     virtual double noDataValue() const = 0;
@@ -79,5 +74,5 @@ Returns the no data value for this DEM
  *                                                                      *
  * src/core/GIS/reosdigitalelevationmodel.h                             *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

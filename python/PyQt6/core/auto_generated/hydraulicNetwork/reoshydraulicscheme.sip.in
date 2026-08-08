@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/hydraulicNetwork/reoshydraulicscheme.h                      *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -13,10 +13,11 @@
 class ReosHydraulicScheme : ReosDataObject
 {
 %Docstring(signature="appended")
-ReosHydraulicScheme is a clas that represent a scheme of hydraulic simulation.
-An instance of this class contain:
-- reference to the meteorological model used for watershed hydrograph calculation
-- start and end time of simulation
+Represents a hydraulic simulation scheme.
+
+An instance of this class contains: - reference to the meteorological
+model used for watershed hydrograph calculation - start and end time of
+simulation
 %End
 
 %TypeHeaderCode
@@ -44,5 +45,5 @@ An instance of this class contain:
  *                                                                      *
  * src/core/hydraulicNetwork/reoshydraulicscheme.h                      *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

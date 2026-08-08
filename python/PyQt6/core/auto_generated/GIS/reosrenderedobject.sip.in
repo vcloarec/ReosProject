@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/GIS/reosrenderedobject.h                                    *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -14,7 +14,9 @@
 class ReosRenderedObject : ReosDataObject /Abstract/
 {
 %Docstring(signature="appended")
-Base classe of data object rendered on the map (for example mesh)
+Base class for data objects rendered on the map.
+
+Meshes are an example of rendered data objects.
 %End
 
 %TypeHeaderCode
@@ -40,5 +42,5 @@ Constructor
  *                                                                      *
  * src/core/GIS/reosrenderedobject.h                                    *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

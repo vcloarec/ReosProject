@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/hydraulicNetwork/reoshydraulicstructure2d.h                 *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -12,28 +12,15 @@
 class ReosHydraulicStructure2D : ReosHydraulicNetworkElement
 {
 %Docstring(signature="appended")
-*************************************************************************
-reoshydraulicstructure2d.h - ReosHydraulicStructure2D
-
----------------------
-  begin                : 9.1.2022
-  copyright            : (C) 2022 by Vincent Cloarec
-  email                : vcloarec at gmail dot com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Hydraulic network element representing a two-dimensional hydraulic
+structure.
 %End
 
 %TypeHeaderCode
 #include "reoshydraulicstructure2d.h"
 %End
   public:
-    enum Structure2DCapability
+    enum Structure2DCapability /BaseType=IntEnum/
     {
       GeometryEditable,
       MultiSimulation,
@@ -46,7 +33,8 @@ the Free Software Foundation; either version 2 of the License, or     *
 
     ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context );
 %Docstring
-Contructor from a ``domain``, ccordinate system ``crs`` and a ``context``
+Contructor from a ``domain``, ccordinate system ``crs`` and a
+``context``
 %End
     ~ReosHydraulicStructure2D();
 
@@ -70,7 +58,8 @@ Contructor from a ``domain``, ccordinate system ``crs`` and a ``context``
 
     QDir structureDirectory() const;
 %Docstring
-Returns the directory where data and simulation will be stored on the disk
+Returns the directory where data and simulation will be stored on the
+disk
 %End
 
     bool hasCapability( Structure2DCapability capability ) const;
@@ -94,19 +83,22 @@ Start running a simulation and wait the simulation finishes
 
     double resultsValueAt( const QDateTime &time, const ReosSpatialPosition &position, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
 %Docstring
-Returns the value of the results with type ``datasetType`` for the specified ``context``, ``position`` and ``time``
+Returns the value of the results with type ``datasetType`` for the
+specified ``context``, ``position`` and ``time``
 %End
 
     QString resultsUnits( ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId );
 %Docstring
-Returns a translated string corresponding to the unit of the results associated with ``context`` and to the type  ``datasetType``
+Returns a translated string corresponding to the unit of the results
+associated with ``context`` and to the type ``datasetType``
 %End
 
     bool rasterizeResult( const QDateTime &time, ReosHydraulicSimulationResults::DatasetType datasetType, const QString &schemeId, const QString &fileName, const QString &destinationCrs, double resolution );
 %Docstring
-Creates a raster file ``fileName`` with results of type ``datasetType``, for the scheme ``schemeId``, at ``time``,
-with coordinates reference système (WKT) ``destination`` CRS, and with ``resolution`` in map unit of ``destinationCrs``.
-Return True if successful.
+Creates a raster file ``fileName`` with results of type ``datasetType``,
+for the scheme ``schemeId``, at ``time``, with coordinates reference
+système (WKT) ``destination`` CRS, and with ``resolution`` in map unit
+of ``destinationCrs``. Return True if successful.
 %End
 };
 
@@ -117,5 +109,5 @@ Return True if successful.
  *                                                                      *
  * src/core/hydraulicNetwork/reoshydraulicstructure2d.h                 *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

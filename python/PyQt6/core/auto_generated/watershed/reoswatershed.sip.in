@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/watershed/reoswatershed.h                                   *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -13,27 +13,14 @@
 class ReosWatershed : ReosDataObject
 {
 %Docstring(signature="appended")
-*************************************************************************
-reoswatershed.h
---------------------------------------
-  Date                 : 10-2020
-  Copyright            : (C) 2020 by Vincent Cloarec
-  email                : vcloarec at gmail dot com
-  **************************************************************************
-
-This program is free software; you can redistribute it and/or modify  *
-it under the terms of the GNU General Public License as published by  *
-the Free Software Foundation; either version 2 of the License, or     *
-(at your option) any later version.                                   *
-
-**************************************************************************
+Represents a watershed and its hydrological properties.
 %End
 
 %TypeHeaderCode
 #include "reoswatershed.h"
 %End
   public:
-    enum Type
+    enum Type /BaseType=IntEnum/
     {
       None,
       Automatic,
@@ -48,7 +35,8 @@ Default constructor
 
     ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs = QString() );
 %Docstring
-Constructor of manual delineating watershed with ``delineating`` polygon and the ``outlet`` point.
+Constructor of manual delineating watershed with ``delineating`` polygon
+and the ``outlet`` point.
 %End
 
 
@@ -91,5 +79,5 @@ Returns the area of the watershed
  *                                                                      *
  * src/core/watershed/reoswatershed.h                                   *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/

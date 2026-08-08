@@ -10,22 +10,15 @@
 
 
 
-class ReosApplication : public QApplication {
-%Docstring
-*************************************************************************
-reosapplication.h -------------------------------------- Date :
-20-09-2020 Copyright : (C) 2020 by Vincent Cloarec email : vcloarec at
-gmail dot com
-**************************************************************************
-
-This program is free software; you can redistribute it and/or modify *
-it under the terms of the GNU General Public License as published by *
-the Free Software Foundation; either version 2 of the License, or * (at
-your option) any later version. *
-
-**************************************************************************
+class ReosApplication : QApplication
+{
+%Docstring(signature="appended")
+Application object for REOS.
 %End
 
+%TypeHeaderCode
+#include "reosapplication.h"
+%End
 %TypeCode
       // Convert a Python argv list to a conventional C argc count and argv
       // array.
@@ -67,14 +60,13 @@ your option) any later version. *
     }
   }
 %End
-
-  ReosApplication(SIP_PYLIST argv) / PostHook = __pyQtQAppHook__ /
+  public:
+  ReosApplication(SIP_PYLIST argv) / PostHook = __pyQtQAppHook__ / [(int &argc, char **argv)];
 %Docstring
 Constructor for ReosApplication.
 
 :param argv: command line arguments
 %End
-                                                [(int &argc, char **argv)];
 %MethodCode
       // The Python interface is a list of argument strings that is modified.
 

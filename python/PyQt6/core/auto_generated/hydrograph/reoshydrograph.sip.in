@@ -3,7 +3,7 @@
  *                                                                      *
  * src/core/hydrograph/reoshydrograph.h                                 *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
 
 
@@ -13,7 +13,7 @@
 class ReosHydrograph : ReosTimeSeriesVariableTimeStep
 {
 %Docstring(signature="appended")
-Class that represents a hydrograph
+Represents a hydrograph.
 %End
 
 %TypeHeaderCode
@@ -22,8 +22,9 @@ Class that represents a hydrograph
   public:
     ReosHydrograph( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
 %Docstring
-Constructs an hydrograph with ``providerKey`` and ``datasource``. The data could not be available just after creation dependeing of the provider.
-Remote provider could take sometime to obtain data
+Constructs an hydrograph with ``providerKey`` and ``datasource``. The
+data could not be available just after creation dependeing of the
+provider. Remote provider could take sometime to obtain data
 %End
 
     virtual QString type() const;
@@ -31,9 +32,9 @@ Remote provider could take sometime to obtain data
 
     static ReosHydrograph *loadHydrograph( const QString &providerKey, const QString &dataSource, QObject *parent = 0 ) /Factory/;
 %Docstring
-Loads and returns an completly loaded hydrograph.
-If the source is remote, that means that calling this methods leads to wait for reply of the remote source.
-The caller take ownership.
+Loads and returns an completly loaded hydrograph. If the source is
+remote, that means that calling this methods leads to wait for reply of
+the remote source. The caller take ownership.
 %End
 
 
@@ -51,5 +52,5 @@ The caller take ownership.
  *                                                                      *
  * src/core/hydrograph/reoshydrograph.h                                 *
  *                                                                      *
- * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
  ************************************************************************/
