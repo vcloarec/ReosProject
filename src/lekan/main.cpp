@@ -18,7 +18,6 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include <qstylefactory.h>
 #include <QCoreApplication>
 #include <QTranslator>
-#include <QDesktopWidget>
 #include <QMainWindow>
 #include <QStandardPaths>
 #include <QScreen>
