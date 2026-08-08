@@ -268,7 +268,7 @@ QString ReosTextFileData::readLine( QTextStream &stream )
     {
       const QString str = stream.read( 1 );
       const QChar *strChar = str.constData();
-      if ( strChar == &mFirstEOLChar )
+      if ( strChar && *strChar == mFirstEOLChar )
         lineFinished = true;
       else
         line.append( str );

@@ -15,7 +15,6 @@ email                : vcloarec at gmail dot com
 #include <filesystem>
 #include <QObject>
 #include <QtTest/QtTest>
-#include <QDebug>
 
 #include "reosapplication.h"
 #include "reoscoremodule.h"
@@ -47,7 +46,7 @@ void ReosTelemacTesting::initTestCase()
   int argc = 0;
   QVERIFY( !ReosApplication::initializationReos( argc, nullptr, "reos_tests" ) );
   coreModule = new ReosCoreModule( this );
-  // To avoid shared library/Qt meta-object duplication issue, we replace the Telemac engine factory loaded from plugin ny the build in place one.
+  // To avoid shared library/Qt meta-object duplication issue, we replace the Telemac engine factory loaded from plugin with the build in place one.
   ReosSimulationEngineRegistery::instance()->registerEngineFactory( new ReosTelemac2DSimulationEngineFactory() );
   coreModule->gisEngine()->setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
   ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();

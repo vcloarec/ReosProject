@@ -1268,11 +1268,9 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
     case ReosTelemac2DInitialCondition::Type::Interpolation:
     case ReosTelemac2DInitialCondition::Type::LastTimeStep:
-      //stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
       stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
-      // stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
       break;
   }
 
@@ -1592,14 +1590,14 @@ void ReosTelemac2DSimulationProcess::start()
   mIsPreparation = true;
   setMaxProgression( 100 );
   setCurrentProgression( 0 );
-  connect( mProcess, &QProcess::readyReadStandardOutput, mProcess, [this] {
+  connect( mProcess, &QProcess::readyReadStandardOutput, this, [this] {
     if ( mProcess )
     {
       addToOutput( QString::fromLocal8Bit( mProcess->readAllStandardOutput() ) );
     }
   } );
 
-  connect( mProcess, &QProcess::readyReadStandardError, mProcess, [this] {
+  connect( mProcess, &QProcess::readyReadStandardError, this, [this] {
     if ( mProcess )
     {
       mStandardErrorBuffer.append( QString::fromLocal8Bit( mProcess->readAllStandardError() ) );

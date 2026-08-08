@@ -23,7 +23,6 @@ SET(REOS_HECRAS_HEADERS
 
 ADD_EXECUTABLE(test_hecras ${REOS_HECRAS_HEADERS} ${REOS_HECRAS_SOURCES} test_hecras.cpp)
 TARGET_LINK_LIBRARIES(test_hecras
-                      ${Qt5Core_LIBRARIES}
                       ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore

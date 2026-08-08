@@ -1922,7 +1922,7 @@ QgsMeshDataBlock ReosResultDataset::areFacesActive( int faceIndex, int count ) c
 
   int valueCount = std::min( count, static_cast<int>( sourceValues.size() ) - faceIndex );
   QVector<int> values( valueCount );
-  memcpy( values.data(), &( sourceValues[faceIndex] ), count * sizeof( int ) );
+  memcpy( values.data(), &( sourceValues[faceIndex] ), valueCount * sizeof( int ) );
   QgsMeshDataBlock ret( QgsMeshDataBlock::ActiveFlagInteger, valueCount );
   ret.setActive( values );
 
