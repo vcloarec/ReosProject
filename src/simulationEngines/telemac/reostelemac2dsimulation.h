@@ -184,6 +184,7 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
     QString mSimulationFilePath;
     QProcess *mProcess = nullptr;
     QString mStandartOutputBuffer;
+    QString mStandardErrorBuffer;
     QRegularExpression mTimeRegEx;
     QRegularExpression mBlockRegEx;
     QRegularExpression mBoundaryFlowRegEx;
@@ -195,6 +196,7 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
     const QMap<int, BoundaryCondition> mBoundaries;
 
     void addToOutput( const QString &txt );
+    QString sortieFileContent() const;
     void extractInformation( const QRegularExpressionMatch &blockMatch );
 };
 

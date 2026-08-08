@@ -24,7 +24,7 @@ IF (MSVC)
 ENDIF (MSVC)
 TARGET_LINK_LIBRARIES(test_telemac
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
                       ${MDAL_LIB}

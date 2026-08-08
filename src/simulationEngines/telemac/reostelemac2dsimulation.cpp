@@ -24,6 +24,7 @@
 #include "reostelemac2dsimulation.h"
 
 #include <QDir>
+#include <QDirIterator>
 #include <QProcess>
 
 #include <qgsmeshlayer.h>
@@ -782,7 +783,8 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemac2DSimulation::create
   QTextStream stream( &file );
   const QString templateLine = QStringLiteral( "%1 %2 %3 0.0 0.0 0.0 0.0 %4 0.0 0.0 0.0 %5 %6\n" );
 
-  verticesPosInBoundary = QVector( rmesh->vertexCount(), 0 );
+  verticesPosInBoundary = QVector<int>( static_cast<qsizetype>( rmesh->vertexCount() ) );
+  verticesPosInBoundary.fill( 0 );
   for ( int i = 0; i < boundCount; ++i )
   {
     const TelemacBoundary &bound = telemacBoundaries.at( i );
@@ -1266,11 +1268,11 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
     case ReosTelemac2DInitialCondition::Type::Interpolation:
     case ReosTelemac2DInitialCondition::Type::LastTimeStep:
-      stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
+      //stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
       stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
-      stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
+      // stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
       break;
   }
 
@@ -1489,6 +1491,8 @@ ReosTelemac2DSimulationProcess::ReosTelemac2DSimulationProcess(
 void ReosTelemac2DSimulationProcess::start()
 {
   mIsSuccessful = false;
+  mStandartOutputBuffer.clear();
+  mStandardErrorBuffer.clear();
   QThread::msleep( 100 ); //just a bit of time to make the connection with the console (TODO: change the logic of process creation to avoid this)
   mProcess = new QProcess();
 
@@ -1546,6 +1550,20 @@ void ReosTelemac2DSimulationProcess::start()
 #else
   if ( envPath.back() != QString( ':' ) )
     envPath.append( ':' );
+
+  QDir telemacRootDir = QString( TELEMAC_PATH );
+  if ( telemacRootDir.exists() )
+  {
+    const QString telemacLibraryPath = telemacRootDir.filePath( QStringLiteral( "lib" ) );
+    if ( QFileInfo::exists( telemacLibraryPath ) )
+    {
+      QString libraryPath = env.value( QStringLiteral( "LD_LIBRARY_PATH" ) );
+      if ( !libraryPath.isEmpty() && !libraryPath.endsWith( ':' ) )
+        libraryPath.append( ':' );
+      libraryPath.append( telemacLibraryPath );
+      env.insert( QStringLiteral( "LD_LIBRARY_PATH" ), libraryPath );
+    }
+  }
 #endif
 
   envPath += settings.value( QStringLiteral( "/engine/telemac/additional_pathes" ) ).toString();
@@ -1560,7 +1578,7 @@ void ReosTelemac2DSimulationProcess::start()
   QString script( QStringLiteral( "python3" ) );
 #endif
   QStringList arguments;
-  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() << QStringLiteral( "simulation.cas" );
+  arguments << settings.value( QStringLiteral( "/engine/telemac/telemac-2d-python-script" ) ).toString() << QStringLiteral( "simulation.cas" ) << QStringLiteral( "--sortiefile" );
 
   int nbProc = settings.value( QStringLiteral( "/engine/telemac/cpu-usage-count" ) ).toInt();
   if ( nbProc > 1 )
@@ -1577,7 +1595,14 @@ void ReosTelemac2DSimulationProcess::start()
   connect( mProcess, &QProcess::readyReadStandardOutput, mProcess, [this] {
     if ( mProcess )
     {
-      addToOutput( mProcess->readAll() );
+      addToOutput( QString::fromLocal8Bit( mProcess->readAllStandardOutput() ) );
+    }
+  } );
+
+  connect( mProcess, &QProcess::readyReadStandardError, mProcess, [this] {
+    if ( mProcess )
+    {
+      mStandardErrorBuffer.append( QString::fromLocal8Bit( mProcess->readAllStandardError() ) );
     }
   } );
 
@@ -1587,6 +1612,7 @@ void ReosTelemac2DSimulationProcess::start()
   if ( resultStart )
   {
     finished = mProcess->waitForFinished( -1 );
+    mStandardErrorBuffer.append( QString::fromLocal8Bit( mProcess->readAllStandardError() ) );
     setCurrentProgression( 100 );
 
     if ( !finished )
@@ -1604,7 +1630,7 @@ void ReosTelemac2DSimulationProcess::start()
           break;
       }
 
-      emit sendInformation( mProcess->readAllStandardError() );
+      emit sendInformation( mStandardErrorBuffer );
     }
 
     if ( isStop() )
@@ -1615,11 +1641,15 @@ void ReosTelemac2DSimulationProcess::start()
     if ( mProcess->exitCode() != 0 )
     {
       emit sendInformation( tr( "Simulation process exit with error code %1" ).arg( mProcess->exitCode() ) );
-      emit sendInformation( mProcess->readAllStandardError() );
+      emit sendInformation( mStandardErrorBuffer );
+      const QString sortieContent = sortieFileContent();
+      if ( !sortieContent.isEmpty() )
+        emit sendInformation( sortieContent );
     }
   }
   else
   {
+    mStandardErrorBuffer.append( QString::fromLocal8Bit( mProcess->readAllStandardError() ) );
     emit sendInformation( tr(
                             "Telemac simulation can't start in folder \"%1\".\n"
                             "Error: %2\n"
@@ -1643,7 +1673,7 @@ void ReosTelemac2DSimulationProcess::start()
     if ( mProcess->exitCode() == 0 )
       emit sendInformation( mProcess->readAllStandardOutput() );
     else
-      emit sendInformation( mProcess->readAllStandardError() );
+      emit sendInformation( mStandardErrorBuffer );
   }
 
   finished = finished && mProcess->exitCode() == 0;
@@ -1697,6 +1727,38 @@ void ReosTelemac2DSimulationProcess::addToOutput( const QString &txt )
     mStandartOutputBuffer = mStandartOutputBuffer.mid( blockMatch.capturedEnd() );
     blockMatch = mTimeRegEx.match( mStandartOutputBuffer );
   }
+}
+
+QString ReosTelemac2DSimulationProcess::sortieFileContent() const
+{
+  QFileInfo sortieFile;
+  QDirIterator it( mSimulationFilePath, QStringList() << QStringLiteral( "*.sortie" ), QDir::Files, QDirIterator::Subdirectories );
+  while ( it.hasNext() )
+  {
+    const QFileInfo candidate( it.next() );
+    if ( !sortieFile.exists() || candidate.lastModified() > sortieFile.lastModified() )
+      sortieFile = candidate;
+  }
+
+  if ( !sortieFile.exists() )
+    return QString();
+
+  QFile file( sortieFile.filePath() );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return tr( "Unable to read TELEMAC sortie file \"%1\"." ).arg( sortieFile.filePath() );
+
+  constexpr qint64 maxByteCount = 200000;
+  const bool isTruncated = file.size() > maxByteCount;
+  if ( isTruncated )
+    file.seek( file.size() - maxByteCount );
+
+  QString content = QString::fromLocal8Bit( file.readAll() );
+  if ( isTruncated )
+    content.prepend( tr( "TELEMAC sortie file \"%1\" is too long, showing only the end.\n" ).arg( sortieFile.filePath() ) );
+  else
+    content.prepend( tr( "TELEMAC sortie file \"%1\":\n" ).arg( sortieFile.filePath() ) );
+
+  return content;
 }
 
 void ReosTelemac2DSimulationProcess::extractInformation( const QRegularExpressionMatch &blockMatch )
