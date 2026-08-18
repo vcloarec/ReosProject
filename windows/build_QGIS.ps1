@@ -62,6 +62,8 @@ cmake -S $env:QGIS_SRC `
       -D CMAKE_BUILD_TYPE=$BUILDCONF `
       -D CMAKE_CONFIGURATION_TYPES=$BUILDCONF `
       -D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
+      -D ZSTD_INCLUDE_DIR=$OSGEO_DIR/include `
+      -D ZSTD_LIBRARY=$OSGEO_DIR/lib/zstd.lib `
       -D Qt6_DIR=$QT_ROOT/lib/cmake/Qt6 `
       -D CMAKE_PREFIX_PATH="$OSGEO_DIR;$QT_ROOT" `
       -D CMAKE_INSTALL_PREFIX=$env:QGIS_BUILT `
