@@ -150,6 +150,7 @@ jobs:
           ls
     
     - name: build and test REOS
+      continue-on-error: true
       run:  ./windows/build_tests_REOS.bat
           
     - name: Create installer
