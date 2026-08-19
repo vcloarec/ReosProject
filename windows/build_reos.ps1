@@ -119,14 +119,6 @@ $QCA_LIB = Get-FirstExistingPath @(
     "$QT_ROOT/lib/qca2-qt6.lib",
     "$QT_ROOT/lib/qca.lib"
 )
-$QTKEYCHAIN_INCLUDE = Get-FirstExistingPath @(
-    "$QT_ROOT/include/qt6keychain",
-    "$QT_ROOT/include/qtkeychain"
-)
-$QTKEYCHAIN_LIB = Get-FirstExistingPath @(
-    "$QT_ROOT/lib/qt6keychain.lib",
-    "$QT_ROOT/lib/qtkeychain.lib"
-)
 $QWT_INCLUDE = Get-FirstExistingPath @(
     "$QT_ROOT/include/qwt6",
     "$QT_ROOT/include/qwt",
@@ -168,12 +160,11 @@ cmake   -S $env:REOS_SOURCE `
         -D ECCODES_INCLUDE_DIR=$ECCODES_INCLUDE `
         -D ECCODES_LIB=$ECCODES_LIB `
         -D Qt6_DIR=$QT_ROOT/lib/cmake/Qt6 `
+        -D CMAKE_PREFIX_PATH="$OSGEO_DIR;$QT_ROOT" `
         -D QT_QMAKE_EXECUTABLE=$QT_ROOT/bin/qmake `
         -D QCA_INCLUDE_DIR=$QCA_INCLUDE `
         -D QCA_LIBRARY=$QCA_LIB `
         -D QSCISCINTILLA_INCLUDE_DIR:PATH= `
-        -D QTKEYCHAIN_INCLUDE_DIR=$QTKEYCHAIN_INCLUDE `
-        -D QTKEYCHAIN_LIBRARY=$QTKEYCHAIN_LIB `
         -D QWT_INCLUDE=$QWT_INCLUDE `
         -D QWT_LIB=$QWT_LIB `
         -D WITH_QTWEBKIT:BOOL=FALSE `
