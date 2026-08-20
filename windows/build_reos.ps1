@@ -7,6 +7,9 @@ $OSGEO_DIR=$env:OSGEO4W_ROOT
 $QGIS_INSTALL=$env:QGIS_BUILT
 $REOS_BUILD=$env:REOS_BUILDING
 $QT_ROOT=Join-Path $OSGEO_DIR "apps/Qt6"
+$PYTHON_ROOT=Join-Path $OSGEO_DIR "apps/Python312"
+$HDF5_INCLUDE=Join-Path $OSGEO_DIR "include"
+$HDF5_LIB=Join-Path $OSGEO_DIR "lib/hdf5.lib"
 
 Write-Host "============================= dependencies directory:"
 Write-Host "=== OSGEO:"
@@ -141,7 +144,10 @@ cmake   -S $env:REOS_SOURCE `
         -D ENABLE_TESTS=TRUE `
         -D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
         -D GDAL_LIBRARY=$env:GDAL_ROOT/lib/gdal_i.lib `
-        -D HDF5_ROOT=$OSGEO_DIR/apps/gdal-dev `
+        -D HDF5_ROOT=$OSGEO_DIR `
+        -D HDF5_INCLUDE_DIR=$HDF5_INCLUDE `
+        -D HDF5_C_LIBRARY=$HDF5_LIB `
+        -D HDF5_C_LIBRARY_hdf5=$HDF5_LIB `
         -D QGIS_INCLUDE_DIR=$QGIS_INSTALL/include `
         -D QGIS_3D_LIB=$QGIS_INSTALL/lib/qgis_3d.lib `
         -D QGIS_ANALYSIS_LIB=$QGIS_INSTALL/lib/qgis_analysis.lib `
@@ -152,7 +158,7 @@ cmake   -S $env:REOS_SOURCE `
         -D GMSH_INCLUDE_DIR=$GMSH_INSTALL/include `
         -D QGIS_APP_INCLUDE=$QGIS_SRC/src/app `
         -D GMSH_LIB=$GMSH_INSTALL/lib/gmsh.lib `
-		-D PYTHON_DIR=$OSGEO_DIR/apps/Python39 `
+        -D PYTHON_DIR=$PYTHON_ROOT `
         -D GTest_DIR=GTest_DIR-NOTFOUND `
         -D INSTALL_GTEST=ON `
         -D MDAL_INCLUDE_DIR=$MDAL_INCLUDE_DIR `

@@ -150,12 +150,10 @@ jobs:
           ls
     
     - name: build and test REOS
-      continue-on-error: true
       run:  ./windows/build_tests_REOS.bat
           
     - name: Create installer
       if: always()
-      continue-on-error: true
       uses: joncloud/makensis-action@v3.7
       with:
           script-file: ${{github.workspace}}/package/ms-windows/nsi/lekan_exp.nsi
@@ -163,14 +161,12 @@ jobs:
           
     - name: Check installer
       if: always()
-      continue-on-error: true
       run:  |
           ls
           ls ${{env.NSI_DESTINATION}}
           
     - name: Archive installer
       if: always()
-      continue-on-error: true
       uses: actions/upload-artifact@v4
       with:
         name: Lekan Windows Installer
