@@ -165,7 +165,7 @@ ReosDuration ReosDuration::operator*( double k ) const
 
 ReosDuration ReosDuration::operator*( qsizetype s ) const
 {
-  return operator*( static_pointer_cast<int>( s ) );
+  return operator*( static_cast<int>( s ) );
 }
 
 ReosDuration ReosDuration::operator*( const int i ) const
