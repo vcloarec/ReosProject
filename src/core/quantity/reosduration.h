@@ -81,6 +81,7 @@ class REOSCORE_EXPORT ReosDuration
     ReosDuration operator*( double k ) const;
 #ifndef SIP_RUN
     ReosDuration operator*( int i ) const;
+    ReosDuration operator*( qsizetype s ) const;
 #endif // no SIP_RUN
     ReosDuration operator/( double k ) const;
     double operator/( const ReosDuration & ) const;

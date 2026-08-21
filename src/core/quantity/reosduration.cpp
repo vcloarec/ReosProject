@@ -155,12 +155,17 @@ ReosDuration ReosDuration::operator-( const ReosDuration &other ) const
   return ret;
 }
 
-ReosDuration ReosDuration::operator*( const double k ) const
+ReosDuration ReosDuration::operator*( double k ) const
 {
   ReosDuration ret( 0, this->mUnit );
   ret.mValue = k * this->mValue;
 
   return ret;
+}
+
+ReosDuration ReosDuration::operator*( qsizetype s ) const
+{
+  return operator*( static_pointer_cast<int>( s ) );
 }
 
 ReosDuration ReosDuration::operator*( const int i ) const
