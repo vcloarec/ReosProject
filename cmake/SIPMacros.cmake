@@ -120,6 +120,10 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${_sip_output_files}
+    COMMAND ${CMAKE_COMMAND} -E echo "Running SIP build for module ${MODULE_NAME}"
+    COMMAND ${CMAKE_COMMAND} -E echo "SIP input: ${_configured_module_sip}"
+    COMMAND ${CMAKE_COMMAND} -E echo "SIP working directory: ${_module_path}"
+    COMMAND ${CMAKE_COMMAND} -E echo "SIP command: ${SIPCMD}"
     COMMAND ${CMAKE_COMMAND} -E env ${_sip_build_env} ${SIPCMD}
     WORKING_DIRECTORY ${_module_path}
     MAIN_DEPENDENCY ${_configured_module_sip}
