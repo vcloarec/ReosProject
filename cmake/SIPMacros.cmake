@@ -117,13 +117,27 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
   ENDIF()
 
   SET(SIPCMD ${SIP_BUILD_EXECUTABLE} --no-protected-is-public --pep484-pyi --no-compile --concatenate=${SIP_CONCAT_PARTS} --include-dir=${CMAKE_CURRENT_BINARY_DIR} --include-dir=${PYQT_SIP_DIR} --api-dir ${CMAKE_BINARY_DIR}/python ${SIP_BUILD_EXTRA_OPTIONS})
+  SET(_sip_diagnostic_files
+    ${_configured_module_sip}
+    ${CMAKE_CURRENT_BINARY_DIR}/${_module_path}/project.py
+    ${CMAKE_CURRENT_BINARY_DIR}/${_module_path}/pyproject.toml
+    ${PYQT_SIP_DIR}/QtXml/QtXmlmod.sip
+    ${PYQT_SIP_DIR}/QtNetwork/QtNetworkmod.sip
+    ${PYQT_SIP_DIR}/QtSql/QtSqlmod.sip
+    ${PYQT_SIP_DIR}/QtPrintSupport/QtPrintSupportmod.sip
+    ${PYQT_SIP_DIR}/QtWidgets/QtWidgetsmod.sip
+    ${PYQT_SIP_DIR}/QtPositioning/QtPositioningmod.sip
+  )
+  string(REPLACE ";" "|" _sip_diagnostic_files_arg "${_sip_diagnostic_files}")
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${_sip_output_files}
     COMMAND ${CMAKE_COMMAND} -E echo "Running SIP build for module ${MODULE_NAME}"
     COMMAND ${CMAKE_COMMAND} -E echo "SIP input: ${_configured_module_sip}"
     COMMAND ${CMAKE_COMMAND} -E echo "SIP working directory: ${_module_path}"
+    COMMAND ${CMAKE_COMMAND} -E echo "PyQt SIP directory: ${PYQT_SIP_DIR}"
     COMMAND ${CMAKE_COMMAND} -E echo "SIP command: ${SIPCMD}"
+    COMMAND ${CMAKE_COMMAND} -DSIP_DIAGNOSTIC_FILES=${_sip_diagnostic_files_arg} -P ${CMAKE_SOURCE_DIR}/cmake/CheckSipBuildInputs.cmake
     COMMAND ${CMAKE_COMMAND} -E env ${_sip_build_env} ${SIPCMD}
     WORKING_DIRECTORY ${_module_path}
     MAIN_DEPENDENCY ${_configured_module_sip}
