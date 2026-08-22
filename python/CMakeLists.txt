@@ -125,7 +125,7 @@ if(${SIP_VERSION_STR} VERSION_LESS 6.8.0)
   set(toml "${toml}
 [tool.sip.metadata]
 name = \"REOS\"
-version = \"${COMPLETE_VERSION}\"
+version = \"${COMPLETE_API_VERSION}\"
 summary = \"Python bindings for QGIS\"
 home-page = \"\"
 author = \"Vincent Cloarec\"
@@ -136,7 +136,7 @@ else()
   set(toml "${toml}
 [project]
 name = \"REOS\"
-version = \"${COMPLETE_VERSION}\"
+version = \"${COMPLETE_API_VERSION}\"
 description = \"Python bindings for REOS\"
 authors = [ \{name = \"Vincent Cloarec\"\} ]
 license = {text = \"GPL v2\"}
@@ -244,4 +244,4 @@ foreach(module ${PY_MODULES})
 endforeach(module)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/METADATA.in ${CMAKE_CURRENT_BINARY_DIR}/METADATA @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/METADATA DESTINATION "${REOS_PYTHON_INSTALL_DIR}/reos-${COMPLETE_VERSION}.dist-info/")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/METADATA DESTINATION "${REOS_PYTHON_INSTALL_DIR}/reos-${COMPLETE_API_VERSION}.dist-info/")
