@@ -448,7 +448,7 @@ bool ReosTimeWindow::isIncluded( const QDateTime &time ) const
   return isValid() && time >= mStart && time <= mEnd;
 }
 
-bool ReosTimeWindow::operator==( const ReosTimeWindow &other )
+bool ReosTimeWindow::operator==( const ReosTimeWindow &other ) const
 {
   return mStart == other.mStart && mEnd == other.mEnd;
 }
