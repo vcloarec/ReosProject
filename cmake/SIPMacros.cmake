@@ -105,11 +105,22 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
     set(SIP_PYTHONPATH "${CMAKE_SOURCE_DIR}/python/common:$ENV{PYTHONPATH}")
   ENDIF()
 
+  SET(_sip_build_env "PYTHONPATH=${SIP_PYTHONPATH}")
+  IF(QMAKE_EXECUTABLE)
+    GET_FILENAME_COMPONENT(_qmake_dir "${QMAKE_EXECUTABLE}" DIRECTORY)
+    IF(WIN32)
+      SET(_sip_build_path "${_qmake_dir}$<SEMICOLON>$ENV{PATH}")
+    ELSE()
+      SET(_sip_build_path "${_qmake_dir}:$ENV{PATH}")
+    ENDIF()
+    LIST(APPEND _sip_build_env "PATH=${_sip_build_path}")
+  ENDIF()
+
   SET(SIPCMD ${SIP_BUILD_EXECUTABLE} --no-protected-is-public --pep484-pyi --no-compile --concatenate=${SIP_CONCAT_PARTS} --include-dir=${CMAKE_CURRENT_BINARY_DIR} --include-dir=${PYQT_SIP_DIR} --api-dir ${CMAKE_BINARY_DIR}/python ${SIP_BUILD_EXTRA_OPTIONS})
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${_sip_output_files}
-    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${SIP_PYTHONPATH}" ${SIPCMD}
+    COMMAND ${CMAKE_COMMAND} -E env ${_sip_build_env} ${SIPCMD}
     WORKING_DIRECTORY ${_module_path}
     MAIN_DEPENDENCY ${_configured_module_sip}
     DEPENDS ${SIP_EXTRA_FILES_DEPEND}
