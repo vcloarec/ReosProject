@@ -234,7 +234,10 @@ foreach(module ${PY_MODULES})
   PY_COMPILE(py${module} "${REOS_PYTHON_OUTPUT_DIRECTORY}/${module_name}")
 
   # install class map file
-  install(FILES ${BINDING_FILES_ROOT_DIR}/${module}/class_map.yaml DESTINATION "${REOS_PYTHON_DIR}/${module_name}")
+  set(class_map_file ${BINDING_FILES_ROOT_DIR}/${module}/class_map.yaml)
+  if(EXISTS "${class_map_file}")
+    install(FILES "${class_map_file}" DESTINATION "${REOS_PYTHON_DIR}/${module_name}")
+  endif()
 
   # install source sip files
   if(SIP_GLOBAL_INSTALL)

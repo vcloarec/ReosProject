@@ -198,7 +198,10 @@ Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to build Reos"
 	exit $LastExitCode
 	}
 
-rm -r $REOS_INSTALL
+if (-not [string]::IsNullOrWhiteSpace($REOS_INSTALL) -and (Test-Path -Path $REOS_INSTALL))
+{
+    Remove-Item -Recurse -Force $REOS_INSTALL
+}
 cmake --install .
 
 if ($LastExitCode -ne 0) {
