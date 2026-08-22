@@ -106,10 +106,8 @@ return sipGetState(sipTransferObj);
 endif()
 
 # Deprecated annotation supports message only since version 6.9.0 with abi-version 12.16 / 13.9 and above
-string(REPLACE "\\" "/" SIP_QMAKE_EXECUTABLE "${QMAKE_EXECUTABLE}")
 set(sipproject "
-[tool.sip.project]
-qmake = \"${SIP_QMAKE_EXECUTABLE}\"")
+[tool.sip.project]")
 
 if(NOT ${SIP_VERSION_STR} VERSION_LESS 6.9.0)
   string(APPEND sipproject "\nabi-version = \"13.9\"")
@@ -136,13 +134,19 @@ license = \"GPL v2\"
 requires-dist = \"${pyqtdist}\"
 ")
 else()
+  if(${SIP_VERSION_STR} VERSION_LESS 6.13.0)
+    set(project_license "license = {text = \"GPL v2 or later\"}")
+  else()
+    set(project_license "license = \"GPL-2.0-or-later\"\nlicense-files = [\"LICENSE_LEKAN.txt\"]")
+  endif()
+
   set(toml "${toml}
 [project]
 name = \"REOS\"
 version = \"${COMPLETE_API_VERSION}\"
 description = \"Python bindings for REOS\"
 authors = [ \{name = \"Vincent Cloarec\"\} ]
-license = {text = \"GPL v2\"}
+${project_license}
 dependencies = [\"${pyqtdist}\"]
 
 [project.urls]
@@ -151,6 +155,7 @@ Homepage = \"\"
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/PyQt6/core/project.py.in ${CMAKE_CURRENT_BINARY_DIR}/core/project.py @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/LICENSE_LEKAN.txt ${CMAKE_CURRENT_BINARY_DIR}/core/LICENSE_LEKAN.txt COPYONLY)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/core/pyproject.toml.temp" "${toml}")
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/core/pyproject.toml.temp ${CMAKE_CURRENT_BINARY_DIR}/core/pyproject.toml)
 GENERATE_SIP_PYTHON_MODULE_CODE(reos._core core/core.sip "${sip_files_core}" cpp_files)
