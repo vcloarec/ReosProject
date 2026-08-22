@@ -137,7 +137,7 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
     COMMAND ${CMAKE_COMMAND} -E echo "SIP working directory: ${_module_path}"
     COMMAND ${CMAKE_COMMAND} -E echo "PyQt SIP directory: ${PYQT_SIP_DIR}"
     COMMAND ${CMAKE_COMMAND} -E echo "SIP command: ${SIPCMD}"
-    COMMAND ${CMAKE_COMMAND} -DSIP_DIAGNOSTIC_FILES=${_sip_diagnostic_files_arg} -P ${CMAKE_SOURCE_DIR}/cmake/CheckSipBuildInputs.cmake
+    COMMAND ${CMAKE_COMMAND} -DSIP_DIAGNOSTIC_FILES=${_sip_diagnostic_files_arg} -DSIP_BUILD_EXECUTABLE=${SIP_BUILD_EXECUTABLE} -DSIP_QMAKE_EXECUTABLE=${QMAKE_EXECUTABLE} -P ${CMAKE_SOURCE_DIR}/cmake/CheckSipBuildInputs.cmake
     COMMAND ${CMAKE_COMMAND} -E env ${_sip_build_env} ${SIPCMD}
     WORKING_DIRECTORY ${_module_path}
     MAIN_DEPENDENCY ${_configured_module_sip}
