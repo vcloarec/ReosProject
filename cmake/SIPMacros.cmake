@@ -98,22 +98,32 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
     ENDIF( ${CONCAT_NUM} LESS ${SIP_CONCAT_PARTS} )
   ENDFOREACH(CONCAT_NUM RANGE 0 ${SIP_CONCAT_PARTS} )
 
-  # Make our common files available in the SIP build
-  IF(WIN32)
-    set(SIP_PYTHONPATH "${CMAKE_SOURCE_DIR}\\python\\common$<SEMICOLON>$ENV{PYTHONPATH}")
+  SET(_sip_build_command ${CMAKE_COMMAND} -E env)
+  IF(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
+    LIST(APPEND _sip_build_command --modify "PYTHONPATH=path_list_prepend:${CMAKE_SOURCE_DIR}/python/common")
   ELSE()
-    set(SIP_PYTHONPATH "${CMAKE_SOURCE_DIR}/python/common:$ENV{PYTHONPATH}")
+    # Make our common files available in the SIP build
+    IF(WIN32)
+      set(SIP_PYTHONPATH "${CMAKE_SOURCE_DIR}\\python\\common$<SEMICOLON>$ENV{PYTHONPATH}")
+    ELSE()
+      set(SIP_PYTHONPATH "${CMAKE_SOURCE_DIR}/python/common:$ENV{PYTHONPATH}")
+    ENDIF()
+
+    LIST(APPEND _sip_build_command "PYTHONPATH=${SIP_PYTHONPATH}")
   ENDIF()
 
-  SET(_sip_build_env "PYTHONPATH=${SIP_PYTHONPATH}")
   IF(QMAKE_EXECUTABLE)
     GET_FILENAME_COMPONENT(_qmake_dir "${QMAKE_EXECUTABLE}" DIRECTORY)
-    IF(WIN32)
-      SET(_sip_build_path "${_qmake_dir}$<SEMICOLON>$ENV{PATH}")
+    IF(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
+      LIST(APPEND _sip_build_command --modify "PATH=path_list_prepend:${_qmake_dir}")
     ELSE()
-      SET(_sip_build_path "${_qmake_dir}:$ENV{PATH}")
+      IF(WIN32)
+        SET(_sip_build_path "${_qmake_dir}$<SEMICOLON>$ENV{PATH}")
+      ELSE()
+        SET(_sip_build_path "${_qmake_dir}:$ENV{PATH}")
+      ENDIF()
+      LIST(APPEND _sip_build_command "PATH=${_sip_build_path}")
     ENDIF()
-    LIST(APPEND _sip_build_env "PATH=${_sip_build_path}")
   ENDIF()
 
   SET(SIPCMD ${SIP_BUILD_EXECUTABLE} --no-protected-is-public --pep484-pyi --no-compile --concatenate=${SIP_CONCAT_PARTS} --include-dir=${CMAKE_CURRENT_BINARY_DIR} --include-dir=${PYQT_SIP_DIR} --api-dir ${CMAKE_BINARY_DIR}/python ${SIP_BUILD_EXTRA_OPTIONS})
@@ -138,7 +148,7 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
     COMMAND ${CMAKE_COMMAND} -E echo "PyQt SIP directory: ${PYQT_SIP_DIR}"
     COMMAND ${CMAKE_COMMAND} -E echo "SIP command: ${SIPCMD}"
     COMMAND ${CMAKE_COMMAND} -DSIP_DIAGNOSTIC_FILES=${_sip_diagnostic_files_arg} -DSIP_BUILD_EXECUTABLE=${SIP_BUILD_EXECUTABLE} -DSIP_QMAKE_EXECUTABLE=${QMAKE_EXECUTABLE} -P ${CMAKE_SOURCE_DIR}/cmake/CheckSipBuildInputs.cmake
-    COMMAND ${CMAKE_COMMAND} -E env ${_sip_build_env} ${SIPCMD}
+    COMMAND ${_sip_build_command} ${SIPCMD}
     WORKING_DIRECTORY ${_module_path}
     MAIN_DEPENDENCY ${_configured_module_sip}
     DEPENDS ${SIP_EXTRA_FILES_DEPEND}
