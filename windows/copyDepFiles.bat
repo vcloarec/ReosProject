@@ -20,7 +20,19 @@ copy /v /y %ECCODES_ROOT%\bin\eccodes.dll  "%REOS_INSTALL%\bin\providers\eccodes
 
 
 rem OSGEO Dependencies
-for /f "tokens=*" %%i in (%REOS_SOURCE%\windows\osgeo_dependencies_bin.txt) DO (
+set GENERATED_OSGEO_DEPENDENCIES_LIST=%REOS_INSTALL%\osgeo_dependencies_bin.generated.txt
+
+powershell -NoProfile -ExecutionPolicy Bypass -File "%REOS_SOURCE%\windows\generate_osgeo_dependencies.ps1" -OutputList "%GENERATED_OSGEO_DEPENDENCIES_LIST%"
+if errorlevel 1 (
+     echo ERROR: unable to generate OSGeo dependency list
+     exit /b %ERRORLEVEL%
+)
+if not exist "%GENERATED_OSGEO_DEPENDENCIES_LIST%" (
+     echo ERROR: generated OSGeo dependency list not found: %GENERATED_OSGEO_DEPENDENCIES_LIST%
+     exit /b 1
+)
+
+for /f "usebackq tokens=* delims=" %%i in ("%GENERATED_OSGEO_DEPENDENCIES_LIST%") DO (
      xcopy /S/E "%OSGEO4W_ROOT%\bin\%%i" "%REOS_INSTALL%\bin")
     
 rem QGIS resources
