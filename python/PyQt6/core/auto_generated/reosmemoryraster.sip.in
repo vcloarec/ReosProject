@@ -110,22 +110,22 @@ Returns the y coordinate before the row i
 %Docstring
 Returns the y coordinate after the row i
 %End
-    QPointF cellMinMinCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMinMinCornerToMap( const QPointF &cellPos ) const;
 %Docstring
 Returns the position in real world coordinate of the corner of cell (min
 x and min y if cell size >0)
 %End
-    QPointF cellMaxMaxCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMaxMaxCornerToMap( const QPointF &cellPos ) const;
 %Docstring
 Returns the position in real world coordinate of the corner of cell (max
 x and max y if cell size >0)
 %End
-    QPointF cellMinMaxCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMinMaxCornerToMap( const QPointF &cellPos ) const;
 %Docstring
 Returns the position in real world coordinate of the corner of cell (min
 x and min y if cell size >0)
 %End
-    QPointF cellMaxMinCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMaxMinCornerToMap( const QPointF &cellPos ) const;
 %Docstring
 Returns the position in real world coordinate of the corner of cell (max
 x and max y if cell size >0)
@@ -134,7 +134,7 @@ x and max y if cell size >0)
 %Docstring
 Returns a rectangle from real world cordintates to raster cell postions
 %End
-    ReosMapExtent cellRectToMapExtent( const QRect &cellRect, const Position &position = Center ) const;
+    ReosMapExtent cellRectToMapExtent( const QRectF &cellRect, const Position &position = Center ) const;
 %Docstring
 Returns a rectangle from raster cell position to real world coordinates
 %End

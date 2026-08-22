@@ -93,14 +93,6 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     //! Returns the y coordinate after the row i
     double cellYAfterToMap( int i ) const;
     //! Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
-    QPointF cellMinMinCornerToMap( const QPoint &cellPos ) const;
-    //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
-    QPointF cellMaxMaxCornerToMap( const QPoint &cellPos ) const;
-    //! Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
-    QPointF cellMinMaxCornerToMap( const QPoint &cellPos ) const;
-    //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
-    QPointF cellMaxMinCornerToMap( const QPoint &cellPos ) const;
-    //! Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
     QPointF cellMinMinCornerToMap( const QPointF &cellPos ) const;
     //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
     QPointF cellMaxMaxCornerToMap( const QPointF &cellPos ) const;

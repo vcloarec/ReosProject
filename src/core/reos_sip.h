@@ -1,18 +1,18 @@
 /***************************************************************************
   qgis_sip - QGIS SIP Macros
 
- ---------------------
- begin                : 4.5.2017
- copyright            : (C) 2017 by Denis Rouzaud
- email                : denis.rouzaud@gmail.com
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+---------------------
+begin                : 4.5.2017
+copyright            : (C) 2017 by Denis Rouzaud
+email                : denis.rouzaud@gmail.com
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************/
 #ifndef REOS_SIP_H
 #define REOS_SIP_H
 
@@ -20,7 +20,6 @@
  * if written, the SIP file will not be generated automatically
  * or can be also defined directly in the file (to avoid including this)
  */
-#define SIP_NO_FILE
 
 /*
  * the module will be included if the condition is met
@@ -29,7 +28,7 @@
 
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=keepreference#function-annotation-Transfer
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-Transfer
  *
  * Example QgsVectorLayer::setDiagramRenderer
  */
@@ -37,97 +36,105 @@
 
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-GetWrapper
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-GetWrapper
  *
  */
 #define SIP_GETWRAPPER
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=keepreference#function-annotation-TransferBack
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-TransferBack
  */
 #define SIP_TRANSFERBACK
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=keepreference#function-annotation-TransferThis
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-TransferThis
  */
 #define SIP_TRANSFERTHIS
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-Out
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-Out
  */
 #define SIP_OUT
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-In
+ * Alternative to SIP_OUT for methods with manual SIP MethodCode, where only the docstring needs to be
+ * considered for the output argument.
+ *
+ * No /Out/ annotation will be added to the SIP bindings.
+ */
+#define SIP_DOCSTRING_OUT
+
+/*
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-In
  */
 #define SIP_IN
 
 /*
  * Combination of
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-In
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-In
  * and
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-Out
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-Out
  */
 #define SIP_INOUT
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#function-annotation-Factory
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-Factory
  */
 #define SIP_FACTORY
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#class-annotation-PyName
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#class-annotation-PyName
  */
 #define SIP_PYNAME( name )
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-KeepReference
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-KeepReference
  */
 #define SIP_KEEPREFERENCE
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-Array
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-Array
  */
 #define SIP_ARRAY
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#argument-annotation-ArraySize
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-ArraySize
  */
 #define SIP_ARRAYSIZE
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html#class-annotation-NoDefaultCtors
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#class-annotation-NoDefaultCtors
  */
 #define SIP_NODEFAULTCTORS
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=deprecated#function-annotation-Deprecated
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-Deprecated
  */
 #define SIP_DEPRECATED
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=constrained#argument-annotation-Constrained
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-Constrained
  */
 #define SIP_CONSTRAINED
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=external#class-annotation-External
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#class-annotation-External
  */
 #define SIP_EXTERNAL
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=allownone
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#argument-annotation-AllowNone
  */
 #define SIP_ALLOWNONE
 
 /*
-  * discard line
-  */
+ * discard line
+ */
 #define SIP_SKIP
 
 /*
-  * force a private line to be written
-  */
+ * force a private line to be written
+ */
 #define SIP_FORCE
 
 /*
@@ -136,19 +143,24 @@
 #define SIP_MAKE_PRIVATE
 
 /*
-  * specify an alternative type for SIP argument or return value
-  */
+ * specify an alternative type for SIP argument or return value
+ */
 #define SIP_PYALTERNATIVETYPE( type )
 
 /*
-  * specify an alternative default value for SIP argument
-  */
+ * specify an alternative default value for SIP argument
+ */
 #define SIP_PYARGDEFAULT( value )
 
 /*
-  * remove argument in SIP method
-  */
+ * remove argument in SIP method
+ */
 #define SIP_PYARGREMOVE
+
+/*
+ * remove argument in SIP method only for Qt version >= 6
+ */
+#define SIP_PYARGREMOVE6
 
 /*
  * rename argument in SIP method
@@ -156,12 +168,12 @@
 #define SIP_PYARGRENAME( pyname )
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=keepreference#function-annotation-ReleaseGIL
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-ReleaseGIL
  */
 #define SIP_RELEASEGIL
 
 /*
- * https://www.riverbankcomputing.com/static/Docs/sip/annotations.html?highlight=keepreference#function-annotation-HoldGIL
+ * https://python-sip.readthedocs.io/en/stable/annotations.html#function-annotation-HoldGIL
  */
 #define SIP_HOLDGIL
 
@@ -214,7 +226,6 @@
 
 /*
  * Force documentation of templates
- * Available for SIP 4.19.7+
  */
 #define SIP_DOC_TEMPLATE
 
@@ -222,30 +233,12 @@
  * Specifies the type of the value returned by the function as it will appear in any
  * generated docstrings and PEP 484 type hints. It is usually used with results of type
  * SIP_PYOBJECT to provide a more specific type.
- * Available for SIP 4.18+
  */
 #define SIP_TYPEHINT( type )
 
 /*
- * Prevent generation of PEP 484 type hints for declarations using C++ types
- * unsupported by SIP's type-hint generator.
- */
-#define SIP_NOTYPEHINT
-
-/*
- * Sip supports the final keyword since version 4.19.0, earlier than that
- * we will have build issues because it tries to override final methods.
- */
-#if SIP_VERSION < 0x041300
-#if defined FINAL
-#undef FINAL
-#endif
-#define FINAL override
-#endif
-
-/*
  * Define Python special method (bool, repr, etc.) using the given method or code
- * sipify.pl will create a dedicated python file named according to the class
+ * sipify.py will create a dedicated python file named according to the class
  * and located in python/{module}/auto_additions/{classname}.py
  * a simple method name can be provided (e.g. isValid) and sipify will create the proper code
  * or some Python code can be provided:
@@ -266,7 +259,7 @@
  * If OUTSIDE_CLASS is defined, the enum has been unnested
  * from the class, and it will be used for monkey patching
  * e.g. QgsMapLayer.VectorLayer = QgsMapLayerType.VectorLayer
- * These macros should be removed in QGIS 4
+ * These macros should be removed in QGIS 5
  */
 #define SIP_MONKEYPATCH_SCOPEENUM
 #define SIP_MONKEYPATCH_SCOPEENUM_UNNEST( OUTSIDE_CLASS, FORMERNAME )
@@ -274,8 +267,32 @@
 #define SIP_MONKEYPATCH_COMPAT_NAME( FORMERNAME )
 
 /*
+ * Directive to define the base type for a enum
+ */
+#define SIP_ENUM_BASETYPE( type )
+
+/*
  * Directive to define a Python property;
  */
 #define SIP_PROPERTY( name, getter, setter )
 
-#endif // QGIS_SIP_H
+/*
+ * Directive to indicate that following code is only available with Qt 5 version
+ */
+#define SIP_PYQT5_RUN
+
+/*
+ * Adds an include in the type header code
+ */
+#define SIP_TYPEHEADER_INCLUDE( file )
+
+/*
+ * Inserts sip conversion code for QList<class_name::enum_name>, where class_name::enum_name is a c++ enum.
+ *
+ * Extra arguments can contain extra headers to include in the conversion code.
+ */
+#define SIP_INSERT_QLIST_ENUM_CONVERSION_CODE( class_name, ... )
+
+#define SIP_NO_FILE
+
+#endif // REOS_SIP_H

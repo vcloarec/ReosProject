@@ -12,7 +12,7 @@
 class ReosEncodeContext
 {
 %Docstring(signature="appended")
-Class that sore information about the context of encoding.
+Class that stores information about the context of encoding.
 %End
 
 %TypeHeaderCode

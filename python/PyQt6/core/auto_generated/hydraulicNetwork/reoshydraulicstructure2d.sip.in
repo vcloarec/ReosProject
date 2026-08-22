@@ -9,6 +9,7 @@
 
 
 
+
 class ReosHydraulicStructure2D : ReosHydraulicNetworkElement
 {
 %Docstring(signature="appended")

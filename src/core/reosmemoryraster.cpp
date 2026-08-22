@@ -247,10 +247,10 @@ QPointF ReosRasterExtent::cellCenterToMap( const ReosRasterCellPos &cellPos ) co
   return QPointF( x, y );
 }
 
-QPointF ReosRasterExtent::cellMinMinCornerToMap( const QPoint &cellPos ) const
+QPointF ReosRasterExtent::cellMaxMaxCornerToMap( const QPointF &cellPos ) const
 {
-  double x = cellXBeforeToMap( cellPos.x() );
-  double y = cellYBeforeToMap( cellPos.y() );
+  double x = cellXAfterToMap( cellPos.x() );
+  double y = cellYAfterToMap( cellPos.y() );
 
   return QPointF( x, y );
 }
@@ -262,31 +262,6 @@ QPointF ReosRasterExtent::cellMinMinCornerToMap( const QPointF &cellPos ) const
 
   return QPointF( x, y );
 }
-
-QPointF ReosRasterExtent::cellMaxMaxCornerToMap( const QPoint &cellPos ) const
-{
-  double x = cellXAfterToMap( cellPos.x() );
-  double y = cellYAfterToMap( cellPos.y() );
-
-  return QPointF( x, y );
-}
-
-QPointF ReosRasterExtent::cellMaxMaxCornerToMap( const QPointF &cellPos ) const
-{
-  double x = cellXAfterToMap( cellPos.x() );
-  double y = cellYAfterToMap( cellPos.y() );
-
-  return QPointF( x, y );
-}
-
-QPointF ReosRasterExtent::cellMinMaxCornerToMap( const QPoint &cellPos ) const
-{
-  double x = cellXBeforeToMap( cellPos.x() );
-  double y = cellYAfterToMap( cellPos.y() );
-
-  return QPointF( x, y );
-}
-
 
 QPointF ReosRasterExtent::cellMinMaxCornerToMap( const QPointF &cellPos ) const
 {

@@ -22,7 +22,7 @@ Base class for hydraulic simulations.
 #include "reoshydraulicsimulation.h"
 %End
   public:
-    enum class Capability /BaseType=IntFlag/
+    enum class Capability
     {
       Hotstart,
     };
