@@ -49,7 +49,7 @@ class REOSCORE_EXPORT ReosTimeWindow
 
     bool isIncluded( const QDateTime &time ) const;
 
-    bool operator==( const ReosTimeWindow &other );
+    bool operator==( const ReosTimeWindow &other ) const;
 
   private:
     QDateTime mStart;
