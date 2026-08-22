@@ -106,7 +106,18 @@ MACRO(GENERATE_SIP_PYTHON_MODULE_CODE MODULE_NAME MODULE_SIP SIP_FILES CPP_FILES
       ENDIF( ${CONCAT_NUM} LESS ${SIP_CONCAT_PARTS} )
     ENDFOREACH(CONCAT_NUM RANGE 0 ${SIP_CONCAT_PARTS} )
 
-    SET(SIPCMD ${SIP_BUILD_EXECUTABLE} --no-protected-is-public --pep484-pyi --no-compile --concatenate=${SIP_CONCAT_PARTS} --include-dir=${CMAKE_CURRENT_BINARY_DIR} --include-dir=${PYQT_SIP_DIR} --api-dir ${CMAKE_BINARY_DIR}/python ${SIP_BUILD_EXTRA_OPTIONS})
+    SET(_sip_build_env)
+    IF(QMAKE_EXECUTABLE)
+      GET_FILENAME_COMPONENT(_qmake_dir "${QMAKE_EXECUTABLE}" DIRECTORY)
+      IF(WIN32)
+        SET(_sip_build_path "${_qmake_dir}$<SEMICOLON>$ENV{PATH}")
+      ELSE(WIN32)
+        SET(_sip_build_path "${_qmake_dir}:$ENV{PATH}")
+      ENDIF(WIN32)
+      SET(_sip_build_env ${CMAKE_COMMAND} -E env "PATH=${_sip_build_path}")
+    ENDIF(QMAKE_EXECUTABLE)
+
+    SET(SIPCMD ${_sip_build_env} ${SIP_BUILD_EXECUTABLE} --no-protected-is-public --pep484-pyi --no-compile --concatenate=${SIP_CONCAT_PARTS} --include-dir=${CMAKE_CURRENT_BINARY_DIR} --include-dir=${PYQT_SIP_DIR} --api-dir ${CMAKE_BINARY_DIR}/python ${SIP_BUILD_EXTRA_OPTIONS})
 
     ADD_CUSTOM_COMMAND(
       OUTPUT ${_sip_output_files}
