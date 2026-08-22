@@ -106,10 +106,13 @@ return sipGetState(sipTransferObj);
 endif()
 
 # Deprecated annotation supports message only since version 6.9.0 with abi-version 12.16 / 13.9 and above
-if(${SIP_VERSION_STR} VERSION_LESS 6.9.0)
-  set(sipabi "")
-else()
-  set(sipabi "\n[tool.sip.project]\nabi-version = \"13.9\"")
+string(REPLACE "\\" "/" SIP_QMAKE_EXECUTABLE "${QMAKE_EXECUTABLE}")
+set(sipproject "
+[tool.sip.project]
+qmake = \"${SIP_QMAKE_EXECUTABLE}\"")
+
+if(NOT ${SIP_VERSION_STR} VERSION_LESS 6.9.0)
+  string(APPEND sipproject "\nabi-version = \"13.9\"")
 endif()
 
 set(toml "
@@ -117,7 +120,7 @@ set(toml "
 [build-system]
 requires = [\"sip >=5.0.0, <7\", \"PyQt-builder >=1.6, <2\"]
 build-backend = \"sipbuild.api\"
-${sipabi}
+${sipproject}
 
 ")
 
