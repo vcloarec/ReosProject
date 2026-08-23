@@ -1268,9 +1268,11 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
     case ReosTelemac2DInitialCondition::Type::Interpolation:
     case ReosTelemac2DInitialCondition::Type::LastTimeStep:
+      stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
       stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
+      stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
       break;
   }
 
