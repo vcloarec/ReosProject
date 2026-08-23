@@ -273,7 +273,6 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
     if ( telemacPath.isEmpty() || !telDir.exists() )
     {
       txtStream << QString( "TELEMAC path not found. Unable to solve TELEMAC settings." ).arg( QString( TELEMAC_PATH ) ) << Qt::endl;
-      ;
       return;
     }
   }
@@ -342,6 +341,44 @@ void ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic()
          .arg( configFileInfo.filePath(), configName, pythonDir.path(), scriptsDir.filePath( QStringLiteral( "telemac2d.py" ) ) )
     << Qt::endl;
   ;
+}
+
+
+QMap<QString, QVariant> ReosTelemac2DSimulation::systemConfig()
+{
+  QMap<QString, QVariant> config;
+
+  ReosSettings settings;
+  const QString configFilePath = settings.value( QStringLiteral( "/engine/telemac/telemac-config-file" ) ).toString();
+  QFile configFile( configFilePath );
+  if ( configFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
+  {
+    QTextStream in( &configFile );
+    QString currentSection;
+    while ( !in.atEnd() )
+    {
+      const QString line = in.readLine().trimmed();
+
+      if ( line.isEmpty() || line.startsWith( QLatin1Char( '#' ) ) )
+        continue;
+
+      if ( line.startsWith( QLatin1Char( '[' ) ) && line.endsWith( QLatin1Char( ']' ) ) )
+      {
+        currentSection = line.mid( 1, line.length() - 2 ).trimmed();
+        continue;
+      }
+
+      int colonPos = line.indexOf( QLatin1Char( ':' ) );
+      if ( colonPos != -1 )
+      {
+        const QString key = ( currentSection.isEmpty() ? QString() : currentSection + QLatin1Char( '/' ) ) + line.left( colonPos ).trimmed();
+        const QString value = line.mid( colonPos + 1 ).trimmed();
+        config.insert( key, value );
+      }
+    }
+  }
+
+  return config;
 }
 
 ReosParameterInteger *ReosTelemac2DSimulation::outputPeriodResult2D() const
@@ -563,6 +600,12 @@ void ReosTelemac2DSimulation::setHotStartUseLastTimeStep( bool b )
 QString ReosTelemac2DSimulation::engineName() const
 {
   return QStringLiteral( "TELEMAC" );
+}
+
+QVersionNumber ReosTelemac2DSimulation::telemacVersion() const
+{
+  QMap<QString, QVariant> telemacConfig = systemConfig();
+  return QVersionNumber::fromString( telemacConfig.value( QStringLiteral( "general/version" ) ).toString() );
 }
 
 ReosDuration ReosTelemac2DSimulation::timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const
@@ -1244,6 +1287,7 @@ void ReosTelemac2DSimulation::createSteeringFile(
 {
   QString path = directory.filePath( mSteeringFileName );
   QFile file( path );
+  QVersionNumber versionNumber = telemacVersion();
 
   file.open( QIODevice::WriteOnly );
   QTextStream stream( &file );
@@ -1268,11 +1312,13 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DInitialCondition::Type::FromOtherSimulation:
     case ReosTelemac2DInitialCondition::Type::Interpolation:
     case ReosTelemac2DInitialCondition::Type::LastTimeStep:
-      stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
+      if ( versionNumber.isNull() or versionNumber.majorVersion() < 9 )
+        stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
       stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
-      stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
+      if ( versionNumber.isNull() or versionNumber.majorVersion() < 9 )
+        stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
       break;
   }
 
