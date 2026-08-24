@@ -74,7 +74,7 @@ param(
     [string]$IntelOneApiRoot      = 'C:\Program Files (x86)\Intel\oneAPI',
     [string]$IntelCompilerVersion = '',
     [string]$NsisPath             = 'C:\Program Files (x86)\NSIS',
-    [string]$QgisRef              = 'final-3_44_11',
+    [string]$QgisRef              = 'final-4_2_1',
     [switch]$SkipCygwin,
     [switch]$SkipOsgeo,
 

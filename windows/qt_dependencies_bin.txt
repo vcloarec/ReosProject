@@ -7,6 +7,7 @@ Qt63DLogic.dll
 Qt63DRender.dll
 Qt6Concurrent.dll
 Qt6Core.dll
+Qt6Core5Compat.dll
 Qt6Gui.dll
 qt6keychain.dll
 Qt6Multimedia.dll
@@ -17,13 +18,18 @@ Qt6OpenGLWidgets.dll
 Qt6Positioning.dll
 Qt6PrintSupport.dll
 Qt6Qml.dll
+Qt6QmlMeta.dll
 Qt6QmlModels.dll
+Qt6QmlWorkerScript.dll
 Qt6Quick.dll
 Qt6QuickWidgets.dll
 Qt6SerialPort.dll
 Qt6Sql.dll
 Qt6Svg.dll
 Qt6SvgWidgets.dll
+Qt6UiTools.dll
+Qt6WebEngineCore.dll
+Qt6WebChannel.dll
 Qt6Widgets.dll
 Qt6Xml.dll
 qwt.dll
