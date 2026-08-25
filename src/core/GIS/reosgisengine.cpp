@@ -184,6 +184,7 @@ void ReosGisEngine::initGisEngine()
   if ( !projDataPresent )
   {
     QDir projDir( QApplication::applicationDirPath() );
+    qDebug() << "Proj data not found, copying to " << QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
     if ( projDir.cdUp() && projDir.cd( QStringLiteral( "share" ) ) && projDir.cd( QStringLiteral( "proj" ) ) )
     {
       QStringList filesList = projDir.entryList( QDir::NoDotAndDotDot | QDir::Files );
@@ -201,6 +202,11 @@ void ReosGisEngine::initGisEngine()
       }
     }
   }
+  else
+  {
+    qDebug() << "Proj data found";
+  }
+
 
   //! init the QGIS network manager to access remote GIS data
   QgsApplication::authManager()->setup( qgisProviderPath, QgsApplication::qgisAuthDatabaseUri() );
