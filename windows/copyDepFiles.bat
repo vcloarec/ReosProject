@@ -36,7 +36,7 @@ for /f "usebackq tokens=* delims=" %%i in ("%GENERATED_OSGEO_DEPENDENCIES_LIST%"
      xcopy /S/E "%OSGEO4W_ROOT%\bin\%%i" "%REOS_INSTALL%\bin")
     
 rem QGIS resources
-robocopy %QGIS_SRC%\resources %REOS_INSTALL%\resources /E /S /NFL /NDL /NJH /NJS /nc /ns /np /Xd "%QGIS_SRC%\resources\opencl_programs" "%QGIS_SRC%\resources\server" "%QGIS_SRC%\resources\themes" "%QGIS_SRC%\resources\metadata-ISO" "%QGIS_SRC%\resources\data"
+robocopy "%QGIS_INSTALL%\resources" "%REOS_INSTALL%\resources" /E /S /NFL /NDL /NJH /NJS /nc /ns /np /Xd "%QGIS_INSTALL%\resources\opencl_programs" "%QGIS_INSTALL%\resources\server" "%QGIS_INSTALL%\resources\themes" "%QGIS_INSTALL%\resources\metadata-ISO" "%QGIS_INSTALL%\resources\data"
 
 rem QGIS translation files
 copy /v /y %QGIS_INSTALL%\i18n\qgis_en_US.qm %REOS_INSTALL%\i18n\qgis_en_US.qm
