@@ -177,9 +177,17 @@ void ReosGisEngine::initGisEngine()
   {
     QDir dir( projPath );
     QString projDbPath = dir.filePath( QStringLiteral( "proj.db" ) );
+    qDebug() << "PROJ search path:" << projPath
+           << "proj.db exists:" << QFileInfo::exists( projDbPath)
+           << "proj.db:" << projDbPath;
     QFileInfo fileInfo( projDbPath );
     projDataPresent |= fileInfo.exists();
   }
+  qDebug() << "EPSG:4326 valid:"
+         << QgsCoordinateReferenceSystem::fromEpsgId( 4326 ).isValid();
+
+  qDebug() << "EPSG:2154 valid:"
+         << QgsCoordinateReferenceSystem::fromEpsgId( 2154 ).isValid();
 
   if ( !projDataPresent )
   {
@@ -228,8 +236,6 @@ void ReosGisEngine::initGisEngine()
   //! Add reos data provider to Qgis instances
   QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
   QgsProviderRegistry::instance()->registerProvider( new ReosGriddedRainfallProviderMetaData() );
-
-  //qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
