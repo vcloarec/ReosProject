@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosencodedelement.h"
 
+//! Stores a spatial position with its coordinate reference system.
 class REOSCORE_EXPORT ReosSpatialPosition
 {
   public:
@@ -48,7 +49,7 @@ class REOSCORE_EXPORT ReosSpatialPosition
 Q_DECLARE_METATYPE( ReosSpatialPosition )
 
 /**
- * Class that represent a rectangular extent in a map
+ * Represents a rectangular extent on a map.
  */
 class REOSCORE_EXPORT ReosMapExtent
 {

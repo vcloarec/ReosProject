@@ -118,7 +118,7 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapStructureEnvelop_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_ = new ReosMapStructureEnvelop_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
     static_cast<ReosMapStructureEnvelop_p *>( d_ )->setStructrure( structure );
     d_->base = this;
   }

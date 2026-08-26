@@ -27,7 +27,7 @@
 
 class ReosHydrograph;
 
-//! Class that represents a hydrograph
+//! Represents a hydrograph.
 class REOSCORE_EXPORT ReosHydrograph : public ReosTimeSeriesVariableTimeStep
 {
     Q_OBJECT

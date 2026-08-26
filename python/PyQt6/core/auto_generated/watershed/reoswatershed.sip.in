@@ -1,0 +1,83 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershed.h                                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosWatershed : ReosDataObject
+{
+%Docstring(signature="appended")
+Represents a watershed and its hydrological properties.
+%End
+
+%TypeHeaderCode
+#include "reoswatershed.h"
+%End
+  public:
+    enum Type /BaseType=IntEnum/
+    {
+      None,
+      Automatic,
+      Manual,
+      Residual
+    };
+
+    ReosWatershed();
+%Docstring
+Default constructor
+%End
+
+    ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs = QString() );
+%Docstring
+Constructor of manual delineating watershed with ``delineating`` polygon
+and the ``outlet`` point.
+%End
+
+
+    ReosMapExtent extent() const;
+%Docstring
+Returns the extent of the watershed
+%End
+
+    QPolygonF delineating() const;
+%Docstring
+Returns the delineating of the watershed
+%End
+
+    void setDelineating( const QPolygonF &del );
+%Docstring
+Sets the delineating of the watershed
+%End
+
+    QPointF outletPoint() const;
+%Docstring
+Returns the outlet point of the watershed
+%End
+
+    void setOutletPoint( const QPointF &outletPoint );
+%Docstring
+Sets the outlet point of the watershed
+%End
+
+
+    ReosArea area() const;
+%Docstring
+Returns the area of the watershed
+%End
+
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershed.h                                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

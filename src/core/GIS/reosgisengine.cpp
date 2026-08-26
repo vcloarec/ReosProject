@@ -177,13 +177,22 @@ void ReosGisEngine::initGisEngine()
   {
     QDir dir( projPath );
     QString projDbPath = dir.filePath( QStringLiteral( "proj.db" ) );
+    qDebug() << "PROJ search path:" << projPath
+           << "proj.db exists:" << QFileInfo::exists( projDbPath)
+           << "proj.db:" << projDbPath;
     QFileInfo fileInfo( projDbPath );
     projDataPresent |= fileInfo.exists();
   }
+  qDebug() << "EPSG:4326 valid:"
+         << QgsCoordinateReferenceSystem::fromEpsgId( 4326 ).isValid();
+
+  qDebug() << "EPSG:2154 valid:"
+         << QgsCoordinateReferenceSystem::fromEpsgId( 2154 ).isValid();
 
   if ( !projDataPresent )
   {
     QDir projDir( QApplication::applicationDirPath() );
+    qDebug() << "Proj data not found, copying to " << QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
     if ( projDir.cdUp() && projDir.cd( QStringLiteral( "share" ) ) && projDir.cd( QStringLiteral( "proj" ) ) )
     {
       QStringList filesList = projDir.entryList( QDir::NoDotAndDotDot | QDir::Files );
@@ -201,6 +210,11 @@ void ReosGisEngine::initGisEngine()
       }
     }
   }
+  else
+  {
+    qDebug() << "Proj data found";
+  }
+
 
   //! init the QGIS network manager to access remote GIS data
   QgsApplication::authManager()->setup( qgisProviderPath, QgsApplication::qgisAuthDatabaseUri() );
@@ -222,8 +236,6 @@ void ReosGisEngine::initGisEngine()
   //! Add reos data provider to Qgis instances
   QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
   QgsProviderRegistry::instance()->registerProvider( new ReosGriddedRainfallProviderMetaData() );
-
-  qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )

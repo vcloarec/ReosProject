@@ -228,7 +228,6 @@ class ReosMapPolygonStructure : public ReosMapItem
     ~ReosMapPolygonStructure();
 };
 
-
 class ReosMapPolylineFormater
 {
   public:

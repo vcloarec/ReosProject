@@ -30,8 +30,9 @@ class ReosHydraulicNetworkContext;
 class ReosCalculationContext;
 
 /**
- * \brief ReosHydraulicScheme is a clas that represent a scheme of hydraulic simulation.
- * An instance of this class contain:
+ * \brief Represents a hydraulic simulation scheme.
+ *
+ * An instance of this class contains:
  * - reference to the meteorological model used for watershed hydrograph calculation
  * - start and end time of simulation
  */

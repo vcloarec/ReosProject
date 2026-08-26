@@ -426,8 +426,14 @@ void ReoHydraulicStructure2DTest::createHydraulicStructure()
 
 void ReoHydraulicStructure2DTest::profile()
 {
+  QPolygonF domain;
+  domain << QPointF( 0, 0 ) << QPointF( 10, 0 ) << QPointF( 10, 10 ) << QPointF( 20, 10 ) << QPointF( 20, 0 ) << QPointF( 30, 0 ) << QPointF( 30, 20 ) << QPointF( 0, 20 );
+
   QPolygonF profileGeom;
   profileGeom << QPointF( -5, 5 ) << QPointF( 5, 5 ) << QPointF( 15, 5 ) << QPointF( 15, 5 ) << QPointF( 25, 15 );
+
+  if ( !mHydraulicStructure )
+    mHydraulicStructure = new ReosHydraulicStructure2D( domain, QString(), mNetwork->context() );
 
   int profileIndex = mHydraulicStructure->createProfile( QStringLiteral( "profile 1" ), profileGeom, QString() );
   ReosHydraulicStructureProfile *profile = mHydraulicStructure->profile( profileIndex );

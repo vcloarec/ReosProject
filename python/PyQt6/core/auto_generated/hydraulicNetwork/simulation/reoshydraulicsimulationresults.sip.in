@@ -1,0 +1,49 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/simulation/reoshydraulicsimulationresults.h *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+class ReosHydraulicSimulationResults : ReosMeshDatasetSource /Abstract/
+{
+%Docstring(signature="appended")
+Base class for hydraulic simulation result dataset sources.
+%End
+
+%TypeHeaderCode
+#include "reoshydraulicsimulationresults.h"
+%End
+  public:
+    enum class DatasetType
+    {
+      NoType,
+      WaterLevel,
+      WaterDepth,
+      Velocity,
+    };
+
+    ReosHydraulicSimulationResults( QObject *parent = 0 );
+
+
+    virtual int groupCount() const;
+
+    virtual QString groupName( int groupIndex ) const;
+
+    virtual bool groupIsScalar( int groupIndex ) const;
+
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/simulation/reoshydraulicsimulationresults.h *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

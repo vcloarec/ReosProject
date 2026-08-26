@@ -165,7 +165,7 @@ const QVector<double> &ReosTimeSerieConstantTimeStepMemoryProvider::constData() 
 
 void ReosTimeSerieConstantTimeStepMemoryProvider::removeValues( int fromPos, int count )
 {
-  int maxCount = std::min( count, mValues.count() - fromPos );
+  int maxCount = std::min( static_cast<qsizetype>( count ), mValues.count() - fromPos );
   QVector<double>::iterator itStart = mValues.begin() + fromPos;
   QVector<double>::iterator itEnd = itStart + maxCount;
   mValues.erase( itStart, itEnd );
@@ -398,7 +398,7 @@ void ReosTimeSerieVariableTimeStepMemoryProvider::insertValue( int fromPos, cons
 
 void ReosTimeSerieVariableTimeStepMemoryProvider::removeValues( int fromPos, int count )
 {
-  int effCount = std::min( mValues.count() - fromPos, count );
+  int effCount = std::min( mValues.count() - fromPos, static_cast<qsizetype>( count ) );
   mValues.remove( fromPos, effCount );
   mTimeValues.remove( fromPos, effCount );
 }

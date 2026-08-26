@@ -29,6 +29,7 @@ class ReosHydrograph;
 class ReosMesh;
 class ReosSpatialPosition;
 
+//! Base class for hydraulic simulation result dataset sources.
 class REOSCORE_EXPORT ReosHydraulicSimulationResults : public ReosMeshDatasetSource SIP_ABSTRACT
 {
     Q_OBJECT

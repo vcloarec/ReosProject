@@ -17,8 +17,7 @@ SET(REOS_VORTEXIO_HEADERS
 
 ADD_EXECUTABLE(test_vortexio ${REOS_VORTEXIO_HEADERS} ${REOS_VORTEXIO_SOURCES} reos_vortexio_test.cpp)
 TARGET_LINK_LIBRARIES(test_vortexio
-                      ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )

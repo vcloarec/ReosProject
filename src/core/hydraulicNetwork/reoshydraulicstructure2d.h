@@ -18,6 +18,8 @@
 
 #include "reoscore.h"
 
+#include "reos_sip.h"
+
 #include "reoshydraulicnetwork.h"
 #include "reospolylinesstructure.h"
 #include "reoshydraulicsimulation.h"
@@ -37,11 +39,12 @@ class ReosStructureImporter;
 class ReosTimeWindowSettings;
 class QDir;
 
+//! Hydraulic network element representing a two-dimensional hydraulic structure.
 class REOSCORE_EXPORT ReosHydraulicStructure2D : public ReosHydraulicNetworkElement
 {
     Q_OBJECT
   public:
-    enum Structure2DCapability
+    enum Structure2DCapability SIP_ENUM_BASETYPE( IntFlag )
     {
       GeometryEditable = 1 << 0,    //!< If the structure have geometry editable (structure or mesh)
       MultiSimulation = 1 << 1,     //!< If the structure can have multiple simulations

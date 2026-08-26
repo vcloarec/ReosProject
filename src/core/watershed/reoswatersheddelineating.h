@@ -91,6 +91,7 @@ class ReosWatershedDelineatingProcess : public ReosProcess
 #endif //No SIP_RUN
 
 
+//! Coordinates watershed delineation workflows.
 class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 {
     Q_OBJECT

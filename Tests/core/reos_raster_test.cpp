@@ -64,11 +64,11 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
   EXPECT_EQ( extent.cellXAfterToMap( 7 ), 8.0 );
   EXPECT_EQ( extent.cellYBeforeToMap( 7 ), 3.0 );
   EXPECT_EQ( extent.cellYAfterToMap( 7 ), 2.0 );
-  EXPECT_EQ( extent.cellMinMinCornerToMap( QPoint( 1, 1 ) ), QPointF( 1.0, 9.0 ) );
-  EXPECT_EQ( extent.cellMaxMaxCornerToMap( QPoint( 1, 1 ) ), QPointF( 2.0, 8.0 ) );
+  EXPECT_EQ( extent.cellMinMinCornerToMap( QPointF( 1, 1 ) ), QPointF( 1.0, 9.0 ) );
+  EXPECT_EQ( extent.cellMaxMaxCornerToMap( QPointF( 1, 1 ) ), QPointF( 2.0, 8.0 ) );
 
-  QRect rect = extent.mapExtentToCellRect( ReosMapExtent( 3.6, 5.2, 7.6, 8.2 ) );
-  EXPECT_EQ( rect, QRect( QPoint( 3, 1 ), QPoint( 7, 4 ) ) );
+  QRectF rect = extent.mapExtentToCellRect( ReosMapExtent( 3.6, 5.2, 7.6, 8.2 ) );
+  EXPECT_EQ( rect, QRectF( QPointF( 3, 1 ), QPointF( 7, 4 ) ) );
 
   EXPECT_EQ( extent.cellRectToMapExtent( rect ), ReosMapExtent( 3.5, 5.5, 7.5, 8.5 ) );
   EXPECT_EQ( extent.cellRectToMapExtent( rect, ReosRasterExtent::Interior ), ReosMapExtent( 4.0, 6.0, 7.0, 8.0 ) );
@@ -84,7 +84,7 @@ TEST_F( ReosRasterTesting, ReosRasterExtent )
   EXPECT_EQ( extent.cellMaxMaxCornerToMap( QPoint( 1, 1 ) ), QPointF( 2.0, 2.0 ) );
 
   rect = extent.mapExtentToCellRect( ReosMapExtent( 3.6, 5.2, 7.6, 8.2 ) );
-  EXPECT_EQ( rect, QRect( QPoint( 3, 5 ), QPoint( 7, 8 ) ) );
+  EXPECT_EQ( rect, QRectF( QPointF( 3, 5 ), QPointF( 7, 8 ) ) );
 
   EXPECT_EQ( extent.cellRectToMapExtent( rect ), ReosMapExtent( 3.5, 5.5, 7.5, 8.5 ) );
   EXPECT_EQ( extent.cellRectToMapExtent( rect, ReosRasterExtent::Interior ), ReosMapExtent( 4.0, 6.0, 7.0, 8.0 ) );

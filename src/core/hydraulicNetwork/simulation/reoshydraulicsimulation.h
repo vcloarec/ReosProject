@@ -129,11 +129,12 @@ class REOSCORE_EXPORT ReosSimulationProcess : public ReosProcess
 
 #endif // No SIP_RUN
 
+//! Base class for hydraulic simulations.
 class REOSCORE_EXPORT ReosHydraulicSimulation : public ReosDataObject SIP_ABSTRACT
 {
     Q_OBJECT
   public:
-    enum class Capability
+    enum class Capability SIP_ENUM_BASETYPE( IntFlag )
     {
       Hotstart = 1 << 0, //!< If the simulation support hot start
     };
@@ -208,7 +209,7 @@ class REOSCORE_EXPORT ReosSimulationEngineFactory SIP_ABSTRACT
 {
     Q_GADGET
   public:
-    enum SimulationEngineCapability
+    enum SimulationEngineCapability SIP_ENUM_BASETYPE( IntFlag )
     {
       ImportStructure2D = 1 << 0, //!< If the simulation engine support importing 2D structure
       CanBeCreated = 1 << 1       //!< If simulation of this engine can be created by a factory
@@ -303,16 +304,15 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     {}
 
     virtual QString key() const override { return QStringLiteral( "dummy-simulation" ); }
-    virtual ReosEncodedElement encode() const override { return ReosEncodedElement(); };
+    virtual ReosEncodedElement encode() const override { return ReosEncodedElement(); }
 
     ReosModule::Message prepareSimulationData( ReosSimulationData &, const QString & ) override { return ReosModule::Message(); }
 
-    virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext & ) override {};
+    virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext & ) override {}
 
-    virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {};
+    virtual void prepareInput( const ReosSimulationData &, const ReosCalculationContext &, const QDir & ) override {}
 
     virtual ReosSimulationProcess *getProcess( const ReosCalculationContext &calculationContext ) const override;
-    ;
 
     virtual ReosDuration representativeTimeStep() const override { return ReosDuration( 5, ReosDuration::minute ); }
 
@@ -327,13 +327,13 @@ class REOSCORE_EXPORT ReosHydraulicSimulationDummy : public ReosHydraulicSimulat
     virtual bool hasResult( const QString &schemeId ) const override;
     ;
 
-    virtual void removeResults( const QString & ) const override {};
+    virtual void removeResults( const QString & ) const override {}
 
     virtual QString engineName() const override { return QStringLiteral( "dummy" ); }
 
-    virtual void saveConfiguration( ReosHydraulicScheme * ) const override {};
+    virtual void saveConfiguration( ReosHydraulicScheme * ) const override {}
 
-    virtual void restoreConfiguration( ReosHydraulicScheme * ) override {};
+    virtual void restoreConfiguration( ReosHydraulicScheme * ) override {}
 
     ReosTimeWindow externalTimeWindow() const override { return ReosTimeWindow(); }
 

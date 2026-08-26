@@ -29,6 +29,7 @@ class ReosGriddedData;
 class ReosGriddedRainfallProvider;
 class ReosGriddedDataProvider;
 
+//! Represents rainfall as a time series.
 class REOSCORE_EXPORT ReosSeriesRainfall : public ReosTimeSeriesConstantInterval
 {
     Q_OBJECT

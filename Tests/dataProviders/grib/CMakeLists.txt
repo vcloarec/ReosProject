@@ -4,6 +4,10 @@
 #########################################################################
 #########################################################################
 
+SET(GRIB_TEST_FILES_PATH CACHE PATH "Path to the folder containing grib test files")
+ADD_DEFINITIONS(-DGRIB_TEST_FILES_PATH="${GRIB_TEST_FILES_PATH}")
+
+
 SET(REOS_GRIB_SOURCES
      ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/reosgribprovider.cpp
      ${CMAKE_SOURCE_DIR}/src/dataProviders/grib/reoseccodesreader.cpp
@@ -19,7 +23,7 @@ SET(REOS_GRIB_HEADERS
 ADD_EXECUTABLE(test_grib ${REOS_GRIB_HEADERS} ${REOS_GRIB_SOURCES} reos_grib_test.cpp)
 TARGET_LINK_LIBRARIES(test_grib
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )
