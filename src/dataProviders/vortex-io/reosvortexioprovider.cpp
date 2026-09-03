@@ -186,11 +186,11 @@ void ReosVortexIoProvider::load()
 
           const ReosDuration relTime = ReosDuration( mReferenceTime.secsTo( time ), ReosDuration::second );
 
-          if ( continuity.toInt( &ok ) == 1 && ok && valIndex > 0 )
+          if ( continuity.toInt( &ok ) != 0 && ok && valIndex > 0 )
           {
             mValues.resize( mValues.size() + 1 );
             mTimes.resize( mTimes.size() + 1 );
-            mValues[valIndex] = std::numeric_limits<double>::quiet_NaN();
+            mValues[valIndex] = std::numeric_limits<double>::quiet_NaN(); 
             ReosDuration( static_cast<double>( mReferenceTime.secsTo( time ) ), ReosDuration::second );
             mTimes[valIndex] = ( relTime + mTimes[valIndex - 1] ) / 2.0;
             valIndex += 1;
