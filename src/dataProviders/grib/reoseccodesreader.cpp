@@ -229,6 +229,12 @@ static QPair<int, int> stepRangeFromKeys( const ReosEcCodesReaderKeys &keys )
     if ( endStr.contains( 'm' ) )
       endStr = endStr.remove( 'm' );
 
+    if ( startStr.contains( 's' ) )
+      startStr = startStr.remove( 's' );
+
+    if ( endStr.contains( 's' ) )
+      endStr = endStr.remove( 's' );
+
     start = startStr.toInt();
     end = endStr.toInt();
   }
@@ -316,7 +322,7 @@ bool ReosEcCodesReader::nextFrameMetadata( ReosEcCodesReader::FrameMetadata &met
     meta.stepRange = stepRangeFromKeys( keys );
     meta.stepDuration = stepDurationFromKeys( keys );
     meta.stepType = stepTypeFromKeys( keys );
-    meta.frameTime = meta.dataTime.addSecs( timeFromDataTime( keys ).valueSecond() );
+    meta.frameTime = validityTimeFromKeys( keys );
     return true;
   }
 
