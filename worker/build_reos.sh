@@ -1,3 +1,7 @@
+#!/bin/sh
+
+set -e
+
 export DEBIAN_FRONTEND=noninteractive
 
 if [ -z "$1" ]; then
@@ -12,10 +16,17 @@ QGIS_INSTALL=/qgis_built
 
 ECCODE_INSTALL=/eccodes_built
 
+HDF5_INCLUDE_DIR=/usr/include/hdf5/serial
+HDF5_C_LIBRARY=/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so
+
+test -f "$HDF5_INCLUDE_DIR/hdf5.h"
+test -f "$HDF5_C_LIBRARY"
+
+echo "Using HDF5 include dir: $HDF5_INCLUDE_DIR"
+echo "Using HDF5 library: $HDF5_C_LIBRARY"
 
 mkdir reos_building
 cd reos_building
-Docker
 cmake   -S $REOS_SRC \
 		-B . \
         -D BUILD_GMOCK=ON \
@@ -33,6 +44,8 @@ cmake   -S $REOS_SRC \
         -D ENABLE_ECCODES_READER=TRUE \
         -D ECCODES_INCLUDE_DIR=$ECCODE_INSTALL/include \
         -D ECCODES_LIB=$ECCODE_INSTALL/lib/libeccodes.so \
+        -D HDF5_INCLUDE_DIRS=$HDF5_INCLUDE_DIR \
+        -D HDF5_C_LIBRARY=$HDF5_C_LIBRARY \
         -D INSTALL_GTEST=FALSE \
         -D WITH_QTWEBKIT=FALSE \
 		-D ENABLE_HECRAS=FALSE \

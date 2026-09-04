@@ -27,8 +27,10 @@
 #include <qgsrasterfilewriter.h>
 #include <qgsmeshlayerutils.h>
 #include <qgsmeshlayerinterpolator.h>
+#ifdef ENABLE_3D
 #include <qgsmeshlayer3drenderer.h>
 #include <qgsmesh3dsymbol.h>
+#endif // ENABLE_3D
 
 #include "reosmeshdataprovider_p.h"
 #include "reosparameter.h"

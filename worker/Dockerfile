@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget bison build-essential ca-certificates ccache cmake cmake-curses-gui \
     dh-python doxygen expect flex flip gdal-bin git graphviz \
     libexiv2-dev libexpat1-dev libfcgi-dev libgdal-dev libgeos-dev \
+    libhdf5-dev \
     libgsl-dev libpq-dev libproj-dev libprotobuf-dev \
     libqca-qt5-2-dev libqca-qt5-2-plugins libqscintilla2-qt5-dev \
     libqt5opengl5-dev libqt5serialport5-dev libqt5sql5-sqlite \
@@ -53,7 +54,7 @@ RUN mkdir -p /eccodes_built && mkdir -p /app/eccodes_src && cd /app/eccodes_src 
     mkdir -p /app/eccodes_src/build && ls -la && cd /app/eccodes_src/build && \
     cmake -DCMAKE_INSTALL_PREFIX=/eccodes_built \
     -DCMAKE_BUILD_TYPE=Release \
-    -DENABLE_NETCDF=OFF \ 
+    -DENABLE_NETCDF=OFF \
     -DENABLE_FORTRAN=OFF \
     -DPRODUCT_BUFR=OFF \
     -DEXAMPLES=OFF \
@@ -66,7 +67,7 @@ RUN mkdir -p /eccodes_built && mkdir -p /app/eccodes_src && cd /app/eccodes_src 
 # # Clone and build REOS
 RUN git clone --branch vortexio --single-branch https://github.com/vcloarec/ReosProject.git /reos_src \
     && chmod +x build_reos.sh \
-    && ./build_reos.sh /reos_src \ 
+    && ./build_reos.sh /reos_src \
     && rm -r -f /reos_src
 
 
@@ -79,7 +80,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt-get install -y --no-install-recommends \
     gdal-bin libgeos-c1v5 proj-bin \
     libpq5 libsqlite3-0 libspatialindex6 libspatialite8t64 \
-    libexiv2-27 libexpat1 libfcgi0ldbl \
+    libexiv2-27 libexpat1 libfcgi0ldbl libhdf5-103-1t64 \
     libqca-qt5-2 libqscintilla2-qt5-15 \
     libqt5sql5-sqlite libqt5svg5 libqt5xmlpatterns5 libqt5webkit5 \
     libqwt-qt5-6 libzip4 locales \
