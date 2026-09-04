@@ -186,11 +186,11 @@ static ReosRasterExtent extentFromKeys( const ReosEcCodesReaderKeys &keys )
 
 static QDateTime intToTime( int dateInt, int timeInt )
 {
-  int y = int( std::round( dateInt / 10000.0 ) );
-  int m = int( std::round( ( dateInt - y * 10000.0 ) / 100.0 ) );
+  int y = int( std::floor( dateInt / 10000.0 ) );
+  int m = int( std::floor( ( dateInt - y * 10000.0 ) / 100.0 ) );
   int d = dateInt - y * 10000.0 - m * 100;
 
-  int h = int( std::round( timeInt / 100.0 ) );
+  int h = int( std::floor( timeInt / 100.0 ) );
   int mi = timeInt - h * 100;
 
   return QDateTime( QDate( y, m, d ), QTime( h, mi ), Qt::UTC );
