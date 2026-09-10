@@ -143,13 +143,14 @@ void ReosVortexIoProvider::load()
     }
 
     double unitFactor = 1;
-    if ( map.contains( QStringLiteral( "unitQ" ) ) )
-      if ( map.value( QStringLiteral( "unitQ" ) ).toString() == QStringLiteral( "l" ) )
-        unitFactor = 0.001;
 
     if ( map.contains( QStringLiteral( "series" ) ) )
     {
       const QMap series = map.value( QStringLiteral( "series" ) ).toMap();
+      const QVariant unit = series.value( QStringLiteral( "unit" ) );
+      if ( unit.isValid() && unit.toString() == QStringLiteral( "l" ) )
+        unitFactor = 0.001;
+
       QVariantList data = series.value( QStringLiteral( "data" ) ).toList();
       if ( data.size() != 0 )
       {
