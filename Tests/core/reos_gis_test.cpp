@@ -43,7 +43,7 @@ void ReosGisTesting::test_polygon_watershed()
       QPointF( -2.49724733804582133, 48.29513350483178868 ) }
   );
 
-  pw->addWatershed( poly, ReosGisEngine::crsFromEPSG( 4326 ), QStringLiteral( "watershed1" ) );
+  pw->addWatershed( poly, ReosGisEngine::crsFromEPSG( 4326 ), QStringLiteral( "watershed1" ), ReosWatershed::Type::Manual );
 
   ReosMapExtent extent = pw->extent( ReosGisEngine::crsFromEPSG( 4326 ) );
 

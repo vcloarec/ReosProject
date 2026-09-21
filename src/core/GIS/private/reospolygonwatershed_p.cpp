@@ -58,6 +58,10 @@ ReosPolygonWatershed_p::ReosPolygonWatershed_p( const QString &wktCrs )
   field.setType( QMetaType::QString );
   field.setName( QStringLiteral( "watershedId" ) );
   mVectorLayer->addAttribute( field );
+  QgsField fieldResidual;
+  fieldResidual.setType( QMetaType::Bool );
+  fieldResidual.setName( QStringLiteral( "residual" ) );
+  mVectorLayer->addAttribute( fieldResidual );
 }
 
 ReosPolygonWatershed *ReosPolygonWatershed_p::clone() const
@@ -73,7 +77,7 @@ QObject *ReosPolygonWatershed_p::data()
   return mVectorLayer.get();
 }
 
-void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id )
+void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id, ReosWatershed::Type type )
 {
   const QgsCoordinateTransform transform = toLayerTransform( crs );
 
@@ -102,6 +106,7 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
   feat.setGeometry( layerGeom );
   feat.setFields( fields, true );
   feat.setAttribute( QStringLiteral( "watershedId" ), id );
+  feat.setAttribute( QStringLiteral( "residual" ), type == ReosWatershed::Residual );
   mVectorLayer->addFeature( feat );
 
   emit geometryChanged();
@@ -109,7 +114,7 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
 
 void ReosPolygonWatershed_p::addWatershed( ReosWatershed *watershed )
 {
-  addWatershed( watershed->delineating(), watershed->crs(), watershed->id() );
+  addWatershed( watershed->delineating(), watershed->crs(), watershed->id(), watershed->watershedType() );
 }
 
 void ReosPolygonWatershed_p::removeWatershed( const QString &id )
@@ -317,7 +322,8 @@ void ReosPolygonWatershed_p::render( void *mapSettings, QPainter *painter, bool 
 
     if ( !contained )
     {
-      QgsFeature feat = getFeatureUnderPosition( highlightPosition, destinationCrs );
+      QString expression = QStringLiteral( "residual = false" );
+      QgsFeature feat = getFeatureUnderPosition( highlightPosition, destinationCrs, expression );
       if ( feat.isValid() )
       {
         QgsGeometry geomCandidate = feat.geometry();
@@ -416,12 +422,15 @@ QgsGeometry ReosPolygonWatershed_p::getGeometry( const QString &watershedId, con
   return geom;
 }
 
-QgsFeature ReosPolygonWatershed_p::getFeatureUnderPosition( const QPointF &position, const QString &destinationCrs ) const
+QgsFeature ReosPolygonWatershed_p::getFeatureUnderPosition( const QPointF &position, const QString &destinationCrs, const QString &expression ) const
 {
   QgsPointXY point( position );
   point = toLayerTransform( destinationCrs ).transform( point );
+  QgsFeatureRequest request = QgsFeatureRequest().setFilterRect( QgsRectangle( point, point ) );
+  if ( !expression.isEmpty() )
+    request.setFilterExpression( expression );
 
-  QgsFeatureIterator featIt = mVectorLayer->getFeatures( QgsFeatureRequest().setFilterRect( QgsRectangle( point, point ) ) );
+  QgsFeatureIterator featIt = mVectorLayer->getFeatures();
 
   QgsFeature feat;
   QgsFeature selectedFeature;

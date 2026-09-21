@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include <QPolygonF>
 
 #include "reosgeometrycomplex.h"
+#include "reoswatershed.h"
 
 class ReosWatershed;
 
@@ -36,7 +37,7 @@ class ReosPolygonWatershed : public ReosGeometryComplex
     static ReosPolygonWatershed *createPolygonWatershed( const QString &wktCrs );
 
     virtual ReosPolygonWatershed *clone() const = 0;
-    virtual void addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id ) = 0;
+    virtual void addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id, ReosWatershed::Type type ) = 0;
     virtual void addWatershed( ReosWatershed *watershed ) = 0;
     virtual void removeWatershed( const QString &id ) = 0;
 

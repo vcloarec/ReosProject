@@ -859,7 +859,7 @@ void ReosWatershed::init()
 void ReosWatershed::forceDelineating( const QPolygonF &deli )
 {
   if ( mTree )
-    mTree->polygonWatershed()->addWatershed( deli, mTree->crs(), id() );
+    mTree->polygonWatershed()->addWatershed( deli, mTree->crs(), id(), watershedType() );
   else
     mDelineating = deli;
 }

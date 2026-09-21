@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 
 #include "reospolygonwatershed.h"
 #include "reosgeometrycomplex_p.h"
+#include "reoswatershed.h"
 
 class QgsSingleSymbolRenderer;
 
@@ -34,8 +35,10 @@ class ReosPolygonWatershed_p : public ReosPolygonWatershed, private ReosGeometry
 
     ReosPolygonWatershed *clone() const override;
     QObject *data() override;
-    void addWatershed(const QPolygonF &watershed, const QString &crs,
-                      const QString &id) override;
+    void addWatershed(const QPolygonF &watershed,
+                       const QString &crs,
+                      const QString &id,
+                      ReosWatershed::Type type) override;
     void addWatershed( ReosWatershed *watershed ) override;
     void removeWatershed( const QString &id ) override;
     QPointF closestVertex( const QString &watershedId, const QPointF &position, const QString &destinationCrs, double tolerance, int &prevIndex, int &index, int &nextIndex ) const override;
@@ -63,7 +66,7 @@ class ReosPolygonWatershed_p : public ReosPolygonWatershed, private ReosGeometry
 
     QgsGeometry getGeometry( const QString &watershedId, const QString &destinationCrs ) const;
 
-    QgsFeature getFeatureUnderPosition( const QPointF &position, const QString &destinationCrs ) const;
+    QgsFeature getFeatureUnderPosition( const QPointF &position, const QString &destinationCrs, const QString &expression=QString() ) const;
 };
 
 #endif // REOSPOLYGONWATERSHED_P_H
