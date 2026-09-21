@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 #include <QAbstractItemModel>
 
 #include "reoswatershed.h"
+#include "reospolygonwatershed.h"
 
 
 class QPolygonF;
@@ -46,10 +47,10 @@ class REOSCORE_EXPORT ReosWatershedTree : public QObject
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
-    ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
+    ReosWatershed *downstreamWatershed( const QPolygonF &line, const QString &lineCrs, bool &ok ) const;
 
     //! Returns the smallest watershed (the more upstream that contains the points
-    ReosWatershed *watershed( const QPointF &point );
+    ReosWatershed *watershed( const ReosSpatialPosition &point );
 
     //! Returns the count of watershed (extreme downstream)
     int watershedCount() const;
@@ -85,6 +86,12 @@ class REOSCORE_EXPORT ReosWatershedTree : public QObject
     //! Removes all the watersheds of the tree
     void clearWatersheds();
 
+    //! Returns a pointer to the polygon watershed. It is used to store the delineating of the watershed tree.
+    ReosPolygonWatershed *polygonWatershed() const SIP_SKIP { return mPolygonWatershed.get(); }
+
+    //! Returns the coordinate reference system of the watershed tree
+    QString crs() const;
+
     ReosEncodedElement encode( const ReosEncodeContext &context ) const SIP_SKIP;
     void decode( const ReosEncodedElement &elem, const ReosEncodeContext &context ) SIP_SKIP;
 
@@ -114,6 +121,7 @@ class REOSCORE_EXPORT ReosWatershedTree : public QObject
   private:
     std::vector<std::unique_ptr<ReosWatershed>> mWatersheds;
     ReosGisEngine *mGisEngine = nullptr;
+    std::unique_ptr<ReosPolygonWatershed> mPolygonWatershed;
 };
 
 #ifndef SIP_RUN

@@ -38,7 +38,7 @@ class ReosHydraulicSimulation;
 class ReosHydraulicScheme;
 class ReosStructureImporterSource;
 class ReosHydraulicNetworkContext;
-class ReosPolygonStructureValues;
+class ReosPolygonsClassifiedValues;
 struct ReosHydraulicNetworkElementCompatibilty;
 
 
@@ -56,7 +56,7 @@ struct ReosSimulationData
 
     ReosMeshData meshData;
 
-    std::shared_ptr<ReosPolygonStructureValues> roughnessValues;
+    std::shared_ptr<ReosPolygonsClassifiedValues> roughnessValues;
     double defaultRoughness = 0.03;
 
     ReosCoordinateSystemTransformer coordinateTransformer;

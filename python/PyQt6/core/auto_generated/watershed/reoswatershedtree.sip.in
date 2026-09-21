@@ -33,12 +33,12 @@ of its sub watershed). Take ownership and returns a pointer to the added
 watershed
 %End
 
-    ReosWatershed *downstreamWatershed( const QPolygonF &line, bool &ok ) const;
+    ReosWatershed *downstreamWatershed( const QPolygonF &line, const QString &lineCrs, bool &ok ) const;
 %Docstring
 If there is no watershed downstrean, return None
 %End
 
-    ReosWatershed *watershed( const QPointF &point );
+    ReosWatershed *watershed( const ReosSpatialPosition &point );
 %Docstring
 Returns the smallest watershed (the more upstream that contains the
 points
@@ -87,6 +87,12 @@ maintained sub watershed but move them to downstream.
     void clearWatersheds();
 %Docstring
 Removes all the watersheds of the tree
+%End
+
+
+    QString crs() const;
+%Docstring
+Returns the coordinate reference system of the watershed tree
 %End
 
 

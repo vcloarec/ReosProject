@@ -297,6 +297,7 @@ class REOSCORE_EXPORT ReosGisEngine : public ReosModule
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
     QStringList mAsDEMRegisteredLayer;
+    QString mCurrentCrs;
 
     void defaultstyleRasterLayer( QgsRasterLayer *layer );
 

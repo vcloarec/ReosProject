@@ -428,10 +428,10 @@ class REOSCORE_EXPORT ReosRoughnessStructure : public ReosDataObject
 
     ReosEncodedElement encode() const;
     ReosParameterDouble *defaultRoughness() const;
-    ReosPolygonStructure *structure() const;
+    ReosPolygonsClassified *structure() const;
 
   private:
-    std::unique_ptr<ReosPolygonStructure> mStructure;
+    std::unique_ptr<ReosPolygonsClassified> mStructure;
     ReosParameterDouble *mDefaultRoughness = nullptr;
 };
 

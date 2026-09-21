@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmappolygonstructure_p.cpp - ReosMapPolygonStructure_p
+  reosmappolygoncomplex_p.cpp - ReosMapPolygonComplex_p
 
  ---------------------
  begin                : 6.2.2022
@@ -13,38 +13,37 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reosmappolygonstructure_p.h"
+#include "reosmappolygoncomplex_p.h"
 
 #include <qgsmapcanvas.h>
 
+#include "reosgeometrycomplex.h"
 #include "reosmapextent.h"
-#include "reospolygonstructure.h"
-#include "qgsmaplayerrenderer.h"
 
-ReosMapPolygonStructure_p::ReosMapPolygonStructure_p( QgsMapCanvas *canvas )
+ReosMapPolygonComplex_p::ReosMapPolygonComplex_p( QgsMapCanvas *canvas )
   : ReosMapItem_p( canvas )
 {}
 
-ReosMapItem_p *ReosMapPolygonStructure_p::clone()
+ReosMapItem_p *ReosMapPolygonComplex_p::clone()
 {
   return nullptr;
 }
 
-QPointF ReosMapPolygonStructure_p::mapPos() const
+QPointF ReosMapPolygonComplex_p::mapPos() const
 {
-  if ( mStructure.isNull() )
+  if ( mGeometry.isNull() )
     return QPointF();
-  ReosMapExtent extent = mStructure->extent( crs() );
+  ReosMapExtent extent = mGeometry->extent( crs() );
   return QPointF( extent.xMapMin(), extent.yMapMin() );
 }
 
-void ReosMapPolygonStructure_p::updatePosition()
+void ReosMapPolygonComplex_p::updatePosition()
 {
-  if ( mStructure.isNull() )
+  if ( mGeometry.isNull() )
     return;
 
   prepareGeometryChange();
-  ReosMapExtent extent = mStructure->extent( crs() );
+  ReosMapExtent extent = mGeometry->extent( crs() );
 
   QPointF tl = toCanvasCoordinates( QgsPointXY( extent.xMapMin(), extent.yMapMax() ) );
   QPointF br = toCanvasCoordinates( QgsPointXY( extent.xMapMax(), extent.yMapMin() ) );
@@ -54,31 +53,33 @@ void ReosMapPolygonStructure_p::updatePosition()
   mBBox = mBBox.adjusted( -5, -5, 5, 5 );
 }
 
-QRectF ReosMapPolygonStructure_p::boundingRect() const
+QRectF ReosMapPolygonComplex_p::boundingRect() const
 {
   return mBBox;
 }
 
-void ReosMapPolygonStructure_p::setStructure( ReosPolygonStructure *structure )
+void ReosMapPolygonComplex_p::setStructure( ReosGeometryComplex *structure )
 {
-  mStructure = structure;
+  mGeometry = structure;
   updatePosition();
 }
 
-void ReosMapPolygonStructure_p::paint( QPainter *painter )
+void ReosMapPolygonComplex_p::setHovered( const QgsPointXY &position )
 {
-  if ( mStructure.isNull() )
+  ReosMapItem_p::setHovered( position );
+  mHoveredPosition = position.toQPointF();
+}
+
+void ReosMapPolygonComplex_p::clearHover()
+{
+  ReosMapItem_p::clearHover();
+  mHoveredPosition = QPointF();
+}
+
+void ReosMapPolygonComplex_p::paint( QPainter *painter )
+{
+  if ( mGeometry.isNull() )
     return;
-
-  QgsVectorLayer *vectorLayer = qobject_cast<QgsVectorLayer *>( mStructure->data() );
-
-  if ( vectorLayer )
-  {
-    QgsRenderContext renderContext = QgsRenderContext::fromMapSettings( mMapCanvas->mapSettings() );
-    renderContext.setPainter( painter );
-    renderContext.setCoordinateTransform( mMapCanvas->mapSettings().layerTransform( vectorLayer ) );
-    std::unique_ptr<QgsMapLayerRenderer> renderer;
-    renderer.reset( vectorLayer->createMapRenderer( renderContext ) );
-    renderer->render();
-  }
+  QgsMapSettings &mapSettings = mMapCanvas->mapSettings();
+  mGeometry->render( static_cast<void *>( &mapSettings ), painter, mIsHovered, mHoveredPosition );
 }

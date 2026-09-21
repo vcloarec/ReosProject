@@ -63,7 +63,6 @@ class ReosMapTool_p : public QgsMapTool
     void setActivateMovingSignal( bool activateMovingSignal );
 
   signals:
-    void foundItemWhenMoving( ReosMapItem_p *item );
     void move( const QPointF &point );
     void keyPressed( int key );
 
@@ -234,7 +233,8 @@ class ReosMapToolMoveItem_p : public ReosMapTool_p
 
   private:
     ReosMapItem_p *mCurrentItem = nullptr;
-    std::unique_ptr<ReosMapItem_p> mMovingItem;
+    ReosMapItem_p* mMovingItem;
+    std::unique_ptr<ReosMapItem> mMovingBaseItem;
     bool mIsMoving = false;
     QPointF mStartPoint;
     QColor mMovingColor;

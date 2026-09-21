@@ -14,7 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 #ifdef _MSC_VER
 #include <Windows.h>
 #undef max
@@ -1058,7 +1058,7 @@ void ReosTelemac2DSimulation::createSelafinBaseFile( const ReosSimulationData &s
   ouputMesh->saveDataset( fileName, 0, QStringLiteral( "SELAFIN" ) );
 
   //! Roughness
-  ReosPolygonStructureValues *roughness = simulationData.roughnessValues.get();
+  ReosPolygonsClassifiedValues *roughness = simulationData.roughnessValues.get();
 
   std::shared_ptr<QgsMeshMemoryDataset> roughnessDataset( new QgsMeshMemoryDataset );
   roughnessDataset->values.resize( mesh.vertexCount() );

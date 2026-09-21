@@ -177,17 +177,13 @@ void ReosGisEngine::initGisEngine()
   {
     QDir dir( projPath );
     QString projDbPath = dir.filePath( QStringLiteral( "proj.db" ) );
-    qDebug() << "PROJ search path:" << projPath
-           << "proj.db exists:" << QFileInfo::exists( projDbPath)
-           << "proj.db:" << projDbPath;
+    qDebug() << "PROJ search path:" << projPath << "proj.db exists:" << QFileInfo::exists( projDbPath ) << "proj.db:" << projDbPath;
     QFileInfo fileInfo( projDbPath );
     projDataPresent |= fileInfo.exists();
   }
-  qDebug() << "EPSG:4326 valid:"
-         << QgsCoordinateReferenceSystem::fromEpsgId( 4326 ).isValid();
+  qDebug() << "EPSG:4326 valid:" << QgsCoordinateReferenceSystem::fromEpsgId( 4326 ).isValid();
 
-  qDebug() << "EPSG:2154 valid:"
-         << QgsCoordinateReferenceSystem::fromEpsgId( 2154 ).isValid();
+  qDebug() << "EPSG:2154 valid:" << QgsCoordinateReferenceSystem::fromEpsgId( 2154 ).isValid();
 
   if ( !projDataPresent )
   {
@@ -332,7 +328,7 @@ QString ReosGisEngine::meshLayerFilters() const
 
 QString ReosGisEngine::crs() const
 {
-  return QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
+  return mCurrentCrs;
 }
 
 QString ReosGisEngine::crsFromEPSG( int epsgCode )
@@ -361,6 +357,7 @@ void ReosGisEngine::setCrs( const QString &crsString )
 {
   QgsCoordinateReferenceSystem crs( crsString );
   QgsProject::instance()->setCrs( crs );
+  mCurrentCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
   emit crsChanged( crs.toWkt() );
 }
 
@@ -397,7 +394,10 @@ void ReosGisEngine::loadQGISProject( const QString &fileName )
   QString oldCrs = crs();
   QgsProject::instance()->read( fileName );
   if ( crs() != oldCrs )
+  {
+    mCurrentCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
     emit crsChanged( crs() );
+  }
 }
 
 void ReosGisEngine::saveQGISProject( const QString &fileName ) const
@@ -754,6 +754,9 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, 
 
 QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position ) const
 {
+  if ( position.crs() == crs() )
+    return position.position();
+
   return transformToProjectCoordinates( position.crs(), position.position() );
 }
 

@@ -20,9 +20,10 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
-  GIS/reosgeometrystructure.cpp
-  GIS/reospolygonstructure.cpp
+  GIS/reosgeometrycomplex.cpp
+  GIS/reospolygonsclassified.cpp
   GIS/reospolylinesstructure.cpp
+  GIS/reospolygonwatershed.cpp
   GIS/reosmesh.cpp
   GIS/reosnetcdfutils.cpp
   GIS/reostopographycollection.cpp
@@ -32,8 +33,10 @@ SET(REOS_CORE_SOURCES
   GIS/reosrenderersettings.cpp
   GIS/reoshdf5.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+  GIS/private/reosgeometrycomplex_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
+  GIS/private/reospolygonwatershed_p.cpp
   GIS/private/reosmesh_p.cpp
   GIS/private/reosmeshrenderer_p.cpp
   GIS/private/reosmeshdataprovider_p.cpp
@@ -132,9 +135,10 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
-    GIS/reosgeometrystructure.h
-    GIS/reospolygonstructure.h
+    GIS/reosgeometrycomplex.h
+    GIS/reospolygonsclassified.h
     GIS/reospolylinesstructure.h
+    GIS/reospolygonwatershed.h
     GIS/reosmesh.h
     GIS/reosnetcdfutils.h
     GIS/reostopographycollection.h
@@ -216,6 +220,7 @@ ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 SET(REOS_CORE_HDRS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
+    GIS/private/reosgeometrycomplex_p.h
     GIS/private/reospolylinesstructure_p.h
     GIS/private/reospolygonstructure_p.h
     GIS/private/reosmesh_p.h

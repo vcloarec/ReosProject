@@ -63,6 +63,9 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
      */
     virtual double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
+
+    virtual QList<QList<float>> classifyElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
+
     //! Returns the source of the DEM, if it is a map layer, returns the layer Id
     virtual QString source() const = 0;
 

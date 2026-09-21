@@ -17,7 +17,7 @@ email                : vcloarec at gmail dot com
 #include <QModelIndexList>
 
 #include "reoshydraulicstructure2d.h"
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 #include "reoshydraulicstructureprofile.h"
 #include "reosgisengine.h"
 #include "reosmapextent.h"
@@ -367,14 +367,14 @@ void ReoHydraulicStructure2DTest::createAndEditPolylineStructure()
 
 void ReoHydraulicStructure2DTest::createAndEditPolygonStructure()
 {
-  std::unique_ptr<ReosPolygonStructure> polygonStructure = ReosPolygonStructure::createPolygonStructure();
+  std::unique_ptr<ReosPolygonsClassified> polygonStructure = ReosPolygonsClassified::createPolygonStructure();
   polygonStructure->addClass( "class1", 123 );
   QPolygonF polygon;
   polygon << QPointF( 15, 5 ) << QPointF( 15, 15 ) << QPointF( 5, 15 );
   polygonStructure->addPolygon( polygon, "class1" );
 
   ReosSpatialPosition position( 12, 10 );
-  std::unique_ptr<ReosPolygonStructureValues> values( polygonStructure->values( QString() ) );
+  std::unique_ptr<ReosPolygonsClassifiedValues> values( polygonStructure->values( QString() ) );
   QCOMPARE( values->value( position.position().x(), position.position().y() ), 123 );
 }
 

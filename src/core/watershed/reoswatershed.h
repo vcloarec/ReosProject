@@ -25,6 +25,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosgeometryutils.h"
 #include "reosrasterwatershed.h"
+#include "reosmapextent.h"
 #include "reosencodedelement.h"
 #include "reosparameter.h"
 #include "reosconcentrationtimecalculation.h"
@@ -35,6 +36,7 @@ class ReosRunoffModelsGroup;
 class ReosTransferFunction;
 class ReosSeriesRainfall;
 class ReosHydrograph;
+class ReosWatershedTree;
 
 //! Represents a watershed and its hydrological properties.
 class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
@@ -55,14 +57,14 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     /**
      * Constructor of manual delineating watershed with \a delineating polygon and the \a outlet point.
      */
-    ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs = QString() );
+    ReosWatershed( const QPolygonF &delineating, const ReosSpatialPosition &outletPoint, const QString &wktCrs = QString() );
 
 #ifndef SIP_RUN
 
     //! Constructor used with automatic delineating with direction data containded in the upstream watershed
     ReosWatershed(
       const QPolygonF &delineating,
-      const QPointF &outletPoint,
+      const ReosSpatialPosition &outletPoint,
       Type type,
       const QPolygonF &downstreamLine,
       const QPolygonF &streamPath,
@@ -75,7 +77,7 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     //! Constructor used with automatic delineating with direction data
     ReosWatershed(
       const QPolygonF &delineating,
-      const QPointF &outletPoint,
+      const ReosSpatialPosition &outletPoint,
       Type type,
       const QPolygonF &downstreamLine,
       const QPolygonF &streamPath,
@@ -87,6 +89,8 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     );
 
     Type watershedType() const { return mType; }
+
+    void attachToTree( ReosWatershedTree *tree );
 
     //! Returns the name of the watershed
     ReosParameterString *watershedName() const;
@@ -100,16 +104,19 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     ReosMapExtent extent() const;
 
     //! Returns the delineating of the watershed
-    QPolygonF delineating() const;
+    QPolygonF delineating( const QString &destinationCrs = QString() ) const;
 
     //! Sets the delineating of the watershed
     void setDelineating( const QPolygonF &del );
 
     //! Returns the outlet point of the watershed
-    QPointF outletPoint() const;
+    ReosSpatialPosition outletPosition() const;
+
+    //! Returns the outlet point of the watershed
+    QPointF outletPoint( const QString &crs ) const;
 
     //! Sets the outlet point of the watershed
-    void setOutletPoint( const QPointF &outletPoint );
+    void setOutletPoint( const ReosSpatialPosition &outletPoint );
 
 #ifndef SIP_RUN
 
@@ -130,14 +137,14 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
      *
      * \note if the point is exactly on a segment of the delineating polygon, this point is considered outside
      */
-    bool contain( const QPointF &point ) const;
+    bool contain( const ReosSpatialPosition &point ) const;
 
     /**
      * Returns how the polygon or polyline \a line is contained in the watershed
      *
      * \note if a point of the line is exactly on a segment of the delineating polygon, this point is considered outside
      */
-    ReosInclusionType contain( const QPolygonF &line ) const;
+    ReosInclusionType contain( const QPolygonF &line, const QString &lineCrs ) const;
 
     //! Returns how this watershed is included by \a other
     ReosInclusionType isContainedBy( const ReosWatershed &other ) const;
@@ -172,10 +179,10 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
 
     //! Returns the smallest sub watershed that is downstream the line, if the line is partially included by any watershed, ok is false and return nullptr
     //! If there is no watershed downstrean, return nullptr
-    ReosWatershed *upstreamWatershed( const QPolygonF &line, bool &ok ) const;
+    ReosWatershed *upstreamWatershed( const QPolygonF &line, const QString &lineCrs, bool &ok ) const;
 
     //! Returns the smallest upstream watershed that contains the point
-    ReosWatershed *upstreamWatershed( const QPointF &point, bool excludeResidual = false );
+    ReosWatershed *upstreamWatershed( const ReosSpatialPosition &point, bool excludeResidual = false );
 
     //! Returns, if exists, a pointer to the direct downstream watershed, if not returns nullptr
     ReosWatershed *downstreamWatershed() const;
@@ -272,8 +279,8 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     void calculateAverageElevation();
 
   private:
-    ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, Type type );
-
+    ReosWatershed( const QPolygonF &delineating, const ReosSpatialPosition &outletPoint, Type type );
+    ReosWatershedTree *mTree = nullptr;
     Type mType = None;
 
     ReosParameterString *mName;
@@ -286,7 +293,7 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     ReosMapExtent mExtent;
     QPolygonF mDelineating;
     QString mDelineatingReferenceLayer;
-    QPointF mOutletPoint;
+    ReosSpatialPosition mOutletPoint;
     QPolygonF mDownstreamLine;
     QPolygonF mStreamPath;
     QPolygonF mProfile;
@@ -333,6 +340,7 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     ReosDuration mTimeStepForOutputHydrograph;
 
     void init();
+    void forceDelineating( const QPolygonF &deli );
     void connectParameters();
     void updateResidual();
 };

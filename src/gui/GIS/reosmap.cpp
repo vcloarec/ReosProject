@@ -595,6 +595,19 @@ void ReosMap::setCenter( const ReosSpatialPosition &center )
     setCenter( mEngine->transformToProjectCoordinates( center ) );
 }
 
+QPointF ReosMap::toMapCoordinate( const ReosSpatialPosition &position ) const
+{
+  if ( mEngine )
+    return mEngine->transformToProjectCoordinates( position );
+
+  return position.position();
+}
+
+ReosSpatialPosition ReosMap::toSpatialPosition( const QPointF &mapCoordinate, const QString &crs ) const
+{
+  return ReosSpatialPosition( ReosGisEngine::transformToCoordinates( ReosSpatialPosition( mapCoordinate, mapCrs() ), crs ), crs );
+}
+
 ReosMapExtent ReosMap::extent() const
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
@@ -651,7 +664,7 @@ void ReosMap::deactivate()
   mExtraRenderedObjects.clear();
 }
 
-void ReosMap::addSnappableStructure( ReosGeometryStructure *structure )
+void ReosMap::addSnappableStructure( ReosGeometryComplex *structure )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( structure->data() );
@@ -659,7 +672,7 @@ void ReosMap::addSnappableStructure( ReosGeometryStructure *structure )
     canvas->snappingUtils()->addExtraSnapLayer( vl );
 }
 
-void ReosMap::removeSnappableStructure( ReosGeometryStructure *structure )
+void ReosMap::removeSnappableStructure( ReosGeometryComplex *structure )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( mCanvas );
   QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( structure->data() );
@@ -882,6 +895,15 @@ void ReosMap::deactivateCurrentTool()
   QgsMapTool *currentTool = qobject_cast<QgsMapCanvas *>( mCanvas )->mapTool();
   if ( currentTool )
     currentTool->deactivate();
+}
+
+void ReosMap::removeItem( ReosMapItem *item )
+{
+  if ( !mCanvas.isNull() )
+  {
+    ReosQgsMapCanvas *canvas = qobject_cast<ReosQgsMapCanvas *>( mCanvas );
+    canvas->scene()->removeItem( item->graphicItem() );
+  }
 }
 
 ReosMapCursorPosition::ReosMapCursorPosition( ReosMap *map, QWidget *parent )

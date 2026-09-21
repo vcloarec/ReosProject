@@ -41,7 +41,7 @@ Return whether this time window intersect with ``other``
 
     bool isIncluded( const QDateTime &time ) const;
 
-    bool operator==( const ReosTimeWindow &other );
+    bool operator==( const ReosTimeWindow &other ) const;
 
 };
 

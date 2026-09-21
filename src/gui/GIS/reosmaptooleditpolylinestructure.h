@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmaptooleditgeometrystructure.h - ReosMapToolEditGeometryStructure
+  reosmaptooleditpolylinestructure.h - ReosMapToolEditPolylineStructure
 
  ---------------------
  begin                : 12.1.2022
@@ -13,19 +13,19 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
-#define REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
+#ifndef REOSMAPTOOLEDITPOLYLINESTRUCTURE_H
+#define REOSMAPTOOLEDITPOLYLINESTRUCTURE_H
 
 #include <QAbstractListModel>
+#include <QPointer>
+#include <QStringList>
 
 #include "reosmaptool.h"
 
 class QActionGroup;
 
 class ReosMapToolEditPolylineStructure_p;
-class ReosMapToolEditPolygonStructure_p;
-class ReosGeometryStructure;
-class ReosPolygonStructure;
+class ReosPolylinesStructure;
 
 
 class ReosMapToolEditPolylineStructure : public ReosMapTool
@@ -40,48 +40,6 @@ class ReosMapToolEditPolylineStructure : public ReosMapTool
     QPointer<ReosMapToolEditPolylineStructure_p> d;
     ReosMapTool_p *tool_p() const;
 };
-
-class ReosMapToolEditPolygonStructure : public ReosMapTool
-{
-  public:
-    ReosMapToolEditPolygonStructure( ReosPolygonStructure *structure, QObject *parent, ReosMap *map );
-    ~ReosMapToolEditPolygonStructure();
-
-    void setCurrentClass( const QString &classId );
-
-    void addHelperStructure( ReosGeometryStructure *structure );
-
-    QActionGroup *mainActions() const;
-
-  private:
-    QPointer<ReosMapToolEditPolygonStructure_p> d;
-    ReosMapTool_p *tool_p() const override;
-};
-
-
-class ReosPolygonStructureClassModelList : public QAbstractListModel
-{
-    Q_OBJECT
-  public:
-    ReosPolygonStructureClassModelList( ReosPolygonStructure *structure, QObject *parent = nullptr );
-
-    QModelIndex index( int row, int column, const QModelIndex &parent ) const;
-    QModelIndex parent( const QModelIndex &child ) const;
-    int rowCount( const QModelIndex &parent ) const;
-    int columnCount( const QModelIndex &parent ) const;
-    QVariant data( const QModelIndex &index, int role ) const;
-
-    QString classId( int index ) const;
-    QModelIndex classToindex( const QString &classId ) const;
-
-  private slots:
-    void onClassesChanged();
-
-  private:
-    QPointer<ReosPolygonStructure> mStructure;
-    QStringList orderedClasses() const;
-};
-
 
 class ReosPolylineStructureClassModelList : public QAbstractListModel
 {
@@ -107,4 +65,4 @@ class ReosPolylineStructureClassModelList : public QAbstractListModel
 };
 
 
-#endif // REOSMAPTOOLEDITGEOMETRYSTRUCTURE_H
+#endif // REOSMAPTOOLEDITPOLYLINESTRUCTURE_H

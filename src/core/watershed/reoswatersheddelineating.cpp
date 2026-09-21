@@ -62,7 +62,7 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
   if ( downstreamLine.count() > 1 )
   {
     bool ok;
-    mDownstreamWatershed = mWatershedTree->downstreamWatershed( downstreamLine, ok );
+    mDownstreamWatershed = mWatershedTree->downstreamWatershed( downstreamLine, lineCrs, ok );
     if ( !ok )
       return false;
 
@@ -152,14 +152,21 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
     if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( mDEMLayerId ) )
-      mCurrentWatershed.reset(
-        new ReosWatershed( mProcess->watershedPolygon(), mProcess->streamLine().last(), ReosWatershed::Automatic, mDownstreamLine, mProcess->streamLine(), mProcess->rasterizedWatershed(), mProcess->outputRasterExtent(), mDEMLayerId )
-      );
+      mCurrentWatershed.reset( new ReosWatershed(
+        mProcess->watershedPolygon(),
+        ReosSpatialPosition( mProcess->streamLine().last(), mGisEngine->crs() ),
+        ReosWatershed::Automatic,
+        mDownstreamLine,
+        mProcess->streamLine(),
+        mProcess->rasterizedWatershed(),
+        mProcess->outputRasterExtent(),
+        mDEMLayerId
+      ) );
     else
     {
       mCurrentWatershed.reset( new ReosWatershed(
         mProcess->watershedPolygon(),
-        mProcess->streamLine().last(),
+        ReosSpatialPosition( mProcess->streamLine().last(), mGisEngine->crs() ),
         ReosWatershed::Automatic,
         mDownstreamLine,
         mProcess->streamLine(),
@@ -675,7 +682,11 @@ void ReosWatershedDelineatingProcess::start()
 
   // Calculate average elevation
   if ( mCalculateAverageElevation && mEntryDem )
+    // here, the CRS of mOutputRasterExtent should the same as the mEntryDem
     mAverageElevation = mEntryDem->averageElevationOnGrid( mRasterizedWatershed, mOutputRasterExtent, this );
+
+  mDistanceClasses.createTiffFile( "/home/cloarec/dist.tiff", GDALDataType::GDT_Byte, mPredefinedRasterExtent );
+  //QList<QList<float>> classifiedElelvation = mEntryDem->classifyElevationOnGrid( mDistanceClasses, mOutputRasterExtent, this );
 
   // calculate distance vs area
   mDistanceToArea = QVector<int>( 256 );
@@ -708,6 +719,7 @@ void ReosWatershedDelineatingProcess::start()
   }
 
   mDistanceClasses.setValues( distAreaRast );
+  mDistanceClasses.createTiffFile( "/home/cloarec/dist_classes.tiff", GDALDataType::GDT_Byte, mPredefinedRasterExtent );
 
   mEntryDem.reset();
 

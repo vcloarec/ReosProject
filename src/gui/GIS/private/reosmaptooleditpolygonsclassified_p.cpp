@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmaptooleditpolygonstructure_p.cpp - ReosMapToolEditPolygonStructure_p
+  reosmaptooleditpolygonsclassified_p.cpp - ReosMapToolEditPolygonsClassified_p
 
  ---------------------
  begin                : 6.2.2022
@@ -13,13 +13,13 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reosmaptooleditpolygonstructure_p.h"
+#include "reosmaptooleditpolygonsclassified_p.h"
 #include "reosstyleregistery.h"
 
 #include <QUuid>
 #include <QMenu>
 
-ReosMapToolEditPolygonStructure_p::ReosMapToolEditPolygonStructure_p( QgsMapCanvas *mapCanvas )
+ReosMapToolEditPolygonsClassified_p::ReosMapToolEditPolygonsClassified_p( QgsMapCanvas *mapCanvas )
   : ReosMapTool_p( mapCanvas )
 {
   enableSnapping( true );
@@ -34,7 +34,7 @@ ReosMapToolEditPolygonStructure_p::ReosMapToolEditPolygonStructure_p( QgsMapCanv
   mMainActionsGroup = new QActionGroup( this );
 }
 
-QgsMapTool::Flags ReosMapToolEditPolygonStructure_p::flags() const
+QgsMapTool::Flags ReosMapToolEditPolygonsClassified_p::flags() const
 {
   switch ( mCurrentState )
   {
@@ -52,7 +52,7 @@ QgsMapTool::Flags ReosMapToolEditPolygonStructure_p::flags() const
   return Flags();
 }
 
-void ReosMapToolEditPolygonStructure_p::setStructure( ReosPolygonStructure *structure )
+void ReosMapToolEditPolygonsClassified_p::setStructure( ReosPolygonsClassified *structure )
 {
   mStructure = structure;
 
@@ -65,12 +65,12 @@ void ReosMapToolEditPolygonStructure_p::setStructure( ReosPolygonStructure *stru
   mMainActionsGroup->addAction( mActionRedo );
 }
 
-QActionGroup *ReosMapToolEditPolygonStructure_p::mainActions() const
+QActionGroup *ReosMapToolEditPolygonsClassified_p::mainActions() const
 {
   return mMainActionsGroup;
 }
 
-void ReosMapToolEditPolygonStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
+void ReosMapToolEditPolygonsClassified_p::canvasMoveEvent( QgsMapMouseEvent *e )
 {
   mCurrentPosition = e->mapPoint().toQPointF();
 
@@ -80,13 +80,13 @@ void ReosMapToolEditPolygonStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
   ReosMapTool_p::canvasMoveEvent( e );
 }
 
-void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
+void ReosMapToolEditPolygonsClassified_p::canvasPressEvent( QgsMapMouseEvent *e )
 {
   const QPointF &snapPoint = e->snapPoint().toQPointF();
 
   switch ( mCurrentState )
   {
-    case ReosMapToolEditPolygonStructure_p::None:
+    case ReosMapToolEditPolygonsClassified_p::None:
       if ( e->button() == Qt::LeftButton )
       {
         mCurrentState = AddingPolygon;
@@ -99,7 +99,7 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
           mStructure->addPolygon( geom.asQPolygonF(), mCurrentClassId, mapCrs() );
       }
       break;
-    case ReosMapToolEditPolygonStructure_p::AddingPolygon:
+    case ReosMapToolEditPolygonsClassified_p::AddingPolygon:
       if ( e->button() == Qt::LeftButton )
         mPolygonRubberBand->addPoint( snapPoint );
       else if ( e->button() == Qt::RightButton )
@@ -115,7 +115,7 @@ void ReosMapToolEditPolygonStructure_p::canvasPressEvent( QgsMapMouseEvent *e )
   }
 }
 
-void ReosMapToolEditPolygonStructure_p::keyPressEvent( QKeyEvent *e )
+void ReosMapToolEditPolygonsClassified_p::keyPressEvent( QKeyEvent *e )
 {
   if ( e->key() == Qt::Key_Escape )
     resetTool();
@@ -123,41 +123,41 @@ void ReosMapToolEditPolygonStructure_p::keyPressEvent( QKeyEvent *e )
     ReosMapTool_p::keyPressEvent( e );
 }
 
-void ReosMapToolEditPolygonStructure_p::setCurrentClassId( const QString &currentClassId )
+void ReosMapToolEditPolygonsClassified_p::setCurrentClassId( const QString &currentClassId )
 {
   mCurrentClassId = currentClassId;
 }
 
-void ReosMapToolEditPolygonStructure_p::addHelperStructure( ReosGeometryStructure *structure )
+void ReosMapToolEditPolygonsClassified_p::addHelperStructure( ReosGeometryComplex *structure )
 {
   mHelperStructure.append( structure );
 }
 
-void ReosMapToolEditPolygonStructure_p::activate()
+void ReosMapToolEditPolygonsClassified_p::activate()
 {
   mMainActionsGroup->setEnabled( true );
   ReosMapTool_p::activate();
 }
 
-void ReosMapToolEditPolygonStructure_p::deactivate()
+void ReosMapToolEditPolygonsClassified_p::deactivate()
 {
   mMainActionsGroup->setEnabled( false );
   ReosMapTool_p::deactivate();
 }
 
-void ReosMapToolEditPolygonStructure_p::resetTool()
+void ReosMapToolEditPolygonsClassified_p::resetTool()
 {
   mCurrentState = None;
   mPolygonRubberBand->reset( Qgis::GeometryType::Polygon );
 }
 
-void ReosMapToolEditPolygonStructure_p::addPolygon( const QPolygonF &polygon )
+void ReosMapToolEditPolygonsClassified_p::addPolygon( const QPolygonF &polygon )
 {}
 
-bool ReosMapToolEditPolygonStructure_p::hasHelperPolygon() const
+bool ReosMapToolEditPolygonsClassified_p::hasHelperPolygon() const
 {
   ReosSpatialPosition position( mCurrentPosition, mapCrs() );
-  for ( const QPointer<ReosGeometryStructure> &str : std::as_const( mHelperStructure ) )
+  for ( const QPointer<ReosGeometryComplex> &str : std::as_const( mHelperStructure ) )
   {
     if ( str.isNull() )
       continue;
@@ -167,7 +167,7 @@ bool ReosMapToolEditPolygonStructure_p::hasHelperPolygon() const
   return false;
 }
 
-ReosEditPolygonStructureMenuPopulator::ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonStructure_p *toolMap )
+ReosEditPolygonStructureMenuPopulator::ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonsClassified_p *toolMap )
   : mToolMap( toolMap )
 {}
 
@@ -176,7 +176,7 @@ bool ReosEditPolygonStructureMenuPopulator::populate( QMenu *menu, QgsMapMouseEv
 {
   QPolygonF structurePolygon;
   ReosSpatialPosition position( e->mapPoint().toQPointF(), mToolMap->mapCrs() );
-  for ( const QPointer<ReosGeometryStructure> &str : std::as_const( mToolMap->mHelperStructure ) )
+  for ( const QPointer<ReosGeometryComplex> &str : std::as_const( mToolMap->mHelperStructure ) )
   {
     if ( str.isNull() )
       continue;

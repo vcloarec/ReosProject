@@ -52,6 +52,8 @@ Calculates and returns the average elevation
 %End
 
 
+
+
     virtual QString source() const = 0;
 %Docstring
 Returns the source of the DEM, if it is a map layer, returns the layer

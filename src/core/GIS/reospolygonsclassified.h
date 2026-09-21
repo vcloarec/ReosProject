@@ -1,5 +1,5 @@
 /***************************************************************************
-  reospolygonstructure.h - ReosPolygonStructure
+  reospolygonsclassified.h - ReosPolygonsClassified
 
  ---------------------
  begin                : 5.2.2022
@@ -13,39 +13,43 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSPOLYGONSTRUCTURE_H
-#define REOSPOLYGONSTRUCTURE_H
+#ifndef REOSPOLYGONSCLASSIFIED_H
+#define REOSPOLYGONSCLASSIFIED_H
 
 #define SIP_NO_FILE
 
 #include <memory>
 
-#include "reosgeometrystructure.h"
+#include "reosgeometrycomplex.h"
 #include "reosmapextent.h"
 
 
 class QUndoStack;
 
-class ReosPolygonStructureValues
+class ReosPolygonsClassifiedValues
 {
   public:
-    virtual ~ReosPolygonStructureValues() {}
+    virtual ~ReosPolygonsClassifiedValues() {}
 
     virtual double value( double x, double y, bool acceptClose = false ) const = 0;
     virtual void setDefaultValue( double defVal ) = 0;
     virtual double defaultValue() const = 0;
 };
 
-class REOSCORE_EXPORT ReosPolygonStructure : public ReosGeometryStructure
+/**
+ * Class ReosPolygonsClassified
+ * Represents a set of polygons associated with associated classes and values.
+ */
+class REOSCORE_EXPORT ReosPolygonsClassified : public ReosGeometryComplex
 {
     Q_OBJECT
   public:
-    virtual ReosPolygonStructure *clone() const = 0;
+    virtual ReosPolygonsClassified *clone() const = 0;
 
     //! Creates and returns polylines structure with specified \a crs
-    static std::unique_ptr<ReosPolygonStructure> createPolygonStructure( const QString &crs = QString() );
+    static std::unique_ptr<ReosPolygonsClassified> createPolygonStructure( const QString &crs = QString() );
 
-    static std::unique_ptr<ReosPolygonStructure> createPolygonStructure( const ReosEncodedElement &encodedElement );
+    static std::unique_ptr<ReosPolygonsClassified> createPolygonStructure( const ReosEncodedElement &encodedElement );
 
     virtual void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs = QString() ) = 0;
     virtual void addClass( const QString &classId, double value ) = 0;
@@ -61,7 +65,7 @@ class REOSCORE_EXPORT ReosPolygonStructure : public ReosGeometryStructure
 
     virtual ReosEncodedElement encode() const = 0;
 
-    virtual ReosPolygonStructureValues *values( const QString &destinationCrs ) const = 0;
+    virtual ReosPolygonsClassifiedValues *values( const QString &destinationCrs ) const = 0;
 
     QPolygonF searchPolygon( const ReosSpatialPosition &, bool = true ) const override { return QPolygonF(); }
 
@@ -69,4 +73,4 @@ class REOSCORE_EXPORT ReosPolygonStructure : public ReosGeometryStructure
     void classesChanged();
 };
 
-#endif // REOSPOLYGONSTRUCTURE_H
+#endif // REOSPOLYGONSCLASSIFIED_H

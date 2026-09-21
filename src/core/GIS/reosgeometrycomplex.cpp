@@ -1,5 +1,5 @@
 /***************************************************************************
-  reospolygonstructure.cpp - ReosPolygonStructure
+  reosgeometrycomplex.cpp - ReosGeometryStructure
 
  ---------------------
  begin                : 5.2.2022
@@ -13,16 +13,4 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include "reospolygonstructure.h"
-
-#include "reospolygonstructure_p.h"
-
-std::unique_ptr<ReosPolygonStructure> ReosPolygonStructure::createPolygonStructure( const QString &crs )
-{
-  return std::make_unique<ReosPolygonStructure_p>( crs );
-}
-
-std::unique_ptr<ReosPolygonStructure> ReosPolygonStructure::createPolygonStructure( const ReosEncodedElement &encodedElement )
-{
-  return std::make_unique<ReosPolygonStructure_p>( encodedElement );
-}
+#include "reosgeometrycomplex.h"

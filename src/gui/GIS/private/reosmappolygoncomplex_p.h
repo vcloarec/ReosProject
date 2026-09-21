@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmappolygonstructure_p.h - ReosMapPolygonStructure_p
+  reosmappolygoncomplex_p.h - ReosMapPolygonStructure_p
 
  ---------------------
  begin                : 6.2.2022
@@ -19,12 +19,12 @@
 #include <QPointer>
 #include "reosmappolygon_p.h"
 
-class ReosPolygonStructure;
+class ReosGeometryComplex;
 
-class ReosMapPolygonStructure_p : public ReosMapItem_p
+class ReosMapPolygonComplex_p : public ReosMapItem_p
 {
   public:
-    ReosMapPolygonStructure_p( QgsMapCanvas *canvas );
+    ReosMapPolygonComplex_p( QgsMapCanvas *canvas );
 
     ReosMapItem_p *clone() override;
 
@@ -32,12 +32,16 @@ class ReosMapPolygonStructure_p : public ReosMapItem_p
     QPointF mapPos() const override;
     void updatePosition() override;
     QRectF boundingRect() const override;
+    void setStructure( ReosGeometryComplex *structure );
 
-    void setStructure( ReosPolygonStructure *structure );
+    void setHovered( const QgsPointXY &position ) override;
+    void clearHover() override;
+
 
   private:
-    void paint( QPainter *painter );
-    QPointer<ReosPolygonStructure> mStructure;
+    void paint( QPainter *painter ) override;
+    QPointF mHoveredPosition;
+    QPointer<ReosGeometryComplex> mGeometry;
     QRectF mBBox;
 };
 

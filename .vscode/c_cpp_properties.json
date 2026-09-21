@@ -2,18 +2,20 @@
   "configurations": [
     {
       "name": "Linux",
+      "configurationProvider": "ms-vscode.cmake-tools",
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
       "includePath": [
         "${workspaceFolder}/**",
-        "/home/cloarec/dev/building/reos_debug/",
+        "${workspaceFolder}/build/Desktop_Qt_6_10_2_GCC_64bit-Debug",
         "/home/cloarec/dev/built/eccodes/include",
         "/usr/include/gdal",
         "/home/cloarec/dev/built/GMSH_debug/include",
         "/home/cloarec/dev/built/MDAL/include",
         "/usr/include",
-        "/usr/include/Qca-qt5/QtCrypto",
         "/home/cloarec/dev/sources/QGIS/src",
         "/home/cloarec/dev/built/QGIS_debug/include/qgis",
-        "/usr/include/qt5keychain",
+        "/usr/include/Qca-qt6/QtCrypto",
+        "/usr/include/qt6keychain",
         "/usr/include/qwt",
         "/usr/include/python3.14",
         "/usr/include/hdf5/serial"
@@ -21,16 +23,16 @@
       "browse": {
         "path": [
           "${workspaceFolder}",
-          "/home/cloarec/dev/building/reos_debug/",
+          "${workspaceFolder}/build/Desktop_Qt_6_10_2_GCC_64bit-Debug",
           "/home/cloarec/dev/built/eccodes/include",
           "/usr/include/gdal",
           "/home/cloarec/dev/built/GMSH_debug/include",
           "/home/cloarec/dev/built/MDAL/include",
           "/usr/include",
-          "/usr/include/Qca-qt5/QtCrypto",
           "/home/cloarec/dev/sources/QGIS/src",
           "/home/cloarec/dev/built/QGIS_debug/include/qgis",
-          "/usr/include/qt5keychain",
+          "/usr/include/Qca-qt6/QtCrypto",
+          "/usr/include/qt6keychain",
           "/usr/include/qwt",
           "/usr/include/python3.14",
           "/usr/include/hdf5/serial"

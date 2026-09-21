@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosgeometrystructure.h - ReosGeometryStructure
+  reosgeometrycomplex.h - ReosGeometryStructure
 
  ---------------------
  begin                : 5.2.2022
@@ -13,26 +13,23 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSGEOMETRYSTRUCTURE_H
-#define REOSGEOMETRYSTRUCTURE_H
+#ifndef REOSGEOMETRYCOMPLEX_H
+#define REOSGEOMETRYCOMPLEX_H
 
 #define SIP_NO_FILE
 
 #include "reosdataobject.h"
 
+class QPainter;
+
 class ReosMapExtent;
 class ReosSpatialPosition;
 
-class ReosGeometryStructureVertex
+class ReosGeometryComplex : public ReosDataObject
 {
+    Q_OBJECT
   public:
-    virtual ~ReosGeometryStructureVertex() = default;
-};
-
-class ReosGeometryStructure : public ReosDataObject
-{
-  public:
-    virtual ~ReosGeometryStructure() = default;
+    virtual ~ReosGeometryComplex() = default;
     virtual QObject *data() = 0;
 
     //! Returns the extent of the structure in \a crs coordinate system
@@ -45,7 +42,12 @@ class ReosGeometryStructure : public ReosDataObject
     virtual QPolygonF searchPolygon( const ReosSpatialPosition &position, bool allowBoundary = true ) const = 0;
 
     virtual QString crs() const = 0;
+
+    virtual void render( void *mapSettings, QPainter *painter, bool highlight, const QPointF &highlightPosition ) const = 0;
+
+  signals:
+    void geometryChanged();
 };
 
 
-#endif // REOSGEOMETRYSTRUCTURE_H
+#endif // REOSGEOMETRYCOMPLEX_H

@@ -33,7 +33,9 @@ class ReosMapPolyline_p;
 class ReosMapMarkerFilledCircle_p;
 
 class ReosPolylinesStructure;
-class ReosPolygonStructure;
+class ReosPolygonsClassified;
+class ReosPolygonWatershed;
+class ReosGeometryComplex;
 
 class REOSGUI_EXPORT ReosMapItem
 {
@@ -42,7 +44,10 @@ class REOSGUI_EXPORT ReosMapItem
     ReosMapItem();
     ReosMapItem( ReosMap *map );
     ReosMapItem( const ReosMapItem &other ) = delete;
-    virtual ~ReosMapItem() = default;
+    ReosMapItem( const ReosMapItem *other );
+    virtual ~ReosMapItem();
+
+    virtual ReosMapItem *clone() const = 0;
 
     //! Returns whether graphic \a internal item correspond to \a this graphical item
     bool isItem( QGraphicsItem *item ) const;
@@ -65,11 +70,11 @@ class REOSGUI_EXPORT ReosMapItem
 
     void setVisible( bool visible );
 
-    void setHovered( bool b );
-
     QGraphicsItem *graphicItem();
 
     void updatePosition();
+
+    void updateMap();
 
     ReosMapItem &operator=( const ReosMapItem &other ) = delete;
 
@@ -88,18 +93,23 @@ class REOSGUI_EXPORT ReosMapMarker : public ReosMapItem
 {
   public:
     ReosMapMarker() {}
-    ReosMapMarker( ReosMap *map )
-      : ReosMapItem( map )
-    {}
+    ReosMapMarker( ReosMap *map );
+    ReosMapMarker( const ReosMapMarker *other );
 
     //! Resets the marker with \a point
     void resetPoint( const QPointF &point );
 
+    //! Resets the marker with \a position
+    void resetPosition( const ReosSpatialPosition &position );
+
     //! Sets the marker empty
     void resetPoint();
 
-    //! Returns the map position
-    QPointF mapPoint() const;
+    //! Sets the marker empty
+    void resetPosition();
+
+    //! Returns the spatial position
+    ReosSpatialPosition position() const;
 
     //! Moves the marker updates the map
     void move( const QPointF &p );
@@ -113,8 +123,11 @@ class REOSGUI_EXPORT ReosMapMarkerFilledCircle : public ReosMapMarker
     //! Contructor
     ReosMapMarkerFilledCircle();
     ReosMapMarkerFilledCircle( ReosMap *map );
-    ReosMapMarkerFilledCircle( ReosMap *map, const QPointF &point );
+    ReosMapMarkerFilledCircle( ReosMap *map, const ReosSpatialPosition &position );
+    ReosMapMarkerFilledCircle( const ReosMapMarkerFilledCircle *other );
     ~ReosMapMarkerFilledCircle();
+
+    ReosMapMarkerFilledCircle *clone() const;
 };
 
 class REOSGUI_EXPORT ReosMapMarkerEmptyCircle : public ReosMapMarker
@@ -123,9 +136,11 @@ class REOSGUI_EXPORT ReosMapMarkerEmptyCircle : public ReosMapMarker
     //! Contructor
     ReosMapMarkerEmptyCircle();
     ReosMapMarkerEmptyCircle( ReosMap *map );
-    ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point );
     ReosMapMarkerEmptyCircle( ReosMap *map, const ReosSpatialPosition &position );
+    ReosMapMarkerEmptyCircle( const ReosMapMarkerEmptyCircle *other );
     ~ReosMapMarkerEmptyCircle();
+
+    ReosMapMarkerEmptyCircle *clone() const;
 };
 
 class REOSGUI_EXPORT ReosMapMarkerEmptySquare : public ReosMapMarker
@@ -134,8 +149,11 @@ class REOSGUI_EXPORT ReosMapMarkerEmptySquare : public ReosMapMarker
     //! Contructor
     ReosMapMarkerEmptySquare();
     ReosMapMarkerEmptySquare( ReosMap *map );
-    ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point );
+    ReosMapMarkerEmptySquare( ReosMap *map, const ReosSpatialPosition &position );
+    ReosMapMarkerEmptySquare( const ReosMapMarkerEmptySquare *other );
     ~ReosMapMarkerEmptySquare();
+
+    ReosMapMarkerEmptySquare *clone() const;
 };
 
 class REOSGUI_EXPORT ReosMapMarkerSvg : public ReosMapMarker
@@ -145,7 +163,10 @@ class REOSGUI_EXPORT ReosMapMarkerSvg : public ReosMapMarker
     ReosMapMarkerSvg();
     ReosMapMarkerSvg( const QString &filePath, ReosMap *map );
     ReosMapMarkerSvg( const QString &filePath, ReosMap *map, const ReosSpatialPosition &position );
+    ReosMapMarkerSvg( const ReosMapMarkerSvg *other );
     ~ReosMapMarkerSvg();
+
+    ReosMapMarkerSvg *clone() const;
 };
 
 
@@ -157,9 +178,12 @@ class REOSGUI_EXPORT ReosMapPolygon : public ReosMapItem
     ReosMapPolygon( ReosMap *map );
     ReosMapPolygon( ReosMap *map, const QPolygonF &polygon );
     ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure );
+    ReosMapPolygon( const ReosMapPolygon *other );
     ~ReosMapPolygon();
 
     ReosMapPolygon( const ReosMapPolygon &other ) = delete;
+
+    ReosMapPolygon *clone() const;
 
     void setFillStyle( Qt::BrushStyle style );
 
@@ -182,7 +206,10 @@ class REOSGUI_EXPORT ReosMapPolyline : public ReosMapItem
     ReosMapPolyline();
     ReosMapPolyline( ReosMap *map );
     ReosMapPolyline( ReosMap *map, const QPolygonF &polyline );
+    ReosMapPolyline( const ReosMapPolyline *other );
     ~ReosMapPolyline();
+
+    ReosMapPolyline *clone() const;
 
     ReosMapPolyline( const ReosMapPolyline &other ) = delete;
 
@@ -209,11 +236,12 @@ class REOSGUI_EXPORT ReosMapPolyline : public ReosMapItem
 class ReosMapPolylineStructure : public ReosMapItem
 {
   public:
-    ReosMapPolylineStructure()
-      : ReosMapItem()
-    {}
+    ReosMapPolylineStructure();
     ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure );
+    ReosMapPolylineStructure( const ReosMapPolylineStructure *other );
     ~ReosMapPolylineStructure();
+
+    ReosMapPolylineStructure *clone() const;
 
     void setLineWidth( double width );
 };
@@ -221,11 +249,24 @@ class ReosMapPolylineStructure : public ReosMapItem
 class ReosMapPolygonStructure : public ReosMapItem
 {
   public:
-    ReosMapPolygonStructure()
-      : ReosMapItem()
-    {}
-    ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure );
+    ReosMapPolygonStructure();
+    ReosMapPolygonStructure( ReosMap *map, ReosGeometryComplex *structure );
+    ReosMapPolygonStructure( const ReosMapPolygonStructure *other );
+
+    ReosMapPolygonStructure *clone() const;
+
     ~ReosMapPolygonStructure();
+};
+
+class ReosMapPolygonWatershed : public ReosMapItem
+{
+  public:
+    ReosMapPolygonWatershed();
+    ReosMapPolygonWatershed( ReosMap *map, ReosGeometryComplex *pw );
+    ReosMapPolygonWatershed( const ReosMapPolygonWatershed *other );
+    ~ReosMapPolygonWatershed();
+
+    ReosMapPolygonWatershed *clone() const;
 };
 
 class ReosMapPolylineFormater

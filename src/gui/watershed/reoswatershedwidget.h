@@ -30,6 +30,8 @@ class ReosHydraulicNetwork;
 class ReosHydrographNodeWatershed;
 class ReosGuiContext;
 class ReosTimeWindow;
+class ReosMapToolEditPolygonWatershed;
+class ReosMapToolSelectPolygonWatershed;
 
 class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 {
@@ -53,7 +55,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
   private slots:
     void onWatershedAdded( const QModelIndex &index );
-    void onWatershedSelectedOnMap( ReosMapItem *item, const QPointF &pos );
+    void onWatershedSelectedOnMap( const QString &watershedId, const QPointF &position );
     void onRemoveWatershed();
     void onCurrentWatershedChanges( const QItemSelection &selected, const QItemSelection &deselected );
     void onTreeViewContextMenu( const QPoint &pos );
@@ -63,6 +65,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     void onExportCurrentToVectorLayer();
     void onZoomToWatershed();
     void onAddRemoveNetwork();
+    void onMapWatershedChanged();
 
     void onClosed();
     void onOpened();
@@ -70,13 +73,15 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
   private:
     Ui::ReosWatershedWidget *ui;
     ReosWatershedModule *mWatershdModule = nullptr;
+    ReosMapPolygonWatershed *mMapPolygonWatershed = nullptr;
     ReosWatershedItemModel *mModelWatershed = nullptr;
     ReosMap *mMap = nullptr;
+    QString mCurrentMapCrs;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
 
     QAction *mActionSelectWatershed = nullptr;
     QString mDescriptionKeyWatershed;
-    ReosMapToolSelectMapItem *mMapToolSelectWatershed = nullptr;
+    ReosMapToolSelectPolygonWatershed *mMapToolSelectWatershed = nullptr;
     QAction *mActionRemoveWatershed = nullptr;
 
     QAction *mActionDelineateWatershed = nullptr;
@@ -105,11 +110,10 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     struct MapWatershed
     {
         MapWatershed() {}
-        MapWatershed( ReosMap *map, const QPolygonF &delineat, const QPointF &outletPt );
+        MapWatershed( ReosMap *map, const ReosSpatialPosition &outletPt );
 
         void setVisible( bool b );
 
-        std::shared_ptr<ReosMapPolygon> delineating;
         std::shared_ptr<ReosMapMarkerFilledCircle> outletPoint;
     };
 
@@ -120,7 +124,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     ReosMapPolyline mCurrentStreamLine;
 
-    ReosMapToolEditMapPolygon *mMapToolEditDelineating = nullptr;
+    ReosMapToolEditPolygonWatershed *mMapToolEditDelineating = nullptr;
     ReosMapToolMoveMapItem *mMapToolMoveOutletPoint = nullptr;
 
     ReosWatershed *currentWatershed() const;
@@ -131,7 +135,6 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
 
     void setWatershedModel( ReosWatershedItemModel *model );
 
-    ReosMapPolygon *mapDelineating( ReosWatershed *ws );
     void updateNetworkButton();
     ReosHydrographNodeWatershed *currentNetworkNode() const;
     ReosHydrographNodeWatershed *associatedNetworkNode( ReosWatershed *watershed ) const;
@@ -144,7 +147,6 @@ class REOSGUI_EXPORT ReosWatershedDockWidget : public ReosDockWidget
     Q_OBJECT
   public:
     ReosWatershedDockWidget( const ReosGuiContext &context, ReosWatershedModule *module, ReosHydraulicNetwork *hydraulicNetwork = nullptr );
-    ;
 
     ReosWatershedWidget *watershedWidget() const;
     QAction *actionToggle() const;

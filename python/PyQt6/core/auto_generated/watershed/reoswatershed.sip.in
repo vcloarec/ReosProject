@@ -33,7 +33,7 @@ Represents a watershed and its hydrological properties.
 Default constructor
 %End
 
-    ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs = QString() );
+    ReosWatershed( const QPolygonF &delineating, const ReosSpatialPosition &outletPoint, const QString &wktCrs = QString() );
 %Docstring
 Constructor of manual delineating watershed with ``delineating`` polygon
 and the ``outlet`` point.
@@ -45,7 +45,7 @@ and the ``outlet`` point.
 Returns the extent of the watershed
 %End
 
-    QPolygonF delineating() const;
+    QPolygonF delineating( const QString &destinationCrs = QString() ) const;
 %Docstring
 Returns the delineating of the watershed
 %End
@@ -55,12 +55,17 @@ Returns the delineating of the watershed
 Sets the delineating of the watershed
 %End
 
-    QPointF outletPoint() const;
+    ReosSpatialPosition outletPosition() const;
 %Docstring
 Returns the outlet point of the watershed
 %End
 
-    void setOutletPoint( const QPointF &outletPoint );
+    QPointF outletPoint( const QString &crs ) const;
+%Docstring
+Returns the outlet point of the watershed
+%End
+
+    void setOutletPoint( const ReosSpatialPosition &outletPoint );
 %Docstring
 Sets the outlet point of the watershed
 %End

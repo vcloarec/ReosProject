@@ -32,6 +32,9 @@ Stores a spatial position with its coordinate reference system.
     static ReosSpatialPosition decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
 
+    bool operator==( const ReosSpatialPosition &other ) const;
+    bool operator!=( const ReosSpatialPosition &other ) const;
+
 };
 
 
@@ -107,6 +110,11 @@ Returns the y max
     bool contains( const QPointF &point ) const;
 %Docstring
 Returns true if the extent contain the point
+%End
+
+    bool contains( const ReosSpatialPosition &point ) const;
+%Docstring
+Returns true if the extent contain the spatial position ``point``
 %End
 
     bool containsPartialy( const QPolygonF &line ) const;

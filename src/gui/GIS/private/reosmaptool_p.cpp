@@ -127,7 +127,7 @@ void ReosMapTool_p::deactivate()
   QgsMapTool::deactivate();
   if ( mFoundItem )
   {
-    mFoundItem->isHovered = false;
+    mFoundItem->clearHover();
     mFoundItem->update();
     mFoundItem = nullptr;
   }
@@ -519,6 +519,8 @@ ReosMapItem_p *ReosMapTool_p::searchItem( const QPointF &p ) const
   {
     item = listItems.at( i );
     mapItem = dynamic_cast<ReosMapItem_p *>( item );
+    if ( mapItem )
+      qDebug() << "map item:" << mapItem->base->description();
     if ( mapItem && !isRecognized( mapItem->base->description() ) )
       mapItem = nullptr;
     ++i;
@@ -603,21 +605,21 @@ void ReosMapTool_p::canvasMoveEvent( QgsMapMouseEvent *e )
   if ( !mSeachWhenMoving )
     return;
 
-  ReosMapItem_p *foundItem = searchItem( e->localPos() );
+  ReosMapItem_p *foundItem = searchItem( e->position() );
 
   if ( mFoundItem && mFoundItem != foundItem )
   {
-    mFoundItem->isHovered = false;
+    mFoundItem->clearHover();
     mFoundItem->update();
     mFoundItem = nullptr;
   }
 
   if ( foundItem )
   {
+    qDebug() << "found item " << foundItem->base->description();
     mFoundItem = foundItem;
-    mFoundItem->isHovered = true;
+    mFoundItem->setHovered( e->mapPoint() );
     mFoundItem->update();
-    emit foundItemWhenMoving( foundItem );
   }
 }
 
@@ -626,7 +628,7 @@ void ReosMapTool_p::clearHoveredItem()
 {
   if ( mFoundItem )
   {
-    mFoundItem->isHovered = false;
+    mFoundItem->clearHover();
     mFoundItem->update();
     mFoundItem = nullptr;
   }
@@ -676,7 +678,8 @@ void ReosMapToolMoveItem_p::canvasPressEvent( QgsMapMouseEvent *e )
   if ( !mCurrentItem || !isItemUnderPoint( e->pos() ) )
     return;
 
-  mMovingItem.reset( mCurrentItem->clone() );
+  mMovingBaseItem.reset( mCurrentItem->base->clone() );
+  mMovingItem = static_cast<ReosMapItem_p *>( mMovingBaseItem->graphicItem() );
   mMovingItem->color = mMovingColor;
   mMovingItem->externalColor = mMovingColor;
   mStartPoint = e->mapPoint().toQPointF();
@@ -699,7 +702,8 @@ void ReosMapToolMoveItem_p::canvasReleaseEvent( QgsMapMouseEvent *e )
   if ( !mMovingItem )
     return;
 
-  mMovingItem.reset();
+  mMovingBaseItem.reset();
+  mMovingItem = nullptr;
 
   if ( mCurrentItem )
   {

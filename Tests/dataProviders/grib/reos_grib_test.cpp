@@ -139,7 +139,7 @@ void ReosGribTest::griddedRainInFile()
 
 void ReosGribTest::eccodesReader()
 {
-  QString fileName =  QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/ecmwf/000-oper.grib2" );
+  QString fileName = QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/ecmwf/000-oper.grib2" );
 
   const QList<ReosEcCodesReader::Variable> variables = ReosEcCodesReader::variables( fileName );
 
@@ -209,7 +209,7 @@ void ReosGribTest::eccodesReader()
 
   ReosRasterExtent extent = reader.extent( 0 );
 
-  fileName = QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/318-oper.grib2" );
+  fileName = QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/318-oper.grib2" );
 
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -229,7 +229,7 @@ void ReosGribTest::eccodesReader()
   QCOMPARE( expected, range );
   QVERIFY( stepType == ReosEcCodesReader::Accum );
 
-  fileName =  QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/AROME_2025-04-02T12_15_00Z.grib2" );
+  fileName = QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/AROME_2025-04-02T12_15_00Z.grib2" );
   keys.clear();
   keys.insert( "shortName", "tp" );
   reader = ReosEcCodesReader( fileName, keys );
@@ -254,7 +254,8 @@ void ReosGribTest::eccodesReader()
 
 void ReosGribTest::aromeGribFiles()
 {
-  QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/arome" ) );
+  //QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/arome" ) );
+  QString gribFile( "/home/cloarec/AROME" );
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -287,7 +288,7 @@ void ReosGribTest::aromeGribFiles()
 
 void ReosGribTest::aromePiGribFiles()
 {
-  QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/arome-pi" ) );
+  QString gribFile( QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/arome-pi" ) );
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -305,7 +306,7 @@ void ReosGribTest::aromePiGribFiles()
   QPolygonF watershed_poly;
   watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
-  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+  ReosWatershed watershed( watershed_poly, ReosSpatialPosition(), ReosGisEngine::crsFromEPSG( 9794 ) );
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, rainfall.get() ) );
 
@@ -316,7 +317,7 @@ void ReosGribTest::aromePiGribFiles()
 
 void ReosGribTest::ERA5GribFiles()
 {
-  QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/1990-02.grib" ) );
+  QString gribFile( QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/1990-02.grib" ) );
   QVariantMap keys;
   keys.clear();
   keys.insert( "shortName", "tp" );
@@ -341,7 +342,7 @@ void ReosGribTest::ERA5GribFiles()
   QPolygonF watershed_poly;
   watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
-  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+  ReosWatershed watershed( watershed_poly, ReosSpatialPosition(), ReosGisEngine::crsFromEPSG( 9794 ) );
   watershed.calculateArea();
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, dataset.get() ) );
@@ -380,7 +381,7 @@ void ReosGribTest::ERA5GribFiles()
 
 void ReosGribTest::ecmwfGribFiles()
 {
-  QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/ecmwf" ) );
+  QString gribFile( QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/ecmwf" ) );
 
   QString shortName = "tp";
   QVariantMap keys;
@@ -407,7 +408,7 @@ void ReosGribTest::ecmwfGribFiles()
   QPolygonF watershed_poly;
   watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
-  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+  ReosWatershed watershed( watershed_poly, ReosSpatialPosition(), ReosGisEngine::crsFromEPSG( 9794 ) );
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs_1( ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, dataset.get(), ReosDuration( 1.0, ReosDuration::hour ) ) );
 
@@ -456,7 +457,7 @@ void ReosGribTest::uri()
 
 void ReosGribTest::ERA5RecentGribFiles()
 {
-  QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/era-recent/2025-10-04.grib" ) );
+  QString gribFile( QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/era-recent/2025-10-04.grib" ) );
 
   const QList<ReosEcCodesReader::Variable> variables = ReosEcCodesReader::variables( gribFile );
 
@@ -486,7 +487,7 @@ void ReosGribTest::ERA5RecentGribFiles()
   QPolygonF watershed_poly;
   watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
-  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+  ReosWatershed watershed( watershed_poly, ReosSpatialPosition(), ReosGisEngine::crsFromEPSG( 9794 ) );
   watershed.calculateArea();
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, dataset.get() ) );
@@ -521,7 +522,7 @@ void ReosGribTest::ERA5RecentGribFiles()
 
 void ReosGribTest::griddedAromePiaf()
 {
-  QString gribFile( QStringLiteral(GRIB_TEST_FILES_PATH) + QStringLiteral( "/arome-piaf/" ) );
+  QString gribFile( QStringLiteral( GRIB_TEST_FILES_PATH ) + QStringLiteral( "/arome-piaf/" ) );
   QString shortName = "tp";
   QVariantMap keys;
   keys.insert( "shortName", shortName );
@@ -542,7 +543,7 @@ void ReosGribTest::griddedAromePiaf()
   QPolygonF watershed_poly;
   watershed_poly << QPointF( 279856., 6309772. ) << QPointF( 346425., 6320051. ) << QPointF( 348884., 6252486. ) << QPointF( 283670., 6251741. );
 
-  ReosWatershed watershed( watershed_poly, QPointF(), ReosGisEngine::crsFromEPSG( 9794 ) );
+  ReosWatershed watershed( watershed_poly, ReosSpatialPosition(), ReosGisEngine::crsFromEPSG( 9794 ) );
   watershed.calculateArea();
 
   std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs( ReosSeriesFromGriddedDataOnWatershed::create( &watershed, dataset.get() ) );

@@ -1,5 +1,5 @@
 /***************************************************************************
-  reosmaptooleditpolygonstructure_p.h - ReosMapToolEditPolygonStructure_p
+  reosmaptooleditpolygonsclassified_p.h - ReosMapToolEditPolygonsClassified_p
 
  ---------------------
  begin                : 6.2.2022
@@ -13,39 +13,39 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef REOSMAPTOOLEDITPOLYGONSTRUCTURE_P_H
-#define REOSMAPTOOLEDITPOLYGONSTRUCTURE_P_H
+#ifndef REOSMAPTOOLEDITPOLYGONSCLASSIFIED_P_H
+#define REOSMAPTOOLEDITPOLYGONSCLASSIFIED_P_H
 
 #include "reosmaptool_p.h"
 
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 
 class QgsMapCanvas;
-class ReosMapToolEditPolygonStructure_p;
+class ReosMapToolEditPolygonsClassified_p;
 
 class ReosEditPolygonStructureMenuPopulator : public ReosMenuPopulator
 {
   public:
-    ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonStructure_p *toolMap );
+    ReosEditPolygonStructureMenuPopulator( ReosMapToolEditPolygonsClassified_p *toolMap );
 
     bool populate( QMenu *menu, QgsMapMouseEvent *e = nullptr ) override;
 
   private:
-    ReosMapToolEditPolygonStructure_p *mToolMap = nullptr;
+    ReosMapToolEditPolygonsClassified_p *mToolMap = nullptr;
 };
 
-class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
+class ReosMapToolEditPolygonsClassified_p : public ReosMapTool_p
 {
   public:
-    ReosMapToolEditPolygonStructure_p( QgsMapCanvas *map );
+    ReosMapToolEditPolygonsClassified_p( QgsMapCanvas *map );
 
     Flags flags() const override;
 
-    void setStructure( ReosPolygonStructure *structure );
+    void setStructure( ReosPolygonsClassified *structure );
     QActionGroup *mainActions() const;
 
     void setCurrentClassId( const QString &currentClassId );
-    void addHelperStructure( ReosGeometryStructure *structure );
+    void addHelperStructure( ReosGeometryComplex *structure );
 
     void activate() override;
     void deactivate() override;
@@ -65,7 +65,7 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
 
     State mCurrentState = None;
     QPointF mCurrentPosition;
-    QPointer<ReosPolygonStructure> mStructure;
+    QPointer<ReosPolygonsClassified> mStructure;
     QgsRubberBand *mPolygonRubberBand = nullptr;
 
     QActionGroup *mMainActionsGroup = nullptr;
@@ -79,9 +79,9 @@ class ReosMapToolEditPolygonStructure_p : public ReosMapTool_p
 
     bool hasHelperPolygon() const;
 
-    QList<QPointer<ReosGeometryStructure>> mHelperStructure;
+    QList<QPointer<ReosGeometryComplex>> mHelperStructure;
 
     friend class ReosEditPolygonStructureMenuPopulator;
 };
 
-#endif // REOSMAPTOOLEDITPOLYGONSTRUCTURE_P_H
+#endif // REOSMAPTOOLEDITPOLYGONSCLASSIFIED_P_H
