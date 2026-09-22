@@ -396,7 +396,6 @@ ReosMapMarkerFilledCircle_p *ReosMapMarkerFilledCircle_p::clone()
   other->width = width;
   other->externalWidth = externalWidth;
   other->style = style;
-  other->mapPoint = mapPoint;
   other->position = position;
   other->isEmpty = isEmpty;
   return other;
@@ -486,7 +485,7 @@ ReosMapMarkerEmptySquare_p *ReosMapMarkerEmptySquare_p::clone()
   other->width = width;
   other->externalWidth = externalWidth;
   other->style = style;
-  other->mapPoint = mapPoint;
+  other->position = position;
   other->isEmpty = isEmpty;
   return other;
 }
@@ -543,7 +542,7 @@ ReosMapMarkerEmptyCircle_p *ReosMapMarkerEmptyCircle_p::clone()
   other->width = width;
   other->externalWidth = externalWidth;
   other->style = style;
-  other->mapPoint = mapPoint;
+  other->position = position;
   other->isEmpty = isEmpty;
   return other;
 }
@@ -598,7 +597,7 @@ ReosMapMarkerSvg_p::ReosMapMarkerSvg_p( QgsMapCanvas *canvas, const QString &fil
 ReosMapMarkerSvg_p *ReosMapMarkerSvg_p::clone()
 {
   ReosMapMarkerSvg_p *other = new ReosMapMarkerSvg_p( mMapCanvas, mFilePath );
-  other->mapPoint = mapPoint;
+  other->position = position;
   other->isEmpty = isEmpty;
   return other;
 }

@@ -366,7 +366,6 @@ ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map, const ReosSp
   if ( canvas )
   {
     d_ = new ReosMapMarkerFilledCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = position.position();
     static_cast<ReosMapMarker_p *>( d_ )->position = position;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
     d_->base = this;
@@ -395,16 +394,6 @@ ReosMapMarker::ReosMapMarker( ReosMap *map )
 ReosMapMarker::ReosMapMarker( const ReosMapMarker *other )
   : ReosMapItem( other )
 {}
-
-void ReosMapMarker::resetPoint( const QPointF &point )
-{
-  if ( isMapExist() && d_ )
-  {
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
-    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
-    d_->updatePosition();
-  }
-}
 
 void ReosMapMarker::resetPosition( const ReosSpatialPosition &position )
 {
@@ -443,11 +432,6 @@ ReosSpatialPosition ReosMapMarker::position() const
   return ReosSpatialPosition();
 }
 
-
-void ReosMapMarker::move( const QPointF &p )
-{
-  resetPoint( p );
-}
 
 bool ReosMapMarker::isEmpty() const
 {

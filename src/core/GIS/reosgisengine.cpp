@@ -355,10 +355,12 @@ QString ReosGisEngine::crsEsriWkt( const QString &crs )
 
 void ReosGisEngine::setCrs( const QString &crsString )
 {
+  if ( crsString == mCurrentCrs )
+    return;
   QgsCoordinateReferenceSystem crs( crsString );
-  QgsProject::instance()->setCrs( crs );
   mCurrentCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
-  emit crsChanged( crs.toWkt() );
+  QgsProject::instance()->setCrs( crs );
+  emit crsChanged( mCurrentCrs );
 }
 
 bool ReosGisEngine::crsIsValid( const QString &crsString )
@@ -391,12 +393,13 @@ QString ReosGisEngine::projStringToWkt( const QString &projString )
 
 void ReosGisEngine::loadQGISProject( const QString &fileName )
 {
-  QString oldCrs = crs();
+  QString oldCrs = mCurrentCrs;
   QgsProject::instance()->read( fileName );
-  if ( crs() != oldCrs )
+  QString newCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
+  if ( newCrs != oldCrs )
   {
-    mCurrentCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
-    emit crsChanged( crs() );
+    mCurrentCrs = newCrs;
+    emit crsChanged( newCrs );
   }
 }
 

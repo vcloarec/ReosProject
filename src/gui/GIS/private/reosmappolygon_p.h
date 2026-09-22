@@ -68,8 +68,6 @@ class ReosMapMarker_p : public ReosMapItem_p
     void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
     QRectF boundingRect() const override;
-
-    QPointF mapPoint;
     mutable ReosSpatialPosition position;
     bool isEmpty = true;
 

@@ -96,9 +96,6 @@ class REOSGUI_EXPORT ReosMapMarker : public ReosMapItem
     ReosMapMarker( ReosMap *map );
     ReosMapMarker( const ReosMapMarker *other );
 
-    //! Resets the marker with \a point
-    void resetPoint( const QPointF &point );
-
     //! Resets the marker with \a position
     void resetPosition( const ReosSpatialPosition &position );
 
@@ -110,9 +107,6 @@ class REOSGUI_EXPORT ReosMapMarker : public ReosMapItem
 
     //! Returns the spatial position
     ReosSpatialPosition position() const;
-
-    //! Moves the marker updates the map
-    void move( const QPointF &p );
 
     bool isEmpty() const;
 };
