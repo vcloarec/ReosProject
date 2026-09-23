@@ -134,11 +134,13 @@ Clears all the data from the delineating tool
 
     struct DelineateResult
     {
-      ReosRasterExtent outputRasterExtent;
-      QPolygonF delineateWatershed;
-      QPolygonF streamLine;
-      double averageElevation;
-      QVector<int> distanceArea;
+        ReosRasterExtent outputRasterExtent;
+        QPolygonF delineateWatershed;
+        QPolygonF streamLine;
+        double averageElevation;
+        QList<int> areaToElevationCount;
+        QList<float> areaToElevationMean;
+        QList<float> areaToElevationStd;
     };
 
     static DelineateResult delineateWatershed(
