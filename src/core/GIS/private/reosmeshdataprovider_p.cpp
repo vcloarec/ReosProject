@@ -157,7 +157,7 @@ QgsMeshDataBlock ReosMeshDataProvider_p::datasetValues( QgsMeshDatasetIndex inde
   }
   else
   {
-    effectiveCount = std::min( count, values.count() - valueIndex );
+    effectiveCount = std::min( count, static_cast<int>( values.count() - valueIndex ) );
     if ( !isScalar )
       effectiveCount = effectiveCount * 2;
     if ( effectiveCount > 0 )
@@ -200,7 +200,7 @@ QgsMeshDataBlock ReosMeshDataProvider_p::areFacesActive( QgsMeshDatasetIndex ind
   }
   else
   {
-    int effectiveCount = std::min( count, values.count() - valueIndex );
+    int effectiveCount = std::min( count, static_cast<int>( values.count() - valueIndex ) );
     if ( effectiveCount > 0 )
     {
       buffer.resize( effectiveCount );

@@ -33,6 +33,7 @@ class ReosMapToolSelectMapItem;
 class ReosMapToolDrawPoint;
 class ReosMap;
 class ReosGuiContext;
+class ReosMapToolEditPolygonWatershed;
 
 namespace Ui
 {
@@ -48,7 +49,7 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
 
     ~ReosDelineatingWatershedWidget();
 
-    void setEditingDelineatingMapTool( ReosMapToolEditMapPolygon *mapTool );
+    void setEditingDelineatingMapTool( ReosMapToolEditPolygonWatershed *mapTool );
     void setMoveOutletPointMapTool( ReosMapToolMoveMapItem *mapTool );
 
   private slots:

@@ -1,5 +1,5 @@
 /***************************************************************************
-  reospolygonstructure_p.h - ReosPolygonStructure_p
+  reospolygonstructure_p.h - ReosPolygonsClassified_p
 
  ---------------------
  begin                : 5.2.2022
@@ -20,14 +20,14 @@
 
 #include <QVariantMap>
 
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 #include "reospolylinesstructure_p.h"
 
 class QgsVectorLayer;
 class QgsCategorizedSymbolRenderer;
 class QgsSpatialIndex;
 
-class ReosPolygonStructureValues_p : public ReosPolygonStructureValues
+class ReosPolygonsClassifiedValues_p : public ReosPolygonsClassifiedValues
 {
   public:
     double value( double x, double y, bool acceptClose = false ) const override;
@@ -46,19 +46,19 @@ class ReosPolygonStructureValues_p : public ReosPolygonStructureValues
     double mTolerance = 0;
     double mDefaultValue = 0;
 
-    friend class ReosPolygonStructure_p;
+    friend class ReosPolygonsClassified_p;
 };
 
-class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometryStructure_p
+class ReosPolygonsClassified_p : public ReosPolygonsClassified, private ReosGeometryComplex_p
 {
     Q_OBJECT
   public:
-    ReosPolygonStructure_p() = default;
-    ReosPolygonStructure_p( const QString &wktCrs );
-    ReosPolygonStructure_p( const ReosEncodedElement &element );
-    ~ReosPolygonStructure_p();
+    ReosPolygonsClassified_p() = default;
+    ReosPolygonsClassified_p( const QString &wktCrs );
+    ReosPolygonsClassified_p( const ReosEncodedElement &element );
+    ~ReosPolygonsClassified_p();
 
-    ReosPolygonStructure *clone() const override;
+    ReosPolygonsClassified *clone() const override;
     QObject *data() override;
     void addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs ) override;
     QStringList classes() const override;
@@ -70,13 +70,17 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
     double value( const QString &classId ) const override;
     int polygonsCount() const override;
 
-    ReosPolygonStructureValues *values( const QString &destinationCrs ) const override;
+    ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const;
+
+    ReosPolygonsClassifiedValues *values( const QString &destinationCrs ) const override;
 
     QUndoStack *undoStack() const override;
 
     ReosEncodedElement encode() const override;
 
     QString crs() const override;
+
+    void render( void *mapSettings, QPainter *painter, bool highlight, const QPointF &highlightPosition ) const;
 
   private:
     QVariantMap mClasses;
@@ -95,6 +99,8 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
 
     void prepare( const QString &destinationCrs ) const;
 
+    VertexS searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const;
+
     friend class ReosPolygonStructureUndoCommandAddClass;
     friend class ReosPolygonStructureUndoCommandRemoveClass;
 };
@@ -103,13 +109,13 @@ class ReosPolygonStructure_p : public ReosPolygonStructure, private ReosGeometry
 class ReosPolygonStructureUndoCommandAddClass : public QUndoCommand
 {
   public:
-    ReosPolygonStructureUndoCommandAddClass( ReosPolygonStructure_p *structure, const QString &classId, double value, const QColor &color );
+    ReosPolygonStructureUndoCommandAddClass( ReosPolygonsClassified_p *structure, const QString &classId, double value, const QColor &color );
 
     void redo() override;
     void undo() override;
 
   private:
-    ReosPolygonStructure_p *mStructure = nullptr;
+    ReosPolygonsClassified_p *mStructure = nullptr;
     QString mClassId;
     double mValue;
     QColor mColor;
@@ -118,13 +124,13 @@ class ReosPolygonStructureUndoCommandAddClass : public QUndoCommand
 class ReosPolygonStructureUndoCommandRemoveClass : public QUndoCommand
 {
   public:
-    ReosPolygonStructureUndoCommandRemoveClass( ReosPolygonStructure_p *structure, const QString &classId );
+    ReosPolygonStructureUndoCommandRemoveClass( ReosPolygonsClassified_p *structure, const QString &classId );
 
     void redo() override;
     void undo() override;
 
   private:
-    ReosPolygonStructure_p *mStructure = nullptr;
+    ReosPolygonsClassified_p *mStructure = nullptr;
     QString mClassId;
     double mValue;
     QColor mColor;

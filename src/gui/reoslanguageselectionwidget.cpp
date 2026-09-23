@@ -51,7 +51,7 @@ ReosLanguageSelectionWidget::~ReosLanguageSelectionWidget()
 
 QLocale ReosLanguageSelectionWidget::language() const
 {
-  if ( ui->comboBoxLanguage->currentText() < 0 )
+  if ( ui->comboBoxLanguage->currentIndex() < 0 )
     return QLocale::system();
 
   return ui->comboBoxLanguage->currentData().toLocale();
@@ -59,7 +59,7 @@ QLocale ReosLanguageSelectionWidget::language() const
 
 QLocale ReosLanguageSelectionWidget::global() const
 {
-  if ( ui->comboBoxNumberFormat->currentText() < 0 )
+  if ( ui->comboBoxNumberFormat->currentIndex() < 0 )
     return QLocale::system();
 
   return ui->comboBoxNumberFormat->currentData().toLocale();

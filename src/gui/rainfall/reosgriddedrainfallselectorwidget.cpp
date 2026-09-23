@@ -363,7 +363,7 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
         int cp2 = 0;
         QChar c2;
         bool common = false;
-        for ( int cp1 = 0; cp1 < fileName1.count(); cp1++ )
+        for ( int cp1 = 0; cp1 < fileName1.size(); cp1++ )
         {
           const QChar c1 = fileName1.at( cp1 );
           c2 = fileName2.at( cp2 );
@@ -371,7 +371,7 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
           if ( common && c1 != c2 )
             break;
 
-          while ( c1 != c2 && cp2 < fileName2.count() - 1 )
+          while ( c1 != c2 && cp2 < fileName2.size() - 1 )
           {
             cp2++;
             c2 = fileName2.at( cp2 );
@@ -380,9 +380,9 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
           common = c1 == c2;
           if ( !common )
           {
-            if ( c2 == fileName2.count() )
+            if ( cp2 == fileName2.size() - 1 )
             {
-              if ( c1 == fileName1.count() )
+              if ( cp1 == fileName1.size() - 1 )
                 break;
               else
                 cp2 = 0;
@@ -393,7 +393,7 @@ QString ReosGriddedRainfallSelectorWidget::giveName() const
             commonPart.append( c1 );
             cp2++;
           }
-          if ( cp2 == fileName2.count() )
+          if ( cp2 == fileName2.size() )
             break;
         }
         if ( !commonPart.isEmpty() )

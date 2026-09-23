@@ -46,6 +46,8 @@ void ReosTelemacTesting::initTestCase()
   int argc = 0;
   QVERIFY( !ReosApplication::initializationReos( argc, nullptr, "reos_tests" ) );
   coreModule = new ReosCoreModule( this );
+  // To avoid shared library/Qt meta-object duplication issue, we replace the Telemac engine factory loaded from plugin with the build in place one.
+  ReosSimulationEngineRegistery::instance()->registerEngineFactory( new ReosTelemac2DSimulationEngineFactory() );
   coreModule->gisEngine()->setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
   ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
 
@@ -133,6 +135,7 @@ void ReosTelemacTesting::buildStructure()
   // Telemac simulation
   QVERIFY( hydraulicStructure->addSimulation( QStringLiteral( "telemac2D" ) ) );
   ReosTelemac2DSimulation *telemacSim = dynamic_cast<ReosTelemac2DSimulation *>( hydraulicStructure->currentSimulation() );
+
   QVERIFY( telemacSim );
   telemacSim->setEquation( ReosTelemac2DSimulation::Equation::FiniteVolume );
   telemacSim->setVolumeFiniteEquation( ReosTelemac2DSimulation::VolumeFiniteScheme::HLLC );
@@ -141,7 +144,10 @@ void ReosTelemacTesting::buildStructure()
   telemacSim->outputPeriodResultHydrograph()->setValue( 1 );
 
   telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity );
-  qobject_cast<ReosTelemac2DInitialConstantWaterLevel>( telemacSim->initialCondition() ).initialWaterLevel()->setValue( 2.0 );
+
+  ReosTelemac2DInitialConstantWaterLevel *initialConstantWaterLevel = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( telemacSim->initialCondition() );
+  QVERIFY( initialConstantWaterLevel );
+  initialConstantWaterLevel->initialWaterLevel()->setValue( 2.0 );
 
   ReosModule::Message message;
   ReosSimulationData simData = hydraulicStructure->simulationData( scheme->id(), message );

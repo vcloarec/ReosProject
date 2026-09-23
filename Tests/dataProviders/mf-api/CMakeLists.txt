@@ -23,7 +23,7 @@ SET(REOS_MFAPI_HEADERS
 ADD_EXECUTABLE(test_mf_api ${REOS_MFAPI_HEADERS} ${REOS_MFAPI_SOURCES} reos_mfapi_test.cpp)
 TARGET_LINK_LIBRARIES(test_mf_api
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )

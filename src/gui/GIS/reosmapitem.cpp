@@ -18,8 +18,9 @@ email                : vcloarec at gmail dot com
 #include <qgsmapcanvas.h>
 #include "reosmappolygon_p.h"
 #include "reosmappolylinesstructure_p.h"
-#include "reosmappolygonstructure_p.h"
+#include "reosmappolygoncomplex_p.h"
 #include "reosgisengine.h"
+#include "reosgeometrycomplex.h"
 
 ReosMapItem::ReosMapItem()
 {}
@@ -27,6 +28,18 @@ ReosMapItem::ReosMapItem()
 ReosMapItem::ReosMapItem( ReosMap *map )
   : mMap( map )
 {}
+
+ReosMapItem::ReosMapItem( const ReosMapItem *other )
+  : mMap( other->mMap )
+  , mDescription( other->mDescription )
+  , d_( other->d_ ? other->d_->clone() : nullptr )
+{}
+
+ReosMapItem::~ReosMapItem()
+{
+  if ( isMapExist() && d_ )
+    delete d_; //deleting this will remove it from the map
+}
 
 bool ReosMapItem::isItem( QGraphicsItem *item ) const
 {
@@ -64,14 +77,6 @@ void ReosMapItem::setVisible( bool visible )
   }
 }
 
-void ReosMapItem::setHovered( bool b )
-{
-  if ( !isMapExist() || !d_ )
-    return;
-
-  d_->isHovered = b;
-}
-
 QGraphicsItem *ReosMapItem::graphicItem()
 {
   return d_;
@@ -83,6 +88,14 @@ void ReosMapItem::updatePosition()
     return;
 
   d_->updatePosition();
+}
+
+void ReosMapItem::updateMap()
+{
+  if ( !isMapExist() || !d_ )
+    return;
+
+  d_->updateMap();
 }
 
 ReosMapPolygon::ReosMapPolygon()
@@ -118,16 +131,24 @@ ReosMapPolygon::ReosMapPolygon( ReosMap *map, ReosPolylinesStructure *structure 
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapStructureEnvelop_p( canvas ); //the owner ship of d pointer is takeny the scene of the map canvas
+    d_ = new ReosMapStructureEnvelop_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
     static_cast<ReosMapStructureEnvelop_p *>( d_ )->setStructrure( structure );
     d_->base = this;
   }
 }
 
+ReosMapPolygon::ReosMapPolygon( const ReosMapPolygon *other )
+  : ReosMapItem( other )
+{}
+
 ReosMapPolygon::~ReosMapPolygon()
+{}
+
+ReosMapPolygon *ReosMapPolygon::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_; //deleting this will remove it from the map
+  ReosMapPolygon *ret = new ReosMapPolygon( this );
+  ret->d_->base = const_cast<ReosMapPolygon *>( ret );
+  return ret;
 }
 
 void ReosMapPolygon::setFillStyle( Qt::BrushStyle style )
@@ -261,10 +282,18 @@ ReosMapPolyline::ReosMapPolyline( ReosMap *map, const QPolygonF &polyline )
   }
 }
 
+ReosMapPolyline::ReosMapPolyline( const ReosMapPolyline *other )
+  : ReosMapItem( other )
+{}
+
 ReosMapPolyline::~ReosMapPolyline()
+{}
+
+ReosMapPolyline *ReosMapPolyline::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_;
+  ReosMapPolyline *other = new ReosMapPolyline( this );
+  other->d_->base = const_cast<ReosMapPolyline *>( other );
+  return other;
 }
 
 void ReosMapPolyline::resetPolyline( const QPolygonF &polyline )
@@ -330,31 +359,47 @@ ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map )
   }
 }
 
-ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map, const QPointF &point )
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( ReosMap *map, const ReosSpatialPosition &position )
   : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
     d_ = new ReosMapMarkerFilledCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->position = position;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
-    d_->updatePosition();
     d_->base = this;
+    d_->updatePosition();
   }
 }
 
+ReosMapMarkerFilledCircle::ReosMapMarkerFilledCircle( const ReosMapMarkerFilledCircle *other )
+  : ReosMapMarker( other )
+{}
+
 ReosMapMarkerFilledCircle::~ReosMapMarkerFilledCircle()
+{}
+
+ReosMapMarkerFilledCircle *ReosMapMarkerFilledCircle::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_; //deleting this will remove it from the map
+  ReosMapMarkerFilledCircle *other = new ReosMapMarkerFilledCircle( this );
+  other->d_->base = const_cast<ReosMapMarkerFilledCircle *>( other );
+  return other;
 }
 
-void ReosMapMarker::resetPoint( const QPointF &point )
+ReosMapMarker::ReosMapMarker( ReosMap *map )
+  : ReosMapItem( map )
+{}
+
+ReosMapMarker::ReosMapMarker( const ReosMapMarker *other )
+  : ReosMapItem( other )
+{}
+
+void ReosMapMarker::resetPosition( const ReosSpatialPosition &position )
 {
   if ( isMapExist() && d_ )
   {
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->position = position;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
     d_->updatePosition();
   }
@@ -369,19 +414,24 @@ void ReosMapMarker::resetPoint()
   }
 }
 
-QPointF ReosMapMarker::mapPoint() const
+void ReosMapMarker::resetPosition()
+{
+  if ( isMapExist() && d_ )
+  {
+    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = true;
+    d_->updatePosition();
+  }
+}
+
+ReosSpatialPosition ReosMapMarker::position() const
 {
   if ( isMapExist() && d_ )
     if ( !static_cast<ReosMapMarker_p *>( d_ )->isEmpty )
-      return static_cast<ReosMapMarker_p *>( d_ )->mapPoint;
+      return static_cast<ReosMapMarker_p *>( d_ )->position;
 
-  return QPointF();
+  return ReosSpatialPosition();
 }
 
-void ReosMapMarker::move( const QPointF &p )
-{
-  resetPoint( p );
-}
 
 bool ReosMapMarker::isEmpty() const
 {
@@ -502,24 +552,32 @@ ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map )
   }
 }
 
-ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map, const QPointF &point )
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( ReosMap *map, const ReosSpatialPosition &position )
   : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
     d_ = new ReosMapMarkerEmptySquare_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->position = position;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
-    d_->updatePosition();
     d_->base = this;
+    d_->updatePosition();
   }
 }
 
+ReosMapMarkerEmptySquare::ReosMapMarkerEmptySquare( const ReosMapMarkerEmptySquare *other )
+  : ReosMapMarker( other )
+{}
+
 ReosMapMarkerEmptySquare::~ReosMapMarkerEmptySquare()
+{}
+
+ReosMapMarkerEmptySquare *ReosMapMarkerEmptySquare::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_; //deleting this will remove it from the map
+  ReosMapMarkerEmptySquare *other = new ReosMapMarkerEmptySquare( this );
+  other->d_->base = const_cast< ReosMapMarkerEmptySquare *>( this );
+  return other;
 }
 
 ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle()
@@ -537,39 +595,32 @@ ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map )
   }
 }
 
-ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const QPointF &point )
-  : ReosMapMarker( map )
-{
-  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
-  if ( canvas )
-  {
-    d_ = new ReosMapMarkerEmptyCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
-    static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
-    d_->updatePosition();
-    d_->base = this;
-  }
-}
-
 ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( ReosMap *map, const ReosSpatialPosition &position )
   : ReosMapMarker( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    const QPointF point = map->engine()->transformToProjectCoordinates( position );
     d_ = new ReosMapMarkerEmptyCircle_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->position = position;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
-    d_->updatePosition();
     d_->base = this;
+    d_->updatePosition();
   }
 }
 
+ReosMapMarkerEmptyCircle::ReosMapMarkerEmptyCircle( const ReosMapMarkerEmptyCircle *other )
+  : ReosMapMarker( other )
+{}
+
 ReosMapMarkerEmptyCircle::~ReosMapMarkerEmptyCircle()
+{}
+
+ReosMapMarkerEmptyCircle *ReosMapMarkerEmptyCircle::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_; //deleting this will remove it from the map
+  ReosMapMarkerEmptyCircle *other = new ReosMapMarkerEmptyCircle( this );
+  other->d_->base = const_cast< ReosMapMarkerEmptyCircle *>( this );
+  return other;
 }
 
 ReosMapMarkerSvg::ReosMapMarkerSvg()
@@ -593,20 +644,31 @@ ReosMapMarkerSvg::ReosMapMarkerSvg( const QString &filePath, ReosMap *map, const
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    const QPointF point = map->engine()->transformToProjectCoordinates( position );
     d_ = new ReosMapMarkerSvg_p( canvas, filePath ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapMarker_p *>( d_ )->mapPoint = point;
+    static_cast<ReosMapMarker_p *>( d_ )->position = position;
     static_cast<ReosMapMarker_p *>( d_ )->isEmpty = false;
-    d_->updatePosition();
     d_->base = this;
+    d_->updatePosition();
   }
 }
 
+ReosMapMarkerSvg::ReosMapMarkerSvg( const ReosMapMarkerSvg *other )
+  : ReosMapMarker( other )
+{}
+
 ReosMapMarkerSvg::~ReosMapMarkerSvg()
+{}
+
+ReosMapMarkerSvg *ReosMapMarkerSvg::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_; //deleting this will remove it from the map
+  ReosMapMarkerSvg *other = new ReosMapMarkerSvg( this );
+  other->d_->base = const_cast< ReosMapMarkerSvg *>( this );
+  return other;
 }
+
+ReosMapPolylineStructure::ReosMapPolylineStructure()
+  : ReosMapItem()
+{}
 
 ReosMapPolylineStructure::ReosMapPolylineStructure( ReosMap *map, ReosPolylinesStructure *structure )
   : ReosMapItem( map )
@@ -620,10 +682,18 @@ ReosMapPolylineStructure::ReosMapPolylineStructure( ReosMap *map, ReosPolylinesS
   }
 }
 
+ReosMapPolylineStructure::ReosMapPolylineStructure( const ReosMapPolylineStructure *other )
+  : ReosMapItem( other )
+{}
+
 ReosMapPolylineStructure::~ReosMapPolylineStructure()
+{}
+
+ReosMapPolylineStructure *ReosMapPolylineStructure::clone() const
 {
-  if ( isMapExist() && d_ )
-    delete d_;
+  ReosMapPolylineStructure *other = new ReosMapPolylineStructure( this );
+  other->d_->base = const_cast<ReosMapPolylineStructure *>( this );
+  return other;
 }
 
 void ReosMapPolylineStructure::setLineWidth( double width )
@@ -632,20 +702,61 @@ void ReosMapPolylineStructure::setLineWidth( double width )
 }
 
 
-ReosMapPolygonStructure::ReosMapPolygonStructure( ReosMap *map, ReosPolygonStructure *structure )
+ReosMapPolygonStructure::ReosMapPolygonStructure( const ReosMapPolygonStructure *other )
+  : ReosMapItem( other )
+{}
+
+ReosMapPolygonStructure *ReosMapPolygonStructure::clone() const
+{
+  ReosMapPolygonStructure *other = new ReosMapPolygonStructure( this );
+  other->d_->base = const_cast<ReosMapPolygonStructure *>( this );
+  return other;
+}
+
+ReosMapPolygonStructure::ReosMapPolygonStructure( ReosMap *map, ReosGeometryComplex *structure )
   : ReosMapItem( map )
 {
   QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
   if ( canvas )
   {
-    d_ = new ReosMapPolygonStructure_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
-    static_cast<ReosMapPolygonStructure_p *>( d_ )->setStructure( structure );
+    d_ = new ReosMapPolygonComplex_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapPolygonComplex_p *>( d_ )->setStructure( structure );
     d_->base = this;
+    QObject::connect( structure, &ReosGeometryComplex::geometryChanged, [this]() { updateMap(); } );
   }
 }
 
+
 ReosMapPolygonStructure::~ReosMapPolygonStructure()
+{}
+
+ReosMapPolygonWatershed::ReosMapPolygonWatershed()
+  : ReosMapItem()
+{}
+
+ReosMapPolygonWatershed::ReosMapPolygonWatershed( ReosMap *map, ReosGeometryComplex *pw )
+  : ReosMapItem( map )
 {
-  if ( isMapExist() && d_ )
-    delete d_;
+  QgsMapCanvas *canvas = qobject_cast<QgsMapCanvas *>( map->mapCanvas() );
+  if ( canvas )
+  {
+    d_ = new ReosMapPolygonComplex_p( canvas ); //the owner ship of d pointer is taken by the scene of the map canvas
+    static_cast<ReosMapPolygonComplex_p *>( d_ )->setStructure( pw );
+    d_->base = this;
+    QObject::connect( pw, &ReosGeometryComplex::geometryChanged, [this]() { updatePosition(); } );
+  }
+}
+
+ReosMapPolygonWatershed::ReosMapPolygonWatershed( const ReosMapPolygonWatershed *other )
+  : ReosMapItem( other )
+{}
+
+ReosMapPolygonWatershed::~ReosMapPolygonWatershed()
+{}
+
+ReosMapPolygonWatershed *ReosMapPolygonWatershed::clone() const
+{
+  ReosMapPolygonWatershed *other = new ReosMapPolygonWatershed( this );
+  other->d_->base = const_cast<ReosMapPolygonWatershed *>( this );
+  return other;
 }

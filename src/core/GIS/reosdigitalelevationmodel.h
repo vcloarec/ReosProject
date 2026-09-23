@@ -23,7 +23,9 @@ email                : vcloarec at gmail dot com
 #include "reosprocess.h"
 
 /**
- * The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
+ * Interface for digital elevation models.
+ *
+ * Implementations can represent TIN, raster, or other elevation model types.
 */
 class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
 {
@@ -60,6 +62,9 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
      * \return a double value corresponding to the average elevation
      */
     virtual double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
+
+
+    virtual QList<QList<float>> classifyElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
     //! Returns the source of the DEM, if it is a map layer, returns the layer Id
     virtual QString source() const = 0;

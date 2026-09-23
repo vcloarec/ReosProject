@@ -15,7 +15,7 @@
  ***************************************************************************/
 #include "reoshydraulicstructure2d.h"
 #include "reosmeshgenerator.h"
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 #ifdef WITH_GMSH
 #include "gmsh/reosgmshgenerator.h"
 #endif //WITH_GMSH
@@ -34,6 +34,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QEventLoop>
+#include <QElapsedTimer>
 
 ReosHydraulicStructure2D::ReosHydraulicStructure2D( const QPolygonF &domain, const QString &crs, const ReosHydraulicNetworkContext &context )
   : ReosHydraulicNetworkElement( context.network() )
@@ -1569,7 +1570,7 @@ ReosHydraulicNetworkElement *ReosHydraulicStructure2dFactory::decodeElement( con
 }
 
 ReosRoughnessStructure::ReosRoughnessStructure( const QString &mCrs )
-  : mStructure( ReosPolygonStructure::createPolygonStructure( mCrs ) )
+  : mStructure( ReosPolygonsClassified::createPolygonStructure( mCrs ) )
   , mDefaultRoughness( new ReosParameterDouble( tr( "Default roughness" ) ) )
 {
   mDefaultRoughness->setDisplayPrecision( 3 );
@@ -1577,7 +1578,7 @@ ReosRoughnessStructure::ReosRoughnessStructure( const QString &mCrs )
 }
 
 ReosRoughnessStructure::ReosRoughnessStructure( const ReosEncodedElement &encodedElement )
-  : mStructure( ReosPolygonStructure::createPolygonStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
+  : mStructure( ReosPolygonsClassified::createPolygonStructure( encodedElement.getEncodedData( QStringLiteral( "structure" ) ) ) )
   , mDefaultRoughness( ReosParameterDouble::decode( encodedElement.getEncodedData( QStringLiteral( "default-roughness" ) ), false, tr( "Default roughness" ), this ) )
 {}
 
@@ -1596,7 +1597,7 @@ ReosParameterDouble *ReosRoughnessStructure::defaultRoughness() const
   return mDefaultRoughness;
 }
 
-ReosPolygonStructure *ReosRoughnessStructure::structure() const
+ReosPolygonsClassified *ReosRoughnessStructure::structure() const
 {
   return mStructure.get();
 }

@@ -24,25 +24,25 @@ email                : vcloarec@gmail.com
 
 #include "reoscore.h"
 
-//! Class that sore information about the context of encoding
+//! Class that stores information about the context of encoding.
 class REOSCORE_EXPORT ReosEncodeContext
 {
   public:
-    //! Returns the path to encode depending of the context
+    //! Returns the path to encode depending of the context.
     QString pathToEncode( const QString &filePath ) const;
 
-    //! Resolves the path depending of the context
+    //! Resolves the path depending of the context.
     QString resolvePath( const QString &path ) const;
 
     /**
-     * Sets the base direcory used for relative pathes
+     * Sets the base direcory used for relative pathes.
      *
      * \see setEncodeRelativePath()
      */
     void setBaseDir( const QDir &newBaseDir );
 
     /**
-     * Sets whether pathes are relative
+     * Sets whether pathes are relative.
      *
      * \see setBaseDir()
      */
@@ -54,7 +54,7 @@ class REOSCORE_EXPORT ReosEncodeContext
 };
 
 /**
- * Class used to store data under byte array
+ * Stores data in a byte array.
  */
 class REOSCORE_EXPORT ReosEncodedElement
 {

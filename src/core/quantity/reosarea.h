@@ -25,6 +25,7 @@ email                : vcloarec@gmail.com projetreos@gmail.com
 #include "reoscore.h"
 #include "reosencodedelement.h"
 
+//! Represents an area with a display unit.
 class REOSCORE_EXPORT ReosArea
 {
   public:

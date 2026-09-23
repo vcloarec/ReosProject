@@ -62,7 +62,7 @@ bool ReosWatershedDelineating::setDownstreamLine( const QPolygonF &downstreamLin
   if ( downstreamLine.count() > 1 )
   {
     bool ok;
-    mDownstreamWatershed = mWatershedTree->downstreamWatershed( downstreamLine, ok );
+    mDownstreamWatershed = mWatershedTree->downstreamWatershed( downstreamLine, lineCrs, ok );
     if ( !ok )
       return false;
 
@@ -152,14 +152,21 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
   if ( mCurrentState == WaitingForValidate && isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
   {
     if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( mDEMLayerId ) )
-      mCurrentWatershed.reset(
-        new ReosWatershed( mProcess->watershedPolygon(), mProcess->streamLine().last(), ReosWatershed::Automatic, mDownstreamLine, mProcess->streamLine(), mProcess->rasterizedWatershed(), mProcess->outputRasterExtent(), mDEMLayerId )
-      );
+      mCurrentWatershed.reset( new ReosWatershed(
+        mProcess->watershedPolygon(),
+        ReosSpatialPosition( mProcess->streamLine().last(), mGisEngine->crs() ),
+        ReosWatershed::Automatic,
+        mDownstreamLine,
+        mProcess->streamLine(),
+        mProcess->rasterizedWatershed(),
+        mProcess->outputRasterExtent(),
+        mDEMLayerId
+      ) );
     else
     {
       mCurrentWatershed.reset( new ReosWatershed(
         mProcess->watershedPolygon(),
-        mProcess->streamLine().last(),
+        ReosSpatialPosition( mProcess->streamLine().last(), mGisEngine->crs() ),
         ReosWatershed::Automatic,
         mDownstreamLine,
         mProcess->streamLine(),
@@ -348,6 +355,9 @@ ReosWatershedDelineating::DelineateResult ReosWatershedDelineating::delineateWat
   res.streamLine = process->streamLine();
   res.averageElevation = process->averageElevation();
   res.distanceArea = process->distanceArea();
+  res.areaToElevationCount = process->areaToElevationCount();
+  res.areaToElevationMean = process->areaToElevationMean();
+  res.areaToElevationStd = process->areaToElevationStd();
 
   const ReosRasterWatershed::DistanceClasses &distClasses = process->distanceClasses();
 
@@ -544,7 +554,7 @@ void ReosWatershedDelineatingProcess::start()
   }
 
   mRasterizedWatershed = rasterWatershedFromDirection->watershed();
-  mRasterizedWatershed.createTiffFile( "/home/cloarec/raster.tiff", GDALDataType::GDT_Byte, mPredefinedRasterExtent );
+  //mRasterizedWatershed.createTiffFile( "/home/cloarec/raster.tiff", GDALDataType::GDT_Byte, mPredefinedRasterExtent );
   mDistanceClasses = rasterWatershedFromDirection->distanceClasses( 255 );
   ReosRasterCellPos downStreamPoint = rasterWatershedFromDirection->firstCell();
   ReosRasterCellPos endOfLongerPath = rasterWatershedFromDirection->endOfLongerPath();
@@ -673,10 +683,6 @@ void ReosWatershedDelineatingProcess::start()
   mOutputRasterExtent = ReosRasterExtent( newXOrigin, newYOrigin, colMax - colMin + 1, rowMax - rowMin + 1, mPredefinedRasterExtent.xCellSize(), mPredefinedRasterExtent.yCellSize() );
   mOutputRasterExtent.setCrs( mOutputCrs );
 
-  // Calculate average elevation
-  if ( mCalculateAverageElevation && mEntryDem )
-    mAverageElevation = mEntryDem->averageElevationOnGrid( mRasterizedWatershed, mOutputRasterExtent, this );
-
   // calculate distance vs area
   mDistanceToArea = QVector<int>( 256 );
   mDistanceToArea.fill( 0 );
@@ -707,7 +713,45 @@ void ReosWatershedDelineatingProcess::start()
     distAreaRast[i] = mDistanceToArea.at( dist );
   }
 
+  mDistanceToArea.pop_front();
+
+  //mDistanceClasses.createTiffFile( "/home/cloarec/dist_classes.tiff", GDALDataType::GDT_Byte, mPredefinedRasterExtent );
   mDistanceClasses.setValues( distAreaRast );
+  //mDistanceClasses.createTiffFile( "/home/cloarec/area_classes.tiff", GDALDataType::GDT_Byte, mPredefinedRasterExtent );
+
+
+  // Calculate average elevation
+  if ( mCalculateAverageElevation && mEntryDem )
+  {
+    // here, the CRS of mOutputRasterExtent should the same as the mEntryDem
+    mAverageElevation = mEntryDem->averageElevationOnGrid( mRasterizedWatershed, mOutputRasterExtent, this );
+
+    mAreaToElevationCount.clear();
+    mAreaToElevationMean.clear();
+    mAreaToElevationStd.clear();
+    QList<QList<float>> classifiedElevation = mEntryDem->classifyElevationOnGrid( mDistanceClasses, mOutputRasterExtent, this );
+    classifiedElevation.pop_front();
+    for ( const QList<float> &classElev : classifiedElevation )
+    {
+      int count = classElev.count();
+      mAreaToElevationCount.append( count );
+      if ( count > 0 )
+      {
+        float sum = std::accumulate( classElev.begin(), classElev.end(), 0.0f );
+        float mean = sum / count;
+        mAreaToElevationMean.append( mean );
+
+        float sq_sum = std::inner_product( classElev.begin(), classElev.end(), classElev.begin(), 0.0f );
+        float stdev = std::sqrt( sq_sum / count - mean * mean );
+        mAreaToElevationStd.append( stdev );
+      }
+      else
+      {
+        mAreaToElevationMean.append( 0 );
+        mAreaToElevationStd.append( 0 );
+      }
+    }
+  }
 
   mEntryDem.reset();
 
@@ -758,6 +802,21 @@ double ReosWatershedDelineatingProcess::averageElevation() const
 QVector<int> ReosWatershedDelineatingProcess::distanceArea() const
 {
   return mDistanceToArea;
+}
+
+QList<int> ReosWatershedDelineatingProcess::areaToElevationCount() const
+{
+  return mAreaToElevationCount;
+}
+
+QList<float> ReosWatershedDelineatingProcess::areaToElevationMean() const
+{
+  return mAreaToElevationMean;
+}
+
+QList<float> ReosWatershedDelineatingProcess::areaToElevationStd() const
+{
+  return mAreaToElevationStd;
 }
 
 bool ReosWatershedDelineatingProcess::calculateAverageElevation() const

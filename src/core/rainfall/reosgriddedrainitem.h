@@ -30,6 +30,7 @@ class ReosGriddedDataProvider;
 class ReosGriddedRainfallRendererFactory;
 class ReosColorShaderSettings;
 
+//! Represents gridded rainfall data.
 class REOSCORE_EXPORT ReosGriddedRainfall : public ReosGriddedData
 {
     Q_OBJECT

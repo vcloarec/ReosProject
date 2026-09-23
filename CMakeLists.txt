@@ -31,7 +31,7 @@ PROJECT(Reos)
 set (LEKAN_APP_NAME "lekan")
 set (SYSTEM_APP_NAME "reossystem")
 
-SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD 20)
 IF(MSVC)
   SET(CMAKE_GENERATOR_PLATFORM x64)
   add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
@@ -127,32 +127,36 @@ ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 SET(ENABLE_ECCODES_READER TRUE CACHE BOOL "Enable ecCodes reader for grib format")
 
 IF(ENABLE_ECCODES_READER)
+  FIND_PATH(ECCODES_INCLUDE_DIR eccodes.h CACHE PATH "Path to ecCodes headers.")
+  FIND_LIBRARY(ECCODES_LIB eccodes CACHE FILEPATH "Path to ecCodes lib.")
+  IF(ECCODES_INCLUDE_DIR AND ECCODES_LIB)
     SET(HAS_ECCODES TRUE)
-    SET(ECCODES_INCLUDE_DIR CACHE PATH "Path to ecCodes headers.")
-    SET(ECCODES_LIB CACHE FILEPATH "Path to ecCodes lib.")
+  ELSE()
+    SET(HAS_ECCODES FALSE)
+    MESSAGE(WARNING "ecCodes reader requested but ecCodes headers/library were not found; GRIB provider will not be built")
+  ENDIF()
 ENDIF(ENABLE_ECCODES_READER)
 
+################################ QT
 
-set(QT_MIN_VERSION 5.14.0)
-set(QT_VERSION_BASE "Qt5")
-set(QT_VERSION_BASE_LOWER "qt5")
-set(HAS_KDE_QT5_PDF_TRANSFORM_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the PDF brush transform fix")
-set(HAS_KDE_QT5_SMALL_CAPS_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont::SmallCaps fix")
-set(HAS_KDE_QT5_FONT_STRETCH_FIX FALSE CACHE BOOL "Using KDE's Qt 5.15 fork with the QFont stretch fix")
+set(QT_VERSION_MAJOR 6)
+set(QT_MIN_VERSION 6.4.0)
+set(QT_VERSION_BASE "Qt6")
+set(QT_VERSION_BASE_LOWER "qt6")
 
-find_package(NetCDF REQUIRED)
-find_package(GDAL REQUIRED)
-MESSAGE("GDAL_INCLUDE_DIR=${GDAL_INCLUDE_DIR}")
-MESSAGE("GDAL_LIBRARY=${GDAL_LIBRARY}")
-
-FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
+find_package(${QT_VERSION_BASE} ${QT_MIN_VERSION} COMPONENTS Core Gui Widgets Network Xml Svg Concurrent Test UiTools Sql REQUIRED)
 
 get_target_property(QMAKE_EXECUTABLE ${QT_VERSION_BASE}::qmake LOCATION)
 
+execute_process(COMMAND ${QMAKE_EXECUTABLE} -query QT_INSTALL_PLUGINS RESULT_VARIABLE return_code OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE DEFAULT_QT_PLUGINS_DIR )
+set (QT_PLUGINS_DIR ${DEFAULT_QT_PLUGINS_DIR} CACHE STRING "Path to installation directory for Qt Plugins. Defaults to Qt native plugin directory")
+
+message(STATUS "Found Qt version: ${Qt6Core_VERSION}")
 # Password helper
-find_package(QtKeychain REQUIRED)
+find_package(Qt6Keychain CONFIG REQUIRED)
 # Master password hash and authentication encryption
-FIND_PACKAGE(QCA REQUIRED)
+find_package(QCA REQUIRED)
+
 # Check for runtime dependency of qca-ossl plugin
 if(NOT MSVC)
   include(QCAMacros)
@@ -168,6 +172,12 @@ IF(WITH_GUI)
     SET(QWT_INCLUDE CACHE PATH "Path to qwt headers")
 ENDIF(WITH_GUI)
 
+
+######################################################################
+find_package(NetCDF REQUIRED)
+find_package(GDAL REQUIRED)
+MESSAGE("GDAL_INCLUDE_DIR=${GDAL_INCLUDE_DIR}")
+MESSAGE("GDAL_LIBRARY=${GDAL_LIBRARY}")
 
 #############################################################
 # Python
@@ -198,23 +208,14 @@ if (WITH_BINDINGS)
 
   # python support: check for interpreter, sip, pyqt5
   find_package(SIP REQUIRED)
-  if(BUILD_WITH_QT6)
-    find_package(PyQt6 REQUIRED)
-    set(PYQT_FOUND ${PYQT6_FOUND})
-    set(PYQT_SIP_FLAGS ${PYQT6_SIP_FLAGS})
-    set(PYQT_SIP_DIR ${PYQT6_SIP_DIR})
-    set(PYQT_SIP_IMPORT ${PYQT6_SIP_IMPORT})
-    set(PYQT_VERSION_STR ${PYQT6_VERSION_STR})
-    set(PYQT_MOD_DIR ${PYQT6_MOD_DIR})
-  else()
-    find_package(PyQt5 REQUIRED)
-    set(PYQT_FOUND ${PYQT5_FOUND})
-    set(PYQT_SIP_FLAGS ${PYQT5_SIP_FLAGS})
-    set(PYQT_SIP_DIR ${PYQT5_SIP_DIR})
-    set(PYQT_SIP_IMPORT ${PYQT5_SIP_IMPORT})
-    set(PYQT_VERSION_STR ${PYQT5_VERSION_STR})
-    set(PYQT_MOD_DIR ${PYQT5_MOD_DIR})
-  endif()
+  find_package(PyQt6 REQUIRED)
+  set(PYQT_FOUND ${PYQT6_FOUND})
+  set(PYQT_SIP_FLAGS ${PYQT6_SIP_FLAGS})
+  set(PYQT_SIP_DIR ${PYQT6_SIP_DIR})
+  set(PYQT_SIP_IMPORT ${PYQT6_SIP_IMPORT})
+  set(PYQT_VERSION_STR ${PYQT6_VERSION_STR})
+  set(PYQT_MOD_DIR ${PYQT6_MOD_DIR})
+
   separate_arguments(PYQT_SIP_FLAGS) # convert space separated values to a list
   message("-- PyQt dir: ${PYQT_SIP_DIR}")
 

@@ -36,9 +36,9 @@ class REOSCORE_EXPORT ReosVersion
 
     ReosVersion( const QByteArray &bytes, QDataStream::Version v );
 
-    bool operator==( const ReosVersion &other );
-    bool operator>( const ReosVersion &other );
-    bool operator<( const ReosVersion &other );
+    bool operator==( const ReosVersion &other ) const;
+    bool operator>( const ReosVersion &other ) const;
+    bool operator<( const ReosVersion &other ) const;
     QString getSoftName() const;
     void setSoftName( const QString &value );
     QString softwareNameWithVersion() const;

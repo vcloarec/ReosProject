@@ -20,6 +20,8 @@ email                : vcloarec at gmail dot com
 #include "reosdigitalelevationmodel.h"
 #include "reossyntheticrainfall.h"
 #include "reoshydrograph.h"
+#include "reoswatershedtree.h"
+#include "reosmapextent.h"
 
 
 #include <QMessageBox>
@@ -33,13 +35,13 @@ ReosWatershed::ReosWatershed()
   init();
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, const QString &wktCrs )
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const ReosSpatialPosition &outletPoint, const QString &wktCrs )
   : ReosWatershed( delineating, outletPoint, ReosWatershed::Manual )
 {
   mWktCrs = wktCrs;
 }
 
-ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outletPoint, ReosWatershed::Type type )
+ReosWatershed::ReosWatershed( const QPolygonF &delineating, const ReosSpatialPosition &outletPoint, ReosWatershed::Type type )
   : mType( type )
   , mExtent( delineating )
   , mDelineating( delineating )
@@ -50,7 +52,7 @@ ReosWatershed::ReosWatershed( const QPolygonF &delineating, const QPointF &outle
 
 ReosWatershed::ReosWatershed(
   const QPolygonF &delineating,
-  const QPointF &outletPoint,
+  const ReosSpatialPosition &outletPoint,
   ReosWatershed::Type type,
   const QPolygonF &downstreamLine,
   const QPolygonF &streamPath,
@@ -75,7 +77,7 @@ ReosWatershed::ReosWatershed(
 
 ReosWatershed::ReosWatershed(
   const QPolygonF &delineating,
-  const QPointF &outletPoint,
+  const ReosSpatialPosition &outletPoint,
   ReosWatershed::Type type,
   const QPolygonF &downstreamLine,
   const QPolygonF &streamPath,
@@ -102,6 +104,12 @@ ReosWatershed::ReosWatershed(
   mRasterizedWatershedData.insert( { refLayerId, rw } );
 }
 
+void ReosWatershed::attachToTree( ReosWatershedTree *tree )
+{
+  mTree = tree;
+  mDelineating = QPolygonF();
+}
+
 ReosParameterString *ReosWatershed::watershedName() const
 {
   return mName;
@@ -115,20 +123,23 @@ void ReosWatershed::setWatershedName( const QString &name )
 
 ReosMapExtent ReosWatershed::extent() const
 {
+  if ( mTree )
+    return mTree->polygonWatershed()->watershedExtent( id(), mTree->crs() );
+
   return mExtent;
 }
 
-bool ReosWatershed::contain( const QPointF &point ) const
+bool ReosWatershed::contain( const ReosSpatialPosition &point ) const
 {
-  if ( !mExtent.contains( point ) )
+  if ( !extent().contains( point ) )
     return false;
 
-  return ReosGeometryUtils::pointIsInsidePolygon( point, delineating() );
+  return ReosGeometryUtils::pointIsInsidePolygon( point.position(), delineating( point.crs() ) );
 }
 
-ReosInclusionType ReosWatershed::contain( const QPolygonF &line ) const
+ReosInclusionType ReosWatershed::contain( const QPolygonF &line, const QString &lineCrs ) const
 {
-  return ReosGeometryUtils::polylineIsInsidePolygon( line, mDelineating );
+  return ReosGeometryUtils::polylineIsInsidePolygon( line, delineating( lineCrs ) );
 }
 
 bool ReosWatershed::hasDirectiondata( const QString &layerId ) const
@@ -163,15 +174,19 @@ ReosRasterExtent ReosWatershed::directionExtent( const QString &layerId ) const
   return ReosRasterExtent();
 }
 
-QPolygonF ReosWatershed::delineating() const
+QPolygonF ReosWatershed::delineating( const QString &destinationCrs ) const
 {
+  if ( mTree )
+    return mTree->polygonWatershed()->watershedDelineating( id(), destinationCrs.isEmpty() ? mTree->crs() : destinationCrs );
+
   return mDelineating;
 }
 
 void ReosWatershed::setDelineating( const QPolygonF &del )
 {
   blockSignals( true );
-  mDelineating = del;
+  forceDelineating( del );
+
   if ( mArea->isDerived() )
     calculateArea();
 
@@ -186,15 +201,20 @@ void ReosWatershed::setDelineating( const QPolygonF &del )
   emit geometryChanged();
 }
 
-QPointF ReosWatershed::outletPoint() const
+ReosSpatialPosition ReosWatershed::outletPosition() const
 {
   if ( mType == Residual && mDownstreamWatershed )
-    return mDownstreamWatershed->outletPoint();
+    return mDownstreamWatershed->outletPosition();
 
   return mOutletPoint;
 }
 
-void ReosWatershed::setOutletPoint( const QPointF &outletPoint )
+QPointF ReosWatershed::outletPoint( const QString &crs ) const
+{
+  return geographicalContext()->transformToCoordinates( outletPosition(), crs );
+}
+
+void ReosWatershed::setOutletPoint( const ReosSpatialPosition &outletPoint )
 {
   if ( mType == Residual && mDownstreamWatershed )
     mDownstreamWatershed->setOutletPoint( outletPoint );
@@ -238,7 +258,7 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
       ws->mDirectionData.erase( upIt );
   }
 
-  const QPointF &op = ws->outletPoint();
+  const ReosSpatialPosition &op = ws->outletPosition();
   // Look if the added watershed is in a sub watershed
   for ( std::unique_ptr<ReosWatershed> &existingUpstream : mUpstreamWatersheds )
   {
@@ -257,7 +277,7 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
   while ( i < mUpstreamWatersheds.size() )
   {
     std::unique_ptr<ReosWatershed> &sibling = mUpstreamWatersheds.at( i );
-    if ( ws->contain( sibling->outletPoint() ) ) // the sibling is in the new watershed -> move it in the new watershed
+    if ( ws->contain( sibling->outletPosition() ) ) // the sibling is in the new watershed -> move it in the new watershed
     {
       if ( adjustIfNeeded )
         ws->extentTo( *sibling.get() );
@@ -311,14 +331,14 @@ ReosWatershed *ReosWatershed::extractCompleteDirectUpstreamWatershed( int i )
   return ret.release();
 }
 
-ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok ) const
+ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, const QString &lineCrs, bool &ok ) const
 {
   for ( const std::unique_ptr<ReosWatershed> &watershed : mUpstreamWatersheds )
   {
     assert( watershed );
     if ( watershed->watershedType() == Residual )
       continue;
-    switch ( watershed->contain( line ) )
+    switch ( watershed->contain( line, lineCrs ) )
     {
       case ReosInclusionType::None:
         continue;
@@ -329,7 +349,7 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok
         break;
       case ReosInclusionType::Total:
       {
-        ReosWatershed *upstream = watershed->upstreamWatershed( line, ok );
+        ReosWatershed *upstream = watershed->upstreamWatershed( line, lineCrs, ok );
         if ( upstream && ok )
           return upstream;
         else if ( !ok )
@@ -346,7 +366,7 @@ ReosWatershed *ReosWatershed::upstreamWatershed( const QPolygonF &line, bool &ok
   return nullptr;
 }
 
-ReosWatershed *ReosWatershed::upstreamWatershed( const QPointF &point, bool excludeResidual )
+ReosWatershed *ReosWatershed::upstreamWatershed( const ReosSpatialPosition &point, bool excludeResidual )
 {
   if ( !contain( point ) )
     return nullptr;
@@ -421,10 +441,12 @@ void ReosWatershed::removeDirectionData()
 
 void ReosWatershed::fitIn( const ReosWatershed &other )
 {
-  if ( ReosGeometryUtils::polygonIsInsidePolygon( mDelineating, other.mDelineating ) == ReosInclusionType::Partial )
+  const QPolygonF &deli = delineating();
+  const QPolygonF &otherDeli = other.delineating();
+  if ( ReosGeometryUtils::polygonIsInsidePolygon( deli, otherDeli ) == ReosInclusionType::Partial )
   {
-    QPolygonF newDelinetating = ReosGeometryUtils::polygonFitInPolygon( mDelineating, other.mDelineating );
-    mDelineating = newDelinetating;
+    const QPolygonF newDelinetating = ReosGeometryUtils::polygonFitInPolygon( deli, otherDeli );
+    forceDelineating( newDelinetating );
   }
 
   //remove intersection with other sub watershed
@@ -437,19 +459,23 @@ void ReosWatershed::fitIn( const ReosWatershed &other )
 
 void ReosWatershed::adjust( const ReosWatershed &other )
 {
+  const QPolygonF &deli = delineating();
+  const QPolygonF &otherDeli = other.delineating();
   if ( ReosInclusionType::Partial == isContainedBy( other ) )
   {
-    QPolygonF newDelinetating = ReosGeometryUtils::polygonCutByPolygon( mDelineating, other.mDelineating );
-    mDelineating = newDelinetating;
+    const QPolygonF newDelinetating = ReosGeometryUtils::polygonCutByPolygon( deli, otherDeli );
+    forceDelineating( newDelinetating );
   }
 }
 
 void ReosWatershed::extentTo( const ReosWatershed &other )
 {
+  const QPolygonF &deli = delineating();
+  const QPolygonF &otherDeli = other.delineating();
   if ( ReosInclusionType::Partial == other.isContainedBy( *this ) )
   {
-    QPolygonF newDelinetating = ReosGeometryUtils::polygonUnion( mDelineating, other.mDelineating );
-    mDelineating = newDelinetating;
+    QPolygonF newDelinetating = ReosGeometryUtils::polygonUnion( deli, otherDeli );
+    forceDelineating( newDelinetating );
   }
 }
 
@@ -523,11 +549,13 @@ ReosEncodedElement ReosWatershed::encode( const ReosEncodeContext &context ) con
 
   ret.addData( QStringLiteral( "type" ), mType );
   ret.addEncodedData( QStringLiteral( "extent" ), mExtent.encode() );
-  ret.addData( QStringLiteral( "delineating" ), mDelineating );
-  ret.addData( QStringLiteral( "outlet-point" ), mOutletPoint );
+  ret.addData( QStringLiteral( "delineating" ), delineating() );
+  ret.addEncodedData( QStringLiteral( "outlet-position" ), mOutletPoint.encode() );
   ret.addData( QStringLiteral( "downstream-line" ), mDownstreamLine );
   ret.addData( QStringLiteral( "stream-path" ), mStreamPath );
   ret.addData( QStringLiteral( "profile" ), mProfile );
+  QString effectiveCrs = crs();
+  ret.addData( QStringLiteral( "wkt-crs" ), effectiveCrs );
 
   QList<QString> directionKeys;
   QList<QByteArray> directionExtents;
@@ -611,14 +639,21 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element, const R
 
   if ( !element.getData( QStringLiteral( "delineating" ), ws->mDelineating ) )
     return nullptr;
-  if ( !element.getData( QStringLiteral( "outlet-point" ), ws->mOutletPoint ) )
-    return nullptr;
   if ( !element.getData( QStringLiteral( "downstream-line" ), ws->mDownstreamLine ) )
     return nullptr;
   if ( !element.getData( QStringLiteral( "stream-path" ), ws->mStreamPath ) )
     return nullptr;
   if ( !element.getData( QStringLiteral( "profile" ), ws->mProfile ) )
     return nullptr;
+
+  if ( !element.getData( QStringLiteral( "wkt-crs" ), ws->mWktCrs ) )
+    ws->mWktCrs = QString();
+
+  QPointF outletPoint;
+  if ( element.getData( QStringLiteral( "outlet-point" ), outletPoint ) )
+    ws->mOutletPoint = ReosSpatialPosition( outletPoint, ws->mWktCrs );
+  else
+    ws->mOutletPoint = ReosSpatialPosition::decode( element.getEncodedData( QStringLiteral( "outlet-position" ) ) );
 
   QList<QString> directionKeys;
   QList<QByteArray> directionExtents;
@@ -768,7 +803,7 @@ bool ReosWatershed::operator==( const ReosWatershed &other ) const
 
   if ( mExtent != other.mExtent )
     return false;
-  if ( mDelineating != other.mDelineating )
+  if ( delineating() != other.delineating() )
     return false;
   if ( mOutletPoint != other.mOutletPoint )
     return false;
@@ -821,6 +856,14 @@ void ReosWatershed::init()
   connectParameters();
 }
 
+void ReosWatershed::forceDelineating( const QPolygonF &deli )
+{
+  if ( mTree )
+    mTree->polygonWatershed()->addWatershed( deli, mTree->crs(), id(), watershedType() );
+  else
+    mDelineating = deli;
+}
+
 void ReosWatershed::connectParameters()
 {
   // calculation of parameters
@@ -866,7 +909,7 @@ void ReosWatershed::updateResidual()
 
   if ( mUpstreamWatersheds.at( 0 )->watershedType() != ReosWatershed::Residual )
   {
-    mUpstreamWatersheds.emplace( mUpstreamWatersheds.begin(), new ReosWatershed( QPolygonF(), QPointF(), Residual ) );
+    mUpstreamWatersheds.emplace( mUpstreamWatersheds.begin(), new ReosWatershed( QPolygonF(), ReosSpatialPosition(), Residual ) );
     mUpstreamWatersheds[0]->mDownstreamWatershed = this;
   }
 
@@ -875,7 +918,7 @@ void ReosWatershed::updateResidual()
   for ( size_t i = 1; i < mUpstreamWatersheds.size(); ++i )
     upstreamDelineatings.append( mUpstreamWatersheds[i]->delineating() );
 
-  QPolygonF residualDelineating = ReosGeometryUtils::polygonCutByPolygons( mDelineating, upstreamDelineatings );
+  QPolygonF residualDelineating = ReosGeometryUtils::polygonCutByPolygons( delineating(), upstreamDelineatings );
 
 
   mUpstreamWatersheds[0]->setDelineating( residualDelineating );
@@ -892,13 +935,13 @@ void ReosWatershed::calculateArea()
 {
   ReosGisEngine *engine = geographicalContext();
   if ( engine )
-    mArea->setDerivedValue( engine->polygonArea( mDelineating, mWktCrs ) );
+    mArea->setDerivedValue( engine->polygonArea( delineating(), crs() ) );
   else
   {
-    if ( mWktCrs.isEmpty() )
-      mArea->setDerivedValue( ReosGeometryUtils::area( mDelineating ) );
+    if ( crs().isEmpty() )
+      mArea->setDerivedValue( ReosGeometryUtils::area( delineating() ) );
     else
-      mArea->setDerivedValue( ReosGisEngine::polygonAreaWithCrs( mDelineating, mWktCrs ) );
+      mArea->setDerivedValue( ReosGisEngine::polygonAreaWithCrs( delineating(), crs() ) );
   }
 }
 
@@ -1032,7 +1075,7 @@ void ReosWatershed::calculateAverageElevation()
   }
   else if ( dem )
   {
-    mAverageElevation->setDerivedValue( dem->averageElevationInPolygon( mDelineating, QString() ) );
+    mAverageElevation->setDerivedValue( dem->averageElevationInPolygon( delineating(), crs() ) );
   }
   else
   {

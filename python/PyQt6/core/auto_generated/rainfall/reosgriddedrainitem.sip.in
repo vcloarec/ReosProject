@@ -1,0 +1,81 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/rainfall/reosgriddedrainitem.h                              *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+class ReosGriddedRainfall : ReosGriddedData
+{
+%Docstring(signature="appended")
+Represents gridded rainfall data.
+%End
+
+%TypeHeaderCode
+#include "reosgriddedrainitem.h"
+%End
+  public:
+    ReosGriddedRainfall( QObject *parent = 0 );
+    ReosGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
+    ~ReosGriddedRainfall();
+
+
+    static ReosGriddedRainfall *loadGriddedRainfall( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
+
+
+    static QString staticType();
+
+
+
+
+
+    double nullCoverage( int index ) const;
+%Docstring
+Returns the part of values that are not null for the ``index``. Returns
+value are between 0.0 and 1.0.
+%End
+
+    double qualifCoverage( int index, double qualif ) const;
+%Docstring
+Returns the part of qualification values that are not null for the
+``index``. Returns value are between 0.0 and 1.0.
+%End
+
+
+    ReosFloat64GridBlock intensityGridBlock( int index ) const;
+%Docstring
+Returns a grid block containing all the data for the ``index``
+%End
+
+    ReosFloat64GridBlock qualificationGridBloc( int index ) const;
+%Docstring
+Returns a grid block containing all the qualification data for the
+``index``
+%End
+
+
+    ReosGriddedRainfall *transform( const ReosMapExtent &destination, double resolX, double resolY, const ReosTimeWindow &timeWindow = ReosTimeWindow(), QObject *parent = 0 ) const /Factory/;
+%Docstring
+Transform the gridded rain to fit with extent ``destination`` with
+resolution ``resolX`` and ``resolY``, for each time steps intersecting
+``timeWindow`` (all time step if timeWindow is invalid).
+%End
+
+
+
+
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/rainfall/reosgriddedrainitem.h                              *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

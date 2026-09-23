@@ -1,0 +1,41 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershedmodule.h                             *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+class ReosWatershedModule : ReosModule
+{
+%TypeHeaderCode
+#include "reoswatershedmodule.h"
+%End
+  public:
+    ReosWatershedModule( ReosModule *parent, ReosGisEngine *gisEngine );
+    ~ReosWatershedModule();
+
+    void removeWaterhsed( ReosWatershed *watershed );
+%Docstring
+Removes the ``watershed``
+%End
+
+    ReosWatershedDelineating *delineatingModule() const;
+
+
+
+
+  signals:
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/watershed/reoswatershedmodule.h                             *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

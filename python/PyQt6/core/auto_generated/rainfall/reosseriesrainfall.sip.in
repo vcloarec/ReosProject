@@ -1,0 +1,62 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/rainfall/reosseriesrainfall.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+class ReosSeriesRainfall : ReosTimeSeriesConstantInterval
+{
+%Docstring(signature="appended")
+Represents rainfall as a time series.
+%End
+
+%TypeHeaderCode
+#include "reosseriesrainfall.h"
+%End
+  public:
+    ReosSeriesRainfall( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual QString type() const;
+
+};
+
+class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall, ReosDataGriddedOnWatershed
+{
+%TypeHeaderCode
+#include "reosseriesrainfall.h"
+%End
+  public:
+    ReosSeriesRainfallFromGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall, QObject *parent = 0 );
+    ~ReosSeriesRainfallFromGriddedOnWatershed();
+
+    static ReosSeriesRainfallFromGriddedOnWatershed *create( ReosWatershed *watershed, ReosGriddedRainfall *griddedRainfall ) /Factory/;
+%Docstring
+Returns a new created instance from ``watershed`` and ``gridded``
+rainfall. Caller takes ownership.
+%End
+
+    virtual double valueAt( int i ) const;
+
+
+    virtual void preCalculate() const;
+
+
+  signals:
+    void calculationFinished();
+
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/rainfall/reosseriesrainfall.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

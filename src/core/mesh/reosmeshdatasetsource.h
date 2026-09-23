@@ -23,6 +23,7 @@
 
 class ReosDuration;
 
+//! Interface for mesh dataset sources.
 class REOSCORE_EXPORT ReosMeshDatasetSource : public QObject SIP_ABSTRACT
 {
     Q_OBJECT

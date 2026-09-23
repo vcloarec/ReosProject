@@ -1,0 +1,46 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosrenderedobject.h                                    *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+
+
+class ReosRenderedObject : ReosDataObject /Abstract/
+{
+%Docstring(signature="appended")
+Base class for data objects rendered on the map.
+
+Meshes are an example of rendered data objects.
+%End
+
+%TypeHeaderCode
+#include "reosrenderedobject.h"
+%End
+  public:
+    ReosRenderedObject( QObject *parent = 0 );
+%Docstring
+Constructor
+%End
+
+
+
+
+
+
+
+  signals:
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/GIS/reosrenderedobject.h                                    *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

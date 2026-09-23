@@ -32,7 +32,9 @@ email                : vcloarec@gmail.com
 class ReosRasterCellPos;
 
 /**
- * Class that represent the extent of a raster in a map, handle also pixel map position
+ * Represents the extent of a raster on a map.
+ *
+ * This class also handles pixel map positions.
  */
 class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
 {
@@ -91,21 +93,23 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     //! Returns the y coordinate after the row i
     double cellYAfterToMap( int i ) const;
     //! Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
-    QPointF cellMinMinCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMinMinCornerToMap( const QPointF &cellPos ) const;
     //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
-    QPointF cellMaxMaxCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMaxMaxCornerToMap( const QPointF &cellPos ) const;
     //! Returns the position in real world coordinate of the corner of cell (min x and min y if cell size >0)
-    QPointF cellMinMaxCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMinMaxCornerToMap( const QPointF &cellPos ) const;
     //! Returns the position in real world coordinate of the corner of cell (max x and max y if cell size >0)
-    QPointF cellMaxMinCornerToMap( const QPoint &cellPos ) const;
+    QPointF cellMaxMinCornerToMap( const QPointF &cellPos ) const;
     //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
     QPointF cellCenterToMap( const QPoint &cellPos ) const SIP_SKIP;
     //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
+    QPointF cellCenterToMap( const QPointF &cellPos ) const SIP_SKIP;
+    //! Returns the position in real world coordinate of the center of the cell at position \a cellPos
     QPointF cellCenterToMap( const ReosRasterCellPos &cellPos ) const SIP_SKIP;
     //! Returns a rectangle from real world cordintates to raster cell postions
-    QRect mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
+    QRectF mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
     //! Returns a rectangle from raster cell position to real world coordinates
-    ReosMapExtent cellRectToMapExtent( const QRect &cellRect, const Position &position = Center ) const;
+    ReosMapExtent cellRectToMapExtent( const QRectF &cellRect, const Position &position = Center ) const;
     //! Returns the surface of a cell
     double cellSurface() const;
     //! Returns position of the cell from a \a point in real world coordinates

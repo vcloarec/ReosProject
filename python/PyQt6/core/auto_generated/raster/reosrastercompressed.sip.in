@@ -1,0 +1,51 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/raster/reosrastercompressed.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+class ReosRasterByteCompressed
+{
+%Docstring(signature="appended")
+Stores compressed unsigned char rasters with values under 128.
+%End
+
+%TypeHeaderCode
+#include "reosrastercompressed.h"
+%End
+  public:
+    ReosRasterByteCompressed();
+
+
+
+    bool hasData() const;
+%Docstring
+Return whether the instance of this object contains data
+%End
+
+    ReosEncodedElement encode() const;
+%Docstring
+Encodes the instance and returns a encodeded element
+%End
+    static ReosRasterByteCompressed decode( const ReosEncodedElement &element );
+%Docstring
+Creates a new instance of this class by decoding the ``element``
+%End
+
+    bool operator==( const ReosRasterByteCompressed &other ) const;
+    bool operator!=( const ReosRasterByteCompressed &other ) const;
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/raster/reosrastercompressed.h                               *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

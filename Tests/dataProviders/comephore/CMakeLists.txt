@@ -22,7 +22,7 @@ SET(REOS_COMEPHORE_HEADERS
 ADD_EXECUTABLE(test_comephore ${REOS_COMEPHORE_HEADERS} ${REOS_COMEPHORE_SOURCES} reos_comephores_test.cpp)
 TARGET_LINK_LIBRARIES(test_comephore
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )

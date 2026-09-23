@@ -63,7 +63,7 @@ class REOSCORE_EXPORT ReosCoordinateSystemTransformer
 #endif // #ifndef SIP_RUN
 
 /**
- * Reos module class that handles GIS layer
+ * Handles GIS layers.
  */
 class REOSCORE_EXPORT ReosGisEngine : public ReosModule
 {
@@ -297,6 +297,7 @@ class REOSCORE_EXPORT ReosGisEngine : public ReosModule
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
     QStringList mAsDEMRegisteredLayer;
+    QString mCurrentCrs;
 
     void defaultstyleRasterLayer( QgsRasterLayer *layer );
 

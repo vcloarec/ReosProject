@@ -68,7 +68,6 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     QString crs() const;
 
   signals:
-    void itemFoundWhenMoving( ReosMapItem *item );
     void move( const QPointF &point );
     void activated();
     void deactivated();

@@ -1,0 +1,398 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reostimeseries.h                                       *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+
+
+class ReosTimeSeries : ReosDataObject /Abstract/
+{
+%Docstring(signature="appended")
+Handles time series data.
+%End
+
+%TypeHeaderCode
+#include "reostimeseries.h"
+%End
+  public:
+    ReosTimeSeries( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual QString type() const;
+
+    void reload();
+%Docstring
+Asks for Reloading data from provider. In case of remote data, data are
+not available just after calling this method but once data aare
+effectivly loading. If caller need data just after calling, see
+:py:func:`~ReosTimeSeries.reloadBlocking`.
+%End
+
+    void reloadBlocking( int timeout = -1, bool repeat = false );
+%Docstring
+Reload data from provider and wait until the data is effectivly
+reloaded.
+%End
+
+    void setReferenceTime( const QDateTime &dateTime );
+%Docstring
+Sets the reference time
+%End
+
+    QDateTime referenceTime() const;
+%Docstring
+Returns the reference time
+%End
+
+    int valueCount() const;
+%Docstring
+Returns the count of value in the time serie
+%End
+
+    virtual ReosDuration relativeTimeAt( int i ) const = 0;
+%Docstring
+Returns the relative time frm the reference time for the value at
+position ``i``
+%End
+
+    virtual QDateTime timeAt( int i ) const;
+%Docstring
+returns the absolute time for the value at position ``i``
+%End
+
+    virtual double valueAt( int i ) const;
+%Docstring
+Returns the value at positon ``i``
+%End
+
+    virtual void setValueAt( int i, double value );
+%Docstring
+Sets the ``value`` at position ``i``
+%End
+
+
+    ReosTimeWindow timeWindow() const;
+%Docstring
+Returns the time window (the time extent) of this time series
+%End
+
+    void removeValues( int fromPos, int count );
+%Docstring
+Removes ``count`` values from position ``fromPos``
+%End
+
+    virtual void clear();
+%Docstring
+Clears all values
+%End
+
+
+    void valuesExtent( double &min /Out/, double &max /Out/, bool withZero ) const;
+%Docstring
+Returns the value extent of the serie, if withZero, zeo will be a extrem
+if all values are positive or negative
+%End
+
+    QString valueUnit() const;
+%Docstring
+Returns the text unit of values
+%End
+
+    void setValueUnit( const QString &valueUnit );
+%Docstring
+Sets the text unit of values
+%End
+
+
+    ReosFloat64GridBlock gridData() const;
+%Docstring
+Returns a grid (1d) block with all the values
+%End
+
+    double maximum() const;
+%Docstring
+Returns the maximum of values of this time serie
+%End
+
+    double minimum() const;
+%Docstring
+Returns the maximum of values of this time serie
+%End
+
+
+    const QVariantMap metadata() const;
+%Docstring
+Returns eventual metadata related to the time series
+%End
+
+
+};
+
+
+class ReosTimeSeriesConstantInterval : ReosTimeSeries
+{
+%Docstring(signature="appended")
+Handles time series data with a constant time interval.
+
+By default, value are considered as incremental value. Different modes
+(see ValueMode) can be used to return intensity value ( incremental
+value divided by the time step) or cumulative value (sum from the
+begining).
+%End
+
+%TypeHeaderCode
+#include "reostimeseries.h"
+%End
+  public:
+    enum ValueMode /BaseType=IntEnum/
+    {
+      Value,
+      Intensity,
+      Cumulative
+    };
+
+    ReosTimeSeriesConstantInterval( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual ReosDuration relativeTimeAt( int i ) const;
+
+    virtual double valueAt( int i ) const;
+
+    virtual void setValueAt( int i, double value );
+
+    virtual QString type() const;
+    static QString staticType();
+
+
+    void appendValue( double value );
+%Docstring
+Appends a value at the end of the series
+%End
+
+    void insertValues( int fromPos, int count, double value );
+%Docstring
+Inserts value ``count`` time from position ``fromPos``
+%End
+
+    ValueMode valueMode() const;
+%Docstring
+Returns the current value mode
+%End
+
+    void setValueMode( const ValueMode &valueMode );
+%Docstring
+Set the value mode to ``valueMode``
+%End
+
+
+    void setTimeStep( const ReosDuration &timeStep );
+%Docstring
+Sets the constant time step of this time serie
+%End
+
+    ReosDuration timeStep() const;
+%Docstring
+Returns the constant time step of this time serie
+%End
+
+    ReosDuration::Unit intensityTimeUnit() const;
+%Docstring
+Returns the intensity time unit
+%End
+
+    void setIntensityTimeUnit( const ReosDuration::Unit &intensityTimeUnit );
+
+    double valueWithMode( int i, ValueMode mode = Value ) const;
+%Docstring
+Returns value at position ``i`` considering the ``mode``
+%End
+
+
+    QString valueModeName( ValueMode mode ) const;
+%Docstring
+Returns the name of the data considering the ``mode``
+%End
+
+    void setValueModeName( ValueMode mode, const QString &name );
+%Docstring
+Sets the ``name`` of the data considering the ``mode``
+%End
+
+    QColor valueModeColor( ValueMode mode ) const;
+%Docstring
+Returns the color attributed to the data cansidering the ``mode``
+%End
+
+    QString unitStringCurrentMode() const;
+%Docstring
+Return current mode value unit string
+%End
+
+    QColor currentValueModeColor() const;
+%Docstring
+Returns the color attributed to the current mode
+%End
+
+    void setValueModeColor( ValueMode mode, const QColor &color );
+%Docstring
+Set the ``color`` used to display this time series following the
+``ValueMode``
+%End
+
+    bool addCumultive() const;
+%Docstring
+Returns a flag to make this instance using cumulative mode in addition
+to the current mode
+%End
+
+    void setAddCumulative( bool addCumulative );
+%Docstring
+Sets a flag to make this instance using cumulative mode in addition to
+the current mode
+%End
+
+    void syncWith( ReosTimeSeriesConstantInterval *other );
+%Docstring
+Connects attribute with ``other``
+%End
+
+    void copyAttribute( ReosTimeSeriesConstantInterval *other );
+%Docstring
+Copy atributes from ``other`` to ``this``
+%End
+
+    void copyFrom( ReosTimeSeriesConstantInterval *other );
+%Docstring
+Copy the serie ``other`` in ``this``.
+%End
+
+};
+
+
+class ReosTimeSeriesVariableTimeStep : ReosTimeSeries
+{
+%TypeHeaderCode
+#include "reostimeseries.h"
+%End
+  public:
+    ReosTimeSeriesVariableTimeStep( QObject *parent = 0, const QString &providerKey = QString(), const QString &dataSource = QString() );
+
+    virtual QString type() const;
+    static QString staticType();
+
+    virtual ReosDuration relativeTimeAt( int i ) const;
+
+%Docstring
+Returns the relative time at ``i``
+%End
+
+    bool setRelativeTimeAt( int i, const ReosDuration &relativeTime );
+%Docstring
+Sets the relative time ``relativeTime`` at postion ``i``. If the value
+is not compatible with previous or next values, do nothing and return
+false.
+%End
+
+    void setAnyRelativeTimeAt( int i, const ReosDuration &relativeTime );
+%Docstring
+Sets the relative time ``relativeTime`` at postion ``i`` regardless of
+the value of ``relativeTime`` and of other time values
+%End
+
+
+
+
+    ReosDuration totalDuration() const;
+%Docstring
+Returns the total durarion of the serie
+%End
+
+    ReosDuration duration() const;
+%Docstring
+Returns the duration of the serie taking account of hole in the series
+%End
+
+    void setValue( const ReosDuration &relativeTime, double value );
+%Docstring
+Sets the value at ``relative`` time with ``value``, if the ``relative``
+time is not present insert a new couple (time, value)
+%End
+
+    void setValue( const QDateTime &time, double value );
+%Docstring
+Sets the value at ``time`` with ``value``, if the ``time`` is not
+present insert a new couple (time, value)
+%End
+
+
+    double valueAtTime( const ReosDuration &relativeTime, const ReosDuration &maxInterval = ReosDuration() ) const;
+%Docstring
+Returns the value at relative time ``relative`` time, interpolate if
+relative time is between two time values, return 0 if before first one
+or after last one. The argument ``maxInteval`` can be used to avoid
+interpolation between interval of time creater than this value.
+%End
+
+    double valueAtTime( const QDateTime &time ) const;
+%Docstring
+Returns the value at time ``time``, interpolate if time is between two
+time values, return 0 if before first one or after last one
+%End
+
+    void addOther( const ReosTimeSeriesVariableTimeStep *other, double factor = 1, bool allowInterpolation = true );
+%Docstring
+Adds another instance to this the values of this ones, create new time
+steps if needed
+%End
+
+    void completeAfter( const ReosTimeSeriesVariableTimeStep *other );
+%Docstring
+Completes this instance with the other series when time is after the
+last time of this
+%End
+
+    QString unitString() const;
+%Docstring
+Returns the unit of the values as a string
+%End
+
+    void setUnitString( const QString &unitString );
+%Docstring
+Sets the unit of the values as a string
+%End
+
+    QColor color() const;
+%Docstring
+Returns the color used to render the time serie
+%End
+
+    void setColor( const QColor &color );
+%Docstring
+Sets the color used to render the time serie
+%End
+
+    void copyFrom( const ReosTimeSeriesVariableTimeStep *other );
+
+    ReosFloat64GridBlock toConstantTimeStep( const ReosDuration &timeStep, const QDateTime &startTime = QDateTime(), const ReosDuration &maxVoidInter = ReosDuration() ) const;
+%Docstring
+Returns a 1D blocl of discretized hydrograph with a time step
+``timeStep``. If start time is not valid, discretization start and is
+centered at the first value of the hydrograph.
+%End
+
+    bool operator==( const ReosTimeSeriesVariableTimeStep &other ) const;
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reostimeseries.h                                       *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

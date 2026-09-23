@@ -63,24 +63,24 @@ void ReosWatersehdTest::inclusion()
 {
   QPolygonF poly1;
   poly1 << QPointF( 0, 0 ) << QPointF( 0, 5 ) << QPointF( 5, 5 ) << QPointF( 5, 0 );
-  ReosWatershed watershed1( poly1, QPointF( 0, 2.5 ) );
+  ReosWatershed watershed1( poly1, ReosSpatialPosition( QPointF( 0, 2.5 ) ) );
   QCOMPARE( watershed1.area().valueM2(), 25 );
 
   QPolygonF poly2;
   poly2 << QPointF( 1, 0 ) << QPointF( 1, 5 ) << QPointF( 5, 5 ) << QPointF( 5, 0 );
-  ReosWatershed watershed2( poly2, QPointF( 1, 2.5 ) );
+  ReosWatershed watershed2( poly2, ReosSpatialPosition( QPointF( 1, 2.5 ) ) );
 
   QPolygonF poly3;
   poly3 << QPointF( 1, 1 ) << QPointF( 1, 4 ) << QPointF( 4, 4 ) << QPointF( 4, 1 );
-  ReosWatershed watershed3( poly3, QPointF( 1, 2.5 ) );
+  ReosWatershed watershed3( poly3, ReosSpatialPosition( QPointF( 1, 2.5 ) ) );
 
   QPolygonF poly4;
   poly4 << QPointF( 0, 2 ) << QPointF( 0, 3 ) << QPointF( 5, 3 ) << QPointF( 4, 2 );
-  ReosWatershed watershed4( poly4, QPointF( 0, 2.5 ) );
+  ReosWatershed watershed4( poly4, ReosSpatialPosition( QPointF( 0, 2.5 ) ) );
 
   QPolygonF poly5;
   poly5 << QPointF( 5, 2 ) << QPointF( 5, 3 ) << QPointF( 10, 3 ) << QPointF( 10, 2 );
-  ReosWatershed watershed5( poly5, QPointF( 5, 2.5 ) );
+  ReosWatershed watershed5( poly5, ReosSpatialPosition( QPointF( 5, 2.5 ) ) );
 
   ReosInclusionType inclusion = watershed3.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
@@ -115,7 +115,7 @@ void ReosWatersehdTest::watershedInteractions()
   QPolygonF poly1;
   poly1 << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
 
-  ReosWatershed *watershed_1 = watershedTree.addWatershed( new ReosWatershed( poly1, QPointF( 0, 25 ) ) );
+  ReosWatershed *watershed_1 = watershedTree.addWatershed( new ReosWatershed( poly1, ReosSpatialPosition( QPointF( 0, 25 ) ) ) );
 
   QVERIFY( watershed_1 );
   QCOMPARE( watershedTree.watershedCount(), 1 );
@@ -125,7 +125,7 @@ void ReosWatersehdTest::watershedInteractions()
   QPolygonF poly2;
   poly2 << QPointF( 75, -25 ) << QPointF( 75, 75 ) << QPointF( 125, 75 ) << QPointF( 125, -25 );
 
-  ReosWatershed *watershed_2 = watershedTree.addWatershed( new ReosWatershed( poly2, QPointF( 75, 25 ) ), true );
+  ReosWatershed *watershed_2 = watershedTree.addWatershed( new ReosWatershed( poly2, ReosSpatialPosition( QPointF( 75, 25 ) ) ), true );
   QVERIFY( watershed_2 );
   QCOMPARE( watershed_1->downstreamWatershed(), nullptr );
   QCOMPARE( watershed_1->directUpstreamWatershedCount(), 2 ); //new one + residual watershed
@@ -139,12 +139,12 @@ void ReosWatersehdTest::watershedInteractions()
   QPolygonF residualDelineating;
   residualDelineating << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 75, 50 ) << QPointF( 75, 0 );
   QVERIFY( equal( residualDelineating, residual->delineating() ) );
-  QCOMPARE( residual->outletPoint(), watershed_1->outletPoint() );
+  QCOMPARE( residual->outletPosition(), watershed_1->outletPosition() );
 
   QPolygonF poly3;
   poly3 << QPointF( 50, -25 ) << QPointF( 50, 75 ) << QPointF( 125, 75 ) << QPointF( 125, -25 );
 
-  ReosWatershed *watershed_3 = watershedTree.addWatershed( new ReosWatershed( poly3, QPointF( 50, 25 ) ), true );
+  ReosWatershed *watershed_3 = watershedTree.addWatershed( new ReosWatershed( poly3, ReosSpatialPosition( QPointF( 50, 25 ) ) ), true );
   QVERIFY( watershed_3 );
   QVERIFY( poly3 != watershed_3->delineating() );
   poly3.clear();
@@ -663,10 +663,6 @@ void ReosWatersehdTest::delineateFromDirection()
       QPointF( 661678.50, 1792953.50 ), QPointF( 661677.50, 1792953.50 ), QPointF( 661677.50, 1792952.50 ), QPointF( 661676.50, 1792952.50 ), QPointF( 661676.50, 1792951.50 ),
       QPointF( 661675.50, 1792951.50 ), QPointF( 661675.50, 1792950.50 ), QPointF( 661599.50, 1792950.50 ) }
   );
-
-  ReosExportToVectorFile exportPoly( "/home/cloarec/poly.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::GeometryType::Polygon, ReosGisEngine::crsFromEPSG( 32620 ) );
-  exportPoly.addPolygon( polygonWatershed, QVariantMap() );
-
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 

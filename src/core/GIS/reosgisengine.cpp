@@ -177,13 +177,18 @@ void ReosGisEngine::initGisEngine()
   {
     QDir dir( projPath );
     QString projDbPath = dir.filePath( QStringLiteral( "proj.db" ) );
+    qDebug() << "PROJ search path:" << projPath << "proj.db exists:" << QFileInfo::exists( projDbPath ) << "proj.db:" << projDbPath;
     QFileInfo fileInfo( projDbPath );
     projDataPresent |= fileInfo.exists();
   }
+  qDebug() << "EPSG:4326 valid:" << QgsCoordinateReferenceSystem::fromEpsgId( 4326 ).isValid();
+
+  qDebug() << "EPSG:2154 valid:" << QgsCoordinateReferenceSystem::fromEpsgId( 2154 ).isValid();
 
   if ( !projDataPresent )
   {
     QDir projDir( QApplication::applicationDirPath() );
+    qDebug() << "Proj data not found, copying to " << QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
     if ( projDir.cdUp() && projDir.cd( QStringLiteral( "share" ) ) && projDir.cd( QStringLiteral( "proj" ) ) )
     {
       QStringList filesList = projDir.entryList( QDir::NoDotAndDotDot | QDir::Files );
@@ -201,6 +206,11 @@ void ReosGisEngine::initGisEngine()
       }
     }
   }
+  else
+  {
+    qDebug() << "Proj data found";
+  }
+
 
   //! init the QGIS network manager to access remote GIS data
   QgsApplication::authManager()->setup( qgisProviderPath, QgsApplication::qgisAuthDatabaseUri() );
@@ -222,8 +232,6 @@ void ReosGisEngine::initGisEngine()
   //! Add reos data provider to Qgis instances
   QgsProviderRegistry::instance()->registerProvider( new ReosMeshProviderMetaData() );
   QgsProviderRegistry::instance()->registerProvider( new ReosGriddedRainfallProviderMetaData() );
-
-  qRegisterMetaTypeStreamOperators<QgsFeature>( "QgsFeature" ); //necessary to allow the serialisation
 }
 
 QString ReosGisEngine::addVectorLayer( const QString &uri, const QString &name )
@@ -320,7 +328,7 @@ QString ReosGisEngine::meshLayerFilters() const
 
 QString ReosGisEngine::crs() const
 {
-  return QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
+  return mCurrentCrs;
 }
 
 QString ReosGisEngine::crsFromEPSG( int epsgCode )
@@ -347,9 +355,12 @@ QString ReosGisEngine::crsEsriWkt( const QString &crs )
 
 void ReosGisEngine::setCrs( const QString &crsString )
 {
+  if ( crsString == mCurrentCrs )
+    return;
   QgsCoordinateReferenceSystem crs( crsString );
+  mCurrentCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
   QgsProject::instance()->setCrs( crs );
-  emit crsChanged( crs.toWkt() );
+  emit crsChanged( mCurrentCrs );
 }
 
 bool ReosGisEngine::crsIsValid( const QString &crsString )
@@ -382,10 +393,14 @@ QString ReosGisEngine::projStringToWkt( const QString &projString )
 
 void ReosGisEngine::loadQGISProject( const QString &fileName )
 {
-  QString oldCrs = crs();
+  QString oldCrs = mCurrentCrs;
   QgsProject::instance()->read( fileName );
-  if ( crs() != oldCrs )
-    emit crsChanged( crs() );
+  QString newCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
+  if ( newCrs != oldCrs )
+  {
+    mCurrentCrs = newCrs;
+    emit crsChanged( newCrs );
+  }
 }
 
 void ReosGisEngine::saveQGISProject( const QString &fileName ) const
@@ -742,6 +757,9 @@ QPointF ReosGisEngine::transformToProjectCoordinates( const QString &sourceCRS, 
 
 QPointF ReosGisEngine::transformToProjectCoordinates( const ReosSpatialPosition &position ) const
 {
+  if ( position.crs() == crs() )
+    return position.position();
+
   return transformToProjectCoordinates( position.crs(), position.position() );
 }
 

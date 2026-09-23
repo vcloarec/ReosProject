@@ -1,5 +1,5 @@
 # Reos licence GPL version 2
-# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
+set(QT_LRELEASE_EXECUTABLE Qt6::lrelease)
 
 SET(REOS_CORE_SOURCES
   reosapplication.cpp
@@ -20,9 +20,10 @@ SET(REOS_CORE_SOURCES
   GIS/reosgisengine.cpp
   GIS/reosmapextent.cpp
   GIS/reosexporttovectorfile.cpp
-  GIS/reosgeometrystructure.cpp
-  GIS/reospolygonstructure.cpp
+  GIS/reosgeometrycomplex.cpp
+  GIS/reospolygonsclassified.cpp
   GIS/reospolylinesstructure.cpp
+  GIS/reospolygonwatershed.cpp
   GIS/reosmesh.cpp
   GIS/reosnetcdfutils.cpp
   GIS/reostopographycollection.cpp
@@ -32,8 +33,10 @@ SET(REOS_CORE_SOURCES
   GIS/reosrenderersettings.cpp
   GIS/reoshdf5.cpp
   GIS/private/reosdigitalelevationmodel_p.cpp
+  GIS/private/reosgeometrycomplex_p.cpp
   GIS/private/reospolygonstructure_p.cpp
   GIS/private/reospolylinesstructure_p.cpp
+  GIS/private/reospolygonwatershed_p.cpp
   GIS/private/reosmesh_p.cpp
   GIS/private/reosmeshrenderer_p.cpp
   GIS/private/reosmeshdataprovider_p.cpp
@@ -132,9 +135,10 @@ SET(REOS_CORE_HEADERS
     GIS/reosgisengine.h
     GIS/reosmapextent.h
     GIS/reosexporttovectorfile.h
-    GIS/reosgeometrystructure.h
-    GIS/reospolygonstructure.h
+    GIS/reosgeometrycomplex.h
+    GIS/reospolygonsclassified.h
     GIS/reospolylinesstructure.h
+    GIS/reospolygonwatershed.h
     GIS/reosmesh.h
     GIS/reosnetcdfutils.h
     GIS/reostopographycollection.h
@@ -216,6 +220,7 @@ ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 SET(REOS_CORE_HDRS_PRIVATE
     GIS/private/reosdigitalelevationmodel_p.h
+    GIS/private/reosgeometrycomplex_p.h
     GIS/private/reospolylinesstructure_p.h
     GIS/private/reospolygonstructure_p.h
     GIS/private/reosmesh_p.h
@@ -278,15 +283,15 @@ TARGET_INCLUDE_DIRECTORIES(reosCore
   )
 
 TARGET_LINK_LIBRARIES(reosCore PUBLIC
-        ${Qt5Xml_LIBRARIES}
-        ${Qt5Core_LIBRARIES}
-        ${Qt5Gui_LIBRARIES}
-        ${Qt5Widgets_LIBRARIES}
-        ${Qt5Svg_LIBRARIES}
-        ${Qt5PrintSupport_LIBRARIES}
-        ${Qt5Network_LIBRARIES}
-        ${Qt5Sql_LIBRARIES}
-        ${Qt5Concurrent_LIBRARIES}
+        ${Qt6Xml_LIBRARIES}
+        ${Qt6Core_LIBRARIES}
+        ${Qt6Gui_LIBRARIES}
+        ${Qt6Widgets_LIBRARIES}
+        ${Qt6Svg_LIBRARIES}
+        ${Qt6PrintSupport_LIBRARIES}
+        ${Qt6Network_LIBRARIES}
+        ${Qt6Sql_LIBRARIES}
+        ${Qt6Concurrent_LIBRARIES}
         ${QGIS_CORE_LIB}
         ${QGIS_ANALYSIS_LIB}
         ${NETCDF_LIBRARY}
@@ -301,8 +306,7 @@ IF(WITH_HYDRAULIC_MODEL_SUPPORT)
 ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 TARGET_INCLUDE_DIRECTORIES(reosCore SYSTEM PUBLIC
-    ${QCA_INCLUDE_DIR}
-    ${QTKEYCHAIN_INCLUDE_DIR})
+  ${QCA_INCLUDE_DIR})
 
 IF(GDAL_FOUND)
     TARGET_INCLUDE_DIRECTORIES(reosCore PUBLIC ${GDAL_INCLUDE_DIR})

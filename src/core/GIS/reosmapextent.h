@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 
 #include "reosencodedelement.h"
 
+//! Stores a spatial position with its coordinate reference system.
 class REOSCORE_EXPORT ReosSpatialPosition
 {
   public:
@@ -39,6 +40,9 @@ class REOSCORE_EXPORT ReosSpatialPosition
     static ReosSpatialPosition decode( const ReosEncodedElement &element );
     ReosEncodedElement encode() const;
 
+    bool operator==( const ReosSpatialPosition &other ) const;
+    bool operator!=( const ReosSpatialPosition &other ) const;
+
   private:
     QPointF mPosition;
     QString mCrs;
@@ -48,7 +52,7 @@ class REOSCORE_EXPORT ReosSpatialPosition
 Q_DECLARE_METATYPE( ReosSpatialPosition )
 
 /**
- * Class that represent a rectangular extent in a map
+ * Represents a rectangular extent on a map.
  */
 class REOSCORE_EXPORT ReosMapExtent
 {
@@ -91,6 +95,9 @@ class REOSCORE_EXPORT ReosMapExtent
 
     //! Returns true if the extent contain the point
     bool contains( const QPointF &point ) const;
+
+    //! Returns true if the extent contain the spatial position \a point
+    bool contains( const ReosSpatialPosition &point ) const;
 
     //! Return true if the extent cotains, even partially, the \a line
     bool containsPartialy( const QPolygonF &line ) const;

@@ -344,9 +344,7 @@ bool ReosDelftFewsWidget::parseFile( const QString &fileName )
     if ( isSpatial )
     {
       const QPointF geoPt = QPointF( longitude, latitude );
-      const QString crs = ReosGisEngine::wktEPSGCrs( 4326 );
-      const QPointF pt = mMap->engine()->transformToProjectCoordinates( crs, geoPt );
-      mStationsMarker.emplace_back( std::make_unique<ReosDelftFewsStationMarker>( mMap, pt ) );
+      mStationsMarker.emplace_back( std::make_unique<ReosDelftFewsStationMarker>( mMap, ReosSpatialPosition( geoPt, ReosGisEngine::wktEPSGCrs( 4326 ) ) ) );
       mStationsMarker.back()->stationIndex = stations.count();
     }
     else
@@ -496,8 +494,8 @@ ReosDelftFewsStation ReosDelftFewsStationsModel::station( int i ) const
   return mStations.at( i );
 }
 
-ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point )
-  : ReosMapMarkerFilledCircle( map, point )
+ReosDelftFewsStationMarker::ReosDelftFewsStationMarker( ReosMap *map, const ReosSpatialPosition &position )
+  : ReosMapMarkerFilledCircle( map, position )
 {
   setColor( QColor( 92, 142, 177 ) );
   setWidth( 10 );

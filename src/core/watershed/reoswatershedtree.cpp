@@ -17,15 +17,17 @@ email                : vcloarec at gmail dot com
 #include "reoswatershedtree.h"
 #include "reoswatershed.h"
 #include "reoswatershedtree.h"
+#include "reosgisengine.h"
 
 ReosWatershedTree::ReosWatershedTree( ReosGisEngine *gisEngine, QObject *parent )
   : QObject( parent )
   , mGisEngine( gisEngine )
+  , mPolygonWatershed( ReosPolygonWatershed::createPolygonWatershed( mGisEngine->crs() ) )
 {}
 
 bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWatershed )
 {
-  const ReosWatershed *dws = watershed( purposedWatershed->outletPoint() );
+  const ReosWatershed *dws = watershed( purposedWatershed->outletPosition() );
 
   if ( dws )
   {
@@ -44,7 +46,7 @@ bool ReosWatershedTree::isWatershedIntersectExisting( ReosWatershed *purposedWat
     for ( size_t i = 0; i < mWatersheds.size(); ++i )
     {
       ReosWatershed *other = mWatersheds.at( i ).get();
-      if ( purposedWatershed->contain( other->outletPoint() ) )
+      if ( purposedWatershed->contain( other->outletPosition() ) )
       {
         if ( ReosInclusionType::Partial == other->isContainedBy( *purposedWatershed ) )
           return true;
@@ -68,13 +70,14 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
 
   emit watershedWillBeAdded();
 
-  ReosWatershed *includingWatershed = watershed( ws->outletPoint() );
+  ReosWatershed *includingWatershed = watershed( ws->outletPosition() );
   ws->setGeographicalContext( mGisEngine );
   ws->calculateArea();
 
   if ( includingWatershed ) // There is a watershed that contains the new one, deal with it
   {
     ReosWatershed *addedWatersehd = includingWatershed->addUpstreamWatershed( ws.release(), adaptDelineating );
+    mPolygonWatershed->addWatershed( addedWatersehd );
     emit watershedAdded( addedWatersehd );
     return addedWatersehd;
   }
@@ -88,7 +91,7 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
     while ( i < mWatersheds.size() )
     {
       std::unique_ptr<ReosWatershed> &sibling = mWatersheds.at( i );
-      if ( ws->contain( sibling->outletPoint() ) ) // the sibling is in the new watershed -> move it in the new watershed
+      if ( ws->contain( sibling->outletPosition() ) ) // the sibling is in the new watershed -> move it in the new watershed
       {
         if ( adaptDelineating )
           ws->extentTo( *sibling.get() );
@@ -103,18 +106,19 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
       }
     }
 
+    mPolygonWatershed->addWatershed( ws.get() );
     mWatersheds.emplace_back( ws.release() );
     emit watershedAdded( mWatersheds.back().get() );
     return mWatersheds.back().get();
   }
 }
 
-ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, bool &ok ) const
+ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, const QString &lineCrs, bool &ok ) const
 {
   for ( const std::unique_ptr<ReosWatershed> &watershed : mWatersheds )
   {
     assert( watershed );
-    switch ( watershed->contain( line ) )
+    switch ( watershed->contain( line, lineCrs ) )
     {
       case ReosInclusionType::None:
         continue;
@@ -125,7 +129,7 @@ ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, bo
         break;
       case ReosInclusionType::Total:
       {
-        ReosWatershed *upstream = watershed->upstreamWatershed( line, ok );
+        ReosWatershed *upstream = watershed->upstreamWatershed( line, lineCrs, ok );
         if ( upstream && ok )
           return upstream;
         else if ( !ok )
@@ -142,7 +146,7 @@ ReosWatershed *ReosWatershedTree::downstreamWatershed( const QPolygonF &line, bo
   return nullptr;
 }
 
-ReosWatershed *ReosWatershedTree::watershed( const QPointF &point )
+ReosWatershed *ReosWatershedTree::watershed( const ReosSpatialPosition &point )
 {
   for ( std::unique_ptr<ReosWatershed> &watershed : mWatersheds )
   {
@@ -267,6 +271,7 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncode
 {
   emit treeWillBeReset();
   mWatersheds.clear();
+  mPolygonWatershed->setCrs( mGisEngine->crs() );
   if ( elem.description() == QStringLiteral( "watershed-tree" ) )
   {
     QList<QByteArray> watershedsList;
@@ -290,6 +295,7 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncode
   QList<ReosWatershed *> allWs = allWatershedsFromUSToDS();
   for ( ReosWatershed *ws : std::as_const( allWs ) )
   {
+    mPolygonWatershed->addWatershed( ws );
     connect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
     connect( ws, &ReosWatershed::geometryChanged, this, &ReosWatershedTree::watershedChanged );
   }
@@ -519,7 +525,14 @@ void ReosWatershedTree::clearWatersheds()
 {
   emit treeWillBeReset();
   mWatersheds.clear();
+  mPolygonWatershed->clear();
+  mPolygonWatershed->setCrs( mGisEngine->crs() );
   emit treeReset();
+}
+
+QString ReosWatershedTree::crs() const
+{
+  return mGisEngine->crs();
 }
 
 QString ReosWatershedItemModel::watershedUri( ReosWatershed *watershed ) const

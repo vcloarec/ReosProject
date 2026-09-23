@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include "reosparameter.h"
 #include <QLocale>
+#include <QTimeZone>
 
 ReosParameter::ReosParameter( const QString &name, bool derivable, QObject *parent )
   : QObject( parent )
@@ -373,7 +374,7 @@ ReosParameterDuration *ReosParameterDuration::decode( const ReosEncodedElement &
 ReosParameterDateTime::ReosParameterDateTime( const QString &name, QObject *parent )
   : ReosParameter( name, parent )
 {
-  mDateTime = QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC );
+  mDateTime = QDateTime( QDate( QDate::currentDate().year(), 1, 1 ), QTime( 0, 0, 0 ), QTimeZone::UTC );
   mIsValid = true;
 }
 
@@ -503,7 +504,7 @@ bool ReosParameterDouble::setValueWithString( const QString &value )
     digits = value.split( '.' ).last();
 
   if ( digits != value )
-    mDisplayPrecision = digits.count();
+    mDisplayPrecision = digits.size();
 
   mValue = v;
   mIsValid = true;

@@ -66,6 +66,9 @@ class ReosWatershedDelineatingProcess : public ReosProcess
 
     double averageElevation() const;
     QVector<int> distanceArea() const;
+    QList<int> areaToElevationCount() const;
+    QList<float> areaToElevationMean() const;
+    QList<float> areaToElevationStd() const;
 
     bool calculateAverageElevation() const;
 
@@ -80,6 +83,9 @@ class ReosWatershedDelineatingProcess : public ReosProcess
     ReosRasterWatershed::Watershed mRasterizedWatershed;
     ReosRasterWatershed::DistanceClasses mDistanceClasses;
     QVector<int> mDistanceToArea;
+    QList<int> mAreaToElevationCount;
+    QList<float> mAreaToElevationMean;
+    QList<float> mAreaToElevationStd;
     QPolygonF mOutputWatershed;
     QPolygonF mOutputStreamline;
     ReosRasterExtent mPredefinedRasterExtent;
@@ -91,6 +97,7 @@ class ReosWatershedDelineatingProcess : public ReosProcess
 #endif //No SIP_RUN
 
 
+//! Coordinates watershed delineation workflows.
 class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 {
     Q_OBJECT
@@ -187,6 +194,9 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
         QPolygonF streamLine;
         double averageElevation;
         QVector<int> distanceArea;
+        QList<int> areaToElevationCount;
+        QList<float> areaToElevationMean;
+        QList<float> areaToElevationStd;
     };
 
     static DelineateResult delineateWatershed(
