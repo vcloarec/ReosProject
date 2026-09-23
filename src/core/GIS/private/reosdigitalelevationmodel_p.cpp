@@ -376,6 +376,40 @@ double ReosDigitalElevationModelRaster::averageElevationOnGrid( const ReosRaster
     return std::numeric_limits<double>::quiet_NaN();
 }
 
+QVector<QVector<float> > ReosDigitalElevationModelRaster::classifyElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process ) const
+{
+  QgsCoordinateReferenceSystem ptCrs = QgsCoordinateReferenceSystem::fromWkt( gridExtent.crs() );
+  QgsCoordinateTransform transform( ptCrs, mCrs, mTransformContext );
+  bool noDataValueExist = mDataProvider->sourceHasNoDataValue( 1 );
+  double noDataValue = std::numeric_limits<double>::quiet_NaN();
+  if ( noDataValueExist )
+    noDataValue = mDataProvider->sourceNoDataValue( 1 );
+
+  if ( process )
+  {
+    process->setInformation( QObject::tr( "Calculate average elevation from grid" ) );
+    process->setMaxProgression( grid.rowCount() );
+    process->setCurrentProgression( 0 );
+  }
+  ReosRasterMemory<float> demGrid = extractMemoryRasterSimplePrecision( gridExtent );
+  int totalRowsCount = grid.rowCount();
+
+  QVector<QVector<float> > ret( 256 );
+
+
+  QVector<float> demValues = demGrid.values();
+  QVector<unsigned char> gridValues = grid.values();
+
+  Q_ASSERT( demValues.count() == gridValues.count() );
+
+  for ( qsizetype i = 0; i < demValues.count(); ++i )
+  {
+    ret[gridValues[i]].append( demValues[i] );
+  }
+
+  return ret;
+}
+
 ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimplePrecision(
   const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, float &maxValue, const QString &destinationCrs, ReosProcess *process
 ) const

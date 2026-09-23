@@ -722,20 +722,20 @@ void ReosWatershedDelineatingProcess::start()
     mAreaToElevationCount.clear();
     mAreaToElevationMean.clear();
     mAreaToElevationStd.clear();
-    QList<QList<float>> classifiedElevation = mEntryDem->classifyElevationOnGrid( mDistanceClasses, mOutputRasterExtent, this );
+    QVector<QVector<float>> classifiedElevation = mEntryDem->classifyElevationOnGrid( mDistanceClasses, mOutputRasterExtent, this );
     classifiedElevation.pop_front();
-    for ( const QList<float> &classElev : classifiedElevation )
+    for ( const QVector<float> &classElev : classifiedElevation )
     {
       int count = classElev.count();
       mAreaToElevationCount.append( count );
       if ( count > 0 )
       {
-        float sum = std::accumulate( classElev.begin(), classElev.end(), 0.0f );
-        float mean = sum / count;
+        double sum = std::accumulate( classElev.begin(), classElev.end(), 0.0f );
+        double mean = sum / count;
         mAreaToElevationMean.append( mean );
 
-        float sq_sum = std::inner_product( classElev.begin(), classElev.end(), classElev.begin(), 0.0f );
-        float stdev = std::sqrt( sq_sum / count - mean * mean );
+        double sq_sum = std::inner_product( classElev.begin(), classElev.end(), classElev.begin(), 0.0f );
+        double stdev = std::sqrt( sq_sum / count - mean * mean );
         mAreaToElevationStd.append( stdev );
       }
       else
@@ -802,12 +802,12 @@ QList<int> ReosWatershedDelineatingProcess::areaToElevationCount() const
   return mAreaToElevationCount;
 }
 
-QList<float> ReosWatershedDelineatingProcess::areaToElevationMean() const
+QList<double> ReosWatershedDelineatingProcess::areaToElevationMean() const
 {
   return mAreaToElevationMean;
 }
 
-QList<float> ReosWatershedDelineatingProcess::areaToElevationStd() const
+QList<double> ReosWatershedDelineatingProcess::areaToElevationStd() const
 {
   return mAreaToElevationStd;
 }

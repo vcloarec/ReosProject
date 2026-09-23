@@ -61,6 +61,8 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
      */
     virtual double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
 
+    virtual QVector<QVector<float>> classifyElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const = 0 SIP_SKIP;
+
     //! Returns the source of the DEM, if it is a map layer, returns the layer Id
     virtual QString source() const = 0;
 
@@ -74,8 +76,7 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
      */
     virtual ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosMapExtent &extent, ReosRasterExtent &rasterExtent, float &maxValue, const QString &destinationCrs = QString(), ReosProcess *process = nullptr
-    ) const
-      = 0 SIP_SKIP;
+    ) const = 0 SIP_SKIP;
 
     /**
      * Extract a memory raster with simple precision from the DEM in \a a rasterExtent.

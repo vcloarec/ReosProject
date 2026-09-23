@@ -252,7 +252,6 @@ class REOSCORE_EXPORT ReosHydraulicNetwork : public ReosModule
     QList<ReosHydraulicNetworkElement *> hydraulicNetworkElements( const QString &type = QString() ) const;
 
     ReosHydraulicNetworkElement *addElement( ReosHydraulicNetworkElement *elem, bool select = true ) SIP_SKIP;
-    ;
 
     //! Removes the element \a elem. The element is destoyed by calling this method.
     void removeElement( ReosHydraulicNetworkElement *elem );
