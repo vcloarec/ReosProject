@@ -12,6 +12,7 @@
 
 class ReosHydraulicScheme : ReosDataObject
 {
+  public:
 %Docstring(signature="appended")
 ReosHydraulicScheme is a clas that represent a scheme of hydraulic simulation.
 An instance of this class contain:

@@ -12,6 +12,7 @@
 
 class ReosArea
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reosarea.h
@@ -33,7 +34,13 @@ the Free Software Foundation; either version 2 of the License, or     *
 #include "reosarea.h"
 %End
   public:
-    enum Unit {m2, a, ha, km2};
+    enum Unit
+    {
+      m2,
+      a,
+      ha,
+      km2
+    };
     ReosArea( double value = 0 );
     ReosArea( double value, Unit unit );
     ReosArea( const QPolygonF polygon, Unit unit );

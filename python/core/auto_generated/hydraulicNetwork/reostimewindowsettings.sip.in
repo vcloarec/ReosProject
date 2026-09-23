@@ -10,6 +10,7 @@
 
 class ReosTimeWindowSettings : ReosDataObject
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reostimewindowsettings.h - ReosTimeWindowSettings

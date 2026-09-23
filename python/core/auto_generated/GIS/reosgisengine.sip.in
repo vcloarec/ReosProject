@@ -12,8 +12,9 @@
 
 
 
-class ReosGisEngine: ReosModule
+class ReosGisEngine : ReosModule
 {
+  public:
 %Docstring(signature="appended")
 Reos module class that handles GIS layer
 %End
@@ -160,7 +161,7 @@ Unregisters the layer with ``layerId`` unique as a Digital Elevation Model, does
 Returns whether the layrId is registered as a Digigtal Elevation Model
 %End
 
-    static ReosDigitalElevationModel *createRasterDigitalElevationModel( const QString &uri )  /Transfer/;
+    static ReosDigitalElevationModel *createRasterDigitalElevationModel( const QString &uri ) /Transfer/;
 %Docstring
 Returns a pointer to a Digitial Elevation Model from a raster file with  ``uri``
 %End

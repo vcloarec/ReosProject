@@ -12,6 +12,7 @@
 
 class ReosSpatialPosition
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reosmapextent.h
@@ -50,6 +51,7 @@ the Free Software Foundation; either version 2 of the License, or     *
 
 class ReosMapExtent
 {
+  public:
 %Docstring(signature="appended")
 Class that represent a rectangular extent in a map
 %End
@@ -58,7 +60,6 @@ Class that represent a rectangular extent in a map
 #include "reosmapextent.h"
 %End
   public:
-
     ReosMapExtent();
 %Docstring
 Default constrcutor
@@ -90,7 +91,7 @@ has the crs of ``pos1``
 Returns the width of the extent
 %End
 
-    double height()const;
+    double height() const;
 %Docstring
 Returns the height of the extent
 %End
@@ -120,7 +121,7 @@ Returns the y max
 Returns true if the extent contain the point
 %End
 
-    bool containsPartialy( const  QPolygonF &line ) const;
+    bool containsPartialy( const QPolygonF &line ) const;
 %Docstring
 Return true if the extent cotains, even partially, the ``line``
 %End

@@ -12,6 +12,7 @@
 
 class ReosProcess : QObject /Abstract/
 {
+  public:
 %Docstring(signature="appended")
 Abstract class that represent a process (long calculation). this class has convenient method to handle feedback and bring the process in other thread
 Processes can be nested.

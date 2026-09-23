@@ -11,6 +11,7 @@
 
 class ReosHydraulicSimulationResults : ReosMeshDatasetSource /Abstract/
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reoshydraulicsimulationresults.h - ReosHydraulicSimulationResults

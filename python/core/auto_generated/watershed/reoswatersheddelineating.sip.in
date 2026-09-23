@@ -15,6 +15,7 @@
 
 class ReosWatershedDelineating : ReosModule
 {
+  public:
 
 %TypeHeaderCode
 #include "reoswatersheddelineating.h"
@@ -138,25 +139,25 @@ Clears all the data from the delineating tool
         QPolygonF delineateWatershed;
         QPolygonF streamLine;
         double averageElevation;
+        QVector<int> distanceArea;
         QList<int> areaToElevationCount;
-        QList<float> areaToElevationMean;
-        QList<float> areaToElevationStd;
+        QList<double> areaToElevationMean;
+        QList<double> areaToElevationStd;
     };
 
     static DelineateResult delineateWatershed(
-      const QString &demLayerId,
-      const QString &directionFile,
-      const QPolygonF &downstreamLine,
-      const QString &dsLineCrs,
-      ReosGisEngine *gisEngine,
-      const QString &distanceClassesOutputFile = QString() );
+      const QString &demLayerId, const QString &directionFile, const QPolygonF &downstreamLine, const QString &dsLineCrs, ReosGisEngine *gisEngine, const QString &distanceClassesOutputFile = QString()
+    );
 
-    static bool directionFromDem( const QString &demLayerId,
-                                  const ReosMapExtent &extent,
-                                  ReosGisEngine *gisEngine,
-                                  const QString &fileName,
-                                  const QString &burningLinesLayerUri = QString(),
-                                  const QString &burningLinesLayerProvider = QString() );
+    static bool directionFromDem(
+      const QString &demLayerId,
+      const ReosMapExtent &extent,
+      ReosGisEngine *gisEngine,
+      const QString &fileName,
+      const QString &burningLinesLayerUri = QString(),
+      const QString &burningLinesLayerProvider = QString(),
+      bool cogOutput = true
+    );
 
 
   signals:

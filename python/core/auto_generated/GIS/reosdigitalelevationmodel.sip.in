@@ -11,6 +11,7 @@
 
 class ReosDigitalElevationModel /Abstract/
 {
+  public:
 %Docstring(signature="appended")
 The ReosDigitalElevationModel abstract class is an interface for Digital elevation model of all type (TIN, raster)
 %End
@@ -48,6 +49,7 @@ Calculates and returns the average elevation
 %End
 
 
+
     virtual QString source() const = 0;
 %Docstring
 Returns the source of the DEM, if it is a map layer, returns the layer Id
@@ -60,7 +62,6 @@ Returns the source of the DEM, if it is a map layer, returns the layer Id
 Returns the no data value for this DEM
 %End
 };
-
 
 
 

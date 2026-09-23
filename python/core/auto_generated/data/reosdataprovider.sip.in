@@ -10,9 +10,9 @@
 
 
 
-
 class ReosDataProviderRegistery
 {
+  public:
 %Docstring(signature="appended")
 Class that stores time serie provider factory
 %End

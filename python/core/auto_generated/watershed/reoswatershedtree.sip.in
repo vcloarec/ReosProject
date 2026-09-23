@@ -13,8 +13,9 @@
 
 
 
-class ReosWatershedTree: QObject
+class ReosWatershedTree : QObject
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reoswatershedtree.h

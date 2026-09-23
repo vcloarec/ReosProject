@@ -11,6 +11,7 @@
 
 class ReosEncodeContext
 {
+  public:
 %Docstring(signature="appended")
 Class that sore information about the context of encoding
 %End
@@ -47,6 +48,7 @@ Sets whether pathes are relative
 
 class ReosEncodedElement
 {
+  public:
 %Docstring(signature="appended")
 Class used to store data under byte array
 %End
@@ -55,7 +57,6 @@ Class used to store data under byte array
 #include "reosencodedelement.h"
 %End
   public:
-
     explicit ReosEncodedElement();
 %Docstring
 Constructor of an empty encoded element with only the description

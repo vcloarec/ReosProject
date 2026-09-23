@@ -12,6 +12,7 @@
 
 class ReosHydrograph : ReosTimeSeriesVariableTimeStep
 {
+  public:
 %Docstring(signature="appended")
 Class that represents a hydrograph
 %End

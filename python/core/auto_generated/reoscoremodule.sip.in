@@ -11,6 +11,7 @@
 
 class ReosCoreModule : ReosModule
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reoscoremodule.h - ReosCoreModule
@@ -33,7 +34,6 @@ the Free Software Foundation; either version 2 of the License, or     *
 #include "reoscoremodule.h"
 %End
   public:
-
     ReosCoreModule( QObject *parent = 0 );
 %Docstring
 Constructor

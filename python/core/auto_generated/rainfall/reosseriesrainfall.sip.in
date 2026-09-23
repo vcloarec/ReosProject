@@ -11,6 +11,7 @@
 
 class ReosSeriesRainfall : ReosTimeSeriesConstantInterval
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reosseriesrainfall.h - ReosSeriesRainfall
@@ -41,6 +42,7 @@ the Free Software Foundation; either version 2 of the License, or     *
 
 class ReosSeriesRainfallFromGriddedOnWatershed : ReosSeriesRainfall, ReosDataGriddedOnWatershed
 {
+  public:
 
 %TypeHeaderCode
 #include "reosseriesrainfall.h"

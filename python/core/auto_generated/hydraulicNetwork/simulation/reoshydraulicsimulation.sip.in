@@ -14,12 +14,12 @@
 
 class ReosHydraulicSimulation : ReosDataObject /Abstract/
 {
+  public:
 
 %TypeHeaderCode
 #include "reoshydraulicsimulation.h"
 %End
   public:
-
     enum class Capability
     {
       Hotstart,
@@ -61,11 +61,11 @@ class ReosHydraulicSimulation : ReosDataObject /Abstract/
 
     virtual void setHotStartUseLastTimeStep( bool b );
 
-
 };
 
 class ReosSimulationEngineFactory /Abstract/
 {
+  public:
 
 %TypeHeaderCode
 #include "reoshydraulicsimulation.h"
@@ -74,7 +74,6 @@ class ReosSimulationEngineFactory /Abstract/
     static const QMetaObject staticMetaObject;
 
   public:
-
     enum SimulationEngineCapability
     {
       ImportStructure2D,
@@ -85,12 +84,12 @@ class ReosSimulationEngineFactory /Abstract/
 
     ReosSimulationEngineFactory();
     virtual ~ReosSimulationEngineFactory();
-
 };
 
 
 class ReosSimulationEngineRegistery
 {
+  public:
 
 %TypeHeaderCode
 #include "reoshydraulicsimulation.h"

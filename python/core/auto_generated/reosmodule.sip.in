@@ -12,6 +12,7 @@
 
 class ReosModule : QObject
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reosmodule.h
@@ -33,7 +34,6 @@ the Free Software Foundation; either version 2 of the License, or     *
 #include "reosmodule.h"
 %End
   public:
-
     enum MessageType
     {
       Simple,
@@ -44,11 +44,11 @@ the Free Software Foundation; either version 2 of the License, or     *
 
     struct Message
     {
-      void prefixMessage( const QString &prefix );
-      void addText( const QString &newText );
+        void prefixMessage( const QString &prefix );
+        void addText( const QString &newText );
 
-      MessageType type;
-      QString text;
+        MessageType type;
+        QString text;
     };
 
     ReosModule();

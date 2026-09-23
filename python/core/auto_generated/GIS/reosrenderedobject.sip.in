@@ -11,8 +11,9 @@
 
 
 
-class ReosRenderedObject: ReosDataObject  /Abstract/
+class ReosRenderedObject : ReosDataObject /Abstract/
 {
+  public:
 %Docstring(signature="appended")
 Base classe of data object rendered on the map (for example mesh)
 %End
@@ -21,7 +22,6 @@ Base classe of data object rendered on the map (for example mesh)
 #include "reosrenderedobject.h"
 %End
   public:
-
     ReosRenderedObject( QObject *parent = 0 );
 %Docstring
 Constructor

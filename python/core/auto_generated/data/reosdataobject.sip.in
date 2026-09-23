@@ -9,8 +9,9 @@
 
 
 
-class ReosDataObject: QObject
+class ReosDataObject : QObject
 {
+  public:
 %Docstring(signature="appended")
 Base class uses to be an interface for data
 %End

@@ -11,6 +11,7 @@
 
 class ReosGriddedRainfall : ReosGriddedData
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reosgriddedrainitem.h - ReosGriddedRainItem

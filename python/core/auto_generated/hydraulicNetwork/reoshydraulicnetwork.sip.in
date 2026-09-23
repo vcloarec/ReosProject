@@ -13,6 +13,7 @@
 
 class ReosHydraulicNetworkElement : ReosDataObject /Abstract/
 {
+  public:
 
 %TypeHeaderCode
 #include "reoshydraulicnetwork.h"
@@ -153,7 +154,6 @@ Emitted whrn the map time step of the element is changed
 
   protected:
 
-
   signals:
     void calculationStart();
     void timeStepChanged();
@@ -163,6 +163,7 @@ Emitted whrn the map time step of the element is changed
 
 class ReosHydraulicNetworkContext
 {
+  public:
 
 %TypeHeaderCode
 #include "reoshydraulicnetwork.h"
@@ -185,6 +186,7 @@ class ReosHydraulicNetworkContext
 
 class ReosHydraulicNetwork : ReosModule
 {
+  public:
 
 %TypeHeaderCode
 #include "reoshydraulicnetwork.h"

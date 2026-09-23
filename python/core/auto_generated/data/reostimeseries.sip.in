@@ -13,6 +13,7 @@
 
 class ReosTimeSeries : ReosDataObject /Abstract/
 {
+  public:
 %Docstring(signature="appended")
 Class that handle time serie data
 %End
@@ -83,7 +84,7 @@ Returns the time window (the time extent) of this time series
 Removes ``count`` values from position ``fromPos``
 %End
 
-    virtual  void clear();
+    virtual void clear();
 %Docstring
 Clears all values
 %End
@@ -134,8 +135,9 @@ Returns eventual metadata related to the time series
 };
 
 
-class ReosTimeSeriesConstantInterval: ReosTimeSeries
+class ReosTimeSeriesConstantInterval : ReosTimeSeries
 {
+  public:
 %Docstring(signature="appended")
 Class that handle time serie data with constant time interval
 
@@ -147,7 +149,6 @@ intensity value ( incremental value divided by the time step) or cumulative valu
 #include "reostimeseries.h"
 %End
   public:
-
     enum ValueMode
     {
       Value,
@@ -273,8 +274,9 @@ Copy the serie ``other`` in ``this``.
 };
 
 
-class ReosTimeSeriesVariableTimeStep: ReosTimeSeries
+class ReosTimeSeriesVariableTimeStep : ReosTimeSeries
 {
+  public:
 
 %TypeHeaderCode
 #include "reostimeseries.h"

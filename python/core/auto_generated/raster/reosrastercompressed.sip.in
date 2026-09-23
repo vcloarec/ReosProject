@@ -10,6 +10,7 @@
 
 class ReosRasterByteCompressed
 {
+  public:
 %Docstring(signature="appended")
 Class used to store unsigned char raser that has value unde 128 by a compress way
 %End

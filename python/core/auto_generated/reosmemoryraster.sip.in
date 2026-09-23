@@ -15,6 +15,7 @@
 
 class ReosRasterExtent : ReosMapExtent
 {
+  public:
 %Docstring(signature="appended")
 Class that represent the extent of a raster in a map, handle also pixel map position
 %End
@@ -23,7 +24,6 @@ Class that represent the extent of a raster in a map, handle also pixel map posi
 #include "reosmemoryraster.h"
 %End
   public:
-
     enum Position
     {
       Center,
@@ -100,7 +100,7 @@ Returns the x coordinate after the column i
 %Docstring
 Returns the y coordinate before the row i
 %End
-    double cellYAfterToMap( int i )const;
+    double cellYAfterToMap( int i ) const;
 %Docstring
 Returns the y coordinate after the row i
 %End
@@ -148,6 +148,7 @@ Returns the surface of a cell
 
 class ReosFloat64GridBlock
 {
+  public:
 
 %TypeHeaderCode
 #include "reosmemoryraster.h"
@@ -160,9 +161,6 @@ class ReosFloat64GridBlock
     const QByteArray data() const;
 
 };
-
-
-
 
 
 /************************************************************************

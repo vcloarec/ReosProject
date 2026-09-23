@@ -12,6 +12,7 @@
 
 class ReosGriddedData : ReosRenderedObject
 {
+  public:
 %Docstring(signature="appended")
 Class that represents gridded data.
 %End
@@ -24,6 +25,7 @@ Class that represents gridded data.
 %Docstring
 Constructor.
 %End
+    ~ReosGriddedData();
 
     ReosGriddedData( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
 %Docstring
@@ -123,16 +125,13 @@ Exports to a TIFF file with path ``fileName`` the grid at position ``index``
 
 class ReosDataGriddedOnWatershed /Abstract/
 {
+  public:
 
 %TypeHeaderCode
 #include "reosgriddeddata.h"
 %End
   public:
-    ReosDataGriddedOnWatershed( ReosWatershed *watershed,
-                                ReosGriddedData *griddeddata,
-                                const ReosDuration &outputTimeStep,
-                                const QString areaDistributionFilePath = QString(),
-                                int areaCount = 0 );
+    ReosDataGriddedOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddeddata, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath = QString(), int areaCount = 0 );
 
     double calculateValueAt( int index ) const;
 
@@ -141,7 +140,6 @@ class ReosDataGriddedOnWatershed /Abstract/
     QVector<double> valuesForArea( int areaIndex ) const;
 
   protected:
-
     virtual void onCalculationFinished() = 0;
     virtual void onDataChanged() const = 0;
     virtual QDateTime timeAtIndex( int i ) const = 0;
@@ -154,22 +152,18 @@ class ReosDataGriddedOnWatershed /Abstract/
 };
 
 
-
-
 class ReosSeriesFromGriddedDataOnWatershed : ReosTimeSeriesConstantInterval, ReosDataGriddedOnWatershed
 {
+  public:
 
 %TypeHeaderCode
 #include "reosgriddeddata.h"
 %End
   public:
     ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed, ReosGriddedData *griddedData, QObject *parent = 0 );
-    ReosSeriesFromGriddedDataOnWatershed( ReosWatershed *watershed,
-                                          ReosGriddedData *griddedData,
-                                          const ReosDuration &outputTimeStep,
-                                          const QString areaDistributionFilePath = QString(),
-                                          int areaCount = 0,
-                                          QObject *parent = 0 );
+    ReosSeriesFromGriddedDataOnWatershed(
+      ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath = QString(), int areaCount = 0, QObject *parent = 0
+    );
     ~ReosSeriesFromGriddedDataOnWatershed();
 
     static ReosSeriesFromGriddedDataOnWatershed *create( ReosWatershed *watershed, ReosGriddedData *griddedData ) /Factory/;
@@ -178,11 +172,8 @@ Returns a new created instance from ``watershed`` and ``gridded`` rainfall. Call
 %End
 
     static ReosSeriesFromGriddedDataOnWatershed *createWithTimeStep(
-      ReosWatershed *watershed,
-      ReosGriddedData *griddedData,
-      const ReosDuration &outputTimeStep,
-      const QString areaDistributionFilePath = QString(),
-      int areaCount = 0 ) /Factory/;
+      ReosWatershed *watershed, ReosGriddedData *griddedData, const ReosDuration &outputTimeStep, const QString areaDistributionFilePath = QString(), int areaCount = 0
+    ) /Factory/;
 %Docstring
 Returns a new created instance from ``watershed`` and ``gridded`` rainfall with forcing the output time step ``outputTimeStep``. Caller takes ownership.
 %End
@@ -201,9 +192,6 @@ Calculates all values directly.
 
 
 };
-
-
-
 
 
 /************************************************************************

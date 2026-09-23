@@ -11,6 +11,7 @@
 
 class ReosWatershedModule : ReosModule
 {
+  public:
 
 %TypeHeaderCode
 #include "reoswatershedmodule.h"

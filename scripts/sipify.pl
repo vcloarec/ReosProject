@@ -420,6 +420,9 @@ sub detect_and_remove_following_body_or_initializerlist {
             $LINE = $newline;
         }
     };
+    if ( $python_signature eq '' && $LINE !~ m/;\s*$/ && $LINE =~ m/\)/ && $LINE_IDX < $LINE_COUNT && $INPUT_LINES[$LINE_IDX] =~ m/^\s*\[/ ){
+        $python_signature = remove_following_body_or_initializerlist();
+    }
     return $python_signature;
 }
 
@@ -894,7 +897,7 @@ while ($LINE_IDX < $LINE_COUNT){
 
     # class declaration started
     # https://regex101.com/r/6FWntP/16
-    if ( $LINE =~ m/^(\s*(class))\s+([A-Z0-9_]+_EXPORT\s+)?(Q_DECL_DEPRECATED\s+)?(?<classname>\w+)(?<domain>\s*\:\s*(public|protected|private)\s+\w+(< *(\w|::)+ *>)?(::\w+(<\w+>)?)*(,\s*(public|protected|private)\s+\w+(< *(\w|::)+ *>)?(::\w+(<\w+>)?)*)*)?(?<annot>\s*\/?\/?\s*SIP_\w+)?\s*?(\/\/.*|(?!;))$/ ){
+    if ( $LINE =~ m/^(\s*(class))\s+([A-Z0-9_]+_EXPORT\s+)?(Q_DECL_DEPRECATED\s+)?(?<classname>\w+)(?<domain>\s*\:\s*(public|protected|private)\s+\w+(< *(\w|::)+ *>)?(::\w+(<\w+>)?)*(,\s*(public|protected|private)\s+\w+(< *(\w|::)+ *>)?(::\w+(<\w+>)?)*)*)?(?<annot>\s*\/?\/?\s*SIP_\w+)?\s*?(?<openingbrace>\{)?\s*?(\/\/.*|(?!;))$/ ){
         dbg_info("class definition started");
         push @ACCESS, PUBLIC;
         push @EXPORTED, 0;
@@ -941,7 +944,7 @@ while ($LINE_IDX < $LINE_COUNT){
             $LINE = fix_annotations($LINE);
         }
 
-        $LINE .= "\n{\n";
+        $LINE .= "\n{\n  public:\n";
         if ( $COMMENT !~ m/^\s*$/ ){
             $LINE .= "%Docstring(signature=\"appended\")\n$COMMENT\n%End\n";
         }
@@ -973,7 +976,7 @@ while ($LINE_IDX < $LINE_COUNT){
         write_output("CLS", "$LINE\n");
 
         # Skip opening curly bracket, incrementing hereunder
-        my $skip = read_line();
+        my $skip = defined $+{openingbrace} ? '{' : read_line();
         $skip =~ m/^\s*{\s*$/ or exit_with_error("expecting { after class definition");
         $GLOB_BRACKET_NESTING_IDX[$#GLOB_BRACKET_NESTING_IDX]++;
 
@@ -1381,11 +1384,13 @@ typedef QgsSettingsEntryEnumFlag<$2> QgsSettingsEntryEnumFlag_$3;
     write_output("ENF", "$prep_line\n", "prepend");
     }
 
-    write_output("NOR", "$LINE\n");
-
     if ($PYTHON_SIGNATURE ne '') {
-      write_output("PSI", "$PYTHON_SIGNATURE\n");
+            $PYTHON_SIGNATURE .= ';' unless $PYTHON_SIGNATURE =~ m/;\s*$/;
+            $LINE .= "$PYTHON_SIGNATURE";
+            $PYTHON_SIGNATURE = '';
     }
+
+        write_output("NOR", "$LINE\n");
 
     # multiline definition (parenthesis left open)
     if ( $MULTILINE_DEFINITION != MULTILINE_NO ){

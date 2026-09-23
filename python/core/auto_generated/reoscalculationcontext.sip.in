@@ -10,6 +10,7 @@
 
 class ReosCalculationContext
 {
+  public:
 %Docstring(signature="appended")
 *************************************************************************
 reoscalculationcontext.h - ReosCalculationContext

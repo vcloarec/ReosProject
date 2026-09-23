@@ -12,6 +12,7 @@
 
 class ReosDataUpdater : QObject /Abstract/
 {
+  public:
 %Docstring(signature="appended")
 The ReosDataUpdater class is an abstract class used to update regulary data object
 %End
@@ -52,6 +53,7 @@ Emitted when the data object is updated
 
 class ReosTimeSeriesUpdater : ReosDataUpdater
 {
+  public:
 
 %TypeHeaderCode
 #include "reosdataupdater.h"
