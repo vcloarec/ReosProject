@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 #include "reosmeteorologicmodel.h"
 #include "reosgdalutils.h"
 #include "reosgisengine.h"
+#include "reosrasterdistancearea.h"
 
 
 class ReosWatersehdTest : public QObject
@@ -48,6 +49,8 @@ class ReosWatersehdTest : public QObject
     void runoffhydrograph();
 
     void delineate_watershed();
+
+    void distanceArea();
 
   private:
     ReosModule rootModule;
@@ -1959,6 +1962,18 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( hydrograph->valueCount(), 80 );
   QCOMPARE( hydrograph->valueAt( 70 ), 0.625077585479 );
 }
+
+
+void ReosWatersehdTest::distanceArea()
+{
+  QString layerId = gisEngine.addRasterLayer( test_file( "dems_4326.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
+  ReosRasterExtent rasterExtent = gisEngine.layerRasterExtent( layerId );
+
+  ReosRasterDistanceArea distanceArea( rasterExtent, 10 );
+
+  QVERIFY( distanceArea.isValid() );
+}
+
 
 QTEST_MAIN( ReosWatersehdTest )
 #include "reos_watershed_test.moc"

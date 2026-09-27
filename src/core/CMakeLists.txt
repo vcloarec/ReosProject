@@ -51,6 +51,8 @@ SET(REOS_CORE_SOURCES
   raster/reosrastertrace.cpp
   raster/reosrasterwatershed.cpp
   raster/reosrastercompressed.cpp
+  raster/reosrasterdistancearea.cpp
+
 
   utils/reosgeometryutils.cpp
   
@@ -155,6 +157,8 @@ SET(REOS_CORE_HEADERS
     raster/reosrastertrace.h
     raster/reosrasterwatershed.h
     raster/reosrastercompressed.h
+    raster/reosrasterdistancearea.h
+
 
     utils/reosgeometryutils.h
 
@@ -254,7 +258,7 @@ ADD_LIBRARY(reosCore SHARED
     ${REOS_CORE_HDRS_PRIVATE}
     ${IMAGE_RCCS}
     ${CREDITS_RCCS}
-  )
+)
 
 set_target_properties(reosCore
     PROPERTIES
