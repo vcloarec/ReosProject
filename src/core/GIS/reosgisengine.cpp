@@ -1259,6 +1259,24 @@ ReosMapExtent ReosGisEngine::layerExtent( const QString &layerId ) const
   return ret;
 }
 
+ReosRasterExtent ReosGisEngine::layerRasterExtent( const QString &layerId ) const
+{
+  QgsMapLayer *layer = QgsProject::instance()->mapLayer( layerId );
+
+  QgsRasterLayer *rasterLayer = qobject_cast<QgsRasterLayer *>( layer );
+
+  if ( !rasterLayer )
+    return ReosRasterExtent();
+
+  QgsRectangle extent = rasterLayer->extent();
+  QString crs = rasterLayer->crs().toWkt();
+
+  ReosRasterExtent ret = ReosRasterExtent( extent.xMinimum(), extent.yMinimum(), rasterLayer->width(), rasterLayer->height(), rasterLayer->rasterUnitsPerPixelX(), rasterLayer->rasterUnitsPerPixelY() );
+  ret.setCrs( crs );
+
+  return ret;
+}
+
 int ReosGisEngine::layersCount() const
 {
   return QgsProject::instance()->layerStore()->count();

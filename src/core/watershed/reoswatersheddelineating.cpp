@@ -388,6 +388,8 @@ bool ReosWatershedDelineating::directionFromDem(
     ReosWatershedDelineating::burnRasterDem( dem, burningLines, rasterExtent );
   }
 
+  const ReosRasterDistanceArea distanceArea( rasterExtent, 10 );
+
   std::cout << "Filling DEM..." << std::endl;
   std::unique_ptr<ReosRasterFillingWangLiu> fillDemProcess( new ReosRasterFillingWangLiu( dem, fabs( rasterExtent.xCellSize() ), fabs( rasterExtent.yCellSize() ), maxValue ) );
   fillDemProcess->start();
@@ -396,7 +398,7 @@ bool ReosWatershedDelineating::directionFromDem(
 
   ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
   std::cout << "Calculate direction..." << std::endl;
-  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
+  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM(), distanceArea ) );
   directionProcess->start();
 
   std::cout << "Save direction to file: " << fileName.toStdString() << std::endl;
@@ -466,6 +468,7 @@ void ReosWatershedDelineatingProcess::start()
   mIsSuccessful = false;
 
   bool needNewDirection = !mDirections.isValid();
+  ReosRasterDistanceArea distanceArea( mPredefinedRasterExtent, 10 );
   if ( needNewDirection )
   {
     if ( !mEntryDem )
@@ -502,7 +505,7 @@ void ReosWatershedDelineatingProcess::start()
 
     ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
     setCurrentProgression( 0 );
-    std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM() ) );
+    std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM(), distanceArea ) );
     setSubProcess( directionProcess.get() );
 
     setInformation( tr( "Calculating direction" ) );
@@ -532,7 +535,9 @@ void ReosWatershedDelineatingProcess::start()
 
   //--------------------------
   // Calculate raster watershed
-  std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> rasterWatershedFromDirection( new ReosRasterWatershedFromDirectionAndDownStreamLine( mDirections, rasterDownstreamLine ) );
+  std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> rasterWatershedFromDirection(
+    new ReosRasterWatershedFromDirectionAndDownStreamLine( mDirections, rasterDownstreamLine, distanceArea )
+  );
   setCurrentProgression( 0 );
   setSubProcess( rasterWatershedFromDirection.get() );
 
@@ -678,23 +683,28 @@ void ReosWatershedDelineatingProcess::start()
 
   // calculate distance vs area
   mDistanceToArea = QVector<int>( 256 );
-  mDistanceToArea.fill( 0 );
+  QVector<float> realArea( 256 );
+  realArea.fill( 0.0f );
   const QVector<unsigned char> &distValues = mDistanceClasses.values();
-  for ( int i = 0; i < distValues.count(); ++i )
+  float basePixelSize = fabs( mOutputRasterExtent.xCellSize() * mOutputRasterExtent.yCellSize() );
+  distanceArea = ReosRasterDistanceArea( mOutputRasterExtent, 10 );
+
+  for ( int r = 0; r < mDistanceClasses.rowCount(); ++r )
   {
-    unsigned char val = distValues.at( i );
-    mDistanceToArea[val] = mDistanceToArea[val] + 1;
+    for ( int c = 0; c < mDistanceClasses.columnCount(); ++c )
+    {
+      unsigned char val = mDistanceClasses.value( r, c );
+      if ( val != 0 )
+        realArea[val] += distanceArea.areaFactor( r, c ) * basePixelSize;
+    }
   }
-
-  int areaCount = 0;
-  mDistanceToArea[0] = 0;
   for ( int i = 1; i < 256; i++ )
-    mDistanceToArea[i] = mDistanceToArea[i - 1] + mDistanceToArea.at( i );
+    realArea[i] = realArea[i - 1] + realArea.at( i );
 
-  int maxArea = mDistanceToArea.at( 255 );
+  float maxArea = realArea.at( 255 );
 
   for ( int i = 0; i < 256; i++ )
-    mDistanceToArea[i] = 255 - static_cast<int>( std::floor( 255.0 * mDistanceToArea[i] / maxArea ) );
+    mDistanceToArea[i] = 255 - static_cast<int>( std::floor( 255.0 * realArea[i] / maxArea ) );
 
   QVector<unsigned char> distAreaRast( distValues.size() );
   distAreaRast.fill( 0u );

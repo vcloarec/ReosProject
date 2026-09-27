@@ -376,8 +376,9 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
       entryLine.addPoint( rasterExtent.mapToCellPos( pt ) );
 
     // First search the longest path;
+    ReosRasterDistanceArea distanceArea( mCurrentWatershed->directionExtent( demLayerId ) );
     std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> pr_1 = std::make_unique<
-      ReosRasterWatershedFromDirectionAndDownStreamLine>( mCurrentWatershed->directions( demLayerId ), entryLine, new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating() ) );
+      ReosRasterWatershedFromDirectionAndDownStreamLine>( mCurrentWatershed->directions( demLayerId ), entryLine, distanceArea, new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating() ) );
 
     pr_1->setInformation( tr( "Searching for the longest path" ) );
     std::unique_ptr<ReosProcessControler> controler = std::make_unique<ReosProcessControler>( pr_1.get(), this );

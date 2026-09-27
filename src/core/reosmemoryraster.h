@@ -106,6 +106,7 @@ class REOSCORE_EXPORT ReosRasterExtent : public ReosMapExtent
     QRect mapExtentToCellRect( const ReosMapExtent &mapExtent ) const;
     //! Returns a rectangle from raster cell position to real world coordinates
     ReosMapExtent cellRectToMapExtent( const QRect &cellRect, const Position &position = Center ) const;
+
     //! Returns the surface of a cell
     double cellSurface() const;
     //! Returns position of the cell from a \a point in real world coordinates
