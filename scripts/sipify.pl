@@ -836,6 +836,9 @@ while ($LINE_IDX < $LINE_COUNT){
     }
 
     # Skip Q_OBJECT, Q_PROPERTY, Q_ENUM etc.
+    if ($LINE =~ m/^\s*Q_OBJECT\s+(?!\/\/)\S/){
+        exit_with_error("Q_OBJECT must be alone on its line, trailing content would be skipped");
+    }
     if ($LINE =~ m/^\s*Q_(OBJECT|ENUMS|ENUM|FLAG|PROPERTY|DECLARE_METATYPE|DECLARE_TYPEINFO|NOWARN_DEPRECATED_(PUSH|POP))\b.*?$/){
         next;
     }
