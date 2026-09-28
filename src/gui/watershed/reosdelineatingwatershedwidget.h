@@ -61,7 +61,7 @@ class ReosDelineatingWatershedWidget : public ReosActionWidget
     void onLoadRasterDem();
     void onDelineateAsked();
     void onAutomaticValidateAsked();
-    void onManualWatershedDrawn( const QPolygonF &polygon );
+    void onManualWatershedDrawn( const QPolygonF &polygon, const QString &crs );
     void onManualOutletDrawn( const QPointF &point );
     void onManualValidateAsked();
     void onMethodChange();

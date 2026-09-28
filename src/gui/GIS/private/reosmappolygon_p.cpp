@@ -72,7 +72,12 @@ void ReosMapPolygonBase_p::updatePosition()
   setPos( pview0 );
 
   if ( mSegmentMarker >= 0 )
+  {
     mMarkerPositionOnView = toCanvasCoordinates( QgsPoint( mMarkerposition ) );
+    const QPointF pt1 = toCanvasCoordinates( mapPoly.at( mSegmentMarker + 1 ) );
+    const QPointF pt2 = toCanvasCoordinates( mapPoly.at( mSegmentMarker ) );
+    mMarkerDirectionVector = QVector2D( pt1 - pt2 );
+  }
 }
 
 QPainterPath ReosMapPolygonBase_p::shape() const
@@ -142,7 +147,7 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
   double arrowSize = 2 * width;
   if ( mSegmentMarker > -1 )
   {
-    dir = QVector2D( mViewPolygon.at( mSegmentMarker + 1 ) - mViewPolygon.at( mSegmentMarker ) );
+    dir = mMarkerDirectionVector;
     dir.normalize();
     normDir = QVector2D( dir.y(), -dir.x() );
   }
@@ -171,7 +176,7 @@ void ReosMapPolygonBase_p::paint( QPainter *painter )
       {
         QVector2D dir;
         QVector2D normDir;
-        dir = QVector2D( mViewPolygon.at( mSegmentMarker + 1 ) - mViewPolygon.at( mSegmentMarker ) );
+        dir = mMarkerDirectionVector;
         dir.normalize();
         normDir = QVector2D( dir.y(), -dir.x() );
         QPolygonF arrow( 3 );

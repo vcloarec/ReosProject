@@ -158,6 +158,7 @@ class ReosMapPolygonBase_p : public ReosMapItem_p
     bool mIsEditing = false;
     bool mIsMarkerActive = false;
     int mSegmentMarker = -1;
+    QVector2D mMarkerDirectionVector;
     bool mMarkerArrow = false;
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;

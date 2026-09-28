@@ -354,7 +354,7 @@ void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
   updateAutomaticTool();
 }
 
-void ReosDelineatingWatershedWidget::onManualWatershedDrawn( const QPolygonF &polygon )
+void ReosDelineatingWatershedWidget::onManualWatershedDrawn( const QPolygonF &polygon, const QString &crs )
 {
   mTemporaryManualWatershed.resetPolygon( polygon );
   mTemporaryManualOutletPoint.resetPoint();

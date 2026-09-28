@@ -223,7 +223,7 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
         if ( mClosed && !returnPoly.empty() )
           returnPoly.removeLast();
 
-        emit polylineDrawn( returnPoly );
+        emit polylineDrawn( returnPoly, mapCrs() );
       }
     }
     else
@@ -238,7 +238,7 @@ void ReosMapToolDrawPolyline_p::canvasReleaseEvent( QgsMapMouseEvent *e )
             polyline.removeLast();
         }
 
-        emit polylineDrawn( polyline );
+        emit polylineDrawn( polyline, mapCrs() );
         mRubberBand->reset( mClosed ? Qgis::GeometryType::Polygon : Qgis::GeometryType::Line );
         updateColor();
       }

@@ -242,13 +242,14 @@ void ReosLongitudinalProfileWidget::onProfileCursorMove( const QPointF &point )
   mCurrentStreamLine.setMarkerDistance( d );
 }
 
-void ReosLongitudinalProfileWidget::onStreamLineChanged( const QPolygonF &streamLine )
+void ReosLongitudinalProfileWidget::onStreamLineChanged( const QPolygonF &streamLine, const QString &crs )
 {
   if ( mCurrentWatershed )
-    mCurrentWatershed->setStreamPath( streamLine, mMap->mapCrs() );
-
-  mCurrentStreamLine.resetPolyline( streamLine );
-  askForUpdateDEMProfile();
+  {
+    mCurrentWatershed->setStreamPath( streamLine, crs );
+    mCurrentStreamLine.resetPolyline( mCurrentWatershed->streamPath( mMap->mapCrs() ) );
+    askForUpdateDEMProfile();
+  }
 }
 
 void ReosLongitudinalProfileWidget::onStreamLineEdited()
@@ -338,7 +339,7 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const Q
   if ( !mCurrentWatershed )
     return;
 
-  if ( !ReosGeometryUtils::pointIsInsidePolygon( point, mCurrentWatershed->delineating() ) )
+  if ( !ReosGeometryUtils::pointIsInsidePolygon( point, mCurrentWatershed->delineating( mMap->mapCrs() ) ) )
     return;
 
   QString demLayerId = ui->mComboBoxDEM->currentDemLayerId();
@@ -346,15 +347,15 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToDownstream( const Q
   if ( mCurrentWatershed->hasDirectiondata( demLayerId ) )
   {
     const ReosRasterExtent &rasterExtent = mCurrentWatershed->directionExtent( demLayerId );
-    const ReosRasterCellPos pos = rasterExtent.mapToCellPos( point );
+    const ReosRasterCellPos pos = rasterExtent.mapToCellPos( ReosGisEngine::transformToCoordinates( ReosSpatialPosition( point, mMap->mapCrs() ), rasterExtent.crs() ) );
     std::unique_ptr<ReosRasterWatershedTraceDownstream> pr
-      = std::make_unique<ReosRasterWatershedTraceDownstream>( mCurrentWatershed->directions( demLayerId ), mCurrentWatershed->delineating(), rasterExtent, pos );
+      = std::make_unique<ReosRasterWatershedTraceDownstream>( mCurrentWatershed->directions( demLayerId ), mCurrentWatershed->delineating( rasterExtent.crs() ), rasterExtent, pos );
 
     ReosProcessControler *controler = new ReosProcessControler( pr.get(), this );
     controler->exec();
 
     if ( pr->isSuccessful() )
-      onStreamLineChanged( pr->resultPolyline() );
+      onStreamLineChanged( pr->resultPolyline(), rasterExtent.crs() );
 
     controler->deleteLater();
   }
@@ -376,8 +377,9 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
 
     // First search the longest path;
     ReosRasterDistanceArea distanceArea( mCurrentWatershed->directionExtent( demLayerId ) );
-    std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> pr_1 = std::make_unique<
-      ReosRasterWatershedFromDirectionAndDownStreamLine>( mCurrentWatershed->directions( demLayerId ), entryLine, distanceArea, new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating() ) );
+    std::unique_ptr<ReosRasterWatershedFromDirectionAndDownStreamLine> pr_1 = std::make_unique< ReosRasterWatershedFromDirectionAndDownStreamLine>(
+      mCurrentWatershed->directions( demLayerId ), entryLine, distanceArea, new ReosRasterTestingCellInPolygon( rasterExtent, mCurrentWatershed->delineating( rasterExtent.crs() ) )
+    );
 
     pr_1->setInformation( tr( "Searching for the longest path" ) );
     std::unique_ptr<ReosProcessControler> controler = std::make_unique<ReosProcessControler>( pr_1.get(), this );
@@ -391,7 +393,7 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
       pr_1.reset(); //not needd anymore
 
       std::unique_ptr<ReosRasterWatershedTraceDownstream> pr_2
-        = std::make_unique<ReosRasterWatershedTraceDownstream>( mCurrentWatershed->directions( demLayerId ), mCurrentWatershed->delineating(), rasterExtent, upstreamPos );
+        = std::make_unique<ReosRasterWatershedTraceDownstream>( mCurrentWatershed->directions( demLayerId ), mCurrentWatershed->delineating( rasterExtent.crs() ), rasterExtent, upstreamPos );
 
       pr_2->setInformation( tr( "trace longer path" ) );
 
@@ -399,7 +401,7 @@ void ReosLongitudinalProfileWidget::drawStreamLinefromPointToUpStream()
       controler->exec();
 
       if ( pr_2->isSuccessful() )
-        onStreamLineChanged( pr_2->resultPolyline() );
+        onStreamLineChanged( pr_2->resultPolyline(), rasterExtent.crs() );
     }
   }
 }
