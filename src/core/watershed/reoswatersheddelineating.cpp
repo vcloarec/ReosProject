@@ -291,25 +291,29 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
   ReosRasterExtent predefinedRasterExtent = mProcess->predefinedRasterExtent();
   ReosMapExtent watershedExtent( mProcess->watershedPolygon() );
 
-  //! As the dem/direction raster have the border cells unrealistic, if the watershed extent have an extent closer than
-  //! one cell of the dem/direction extent, that means the watershed extent must exceed the source extent
-  double xCellSize = fabs( predefinedRasterExtent.xCellSize() );
-  double yCellSize = fabs( predefinedRasterExtent.yCellSize() );
-  if ( watershedExtent.xMapMin() <= predefinedRasterExtent.xMapMin() + xCellSize
-       || watershedExtent.xMapMax() >= predefinedRasterExtent.xMapMax() - xCellSize
-       || watershedExtent.yMapMin() <= predefinedRasterExtent.yMapMin() + yCellSize
-       || watershedExtent.yMapMax() >= predefinedRasterExtent.yMapMax() - yCellSize )
-  {
-    mCurrentState = WaitingWithBroughtBackExtent;
-    sendMessage( tr( "Predifined extent intersect watershed delineating, please redefined extent" ), ReosModule::Warning );
-    return;
-  }
-
   if ( !mDownstreamWatershed )
   {
+    //! As the dem/direction raster have the border cells unrealistic, if the watershed extent have an extent closer than
+    //! one cell of the dem/direction extent, that means the watershed extent must exceed the source extent
+    double xCellSize = fabs( predefinedRasterExtent.xCellSize() );
+    double yCellSize = fabs( predefinedRasterExtent.yCellSize() );
+    if ( watershedExtent.xMapMin() <= predefinedRasterExtent.xMapMin() + xCellSize
+         || watershedExtent.xMapMax() >= predefinedRasterExtent.xMapMax() - xCellSize
+         || watershedExtent.yMapMin() <= predefinedRasterExtent.yMapMin() + yCellSize
+         || watershedExtent.yMapMax() >= predefinedRasterExtent.yMapMax() - yCellSize )
+    {
+      mCurrentState = WaitingWithBroughtBackExtent;
+      sendMessage( tr( "Predifined extent intersect watershed delineating, please redefined extent" ), ReosModule::Warning );
+      return;
+    }
+
     //! Here the original extent is not too small, so reduce it to fit just to the new watershed (with extraborder);
     mExtent = ReosMapExtent( watershedExtent.xMapMin() - xCellSize * 2, watershedExtent.yMapMin() - yCellSize * 2, watershedExtent.xMapMax() + xCellSize * 2, watershedExtent.yMapMax() + yCellSize * 2 );
     mExtent.setCrs( mProcess->crs() );
+  }
+  else
+  {
+    mExtent = watershedExtent;
   }
 
   mCurrentState = WaitingForValidate;

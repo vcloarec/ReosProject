@@ -28,9 +28,15 @@ Stores watersheds in a hierarchical tree.
 
     ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
 %Docstring
-Adds a watershed to the store, in the ``downstreamWatershed`` (or in one
+Adds a watershed to the tree, in the ``downstreamWatershed`` (or in one
 of its sub watershed). Take ownership and returns a pointer to the added
 watershed
+%End
+
+    void attachWatershed( ReosWatershed *watershed );
+%Docstring
+Adds a watershed to the tree, called by addWatershed(ReosWatershed
+*watershed, bool adaptDelineating = false)
 %End
 
     ReosWatershed *downstreamWatershed( const QPolygonF &line, const QString &lineCrs, bool &ok ) const;

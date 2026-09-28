@@ -77,7 +77,6 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
   if ( includingWatershed ) // There is a watershed that contains the new one, deal with it
   {
     ReosWatershed *addedWatersehd = includingWatershed->addUpstreamWatershed( ws.release(), adaptDelineating );
-    mPolygonWatershed->addWatershed( addedWatersehd );
     emit watershedAdded( addedWatersehd );
     return addedWatersehd;
   }
@@ -106,10 +105,24 @@ ReosWatershed *ReosWatershedTree::addWatershed( ReosWatershed *watershedToAdd, b
       }
     }
 
-    mPolygonWatershed->addWatershed( ws.get() );
+    attachWatershed( ws.get() );
     mWatersheds.emplace_back( ws.release() );
     emit watershedAdded( mWatersheds.back().get() );
     return mWatersheds.back().get();
+  }
+}
+
+void ReosWatershedTree::attachWatershed( ReosWatershed *watershed )
+{
+  if ( !watershed )
+    return;
+  mPolygonWatershed->addWatershed( watershed );
+  watershed->attachToTree( this );
+
+  int count = watershed->directUpstreamWatershedCount();
+  for ( int i = 0; i < count; ++i )
+  {
+    attachWatershed( watershed->directUpstreamWatershed( i ) );
   }
 }
 
@@ -286,6 +299,7 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncode
         if ( uws )
         {
           uws->setGeographicalContext( mGisEngine );
+          attachWatershed( uws.get() );
           watersheds.emplace_back( uws.release() );
         }
       }
@@ -297,7 +311,6 @@ void ReosWatershedTree::decode( const ReosEncodedElement &elem, const ReosEncode
   QList<ReosWatershed *> allWs = allWatershedsFromUSToDS();
   for ( ReosWatershed *ws : std::as_const( allWs ) )
   {
-    mPolygonWatershed->addWatershed( ws );
     connect( ws, &ReosDataObject::dataChanged, this, &ReosWatershedTree::watershedChanged );
     connect( ws, &ReosWatershed::geometryChanged, this, &ReosWatershedTree::watershedChanged );
   }
@@ -534,7 +547,7 @@ void ReosWatershedTree::clearWatersheds()
 
 QString ReosWatershedTree::crs() const
 {
-  return mGisEngine->crs();
+  return mPolygonWatershed->crs();
 }
 
 QString ReosWatershedItemModel::watershedUri( ReosWatershed *watershed ) const

@@ -293,6 +293,8 @@ ReosWatershed *ReosWatershed::addUpstreamWatershed( ReosWatershed *newUpstreamWa
       ++i;
     }
   }
+  if ( mTree )
+    mTree->attachWatershed( ws.get() );
 
   mUpstreamWatersheds.emplace_back( ws.release() );
 
@@ -1130,7 +1132,8 @@ ReosHydrographsStore *ReosWatershed::gaugedHydrographs() const
 
 QString ReosWatershed::crs() const
 {
-  /// TODO : we need to make the watershed crs independant from the general crs.
+  if ( mTree )
+    return mTree->crs();
 
   if ( mWktCrs.isEmpty() )
   {

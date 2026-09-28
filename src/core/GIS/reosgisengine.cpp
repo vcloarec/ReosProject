@@ -358,9 +358,8 @@ void ReosGisEngine::setCrs( const QString &crsString )
   if ( crsString == mCurrentCrs )
     return;
   QgsCoordinateReferenceSystem crs( crsString );
-  mCurrentCrs = QgsProject::instance()->crs().toWkt( Qgis::CrsWktVariant::Preferred );
+  mCurrentCrs = crs.toWkt( Qgis::CrsWktVariant::Preferred );
   QgsProject::instance()->setCrs( crs );
-  emit crsChanged( mCurrentCrs );
 }
 
 bool ReosGisEngine::crsIsValid( const QString &crsString )

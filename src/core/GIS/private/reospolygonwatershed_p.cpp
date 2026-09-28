@@ -425,7 +425,15 @@ QgsGeometry ReosPolygonWatershed_p::getGeometry( const QString &watershedId, con
 QgsFeature ReosPolygonWatershed_p::getFeatureUnderPosition( const QPointF &position, const QString &destinationCrs, const QString &expression ) const
 {
   QgsPointXY point( position );
-  point = toLayerTransform( destinationCrs ).transform( point );
+  try
+  {
+    point = toLayerTransform( destinationCrs ).transform( point );
+  }
+  catch ( QgsCsException & )
+  {
+    return QgsFeature();
+  }
+
   QgsFeatureRequest request = QgsFeatureRequest().setFilterRect( QgsRectangle( point, point ) );
   if ( !expression.isEmpty() )
     request.setFilterExpression( expression );

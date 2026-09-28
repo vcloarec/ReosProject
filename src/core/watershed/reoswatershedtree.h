@@ -40,10 +40,15 @@ class REOSCORE_EXPORT ReosWatershedTree : public QObject
     bool isWatershedIntersectExisting( ReosWatershed *purposedWatershed ) SIP_SKIP;
 
     /**
-     * Adds a watershed to the store, in the \a downstreamWatershed (or in one of its sub watershed).
+     * Adds a watershed to the tree, in the \a downstreamWatershed (or in one of its sub watershed).
      * Take ownership and returns a pointer to the added watershed
      */
     ReosWatershed *addWatershed( ReosWatershed *watershed, bool adaptDelineating = false );
+
+    /**
+     * Adds a watershed to the tree, called by addWatershed(ReosWatershed *watershed, bool adaptDelineating = false)
+     */
+    void attachWatershed( ReosWatershed *watershed );
 
     //! Returns the smallest watershed that is downstream the line, if the line is partially included by any watershed, ok is false
     //! If there is no watershed downstrean, return nullptr
