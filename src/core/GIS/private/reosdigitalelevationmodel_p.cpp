@@ -110,6 +110,7 @@ QPolygonF ReosDigitalElevationModelRaster::elevationOnPolyline( const QPolygonF 
   QgsCoordinateReferenceSystem qgsCrs = QgsCoordinateReferenceSystem::fromWkt( polylineCrs );
   QgsDistanceArea distanceCalculation;
   distanceCalculation.setSourceCrs( qgsCrs, mTransformContext );
+  distanceCalculation.setEllipsoid( "EPSG:7030" );
   Qgis::DistanceUnit unit = distanceCalculation.lengthUnits();
   double unitFactor = QgsUnitTypes::fromUnitToUnitFactor( unit, Qgis::DistanceUnit::Meters );
 
