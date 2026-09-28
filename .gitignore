@@ -13,3 +13,5 @@ Tests/testData/tmp/*
 .idea/vcs.xml
 .vs
 build/*
+
+.cache/*

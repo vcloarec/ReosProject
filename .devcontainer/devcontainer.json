@@ -1,0 +1,75 @@
+{
+	"name": "ReosProject Dev",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"workspaceFolder": "/workspaces/ReosProject",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/ReosProject,type=bind,consistency=cached",
+	"remoteUser": "vscode",
+	"containerEnv": {
+		"QGIS_INSTALL": "/qgis_built",
+		"ECCODES_INSTALL": "/eccodes_built",
+		"QGIS_PLUGIN_PATH": "/qgis_built/lib/qgis/plugins",
+		"QGIS_PREFIX_PATH": "/qgis_built",
+		"LD_LIBRARY_PATH": "/qgis_built/lib:/eccodes_built/lib:/usr/lib/x86_64-linux-gnu",
+		"PYTHONPATH": "/qgis_built/share/qgis/python"
+	},
+	"runArgs": [
+		"--cap-add=SYS_PTRACE",
+		"--security-opt", "seccomp=unconfined"
+	],
+	"mounts": [
+		"source=reos-ccache,target=/home/vscode/.ccache,type=volume"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cmake-tools",
+				"twxs.cmake",
+				"ms-python.python",
+				"llvm-vs-code-extensions.vscode-clangd",
+				"vadimcn.vscode-lldb"
+			],
+			"settings": {
+				"cmake.buildDirectory": "${workspaceFolder}/build",
+				"cmake.configureArgs": [
+					"-DBUILD_GMOCK=ON",
+					"-DBUILD_TESTING=ON",
+					"-DENABLE_TESTS=TRUE",
+					"-DINSTALL_GTEST=ON",
+					"-DWITH_QTWEBKIT=FALSE",
+					"-DWITH_3D=FALSE",
+					"-DWITH_BINDINGS=TRUE",
+					"-DWITH_GUI=FALSE",
+					"-DWITH_HYDRAULIC_MODEL_SUPPORT=FALSE",
+					"-DWITH_TELEMAC_SUPPORT=FALSE",
+					"-DENABLE_HECRAS=FALSE",
+					"-DENABLE_HEC_DSS=FALSE",
+					"-DENABLE_ECCODES_READER=TRUE",
+					"-DECCODES_INCLUDE_DIR=/eccodes_built/include",
+					"-DECCODES_LIB=/eccodes_built/lib/libeccodes.so",
+					"-DHDF5_INCLUDE_DIRS=/usr/include/hdf5/serial",
+					"-DHDF5_C_LIBRARY=/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so",
+					"-DQGIS_INCLUDE_DIR=/qgis_built/include/qgis",
+					"-DQGIS_3D_LIB=/qgis_built/lib/libqgis_3d.so",
+					"-DQGIS_ANALYSIS_LIB=/qgis_built/lib/libqgis_analysis.so",
+					"-DQGIS_APP_LIB=/qgis_built/lib/libqgis_app.so",
+					"-DQGIS_CORE_LIB=/qgis_built/lib/libqgis_core.so",
+					"-DQGIS_GUI_LIB=/qgis_built/lib/libqgis_gui.so",
+					"-DQGIS_PROVIDERS_PATH=/qgis_built/plugins",
+					"-DQGIS_APP_INCLUDE=/qgis_built/app_src",
+					"-DQWT_INCLUDE=/usr/include/qwt",
+					"-DQWT_LIB=/usr/lib/libqwt-qt5.so"
+				],
+				"cmake.generator": "Ninja",
+				"C_Cpp.default.cppStandard": "c++17",
+				"C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+				"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json"
+			}
+		}
+	},
+	"postCreateCommand": "bash .devcontainer/post-create.sh"
+}
