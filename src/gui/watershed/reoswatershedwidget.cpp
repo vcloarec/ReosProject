@@ -206,7 +206,7 @@ void ReosWatershedWidget::onWatershedAdded( const QModelIndex &index )
   ReosWatershed *ws = mModelWatershed->indexToWatershed( index );
   if ( !ws )
     return;
-  //constructMapWatershed( ws );
+  constructMapWatershed( ws );
   ui->treeView->selectionModel()->select( index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
   ui->treeView->setCurrentIndex( index );
   updateNetworkButton();

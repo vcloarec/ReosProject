@@ -308,9 +308,10 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
   if ( !mModule->delineatingModule()->isDelineatingFinished() )
     return;
 
-  mWatershedExtent.resetPolygon( mModule->delineatingModule()->currentExtent().toPolygon() );
-  mTemporaryAutomaticWatershed.resetPolygon( mModule->delineatingModule()->lastWatershedDelineated() );
-  mTemporaryAutomaticStreamLine.resetPolyline( mModule->delineatingModule()->lastStreamLine() );
+  const ReosMapExtent &extent = mModule->delineatingModule()->currentExtent();
+  mWatershedExtent.resetPolygon( mMap->toMapCoordinates( extent.toPolygon(), extent.crs() ) );
+  mTemporaryAutomaticWatershed.resetPolygon( mModule->delineatingModule()->lastWatershedDelineated( mMap->mapCrs() ) );
+  mTemporaryAutomaticStreamLine.resetPolyline( mModule->delineatingModule()->lastStreamLine( mMap->mapCrs() ) );
 }
 
 void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()

@@ -209,10 +209,10 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     QPolygonF downstreamLine() const;
 
     //! Returns the stream path line of the watershed
-    QPolygonF streamPath() const;
+    QPolygonF streamPath( const QString &destinationCrs ) const;
 
     //! Sets the stream path line of the watershed
-    void setStreamPath( const QPolygonF &streamPath );
+    void setStreamPath( const QPolygonF &streamPath, const QString &streamPathCrs );
 
     //! Returns the residual watershed if exists, if not returns nullptr
     ReosWatershed *residualWatershed() const;
@@ -296,6 +296,7 @@ class REOSCORE_EXPORT ReosWatershed : public ReosDataObject
     ReosSpatialPosition mOutletPoint;
     QPolygonF mDownstreamLine;
     QPolygonF mStreamPath;
+    QString mStreamPathCrs;
     QPolygonF mProfile;
     ReosGisEngine *mGisEngine = nullptr;
 

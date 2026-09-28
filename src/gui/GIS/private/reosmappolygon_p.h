@@ -183,6 +183,8 @@ class ReosMapPolygon_p : public ReosMapPolygonBase_p
   protected:
     QPolygonF mMapPolygon;
 
+    virtual bool isClosed() const {return true;}
+
   private:
     ReosMapPolygon_p( ReosMapPolygon_p *other );
 };
@@ -220,6 +222,8 @@ class ReosMapPolyline_p : public ReosMapPolygon_p
   private:
     void draw( QPainter *painter ) override;
     double mExtremityDistance = 0;
+
+    bool isClosed() const override {return false;}
 };
 
 #endif // REOSMAPPOLYGON_P_H

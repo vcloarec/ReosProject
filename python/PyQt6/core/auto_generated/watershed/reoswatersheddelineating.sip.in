@@ -98,14 +98,19 @@ Prepare the delineating, return true if sucessful
 Returns if the delineating process is finished
 %End
 
-    QPolygonF lastWatershedDelineated() const;
+    QPolygonF lastWatershedDelineated( const QString &destinationCrs ) const;
 %Docstring
 Returns the last wateshed polygon delineated
 %End
 
-    QPolygonF lastStreamLine() const;
+    QPolygonF lastStreamLine( const QString &destinationCrs ) const;
 %Docstring
 Returns the last downstream line polyline delineated
+%End
+
+    QString resultCrs() const;
+%Docstring
+Returns the CRS of the delineating results
 %End
 
 

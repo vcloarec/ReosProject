@@ -603,6 +603,14 @@ QPointF ReosMap::toMapCoordinate( const ReosSpatialPosition &position ) const
   return position.position();
 }
 
+QPolygonF ReosMap::toMapCoordinates( const QPolygonF polygon, const QString &sourceCrs ) const
+{
+  if ( mEngine )
+    return mEngine->transformToProjectCoordinates( sourceCrs, polygon );
+
+  return polygon;
+}
+
 ReosSpatialPosition ReosMap::toSpatialPosition( const QPointF &mapCoordinate, const QString &crs ) const
 {
   return ReosSpatialPosition( ReosGisEngine::transformToCoordinates( ReosSpatialPosition( mapCoordinate, mapCrs() ), crs ), crs );

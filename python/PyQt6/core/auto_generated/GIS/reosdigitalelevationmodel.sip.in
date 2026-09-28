@@ -66,6 +66,11 @@ Id
 %Docstring
 Returns the no data value for this DEM
 %End
+
+    virtual QString crs() const = 0;
+%Docstring
+Returns the CRS of the DEM
+%End
 };
 
 

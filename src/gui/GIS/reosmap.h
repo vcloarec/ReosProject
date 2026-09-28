@@ -101,6 +101,7 @@ class REOSGUI_EXPORT ReosMap : public ReosModule
     void setCenter( const ReosSpatialPosition &center );
 
     QPointF toMapCoordinate( const ReosSpatialPosition &position ) const;
+    QPolygonF toMapCoordinates( const QPolygonF polygon, const QString &sourceCrs ) const;
     ReosSpatialPosition toSpatialPosition( const QPointF &mapCoordinate, const QString &crs ) const;
 
     ReosMapExtent extent() const;

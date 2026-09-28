@@ -73,7 +73,7 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
      * Extract a memory raster with simple precision from the DEM in \a extent.
      * The resolution of the raster will depend on the DEM specification.
      * Resulting resolution and adjusted extent are stored in \a rasterExtent.
-     * Destination coordinate reference system \a destinationCrs can be provided to override the extent crs
+     * Destination coordinate reference system \a destinationCrs can be provided to override the \a extent crs
      * If destinantion crs and extent crs are invalid, the output will be in the same coordinate system as the souce of the DEM
      *
      */
@@ -91,6 +91,9 @@ class REOSCORE_EXPORT ReosDigitalElevationModel SIP_ABSTRACT
 
     //! Returns the no data value for this DEM
     virtual double noDataValue() const = 0;
+
+    //! Returns the CRS of the DEM
+    virtual QString crs() const = 0;
 };
 
 #ifndef SIP_RUN

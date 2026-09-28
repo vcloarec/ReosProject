@@ -424,7 +424,7 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   {
     try
     {
-      extentInDEMCoordinates = transform.transform( destExtent, Qgis::TransformDirection::Reverse );
+      extentInDEMCoordinates = transform.transformBoundingBox( destExtent, Qgis::TransformDirection::Reverse );
     }
     catch ( QgsCsException & )
     {
@@ -434,41 +434,13 @@ ReosRasterMemory<float> ReosDigitalElevationModelRaster::extractMemoryRasterSimp
   else
     extentInDEMCoordinates = destExtent;
 
-  ReosRasterExtent outputRasterExtentInDemCoorindates = rasterExtent( extentInDEMCoordinates );
+  outputRasterExtent = rasterExtent( extentInDEMCoordinates );
+  outputRasterExtent.setCrs( mCrs.toWkt( Qgis::CrsWktVariant::PreferredGdal ) );
 
-  int xPixCount = outputRasterExtentInDemCoorindates.xCellCount();
-  int yPixCount = outputRasterExtentInDemCoorindates.yCellCount();
+  int xPixCount = outputRasterExtent.xCellCount();
+  int yPixCount = outputRasterExtent.yCellCount();
 
-  QgsRectangle
-    adjustedExtent( outputRasterExtentInDemCoorindates.xMapMin(), outputRasterExtentInDemCoorindates.yMapMin(), outputRasterExtentInDemCoorindates.xMapMax(), outputRasterExtentInDemCoorindates.yMapMax() );
-
-  if ( transform.isValid() )
-  {
-    QgsRectangle adjustedExtentInDestinationCoordinates;
-    try
-    {
-      adjustedExtentInDestinationCoordinates = transform.transform( adjustedExtent );
-    }
-    catch ( QgsCsException & )
-    {
-      adjustedExtentInDestinationCoordinates = adjustedExtent;
-    }
-
-    outputRasterExtent = ReosRasterExtent(
-      ReosMapExtent(
-        adjustedExtentInDestinationCoordinates.xMinimum(),
-        adjustedExtentInDestinationCoordinates.yMinimum(),
-        adjustedExtentInDestinationCoordinates.xMaximum(),
-        adjustedExtentInDestinationCoordinates.yMaximum()
-      ),
-      xPixCount,
-      yPixCount
-    );
-  }
-  else
-    outputRasterExtent = outputRasterExtentInDemCoorindates;
-
-  outputRasterExtent.setCrs( destCrs.toWkt( Qgis::CrsWktVariant::PreferredGdal ) );
+  QgsRectangle adjustedExtent( outputRasterExtent.xMapMin(), outputRasterExtent.yMapMin(), outputRasterExtent.xMapMax(), outputRasterExtent.yMapMax() );
 
   ReosRasterMemory<float> ret = ReosRasterMemory<float>( yPixCount, xPixCount ); //(row, col)
 
@@ -598,6 +570,11 @@ QString ReosDigitalElevationModelRaster::source() const
 double ReosDigitalElevationModelRaster::noDataValue() const
 {
   return mDataProvider->sourceNoDataValue( 1 );
+}
+
+QString ReosDigitalElevationModelRaster::crs() const
+{
+  return mCrs.toWkt( Qgis::CrsWktVariant::PreferredGdal );
 }
 
 ReosRasterExtent ReosDigitalElevationModelRaster::rasterExtent( const QgsRectangle &originalExtent ) const

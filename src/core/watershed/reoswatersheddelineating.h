@@ -55,6 +55,7 @@ class ReosWatershedDelineatingProcess : public ReosProcess
 
     QPolygonF watershedPolygon() const;
     QPolygonF streamLine() const;
+    QString crs() const;
 
     ReosRasterWatershed::Directions directions() const;
     ReosRasterWatershed::Watershed rasterizedWatershed() const;
@@ -160,10 +161,13 @@ class REOSCORE_EXPORT ReosWatershedDelineating : public ReosModule
 
     // ------ Results
     //! Returns the last wateshed polygon delineated
-    QPolygonF lastWatershedDelineated() const;
+    QPolygonF lastWatershedDelineated( const QString &destinationCrs ) const;
 
     //! Returns the last downstream line polyline delineated
-    QPolygonF lastStreamLine() const;
+    QPolygonF lastStreamLine( const QString &destinationCrs ) const;
+
+    //! Returns the CRS of the delineating results
+    QString resultCrs() const;
 
     // -------- validating and watershed producing
 

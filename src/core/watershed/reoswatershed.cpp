@@ -68,6 +68,7 @@ ReosWatershed::ReosWatershed(
   , mOutletPoint( outletPoint )
   , mDownstreamLine( downstreamLine )
   , mStreamPath( streamPath )
+  , mStreamPathCrs( crs )
   , mWktCrs( crs )
 {
   init();
@@ -94,6 +95,7 @@ ReosWatershed::ReosWatershed(
   , mOutletPoint( outletPoint )
   , mDownstreamLine( downstreamLine )
   , mStreamPath( streamPath )
+  , mStreamPathCrs( crs )
   , mWktCrs( crs )
 {
   init();
@@ -479,14 +481,15 @@ void ReosWatershed::extentTo( const ReosWatershed &other )
   }
 }
 
-QPolygonF ReosWatershed::streamPath() const
+QPolygonF ReosWatershed::streamPath( const QString &destinationCrs ) const
 {
-  return mStreamPath;
+  return ReosGisEngine::transformToCoordinates( mStreamPathCrs, mStreamPath, destinationCrs );
 }
 
-void ReosWatershed::setStreamPath( const QPolygonF &streamPath )
+void ReosWatershed::setStreamPath( const QPolygonF &streamPath, const QString &streamPathCrs )
 {
   mStreamPath = streamPath;
+  mStreamPathCrs = streamPathCrs;
   emit dataChanged();
 }
 
@@ -553,6 +556,8 @@ ReosEncodedElement ReosWatershed::encode( const ReosEncodeContext &context ) con
   ret.addEncodedData( QStringLiteral( "outlet-position" ), mOutletPoint.encode() );
   ret.addData( QStringLiteral( "downstream-line" ), mDownstreamLine );
   ret.addData( QStringLiteral( "stream-path" ), mStreamPath );
+  ret.addData( QStringLiteral( "stream-path-crs" ), mStreamPathCrs );
+
   ret.addData( QStringLiteral( "profile" ), mProfile );
   QString effectiveCrs = crs();
   ret.addData( QStringLiteral( "wkt-crs" ), effectiveCrs );
@@ -654,6 +659,9 @@ ReosWatershed *ReosWatershed::decode( const ReosEncodedElement &element, const R
     ws->mOutletPoint = ReosSpatialPosition( outletPoint, ws->mWktCrs );
   else
     ws->mOutletPoint = ReosSpatialPosition::decode( element.getEncodedData( QStringLiteral( "outlet-position" ) ) );
+
+  if ( !element.getData( QStringLiteral( "stream-path-crs" ), ws->mStreamPathCrs ) )
+    ws->mStreamPathCrs = ws->mOutletPoint.crs();
 
   QList<QString> directionKeys;
   QList<QByteArray> directionExtents;

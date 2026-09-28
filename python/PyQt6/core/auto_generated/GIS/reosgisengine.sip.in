@@ -82,6 +82,16 @@ Returns whether the layer exists and is valid
 %End
 
     ReosMapExtent layerExtent( const QString &layerId ) const;
+%Docstring
+Returns the extent of the layer with ``layerId``. If the layer does not
+exist or is invalid, returns an invalid extent
+%End
+
+    ReosRasterExtent layerRasterExtent( const QString &layerId ) const;
+%Docstring
+Returns the raster extent of the layer with ``layerId``. If the layer
+does not exist or is invalid, returns an invalid raster extent
+%End
 
     int layersCount() const;
 %Docstring

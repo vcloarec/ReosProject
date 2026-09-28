@@ -147,7 +147,7 @@ void ReosLongitudinalProfileWidget::setCurrentWatershed( ReosWatershed *ws )
   if ( mCurrentWatershed )
   {
     mProfile->setProfile( mCurrentWatershed->profile() );
-    mCurrentStreamLine.resetPolyline( mCurrentWatershed->streamPath() );
+    mCurrentStreamLine.resetPolyline( mCurrentWatershed->streamPath( mMap->mapCrs() ) );
   }
   else
   {
@@ -245,7 +245,7 @@ void ReosLongitudinalProfileWidget::onProfileCursorMove( const QPointF &point )
 void ReosLongitudinalProfileWidget::onStreamLineChanged( const QPolygonF &streamLine )
 {
   if ( mCurrentWatershed )
-    mCurrentWatershed->setStreamPath( streamLine );
+    mCurrentWatershed->setStreamPath( streamLine, mMap->mapCrs() );
 
   mCurrentStreamLine.resetPolyline( streamLine );
   askForUpdateDEMProfile();
@@ -254,7 +254,7 @@ void ReosLongitudinalProfileWidget::onStreamLineChanged( const QPolygonF &stream
 void ReosLongitudinalProfileWidget::onStreamLineEdited()
 {
   if ( mCurrentWatershed )
-    mCurrentWatershed->setStreamPath( mCurrentStreamLine.mapPolyline() );
+    mCurrentWatershed->setStreamPath( mCurrentStreamLine.mapPolyline(), mMap->mapCrs() );
 
   askForUpdateDEMProfile();
 }
@@ -273,17 +273,16 @@ void ReosLongitudinalProfileWidget::updateDEMProfile()
     return;
   }
 
-  QPolygonF streamLine = mCurrentWatershed->streamPath();
-
   QPolygonF profile;
   QString currentDEmId = ui->mComboBoxDEM->currentDemLayerId();
   std::unique_ptr<ReosDigitalElevationModel> dem;
 
   dem.reset( mMap->engine()->getDigitalElevationModel( currentDEmId ) );
+  QPolygonF streamLine = mCurrentWatershed->streamPath( dem->crs() );
   if ( dem )
   {
     ReosElevationOnPolylineProcess pr( dem.get() );
-    pr.setEntryPolyline( streamLine, mMap->engine()->crs() );
+    pr.setEntryPolyline( streamLine, dem->crs() );
     ReosProcessControler *controler = new ReosProcessControler( &pr, this );
     controler->exec();
 

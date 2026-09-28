@@ -233,6 +233,7 @@ ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
   {
     emit watershedWillBeRemoved( ws );
     std::unique_ptr<ReosWatershed> ret( ds->extractOnlyDirectUpstreamWatershed( ws->positionInDownstreamWatershed() ) );
+    mPolygonWatershed->removeWatershed( ws->id() );
     emit watershedRemoved();
     return ret.release();
   }
@@ -248,6 +249,7 @@ ReosWatershed *ReosWatershedTree::extractWatershed( ReosWatershed *ws )
       {
         mWatersheds.emplace_back( ret->extractCompleteDirectUpstreamWatershed( 1 ) );
       }
+      mPolygonWatershed->removeWatershed( ws->id() );
       emit watershedRemoved();
       return ret.release();
     }

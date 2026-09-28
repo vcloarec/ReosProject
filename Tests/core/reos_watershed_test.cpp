@@ -225,7 +225,7 @@ void ReosWatersehdTest::watershedDelineating()
   controler.reset( new ModuleProcessControler( watershedDelineating.delineatingProcess() ) );
   controler->waitForFinished();
 
-  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
 
   QPolygonF polygonWatershedTest = QPolygonF(
     { QPointF( 661598.50, 1792950.50 ), QPointF( 661598.50, 1792949.50 ), QPointF( 661597.50, 1792949.50 ), QPointF( 661597.50, 1792948.50 ), QPointF( 661596.50, 1792948.50 ),
@@ -347,7 +347,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
-  QPolygonF streamLine = watershedDelineating.lastStreamLine();
+  QPolygonF streamLine = watershedDelineating.lastStreamLine( extent.crs() );
 
   QPolygonF streamLinetest( { QPointF( 661674.00, 1792734.00 ), QPointF( 661676.00, 1792736.00 ), QPointF( 661676.00, 1792738.00 ), QPointF( 661678.00, 1792740.00 ), QPointF( 661678.00, 1792741.00 ),
                               QPointF( 661679.00, 1792742.00 ), QPointF( 661679.00, 1792743.00 ), QPointF( 661678.00, 1792744.00 ), QPointF( 661678.00, 1792745.00 ), QPointF( 661679.00, 1792746.00 ),
@@ -423,7 +423,7 @@ void ReosWatersehdTest::watershedDelineating()
   controler.reset( new ModuleProcessControler( watershedDelineating.delineatingProcess() ) );
   controler->waitForFinished();
 
-  polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
 
   polygonWatershedTest = QPolygonF(
     { QPointF( 661645.50, 1792842.50 ), QPointF( 661645.50, 1792841.50 ), QPointF( 661644.50, 1792841.50 ), QPointF( 661644.50, 1792840.50 ), QPointF( 661630.50, 1792840.50 ),
@@ -927,7 +927,7 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
   controler->waitForFinished();
 
 
-  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
 
   QPolygonF polygonWatershedTest = QPolygonF(
     { QPointF( 661598.50, 1792950.50 ), QPointF( 661598.50, 1792949.50 ), QPointF( 661597.50, 1792949.50 ), QPointF( 661597.50, 1792948.50 ), QPointF( 661596.50, 1792948.50 ),
@@ -1082,7 +1082,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( watershedDelineating.resultCrs() );
 
   //  ReosExportToVectorFile exportPolygon( "/home/vincent/bv_poly.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, QString() );
   //  exportPolygon.addPolygon( polygonWatershed, QVariantMap() );
@@ -1145,7 +1145,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
   ReosExportToVectorFile exportPolygon_1( "/home/vincent/bv_poly_test_1.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, QString() );
-  exportPolygon_1.addPolygon( watershedDelineating.lastWatershedDelineated(), QVariantMap() );
+  exportPolygon_1.addPolygon( watershedDelineating.lastWatershedDelineated( watershedDelineating.resultCrs() ), QVariantMap() );
 
   bool needAdjusting;
   QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );

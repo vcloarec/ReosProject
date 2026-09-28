@@ -131,20 +131,28 @@ bool ReosWatershedDelineating::isDelineatingFinished() const
   return ( mProcess && mProcess->isSuccessful() );
 }
 
-QPolygonF ReosWatershedDelineating::lastWatershedDelineated() const
+QPolygonF ReosWatershedDelineating::lastWatershedDelineated( const QString &destinationCrs ) const
 {
   if ( isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
-    return mProcess->watershedPolygon();
+    return mGisEngine->transformToCoordinates( mProcess->crs(), mProcess->watershedPolygon(), destinationCrs );
   else
     return QPolygonF();
 }
 
-QPolygonF ReosWatershedDelineating::lastStreamLine() const
+QPolygonF ReosWatershedDelineating::lastStreamLine( const QString &destinationCrs ) const
 {
   if ( isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
-    return mProcess->streamLine();
+    return mGisEngine->transformToCoordinates( mProcess->crs(), mProcess->streamLine(), destinationCrs );
   else
     return QPolygonF();
+}
+
+QString ReosWatershedDelineating::resultCrs() const
+{
+  if ( isDelineatingFinished() && mProcess && mProcess->isSuccessful() )
+    return mProcess->crs();
+  else
+    return QString();
 }
 
 bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
@@ -154,26 +162,28 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
     if ( mDownstreamWatershed && mDownstreamWatershed->hasDirectiondata( mDEMLayerId ) )
       mCurrentWatershed.reset( new ReosWatershed(
         mProcess->watershedPolygon(),
-        ReosSpatialPosition( mProcess->streamLine().last(), mGisEngine->crs() ),
+        ReosSpatialPosition( mProcess->streamLine().last(), mProcess->crs() ),
         ReosWatershed::Automatic,
         mDownstreamLine,
         mProcess->streamLine(),
         mProcess->rasterizedWatershed(),
         mProcess->outputRasterExtent(),
-        mDEMLayerId
+        mDEMLayerId,
+        mProcess->crs()
       ) );
     else
     {
       mCurrentWatershed.reset( new ReosWatershed(
         mProcess->watershedPolygon(),
-        ReosSpatialPosition( mProcess->streamLine().last(), mGisEngine->crs() ),
+        ReosSpatialPosition( mProcess->streamLine().last(), mProcess->crs() ),
         ReosWatershed::Automatic,
         mDownstreamLine,
         mProcess->streamLine(),
         mProcess->directions(),
         mProcess->rasterizedWatershed(),
         mProcess->outputRasterExtent(),
-        mDEMLayerId
+        mDEMLayerId,
+        mProcess->crs()
       ) );
     }
 
@@ -278,9 +288,7 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
     return;
   }
 
-  QPolygonF watershedPolygon = mProcess->watershedPolygon();
   ReosRasterExtent predefinedRasterExtent = mProcess->predefinedRasterExtent();
-
   ReosMapExtent watershedExtent( mProcess->watershedPolygon() );
 
   //! As the dem/direction raster have the border cells unrealistic, if the watershed extent have an extent closer than
@@ -301,6 +309,7 @@ void ReosWatershedDelineating::testPredefinedExtentValidity()
   {
     //! Here the original extent is not too small, so reduce it to fit just to the new watershed (with extraborder);
     mExtent = ReosMapExtent( watershedExtent.xMapMin() - xCellSize * 2, watershedExtent.yMapMin() - yCellSize * 2, watershedExtent.xMapMax() + xCellSize * 2, watershedExtent.yMapMax() + yCellSize * 2 );
+    mExtent.setCrs( mProcess->crs() );
   }
 
   mCurrentState = WaitingForValidate;
@@ -438,17 +447,17 @@ ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
 )
   : mExtent( mapExtent )
   , mEntryDem( dem )
-  , mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, mapExtent.crs() ) )
+  , mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downtreamLine, dem->crs() ) )
   , mBurningLines( burningLines )
-  , mOutputCrs( mapExtent.crs() )
+  , mOutputCrs( dem->crs() )
   , mCalculateAverageElevation( calculateAverageElevation )
 {}
 
 ReosWatershedDelineatingProcess::ReosWatershedDelineatingProcess(
   ReosWatershed *downstreamWatershed, const QPolygonF &downstreamLine, const QString &downstreamLineCrs, const QString &layerId, bool calculateAverageElevation
 )
-  : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, downstreamWatershed->crs() ) )
-  , mOutputCrs( downstreamWatershed->crs() )
+  : mDownstreamLine( ReosGisEngine::transformToCoordinates( downstreamLineCrs, downstreamLine, downstreamWatershed->directionExtent( layerId ).crs() ) )
+  , mOutputCrs( downstreamWatershed->directionExtent( layerId ).crs() )
   , mDirections( downstreamWatershed->directions( layerId ) )
   , mPredefinedRasterExtent( downstreamWatershed->directionExtent( layerId ) )
   , mCalculateAverageElevation( calculateAverageElevation )
@@ -510,6 +519,7 @@ void ReosWatershedDelineatingProcess::start()
       return;
     }
 
+    distanceArea = ReosRasterDistanceArea( mPredefinedRasterExtent, 10 );
     ReosRasterMemory<float> filledDem = fillDemProcess->filledDEM();
     setCurrentProgression( 0 );
     std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionProcess( new ReosRasterWatershedDirectionCalculation( fillDemProcess->filledDEM(), distanceArea ) );
@@ -777,6 +787,11 @@ QPolygonF ReosWatershedDelineatingProcess::watershedPolygon() const
 QPolygonF ReosWatershedDelineatingProcess::streamLine() const
 {
   return mOutputStreamline;
+}
+
+QString ReosWatershedDelineatingProcess::crs() const
+{
+  return mOutputRasterExtent.crs();
 }
 
 ReosRasterWatershed::Directions ReosWatershedDelineatingProcess::directions() const

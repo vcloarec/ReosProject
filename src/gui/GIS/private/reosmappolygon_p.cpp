@@ -298,6 +298,8 @@ void ReosMapPolygon_p::setGeometry( const QPolygonF &geom )
   mMapPolygon = geom;
   if ( mMapPolygon.isEmpty() )
     mSegmentMarker = -1;
+  else if ( isClosed() && mMapPolygon.last() != mMapPolygon.first() )
+    mMapPolygon.append( mMapPolygon.first() );
 
   updatePosition();
 }
