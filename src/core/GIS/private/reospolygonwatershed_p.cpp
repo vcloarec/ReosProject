@@ -62,6 +62,10 @@ ReosPolygonWatershed_p::ReosPolygonWatershed_p( const QString &wktCrs )
   fieldResidual.setType( QMetaType::Bool );
   fieldResidual.setName( QStringLiteral( "residual" ) );
   mVectorLayer->addAttribute( fieldResidual );
+  QgsField fieldName;
+  fieldName.setType( QMetaType::QString );
+  fieldName.setName( QStringLiteral( "name" ) );
+  mVectorLayer->addAttribute( fieldName );
 }
 
 ReosPolygonWatershed *ReosPolygonWatershed_p::clone() const
@@ -77,7 +81,7 @@ QObject *ReosPolygonWatershed_p::data()
   return mVectorLayer.get();
 }
 
-void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id, ReosWatershed::Type type )
+void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id, const QString &name, ReosWatershed::Type type )
 {
   const QgsCoordinateTransform transform = toLayerTransform( crs );
 
@@ -107,6 +111,7 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
   feat.setFields( fields, true );
   feat.setAttribute( QStringLiteral( "watershedId" ), id );
   feat.setAttribute( QStringLiteral( "residual" ), type == ReosWatershed::Residual );
+  feat.setAttribute( QStringLiteral( "name" ), name );
   mVectorLayer->addFeature( feat );
 
   emit geometryChanged();
@@ -114,7 +119,7 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
 
 void ReosPolygonWatershed_p::addWatershed( ReosWatershed *watershed )
 {
-  addWatershed( watershed->delineating(), watershed->crs(), watershed->id(), watershed->watershedType() );
+  addWatershed( watershed->delineating(), watershed->crs(), watershed->id(), watershed->watershedName()->value(), watershed->watershedType() );
 }
 
 void ReosPolygonWatershed_p::removeWatershed( const QString &id )
@@ -322,7 +327,8 @@ void ReosPolygonWatershed_p::render( void *mapSettings, QPainter *painter, bool 
 
     if ( !contained )
     {
-      QString expression = QStringLiteral( "residual = false" );
+      // the field "residual" must be false in the expression, to avoid highlighting residual watersheds when the mouse is over a non-residual watershed
+      const QString expression = QStringLiteral( "NOT residual" );
       QgsFeature feat = getFeatureUnderPosition( highlightPosition, destinationCrs, expression );
       if ( feat.isValid() )
       {
@@ -438,7 +444,7 @@ QgsFeature ReosPolygonWatershed_p::getFeatureUnderPosition( const QPointF &posit
   if ( !expression.isEmpty() )
     request.setFilterExpression( expression );
 
-  QgsFeatureIterator featIt = mVectorLayer->getFeatures();
+  QgsFeatureIterator featIt = mVectorLayer->getFeatures( request );
 
   QgsFeature feat;
   QgsFeature selectedFeature;

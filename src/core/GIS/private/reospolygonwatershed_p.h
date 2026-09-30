@@ -35,10 +35,7 @@ class ReosPolygonWatershed_p : public ReosPolygonWatershed, private ReosGeometry
 
     ReosPolygonWatershed *clone() const override;
     QObject *data() override;
-    void addWatershed(const QPolygonF &watershed,
-                       const QString &crs,
-                      const QString &id,
-                      ReosWatershed::Type type) override;
+    void addWatershed( const QPolygonF &watershed, const QString &crs, const QString &id, const QString &name, ReosWatershed::Type type ) override;
     void addWatershed( ReosWatershed *watershed ) override;
     void removeWatershed( const QString &id ) override;
     QPointF closestVertex( const QString &watershedId, const QPointF &position, const QString &destinationCrs, double tolerance, int &prevIndex, int &index, int &nextIndex ) const override;

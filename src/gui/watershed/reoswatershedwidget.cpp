@@ -28,6 +28,7 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   , ui( new Ui::ReosWatershedWidget )
   , mWatershdModule( module )
   , mMap( guiContext.map() )
+  , mCurrentWatershedOnMap( guiContext.map() )
   , mCurrentMapCrs( guiContext.map()->mapCrs() )
   , mHydraulicNetwork( hydraulicNetwork )
   , mActionSelectWatershed( new QAction( QIcon( QStringLiteral( ":/images/selectWatershed.svg" ) ), tr( "Select watershed on map" ), this ) )
@@ -159,6 +160,8 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
 
   mMapPolygonWatershed = new ReosMapPolygonWatershed( mMap, mWatershdModule->watershedTree()->polygonWatershed() );
   mMapPolygonWatershed->setDescription( mDescriptionKeyWatershed );
+
+  mCurrentWatershedOnMap.setFillColor( Qt::red );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
@@ -339,6 +342,7 @@ void ReosWatershedWidget::onCurrentWatershedChanges( const QItemSelection &selec
   if ( it != mMapWatersheds.end() )
   {
     formatSelectedWatershed( it.value() );
+    mCurrentWatershedOnMap.resetPolygon( currentWatershed->delineating( mMap->mapCrs() ) );
     mMapToolEditDelineating->setCurrentWatershedId( currentWatershed->id() );
     mMapToolMoveOutletPoint->setCurrentMapItem( it.value().outletPoint.get() );
   }

@@ -75,6 +75,7 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     ReosWatershedModule *mWatershdModule = nullptr;
     ReosMapPolygonWatershed *mMapPolygonWatershed = nullptr;
     ReosWatershedItemModel *mModelWatershed = nullptr;
+    ReosMapPolygon mCurrentWatershedOnMap;
     ReosMap *mMap = nullptr;
     QString mCurrentMapCrs;
     ReosHydraulicNetwork *mHydraulicNetwork = nullptr;
@@ -121,8 +122,6 @@ class REOSGUI_EXPORT ReosWatershedWidget : public QWidget
     MapWatersheds mMapWatersheds;
 
     void constructMapWatershed( ReosWatershed *watershed );
-
-    ReosMapPolyline mCurrentStreamLine;
 
     ReosMapToolEditPolygonWatershed *mMapToolEditDelineating = nullptr;
     ReosMapToolMoveMapItem *mMapToolMoveOutletPoint = nullptr;

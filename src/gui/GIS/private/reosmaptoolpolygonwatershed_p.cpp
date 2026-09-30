@@ -178,7 +178,9 @@ void ReosMapToolEditPolygonWatershed_p::reset()
 
 ReosMapToolSelectPolygonWatershed_p::ReosMapToolSelectPolygonWatershed_p( QgsMapCanvas *mapCanvas )
   : ReosMapTool_p( mapCanvas )
-{}
+{
+  setSeachWhenMoving( true );
+}
 
 void ReosMapToolSelectPolygonWatershed_p::setPolygonWatershed( ReosPolygonWatershed *polygonWatershed )
 {
