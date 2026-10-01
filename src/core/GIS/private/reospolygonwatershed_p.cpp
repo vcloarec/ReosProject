@@ -103,8 +103,6 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
     }
   }
 
-  QPolygonF poly = layerGeom.asQPolygonF();
-
   const QgsFields fields = mVectorLayer->fields();
   QgsFeature feat;
   feat.setGeometry( layerGeom );
@@ -182,7 +180,10 @@ QPolygonF ReosPolygonWatershed_p::watershedDelineating( const QString &watershed
       return feat.geometry().asQPolygonF();
     }
 
-    return geom.asQPolygonF();
+    QPolygonF ret = geom.asQPolygonF();
+    if ( !ret.empty() && ret.last() == ret.first() )
+      ret.removeLast();
+    return ret;
   }
 
   return QPolygonF();
