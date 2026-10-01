@@ -410,13 +410,13 @@ void ReosWatersehdTest::watershedDelineating()
   //! Partially contained line --> not possible
   downstreamLine << QPointF( 661560, 1792750 ) << QPointF( 661760, 1792900 );
 
-  QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine ) );
+  QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine, ReosGisEngine::crsFromEPSG( 32620 ) ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 661637, 1792840 ) << QPointF( 661703.5, 1792843.86 );
 
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, ReosGisEngine::crsFromEPSG( 32620 ) ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingforProceed );
 
   QVERIFY( watershedDelineating.prepareDelineating() );
