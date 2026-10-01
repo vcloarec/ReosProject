@@ -200,6 +200,7 @@ bool ReosWatershedDelineating::validateWatershed( bool &needAdjusting )
     needAdjusting = mWatershedTree->isWatershedIntersectExisting( mCurrentWatershed.get() );
     mIsBurningLineUpToDate = true;
     mCurrentState = WaitingToRecord;
+    mExtent = ReosMapExtent();
     return true;
   }
 

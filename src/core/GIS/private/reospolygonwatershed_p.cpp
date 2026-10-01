@@ -191,7 +191,8 @@ QPolygonF ReosPolygonWatershed_p::watershedDelineating( const QString &watershed
 
 QString ReosPolygonWatershed_p::watershedUnderPosition( const QPointF &position, const QString &destinationCrs ) const
 {
-  const QgsFeature &feature = getFeatureUnderPosition( position, destinationCrs );
+  const QString expression = QStringLiteral( "NOT residual" );
+  const QgsFeature &feature = getFeatureUnderPosition( position, destinationCrs, expression );
   if ( feature.isValid() )
     return feature.attribute( QStringLiteral( "watershedId" ) ).toString();
 

@@ -180,7 +180,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QVERIFY( !watershedDelineating.hasValidDigitalElevationModel() );
 
-  // add raster layer and register it as DEMvoid directionFromCog();
+  // add raster layer and register it as DEM;
   QString layerId = gisEngine.addRasterLayer( test_file( "DEM_for_watershed.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
   QCOMPARE( gisEngine.layerType( layerId ), ReosGisEngine::RasterLayer );
   // attempt to add it to the wateshed delineating but fail because the DEM is not registered
@@ -381,7 +381,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QCOMPARE( streamLine, streamLinetest );
 
-  //! Watershed exceed predfined extent--> predefined extent not valid, need to set another one
+  //! Watershed exceed predefined extent--> predefined extent not valid, need to set another one
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingWithBroughtBackExtent );
 
   //! Restart with a bigger extent
@@ -404,6 +404,7 @@ void ReosWatersehdTest::watershedDelineating()
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
   ReosWatershed *ws = watershedStore.allWatershedsFromUSToDS().at( 0 );
   QVERIFY( equal( ws->averageElevationParameter()->value(), 23.2079186831, 0.00000001 ) );
+  QVERIFY( !watershedDelineating.currentExtent().isValid() );
 
   //! Attempt to delineate an upstream watershed
   downstreamLine.clear();

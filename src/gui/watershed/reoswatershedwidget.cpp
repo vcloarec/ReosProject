@@ -6,6 +6,7 @@
 
 #include "reosmaptool.h"
 #include "reossettings.h"
+#include "reosstyleregistery.h"
 #include "reoswatershedmodule.h"
 #include "reoswatershedtree.h"
 #include "reosdelineatingwatershedwidget.h"
@@ -161,7 +162,8 @@ ReosWatershedWidget::ReosWatershedWidget( const ReosGuiContext &guiContext, Reos
   mMapPolygonWatershed = new ReosMapPolygonWatershed( mMap, mWatershdModule->watershedTree()->polygonWatershed() );
   mMapPolygonWatershed->setDescription( mDescriptionKeyWatershed );
 
-  mCurrentWatershedOnMap.setFillColor( Qt::red );
+  mCurrentWatershedOnMap.setFillStyle( Qt::BrushStyle::SolidPattern );
+  mCurrentWatershedOnMap.setFillColor( ReosStyleRegistery::instance()->redReos( 50 ) );
 }
 
 ReosWatershedWidget::~ReosWatershedWidget()
