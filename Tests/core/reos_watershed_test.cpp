@@ -1967,12 +1967,47 @@ void ReosWatersehdTest::runoffhydrograph()
 
 void ReosWatersehdTest::distanceArea()
 {
-  QString layerId = gisEngine.addRasterLayer( test_file( "dems_4326.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
+  const QString layerId = gisEngine.addRasterLayer( test_file( "dems_4326.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
   ReosRasterExtent rasterExtent = gisEngine.layerRasterExtent( layerId );
 
   ReosRasterDistanceArea distanceArea( rasterExtent, 10 );
 
   QVERIFY( distanceArea.isValid() );
+
+  // the extent must describe a north-up grid covering the layer
+  const ReosMapExtent layerExtent = gisEngine.layerExtent( layerId );
+  QVERIFY( rasterExtent.yCellSize() < 0 );
+  QVERIFY( equal( rasterExtent.yMapOrigin(), layerExtent.yMapMax(), 1e-9 ) );
+  QVERIFY( equal( rasterExtent.yMapMin(), layerExtent.yMapMin(), 1e-9 ) );
+
+  // geographic CRS: the area factor follows cos(latitude), whatever the row direction
+  const QString crs4326 = ReosGisEngine::crsFromEPSG( 4326 );
+  const int rowCount = 600;
+
+  ReosRasterExtent northUp( 0, 60, 100, rowCount, 0.1, -0.1 ); // row 0 at latitude 60
+  northUp.setCrs( crs4326 );
+  ReosRasterExtent southUp( 0, 0, 100, rowCount, 0.1, 0.1 ); // row 0 at latitude 0
+  southUp.setCrs( crs4326 );
+
+  const ReosRasterDistanceArea northUpArea( northUp, 10 );
+  const ReosRasterDistanceArea southUpArea( southUp, 10 );
+
+  const double expectedRatio = std::cos( 59.5 * M_PI / 180 ) / std::cos( 0.5 * M_PI / 180 );
+  QVERIFY( equal( northUpArea.areaFactor( 0, 50 ) / northUpArea.areaFactor( rowCount - 1, 50 ), expectedRatio, 0.01 ) );
+  QVERIFY( equal( southUpArea.areaFactor( rowCount - 1, 50 ) / southUpArea.areaFactor( 0, 50 ), expectedRatio, 0.01 ) );
+
+  for ( int r = 0; r < rowCount; r += 37 )
+    QVERIFY( equal( northUpArea.areaFactor( r, 50 ), southUpArea.areaFactor( rowCount - 1 - r, 50 ), 1e-4 ) );
+
+  // projected CRS: factors close to 1 on the central meridian
+  ReosRasterExtent utm( 500000, 5000000, 100, 100, 100, -100 );
+  utm.setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
+  const ReosRasterDistanceArea utmArea( utm, 10 );
+  QVERIFY( equal( utmArea.areaFactor( 50, 50 ), 1.0, 0.002 ) );
+
+  // no CRS: no correction
+  const ReosRasterDistanceArea noCrsArea( ReosRasterExtent( 0, 100, 100, 100, 1, -1 ), 10 );
+  QVERIFY( equal( noCrsArea.areaFactor( 50, 50 ), 1.0, 1e-9 ) );
 }
 
 
