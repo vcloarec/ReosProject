@@ -22,9 +22,8 @@
 
 #include "reosformwidget.h"
 #include "reosstyleregistery.h"
-#include "reosmaptooleditgeometrystructure.h"
+#include "reosmaptooleditpolylinestructure.h"
 #include "reospolylinesstructure.h"
-#include "reosmaptooleditgeometrystructure.h"
 
 ReosEditPolylineStructureWidget::ReosEditPolylineStructureWidget( ReosPolylinesStructure *structure, const ReosGuiContext &context )
   : QWidget( context.parent() )

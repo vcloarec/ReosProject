@@ -21,7 +21,7 @@
 #include "gmsh/reosgmshgenerator.h"
 #include "reosmapitem.h"
 
-class ReosMapToolEditPolygonStructure;
+class ReosMapToolEditPolygonsClassified;
 class ReosGuiContext;
 class ReosMap;
 class ReosHydraulicStructure2D;
@@ -60,7 +60,7 @@ class ReosGmshResolutionControllerWidget : public QWidget
     ReosPolygonStructureClassModelList *mModel = nullptr;
 
     QAction *mActionEditResolutionPolygons = nullptr;
-    ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;
+    ReosMapToolEditPolygonsClassified *mMapToolEditResolutionPolygon = nullptr;
     ReosMapPolygonStructure mMapStructureItem;
     QToolBar *mToolBar = nullptr;
 

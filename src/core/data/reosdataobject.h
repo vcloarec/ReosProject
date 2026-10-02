@@ -22,7 +22,7 @@
 
 class ReosEncodedElement;
 
-//! Base class uses to be an interface for data
+//! Base class used as an interface for data.
 class REOSCORE_EXPORT ReosDataObject : public QObject
 {
     Q_OBJECT

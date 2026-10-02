@@ -17,7 +17,7 @@ SET(REOS_METEOHDF5_HEADERS
 ADD_EXECUTABLE(test_meteo_hdf5 ${REOS_METEOHDF5_HEADERS} ${REOS_METEOHDF5_SOURCES} reos_meteo_hdf5_test.cpp)
 TARGET_LINK_LIBRARIES(test_meteo_hdf5
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )

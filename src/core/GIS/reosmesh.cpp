@@ -197,9 +197,12 @@ ReosMeshPointValue::ReosMeshPointValue( ReosMeshPointValue_p *poinValue )
 
 ReosMeshPointValue::~ReosMeshPointValue()
 {
-  d->ref--;
-  if ( d->ref == 0 )
-    delete d;
+  if ( d )
+  {
+    d->ref--;
+    if ( d->ref == 0 )
+      delete d;
+  }
 }
 
 ReosMeshPointValue::ReosMeshPointValue( const ReosMeshPointValue &other )
@@ -224,7 +227,7 @@ ReosMeshPointValue &ReosMeshPointValue::operator=( const ReosMeshPointValue &oth
   return *this;
 }
 
-ReosMeshPointValue::ReosMeshPointValue( ReosMeshPointValue &&other )
+ReosMeshPointValue::ReosMeshPointValue( ReosMeshPointValue &&other ) noexcept
 {
   d = other.d;
   other.d = nullptr;

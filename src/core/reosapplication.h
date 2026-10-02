@@ -23,7 +23,11 @@ email                : vcloarec at gmail dot com
 
 class ReosCoreModule;
 
-class REOSCORE_EXPORT ReosApplication : public QApplication {
+/**
+ * Application object for REOS.
+ */
+class REOSCORE_EXPORT ReosApplication : public QApplication
+{
 
 #ifdef SIP_RUN
   % TypeCode
@@ -70,7 +74,9 @@ class REOSCORE_EXPORT ReosApplication : public QApplication {
 % End
 #endif
 
-    Q_OBJECT public :
+    Q_OBJECT
+
+  public:
 #ifndef SIP_RUN
     ReosApplication(int &argc, char **argv,
                     const QString &appName = QStringLiteral("Reos"));
@@ -80,8 +86,7 @@ class REOSCORE_EXPORT ReosApplication : public QApplication {
    *
    * \param argv command line arguments
    */
-  ReosApplication(SIP_PYLIST argv) / PostHook = __pyQtQAppHook__ /
-                                                [(int &argc, char **argv)];
+  ReosApplication(SIP_PYLIST argv) / PostHook = __pyQtQAppHook__ / [(int &argc, char **argv)];
   % MethodCode
       // The Python interface is a list of argument strings that is modified.
 

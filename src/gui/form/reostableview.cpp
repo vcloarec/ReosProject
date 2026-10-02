@@ -183,7 +183,7 @@ QList<QVariantList> ReosTimeSerieTableView::clipBoardToVariantList()
     for ( const QString &str : std::as_const( splittedRow ) )
     {
       QString repStr = str;
-      repStr.replace( QLocale().decimalPoint(), '.' );
+      repStr.replace( QLocale().decimalPoint(), QStringLiteral( "." ) );
       row.append( repStr );
     }
 

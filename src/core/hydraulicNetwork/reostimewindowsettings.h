@@ -20,6 +20,7 @@
 #include "reosdataobject.h"
 #include "reosparameter.h"
 
+//! Settings used to define a time window from offsets or fixed dates.
 class REOSCORE_EXPORT ReosTimeWindowSettings : public ReosDataObject
 {
     Q_OBJECT

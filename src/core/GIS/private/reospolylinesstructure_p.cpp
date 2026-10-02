@@ -24,122 +24,14 @@
 #include <qgspolygon.h>
 #include <qgsgeometryutils.h>
 #include <qgsunittypes.h>
+#include <qgsmaplayerrenderer.h>
 
 #include "reosmapextent.h"
 #include "reosexception.h"
 
 
-ReosGeometryStructure_p::ReosGeometryStructure_p( const QString &type, const QString &wktCrs )
-  : mVectorLayer( new QgsVectorLayer( type + QStringLiteral( "?crs=" ) + wktCrs + QStringLiteral( "&index=yes" ), QStringLiteral( "internalLayer" ), QStringLiteral( "memory" ) ) )
-{}
-
-QgsPointXY ReosGeometryStructure_p::toLayerCoordinates( const ReosSpatialPosition &position ) const
-{
-  QgsCoordinateReferenceSystem crs;
-  crs.createFromWkt( position.crs() );
-
-  QgsCoordinateTransform transform( crs, mVectorLayer->crs(), QgsProject::instance() );
-
-  return transformCoordinates( position.position(), toLayerTransform( position.crs() ) );
-}
-
-QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const
-{
-  return transformCoordinates( QgsPointXY( position ), transform );
-}
-
-
-const QgsCoordinateTransform ReosGeometryStructure_p::toLayerTransform( const QString &crs ) const
-{
-  QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.createFromWkt( crs );
-
-  return QgsCoordinateTransform( qgsCrs, mVectorLayer->crs(), QgsProject::instance() );
-}
-
-const QgsCoordinateTransform ReosGeometryStructure_p::toDestinationTransform( const QString &destinationCrs ) const
-{
-  QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.createFromWkt( destinationCrs );
-
-  return QgsCoordinateTransform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
-}
-
-ReosMapExtent ReosGeometryStructure_p::extent( const QString &destinationCrs ) const
-{
-  QgsRectangle internalExtent = mVectorLayer->extent();
-  QgsCoordinateReferenceSystem qgsCrs;
-  qgsCrs.createFromString( destinationCrs );
-
-  QgsCoordinateTransform transform( mVectorLayer->crs(), qgsCrs, QgsProject::instance() );
-
-  if ( transform.isValid() )
-  {
-    try
-    {
-      QgsRectangle destExtent;
-      destExtent = transform.transform( internalExtent );
-      ReosMapExtent ret( destExtent.toRectF() );
-      ret.setCrs( destinationCrs );
-      return ret;
-    }
-    catch ( ... )
-    {}
-  }
-
-  ReosMapExtent ret( internalExtent.toRectF() );
-  return ret;
-}
-
-QgsRectangle ReosGeometryStructure_p::layerZone( const ReosMapExtent &zone ) const
-{
-  QgsCoordinateTransform transform = toLayerTransform( zone.crs() );
-
-  QgsRectangle rect( zone.toRectF() );
-  QgsRectangle layerRect = rect;
-
-  if ( transform.isValid() )
-  {
-    try
-    {
-      layerRect = transform.transform( rect );
-    }
-    catch ( QgsCsException & )
-    {
-      layerRect = rect;
-    }
-  }
-  return layerRect;
-}
-
-QString ReosGeometryStructure_p::crs() const
-{
-  return mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
-}
-
-
-QgsPointXY ReosGeometryStructure_p::transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const
-{
-  if ( transform.isValid() )
-  {
-    try
-    {
-      return transform.transform( position );
-    }
-    catch ( ... )
-    {
-      return position;
-    }
-  }
-  else
-  {
-    return position;
-  }
-}
-
-
 ReosPolylineStructureVectorLayer::ReosPolylineStructureVectorLayer( const QString &wktCrs )
-  : ReosGeometryStructure_p( QStringLiteral( "LineString" ), wktCrs )
+  : ReosGeometryComplex_p( QStringLiteral( "LineString" ), wktCrs )
 {
   init();
 }
@@ -209,14 +101,14 @@ ReosPolylineStructureVectorLayer::~ReosPolylineStructureVectorLayer()
 VertexS ReosPolylineStructureVectorLayer::purposeVertex( const QgsPointXY &point, double toleranceInLayerSystem )
 {
   const QgsRectangle sr( point.x() - toleranceInLayerSystem, point.y() - toleranceInLayerSystem, point.x() + toleranceInLayerSystem, point.y() + toleranceInLayerSystem );
-  QgsFeatureIterator fit0 = closeLinesInLayerCoordinate( sr );
+  QgsFeatureIterator fit0 = closeFeaturesInLayerCoordinate( sr );
   VertexS vert = searchForVertexPrivate( fit0, sr );
 
   if ( !vert )
   {
     double dist = 0;
     SegmentId closestLineId;
-    fit0 = closeLinesInLayerCoordinate( sr );
+    fit0 = closeFeaturesInLayerCoordinate( sr );
     if ( closestLine( fit0, sr, closestLineId, &dist ) && dist < toleranceInLayerSystem )
     {
       vert = insertVertexPrivate( sr.center(), closestLineId );
@@ -233,6 +125,13 @@ void ReosPolylineStructureVectorLayer::setTolerance( double tolerance, const QSt
   Qgis::DistanceUnit unitSource = crs.mapUnits();
   Qgis::DistanceUnit structureUnit = mVectorLayer->crs().mapUnits();
   mTolerance = QgsUnitTypes::fromUnitToUnitFactor( unitSource, structureUnit ) * tolerance;
+}
+
+void ReosPolylineStructureVectorLayer::render( void *mapSettings, QPainter *painter, bool highlight, const QPointF &highlightPosition ) const
+{
+  Q_UNUSED( highlight )
+  Q_UNUSED( highlightPosition )
+  renderGeometry( *static_cast<QgsMapSettings *>( mapSettings ), painter );
 }
 
 
@@ -1007,21 +906,6 @@ void ReosPolylineStructureVectorLayer::removeLine( qint64 lineId )
   mVectorLayer->endEditCommand();
 }
 
-
-QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const
-{
-  rect = layerZone( zone );
-  return closeLinesInLayerCoordinate( rect );
-}
-
-QgsFeatureIterator ReosPolylineStructureVectorLayer::closeLinesInLayerCoordinate( const QgsRectangle &rectLayer ) const
-{
-  QgsFeatureRequest request;
-  request.setFilterRect( rectLayer );
-
-  return mVectorLayer->getFeatures( request );
-}
-
 bool ReosPolylineStructureVectorLayer::closestLine( QgsFeatureIterator &it, const QgsRectangle &rect, SegmentId &lineId, double *distance ) const
 {
   QgsPointXY center = rect.center();
@@ -1047,7 +931,6 @@ bool ReosPolylineStructureVectorLayer::closestLine( QgsFeatureIterator &it, cons
 
   return found;
 }
-
 
 VertexS ReosPolylineStructureVectorLayer::searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const
 {
@@ -1093,7 +976,7 @@ VertexS ReosPolylineStructureVectorLayer::searchForVertexPrivate( QgsFeatureIter
 ReosGeometryStructureVertex *ReosPolylineStructureVectorLayer::searchForVertex( const ReosMapExtent &zone ) const
 {
   QgsRectangle rect;
-  QgsFeatureIterator it = closeLines( zone, rect );
+  QgsFeatureIterator it = closeFeatures( zone, rect );
 
   return searchForVertexPrivate( it, rect ).get();
 }
@@ -1101,7 +984,7 @@ ReosGeometryStructureVertex *ReosPolylineStructureVectorLayer::searchForVertex( 
 bool ReosPolylineStructureVectorLayer::searchForLine( const ReosMapExtent &zone, qint64 &id ) const
 {
   QgsRectangle rect;
-  QgsFeatureIterator it = closeLines( zone, rect );
+  QgsFeatureIterator it = closeFeatures( zone, rect );
 
   return closestLine( it, rect, id );
 }
@@ -1229,7 +1112,7 @@ QList<QPointF> ReosPolylineStructureVectorLayer::intersectionPoints( const QLine
 
 ReosMapExtent ReosPolylineStructureVectorLayer::extent( const QString &crs ) const
 {
-  return ReosGeometryStructure_p::extent( crs );
+  return ReosGeometryComplex_p::extent( crs );
 }
 
 static double ccwAngle( const QgsVector &v1, const QgsVector &v2 )

@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 #include "reosmeteorologicmodel.h"
 #include "reosgdalutils.h"
 #include "reosgisengine.h"
+#include "reosrasterdistancearea.h"
 
 
 class ReosWatersehdTest : public QObject
@@ -49,6 +50,8 @@ class ReosWatersehdTest : public QObject
 
     void delineate_watershed();
 
+    void distanceArea();
+
   private:
     ReosModule rootModule;
     ReosGisEngine gisEngine;
@@ -63,24 +66,24 @@ void ReosWatersehdTest::inclusion()
 {
   QPolygonF poly1;
   poly1 << QPointF( 0, 0 ) << QPointF( 0, 5 ) << QPointF( 5, 5 ) << QPointF( 5, 0 );
-  ReosWatershed watershed1( poly1, QPointF( 0, 2.5 ) );
+  ReosWatershed watershed1( poly1, ReosSpatialPosition( QPointF( 0, 2.5 ) ) );
   QCOMPARE( watershed1.area().valueM2(), 25 );
 
   QPolygonF poly2;
   poly2 << QPointF( 1, 0 ) << QPointF( 1, 5 ) << QPointF( 5, 5 ) << QPointF( 5, 0 );
-  ReosWatershed watershed2( poly2, QPointF( 1, 2.5 ) );
+  ReosWatershed watershed2( poly2, ReosSpatialPosition( QPointF( 1, 2.5 ) ) );
 
   QPolygonF poly3;
   poly3 << QPointF( 1, 1 ) << QPointF( 1, 4 ) << QPointF( 4, 4 ) << QPointF( 4, 1 );
-  ReosWatershed watershed3( poly3, QPointF( 1, 2.5 ) );
+  ReosWatershed watershed3( poly3, ReosSpatialPosition( QPointF( 1, 2.5 ) ) );
 
   QPolygonF poly4;
   poly4 << QPointF( 0, 2 ) << QPointF( 0, 3 ) << QPointF( 5, 3 ) << QPointF( 4, 2 );
-  ReosWatershed watershed4( poly4, QPointF( 0, 2.5 ) );
+  ReosWatershed watershed4( poly4, ReosSpatialPosition( QPointF( 0, 2.5 ) ) );
 
   QPolygonF poly5;
   poly5 << QPointF( 5, 2 ) << QPointF( 5, 3 ) << QPointF( 10, 3 ) << QPointF( 10, 2 );
-  ReosWatershed watershed5( poly5, QPointF( 5, 2.5 ) );
+  ReosWatershed watershed5( poly5, ReosSpatialPosition( QPointF( 5, 2.5 ) ) );
 
   ReosInclusionType inclusion = watershed3.isContainedBy( watershed1 );
   QCOMPARE( inclusion, ReosInclusionType::Total );
@@ -115,7 +118,7 @@ void ReosWatersehdTest::watershedInteractions()
   QPolygonF poly1;
   poly1 << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 100, 50 ) << QPointF( 100, 0 );
 
-  ReosWatershed *watershed_1 = watershedTree.addWatershed( new ReosWatershed( poly1, QPointF( 0, 25 ) ) );
+  ReosWatershed *watershed_1 = watershedTree.addWatershed( new ReosWatershed( poly1, ReosSpatialPosition( QPointF( 0, 25 ) ) ) );
 
   QVERIFY( watershed_1 );
   QCOMPARE( watershedTree.watershedCount(), 1 );
@@ -125,7 +128,7 @@ void ReosWatersehdTest::watershedInteractions()
   QPolygonF poly2;
   poly2 << QPointF( 75, -25 ) << QPointF( 75, 75 ) << QPointF( 125, 75 ) << QPointF( 125, -25 );
 
-  ReosWatershed *watershed_2 = watershedTree.addWatershed( new ReosWatershed( poly2, QPointF( 75, 25 ) ), true );
+  ReosWatershed *watershed_2 = watershedTree.addWatershed( new ReosWatershed( poly2, ReosSpatialPosition( QPointF( 75, 25 ) ) ), true );
   QVERIFY( watershed_2 );
   QCOMPARE( watershed_1->downstreamWatershed(), nullptr );
   QCOMPARE( watershed_1->directUpstreamWatershedCount(), 2 ); //new one + residual watershed
@@ -139,12 +142,12 @@ void ReosWatersehdTest::watershedInteractions()
   QPolygonF residualDelineating;
   residualDelineating << QPointF( 0, 0 ) << QPointF( 0, 50 ) << QPointF( 75, 50 ) << QPointF( 75, 0 );
   QVERIFY( equal( residualDelineating, residual->delineating() ) );
-  QCOMPARE( residual->outletPoint(), watershed_1->outletPoint() );
+  QCOMPARE( residual->outletPosition(), watershed_1->outletPosition() );
 
   QPolygonF poly3;
   poly3 << QPointF( 50, -25 ) << QPointF( 50, 75 ) << QPointF( 125, 75 ) << QPointF( 125, -25 );
 
-  ReosWatershed *watershed_3 = watershedTree.addWatershed( new ReosWatershed( poly3, QPointF( 50, 25 ) ), true );
+  ReosWatershed *watershed_3 = watershedTree.addWatershed( new ReosWatershed( poly3, ReosSpatialPosition( QPointF( 50, 25 ) ) ), true );
   QVERIFY( watershed_3 );
   QVERIFY( poly3 != watershed_3->delineating() );
   poly3.clear();
@@ -177,7 +180,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QVERIFY( !watershedDelineating.hasValidDigitalElevationModel() );
 
-  // add raster layer and register it as DEMvoid directionFromCog();
+  // add raster layer and register it as DEM;
   QString layerId = gisEngine.addRasterLayer( test_file( "DEM_for_watershed.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
   QCOMPARE( gisEngine.layerType( layerId ), ReosGisEngine::RasterLayer );
   // attempt to add it to the wateshed delineating but fail because the DEM is not registered
@@ -222,7 +225,7 @@ void ReosWatersehdTest::watershedDelineating()
   controler.reset( new ModuleProcessControler( watershedDelineating.delineatingProcess() ) );
   controler->waitForFinished();
 
-  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
 
   QPolygonF polygonWatershedTest = QPolygonF(
     { QPointF( 661598.50, 1792950.50 ), QPointF( 661598.50, 1792949.50 ), QPointF( 661597.50, 1792949.50 ), QPointF( 661597.50, 1792948.50 ), QPointF( 661596.50, 1792948.50 ),
@@ -344,7 +347,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
-  QPolygonF streamLine = watershedDelineating.lastStreamLine();
+  QPolygonF streamLine = watershedDelineating.lastStreamLine( extent.crs() );
 
   QPolygonF streamLinetest( { QPointF( 661674.00, 1792734.00 ), QPointF( 661676.00, 1792736.00 ), QPointF( 661676.00, 1792738.00 ), QPointF( 661678.00, 1792740.00 ), QPointF( 661678.00, 1792741.00 ),
                               QPointF( 661679.00, 1792742.00 ), QPointF( 661679.00, 1792743.00 ), QPointF( 661678.00, 1792744.00 ), QPointF( 661678.00, 1792745.00 ), QPointF( 661679.00, 1792746.00 ),
@@ -378,7 +381,7 @@ void ReosWatersehdTest::watershedDelineating()
 
   QCOMPARE( streamLine, streamLinetest );
 
-  //! Watershed exceed predfined extent--> predefined extent not valid, need to set another one
+  //! Watershed exceed predefined extent--> predefined extent not valid, need to set another one
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingWithBroughtBackExtent );
 
   //! Restart with a bigger extent
@@ -401,26 +404,27 @@ void ReosWatersehdTest::watershedDelineating()
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForDownstream );
   ReosWatershed *ws = watershedStore.allWatershedsFromUSToDS().at( 0 );
   QVERIFY( equal( ws->averageElevationParameter()->value(), 23.2079186831, 0.00000001 ) );
+  QVERIFY( !watershedDelineating.currentExtent().isValid() );
 
   //! Attempt to delineate an upstream watershed
   downstreamLine.clear();
   //! Partially contained line --> not possible
   downstreamLine << QPointF( 661560, 1792750 ) << QPointF( 661760, 1792900 );
 
-  QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine ) );
+  QVERIFY( !watershedDelineating.setDownstreamLine( downstreamLine, ReosGisEngine::crsFromEPSG( 32620 ) ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForDownstream );
 
   downstreamLine.clear();
   downstreamLine << QPointF( 661637, 1792840 ) << QPointF( 661703.5, 1792843.86 );
 
-  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine ) );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, ReosGisEngine::crsFromEPSG( 32620 ) ) );
   QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingforProceed );
 
   QVERIFY( watershedDelineating.prepareDelineating() );
   controler.reset( new ModuleProcessControler( watershedDelineating.delineatingProcess() ) );
   controler->waitForFinished();
 
-  polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
 
   polygonWatershedTest = QPolygonF(
     { QPointF( 661645.50, 1792842.50 ), QPointF( 661645.50, 1792841.50 ), QPointF( 661644.50, 1792841.50 ), QPointF( 661644.50, 1792840.50 ), QPointF( 661630.50, 1792840.50 ),
@@ -663,10 +667,6 @@ void ReosWatersehdTest::delineateFromDirection()
       QPointF( 661678.50, 1792953.50 ), QPointF( 661677.50, 1792953.50 ), QPointF( 661677.50, 1792952.50 ), QPointF( 661676.50, 1792952.50 ), QPointF( 661676.50, 1792951.50 ),
       QPointF( 661675.50, 1792951.50 ), QPointF( 661675.50, 1792950.50 ), QPointF( 661599.50, 1792950.50 ) }
   );
-
-  ReosExportToVectorFile exportPoly( "/home/cloarec/poly.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::GeometryType::Polygon, ReosGisEngine::crsFromEPSG( 32620 ) );
-  exportPoly.addPolygon( polygonWatershed, QVariantMap() );
-
 
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
@@ -928,7 +928,7 @@ void ReosWatersehdTest::watershedDelineatingWithBurningLine()
   controler->waitForFinished();
 
 
-  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
 
   QPolygonF polygonWatershedTest = QPolygonF(
     { QPointF( 661598.50, 1792950.50 ), QPointF( 661598.50, 1792949.50 ), QPointF( 661597.50, 1792949.50 ), QPointF( 661597.50, 1792948.50 ), QPointF( 661596.50, 1792948.50 ),
@@ -1083,7 +1083,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
 
   QVERIFY( watershedDelineating.currentState() == ReosWatershedDelineating::WaitingForValidate );
 
-  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated();
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( watershedDelineating.resultCrs() );
 
   //  ReosExportToVectorFile exportPolygon( "/home/vincent/bv_poly.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, QString() );
   //  exportPolygon.addPolygon( polygonWatershed, QVariantMap() );
@@ -1146,7 +1146,7 @@ void ReosWatersehdTest::watershdDelineatingMultiWatershed()
   QCOMPARE( polygonWatershed, polygonWatershedTest );
 
   ReosExportToVectorFile exportPolygon_1( "/home/vincent/bv_poly_test_1.shp", QList<ReosExportToVectorFile::Field>(), ReosExportToVectorFile::Polygon, QString() );
-  exportPolygon_1.addPolygon( watershedDelineating.lastWatershedDelineated(), QVariantMap() );
+  exportPolygon_1.addPolygon( watershedDelineating.lastWatershedDelineated( watershedDelineating.resultCrs() ), QVariantMap() );
 
   bool needAdjusting;
   QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
@@ -1963,6 +1963,53 @@ void ReosWatersehdTest::runoffhydrograph()
   QCOMPARE( hydrograph->valueCount(), 80 );
   QCOMPARE( hydrograph->valueAt( 70 ), 0.625077585479 );
 }
+
+
+void ReosWatersehdTest::distanceArea()
+{
+  const QString layerId = gisEngine.addRasterLayer( test_file( "dems_4326.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
+  ReosRasterExtent rasterExtent = gisEngine.layerRasterExtent( layerId );
+
+  ReosRasterDistanceArea distanceArea( rasterExtent, 10 );
+
+  QVERIFY( distanceArea.isValid() );
+
+  // the extent must describe a north-up grid covering the layer
+  const ReosMapExtent layerExtent = gisEngine.layerExtent( layerId );
+  QVERIFY( rasterExtent.yCellSize() < 0 );
+  QVERIFY( equal( rasterExtent.yMapOrigin(), layerExtent.yMapMax(), 1e-9 ) );
+  QVERIFY( equal( rasterExtent.yMapMin(), layerExtent.yMapMin(), 1e-9 ) );
+
+  // geographic CRS: the area factor follows cos(latitude), whatever the row direction
+  const QString crs4326 = ReosGisEngine::crsFromEPSG( 4326 );
+  const int rowCount = 600;
+
+  ReosRasterExtent northUp( 0, 60, 100, rowCount, 0.1, -0.1 ); // row 0 at latitude 60
+  northUp.setCrs( crs4326 );
+  ReosRasterExtent southUp( 0, 0, 100, rowCount, 0.1, 0.1 ); // row 0 at latitude 0
+  southUp.setCrs( crs4326 );
+
+  const ReosRasterDistanceArea northUpArea( northUp, 10 );
+  const ReosRasterDistanceArea southUpArea( southUp, 10 );
+
+  const double expectedRatio = std::cos( 59.5 * M_PI / 180 ) / std::cos( 0.5 * M_PI / 180 );
+  QVERIFY( equal( northUpArea.areaFactor( 0, 50 ) / northUpArea.areaFactor( rowCount - 1, 50 ), expectedRatio, 0.01 ) );
+  QVERIFY( equal( southUpArea.areaFactor( rowCount - 1, 50 ) / southUpArea.areaFactor( 0, 50 ), expectedRatio, 0.01 ) );
+
+  for ( int r = 0; r < rowCount; r += 37 )
+    QVERIFY( equal( northUpArea.areaFactor( r, 50 ), southUpArea.areaFactor( rowCount - 1 - r, 50 ), 1e-4 ) );
+
+  // projected CRS: factors close to 1 on the central meridian
+  ReosRasterExtent utm( 500000, 5000000, 100, 100, 100, -100 );
+  utm.setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
+  const ReosRasterDistanceArea utmArea( utm, 10 );
+  QVERIFY( equal( utmArea.areaFactor( 50, 50 ), 1.0, 0.002 ) );
+
+  // no CRS: no correction
+  const ReosRasterDistanceArea noCrsArea( ReosRasterExtent( 0, 100, 100, 100, 1, -1 ), 10 );
+  QVERIFY( equal( noCrsArea.areaFactor( 50, 50 ), 1.0, 1e-9 ) );
+}
+
 
 QTEST_MAIN( ReosWatersehdTest )
 #include "reos_watershed_test.moc"

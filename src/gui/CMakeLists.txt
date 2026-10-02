@@ -23,7 +23,9 @@ SET(REOS_GUI_SOURCES
     GIS/reosmapitem.cpp
     GIS/reosmaptool.cpp
     GIS/reosgislayerswidget.cpp
-    GIS/reosmaptooleditgeometrystructure.cpp
+    GIS/reosmaptooleditpolylinestructure.cpp
+    GIS/reosmaptoolpolygonwatershed.cpp
+    GIS/reosmaptooleditpolygonsclassified.cpp
     GIS/reoseditpolylinestructurewidget.cpp
     GIS/reosmeshscalarrenderingwidget.cpp
     GIS/reosmeshvectorrenderingwidget.cpp
@@ -43,8 +45,10 @@ SET(REOS_GUI_SOURCES
     GIS/private/reoslayertreeviewdemindicator.cpp
     GIS/private/reosmaptooleditpolylinestructure_p.cpp
     GIS/private/reosmappolylinesstructure_p.cpp
-    GIS/private/reosmaptooleditpolygonstructure_p.cpp
-    GIS/private/reosmappolygonstructure_p.cpp
+    GIS/private/reosmaptooleditpolygonsclassified_p.cpp
+    GIS/private/reosmappolygoncomplex_p.cpp
+    GIS/private/reosmaptoolpolygonwatershed_p.cpp
+
     GIS/private/reosmaptooleditmeshframe_p.cpp
     GIS/private/reostemporalcontroller_p.cpp
 
@@ -141,7 +145,9 @@ SET(REOS_GUI_HEADERS
     GIS/reosmapitem.h
     GIS/reosmaptool.h
     GIS/reosgislayerswidget.h
-    GIS/reosmaptooleditgeometrystructure.h
+    GIS/reosmaptooleditpolylinestructure.h
+    GIS/reosmaptoolpolygonwatershed.h
+    GIS/reosmaptooleditpolygonsclassified.h
     GIS/reoseditpolylinestructurewidget.h
     GIS/reosmeshscalarrenderingwidget.h
     GIS/reosmeshvectorrenderingwidget.h
@@ -154,6 +160,7 @@ SET(REOS_GUI_HEADERS
     GIS/3D/reoslightwidget.h
     GIS/3D/reosverticalexaggerationwidget.h
     GIS/3D/reos3dterrainsettingswidget.h
+
 
     watershed/reosdelineatingwatershedwidget.h
     watershed/reoswatershedwidget.h
@@ -224,10 +231,11 @@ SET(REOS_GUI_HEADERS_PRIVATE
     GIS/private/reoslayertreeviewdemindicator.h
     GIS/private/reosmaptooleditpolylinestructure_p.h
     GIS/private/reosmappolylinesstructure_p.h
-    GIS/private/reosmaptooleditpolygonstructure_p.h
-    GIS/private/reosmappolygonstructure_p.h
+    GIS/private/reosmaptooleditpolygonsclassified_p.h
+    GIS/private/reosmappolygoncomplex_p.h
     GIS/private/reosmaptooleditmeshframe_p.h
     GIS/private/reostemporalcontroller_p.h
+    GIS/private/reosmaptoolpolygonwatershed_p.h
 
     chart/private/reosplot_p.h
     chart/private/reosidfplot_p.h
