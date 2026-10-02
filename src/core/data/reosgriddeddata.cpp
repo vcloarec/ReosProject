@@ -535,16 +535,20 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
         if ( distIndex >= 0 && distIndex < mAreaCount )
         {
           if ( !std::isnan( rv ) )
+          {
             distributeAverageValue[distIndex] = distributeAverageValue.at( distIndex ) + surf * rv;
-          distribureTotalSurf[distIndex] = distribureTotalSurf.at( distIndex ) + surf;
+            distribureTotalSurf[distIndex] = distribureTotalSurf.at( distIndex ) + surf;
+          }
         }
         else
         {
           for ( int di = 0; di < mAreaCount; ++di )
           {
             if ( !std::isnan( rv ) )
+            {
               distributeAverageValue[di] = distributeAverageValue.at( di ) + surf * rv / mAreaCount;
-            distribureTotalSurf[di] = distribureTotalSurf.at( di ) + surf;
+              distribureTotalSurf[di] = distribureTotalSurf.at( di ) + surf;
+            }
           }
         }
       }
