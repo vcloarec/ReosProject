@@ -13,7 +13,7 @@ class ReosRasterDistanceArea
     //! Constructs an invalid ReosRasterDistanceArea instance.
     ReosRasterDistanceArea();
     //! Constructs a ReosRasterDistanceArea object with the given \a extent and reduction factor \a reductionFactor
-    ReosRasterDistanceArea( const ReosRasterExtent extent, int reductionFactor = 10 );
+    ReosRasterDistanceArea( const ReosRasterExtent &extent, int reductionFactor = 10 );
 
     //! Adjusts the distance values \a xDistance and \a yDistance based on the position of the cell at \a row and \a col in the raster.
     void adjustDistance( float &xDistance, float &yDistance, int row, int col ) const;
@@ -22,7 +22,7 @@ class ReosRasterDistanceArea
     float areaFactor( int row, int col ) const;
 
     //! Returns whether the ReosRasterDistanceArea instance is valid.
-    bool isValid() const;;
+    bool isValid() const;
 
   private:
     ReosRasterExtent mExtent;

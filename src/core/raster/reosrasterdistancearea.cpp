@@ -6,7 +6,7 @@
 ReosRasterDistanceArea::ReosRasterDistanceArea()
 {}
 
-ReosRasterDistanceArea::ReosRasterDistanceArea( const ReosRasterExtent extent, int reductionFactor )
+ReosRasterDistanceArea::ReosRasterDistanceArea( const ReosRasterExtent &extent, int reductionFactor )
   : mExtent( extent )
   , mReductionFactor( reductionFactor )
 {
@@ -60,13 +60,13 @@ void ReosRasterDistanceArea::initGrids()
   for ( int r = 0; r < rowCount; r++ )
     for ( int c = 0; c < colCount; c++ )
     {
-      QgsPoint point( QgsPointXY( xOrigin + 0.5 * c * reductedXSize, yOrigin - 0.5 * r * reductedYSize ) );
+      QgsPoint point( QgsPointXY( xOrigin + ( 0.5 + c ) * reductedXSize, yOrigin + ( 0.5 + r ) * reductedYSize ) );
       QgsProjectionFactors factors = qgsCrs.factors( point );
 
       if ( factors.isValid() )
       {
-        mXDistanceScale.setValue( r, c, 1 / factors.meridionalScale() );
-        mYDistanceScale.setValue( r, c, 1 / factors.parallelScale() );
+        mXDistanceScale.setValue( r, c, 1 / factors.parallelScale() );
+        mYDistanceScale.setValue( r, c, 1 / factors.meridionalScale() );
       }
       else
       {

@@ -1271,7 +1271,9 @@ ReosRasterExtent ReosGisEngine::layerRasterExtent( const QString &layerId ) cons
   QgsRectangle extent = rasterLayer->extent();
   QString crs = rasterLayer->crs().toWkt();
 
-  ReosRasterExtent ret = ReosRasterExtent( extent.xMinimum(), extent.yMinimum(), rasterLayer->width(), rasterLayer->height(), rasterLayer->rasterUnitsPerPixelX(), rasterLayer->rasterUnitsPerPixelY() );
+  // QGIS blocks are always north-up
+  double yResolution = -rasterLayer->rasterUnitsPerPixelY();
+  ReosRasterExtent ret = ReosRasterExtent( extent.xMinimum(), extent.yMaximum(), rasterLayer->width(), rasterLayer->height(), rasterLayer->rasterUnitsPerPixelX(), yResolution );
   ret.setCrs( crs );
 
   return ret;
