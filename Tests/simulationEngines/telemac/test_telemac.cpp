@@ -26,6 +26,9 @@ email                : vcloarec at gmail dot com
 #include "reostimeseries.h"
 
 #include "reostelemac2dsimulation.h"
+#include "reostelemacsteeringfile.h"
+
+#include "reos_testutils.h"
 
 class ReosTelemacTesting : public QObject
 {
@@ -34,6 +37,9 @@ class ReosTelemacTesting : public QObject
   private slots:
     void initTestCase();
     void cleanupTestCase();
+
+    void exisingSteeringFile();
+
     void buildStructure();
 
   private:
@@ -60,6 +66,35 @@ void ReosTelemacTesting::initTestCase()
 
 void ReosTelemacTesting::cleanupTestCase()
 {}
+
+void ReosTelemacTesting::exisingSteeringFile()
+{
+  ReosTelemacSteeringFile steeringFile( testFile( "/telemac/bridge/t2d_bridge.cas" ) );
+  steeringFile.open();
+  QCOMPARE( 106, steeringFile.lineCount() );
+  QCOMPARE( 47, steeringFile.keyCount() );
+
+  QCOMPARE( QStringLiteral( "'geo_bridge.cli'" ), steeringFile.value( QStringLiteral( "BOUNDARY CONDITIONS FILE" ) ) );
+
+  steeringFile.setKey( QStringLiteral( "BOUNDARY CONDITIONS FILE" ), QStringLiteral( "'geo_bridge2.cli'" ) );
+  QCOMPARE( 106, steeringFile.lineCount() );
+  QCOMPARE( 47, steeringFile.keyCount() );
+
+  steeringFile.setKey( QStringLiteral( "DUMMY_KEY" ), QStringLiteral( "XXXXX" ) );
+
+  QCOMPARE( 107, steeringFile.lineCount() );
+  QCOMPARE( 48, steeringFile.keyCount() );
+
+  QString newSteeringFilePath = tempFile( "new_steering_file.cas" );
+  steeringFile.save( newSteeringFilePath );
+
+  ReosTelemacSteeringFile steeringFile_2( newSteeringFilePath );
+  steeringFile_2.open();
+  QCOMPARE( 107, steeringFile_2.lineCount() );
+  QCOMPARE( 48, steeringFile_2.keyCount() );
+  QCOMPARE( QStringLiteral( "'geo_bridge2.cli'" ), steeringFile_2.value( QStringLiteral( "BOUNDARY CONDITIONS FILE" ) ) );
+  QCOMPARE( QStringLiteral( "XXXXX" ), steeringFile_2.value( QStringLiteral( "DUMMY_KEY" ) ) );
+}
 
 void ReosTelemacTesting::buildStructure()
 {

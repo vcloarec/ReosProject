@@ -10,12 +10,14 @@ SET(REOS_TELEMAC_SOURCES
     reostelemac2dsimulation.cpp
     reostelemac2dsimulationresults.cpp
     reostelemac2dinitialcondition.cpp
+    reostelemacsteeringfile.cpp
 )
 
 SET(REOS_TELEMAC_HEADERS
     reostelemac2dsimulation.h
     reostelemac2dsimulationresults.h
     reostelemac2dinitialcondition.h
+    reostelemacsteeringfile.h
 )
 
 IF(WITH_GUI)

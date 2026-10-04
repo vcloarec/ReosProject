@@ -12,6 +12,7 @@ SET(REOS_TELEMAC_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemac2dsimulation.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemac2dsimulationresults.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemacsteeringfile.cpp
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.cpp
  )
 

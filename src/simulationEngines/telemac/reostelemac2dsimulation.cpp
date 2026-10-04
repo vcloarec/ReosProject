@@ -40,6 +40,7 @@
 #include "reossettings.h"
 #include "reoshydraulicscheme.h"
 #include "reosgisengine.h"
+#include "reostelemacsteeringfile.h"
 
 
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent )
@@ -1277,6 +1278,11 @@ QList<ReosTelemac2DSimulation::TelemacBoundaryCondition> ReosTelemac2DSimulation
   return boundConds;
 }
 
+static QString simpleQuote( const QString &str )
+{
+  return QStringLiteral( "'%1'" ).arg( str );
+}
+
 void ReosTelemac2DSimulation::createSteeringFile(
   const ReosSimulationData &simulationData,
   const QList<ReosHydraulicStructureBoundaryCondition *> &boundaryConditions,
@@ -1286,22 +1292,19 @@ void ReosTelemac2DSimulation::createSteeringFile(
 )
 {
   QString path = directory.filePath( mSteeringFileName );
-  QFile file( path );
+  ReosTelemacSteeringFile steeringFile( path );
+
   QVersionNumber versionNumber = telemacVersion();
 
-  file.open( QIODevice::WriteOnly );
-  QTextStream stream( &file );
-
-  stream << QStringLiteral( "/---------------------------------------------------------------------\n" );
-  stream << QStringLiteral( "/ File created by Lekan\n" );
-  stream << QStringLiteral( "/---------------------------------------------------------------------\n" );
-  stream << QStringLiteral( "\n" );
-  stream << QStringLiteral( "BOUNDARY CONDITIONS FILE : '%1'\n" ).arg( mBoundaryFileName );
-  stream << QStringLiteral( "LIQUID BOUNDARIES FILE : '%1'\n" ).arg( mBoundaryConditionFileName );
-  stream << QStringLiteral( "GEOMETRY FILE : '%1'\n" ).arg( mGeomFileName );
-  stream << QStringLiteral( "RESULTS FILE : '%1'\n" ).arg( mResultFileName );
-  stream << QStringLiteral( "TITLE : '%1'\n" ).arg( mStructure->elementNameParameter()->value() );
-  stream << QStringLiteral( "VARIABLES FOR GRAPHIC PRINTOUTS : 'S,U,V,B,H,W,US,MAXZ,MAXV'\n" );
+  steeringFile.addComment( QStringLiteral( "---------------------------------------------------------------------" ) );
+  steeringFile.addComment( QStringLiteral( " File created by Lekan\n" ) );
+  steeringFile.addComment( "---------------------------------------------------------------------\n" );
+  steeringFile.setKey( QStringLiteral( "BOUNDARY CONDITIONS FILE" ), simpleQuote( mBoundaryFileName ) );
+  steeringFile.setKey( QStringLiteral( "LIQUID BOUNDARIES FILE" ), simpleQuote( mBoundaryConditionFileName ) );
+  steeringFile.setKey( QStringLiteral( "GEOMETRY FILE" ), simpleQuote( mGeomFileName ) );
+  steeringFile.setKey( QStringLiteral( "RESULTS FILE" ), simpleQuote( mResultFileName ) );
+  steeringFile.setKey( QStringLiteral( "TITLE" ), simpleQuote( mStructure->elementNameParameter()->value() ) );
+  steeringFile.setKey( QStringLiteral( "VARIABLES FOR GRAPHIC PRINTOUTS" ), QStringLiteral( "'S,U,V,B,H,W,US,MAXZ,MAXV'" ) );
 
   // Time parameters
   ReosDuration totalDuration( context.timeWindow().start().msecsTo( context.timeWindow().end() ), ReosDuration::millisecond );
@@ -1313,28 +1316,30 @@ void ReosTelemac2DSimulation::createSteeringFile(
     case ReosTelemac2DInitialCondition::Type::Interpolation:
     case ReosTelemac2DInitialCondition::Type::LastTimeStep:
       if ( versionNumber.isNull() or versionNumber.majorVersion() < 9 )
-        stream << QStringLiteral( "COMPUTATION CONTINUED : YES\n" );
-      stream << QStringLiteral( "PREVIOUS COMPUTATION FILE : %1\n" ).arg( mInitialConditionFile );
+        steeringFile.setKey( QStringLiteral( "COMPUTATION CONTINUED" ), QStringLiteral( "YES" ) );
+      steeringFile.setKey( QStringLiteral( "PREVIOUS COMPUTATION FILE" ), mInitialConditionFile );
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
       if ( versionNumber.isNull() or versionNumber.majorVersion() < 9 )
-        stream << QStringLiteral( "COMPUTATION CONTINUED : NO\n" );
+        steeringFile.setKey( QStringLiteral( "COMPUTATION CONTINUED" ), QStringLiteral( "NO" ) );
       break;
   }
 
   QDate startDate = context.timeWindow().start().date();
-  stream << QStringLiteral( "ORIGINAL DATE OF TIME : %1;%2;%3\n" ).arg( QString::number( startDate.year() ), QString::number( startDate.month() ), QString::number( startDate.day() ) );
+  steeringFile
+    .setKey( QStringLiteral( "ORIGINAL DATE OF TIME" ), QStringLiteral( "%1;%2;%3" ).arg( QString::number( startDate.year() ), QString::number( startDate.month() ), QString::number( startDate.day() ) ) );
   QTime startTime = context.timeWindow().start().time();
-  stream << QStringLiteral( "ORIGINAL HOUR OF TIME : %1;%2;%3\n" ).arg( QString::number( startTime.hour() ), QString::number( startTime.minute() ), QString::number( startTime.second() ) );
-  stream << QStringLiteral( "INITIAL TIME SET TO ZERO : YES\n" );
-  stream << QStringLiteral( "TIME STEP : %1\n" ).arg( QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
-  stream << QStringLiteral( "NUMBER OF TIME STEPS : %1\n" ).arg( QString::number( timeStepCount ) );
-  stream << QStringLiteral( "GRAPHIC PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriodResult2D->value() ) );
-  stream << QStringLiteral( "LISTING PRINTOUT PERIOD : %1\n" ).arg( QString::number( mOutputPeriodResultHyd->value() ) );
+  steeringFile
+    .setKey( QStringLiteral( "ORIGINAL HOUR OF TIME" ), QStringLiteral( "%1;%2;%3" ).arg( QString::number( startTime.hour() ), QString::number( startTime.minute() ), QString::number( startTime.second() ) ) );
+  steeringFile.setKey( QStringLiteral( "INITIAL TIME SET TO ZERO" ), QStringLiteral( "YES" ) );
+  steeringFile.setKey( QStringLiteral( "TIME STEP" ), QString::number( mTimeStep->value().valueSecond(), 'f', 2 ) );
+  steeringFile.setKey( QStringLiteral( "NUMBER OF TIME STEPS" ), QString::number( timeStepCount ) );
+  steeringFile.setKey( QStringLiteral( "GRAPHIC PRINTOUT PERIOD" ), QString::number( mOutputPeriodResult2D->value() ) );
+  steeringFile.setKey( QStringLiteral( "LISTING PRINTOUT PERIOD" ), QString::number( mOutputPeriodResultHyd->value() ) );
 
   //Physical parameters
-  stream << QStringLiteral( "LAW OF BOTTOM FRICTION : 3\n" );
-  stream << QStringLiteral( "FRICTION COEFFICIENT : 10\n" );
+  steeringFile.setKey( QStringLiteral( "LAW OF BOTTOM FRICTION" ), QStringLiteral( "3" ) );
+  steeringFile.setKey( QStringLiteral( "FRICTION COEFFICIENT" ), QStringLiteral( "10" ) );
 
   //Boundary condition
   QStringList prescribedFlow;
@@ -1366,11 +1371,11 @@ void ReosTelemac2DSimulation::createSteeringFile(
     }
   }
   if ( !prescribedFlow.isEmpty() )
-    stream << QStringLiteral( "PRESCRIBED FLOWRATES : %1\n" ).arg( prescribedFlow.join( ';' ) );
+    steeringFile.setKey( QStringLiteral( "PRESCRIBED FLOWRATES" ), prescribedFlow.join( ';' ) );
   if ( !velocityProfile.isEmpty() )
-    stream << QStringLiteral( "VELOCITY PROFILES : %1\n" ).arg( velocityProfile.join( ';' ) );
+    steeringFile.setKey( QStringLiteral( "VELOCITY PROFILES" ), velocityProfile.join( ';' ) );
   if ( !prescribedElevation.isEmpty() )
-    stream << QStringLiteral( "PRESCRIBED ELEVATIONS : %1\n" ).arg( prescribedElevation.join( ';' ) );
+    steeringFile.setKey( QStringLiteral( "PRESCRIBED ELEVATIONS" ), prescribedElevation.join( ';' ) );
 
   //Initial condition
   switch ( initialCondition()->initialConditionType() )
@@ -1382,9 +1387,9 @@ void ReosTelemac2DSimulation::createSteeringFile(
       break;
     case ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity:
     {
-      stream << QStringLiteral( "INITIAL CONDITIONS : 'CONSTANT ELEVATION'\n" );
+      steeringFile.setKey( QStringLiteral( "INITIAL CONDITIONS" ), QStringLiteral( "'CONSTANT ELEVATION'" ) );
       ReosTelemac2DInitialConstantWaterLevel *ciwl = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( initialCondition() );
-      stream << QStringLiteral( "INITIAL ELEVATION : %1\n" ).arg( QString::number( ciwl->initialWaterLevel()->value(), 'f', 2 ) );
+      steeringFile.setKey( QStringLiteral( "INITIAL ELEVATION" ), QString::number( ciwl->initialWaterLevel()->value(), 'f', 2 ) );
     }
     break;
   }
@@ -1394,9 +1399,9 @@ void ReosTelemac2DSimulation::createSteeringFile(
   {
     case ReosTelemac2DSimulation::Equation::FiniteVolume:
     {
-      stream << QStringLiteral( "EQUATIONS: 'SAINT-VENANT FV'\n" );
-      stream << QStringLiteral( "DESIRED COURANT NUMBER : %1\n" ).arg( QString::number( mVfCourantNumber->value() ) );
-      stream << QStringLiteral( "VARIABLE TIME-STEP : YES\n" );
+      steeringFile.setKey( QStringLiteral( "EQUATIONS" ), QStringLiteral( "'SAINT-VENANT FV'" ) );
+      steeringFile.setKey( QStringLiteral( "DESIRED COURANT NUMBER" ), QString::number( mVfCourantNumber->value() ) );
+      steeringFile.setKey( QStringLiteral( "VARIABLE TIME-STEP" ), QStringLiteral( "YES" ) );
       QString vfScheme( '5' );
       switch ( mVFScheme )
       {
@@ -1419,31 +1424,33 @@ void ReosTelemac2DSimulation::createSteeringFile(
           vfScheme = QString( '6' );
           break;
       }
-      stream << QStringLiteral( "FINITE VOLUME SCHEME: %1\n" ).arg( vfScheme );
+      steeringFile.setKey( QStringLiteral( "FINITE VOLUME SCHEME" ), vfScheme );
     }
     break;
     case ReosTelemac2DSimulation::Equation::FiniteElement:
-      stream << QStringLiteral( "EQUATIONS: 'SAINT-VENANT FE'\n" );
-      stream << QStringLiteral( "SCHEME FOR ADVECTION OF VELOCITIES : 1\n" );
-      stream << QStringLiteral( "IMPLICITATION FOR DEPTH : 0.6 \n" );
-      stream << QStringLiteral( "IMPLICITATION FOR VELOCITY : 0.6 \n" );
-      stream << QStringLiteral( "MAXIMUM NUMBER OF ITERATIONS FOR ADVECTION SCHEMES : 100 \n" );
-      stream << QStringLiteral( "MASS-LUMPING ON H : 1.0\n" );
-      stream << QStringLiteral( "MASS-LUMPING ON VELOCITY : 1.0\n" );
-      stream << QStringLiteral( "SUPG OPTION : 1;1\n" );
+      steeringFile.setKey( QStringLiteral( "EQUATIONS" ), QStringLiteral( "'SAINT-VENANT FE'" ) );
+      steeringFile.setKey( QStringLiteral( "SCHEME FOR ADVECTION OF VELOCITIES" ), QStringLiteral( "1" ) );
+      steeringFile.setKey( QStringLiteral( "IMPLICITATION FOR DEPTH" ), QStringLiteral( "0.6" ) );
+      steeringFile.setKey( QStringLiteral( "IMPLICITATION FOR VELOCITY" ), QStringLiteral( "0.6" ) );
+      steeringFile.setKey( QStringLiteral( "MAXIMUM NUMBER OF ITERATIONS FOR ADVECTION SCHEMES" ), QStringLiteral( "100" ) );
+      steeringFile.setKey( QStringLiteral( "MASS-LUMPING ON H" ), QStringLiteral( "1.0" ) );
+      steeringFile.setKey( QStringLiteral( "MASS-LUMPING ON VELOCITY" ), QStringLiteral( "1.0" ) );
+      steeringFile.setKey( QStringLiteral( "SUPG OPTION" ), QStringLiteral( "1;1" ) );
       break;
   }
 
-  stream << QStringLiteral( "DISCRETIZATIONS IN SPACE : 11 ; 11\n" );
-  stream << QStringLiteral( "FREE SURFACE GRADIENT COMPATIBILITY : 0.9\n" );
-  stream << QStringLiteral( "CONTINUITY CORRECTION : YES\n" );
+  steeringFile.setKey( QStringLiteral( "DISCRETIZATIONS IN SPACE" ), QStringLiteral( "11 ; 11" ) );
+  steeringFile.setKey( QStringLiteral( "FREE SURFACE GRADIENT COMPATIBILITY" ), QStringLiteral( "0.9" ) );
+  steeringFile.setKey( QStringLiteral( "CONTINUITY CORRECTION" ), QStringLiteral( "YES" ) );
 
-  stream << QStringLiteral( "TREATMENT OF THE LINEAR SYSTEM : 2\n" );
-  stream << QStringLiteral( "SOLVER : 1\n" );
-  stream << QStringLiteral( "SOLVER ACCURACY : 1.E-4\n" );
-  stream << QStringLiteral( "INFORMATION ABOUT SOLVER : YES\n" );
-  stream << QStringLiteral( "MASS-BALANCE : YES\n" );
-  stream << QStringLiteral( "MATRIX STORAGE : 3\n" );
+  steeringFile.setKey( QStringLiteral( "TREATMENT OF THE LINEAR SYSTEM" ), QStringLiteral( "2" ) );
+  steeringFile.setKey( QStringLiteral( "SOLVER" ), QStringLiteral( "1" ) );
+  steeringFile.setKey( QStringLiteral( "SOLVER ACCURACY" ), QStringLiteral( "1.E-4" ) );
+  steeringFile.setKey( QStringLiteral( "INFORMATION ABOUT SOLVER" ), QStringLiteral( "YES" ) );
+  steeringFile.setKey( QStringLiteral( "MASS-BALANCE" ), QStringLiteral( "YES" ) );
+  steeringFile.setKey( QStringLiteral( "MATRIX STORAGE" ), QStringLiteral( "3" ) );
+
+  steeringFile.save();
 }
 
 void ReosTelemac2DSimulation::init()

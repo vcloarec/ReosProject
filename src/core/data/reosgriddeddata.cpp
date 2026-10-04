@@ -555,7 +555,6 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
     }
   }
 
-
   if ( mDistributePerArea )
   {
     for ( int di = 0; di < mValuesPerAreas.count(); ++di )
