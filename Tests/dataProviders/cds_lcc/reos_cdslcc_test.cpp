@@ -14,11 +14,13 @@ email                : vcloarec at gmail dot com
  ***************************************************************************/
 #include <QtTest/QtTest>
 #include <QObject>
+#include <QPolygonF>
 
 #include "reos_testutils.h"
 #include "reosgisengine.h"
 #include "reoswatershed.h"
 #include "reoslandusedata.h"
+#include "reosmemoryraster.h"
 
 
 class ReosCdslccTest : public QObject
@@ -35,10 +37,68 @@ class ReosCdslccTest : public QObject
 
 void ReosCdslccTest::createProvider()
 {
-    std::unique_ptr<ReosDataProvider> compatibleProvider(
-    ReosDataProviderRegistery::instance()->createCompatibleProvider( testFile("/cdslcc/finistere.nc"), ReosLandUseData::staticType() ));
-
+  std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider( testFile( "/cdslcc/finistere.nc" ), ReosLandUseData::staticType() ) );
   QVERIFY( compatibleProvider );
+  ReosLandUseData landUseData( testFile( "/cdslcc/finistere.nc" ), "cdslcc" );
+
+  ReosRasterExtent extent = landUseData.extent();
+
+  QCOMPARE( extent.xCellCount(), 475 );
+  QCOMPARE( extent.yCellCount(), 400 );
+  QVERIFY( equal( extent.xCellSize(), 0.002777777777, 0.00001 ) );
+  QVERIFY( equal( extent.yCellSize(), -0.002777777777, 0.00001 ) );
+
+  QVERIFY( !extent.crs().isEmpty() );
+  QVector<int> data = landUseData.data();
+
+  QCOMPARE( data.count(), 190000 );
+  QCOMPARE( data.at( 5000 ), 210 );
+
+  QPolygonF poly(
+    { QPointF( -3.97270903899460048, 48.38251575588691367 ),
+      QPointF( -3.97270903899460048, 48.42045504313829696 ),
+      QPointF( -3.90834437753827046, 48.42045504313829696 ),
+      QPointF( -3.90834437753827046, 48.38251575588691367 ) }
+  );
+
+  ReosMapExtent requestedExtent( poly, ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  ReosRasterExtent outputExtent;
+  data = landUseData.data( requestedExtent, outputExtent );
+
+  QVERIFY( equal( outputExtent.xMapOrigin(), -3.9750000, 0.00001 ) );
+  QVERIFY( equal( outputExtent.yMapOrigin(), 48.42222222, 0.00001 ) );
+  QCOMPARE( outputExtent.xCellCount(), 24 );
+  QCOMPARE( outputExtent.yCellCount(), 15 );
+
+  QCOMPARE( data.at( 0 ), 30 );
+  QCOMPARE( data.at( 1 ), 30 );
+  QCOMPARE( data.at( 2 ), 10 );
+  QCOMPARE( data.at( 358 ), 130 );
+  QCOMPARE( data.at( 359 ), 30 );
+
+  QPolygonF poly_2154(
+    { QPointF( 157590.36536302175954916, 6777140.74498519208282232 ),
+      QPointF( 157590.36536302175954916, 6786265.45279560890048742 ),
+      QPointF( 160684.05454721508431248, 6786265.45279560890048742 ),
+      QPointF( 160684.05454721508431248, 6777140.74498519208282232 ) }
+  );
+
+  ReosMapExtent requestedExtent_2154( poly_2154, ReosGisEngine::crsFromEPSG( 2154 ) );
+
+  data = landUseData.data( requestedExtent_2154, outputExtent );
+
+  QVERIFY( equal( outputExtent.xMapOrigin(), -4.2777777778, 0.00001 ) );
+  QVERIFY( equal( outputExtent.yMapOrigin(), 47.955555556, 0.00001 ) );
+  QCOMPARE( outputExtent.xCellCount(), 20 );
+  QCOMPARE( outputExtent.yCellCount(), 31 );
+
+  QCOMPARE( data.at( 0 ), 11 );
+  QCOMPARE( data.at( 1 ), 11 );
+  QCOMPARE( data.at( 2 ), 11 );
+  QCOMPARE( data.at( 3 ), 30 );
+  QCOMPARE( data.at( 618 ), 11 );
+  QCOMPARE( data.at( 619 ), 190 );
 }
 
 

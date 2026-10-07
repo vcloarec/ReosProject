@@ -22,31 +22,40 @@
 
 class ReosLandUseDataProvider : public ReosDataProvider
 {
-  Q_OBJECT
-public:
-  explicit ReosLandUseDataProvider();
-  ~ReosLandUseDataProvider() {}
+    Q_OBJECT
+  public:
+    explicit ReosLandUseDataProvider();
+    ~ReosLandUseDataProvider() {}
 
-    virtual const QVector<int> data( int index ) const = 0;
+    QString dataSource() const;
+    void setDataSource( const QString &uri );
+
+    virtual const QVector<int> data() const = 0;
     virtual ReosRasterExtent extent() const = 0;
+    virtual const QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const = 0;
 
+  private:
+    QString mDataSource;
 };
 
 
 class ReosLandUseData : public ReosDataObject
 {
-  Q_OBJECT
-public:
-  explicit ReosLandUseData(const QString &dataSource,
-                           const QString &providerKey,
-                           QObject *parent = nullptr);
+    Q_OBJECT
+  public:
+    explicit ReosLandUseData( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
+    static QString staticType();
 
-  static QString staticType();
+    const QVector<int> data() const;
 
-private:
-  std::unique_ptr<ReosLandUseDataProvider> mProvider;
+    const QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
 
-  QString formatKey(const QString &rawKey) const;
+    ReosRasterExtent extent() const;
+
+  private:
+    std::unique_ptr<ReosLandUseDataProvider> mProvider;
+
+    QString formatKey( const QString &rawKey ) const;
 };
 
 

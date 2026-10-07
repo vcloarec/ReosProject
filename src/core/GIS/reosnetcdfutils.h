@@ -44,11 +44,15 @@ class REOSCORE_EXPORT ReosNetCdfFile
 
     double doubleAttributeValue( const QString &variableName, const QString &attributeName ) const;
     qint16 shortAttributeValue( const QString &variableName, const QString &attributeName ) const;
+    QString stringAttributeValue( const QString &variableName, const QString &attributeName ) const;
 
     QVector<qint64> getInt64Array( const QString &variableName, int size );
 
     QVector<int> getIntArray( const QString &variableName, int size ) const;
     QVector<int> getIntArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const;
+
+    QVector<uchar> getUcharArray( const QString &variableName, int size ) const;
+    QVector<uchar> getUcharArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const;
 
     QVector<double > getDoubleArray( const QString &variableName, int size );
     QVector<double > getDoubleArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const;

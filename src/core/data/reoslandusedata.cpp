@@ -18,23 +18,61 @@
 #include "reoslandusedata.h"
 
 
-ReosLandUseDataProvider::ReosLandUseDataProvider( )
+ReosLandUseDataProvider::ReosLandUseDataProvider()
   : ReosDataProvider()
 {}
 
-ReosLandUseData::ReosLandUseData(const QString &dataSource,
-                                 const QString &providerKey, QObject *parent)
-: ReosDataObject(parent)
-,mProvider(std::unique_ptr<ReosLandUseDataProvider>(qobject_cast<ReosLandUseDataProvider *>(ReosDataProviderRegistery::instance()->createProvider(formatKey(providerKey))))) 
-{}
-
-QString ReosLandUseData::formatKey(const QString &rawKey) const 
+QString ReosLandUseDataProvider::dataSource() const
 {
-  if (rawKey.contains(QStringLiteral("::")))
-    return rawKey;
-  return rawKey + QStringLiteral("::") + ReosLandUseData::staticType();
+  return mDataSource;
 }
 
-QString ReosLandUseData::staticType() {
-  return QStringLiteral("land-use-data");
+void ReosLandUseDataProvider::setDataSource( const QString &uri )
+{
+  mDataSource = uri;
+  load();
+}
+
+ReosLandUseData::ReosLandUseData( const QString &dataSource, const QString &providerKey, QObject *parent )
+  : ReosDataObject( parent )
+  , mProvider( std::unique_ptr<ReosLandUseDataProvider>( qobject_cast<ReosLandUseDataProvider *>( ReosDataProviderRegistery::instance()->createProvider( formatKey( providerKey ) ) ) ) )
+{
+  mProvider->setDataSource( dataSource );
+}
+
+QString ReosLandUseData::formatKey( const QString &rawKey ) const
+{
+  if ( rawKey.contains( QStringLiteral( "::" ) ) )
+    return rawKey;
+  return rawKey + QStringLiteral( "::" ) + ReosLandUseData::staticType();
+}
+
+QString ReosLandUseData::staticType()
+{
+  return QStringLiteral( "land-use-data" );
+}
+
+const QVector<int> ReosLandUseData::data() const
+{
+  if ( !mProvider )
+    return QVector<int>();
+
+  return mProvider->data();
+}
+
+const QVector<int> ReosLandUseData::data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const
+{
+  if ( !mProvider )
+    return QVector<int>();
+
+  return mProvider->data( requestedExent, outputExent );
+}
+
+
+ReosRasterExtent ReosLandUseData::extent() const
+{
+  if ( !mProvider )
+    return ReosRasterExtent();
+
+  return mProvider->extent();
 }

@@ -224,6 +224,44 @@ qint16 ReosNetCdfFile::shortAttributeValue( const QString &variableName, const Q
   return ret;
 }
 
+QString ReosNetCdfFile::stringAttributeValue( const QString &variableName, const QString &attributeName ) const
+{
+  auto it = mVarNameToVarId.constFind( variableName );
+  if ( it == mVarNameToVarId.constEnd() )
+    return QString();
+  int varId = it.value();
+
+  const QByteArray attName = attributeName.toUtf8();
+
+  nc_type type;
+  size_t size = 0;
+  if ( nc_inq_att( mNcId, varId, attName.constData(), &type, &size ) != NC_NOERR || size == 0 )
+    return QString();
+
+  if ( type == NC_CHAR )
+  {
+    // NC_CHAR attributes are not guaranteed to be null terminated
+    std::vector<char> buffer( size );
+    if ( nc_get_att_text( mNcId, varId, attName.constData(), buffer.data() ) != NC_NOERR )
+      return QString();
+    const std::vector<char>::const_iterator end = std::find( buffer.begin(), buffer.end(), '\0' );
+    return QString::fromUtf8( buffer.data(), static_cast<int>( end - buffer.begin() ) );
+  }
+
+  if ( type == NC_STRING )
+  {
+    // for NC_STRING, size is the number of strings
+    std::vector<char *> strings( size, nullptr );
+    if ( nc_get_att_string( mNcId, varId, attName.constData(), strings.data() ) != NC_NOERR )
+      return QString();
+    QString ret = QString::fromUtf8( strings.at( 0 ) );
+    nc_free_string( size, strings.data() );
+    return ret;
+  }
+
+  return QString();
+}
+
 QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int size )
 {
   int varId = mVarNameToVarId.value( variableName, -1 );
@@ -245,6 +283,7 @@ QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, int size 
 
   return ret;
 }
+
 
 static std::vector<size_t> int_array_to_size_t_array( const QVector<int> &int_array )
 {
@@ -274,6 +313,39 @@ QVector<int> ReosNetCdfFile::getIntArray( const QString &variableName, const QVe
     return ret;
 
   return QVector<int>();
+}
+
+QVector<uchar> ReosNetCdfFile::getUcharArray( const QString &variableName, int size ) const
+{
+  int varId = mVarNameToVarId.value( variableName, -1 );
+  QVector<uchar> ret( size );
+  int res = nc_get_var_uchar( mNcId, varId, ret.data() );
+  if ( res != NC_NOERR )
+    return QVector<uchar>();
+
+  return ret;
+}
+
+QVector<uchar> ReosNetCdfFile::getUcharArray( const QString &variableName, const QVector<int> &starts, const QVector<int> &counts ) const
+{
+  Q_ASSERT( starts.count() == counts.count() );
+  int varId = mVarNameToVarId.value( variableName, -1 );
+
+  std::vector<size_t> startp = int_array_to_size_t_array( starts );
+  std::vector<size_t> countp = int_array_to_size_t_array( counts );
+  int totalSize = 1;
+  for ( int i = 0; i < counts.count(); ++i )
+    totalSize *= counts.at( i );
+
+  QVector<uchar> ret;
+  ret.resize( totalSize );
+  ret.fill( 1.0 );
+  int res = nc_get_vara_uchar( mNcId, varId, startp.data(), countp.data(), ret.data() );
+
+  if ( res == NC_NOERR )
+    return ret;
+
+  return QVector<uchar>();
 }
 
 QVector<double> ReosNetCdfFile::getDoubleArray( const QString &variableName, int size )

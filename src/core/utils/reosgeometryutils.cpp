@@ -21,6 +21,7 @@ email                : vcloarec at gmail dot com
 #include <qgsgeometryutils.h>
 #include <qgsgeometryengine.h>
 
+#include "reosgisengine.h"
 #include "reosgeometryutils.h"
 #include "reosprocess.h"
 #include "reosrasterdistancearea.h"
@@ -333,6 +334,33 @@ QRectF ReosGeometryUtils::boundingBox( const QPolygonF &polygon, bool &ok )
   }
 
   return QRectF( xMin, yMin, xMax - xMin, yMax - yMin );
+}
+
+ReosRasterExtent ReosGeometryUtils::subRasterExtent( const ReosRasterExtent &extent, const ReosMapExtent &subExtent, ReosRasterCellPos &originCell )
+{
+  ReosMapExtent effSubExtent = ReosGisEngine::transformExtent( subExtent, extent.crs() );
+
+  QPoint minXminY = extent.mapToCell( QPointF( effSubExtent.xMapMin(), effSubExtent.yMapMin() ) );
+  QPoint maxXmaxY = extent.mapToCell( QPointF( effSubExtent.xMapMax(), effSubExtent.yMapMax() ) );
+
+  int xOri = std::clamp( extent.xCellSize() > 0 ? minXminY.x() : maxXmaxY.x(), 0, extent.xCellCount() - 1 );
+  int yOri = std::clamp( extent.yCellSize() > 0 ? minXminY.y() : maxXmaxY.y(), 0, extent.yCellCount() - 1 );
+
+  int xEnd = std::clamp( extent.xCellSize() < 0 ? minXminY.x() : maxXmaxY.x(), 0, extent.xCellCount() - 1 );
+  int yEnd = std::clamp( extent.yCellSize() < 0 ? minXminY.y() : maxXmaxY.y(), 0, extent.yCellCount() - 1 );
+
+  int colCount = std::abs( xEnd - xOri ) + 1;
+  int rowCount = std::abs( yEnd - yOri ) + 1;
+
+  double destXOri = extent.xMapOrigin() + xOri * extent.xCellSize();
+  double destYOri = extent.yMapOrigin() + yOri * extent.yCellSize();
+
+  ReosRasterExtent finalRasterExtent = ReosRasterExtent( destXOri, destYOri, colCount, rowCount, extent.xCellSize(), extent.yCellSize() );
+  finalRasterExtent.setCrs( extent.crs() );
+
+  originCell = ReosRasterCellPos( yOri, xOri );
+
+  return finalRasterExtent;
 }
 
 ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
