@@ -600,6 +600,16 @@ QPolygonF ReosPolylineStructureVectorLayer::boundary( const QString &destination
   return QPolygonF();
 }
 
+QList<ReosGeometryStructureVertex *> ReosPolylineStructureVectorLayer::boundaryVertices() const
+{
+  QList<ReosGeometryStructureVertex *> ret;
+
+  for ( const VertexP &vert : std::as_const( mBoundariesVertex ) )
+    ret.append( vert );
+
+  return ret;
+}
+
 
 QString ReosPolylineStructureVectorLayer::boundaryClassId( int i ) const
 {

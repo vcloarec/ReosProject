@@ -108,6 +108,7 @@ class ReosPolylineStructureVectorLayer : public ReosPolylinesStructure, private 
     QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const override;
 
     QPolygonF boundary( const QString &destinationCrs = QString() ) const override;
+    QList<ReosGeometryStructureVertex *> boundaryVertices() const override;
     QString boundaryClassId( int i ) const override;
 
     void reset( const Data &data, const QString &crs ) override;

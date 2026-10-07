@@ -41,6 +41,7 @@
 #include "reoshydraulicscheme.h"
 #include "reosgisengine.h"
 #include "reostelemacsteeringfile.h"
+#include "reostelemacstructureimportersource.h"
 
 
 ReosTelemac2DSimulation::ReosTelemac2DSimulation( ReosHydraulicStructure2D *parent )
@@ -238,6 +239,11 @@ ReosHydraulicSimulation *ReosTelemac2DSimulationEngineFactory::createSimulation(
     return new ReosTelemac2DSimulation( element, parent );
   else
     return new ReosTelemac2DSimulation( parent );
+}
+
+ReosStructureImporterSource *ReosTelemac2DSimulationEngineFactory::createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const
+{
+  return nullptr;
 }
 
 void ReosTelemac2DSimulationEngineFactory::initializeSettings()
@@ -969,8 +975,8 @@ static void setCounterClockwise( QVector<int> &triangle, const QPointF &v0, cons
 
 void ReosTelemac2DSimulation::createSelafinMeshFrame( const QVector<int> &verticesPosInBoundary, const QString &fileName )
 {
-  // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to know about the boundaies vertices,
-  // wa can't use MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
+  // MDAL does not handle the boundaries. As the parrallel calculation in Telemac need to know about the boundaries vertices,
+  // we can't use MDAL to create the mesh frame file. Here we use the same logic as MDAL but we add the boundaries vertices indexes
   ReosMesh *rmesh = mStructure->mesh();
 
   QFile file( fileName );

@@ -79,6 +79,9 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryComplex
     //! Returns the boundary of the structure in \a destinationCrs cordinate system
     virtual QPolygonF boundary( const QString &destinationCrs = QString() ) const = 0;
 
+    //! Returns the boundary vertices of the structure.
+    virtual QList<ReosGeometryStructureVertex *> boundaryVertices() const = 0;
+
     //! Returns lines on boundary from the vertex \a vertexFrom to vertex \a vertexTo
     virtual QPolygonF linesOnBoundaryFromTo( ReosGeometryStructureVertex *vertexFrom, ReosGeometryStructureVertex *vertexTo, const QString &destinationCrs = QString() ) const = 0;
 

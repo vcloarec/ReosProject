@@ -68,6 +68,11 @@ int ReosTelemacSteeringFile::lineCount() const
   return mLines.size();
 }
 
+bool ReosTelemacSteeringFile::isValid() const
+{
+  return mLinesMap.count() > 0;
+}
+
 ReosTelemacSteeringFile::SteeringLine::SteeringLine( const QString &line )
 {
   //example : TREATMENT OF FLUXES AT THE BOUNDARIES = 2;2

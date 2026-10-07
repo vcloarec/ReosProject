@@ -216,7 +216,7 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
 
     virtual QString key() const override { return ReosTelemac2DSimulation::staticKey(); }
     QString displayName() const override { return QObject::tr( "TELEMAC 2D Simulation" ); }
-    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override { return nullptr; }
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override;
 
     void initializeSettings() override;
 

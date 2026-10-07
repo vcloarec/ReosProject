@@ -36,6 +36,8 @@ class ReosTelemacSteeringFile
     int keyCount() const;
     int lineCount() const;
 
+    bool isValid() const;
+
   private:
     class SteeringLine
     {
@@ -57,12 +59,6 @@ class ReosTelemacSteeringFile
     std::vector<std::unique_ptr<SteeringLine>> mLines;
     QMap<QString, SteeringLine *> mLinesMap;
 };
-
-
-
-
-
-
 
 
 #endif // REOSTELEMACSTEERINGFILE_H
