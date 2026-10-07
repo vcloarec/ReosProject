@@ -62,7 +62,8 @@
 					"-DQGIS_PROVIDERS_PATH=/qgis_built/plugins",
 					"-DQGIS_APP_INCLUDE=/qgis_built/app_src",
 					"-DQWT_INCLUDE=/usr/include/qwt",
-					"-DQWT_LIB=/usr/lib/libqwt-qt5.so"
+					"-DQWT_LIB=/usr/lib/libqwt-qt5.so",
+					"-DERA5_TESTS_ENABLE=TRUE"
 				],
 				"cmake.generator": "Ninja",
 				"C_Cpp.default.cppStandard": "c++17",

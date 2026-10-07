@@ -26,6 +26,8 @@ if (METEOFRANCEAPI_TESTS_ENABLE)
     add_subdirectory(mf-api)
 endif(METEOFRANCEAPI_TESTS_ENABLE)
 
+add_subdirectory(cds_lcc)
+
 #add_subdirectory(vortex-io)
 
 

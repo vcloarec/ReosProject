@@ -144,6 +144,7 @@ void ReosDataProviderRegistery::loadDynamicProvider()
   typedef ReosDataProviderFactory *factory_function();
 
   const QFileInfoList files = providerDir.entryInfoList();
+  qDebug() << "Found provider files: " << files;
   for ( const QFileInfo &file : files )
   {
     QLibrary library( file.filePath() );

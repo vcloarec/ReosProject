@@ -1,37 +1,33 @@
 # Reos licence GPL version 2
-# Copyright (C) 2023 Vincent Cloarec (vcloarec at gmail dot com)
+# Copyright (C) 2020 Vincent Cloarec (vcloarec at gmail dot com)
 
 #########################################################################
 #########################################################################
 
-SET(ERA5_TESTS_FILES_PATH CACHE PATH "Path to the era5 test files.")
-IF (ERA5_TESTS_ENABLE)
-    ADD_DEFINITIONS(-DERA5_FILES_PATH="${ERA5_TESTS_FILES_PATH}")
-ENDIF (ERA5_TESTS_ENABLE)
 
-SET(REOS_ERA5_SOURCES
-     ${CMAKE_SOURCE_DIR}/src/dataProviders/era5/reosera5provider.cpp
+SET(REOS_CDSLCC_SOURCES
+     ${CMAKE_SOURCE_DIR}/src/dataProviders/cdslcc/reoscdslccprovider.cpp
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.cpp
 )
 
-SET(REOS_ERA5_HEADERS
-     ${CMAKE_SOURCE_DIR}/src/dataProviders/era5/reosera5provider.h
+SET(REOS_CDSLCC_HEADERS
+     ${CMAKE_SOURCE_DIR}/src/dataProviders/cdslcc/reoscdslccprovider.h
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.h
  )
 
-ADD_EXECUTABLE(test_era5 ${REOS_ERA5_HEADERS} ${REOS_ERA5_SOURCES} reos_era5_test.cpp)
-TARGET_LINK_LIBRARIES(test_era5
+ADD_EXECUTABLE(test_cdslcc ${REOS_CDSLCC_HEADERS} ${REOS_CDSLCC_SOURCES} reos_cdslcc_test.cpp)
+TARGET_LINK_LIBRARIES(test_cdslcc
                       ${Qt5Core_LIBRARIES}
                       ${Qt5Test_LIBRARIES}
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )
 
-ADD_TEST(NAME test_era5
-         COMMAND "test_era5"
+ADD_TEST(NAME test_cdslcc
+         COMMAND "test_cdslcc"
          WORKING_DIRECTORY ${REOS_OUTPUT_DIRECTORY})
 
-set_target_properties(test_era5
+set_target_properties(test_cdslcc
       PROPERTIES
       ARCHIVE_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/$<0:>
       LIBRARY_OUTPUT_DIRECTORY ${REOS_OUTPUT_DIRECTORY}/$<0:>
@@ -39,5 +35,5 @@ set_target_properties(test_era5
       )
 
 INCLUDE_DIRECTORIES(
-      ${CMAKE_SOURCE_DIR}/src/dataProviders/era5/
+      ${CMAKE_SOURCE_DIR}/src/dataProviders/cds_lcc/
   )
