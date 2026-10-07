@@ -1,13 +1,14 @@
 #ifndef REOSRASTERDISTANCEAREA_H
 #define REOSRASTERDISTANCEAREA_H
 
+#include "reoscore.h"
 #include "reosmemoryraster.h"
 
 
 /**
  * Class use to adjust the distance or the area depending on the position of the cell in the raster and on the CRS of the raster.
  */
-class ReosRasterDistanceArea
+class REOSCORE_EXPORT ReosRasterDistanceArea
 {
   public:
     //! Constructs an invalid ReosRasterDistanceArea instance.

@@ -18,6 +18,7 @@
 
 #define SIP_NO_FILE
 
+#include "reoscore.h"
 #include "reosdataobject.h"
 
 class QPainter;
@@ -25,7 +26,7 @@ class QPainter;
 class ReosMapExtent;
 class ReosSpatialPosition;
 
-class ReosGeometryComplex : public ReosDataObject
+class REOSCORE_EXPORT ReosGeometryComplex : public ReosDataObject
 {
     Q_OBJECT
   public:
