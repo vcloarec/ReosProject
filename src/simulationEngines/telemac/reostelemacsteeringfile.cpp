@@ -19,6 +19,38 @@
 #include <QTextStream>
 
 
+static QString unquote( const QString &str )
+{
+  return str.trimmed().remove( QRegularExpression( "^'|'$" ) );
+}
+
+static int toInt( const QString &strValue )
+{
+  if ( strValue.isEmpty() )
+    return 0;
+
+  bool ok = false;
+  int ret = strValue.toInt( &ok );
+  if ( !ok )
+    return 0;
+
+  return ret;
+}
+
+static double toDouble( const QString &strValue )
+{
+  if ( strValue.isEmpty() )
+    return 0;
+
+  bool ok = false;
+  double ret = strValue.toDouble( &ok );
+  if ( !ok )
+    return 0;
+
+  return ret;
+}
+
+
 ReosTelemacSteeringFile::ReosTelemacSteeringFile( const QString &path )
   : mPath( path )
 {}
@@ -71,6 +103,85 @@ int ReosTelemacSteeringFile::lineCount() const
 bool ReosTelemacSteeringFile::isValid() const
 {
   return mLinesMap.count() > 0;
+}
+
+QString ReosTelemacSteeringFile::geomFileName() const
+{
+  return unquote( value( QStringLiteral( "GEOMETRY FILE" ) ) );
+}
+
+QString ReosTelemacSteeringFile::resultFileName() const
+{
+  return unquote( value( QStringLiteral( "RESULT FILE" ) ) );
+}
+
+QString ReosTelemacSteeringFile::boundaryFileName() const
+{
+  return unquote( value( QStringLiteral( "BOUNDARY CONDITIONS FILE" ) ) );
+}
+
+QString ReosTelemacSteeringFile::boundaryLiquidFileName() const
+{
+  return unquote( value( QStringLiteral( "LIQUID BOUNDARIES FILE" ) ) );
+}
+
+const QDateTime ReosTelemacSteeringFile::referenceTime() const
+{
+  return QDateTime();
+}
+
+const ReosDuration ReosTelemacSteeringFile::duration() const
+{
+  QString durationStr = value( QStringLiteral( "DURATION" ) );
+  if ( durationStr.isEmpty() )
+    return ReosDuration();
+
+  int durationSeconds = durationStr.toInt();
+  return ReosDuration( durationSeconds, ReosDuration::second );
+}
+
+const ReosDuration ReosTelemacSteeringFile::timeStep() const
+{
+  QString timeStepStr = value( QStringLiteral( "TIME STEP" ) );
+  if ( timeStepStr.isEmpty() )
+    return ReosDuration();
+
+  int durationSeconds = timeStepStr.toInt();
+  return ReosDuration( durationSeconds, ReosDuration::second );
+}
+
+const QList<double> ReosTelemacSteeringFile::prescribedFlowRate() const
+{
+  const QStringList flowRatesString = value( "PRESCRIBED FLOWRATES" ).split( ';' );
+  QList<double> flowRates;
+  for ( const QString &str : flowRatesString )
+  {
+    bool ok = false;
+    double flowRate = str.toDouble( &ok );
+    if ( ok )
+      flowRates.append( flowRate );
+    else
+      flowRates.append( 0 );
+  }
+
+  return flowRates;
+}
+
+const QList<double> ReosTelemacSteeringFile::prescibedElevation() const
+{
+  const QStringList elevationsString = value( "PRESCRIBED FLOWRATES" ).split( ';' );
+  QList<double> elevations;
+  for ( const QString &str : elevationsString )
+  {
+    bool ok = false;
+    double flowRate = str.toDouble( &ok );
+    if ( ok )
+      elevations.append( flowRate );
+    else
+      elevations.append( 0 );
+  }
+
+  return elevations;
 }
 
 ReosTelemacSteeringFile::SteeringLine::SteeringLine( const QString &line )
@@ -137,4 +248,41 @@ QString ReosTelemacSteeringFile::SteeringLine::key() const
 QString ReosTelemacSteeringFile::SteeringLine::value() const
 {
   return mValue;
+}
+
+ReosTelemac2DSimulation::Equation ReosTelemacSteeringFile::equation() const
+{
+  QString equationString = value( QStringLiteral( "EQUATION" ) );
+
+  if ( equationString.toUpper() == "'SAINT-VENANT FV'" )
+    return ReosTelemac2DSimulation::Equation::FiniteVolume;
+  else if ( equationString.toUpper() == "'SAINT-VENANT FE'" )
+    return ReosTelemac2DSimulation::Equation::FiniteElement;
+  else
+    return ReosTelemac2DSimulation::Equation::SteeringFileDefined;
+}
+
+int ReosTelemacSteeringFile::outputPeriodResult2D() const
+{
+  return toInt( value( QStringLiteral( "GRAPHIC PRINTOUT PERIOD" ) ) );
+}
+
+int ReosTelemacSteeringFile::outputPeriodResultHydrograph() const
+{
+  return toInt( value( QStringLiteral( "LISTING PRINTOUT PERIOD" ) ) );
+}
+
+ReosTelemac2DInitialCondition::Type ReosTelemacSteeringFile::initialConditionType() const
+{
+  QString initialConditionString = value( QStringLiteral( "INITIAL CONDITIONS" ) );
+
+  if ( initialConditionString.toUpper() == "'CONSTANT ELEVATION'" )
+    return ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity;
+  else
+    return ReosTelemac2DInitialCondition::Type::SteeringFileDefined;
+}
+
+double ReosTelemacSteeringFile::courantNumber() const
+{
+  return toDouble( value( QStringLiteral( "DESIRED COURANT NUMBER" ) ) );
 }

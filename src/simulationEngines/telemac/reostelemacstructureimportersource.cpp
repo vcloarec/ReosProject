@@ -19,6 +19,10 @@
 
 #include <QRegularExpression>
 
+#include "reoshydrograph.h"
+#include "reostimeseriesgroup.h"
+#include "reostelemac2dsimulation.h"
+
 
 ReosTelemacStructureImporterSource::ReosTelemacStructureImporterSource( const QString &steeringFile, const ReosHydraulicNetworkContext &context )
   : ReosStructureImporterSource()
@@ -38,6 +42,11 @@ ReosStructureImporter *ReosTelemacStructureImporterSource::createImporter() cons
 
 ReosEncodedElement ReosTelemacStructureImporterSource::encode( const ReosHydraulicNetworkContext &context ) const
 {}
+
+void ReosTelemacStructureImporterSource::setReferenceTime( const QDateTime &referenceTime )
+{
+  mReferenceTime = referenceTime;
+}
 
 ReosTelemacStructureImporter::ReosTelemacStructureImporter( const QString &steeringFile, const ReosHydraulicNetworkContext &context, const ReosTelemacStructureImporterSource *source )
   : ReosStructureImporter( context )
@@ -108,7 +117,92 @@ QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemacStructureImporter::c
     ret.append( bc );
   }
 
+  QDateTime referenceTime = mSteeringFile.referenceTime();
+  ReosDuration simDuration = mSteeringFile.duration();
+  if ( !referenceTime.isValid() )
+    referenceTime = mSource->referenceTime();
+  QList<double> constantFlowRates = mSteeringFile.prescribedFlowRate();
+  QList<double> constantElevations = mSteeringFile.prescibedElevation();
+
+  ReosTelemacLiquidBoundaries liquidBoundaries( unquote( mSteeringFile.value( "LIQUID BOUNDARIES FILE" ) ) );
+  for ( qsizetype i = 0; i < ret.count(); ++i )
+  {
+    ReosHydraulicStructureBoundaryCondition *bc = ret.at( i );
+
+    switch ( bc->conditionType() )
+    {
+      case ReosHydraulicStructureBoundaryCondition::Type::NotDefined:
+      case ReosHydraulicStructureBoundaryCondition::Type::DefinedExternally:
+        break;
+      case ReosHydraulicStructureBoundaryCondition::Type::InputFlow:
+      {
+        ReosTelemacLiquidBoundaries::TelemacLiquidBoundary *liquidBc = liquidBoundaries.boundaryCondition( i + 1, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+        std::unique_ptr<ReosHydrograph> hydrograph( new ReosHydrograph() );
+        hydrograph->setReferenceTime( mSource->referenceTime() );
+        if ( liquidBc && !liquidBc->time.isEmpty() && !liquidBc->value.isEmpty() )
+        {
+          for ( qsizetype j = 0; j < liquidBc->time.count(); ++j )
+            hydrograph->setValue( ReosDuration( liquidBc->time.at( j ), ReosDuration::second ), liquidBc->value.at( j ) );
+        }
+        else
+        {
+          hydrograph->setValue( ReosDuration( 0, ReosDuration::second ), constantFlowRates.at( i ) );
+          hydrograph->setValue( simDuration, constantFlowRates.at( i ) );
+        }
+
+        bc->gaugedHydrographsStore()->addHydrograph( hydrograph.release() );
+        bc->setInternalHydrographOrigin( ReosHydrographJunction::GaugedHydrograph );
+        bc->setGaugedHydrographIndex( 0 );
+      }
+      break;
+      case ReosHydraulicStructureBoundaryCondition::Type::OutputLevel:
+      {
+        ReosTelemacLiquidBoundaries::TelemacLiquidBoundary *liquidBc = liquidBoundaries.boundaryCondition( i + 1, ReosHydraulicStructureBoundaryCondition::Type::OutputLevel );
+        if ( liquidBc && !liquidBc->time.isEmpty() && !liquidBc->value.isEmpty() )
+        {
+          std::unique_ptr<ReosTimeSeriesVariableTimeStep> levelSeries( new ReosTimeSeriesVariableTimeStep );
+          for ( qsizetype j = 0; j < liquidBc->time.count(); ++j )
+            levelSeries->setValue( ReosDuration( liquidBc->time.at( j ), ReosDuration::second ), liquidBc->value.at( j ) );
+
+          bc->waterLevelSeriesGroup()->addTimeSeries( levelSeries.release() );
+          bc->setWaterLevelSeriesIndex( 0 );
+          bc->isWaterLevelConstant()->setValue( false );
+        }
+        else
+        {
+          bc->isWaterLevelConstant()->setValue( true );
+          bc->constantWaterElevation()->setValue( constantElevations.at( i ) );
+        }
+      }
+      break;
+    }
+  }
+
   return ret;
+}
+
+QList<ReosHydraulicSimulation *> ReosTelemacStructureImporter::createSimulations( ReosHydraulicStructure2D *parent ) const
+{
+  ReosTelemac2DSimulation *simulation = new ReosTelemac2DSimulation( parent );
+
+  simulation->setEquation( mSteeringFile.equation() );
+  simulation->timeStep()->setValue( mSteeringFile.timeStep() );
+  simulation->outputPeriodResult2D()->setValue( mSteeringFile.outputPeriodResult2D() );
+  simulation->outputPeriodResultHydrograph()->setValue( mSteeringFile.outputPeriodResultHydrograph() );
+
+  simulation->outputPeriodResult2D()->setValue( mSteeringFile.outputPeriodResult2D() );
+  simulation->outputPeriodResultHydrograph()->setValue( mSteeringFile.outputPeriodResultHydrograph() );
+
+  simulation->courantNumber()->setValue( mSteeringFile.courantNumber() );
+
+  simulation->setInitialCondition( mSteeringFile.initialConditionType() );
+
+  simulation->setGeomFileName( mSteeringFile.geomFileName() );
+  simulation->setResultFileName( mSteeringFile.resultFileName() );
+  simulation->setBoundaryFileName( mSteeringFile.boundaryFileName() );
+  simulation->setBoundaryLiquidFileName( mSteeringFile.boundaryFileName() );
+
+  return QList<ReosHydraulicSimulation *>( { simulation } );
 }
 
 bool ReosTelemacStructureImporter::isValid() const

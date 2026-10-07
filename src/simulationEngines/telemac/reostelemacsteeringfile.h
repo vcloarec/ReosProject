@@ -17,10 +17,14 @@
 #ifndef REOSTELEMACSTEERINGFILE_H
 #define REOSTELEMACSTEERINGFILE_H
 
+#include <QDateTime>
 #include <QString>
 #include <QMap>
 #include <QObject>
 #include <memory.h>
+
+#include "reosduration.h"
+#include "reostelemac2dsimulation.h"
 
 class ReosTelemacSteeringFile
 {
@@ -37,6 +41,27 @@ class ReosTelemacSteeringFile
     int lineCount() const;
 
     bool isValid() const;
+
+    QString geomFileName() const;
+    QString resultFileName() const;
+    QString boundaryFileName() const;
+    QString boundaryLiquidFileName() const;
+
+    const QDateTime referenceTime() const;
+    const ReosDuration duration() const;
+    const ReosDuration timeStep() const;
+
+    const QList<double> prescribedFlowRate() const;
+    const QList<double> prescibedElevation() const;
+
+    ReosTelemac2DSimulation::Equation equation() const;
+
+    double courantNumber() const;
+
+    int outputPeriodResult2D() const;
+    int outputPeriodResultHydrograph() const;
+
+    ReosTelemac2DInitialCondition::Type initialConditionType() const;
 
   private:
     class SteeringLine

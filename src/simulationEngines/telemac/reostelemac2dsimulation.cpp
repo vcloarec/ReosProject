@@ -615,6 +615,26 @@ QVersionNumber ReosTelemac2DSimulation::telemacVersion() const
   return QVersionNumber::fromString( telemacConfig.value( QStringLiteral( "general/version" ) ).toString() );
 }
 
+void ReosTelemac2DSimulation::setGeomFileName( const QString &newGeomFileName )
+{
+  mGeomFileName = newGeomFileName;
+}
+
+void ReosTelemac2DSimulation::setResultFileName( const QString &newResultFileName )
+{
+  mResultFileName = newResultFileName;
+}
+
+void ReosTelemac2DSimulation::setBoundaryFileName( const QString &newBoundaryFileName )
+{
+  mBoundaryFileName = newBoundaryFileName;
+}
+
+void ReosTelemac2DSimulation::setBoundaryLiquidFileName( const QString &newBoundaryConditionFileName )
+{
+  mBoundaryConditionFileName = newBoundaryConditionFileName;
+}
+
 ReosDuration ReosTelemac2DSimulation::timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const
 {
   ReosDuration timeStep( qint64( 0 ) );
@@ -1442,6 +1462,8 @@ void ReosTelemac2DSimulation::createSteeringFile(
       steeringFile.setKey( QStringLiteral( "MASS-LUMPING ON H" ), QStringLiteral( "1.0" ) );
       steeringFile.setKey( QStringLiteral( "MASS-LUMPING ON VELOCITY" ), QStringLiteral( "1.0" ) );
       steeringFile.setKey( QStringLiteral( "SUPG OPTION" ), QStringLiteral( "1;1" ) );
+      break;
+    case ReosTelemac2DSimulation::Equation::SteeringFileDefined:
       break;
   }
 

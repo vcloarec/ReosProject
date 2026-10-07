@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 #include <filesystem>
 #include <QObject>
 #include <QtTest/QtTest>
+#include <QTimeZone>
 
 #include "reosapplication.h"
 #include "reoscoremodule.h"
@@ -398,7 +399,9 @@ void ReosTelemacTesting::buildStructure()
 void ReosTelemacTesting::importStructure()
 {
   ReosHydraulicNetworkContext context = coreModule->hydraulicNetwork()->context();
-  std::unique_ptr<ReosStructureImporterSource> importerSource( new ReosTelemacStructureImporterSource( testFile( "/telemac/bridge/t2d_bridge.cas" ), context ) );
+  std::unique_ptr<ReosTelemacStructureImporterSource> importerSource( new ReosTelemacStructureImporterSource( testFile( "/telemac/bridge/t2d_bridge.cas" ), context ) );
+
+  importerSource->setReferenceTime( QDateTime( QDate( 2022, 01, 01 ), QTime( 0, 0, 0 ), QTimeZone::UTC ) );
 
   std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
   QVERIFY( importer );

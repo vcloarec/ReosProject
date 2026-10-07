@@ -31,12 +31,17 @@ class ReosTelemacStructureImporterSource : public ReosStructureImporterSource
 
     virtual ReosStructureImporterSource *clone() const override;
     virtual ReosStructureImporter *createImporter() const override;
-    virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const;
+    virtual ReosEncodedElement encode( const ReosHydraulicNetworkContext &context ) const override;
+
+    void setReferenceTime( const QDateTime &referenceTime );
+    const QDateTime &referenceTime() const { return mReferenceTime; };
 
   private:
     QString mSteeringFilePath;
     ReosHydraulicNetwork *mNetwork = nullptr;
+    QDateTime mReferenceTime;
 };
+
 
 class ReosTelemacStructureImporter : public ReosStructureImporter
 {
@@ -58,8 +63,9 @@ class ReosTelemacStructureImporter : public ReosStructureImporter
     //! Creates and returnd a mesh for a specific \a scheme associated to a \a structure
     virtual ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const {};
 
-    virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const;;
-    virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const {};
+    virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const;
+    ;
+    virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const;;
 
     //! Updates the boundary condition, remove not exising add new ones
     virtual void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const {};

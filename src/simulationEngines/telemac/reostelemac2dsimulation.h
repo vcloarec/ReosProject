@@ -35,7 +35,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     enum class Equation
     {
       FiniteVolume,
-      FiniteElement
+      FiniteElement,
+      SteeringFileDefined
     };
 
     enum class VolumeFiniteScheme
@@ -107,6 +108,14 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     QString engineName() const override;
 
     QVersionNumber telemacVersion() const;
+
+    void setGeomFileName( const QString &newGeomFileName );
+
+    void setResultFileName( const QString &newResultFileName );
+
+    void setBoundaryFileName( const QString &newBoundaryFileName );
+
+    void setBoundaryLiquidFileName( const QString &newBoundaryConditionFileName );
 
   protected:
     QString directoryName() const override { return QStringLiteral( "TELEMAC" ); }
