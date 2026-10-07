@@ -19,7 +19,7 @@ jobs:
     
     - name: config env variables
       run: |
-          echo "CYGWIN_ROOT=${{github.workspace}}\cygwin64" >> $env:GITHUB_ENV
+          echo "WINFLEXBISON_ROOT=${{github.workspace}}\winflexbison" >> $env:GITHUB_ENV
           echo "OSGEO4W_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
           echo "GDAL_ROOT=${{github.workspace}}\OSGEO4W" >> $env:GITHUB_ENV
           echo "ECCODES_ROOT=${{github.workspace}}\ECCODES_Install" >> $env:GITHUB_ENV
@@ -36,17 +36,8 @@ jobs:
 
           git lfs pull
       
-    - name: Cache CYGWIN
-      id: cache-cygwin
-      uses: actions/cache@v3
-      with:
-        path: ${{env.CYGWIN_ROOT}}
-        key: ${{ runner.os }}-cygwin
-        
-    - name: load CYGWIN
-      if: steps.cache-cygwin.outputs.cache-hit != 'true'
-      continue-on-error: true
-      run: ./windows/load_cygwin.ps1
+    - name: load winflexbison
+      run: ./windows/load_winflexbison.ps1
       
     - name: Cache OSGEO
       id: cache-osgeo

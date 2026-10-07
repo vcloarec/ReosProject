@@ -16,9 +16,8 @@ $OSGEO_DIR
 ls $OSGEO_DIR\bin
 ls $OSGEO_DIR\include
 
-Write-Host "=== Cygwin directory:"
-$env:CYGWIN_ROOT
-ls $env:CYGWIN_ROOT
+Write-Host "=== winflexbison directory:"
+ls $env:WINFLEXBISON_ROOT
 
 Write-Host "===================================== Current PATH:"
 $env:Path
@@ -57,8 +56,8 @@ cmake -S $env:QGIS_SRC `
       -D ENABLE_TESTS=FALSE `
       -D SETUPAPI_LIBRARY=$SDK_PATH/Lib/$SDK_VERSION/um/x64/setupAPI.Lib `
       -D VERSION_LIBRARY=$SDK_PATH/Lib/$SDK_VERSION/um/x64/Version.Lib `
-      -D FLEX_EXECUTABLE=$env:CYGWIN_ROOT/bin/flex.exe `
-      -D BISON_EXECUTABLE=$env:CYGWIN_ROOT/bin/bison.exe `
+      -D FLEX_EXECUTABLE=$env:WINFLEXBISON_ROOT/win_flex.exe `
+      -D BISON_EXECUTABLE=$env:WINFLEXBISON_ROOT/win_bison.exe `
       -D CMAKE_BUILD_TYPE=$BUILDCONF `
       -D CMAKE_CONFIGURATION_TYPES=$BUILDCONF `
       -D Python_EXECUTABLE=$OSGEO_DIR/apps/python312/python3.exe `
