@@ -170,12 +170,8 @@ class ReosHecRasStructureImporter : public ReosStructureImporter
     QPolygonF domain() const override;
     ReosMesh *mesh( const QString &destinationCrs ) const override;
     ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const override;
-    const ReosMeshFrameData &meshData() const override { return mMeshData; }
-
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
-
     QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const override;
-
     void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
 
     bool isValid() const override;
