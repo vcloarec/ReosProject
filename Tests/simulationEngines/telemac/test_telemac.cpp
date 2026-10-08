@@ -408,6 +408,10 @@ void ReosTelemacTesting::importStructure()
 
   ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), coreModule->hydraulicNetwork()->context() );
   QVERIFY( structure );
+
+  coreModule->saveProject( projectDir.filePath( "telemac_imported_model" ) );
+
+  structure->runSimulation( coreModule->hydraulicNetwork()->currentScheme()->calculationContext() );
 }
 
 QTEST_MAIN( ReosTelemacTesting )

@@ -143,6 +143,10 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     Capabilities mCapabilities;
 
+    bool mMeshFilesUpdated = false;
+    bool mBoundaryFilesUpdated = false;
+    bool mSteeringFileUpdated = false;
+
     ReosDuration timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const;
 
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles( const ReosSimulationData &simulationData, QVector<int> &verticesPosInBoundary, const QDir &directory );

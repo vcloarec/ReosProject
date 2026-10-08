@@ -49,30 +49,33 @@ class ReosTelemacStructureImporter : public ReosStructureImporter
     ReosTelemacStructureImporter( const QString &steeringFile, const ReosHydraulicNetworkContext &context, const ReosTelemacStructureImporterSource *source );
     virtual ~ReosTelemacStructureImporter() = default;
 
-    virtual QString importerKey() const {};
+    virtual QString importerKey() const override { return ReosTelemac2DSimulation::staticKey(); };
 
-    virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const;
+    virtual ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
 
-    virtual QString crs() const;
+    virtual QString crs() const override;
 
-    virtual QPolygonF domain() const;
+    virtual QPolygonF domain() const override;
 
     //! Creates and returns a mesh
-    virtual ReosMesh *mesh( const QString &destinationCrs ) const;
+    virtual ReosMesh *mesh( const QString &destinationCrs ) const override;
 
     //! Creates and returnd a mesh for a specific \a scheme associated to a \a structure
-    virtual ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const {};
+    virtual ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const override { return nullptr; }
 
-    virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const;
+    const ReosMeshFrameData &meshData() const override;
+
+    virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
     ;
-    virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const;;
+    virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const override;
+    ;
 
     //! Updates the boundary condition, remove not exising add new ones
-    virtual void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const {};
+    virtual void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override {};
 
-    virtual bool isValid() const;
+    virtual bool isValid() const override;
 
-    virtual const ReosStructureImporterSource *source() const { return mSource; };
+    virtual const ReosStructureImporterSource *source() const override { return mSource; };
 
   private:
     QDir mDirectory;

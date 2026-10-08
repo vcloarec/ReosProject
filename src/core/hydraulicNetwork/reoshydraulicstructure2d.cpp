@@ -218,6 +218,7 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   updateResults( context.currentSchemeId() );
 
   saveConfiguration( context.network()->currentScheme() );
+  mMeshNeedToBeGenerated = false;
 }
 
 ReosTimeWindowSettings *ReosHydraulicStructure2D::timeWindowSettings() const

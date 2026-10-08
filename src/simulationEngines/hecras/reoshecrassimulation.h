@@ -170,6 +170,7 @@ class ReosHecRasStructureImporter : public ReosStructureImporter
     QPolygonF domain() const override;
     ReosMesh *mesh( const QString &destinationCrs ) const override;
     ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const override;
+    const ReosMeshFrameData &meshData() const override { return mMeshData; }
 
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
 
@@ -193,6 +194,7 @@ class ReosHecRasStructureImporter : public ReosStructureImporter
     std::shared_ptr<ReosHecRasProject> mProject;
     QString mCrs;
     CreationOptions mCreationOption;
+    ReosMeshFrameData mMeshData;
 
     void init( const QString &mFileName );
 };

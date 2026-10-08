@@ -30,6 +30,7 @@ class ReosTelemacBoundaries
     ReosTelemacBoundaries( ReosMesh *mesh, const QString &boudaryFilePath = QString() );
 
     int boundaryVertexCount() const;
+    QList<int> boundaryVertexIndexes() const;
     QPolygonF envelop() const;
 
     QList<ReosHydraulicStructureBoundaryCondition::Type> boundaryConditionTypes() const;

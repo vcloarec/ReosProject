@@ -38,6 +38,16 @@ int ReosTelemacBoundaries::boundaryVertexCount() const
   return mTelemacBoundaryVertex.count();
 }
 
+QList<int> ReosTelemacBoundaries::boundaryVertexIndexes() const
+{
+  QList<int> ret;
+
+  for ( const TelemacBoundaryLine &bound : mTelemacBoundaryVertex )
+    ret.append( bound.vertIndex );
+
+  return ret;
+}
+
 QPolygonF ReosTelemacBoundaries::envelop() const
 {
   return mEnvelop;

@@ -691,10 +691,18 @@ void ReosTelemac2DSimulation::prepareInput( const ReosSimulationData &simulation
 void ReosTelemac2DSimulation::prepareInput( const ReosSimulationData &simulationData, const ReosCalculationContext &calculationContext, const QDir &directory )
 {
   QVector<int> verticesPosInBoundary;
-  QList<ReosHydraulicStructureBoundaryCondition *> boundaryCondition = createBoundaryFiles( simulationData, verticesPosInBoundary, directory );
-  createSelafinBaseFile( simulationData, verticesPosInBoundary, directory.filePath( mGeomFileName ) );
-  mBoundaries = createBoundaryConditionFiles( boundaryCondition, calculationContext, directory );
-  createSteeringFile( simulationData, boundaryCondition, verticesPosInBoundary, calculationContext, directory );
+  QList<ReosHydraulicStructureBoundaryCondition *> boundaryConditions;
+  if ( !mMeshFilesUpdated )
+  {
+    boundaryConditions = createBoundaryFiles( simulationData, verticesPosInBoundary, directory );
+    createSelafinBaseFile( simulationData, verticesPosInBoundary, directory.filePath( mGeomFileName ) );
+  }
+  else
+  {
+    //boundaryConditions =
+  }
+  mBoundaries = createBoundaryConditionFiles( boundaryConditions, calculationContext, directory );
+  createSteeringFile( simulationData, boundaryConditions, verticesPosInBoundary, calculationContext, directory );
 }
 
 ReosSimulationProcess *ReosTelemac2DSimulation::getProcess( const ReosCalculationContext &calculationContext ) const

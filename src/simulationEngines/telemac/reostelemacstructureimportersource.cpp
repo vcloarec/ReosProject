@@ -41,7 +41,9 @@ ReosStructureImporter *ReosTelemacStructureImporterSource::createImporter() cons
 }
 
 ReosEncodedElement ReosTelemacStructureImporterSource::encode( const ReosHydraulicNetworkContext &context ) const
-{}
+{
+  return ReosEncodedElement( QStringLiteral( "Telemac importer" ) );
+}
 
 void ReosTelemacStructureImporterSource::setReferenceTime( const QDateTime &referenceTime )
 {
@@ -87,6 +89,9 @@ ReosMesh *ReosTelemacStructureImporter::mesh( const QString &destinationCrs ) co
 {
   return mGeometryMesh.release();
 }
+
+const ReosMeshFrameData &ReosTelemacStructureImporter::meshData() const
+{}
 
 QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemacStructureImporter::createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const
 {
@@ -225,4 +230,67 @@ void ReosTelemacStructureImporter::loadGeometry() const
   boundaryFile = unquote( boundaryFile );
   boundaryFile = mDirectory.filePath( boundaryFile );
   mBoundaries = ReosTelemacBoundaries( mGeometryMesh.get(), boundaryFile );
+
+
+  // here we should reconstruct the bondary AND the holes to fill ReosMeshFrameData
+  QList<QSet<int>> verticesToFaces;
+  verticesToFaces.fill( QSet<int>(), mGeometryMesh->vertexCount() );
+  QList<QSet<int>> facesToVertices;
+  facesToVertices.fill( QSet<int>(), mGeometryMesh->faceCount() );
+
+  const QVector<QVector<int>> &faces = mGeometryMesh->faces();
+  for ( qsizetype f = 0; f < faces.count(); ++f )
+  {
+    const QVector<int> &face = faces.at( f );
+    for ( qsizetype v = 0; v < face.count(); ++v )
+    {
+      int vertexIndex = face.at( v );
+      if ( vertexIndex >= 0 && vertexIndex < verticesToFaces.count() )
+      {
+        verticesToFaces[vertexIndex].insert( f );
+        facesToVertices[f].insert( vertexIndex );
+      }
+    }
+  }
+
+  ReosMeshFrameData meshData;
+
+  QList<int> allBoundaryVertices = mBoundaries.boundaryVertexIndexes();
+
+  int first = allBoundaryVertices.first();
+  int prev = first;
+  allBoundaryVertices.pop_front();
+  QList<int> exteriorVertices;
+  QVector<QVector<int>> holes;
+  bool exteriorFound = false;
+  exteriorVertices.append( first );
+  int currentVertex = allBoundaryVertices.first();
+  allBoundaryVertices.pop_front();
+  return;
+  while ( !allBoundaryVertices.empty() )
+  {
+    const QSet<int> &relatedFaces = verticesToFaces.at( prev );
+    for ( int f : relatedFaces )
+    {
+      if ( facesToVertices.at( f ).contains( currentVertex ) )
+      {
+        prev = currentVertex;
+        if ( !exteriorFound )
+          exteriorVertices.append( currentVertex );
+        else
+          holes.last().append( currentVertex );
+
+        currentVertex = allBoundaryVertices.first();
+        allBoundaryVertices.pop_front();
+        if ( currentVertex == first )
+        {
+          exteriorFound = true;
+          holes.append( QVector<int>() );
+          break;
+        }
+      }
+    }
+  }
+
+  int a = 1;
 }
