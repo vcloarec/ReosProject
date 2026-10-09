@@ -24,6 +24,7 @@ email                : vcloarec at gmail dot com
 #include "reosgriddedrainitem.h"
 #include "reoswatershed.h"
 #include "reosgisengine.h"
+#include "reoswatersheddelineating.h"
 
 class ReosRainfallTest : public QObject
 {
@@ -39,6 +40,7 @@ class ReosRainfallTest : public QObject
 
     void griddedRainfall();
     void griddedRainfallOnSmallWatershed();
+    void griddedDataOnWatershed();
 
   private:
     ReosModule mRootModule;
@@ -705,6 +707,44 @@ void ReosRainfallTest::griddedRainfallOnSmallWatershed()
   val = rainfallSeries.valueAt( 4 );
   QVERIFY( equal( val, 0.65491, 0.001 ) );
 }
+
+
+void ReosRainfallTest::griddedDataOnWatershed()
+{
+  QString layerId = mGisEngine->addRasterLayer( testFile( "DEM_SE.tif" ), QStringLiteral( "raster_DEM" ) );
+  const QString directionFilePath = testFile( "DEM_SE_dir.tif" );
+  //ReosWatershedDelineating::directionFromDem( layerId, gisEngine.layerExtent( layerId ), &gisEngine, directionFilePath );
+  QPolygonF dsLine;
+  dsLine << QPointF( 756796.82534309197217226, 6319006.69449135288596153 ) << QPointF( 757299.64505985646974295, 6318284.82460094895213842 );
+
+  const QString &classesPath = tempFile( "distClasses.tif" );
+  ReosWatershedDelineating::DelineateResult res = ReosWatershedDelineating::delineateWatershed( layerId, directionFilePath, dsLine, ReosGisEngine::crsFromEPSG( 2154 ), mGisEngine, classesPath );
+
+  ReosWatershed watershed( res.delineateWatershed, QPointF(), ReosGisEngine::crsFromEPSG( 2154 ) );
+
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = testFile( QStringLiteral( "comephore/vortex/" ) );
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "comephore" ), ReosGriddedData::staticType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> rainfall = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "comephore" ) );
+
+  QVERIFY( rainfall->isValid() );
+  QCOMPARE( rainfall->gridCount(), 25 );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> dataOnWatershed(
+    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, rainfall.get(), ReosDuration( 60, ReosDuration::minute ), classesPath, 4 )
+  );
+
+  dataOnWatershed->preCalculate();
+  double val = dataOnWatershed->valueAt( 0 );
+  QVERIFY( equal( val, 0, 0.001 ) );
+
+  QVector<double> valuesOnArea = dataOnWatershed->valuesForArea( 1 );
+  QCOMPARE( valuesOnArea.count(), 25 );
+}
+
 
 QTEST_MAIN( ReosRainfallTest )
 #include "reos_rainfall_test.moc"

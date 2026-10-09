@@ -21,6 +21,7 @@
 #include "reosduration.h"
 #include "reostimeseries.h"
 #include "reos_sip.h"
+#include "reosgdalutils.h"
 
 
 class ReosWatershed;
@@ -199,7 +200,7 @@ class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
     int mXOri = -1;
     int mYOri = -1;
 
-    QVector<std::shared_ptr<QVector<double>>> mValuesPerAreas;
+    mutable QVector<QVector<double>> mValuesPerAreas;
 
     AverageCalculation *getCalculationProcess() const;
 };
@@ -242,6 +243,19 @@ class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeri
 
   private slots:
     void onWatershedGeometryChanged();
+};
+
+
+class REOSCORE_EXPORT ReosDistributedArea
+{
+  public:
+    ReosDistributedArea( const QString &filePath );
+    bool isValid() const;
+
+    ReosRasterMemory<unsigned char> areaDistributionGrid( const ReosRasterExtent &extent, int areaCount ) const;
+
+  private:
+    const QString mFilePath;
 };
 
 

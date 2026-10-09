@@ -29,6 +29,7 @@ class ReosCdslccTest : public QObject
 
   private slots:
     void createProvider();
+    void createLandUseData();
 
   private:
     ReosModule mRootModule;
@@ -39,6 +40,10 @@ void ReosCdslccTest::createProvider()
 {
   std::unique_ptr<ReosDataProvider> compatibleProvider( ReosDataProviderRegistery::instance()->createCompatibleProvider( testFile( "/cdslcc/finistere.nc" ), ReosLandUseData::staticType() ) );
   QVERIFY( compatibleProvider );
+}
+
+void ReosCdslccTest::createLandUseData()
+{
   ReosLandUseData landUseData( testFile( "/cdslcc/finistere.nc" ), "cdslcc" );
 
   ReosRasterExtent extent = landUseData.extent();

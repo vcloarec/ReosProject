@@ -392,26 +392,12 @@ void ReosDataGriddedOnWatershed::launchCalculation()
 
         if ( mDistributePerArea )
         {
-          ReosGdalDataset areaDistributionDS( mAreaDistributionFilePath );
-          if ( areaDistributionDS.isValid() )
+          ReosDistributedArea distrubutedArea( mAreaDistributionFilePath );
+          if ( distrubutedArea.isValid() )
           {
-            areaDistributionDS.resample( mRasterizedExtent, "mode" );
-            mAreaDistributionGrid = areaDistributionDS.valuesBytes( 1 );
-
-            QVector<unsigned char> distrValues = mAreaDistributionGrid.values();
-
-            int div = static_cast<int>( std::round( 256 / mAreaCount ) );
-
-            for ( int i = 0; i < distrValues.count(); ++i )
-              if ( distrValues.at( i ) == 0 )
-                distrValues[i] = mAreaCount; //we don't want values when area is classified as 0 (no data value)
-              else
-                distrValues[i] = static_cast<unsigned char>( std::floor( distrValues.at( i ) / div ) );
-
-            mAreaDistributionGrid.setValues( distrValues );
-
+            mAreaDistributionGrid = distrubutedArea.areaDistributionGrid( mRasterizedExtent, mAreaCount );
             for ( int i = 0; i < mAreaCount; ++i )
-              mValuesPerAreas.append( std::make_shared< QVector<double>>() );
+              mValuesPerAreas.append( QVector<double>() );
           }
           else
           {
@@ -555,15 +541,14 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
     }
   }
 
-
   if ( mDistributePerArea )
   {
     for ( int di = 0; di < mValuesPerAreas.count(); ++di )
     {
       if ( distribureTotalSurf.at( di ) > 0 )
-        ( *mValuesPerAreas.at( di ).get() )[i] = distributeAverageValue.at( di ) / distribureTotalSurf.at( di ) * timeStepRatio;
+        mValuesPerAreas[di][i] = distributeAverageValue.at( di ) / distribureTotalSurf.at( di ) * timeStepRatio;
       else
-        ( *mValuesPerAreas.at( di ).get() )[i] = 0;
+        mValuesPerAreas[di][i] = 0;
     }
   }
 
@@ -573,7 +558,7 @@ double ReosDataGriddedOnWatershed::calculateValueAt( int i ) const
 QVector<double> ReosDataGriddedOnWatershed::valuesForArea( int areaIndex ) const
 {
   if ( areaIndex >= 0 && areaIndex < mAreaCount )
-    return ( *mValuesPerAreas[areaIndex].get() );
+    return mValuesPerAreas.at( areaIndex );
 
   return QVector<double>();
 }
@@ -698,7 +683,36 @@ void ReosDataGriddedOnWatershed::initValuesPerArea( int count )
 {
   for ( int i = 0; i < mValuesPerAreas.count(); ++i )
   {
-    mValuesPerAreas.at( i )->resize( count );
-    mValuesPerAreas.at( i )->fill( std::numeric_limits<double>::quiet_NaN() );
+    mValuesPerAreas[i] = QVector<double>( count, std::numeric_limits<double>::quiet_NaN() );
   }
+}
+
+ReosDistributedArea::ReosDistributedArea( const QString &filePath )
+  : mFilePath( filePath )
+{}
+
+bool ReosDistributedArea::isValid() const
+{
+  return ReosGdalDataset( mFilePath ).isValid();
+}
+
+ReosRasterMemory<unsigned char> ReosDistributedArea::areaDistributionGrid( const ReosRasterExtent &extent, int areaCount ) const
+{
+  ReosGdalDataset dataset( mFilePath );
+  dataset.resample( extent, "mode" );
+  ReosRasterMemory<unsigned char> ret = dataset.valuesBytes( 1 );
+
+  QVector<unsigned char> distrValues = ret.values();
+
+  int div = static_cast<int>( std::round( 256 / areaCount ) );
+
+  for ( int i = 0; i < distrValues.count(); ++i )
+    if ( distrValues.at( i ) == 0 )
+      distrValues[i] = areaCount; //we don't want values when area is classified as 0 (no data value)
+    else
+      distrValues[i] = static_cast<unsigned char>( std::floor( distrValues.at( i ) / div ) );
+
+  ret.setValues( distrValues );
+
+  return ret;
 }
