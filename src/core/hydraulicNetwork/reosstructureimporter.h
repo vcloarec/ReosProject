@@ -43,6 +43,10 @@ class REOSCORE_EXPORT ReosStructureImporter
     virtual QString crs() const = 0;
     virtual QPolygonF domain() const = 0;
 
+    virtual QVector<QVector<int>> boundarySegmentVertices() const = 0;
+
+    virtual QVector<QVector<QVector<int>>> holeSegmentVertices() const = 0;
+
     //! Creates and returns a mesh
     virtual ReosMesh *mesh( const QString &destinationCrs ) const = 0;
 

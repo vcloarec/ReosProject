@@ -201,6 +201,8 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   , mPolylinesStructures( ReosPolylinesStructure::createPolylineStructure( importer->domain(), importer->crs() ) )
   , mMesh( importer->mesh( context.network()->gisEngine()->crs() ) )
   , mStructureImporterSource( importer->source()->clone() )
+  , mBoundaryVertices( importer->boundarySegmentVertices() )
+  , mHolesVertices( importer->holeSegmentVertices() )
   , mProfilesCollection( new ReosHydraulicStructureProfilesCollection( this ) )
   , mTimeWindowSettings( new ReosTimeWindowSettings( this ) )
 {
@@ -213,12 +215,11 @@ ReosHydraulicStructure2D::ReosHydraulicStructure2D( ReosStructureImporter *impor
   mSimulations.append( importer->createSimulations( this ) );
   mCurrentSimulationIndex = mSimulations.isEmpty() ? -1 : 0;
 
-  mMeshNeedToBeGenerated = hasCapability( ReosHydraulicStructure2D::GeometryEditable );
+  mMeshNeedToBeGenerated = mMesh.get() == nullptr;
 
   updateResults( context.currentSchemeId() );
 
   saveConfiguration( context.network()->currentScheme() );
-  mMeshNeedToBeGenerated = false;
 }
 
 ReosTimeWindowSettings *ReosHydraulicStructure2D::timeWindowSettings() const

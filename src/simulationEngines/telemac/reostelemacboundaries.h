@@ -36,6 +36,9 @@ class ReosTelemacBoundaries
     QList<ReosHydraulicStructureBoundaryCondition::Type> boundaryConditionTypes() const;
     QList<QSet<int>> liquidDomainSegmentIndex() const;
 
+    QVector<QVector<int>> boundarySegmentVertices() const;
+    QVector<QVector<QVector<int>>> holeSegmentVertices() const;
+
   private:
     struct TelemacBoundaryLine
     {
@@ -63,12 +66,17 @@ class ReosTelemacBoundaries
 
     ReosMesh *mMesh = nullptr;
     QString mBoundaryFilePath;
+    QList<int> mExteriorVerticesIndex;
+    QList<QList<int>> mHolesVerticesIndex;
     QPolygonF mEnvelop;
     QList<TelemacBoundaryLine> mTelemacBoundaryVertex;
     QList<ReosHydraulicStructureBoundaryCondition::Type> mBoundaryConditionTypes;
     QList<QSet<int>> mLiquidDomainSegmentIndex;
+    QVector<QVector<int>> mBoundarySegmentVertices;
+    QVector<QVector<QVector<int>>> mHoleSegmentVertices;
 
     void populateTelemacBoundaryVertexFromFile();
+    void resolveExteriorAndHoles();
     void populateEnvelopFromTelemacBoundaryVertex();
 };
 
@@ -88,7 +96,6 @@ class ReosTelemacLiquidBoundaries
 
     ReosTelemacLiquidBoundaries() = default;
     ReosTelemacLiquidBoundaries( const QString &liquidBoudaryFilePath );
-
 
     TelemacLiquidBoundary *boundaryCondition( int rank, ReosHydraulicStructureBoundaryCondition::Type type ) const;
 

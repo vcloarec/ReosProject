@@ -1095,28 +1095,32 @@ void ReosTelemac2DSimulation::createSelafinBaseFile( const ReosSimulationData &s
   //! Roughness
   ReosPolygonsClassifiedValues *roughness = simulationData.roughnessValues.get();
 
-  std::shared_ptr<QgsMeshMemoryDataset> roughnessDataset( new QgsMeshMemoryDataset );
-  roughnessDataset->values.resize( mesh.vertexCount() );
-
-  int size = mesh.vertexCount();
-  double defaultVal = simulationData.defaultRoughness;
-  for ( int i = 0; i < size; ++i )
+  if ( roughness )
   {
-    const QgsMeshVertex &vert = mesh.vertices.at( i );
-    double val = roughness->value( vert.x(), vert.y(), false );
-    if ( std::isnan( val ) )
-      val = defaultVal;
-    roughnessDataset->values[i] = 1 / val;
+    std::shared_ptr<QgsMeshMemoryDataset> roughnessDataset( new QgsMeshMemoryDataset );
+    roughnessDataset->values.resize( mesh.vertexCount() );
+
+    int size = mesh.vertexCount();
+    double defaultVal = simulationData.defaultRoughness;
+    for ( int i = 0; i < size; ++i )
+    {
+      const QgsMeshVertex &vert = mesh.vertices.at( i );
+      double val = roughness->value( vert.x(), vert.y(), false );
+      if ( std::isnan( val ) )
+        val = defaultVal;
+      roughnessDataset->values[i] = 1 / val;
+    }
+
+    roughnessDataset->valid = true;
+    roughnessDataset->time = 0;
+
+    std::unique_ptr<QgsMeshMemoryDatasetGroup> roughnessGroup( new QgsMeshMemoryDatasetGroup( "BOTTOM FRICTION", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
+    roughnessGroup->addDataset( roughnessDataset );
+    roughnessGroup->initialize();
+
+    ouputMesh->addDatasets( roughnessGroup.release() );
   }
 
-  roughnessDataset->valid = true;
-  roughnessDataset->time = 0;
-
-  std::unique_ptr<QgsMeshMemoryDatasetGroup> roughnessGroup( new QgsMeshMemoryDatasetGroup( "BOTTOM FRICTION", QgsMeshDatasetGroupMetadata::DataOnVertices ) );
-  roughnessGroup->addDataset( roughnessDataset );
-  roughnessGroup->initialize();
-
-  ouputMesh->addDatasets( roughnessGroup.release() );
   ouputMesh->saveDataset( fileName, 1, QStringLiteral( "SELAFIN" ) );
 }
 

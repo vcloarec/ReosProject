@@ -80,6 +80,22 @@ QPolygonF ReosTelemacStructureImporter::domain() const
   return mBoundaries.envelop();
 }
 
+QVector<QVector<int> > ReosTelemacStructureImporter::boundarySegmentVertices() const
+{
+  if ( !mGeometryMesh )
+    loadGeometry();
+
+  return mBoundaries.boundarySegmentVertices();
+}
+
+QVector<QVector<QVector<int> > > ReosTelemacStructureImporter::holeSegmentVertices() const
+{
+  if ( !mGeometryMesh )
+    loadGeometry();
+
+  return mBoundaries.holeSegmentVertices();
+}
+
 static QString unquote( const QString &str )
 {
   return str.trimmed().remove( QRegularExpression( "^'|'$" ) );
@@ -89,9 +105,6 @@ ReosMesh *ReosTelemacStructureImporter::mesh( const QString &destinationCrs ) co
 {
   return mGeometryMesh.release();
 }
-
-const ReosMeshFrameData &ReosTelemacStructureImporter::meshData() const
-{}
 
 QList<ReosHydraulicStructureBoundaryCondition *> ReosTelemacStructureImporter::createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const
 {
@@ -265,10 +278,12 @@ void ReosTelemacStructureImporter::loadGeometry() const
   bool exteriorFound = false;
   exteriorVertices.append( first );
   int currentVertex = allBoundaryVertices.first();
-  allBoundaryVertices.pop_front();
-  return;
+
+  int prevFace = -1;
+
   while ( !allBoundaryVertices.empty() )
   {
+    allBoundaryVertices.pop_front();
     const QSet<int> &relatedFaces = verticesToFaces.at( prev );
     for ( int f : relatedFaces )
     {
@@ -280,17 +295,41 @@ void ReosTelemacStructureImporter::loadGeometry() const
         else
           holes.last().append( currentVertex );
 
-        currentVertex = allBoundaryVertices.first();
-        allBoundaryVertices.pop_front();
-        if ( currentVertex == first )
-        {
-          exteriorFound = true;
-          holes.append( QVector<int>() );
-          break;
-        }
+        if ( !allBoundaryVertices.empty() )
+          currentVertex = allBoundaryVertices.first();
+        prevFace = f;
+        break;
+      }
+      else if ( facesToVertices.at( f ).contains( first ) && f != prevFace && prevFace != -1 )
+      {
+        exteriorFound = true;
+        exteriorVertices.append( currentVertex );
+        holes.append( QVector<int>() );
+        prev = currentVertex;
+        if ( !allBoundaryVertices.empty() )
+          currentVertex = allBoundaryVertices.first();
+        break;
       }
     }
   }
 
-  int a = 1;
+  for ( int i = holes.count() - 1; i >= 0; --i )
+  {
+    if ( holes.at( i ).isEmpty() )
+      holes.removeAt( i );
+  }
+
+  mMeshData.boundaryVertices = QVector<QVector<int>>( { exteriorVertices } );
+  mMeshData.holesVertices = QVector<QVector<QVector<int>>>( { holes } );
+  mMeshData.extent = mGeometryMesh->extent().toRectF();
+  mMeshData.vertexCoordinates.resize( mGeometryMesh->vertexCount() * 3 );
+  for ( int i = 0; i < mGeometryMesh->vertexCount(); ++i )
+  {
+    const QPointF &v = mGeometryMesh->vertexPosition( i );
+    mMeshData.vertexCoordinates[i * 3] = v.x();
+    mMeshData.vertexCoordinates[i * 3 + 1] = v.y();
+    mMeshData.vertexCoordinates[i * 3 + 2] = 0.0;
+  }
+  mMeshData.facesIndexes = mGeometryMesh->faces();
+  mMeshData.hasZ = false;
 }

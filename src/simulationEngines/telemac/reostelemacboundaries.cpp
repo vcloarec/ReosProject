@@ -29,6 +29,7 @@ ReosTelemacBoundaries::ReosTelemacBoundaries( ReosMesh *mesh, const QString &bou
   if ( !mBoundaryFilePath.isEmpty() )
   {
     populateTelemacBoundaryVertexFromFile();
+    resolveExteriorAndHoles();
     populateEnvelopFromTelemacBoundaryVertex();
   }
 }
@@ -43,7 +44,7 @@ QList<int> ReosTelemacBoundaries::boundaryVertexIndexes() const
   QList<int> ret;
 
   for ( const TelemacBoundaryLine &bound : mTelemacBoundaryVertex )
-    ret.append( bound.vertIndex );
+    ret.append( bound.vertIndex - 1 );
 
   return ret;
 }
@@ -62,6 +63,17 @@ QList<QSet<int> > ReosTelemacBoundaries::liquidDomainSegmentIndex() const
 {
   return mLiquidDomainSegmentIndex;
 }
+
+QVector<QVector<int> > ReosTelemacBoundaries::boundarySegmentVertices() const
+{
+  return mBoundarySegmentVertices;
+}
+
+QVector<QVector<QVector<int> > > ReosTelemacBoundaries::holeSegmentVertices() const
+{
+  return mHoleSegmentVertices;
+}
+
 void ReosTelemacBoundaries::populateTelemacBoundaryVertexFromFile()
 {
   QFile file( mBoundaryFilePath );
@@ -100,14 +112,43 @@ void ReosTelemacBoundaries::populateEnvelopFromTelemacBoundaryVertex()
   int liquidRank = 0;
   int onLiquidBound = false;
 
+  mBoundarySegmentVertices.append( QVector<int>() );
+
+  bool onExterior = true;
+  int holeIndex = -1;
   for ( int i = 0; i < boundaryVertexCount; ++i )
   {
     const TelemacBoundaryLine &bound1 = mTelemacBoundaryVertex.at( i );
-    const QPointF &p1 = mMesh->vertexPosition( bound1.vertIndex - 1 );
     const TelemacBoundaryLine &bound2 = mTelemacBoundaryVertex.at( ( i + 1 ) % boundaryVertexCount );
-    const QPointF &p2 = mMesh->vertexPosition( bound2.vertIndex - 1 );
     const TelemacBoundaryLine &bound3 = mTelemacBoundaryVertex.at( ( i + 2 ) % boundaryVertexCount );
-    const QPointF &p3 = mMesh->vertexPosition( bound2.vertIndex - 1 );
+
+    mBoundarySegmentVertices.last().append( bound1.vertIndex - 1 );
+
+    if ( holeIndex >= 0 && mHolesVerticesIndex.size() > 0 && bound3.vertIndex - 1 == mHolesVerticesIndex.at( holeIndex ).first() )
+      continue;
+
+    if ( ( mHolesVerticesIndex.size() > holeIndex + 1 ) && ( bound3.vertIndex - 1 ) == mHolesVerticesIndex.at( holeIndex + 1 ).first() )
+    {
+      if ( onExterior )
+        mBoundarySegmentVertices.last().append( bound2.vertIndex - 1 );
+      else
+      {
+        mHoleSegmentVertices.append( QVector<QVector<int>>() );
+        mHoleSegmentVertices.last().append( QVector<int>() );
+        mHoleSegmentVertices.last().last().append( bound2.vertIndex - 1 );
+      }
+
+      onExterior = false;
+      ++holeIndex;
+      mHoleSegmentVertices.append( QVector<QVector<int>>() );
+      mHoleSegmentVertices.last().append( QVector<int>() );
+      continue;
+    }
+
+    const QPointF &p1 = mMesh->vertexPosition( bound1.vertIndex - 1 );
+    const QPointF &p2 = mMesh->vertexPosition( bound2.vertIndex - 1 );
+    const QPointF &p3 = mMesh->vertexPosition( bound3.vertIndex - 1 );
+
 
     const double v1x = p2.x() - p1.x();
     const double v1y = p2.y() - p1.y();
@@ -132,7 +173,6 @@ void ReosTelemacBoundaries::populateEnvelopFromTelemacBoundaryVertex()
     bool startLiquid = !( bound2.isSolidBoundary() || bound2.isSameBoundary( bound1 ) );
     bool endLiquid = !( bound2.isSolidBoundary() || bound2.isSameBoundary( bound3 ) );
 
-
     if ( startLiquid )
     {
       onLiquidBound = true;
@@ -144,6 +184,11 @@ void ReosTelemacBoundaries::populateEnvelopFromTelemacBoundaryVertex()
     {
       // p2 is not collinear, therefore keep it.
       simplified.append( p2 );
+      if ( onExterior )
+        mBoundarySegmentVertices.append( QVector<int>() );
+      else
+        mBoundarySegmentVertices.last().append( QVector<int>() );
+
       if ( onLiquidBound && !startLiquid )
         mLiquidDomainSegmentIndex[mBoundaryConditionTypes.count() - 1].insert( simplified.count() - 2 );
     }
@@ -151,9 +196,14 @@ void ReosTelemacBoundaries::populateEnvelopFromTelemacBoundaryVertex()
     if ( endLiquid )
       onLiquidBound = false;
   }
+
+  if ( mBoundarySegmentVertices.last().isEmpty() )
+    mBoundarySegmentVertices.removeLast();
+
   mEnvelop = simplified;
 
   Q_ASSERT( mLiquidDomainSegmentIndex.count() == mBoundaryConditionTypes.count() );
+  Q_ASSERT( mBoundarySegmentVertices.count() == mEnvelop.count() );
 }
 
 ReosTelemacLiquidBoundaries::ReosTelemacLiquidBoundaries( const QString &liquidBoudaryFilePath )
@@ -241,4 +291,77 @@ ReosTelemacLiquidBoundaries::TelemacLiquidBoundary *ReosTelemacLiquidBoundaries:
   }
 
   return nullptr;
+}
+
+void ReosTelemacBoundaries::resolveExteriorAndHoles()
+{
+  // here we should reconstruct the bondary AND the holes to fill ReosMeshFrameData
+  QList<QSet<int>> verticesToFaces;
+  verticesToFaces.fill( QSet<int>(), mMesh->vertexCount() );
+  QList<QSet<int>> facesToVertices;
+  facesToVertices.fill( QSet<int>(), mMesh->faceCount() );
+
+  const QVector<QVector<int>> &faces = mMesh->faces();
+  for ( qsizetype f = 0; f < faces.count(); ++f )
+  {
+    const QVector<int> &face = faces.at( f );
+    for ( qsizetype v = 0; v < face.count(); ++v )
+    {
+      int vertexIndex = face.at( v );
+      if ( vertexIndex >= 0 && vertexIndex < verticesToFaces.count() )
+      {
+        verticesToFaces[vertexIndex].insert( f );
+        facesToVertices[f].insert( vertexIndex );
+      }
+    }
+  }
+
+  QList<int> allBoundaryVertices = boundaryVertexIndexes();
+
+  int first = allBoundaryVertices.first();
+  int prev = first;
+  allBoundaryVertices.pop_front();
+  bool exteriorFound = false;
+  mExteriorVerticesIndex.append( first );
+  int currentVertex = allBoundaryVertices.first();
+
+  int prevFace = -1;
+
+  while ( !allBoundaryVertices.empty() )
+  {
+    allBoundaryVertices.pop_front();
+    const QSet<int> &relatedFaces = verticesToFaces.at( prev );
+    for ( int f : relatedFaces )
+    {
+      if ( facesToVertices.at( f ).contains( currentVertex ) )
+      {
+        prev = currentVertex;
+        if ( !exteriorFound )
+          mExteriorVerticesIndex.append( currentVertex );
+        else
+          mHolesVerticesIndex.last().append( currentVertex );
+
+        if ( !allBoundaryVertices.empty() )
+          currentVertex = allBoundaryVertices.first();
+        prevFace = f;
+        break;
+      }
+      else if ( facesToVertices.at( f ).contains( first ) && f != prevFace && prevFace != -1 )
+      {
+        exteriorFound = true;
+        mExteriorVerticesIndex.append( currentVertex );
+        mHolesVerticesIndex.append( QVector<int>() );
+        prev = currentVertex;
+        if ( !allBoundaryVertices.empty() )
+          currentVertex = allBoundaryVertices.first();
+        break;
+      }
+    }
+  }
+
+  for ( int i = mHolesVerticesIndex.count() - 1; i >= 0; --i )
+  {
+    if ( mHolesVerticesIndex.at( i ).isEmpty() )
+      mHolesVerticesIndex.removeAt( i );
+  }
 }

@@ -85,7 +85,7 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryComplex
     //! Returns lines on boundary from the vertex \a vertexFrom to vertex \a vertexTo
     virtual QPolygonF linesOnBoundaryFromTo( ReosGeometryStructureVertex *vertexFrom, ReosGeometryStructureVertex *vertexTo, const QString &destinationCrs = QString() ) const = 0;
 
-    //! Return the class id of the ith segment returned by boundary()
+    //! Returns the class id of the ith segment returned by boundary()
     virtual QString boundaryClassId( int i ) const = 0;
 
     //! Resets (clear all vertices and lines) and replace them with the \a data
