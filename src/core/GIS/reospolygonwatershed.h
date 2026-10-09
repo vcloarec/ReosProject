@@ -29,7 +29,7 @@ email                : vcloarec at gmail dot com
 class ReosWatershed;
 
 
-class ReosPolygonWatershed : public ReosGeometryComplex
+class REOSCORE_EXPORT ReosPolygonWatershed : public ReosGeometryComplex
 {
   public:
     ReosPolygonWatershed();
