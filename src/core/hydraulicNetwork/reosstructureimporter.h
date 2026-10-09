@@ -49,8 +49,6 @@ class REOSCORE_EXPORT ReosStructureImporter
     //! Creates and returnd a mesh for a specific \a scheme associated to a \a structure
     virtual ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const = 0;
 
-    virtual const ReosMeshFrameData &meshData() const = 0;
-
     virtual QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const = 0;
     virtual QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const = 0;
 
