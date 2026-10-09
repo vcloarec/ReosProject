@@ -114,7 +114,7 @@ void ReoHydraulicNetworkTest::calculationPropagation()
   QPolygonF watershedPolygon;
   QPointF ori( 662000, 1793000 );
   watershedPolygon << ori + QPointF( 0, 0 ) << ori + QPointF( 100, 0 ) << ori + QPointF( 100, 100 ) << ori + QPointF( 0, 100 );
-  ReosWatershed *watershed = mWatershedModule->watershedTree()->addWatershed( new ReosWatershed( watershedPolygon, ori + QPointF( 0, 0 ) ) );
+  ReosWatershed *watershed = mWatershedModule->watershedTree()->addWatershed( new ReosWatershed( watershedPolygon, ReosSpatialPosition( ori + QPointF( 0, 0 ) ) ) );
   watershed->concentrationTime()->setValue( ReosDuration( 10, ReosDuration::minute ) );
   watershed->calculateArea();
   qDebug() << QString::number( watershed->areaParameter()->value().valueM2(), 'f', 10 );

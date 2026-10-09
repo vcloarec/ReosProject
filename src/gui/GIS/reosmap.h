@@ -34,7 +34,7 @@ class ReosGisEngine;
 class ReosMapTool;
 class ReosMapToolDrawExtent;
 class ReosMapToolSelectMapItem;
-class ReosGeometryStructure;
+class ReosGeometryComplex;
 class ReosRenderedObject;
 class ReosObjectRenderer;
 class ReosDuration;
@@ -99,6 +99,11 @@ class REOSGUI_EXPORT ReosMap : public ReosModule
     void setExtent( const ReosMapExtent &extent );
     void setCenter( const QPointF &center );
     void setCenter( const ReosSpatialPosition &center );
+
+    QPointF toMapCoordinate( const ReosSpatialPosition &position ) const;
+    QPolygonF toMapCoordinates( const QPolygonF polygon, const QString &sourceCrs ) const;
+    ReosSpatialPosition toSpatialPosition( const QPointF &mapCoordinate, const QString &crs ) const;
+
     ReosMapExtent extent() const;
 
     QList<QAction *> mapToolActions();
@@ -109,8 +114,8 @@ class REOSGUI_EXPORT ReosMap : public ReosModule
 
     void deactivate();
 
-    void addSnappableStructure( ReosGeometryStructure *structure );
-    void removeSnappableStructure( ReosGeometryStructure *structure );
+    void addSnappableStructure( ReosGeometryComplex *structure );
+    void removeSnappableStructure( ReosGeometryComplex *structure );
 
     void addExtraRenderedObject( ReosRenderedObject *obj );
     void removeExtraRenderedObject( ReosRenderedObject *obj );
@@ -132,6 +137,8 @@ class REOSGUI_EXPORT ReosMap : public ReosModule
     void deactivateCurrentTool();
 
     static QString staticModuleName() { return QStringLiteral( "map" ); }
+
+    void removeItem( ReosMapItem *item );
 
   signals:
     //! emitted when the mouse cursor moves on the map cavans.

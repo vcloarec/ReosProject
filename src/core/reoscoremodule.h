@@ -23,6 +23,7 @@ class ReosGisEngine;
 class ReosHydraulicNetwork;
 
 
+//! Main module that owns the core project modules.
 class REOSCORE_EXPORT ReosCoreModule : public ReosModule
 {
     Q_OBJECT

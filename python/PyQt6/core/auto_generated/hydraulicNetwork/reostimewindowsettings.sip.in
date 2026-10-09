@@ -1,0 +1,66 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reostimewindowsettings.h                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+class ReosTimeWindowSettings : ReosDataObject
+{
+%Docstring(signature="appended")
+Settings used to define a time window from offsets or fixed dates.
+%End
+
+%TypeHeaderCode
+#include "reostimewindowsettings.h"
+%End
+  public:
+    enum OffsetOrigin /BaseType=IntEnum/
+    {
+      Begin,
+      End,
+    };
+
+    enum CombineMethod /BaseType=IntEnum/
+    {
+      Intersection,
+      Union,
+    };
+
+    explicit ReosTimeWindowSettings( QObject *parent = 0 );
+
+    ReosTimeWindow timeWindow( const ReosTimeWindow &input ) const;
+%Docstring
+Returns a time window defined by the settings, using input if time
+window is defined automatically
+%End
+
+    OffsetOrigin originStart() const;
+    void setOriginStart( OffsetOrigin newOriginStart );
+
+    OffsetOrigin originEnd() const;
+    void setOriginEnd( OffsetOrigin newOriginEnd );
+
+    void setStartOffset( const ReosDuration &startOffset );
+    void setEndOffset( const ReosDuration &endOffset );
+    void setUserStartTime( const QDateTime &startTime );
+    void setUserEndTime( const QDateTime &endTime );
+
+    void setAutomaticallyDefined( bool b );
+    void setUseExternalDefinedTimeWindow( bool b );
+
+    CombineMethod combineMethod() const;
+    void setCombineMethod( CombineMethod newCombineMethod );
+
+
+};
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/hydraulicNetwork/reostimewindowsettings.h                   *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

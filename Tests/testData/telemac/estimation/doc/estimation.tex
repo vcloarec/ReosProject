@@ -1,0 +1,59 @@
+\chapter{Parameter estimation (estimation)}
+
+\section{Description}
+
+This example shows how to use parameter estimation with \telemac{2D}.
+
+The configuration is a straight channel 500~m long and 100~m wide
+with a flat bottom.
+
+\subsection{Initial and boundary conditions}
+
+The computation is initialised with a constant elevation equal to 5~m
+and horizontal velocity along $x$ equal to 1~m/s.
+
+The boundary conditions are:
+\begin{itemize}
+\item For the solid walls, a slip condition on channel banks is used for the
+velocities,
+\item On the bottom, a Strickler law is prescribed,
+\item Upstream a flowrate equal to 50~m$^3$/s is prescribed,
+linearly increasing from 1 to 50~m$^3$/s during the first 20~s,
+\item Downstream the water level is suggested to be equal to 0.5~m.
+\end{itemize}
+
+\subsection{Mesh and numerical parameters}
+
+The mesh is made of 551 triangular elements (319 nodes),
+see Figure \ref{t2d:estimation:fig:mesh}.
+
+\begin{figure}[!htbp]
+ \centering
+ \includegraphicsmaybe{[width=\textwidth]}{../img/Mesh.png}
+ \caption{Horizontal mesh.}
+ \label{t2d:estimation:fig:mesh}
+\end{figure}
+
+The time step is 2~s.
+%The simulated period is 1,000~s.
+
+To solve the advection, the NERD scheme (= 13) is used for the velocities.
+The GMRES method
+is used for solving the propagation step (option 1) and
+the implicitation coefficients
+for depth and velocities are let to default values.
+To use the parameter estimation mode, primitive equations are mandatory
+(\telkey{TREATMENT OF THE LINEAR SYSTEM} = 1) which is not the default option
+(= wave equation with \telkey{TREATMENT OF THE LINEAR SYSTEM} = 2).
+
+Please read the \telemac{2D} user manual to know how to use specific keywords
+for parameter estimation feature.
+
+\subsection{Physical parameters}
+
+No diffusion is chosen for this computation (constant horizontal viscosity for
+velocity equal to 0.~m$^2$/s).
+
+\section{Conclusions}
+
+This example shows how parameter estimation can be used with \telemac{2D}.

@@ -12,6 +12,10 @@ SET(REOS_TELEMAC_SOURCES
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemac2dsimulation.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemac2dinitialcondition.cpp
      ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemac2dsimulationresults.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemacsteeringfile.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemacstructureimportersource.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reostelemacboundaries.cpp
+     ${CMAKE_SOURCE_DIR}/src/simulationEngines/telemac/reosselafin.cpp
      ${CMAKE_SOURCE_DIR}/Tests/reos_testutils.cpp
  )
 
@@ -23,8 +27,7 @@ IF (MSVC)
   TARGET_COMPILE_DEFINITIONS(test_telemac PRIVATE _USE_MATH_DEFINES)
 ENDIF (MSVC)
 TARGET_LINK_LIBRARIES(test_telemac
-                      ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
                       ${MDAL_LIB}

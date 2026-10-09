@@ -68,7 +68,6 @@ class REOSGUI_EXPORT ReosMapTool : public QObject
     QString crs() const;
 
   signals:
-    void itemFoundWhenMoving( ReosMapItem *item );
     void move( const QPointF &point );
     void activated();
     void deactivated();
@@ -147,7 +146,7 @@ class REOSGUI_EXPORT ReosMapToolDrawPolyline : public ReosMapToolDrawPolyRubberB
     ReosMapToolDrawPolyline( QObject *parent, ReosMap *map );
 
   signals:
-    void drawn( const QPolygonF &polyline );
+    void drawn( const QPolygonF &polyline, const QString &crs );
 };
 
 class ReosMapToolDrawPolygon : public ReosMapToolDrawPolyRubberBand
@@ -160,7 +159,7 @@ class ReosMapToolDrawPolygon : public ReosMapToolDrawPolyRubberBand
     void setFillColor( const QColor &color );
 
   signals:
-    void drawn( const QPolygonF &polygon );
+    void drawn( const QPolygonF &polygon, const QString &crs );
 };
 
 class REOSGUI_EXPORT ReosMapToolDrawExtent : public ReosMapTool

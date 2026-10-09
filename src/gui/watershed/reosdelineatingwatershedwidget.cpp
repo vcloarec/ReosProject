@@ -22,6 +22,7 @@ email                : vcloarec at gmail dot com
 #include "reossettings.h"
 #include "reosstyleregistery.h"
 #include "reosguicontext.h"
+#include "reosmaptoolpolygonwatershed.h"
 
 #include <QBoxLayout>
 #include <QMessageBox>
@@ -191,7 +192,7 @@ ReosDelineatingWatershedWidget::~ReosDelineatingWatershedWidget()
   delete ui;
 }
 
-void ReosDelineatingWatershedWidget::setEditingDelineatingMapTool( ReosMapToolEditMapPolygon *mapTool )
+void ReosDelineatingWatershedWidget::setEditingDelineatingMapTool( ReosMapToolEditPolygonWatershed *mapTool )
 {
   mapTool->setAction( mActionEditWatershed );
   mMapTools << mapTool;
@@ -206,7 +207,7 @@ void ReosDelineatingWatershedWidget::setMoveOutletPointMapTool( ReosMapToolMoveM
 
 void ReosDelineatingWatershedWidget::onDownstreamLineDrawn( const QPolygonF &downstreamLine )
 {
-  if ( mModule->delineatingModule()->setDownstreamLine( downstreamLine ) )
+  if ( mModule->delineatingModule()->setDownstreamLine( downstreamLine, mMap->mapCrs() ) )
   {
     mDownstreamLine.resetPolyline( downstreamLine );
     if ( mModule->delineatingModule()->currentState() == ReosWatershedDelineating::WaitingforProceed )
@@ -307,9 +308,10 @@ void ReosDelineatingWatershedWidget::onDelineateAsked()
   if ( !mModule->delineatingModule()->isDelineatingFinished() )
     return;
 
-  mWatershedExtent.resetPolygon( mModule->delineatingModule()->currentExtent().toPolygon() );
-  mTemporaryAutomaticWatershed.resetPolygon( mModule->delineatingModule()->lastWatershedDelineated() );
-  mTemporaryAutomaticStreamLine.resetPolyline( mModule->delineatingModule()->lastStreamLine() );
+  const ReosMapExtent &extent = mModule->delineatingModule()->currentExtent();
+  mWatershedExtent.resetPolygon( mMap->toMapCoordinates( extent.toPolygon(), extent.crs() ) );
+  mTemporaryAutomaticWatershed.resetPolygon( mModule->delineatingModule()->lastWatershedDelineated( mMap->mapCrs() ) );
+  mTemporaryAutomaticStreamLine.resetPolyline( mModule->delineatingModule()->lastStreamLine( mMap->mapCrs() ) );
 }
 
 void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
@@ -352,7 +354,7 @@ void ReosDelineatingWatershedWidget::onAutomaticValidateAsked()
   updateAutomaticTool();
 }
 
-void ReosDelineatingWatershedWidget::onManualWatershedDrawn( const QPolygonF &polygon )
+void ReosDelineatingWatershedWidget::onManualWatershedDrawn( const QPolygonF &polygon, const QString &crs )
 {
   mTemporaryManualWatershed.resetPolygon( polygon );
   mTemporaryManualOutletPoint.resetPoint();
@@ -363,7 +365,7 @@ void ReosDelineatingWatershedWidget::onManualWatershedDrawn( const QPolygonF &po
 
 void ReosDelineatingWatershedWidget::onManualOutletDrawn( const QPointF &point )
 {
-  mTemporaryManualOutletPoint.resetPoint( point );
+  mTemporaryManualOutletPoint.resetPosition( ReosSpatialPosition( point, mMap->mapCrs() ) );
   updateManualMapTool();
 }
 
@@ -371,7 +373,7 @@ void ReosDelineatingWatershedWidget::onManualValidateAsked()
 {
   if ( mTemporaryManualOutletPoint.isEmpty() || mTemporaryManualWatershed.mapPolygon().isEmpty() )
     return;
-  std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(), mTemporaryManualOutletPoint.mapPoint() ) );
+  std::unique_ptr<ReosWatershed> ws( new ReosWatershed( mTemporaryManualWatershed.mapPolygon(), mTemporaryManualOutletPoint.position() ) );
   bool needAdjusting = mModule->watershedTree()->isWatershedIntersectExisting( ws.get() );
   bool adjustIfNeeded = false;
   mTemporaryManualOutletPoint.resetPoint();

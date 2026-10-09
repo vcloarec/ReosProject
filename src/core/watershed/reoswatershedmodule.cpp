@@ -31,11 +31,6 @@ ReosWatershedModule::~ReosWatershedModule()
     delete ReosConcentrationTimeFormulasRegistery::instance();
 }
 
-ReosWatershed *ReosWatershedModule::addWatershed( const QPolygonF &delineating, const QPointF &ouletPoint )
-{
-  return mWatershedTree->addWatershed( new ReosWatershed( delineating, ouletPoint ) );
-}
-
 void ReosWatershedModule::removeWaterhsed( ReosWatershed *watershed )
 {
   std::unique_ptr<ReosWatershed> removed( mWatershedTree->extractWatershed( watershed ) );

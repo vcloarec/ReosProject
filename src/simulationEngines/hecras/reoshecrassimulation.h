@@ -168,13 +168,12 @@ class ReosHecRasStructureImporter : public ReosStructureImporter
     ReosHydraulicStructure2D::Structure2DCapabilities capabilities() const override;
     QString crs() const override;
     QPolygonF domain() const override;
+    QVector<QVector<int> > boundarySegmentVertices() const;
+    QVector<QVector<QVector<int> > > holeSegmentVertices() const;
     ReosMesh *mesh( const QString &destinationCrs ) const override;
     ReosMesh *mesh( ReosHydraulicStructure2D *structure, ReosHydraulicScheme *scheme, const QString &destinationCrs ) const override;
-
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryConditions( ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
-
     QList<ReosHydraulicSimulation *> createSimulations( ReosHydraulicStructure2D *parent ) const override;
-
     void updateBoundaryConditions( const QSet<QString> &currentBoundaryId, ReosHydraulicStructure2D *structure, const ReosHydraulicNetworkContext &context ) const override;
 
     bool isValid() const override;
@@ -193,6 +192,7 @@ class ReosHecRasStructureImporter : public ReosStructureImporter
     std::shared_ptr<ReosHecRasProject> mProject;
     QString mCrs;
     CreationOptions mCreationOption;
+    ReosMeshFrameData mMeshData;
 
     void init( const QString &mFileName );
 };

@@ -52,7 +52,7 @@ class ReosHydraulicStructureProfilesWidget : public ReosStackedPageWidget
     void hideEvent( QHideEvent *e );
 
   private slots:
-    void onNewProfileAdded( const QPolygonF &profile );
+    void onNewProfileAdded( const QPolygonF &profile, const QString &crs );
     void onCurrentProfileChanged();
     void updateCurrentProfileValues();
     void onRemoveProfile();

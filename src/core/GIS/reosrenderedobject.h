@@ -80,7 +80,9 @@ class REOSCORE_EXPORT ReosObjectRenderer : public ReosProcess
 #endif //SIP_RUN
 
 /**
- * Base classe of data object rendered on the map (for example mesh)
+ * Base class for data objects rendered on the map.
+ *
+ * Meshes are an example of rendered data objects.
  */
 class REOSCORE_EXPORT ReosRenderedObject : public ReosDataObject SIP_ABSTRACT
 {

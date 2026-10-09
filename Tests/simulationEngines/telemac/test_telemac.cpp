@@ -15,6 +15,7 @@ email                : vcloarec at gmail dot com
 #include <filesystem>
 #include <QObject>
 #include <QtTest/QtTest>
+#include <QTimeZone>
 
 #include "reosapplication.h"
 #include "reoscoremodule.h"
@@ -26,6 +27,12 @@ email                : vcloarec at gmail dot com
 #include "reostimeseries.h"
 
 #include "reostelemac2dsimulation.h"
+#include "reostelemacsteeringfile.h"
+#include "reostelemacstructureimportersource.h"
+#include "reostelemacboundaries.h"
+#include "reosselafin.h"
+
+#include "reos_testutils.h"
 
 class ReosTelemacTesting : public QObject
 {
@@ -34,7 +41,15 @@ class ReosTelemacTesting : public QObject
   private slots:
     void initTestCase();
     void cleanupTestCase();
+
+    void reoSelafin();
+
+    void exisingSteeringFile();
+    void telemacBoundaries();
+
     void buildStructure();
+
+    void importStructure();
 
   private:
     ReosCoreModule *coreModule;
@@ -46,6 +61,8 @@ void ReosTelemacTesting::initTestCase()
   int argc = 0;
   QVERIFY( !ReosApplication::initializationReos( argc, nullptr, "reos_tests" ) );
   coreModule = new ReosCoreModule( this );
+  // To avoid shared library/Qt meta-object duplication issue, we replace the Telemac engine factory loaded from plugin with the build in place one.
+  ReosSimulationEngineRegistery::instance()->registerEngineFactory( new ReosTelemac2DSimulationEngineFactory() );
   coreModule->gisEngine()->setCrs( ReosGisEngine::crsFromEPSG( 32620 ) );
   ReosTelemac2DSimulationEngineFactory::initializeSettingsStatic();
 
@@ -58,6 +75,138 @@ void ReosTelemacTesting::initTestCase()
 
 void ReosTelemacTesting::cleanupTestCase()
 {}
+
+void ReosTelemacTesting::reoSelafin()
+{
+  ReosSelafin selafinFile( testFile( "/telemac/bridge/geo_bridge.slf" ) );
+  QList<int> ipobo;
+  std::unique_ptr<ReosMesh> mesh( selafinFile.loadMeshFrame( ipobo ) );
+
+  int verticesCount = mesh->vertexCount();
+}
+
+
+void ReosTelemacTesting::exisingSteeringFile()
+{
+  ReosTelemacSteeringFile steeringFile( testFile( "/telemac/bridge/t2d_bridge.cas" ) );
+  steeringFile.open();
+  QCOMPARE( 106, steeringFile.lineCount() );
+  QCOMPARE( 47, steeringFile.keyCount() );
+
+  QCOMPARE( QStringLiteral( "'geo_bridge.cli'" ), steeringFile.value( QStringLiteral( "BOUNDARY CONDITIONS FILE" ) ) );
+
+  steeringFile.setKey( QStringLiteral( "BOUNDARY CONDITIONS FILE" ), QStringLiteral( "'geo_bridge2.cli'" ) );
+  QCOMPARE( 106, steeringFile.lineCount() );
+  QCOMPARE( 47, steeringFile.keyCount() );
+
+  steeringFile.setKey( QStringLiteral( "DUMMY_KEY" ), QStringLiteral( "XXXXX" ) );
+
+  QCOMPARE( 107, steeringFile.lineCount() );
+  QCOMPARE( 48, steeringFile.keyCount() );
+
+  QString newSteeringFilePath = tempFile( "new_steering_file.cas" );
+  steeringFile.save( newSteeringFilePath );
+
+  ReosTelemacSteeringFile steeringFile_2( newSteeringFilePath );
+  steeringFile_2.open();
+  QCOMPARE( 107, steeringFile_2.lineCount() );
+  QCOMPARE( 48, steeringFile_2.keyCount() );
+  QCOMPARE( QStringLiteral( "'geo_bridge2.cli'" ), steeringFile_2.value( QStringLiteral( "BOUNDARY CONDITIONS FILE" ) ) );
+  QCOMPARE( QStringLiteral( "XXXXX" ), steeringFile_2.value( QStringLiteral( "DUMMY_KEY" ) ) );
+}
+
+void ReosTelemacTesting::telemacBoundaries()
+{
+  ReosCoreModule::Message message;
+  std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrameFromFile( testFile( "/telemac/bridge/geo_bridge.slf" ), QString(), message ) );
+  ReosTelemacBoundaries boundaries( mesh.get(), testFile( "/telemac/bridge/geo_bridge.cli" ) );
+  QCOMPARE( 250, boundaries.boundaryVertexCount() );
+  QCOMPARE( QPolygonF( { QPointF( 1000.0, 0.0 ), QPointF( 1000.0, 250.0 ), QPointF( 0.0, 250.0 ), QPointF( 0.0, 0.0 ) } ), boundaries.envelop() );
+
+  QCOMPARE( boundaries.boundaryConditionTypes().count(), 2 );
+  QCOMPARE( boundaries.boundaryConditionTypes().at( 0 ), ReosHydraulicStructureBoundaryCondition::Type::OutputLevel );
+  QCOMPARE( boundaries.boundaryConditionTypes().at( 1 ), ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QCOMPARE( boundaries.liquidDomainSegmentIndex().count(), 2 );
+  QCOMPARE( boundaries.liquidDomainSegmentIndex().at( 0 ), QSet<int>( { 0 } ) );
+  QCOMPARE( boundaries.liquidDomainSegmentIndex().at( 1 ), QSet<int>( { 2 } ) );
+
+  ReosTelemacLiquidBoundaries liquidBoundaries( testFile( "/telemac/bridge/t2d_bridge.liq" ) );
+
+  ReosTelemacLiquidBoundaries::TelemacLiquidBoundary *bcInputFlow = liquidBoundaries.boundaryCondition( 1, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QVERIFY( !bcInputFlow );
+  bcInputFlow = liquidBoundaries.boundaryCondition( 2, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QVERIFY( bcInputFlow );
+  QCOMPARE( bcInputFlow->rank, 2 );
+  QCOMPARE( bcInputFlow->type, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QCOMPARE( bcInputFlow->time.count(), 7 );
+  QCOMPARE( bcInputFlow->value.count(), 7 );
+
+  QCOMPARE( bcInputFlow->time.at( 0 ), 0.0 );
+  QCOMPARE( bcInputFlow->value.at( 0 ), 0.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 1 ), 100.0 );
+  QCOMPARE( bcInputFlow->value.at( 1 ), 20.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 2 ), 6100.0 );
+  QCOMPARE( bcInputFlow->value.at( 2 ), 20.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 3 ), 6600.0 );
+  QCOMPARE( bcInputFlow->value.at( 3 ), 120.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 4 ), 17600.0 );
+  QCOMPARE( bcInputFlow->value.at( 4 ), 120.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 5 ), 18200.0 );
+  QCOMPARE( bcInputFlow->value.at( 5 ), 20.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 6 ), 90000 );
+  QCOMPARE( bcInputFlow->value.at( 6 ), 20.0 );
+
+  liquidBoundaries = ReosTelemacLiquidBoundaries( testFile( "/telemac/estimation/t2d_estimation.qsl" ) );
+
+  bcInputFlow = liquidBoundaries.boundaryCondition( 1, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QVERIFY( !bcInputFlow );
+  bcInputFlow = liquidBoundaries.boundaryCondition( 2, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QVERIFY( bcInputFlow );
+  QCOMPARE( bcInputFlow->rank, 2 );
+  QCOMPARE( bcInputFlow->type, ReosHydraulicStructureBoundaryCondition::Type::InputFlow );
+  QCOMPARE( bcInputFlow->time.count(), 4 );
+  QCOMPARE( bcInputFlow->value.count(), 4 );
+
+  QCOMPARE( bcInputFlow->time.at( 0 ), 0.0 );
+  QCOMPARE( bcInputFlow->value.at( 0 ), 1.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 1 ), 20.0 );
+  QCOMPARE( bcInputFlow->value.at( 1 ), 50.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 2 ), 10000.0 );
+  QCOMPARE( bcInputFlow->value.at( 2 ), 50.0 );
+
+  QCOMPARE( bcInputFlow->time.at( 3 ), 50000.0 );
+  QCOMPARE( bcInputFlow->value.at( 3 ), 50.0 );
+
+
+  ReosTelemacLiquidBoundaries::TelemacLiquidBoundary *bcLevel = liquidBoundaries.boundaryCondition( 2, ReosHydraulicStructureBoundaryCondition::Type::OutputLevel );
+  QVERIFY( !bcLevel );
+  bcLevel = liquidBoundaries.boundaryCondition( 1, ReosHydraulicStructureBoundaryCondition::Type::OutputLevel );
+  QVERIFY( bcLevel );
+  QCOMPARE( bcLevel->rank, 1 );
+  QCOMPARE( bcLevel->type, ReosHydraulicStructureBoundaryCondition::Type::OutputLevel );
+  QCOMPARE( bcLevel->time.count(), 4 );
+  QCOMPARE( bcLevel->value.count(), 4 );
+
+  QCOMPARE( bcLevel->time.at( 0 ), 0.0 );
+  QCOMPARE( bcLevel->value.at( 0 ), 0.5 );
+
+  QCOMPARE( bcLevel->time.at( 1 ), 20.0 );
+  QCOMPARE( bcLevel->value.at( 1 ), 0.5 );
+
+  QCOMPARE( bcLevel->time.at( 2 ), 10000.0 );
+  QCOMPARE( bcLevel->value.at( 2 ), 0.5 );
+
+  QCOMPARE( bcLevel->time.at( 3 ), 50000.0 );
+  QCOMPARE( bcLevel->value.at( 3 ), 0.5 );
+}
 
 void ReosTelemacTesting::buildStructure()
 {
@@ -133,6 +282,7 @@ void ReosTelemacTesting::buildStructure()
   // Telemac simulation
   QVERIFY( hydraulicStructure->addSimulation( QStringLiteral( "telemac2D" ) ) );
   ReosTelemac2DSimulation *telemacSim = dynamic_cast<ReosTelemac2DSimulation *>( hydraulicStructure->currentSimulation() );
+
   QVERIFY( telemacSim );
   telemacSim->setEquation( ReosTelemac2DSimulation::Equation::FiniteVolume );
   telemacSim->setVolumeFiniteEquation( ReosTelemac2DSimulation::VolumeFiniteScheme::HLLC );
@@ -141,7 +291,10 @@ void ReosTelemacTesting::buildStructure()
   telemacSim->outputPeriodResultHydrograph()->setValue( 1 );
 
   telemacSim->setInitialCondition( ReosTelemac2DInitialCondition::Type::ConstantLevelNoVelocity );
-  qobject_cast<ReosTelemac2DInitialConstantWaterLevel>( telemacSim->initialCondition() ).initialWaterLevel()->setValue( 2.0 );
+
+  ReosTelemac2DInitialConstantWaterLevel *initialConstantWaterLevel = qobject_cast<ReosTelemac2DInitialConstantWaterLevel *>( telemacSim->initialCondition() );
+  QVERIFY( initialConstantWaterLevel );
+  initialConstantWaterLevel->initialWaterLevel()->setValue( 2.0 );
 
   ReosModule::Message message;
   ReosSimulationData simData = hydraulicStructure->simulationData( scheme->id(), message );
@@ -241,6 +394,24 @@ void ReosTelemacTesting::buildStructure()
   QVERIFY( result );
   QCOMPARE( result->groupCount(), 3 );
   QCOMPARE( result->datasetCount( 0 ), 13 );
+}
+
+void ReosTelemacTesting::importStructure()
+{
+  ReosHydraulicNetworkContext context = coreModule->hydraulicNetwork()->context();
+  std::unique_ptr<ReosTelemacStructureImporterSource> importerSource( new ReosTelemacStructureImporterSource( testFile( "/telemac/bridge/t2d_bridge.cas" ), context ) );
+
+  importerSource->setReferenceTime( QDateTime( QDate( 2022, 01, 01 ), QTime( 0, 0, 0 ), QTimeZone::UTC ) );
+
+  std::unique_ptr<ReosStructureImporter> importer( importerSource->createImporter() );
+  QVERIFY( importer );
+
+  ReosHydraulicStructure2D *structure = ReosHydraulicStructure2D::create( importer.get(), coreModule->hydraulicNetwork()->context() );
+  QVERIFY( structure );
+
+  coreModule->saveProject( projectDir.filePath( "telemac_imported_model" ) );
+
+  structure->runSimulation( coreModule->hydraulicNetwork()->currentScheme()->calculationContext() );
 }
 
 QTEST_MAIN( ReosTelemacTesting )

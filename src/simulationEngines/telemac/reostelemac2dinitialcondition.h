@@ -31,7 +31,8 @@ class ReosTelemac2DInitialCondition : public ReosDataObject
       FromOtherSimulation,
       ConstantLevelNoVelocity,
       Interpolation,
-      LastTimeStep
+      LastTimeStep,
+      SteeringFileDefined
     };
 
     ReosTelemac2DInitialCondition( QObject *parent = nullptr );
