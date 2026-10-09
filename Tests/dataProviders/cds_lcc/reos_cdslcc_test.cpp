@@ -104,6 +104,19 @@ void ReosCdslccTest::createLandUseData()
   QCOMPARE( data.at( 3 ), 30 );
   QCOMPARE( data.at( 618 ), 11 );
   QCOMPARE( data.at( 619 ), 190 );
+
+
+  ReosWatershed watershed( poly, QPointF(), ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  ReosLandUseDataOnWatershed landUseOnWatershed( &landUseData, &watershed );
+
+  QMap<int, double> distribution = landUseOnWatershed.landUseDistribution();
+
+  //check the sum of all the value of distribution
+  double sum = 0;
+  for ( auto it = distribution.begin(); it != distribution.end(); ++it )
+    sum += it.value();
+  QVERIFY( equal( sum, 1.0, 0.001 ) );
 }
 
 

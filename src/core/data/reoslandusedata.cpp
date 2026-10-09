@@ -17,6 +17,9 @@
 
 #include "reoslandusedata.h"
 
+#include "reosgeometryutils.h"
+#include "reoswatershed.h"
+
 
 ReosLandUseDataProvider::ReosLandUseDataProvider()
   : ReosDataProvider()
@@ -52,7 +55,7 @@ QString ReosLandUseData::staticType()
   return QStringLiteral( "land-use-data" );
 }
 
-const QVector<int> ReosLandUseData::data() const
+QVector<int> ReosLandUseData::data() const
 {
   if ( !mProvider )
     return QVector<int>();
@@ -60,7 +63,7 @@ const QVector<int> ReosLandUseData::data() const
   return mProvider->data();
 }
 
-const QVector<int> ReosLandUseData::data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const
+QVector<int> ReosLandUseData::data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const
 {
   if ( !mProvider )
     return QVector<int>();
@@ -68,6 +71,15 @@ const QVector<int> ReosLandUseData::data( const ReosMapExtent &requestedExent, R
   return mProvider->data( requestedExent, outputExent );
 }
 
+ReosRasterMemory<int> ReosLandUseData::rasterData( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const
+{
+  const QVector<int> data = this->data( requestedExent, outputExent );
+
+  ReosRasterMemory<int> raster( outputExent.yCellCount(), outputExent.xCellCount() );
+  raster.setValues( data );
+
+  return raster;
+}
 
 ReosRasterExtent ReosLandUseData::extent() const
 {
@@ -75,4 +87,52 @@ ReosRasterExtent ReosLandUseData::extent() const
     return ReosRasterExtent();
 
   return mProvider->extent();
+}
+
+ReosLandUseDataOnWatershed::ReosLandUseDataOnWatershed( ReosLandUseData *landUseData, ReosWatershed *watershed )
+  : mLandUseData( landUseData )
+  , mWatershed( watershed )
+{}
+
+QMap<int, double> ReosLandUseDataOnWatershed::landUseDistribution() const
+{
+  ReosMapExtent watershedExtent( mWatershed->delineating(), mWatershed->crs() );
+
+  ReosRasterExtent landUseExtent;
+  ReosRasterMemory<int> landUseRaster = mLandUseData->rasterData( watershedExtent, landUseExtent );
+
+  int xOri = -1;
+  int yOri = -1;
+  ReosRasterExtent rasterizedExtent;
+  ReosRasterMemory<double> rasterizedWatershed = ReosGeometryUtils::rasterizePolygon( mWatershed->delineating(), landUseExtent, rasterizedExtent, xOri, yOri, true );
+
+  Q_ASSERT( landUseRaster.rowCount() == rasterizedWatershed.rowCount() && landUseRaster.columnCount() == rasterizedWatershed.columnCount() );
+
+  QMap<int, double> distribution;
+
+  QVector<int> landUseValues = landUseRaster.values();
+  QVector<double> cellAreas = rasterizedWatershed.values();
+
+  double totalArea = 0;
+  for ( qsizetype i = 0; i < landUseValues.size(); ++i )
+  {
+    int landUseValue = landUseValues.at( i );
+    double cellArea = cellAreas.at( i );
+
+    if ( cellArea > 0 )
+    {
+      distribution[landUseValue] += cellArea;
+      totalArea += cellArea;
+    }
+  }
+
+  for ( int i = 0; i < distribution.size(); ++i )
+  {
+    int landUseValue = distribution.keys().at( i );
+    double area = distribution.value( landUseValue );
+
+    distribution[landUseValue] = area / totalArea;
+  }
+
+  return distribution;
 }

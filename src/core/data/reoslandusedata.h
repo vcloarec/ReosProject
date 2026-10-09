@@ -20,7 +20,9 @@
 #include "reosmemoryraster.h"
 #include "reosdataobject.h"
 
-class ReosLandUseDataProvider : public ReosDataProvider
+class ReosWatershed;
+
+class REOSCORE_EXPORT ReosLandUseDataProvider : public ReosDataProvider
 {
     Q_OBJECT
   public:
@@ -39,16 +41,17 @@ class ReosLandUseDataProvider : public ReosDataProvider
 };
 
 
-class ReosLandUseData : public ReosDataObject
+class REOSCORE_EXPORT ReosLandUseData : public ReosDataObject
 {
     Q_OBJECT
   public:
     explicit ReosLandUseData( const QString &dataSource, const QString &providerKey, QObject *parent = nullptr );
     static QString staticType();
 
-    const QVector<int> data() const;
+    QVector<int> data() const;
 
-    const QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+    QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+    ReosRasterMemory<int> rasterData( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
 
     ReosRasterExtent extent() const;
 
@@ -56,6 +59,17 @@ class ReosLandUseData : public ReosDataObject
     std::unique_ptr<ReosLandUseDataProvider> mProvider;
 
     QString formatKey( const QString &rawKey ) const;
+};
+
+class REOSCORE_EXPORT ReosLandUseDataOnWatershed
+{
+  public:
+    ReosLandUseDataOnWatershed( ReosLandUseData *landUseData, ReosWatershed *watershed );
+    QMap<int, double> landUseDistribution() const;
+
+  private:
+    ReosLandUseData *mLandUseData;
+    ReosWatershed *mWatershed = nullptr;
 };
 
 
