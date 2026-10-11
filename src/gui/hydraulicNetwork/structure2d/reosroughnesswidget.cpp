@@ -20,11 +20,12 @@
 #include <QMessageBox>
 
 #include "reosguicontext.h"
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosroughnesswidget.h"
 #include "reosstyleregistery.h"
 #include "reosformwidget.h"
+#include "reosmaptooleditpolygonsclassified.h"
 
 ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D, const ReosGuiContext &guiContext )
   : QWidget( guiContext.parent() )
@@ -41,7 +42,7 @@ ReosRoughnessWidget::ReosRoughnessWidget( ReosHydraulicStructure2D *structure2D,
   ui->mToolBarWidget->layout()->addWidget( mToolBar );
 
   ui->mDefaultRoughnessWidget->setDouble( mStructure->defaultRoughness() );
-  mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonStructure( mStructure->structure(), this, guiContext.map() );
+  mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonsClassified( mStructure->structure(), this, guiContext.map() );
   mMapToolEditResolutionPolygon->addHelperStructure( structure2D->geometryStructure() );
   mMapToolEditResolutionPolygon->setAction( mActionEditRoughnessPolygons );
   mActionEditRoughnessPolygons->setCheckable( true );

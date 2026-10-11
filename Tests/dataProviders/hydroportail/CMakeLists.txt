@@ -18,7 +18,7 @@ SET(REOS_HYDROPORTAIL_HEADERS
 ADD_EXECUTABLE(test_hydroportail ${REOS_HYDROPORTAIL_HEADERS} ${REOS_HYDROPORTAIL_SOURCES} reos_hydroportail_test.cpp)
 TARGET_LINK_LIBRARIES(test_hydroportail
                       ${Qt5Core_LIBRARIES}
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       ${CMAKE_THREAD_LIBS_INIT}
                       reosCore
 )

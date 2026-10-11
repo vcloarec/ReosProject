@@ -212,8 +212,11 @@ void ReosHydrauylicNetworkElementCalculationControler::updateState()
 
 void ReosHydrauylicNetworkElementCalculationControler::onCalculationStop()
 {
-  mTimer->deleteLater();
-  mTimer = nullptr;
+  if ( mTimer )
+  {
+    mTimer->deleteLater();
+    mTimer = nullptr;
+  }
 
   if ( !mProgessBar.isNull() )
   {

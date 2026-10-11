@@ -24,6 +24,7 @@
 class ReosHydraulicLink;
 class ReosSpatialPosition;
 
+//! Base class for hydraulic network nodes.
 class REOSCORE_EXPORT ReosHydraulicNode : public ReosHydraulicNetworkElement SIP_ABSTRACT
 {
     Q_OBJECT

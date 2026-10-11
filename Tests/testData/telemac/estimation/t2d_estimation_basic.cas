@@ -1,0 +1,58 @@
+/
+/  HP C3700 compilateur HP      :  60 s  5.5  26/11/2004
+/  HP C3700 compilateur HP      :  57 s  5.7  18/04/2007
+/  Dell 2.8 MHz compilateur pgi :  43 s  5.7  19/04/2007
+/
+/  HP C3700 compilateur HP      :  59 s  5.8  13/11/2007
+/  HP C3700 compilateur Nag     : 147 s  5.8  20/12/2007
+/  Dell 2.8 MHz compilateur pgi :  44 s  5.8  19/12/2007
+/
+/  HP C3700 compilateur HP      :  57 s  5.9  15/10/2008
+/  HP C3700 compilateur Nag     : 148 s  5.9  16/10/2008
+/  Dell 2.8 MHz compilateur pgi :  43 s  5.9  15/10/2008
+/
+/  HP C3700 compilateur HP        :  55 s  6.0  24/11/2009
+/  HP C3700 compilateur Nag       : 152 s  6.0  26/11/2009
+/  Dell 2.8 MHz compilateur Intel :  32 s  6.0  26/11/2009
+/
+/  Version 6.2
+/
+/  HP C3700 compilateur HP        :  57 s  04/05/2012
+/
+/
+/  EN MODE ESTIMATION
+/
+FORTRAN FILE               : 'user_fortran'
+BOUNDARY CONDITIONS FILE   : geo_estimation.cli
+GEOMETRY FILE              : geo_estimation.slf
+RESULTS FILE               : r2d_estimation.slf
+LIQUID BOUNDARIES FILE     : t2d_estimation.qsl
+/
+TITLE = 'TELEMAC 2D : TEST DE CANAL$'
+TIME STEP = 2.
+NUMBER OF TIME STEPS = 10000
+GRAPHIC PRINTOUT PERIOD : 1000
+LISTING PRINTOUT PERIOD : 1000
+VARIABLES FOR GRAPHIC PRINTOUTS : 'U,V,H,B,S'
+/                                                  REFERENCE : 35.
+/LOI DE FROTTEMENT SUR LE FOND = 3 COEFFICIENT DE FROTTEMENT = 35.
+LAW OF BOTTOM FRICTION = 3
+FRICTION COEFFICIENT = 5.
+VELOCITY DIFFUSIVITY = 0.
+SOLVER ACCURACY = 1.E-8
+PRESCRIBED FLOWRATES  : 0.  ; 50.
+PRESCRIBED ELEVATIONS : 0.5 ;  0.
+INITIAL CONDITIONS : 'CONSTANT ELEVATION'
+INITIAL ELEVATION : 0.5
+MASS-BALANCE : YES
+/----------------------------------------------------------------------
+/DISCRETIZATIONS IN SPACE : 11 ; 11
+SOLVER : 7
+TYPE OF ADVECTION : 13;5
+SUPG OPTION         : 2;0;2;2
+TREATMENT OF NEGATIVE DEPTHS : 2
+CONTINUITY CORRECTION : YES
+MASS-LUMPING ON H = 1.
+/
+/ DEFAULT VALUE UNTIL V8P1 KEPT FOR NON REGRESSION
+TREATMENT OF THE LINEAR SYSTEM = 1

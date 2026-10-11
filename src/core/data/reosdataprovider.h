@@ -101,7 +101,7 @@ class REOSCORE_EXPORT ReosDataProviderFactory
 #endif // No SIP_RUN
 
 /**
- * Class that stores time serie provider factory
+ * Stores time series provider factories.
  */
 class REOSCORE_EXPORT ReosDataProviderRegistery
 {

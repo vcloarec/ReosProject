@@ -1,0 +1,7 @@
+{
+  "cmake.buildDirectory": "/home/cloarec/dev/building/reos_qt6_debug",
+  "cmake.configureOnOpen": true,
+  "cmake.configureSettings": {
+    "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+  }
+}

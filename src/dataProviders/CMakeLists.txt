@@ -3,7 +3,9 @@
 
 add_subdirectory(hub-eau)
 add_subdirectory(delft-FEWS)
-add_subdirectory(grib)
+if (HAS_ECCODES)
+	add_subdirectory(grib)
+endif (HAS_ECCODES)
 add_subdirectory(comephore)
 add_subdirectory(era5)
 if (ENABLE_HEC_DSS)

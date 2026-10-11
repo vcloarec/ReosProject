@@ -28,7 +28,7 @@ static QString getString( codes_handle *handle, const char *key )
   std::vector<char> strVec( length );
   handleError( codes_get_string( handle, key, strVec.data(), &length ) );
   QByteArray byteArray( strVec.data(), int( length ) );
-  return QString::fromUtf8( byteArray );
+  return QString::fromUtf8( byteArray.constData() );
 }
 
 static QVariant getKeyValue( codes_handle *handle, const char *key )
@@ -186,11 +186,11 @@ static ReosRasterExtent extentFromKeys( const ReosEcCodesReaderKeys &keys )
 
 static QDateTime intToTime( int dateInt, int timeInt )
 {
-  int y = int( std::round( dateInt / 10000.0 ) );
-  int m = int( std::round( ( dateInt - y * 10000.0 ) / 100.0 ) );
+  int y = int( std::floor( dateInt / 10000.0 ) );
+  int m = int( std::floor( ( dateInt - y * 10000.0 ) / 100.0 ) );
   int d = dateInt - y * 10000.0 - m * 100;
 
-  int h = int( std::round( timeInt / 100.0 ) );
+  int h = int( std::floor( timeInt / 100.0 ) );
   int mi = timeInt - h * 100;
 
   return QDateTime( QDate( y, m, d ), QTime( h, mi ), Qt::UTC );
@@ -228,6 +228,12 @@ static QPair<int, int> stepRangeFromKeys( const ReosEcCodesReaderKeys &keys )
 
     if ( endStr.contains( 'm' ) )
       endStr = endStr.remove( 'm' );
+
+    if ( startStr.contains( 's' ) )
+      startStr = startStr.remove( 's' );
+
+    if ( endStr.contains( 's' ) )
+      endStr = endStr.remove( 's' );
 
     start = startStr.toInt();
     end = endStr.toInt();
@@ -316,7 +322,7 @@ bool ReosEcCodesReader::nextFrameMetadata( ReosEcCodesReader::FrameMetadata &met
     meta.stepRange = stepRangeFromKeys( keys );
     meta.stepDuration = stepDurationFromKeys( keys );
     meta.stepType = stepTypeFromKeys( keys );
-    meta.frameTime = meta.dataTime.addSecs( timeFromDataTime( keys ).valueSecond() );
+    meta.frameTime = validityTimeFromKeys( keys );
     return true;
   }
 

@@ -19,6 +19,7 @@
 #define SIP_NO_FILE
 
 #include <QImage>
+#include <QDateTime>
 
 #include "reoscore.h"
 

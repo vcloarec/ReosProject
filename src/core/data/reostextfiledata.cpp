@@ -239,8 +239,9 @@ QStringList ReosTextFileData::splitLine( const QString &line ) const
 
 void ReosTextFileData::findEOL( QTextStream &stream )
 {
-  mFirstEOLChar = 0;
-  while ( !stream.atEnd() && mFirstEOLChar == 0 )
+  mFirstEOLChar = QChar();
+
+  while ( !stream.atEnd() && mFirstEOLChar.isNull() )
   {
     const QString str = stream.read( 1 ); //TODO : mabe change the lengh of reading with another value
     const QChar *strChar = str.constData();
@@ -267,7 +268,7 @@ QString ReosTextFileData::readLine( QTextStream &stream )
     {
       const QString str = stream.read( 1 );
       const QChar *strChar = str.constData();
-      if ( strChar == mFirstEOLChar )
+      if ( strChar && *strChar == mFirstEOLChar )
         lineFinished = true;
       else
         line.append( str );

@@ -43,7 +43,7 @@ class ReosPlotTimeSerieVariableStep;
 class ReosHubEauStationMarker : public ReosMapMarkerFilledCircle
 {
   public:
-    ReosHubEauStationMarker( ReosMap *map, const QPointF &point );
+    ReosHubEauStationMarker( ReosMap *map, const ReosSpatialPosition &position );
     int stationIndex;
 };
 

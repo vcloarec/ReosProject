@@ -28,6 +28,7 @@ email                : vcloarec at gmail dot com
 
 class ReosProcess;
 
+//! Base class for Reos modules.
 class REOSCORE_EXPORT ReosModule : public QObject
 {
     Q_OBJECT

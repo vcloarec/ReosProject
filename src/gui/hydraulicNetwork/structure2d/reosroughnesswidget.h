@@ -18,18 +18,19 @@
 
 #include <QWidget>
 
-#include "reosmaptooleditgeometrystructure.h"
+#include "reosmapitem.h"
 
 namespace Ui
 {
   class ReosRoughnessWidget;
 }
 
+class QToolBar;
 class ReosGuiContext;
-class ReosPolygonStructure;
+class ReosPolygonsClassified;
 class ReosMap;
 class ReosPolygonStructureClassModelList;
-class ReosMapToolEditPolygonStructure;
+class ReosMapToolEditPolygonsClassified;
 class ReosRoughnessStructure;
 class ReosHydraulicStructure2D;
 
@@ -56,7 +57,7 @@ class ReosRoughnessWidget : public QWidget
     ReosPolygonStructureClassModelList *mModel = nullptr;
 
     QAction *mActionEditRoughnessPolygons = nullptr;
-    ReosMapToolEditPolygonStructure *mMapToolEditResolutionPolygon = nullptr;
+    ReosMapToolEditPolygonsClassified *mMapToolEditResolutionPolygon = nullptr;
     ReosMapPolygonStructure mMapStructureItem;
     QToolBar *mToolBar = nullptr;
 

@@ -1,0 +1,5 @@
+Relaxation, Number of culverts
+    0.5   2
+I1   I2   CE1  CE2  CS1  CS2  LRG  HAUT1 CLP  LBUS  Z1   Z2   CV  C56 CV5 C5 CT HAUT2 FRIC LENGTH CIRC D1 D2 A1 A2 AA
+2308 2314 0.5  0.5  1.   1.   2.5  1.5   0    0     1.0  1.0  0   0   0   0  0  1.5   0    20.    0    0  0  0  0  1
+2409 2415 0.5  0.5  1.   1.   2.5  1.5   0    0     1.0  1.0  0   0   0   0  0  1.5   0    20.    0    0  0  0  0  1

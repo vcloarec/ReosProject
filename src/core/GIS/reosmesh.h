@@ -94,7 +94,7 @@ class REOSCORE_EXPORT ReosMeshPointValue
     ~ReosMeshPointValue();
 
     ReosMeshPointValue( const ReosMeshPointValue &other );
-    ReosMeshPointValue( ReosMeshPointValue &&other );
+    ReosMeshPointValue( ReosMeshPointValue &&other ) noexcept;
 
     ReosMeshPointValue &operator=( const ReosMeshPointValue &other );
     ReosMeshPointValue &operator=( ReosMeshPointValue &&other );

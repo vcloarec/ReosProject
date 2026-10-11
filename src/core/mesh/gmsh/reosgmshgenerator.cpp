@@ -134,7 +134,7 @@ ReosGmshEngine *ReosGmshEngine::instance()
   return sInstance;
 }
 
-ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Data &data, ReosPolygonStructureValues *resolutionValues, ReosGmshGenerator::Algorithm alg )
+ReosMeshFrameData ReosGmshEngine::generateMesh( const ReosPolylinesStructure::Data &data, ReosPolygonsClassifiedValues *resolutionValues, ReosGmshGenerator::Algorithm alg )
 {
   QMutexLocker locker( &mMutex );
   ReosMeshFrameData result;

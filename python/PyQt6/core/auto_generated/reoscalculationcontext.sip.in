@@ -1,0 +1,38 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reoscalculationcontext.h                                    *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+class ReosCalculationContext
+{
+%Docstring(signature="appended")
+Stores the context used for hydraulic calculations.
+%End
+
+%TypeHeaderCode
+#include "reoscalculationcontext.h"
+%End
+  public:
+    ReosCalculationContext();
+
+
+    QString schemeId() const;
+    void setSchemeId( const QString &schemeId );
+
+    const ReosTimeWindow &timeWindow() const;
+    void setTimeWindow( const ReosTimeWindow &newTimeWindow );
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reoscalculationcontext.h                                    *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

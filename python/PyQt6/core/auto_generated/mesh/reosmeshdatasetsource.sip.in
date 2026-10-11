@@ -1,0 +1,50 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/mesh/reosmeshdatasetsource.h                                *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+class ReosMeshDatasetSource : QObject /Abstract/
+{
+%Docstring(signature="appended")
+Interface for mesh dataset sources.
+%End
+
+%TypeHeaderCode
+#include "reosmeshdatasetsource.h"
+%End
+  public:
+    enum class Location
+    {
+      Vertex,
+      Face
+    };
+
+    ReosMeshDatasetSource( QObject *parent = 0 );
+
+    virtual int groupCount() const = 0;
+    virtual int datasetCount( int groupIndex ) const = 0;
+    virtual QString groupName( int groupIndex ) const = 0;
+    virtual Location groupLocation( int groupIndex ) const = 0;
+    virtual bool groupIsScalar( int groupIndex ) const = 0;
+    virtual void groupMinMax( int groupIndex, double &minimum, double &maximum ) const = 0;
+    virtual QDateTime groupReferenceTime( int groupIndex ) const = 0;
+    virtual ReosDuration datasetRelativeTime( int groupIdex, int datasetIndex ) const = 0;
+    virtual bool datasetIsValid( int groupIndex, int datasetIndex ) const = 0;
+    virtual void datasetMinMax( int groupIndex, int datasetIndex, double &min, double &max ) const = 0;
+    virtual int datasetValuesCount( int groupIndex, int datasetIndex ) const = 0;
+    virtual int datasetIndexClosestBeforeTime( int groupIndex, const QDateTime &time ) const = 0;
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/mesh/reosmeshdatasetsource.h                                *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

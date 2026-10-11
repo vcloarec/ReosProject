@@ -1259,7 +1259,7 @@ bool ReosHecRasFlow::parseLocation( const QString &locationLine, QString &area, 
 static QString intToString( int value, int stringSize )
 {
   QString ret = QString::number( value );
-  QString prefix( ' ', stringSize - ret.size() );
+  QString prefix( stringSize - ret.size(), ' ' );
   ret.prepend( prefix );
 
   return ret;
@@ -1268,7 +1268,7 @@ static QString intToString( int value, int stringSize )
 static QString doubleToString( double value, int stringSize )
 {
   QString ret = QString::number( value );
-  QString prefix( ' ', stringSize - ret.size() );
+  QString prefix( stringSize - ret.size(), ' ' );
   ret.prepend( prefix );
 
   return ret;

@@ -1,0 +1,57 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reosmodule.h                                                *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+
+class ReosModule : QObject
+{
+%Docstring(signature="appended")
+Base class for Reos modules.
+%End
+
+%TypeHeaderCode
+#include "reosmodule.h"
+%End
+  public:
+    enum MessageType /BaseType=IntEnum/
+    {
+      Simple,
+      Order,
+      Warning,
+      Error
+    };
+
+    struct Message
+    {
+        void prefixMessage( const QString &prefix );
+        void addText( const QString &newText );
+
+        MessageType type;
+        QString text;
+    };
+
+    ReosModule();
+    explicit ReosModule( const QString &moduleName, QObject *parent = 0 );
+    virtual ~ReosModule();
+
+  signals:
+    void emitMessage( const Message &message, bool messageBox ) const;
+
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reosmodule.h                                                *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

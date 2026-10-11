@@ -189,6 +189,11 @@ bool ReosMapExtent::contains( const QPointF &point ) const
   return point.x() >= mXMin && point.x() <= mXMax && point.y() >= mYMin && point.y() <= mYMax;
 }
 
+bool ReosMapExtent::contains( const ReosSpatialPosition &point ) const
+{
+  return contains( ReosGisEngine::transformToCoordinates( point, mCrs ) );
+}
+
 bool ReosMapExtent::containsPartialy( const QPolygonF &line ) const
 {
   for ( auto &point : line )
@@ -289,4 +294,14 @@ ReosEncodedElement ReosSpatialPosition::encode() const
   element.addData( QStringLiteral( "is-valid" ), mIsValid );
 
   return element;
+}
+
+bool ReosSpatialPosition::operator==( const ReosSpatialPosition &other ) const
+{
+  return mPosition == other.mPosition && mCrs == other.mCrs && mIsValid == other.mIsValid;
+}
+
+bool ReosSpatialPosition::operator!=( const ReosSpatialPosition &other ) const
+{
+  return !operator==( other );
 }

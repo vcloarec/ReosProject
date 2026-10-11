@@ -22,7 +22,7 @@
 
 #include "reosparameter.h"
 #include "reospolylinesstructure.h"
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 #ifdef WITH_GMSH
 #include "gmsh/reosgmshgenerator.h"
 #endif //WITH_GMSH
@@ -95,7 +95,7 @@ ReosEncodedElement ReosMeshGenerator::encodeBase() const
 ReosMeshResolutionController::ReosMeshResolutionController( QObject *parent, const QString &wktCrs )
   : ReosDataObject( parent )
   , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
-  , mPolygonStructure( ReosPolygonStructure::createPolygonStructure( wktCrs ) )
+  , mPolygonStructure( ReosPolygonsClassified::createPolygonStructure( wktCrs ) )
 {
   mDefaultSize->setValue( 10 );
 
@@ -106,14 +106,14 @@ ReosMeshResolutionController::ReosMeshResolutionController( QObject *parent, con
 ReosMeshResolutionController::ReosMeshResolutionController( const ReosEncodedElement &element, QObject *parent )
   : ReosDataObject( parent )
   , mDefaultSize( new ReosParameterDouble( tr( "Default element size" ), false, this ) )
-  , mPolygonStructure( ReosPolygonStructure::createPolygonStructure( element.getEncodedData( QStringLiteral( "polygons" ) ) ) )
+  , mPolygonStructure( ReosPolygonsClassified::createPolygonStructure( element.getEncodedData( QStringLiteral( "polygons" ) ) ) )
 {
   double defaultSize = 10;
   element.getData( QStringLiteral( "default-size" ), defaultSize );
   mDefaultSize->setValue( defaultSize );
 
   if ( !mPolygonStructure )
-    mPolygonStructure = ReosPolygonStructure::createPolygonStructure( QString() );
+    mPolygonStructure = ReosPolygonsClassified::createPolygonStructure( QString() );
 
   connect( mDefaultSize, &ReosParameter::valueChanged, this, &ReosDataObject::dataChanged );
   connect( mPolygonStructure.get(), &ReosDataObject::dataChanged, this, &ReosDataObject::dataChanged );
@@ -137,7 +137,7 @@ ReosMeshResolutionController *ReosMeshResolutionController::clone() const
   return new ReosMeshResolutionController( this );
 }
 
-ReosPolygonStructure *ReosMeshResolutionController::resolutionPolygons() const
+ReosPolygonsClassified *ReosMeshResolutionController::resolutionPolygons() const
 {
   return mPolygonStructure.get();
 }

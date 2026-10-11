@@ -126,8 +126,7 @@ void ReosHubEauWidget::onStationUpdated()
   for ( int i = 0; i < mStations.count(); ++i )
   {
     const ReosHubEauStation &station = mStations.at( i );
-    const QPointF pt = mMap->engine()->transformToProjectCoordinates( ReosGisEngine::wktEPSGCrs( 4326 ), QPointF( station.longitude, station.latitude ) );
-    mStationsMarker.emplace_back( std::make_unique<ReosHubEauStationMarker>( mMap, pt ) );
+    mStationsMarker.emplace_back( std::make_unique<ReosHubEauStationMarker>( mMap, ReosSpatialPosition( QPointF( station.longitude, station.latitude ), ReosGisEngine::wktEPSGCrs( 4326 ) ) ) );
     mStationsMarker.back()->stationIndex = i;
     formatMarker( mStationsMarker.back().get(), station.meta, station.id == mCurrentStationId );
     if ( station.id == mCurrentStationId )
@@ -271,8 +270,8 @@ void ReosHubEauWidget::formatMarker( ReosHubEauStationMarker *marker, const QVar
   }
 }
 
-ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const QPointF &point )
-  : ReosMapMarkerFilledCircle( map, point )
+ReosHubEauStationMarker::ReosHubEauStationMarker( ReosMap *map, const ReosSpatialPosition &position )
+  : ReosMapMarkerFilledCircle( map, position )
 {
   setDescription( QStringLiteral( "hub-eau-station" ) );
 }

@@ -6,6 +6,10 @@ $REOS_INSTALL=$env:REOS_INSTALL
 $OSGEO_DIR=$env:OSGEO4W_ROOT
 $QGIS_INSTALL=$env:QGIS_BUILT
 $REOS_BUILD=$env:REOS_BUILDING
+$QT_ROOT=Join-Path $OSGEO_DIR "apps/Qt6"
+$PYTHON_ROOT=Join-Path $OSGEO_DIR "apps/Python312"
+$HDF5_INCLUDE=Join-Path $OSGEO_DIR "include"
+$HDF5_LIB=Join-Path $OSGEO_DIR "lib/hdf5.lib"
 
 Write-Host "============================= dependencies directory:"
 Write-Host "=== OSGEO:"
@@ -19,7 +23,7 @@ $env:MDAL_ROOT
 ls $env:MDAL_ROOT\lib
 
 Write-Host "=== Qwt folder:"
-$QWT_INCLUDE=Join-Path $OSGEO_DIR "apps/Qt5/include/qwt6"
+$QWT_INCLUDE=Join-Path $QT_ROOT "include/qwt6"
 $QWT_INCLUDE
 ls $QWT_INCLUDE
 
@@ -107,6 +111,28 @@ if ( -not $MDAL_LIB )
     }
 }
 
+$QCA_INCLUDE = Get-FirstExistingPath @(
+    "$QT_ROOT/include/QtCrypto",
+    "$QT_ROOT/include/Qca-qt6/QtCrypto",
+    "$QT_ROOT/include/qt6/QtCrypto"
+)
+$QCA_LIB = Get-FirstExistingPath @(
+    "$QT_ROOT/qca-qt6.lib",
+    "$QT_ROOT/lib/qca-qt6.lib",
+    "$QT_ROOT/lib/qca2-qt6.lib",
+    "$QT_ROOT/lib/qca.lib"
+)
+$QWT_INCLUDE = Get-FirstExistingPath @(
+    "$QT_ROOT/include/qwt6",
+    "$QT_ROOT/include/qwt",
+    "$QT_ROOT/include/qt6/qwt"
+)
+$QWT_LIB = Get-FirstExistingPath @(
+    "$QT_ROOT/lib/qwt.lib",
+    "$QT_ROOT/lib/qwt-qt6.lib",
+    "$QT_ROOT/lib/qwt6-qt6.lib"
+)
+
 cmake   -S $env:REOS_SOURCE `
 		-B . `
 		"-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
@@ -118,7 +144,10 @@ cmake   -S $env:REOS_SOURCE `
         -D ENABLE_TESTS=TRUE `
         -D GDAL_INCLUDE_DIR=$env:GDAL_ROOT/include `
         -D GDAL_LIBRARY=$env:GDAL_ROOT/lib/gdal_i.lib `
-        -D HDF5_ROOT=$OSGEO_DIR/apps/gdal-dev `
+        -D HDF5_ROOT=$OSGEO_DIR `
+        -D HDF5_INCLUDE_DIR=$HDF5_INCLUDE `
+        -D HDF5_C_LIBRARY=$HDF5_LIB `
+        -D HDF5_C_LIBRARY_hdf5=$HDF5_LIB `
         -D QGIS_INCLUDE_DIR=$QGIS_INSTALL/include `
         -D QGIS_3D_LIB=$QGIS_INSTALL/lib/qgis_3d.lib `
         -D QGIS_ANALYSIS_LIB=$QGIS_INSTALL/lib/qgis_analysis.lib `
@@ -129,22 +158,21 @@ cmake   -S $env:REOS_SOURCE `
         -D GMSH_INCLUDE_DIR=$GMSH_INSTALL/include `
         -D QGIS_APP_INCLUDE=$QGIS_SRC/src/app `
         -D GMSH_LIB=$GMSH_INSTALL/lib/gmsh.lib `
-		-D PYTHON_DIR=$OSGEO_DIR/apps/Python39 `
+        -D PYTHON_DIR=$PYTHON_ROOT `
         -D GTest_DIR=GTest_DIR-NOTFOUND `
         -D INSTALL_GTEST=ON `
         -D MDAL_INCLUDE_DIR=$MDAL_INCLUDE_DIR `
         -D MDAL_LIB=$MDAL_LIB `
         -D ECCODES_INCLUDE_DIR=$ECCODES_INCLUDE `
         -D ECCODES_LIB=$ECCODES_LIB `
-        -D Qt5_DIR=$OSGEO_DIR/apps/Qt5/lib/cmake/Qt5 `
-        -D QT_QMAKE_EXECUTABLE=$OSGEO_DIR/apps/Qt5/bin/qmake `
-        -D QCA_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/QtCrypto `
-        -D QCA_LIBRARY=$OSGEO_DIR/apps/Qt5/qca-qt5.lib `
+        -D Qt6_DIR=$QT_ROOT/lib/cmake/Qt6 `
+        -D CMAKE_PREFIX_PATH="$OSGEO_DIR;$QT_ROOT" `
+        -D QT_QMAKE_EXECUTABLE=$QT_ROOT/bin/qmake `
+        -D QCA_INCLUDE_DIR=$QCA_INCLUDE `
+        -D QCA_LIBRARY=$QCA_LIB `
         -D QSCISCINTILLA_INCLUDE_DIR:PATH= `
-        -D QTKEYCHAIN_INCLUDE_DIR=$OSGEO_DIR/apps/Qt5/include/qt5keychain `
-        -D QTKEYCHAIN_LIBRARY=$OSGEO_DIR/apps/Qt5/lib/qt5keychain.lib `
-        -D QWT_INCLUDE=$OSGEO_DIR/apps/Qt5/include/qwt6 `
-        -D QWT_LIB=$OSGEO_DIR/apps/Qt5/lib/qwt.lib `
+        -D QWT_INCLUDE=$QWT_INCLUDE `
+        -D QWT_LIB=$QWT_LIB `
         -D WITH_QTWEBKIT:BOOL=FALSE `
 		-D ENABLE_HECRAS=TRUE `
         -D ENABLE_HEC_DSS=TRUE `
@@ -170,7 +198,10 @@ Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      Unable to build Reos"
 	exit $LastExitCode
 	}
 
-rm -r $REOS_INSTALL
+if (-not [string]::IsNullOrWhiteSpace($REOS_INSTALL) -and (Test-Path -Path $REOS_INSTALL))
+{
+    Remove-Item -Recurse -Force $REOS_INSTALL
+}
 cmake --install .
 
 if ($LastExitCode -ne 0) {

@@ -24,8 +24,11 @@
 
 ReosActionWidget::ReosActionWidget( QWidget *parent )
   : QWidget( parent )
+{}
+
+ReosActionWidget::~ReosActionWidget()
 {
-  connect( this, &QObject::destroyed, this, &ReosActionWidget::storeGeometry );
+  storeGeometry();
 }
 
 void ReosActionWidget::setAction( QAction *action )

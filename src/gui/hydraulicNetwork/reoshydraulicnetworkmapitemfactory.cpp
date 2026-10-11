@@ -29,7 +29,7 @@ static ReosMapItem *createHydrographSourceWatershedItem( ReosHydraulicNetworkEle
   ReosHydrographNodeWatershed *hws = qobject_cast<ReosHydrographNodeWatershed *>( elem );
   if ( hws )
   {
-    std::unique_ptr<ReosMapMarkerEmptySquare> marker = std::make_unique<ReosMapMarkerEmptySquare>( map, hws->position( map->mapCrs() ) );
+    std::unique_ptr<ReosMapMarkerEmptySquare> marker = std::make_unique<ReosMapMarkerEmptySquare>( map, hws->spatialPosition() );
     marker->setWidth( 12 );
     marker->setExternalWidth( 20 );
     marker->setColor( QColor( 0, 155, 242 ) );
@@ -47,7 +47,7 @@ static void updateHydrographSourceWatershedItem( ReosHydraulicNetworkElement *el
   ReosHydrographNodeWatershed *hws = qobject_cast<ReosHydrographNodeWatershed *>( elem );
   ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
 
-  markerItem->resetPoint( hws->watershed()->outletPoint() );
+  markerItem->resetPosition( hws->watershed()->outletPosition() );
 
   for ( ReosHydraulicLink *link : hws->links() )
     link->positionChanged();
@@ -79,7 +79,7 @@ static ReosMapItem *createHydrographJunctionItem( ReosHydraulicNetworkElement *e
   ReosHydrographJunction *hj = qobject_cast<ReosHydrographJunction *>( elem );
   if ( hj )
   {
-    std::unique_ptr<ReosMapMarkerEmptyCircle> marker = std::make_unique<ReosMapMarkerEmptyCircle>( map, hj->position( map->mapCrs() ) );
+    std::unique_ptr<ReosMapMarkerEmptyCircle> marker = std::make_unique<ReosMapMarkerEmptyCircle>( map, hj->spatialPosition() );
     marker->setWidth( 12 );
     marker->setExternalWidth( 22 );
     marker->setColor( QColor( 0, 155, 242 ) );
@@ -97,7 +97,7 @@ static void updateHydrographJunctionItem( ReosHydraulicNetworkElement *elem, Reo
   ReosHydrographJunction *hj = qobject_cast<ReosHydrographJunction *>( elem );
   ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
 
-  markerItem->resetPoint( hj->position( item->map()->mapCrs() ) );
+  markerItem->resetPosition( hj->spatialPosition() );
 
   for ( ReosHydraulicLink *link : hj->links() )
     link->positionChanged();
@@ -220,7 +220,7 @@ static ReosMapItem *createStructureBoundaryCondition( ReosHydraulicNetworkElemen
   ReosHydraulicStructureBoundaryCondition *stdBc = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( elem );
   if ( stdBc )
   {
-    std::unique_ptr<ReosMapMarkerEmptySquare> marker( new ReosMapMarkerEmptySquare( map, stdBc->position( map->mapCrs() ) ) );
+    std::unique_ptr<ReosMapMarkerEmptySquare> marker( new ReosMapMarkerEmptySquare( map, stdBc->spatialPosition() ) );
     marker->setWidth( 6 );
     marker->setExternalWidth( 16 );
     marker->setColor( QColor( 0, 155, 242 ) );
@@ -238,7 +238,7 @@ static void updateStructureBoundaryCondition( ReosHydraulicNetworkElement *elem,
   ReosHydraulicStructureBoundaryCondition *stdBc = qobject_cast<ReosHydraulicStructureBoundaryCondition *>( elem );
   ReosMapMarker *markerItem = static_cast<ReosMapMarker *>( item );
 
-  markerItem->resetPoint( stdBc->position( item->map()->mapCrs() ) );
+  markerItem->resetPosition( stdBc->spatialPosition() );
 
   for ( ReosHydraulicLink *link : stdBc->links() )
     link->positionChanged();

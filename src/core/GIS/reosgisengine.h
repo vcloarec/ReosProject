@@ -63,7 +63,7 @@ class REOSCORE_EXPORT ReosCoordinateSystemTransformer
 #endif // #ifndef SIP_RUN
 
 /**
- * Reos module class that handles GIS layer
+ * Handles GIS layers.
  */
 class REOSCORE_EXPORT ReosGisEngine : public ReosModule
 {
@@ -113,7 +113,11 @@ class REOSCORE_EXPORT ReosGisEngine : public ReosModule
     //! Returns whether the layer exists and is valid
     bool hasValidLayer( const QString &layerId ) const;
 
+    //! Returns the extent of the layer with \a layerId. If the layer does not exist or is invalid, returns an invalid extent
     ReosMapExtent layerExtent( const QString &layerId ) const;
+
+    //! Returns the raster extent of the layer with \a layerId. If the layer does not exist or is invalid, returns an invalid raster extent
+    ReosRasterExtent layerRasterExtent( const QString &layerId ) const;
 
     //! Returns the count of layers in the project
     int layersCount() const;
@@ -297,6 +301,7 @@ class REOSCORE_EXPORT ReosGisEngine : public ReosModule
     QAbstractItemModel *mAbstractLayerTreeModel;
     ReosDigitalElevationModelProvider *mDemProvider;
     QStringList mAsDEMRegisteredLayer;
+    QString mCurrentCrs;
 
     void defaultstyleRasterLayer( QgsRasterLayer *layer );
 

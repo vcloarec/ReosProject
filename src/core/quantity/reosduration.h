@@ -24,6 +24,7 @@ email                :   vcloarec at gmail dot com
 
 #include "reosencodedelement.h"
 
+//! Represents a time window between two date-time values.
 class REOSCORE_EXPORT ReosTimeWindow
 {
   public:
@@ -48,7 +49,7 @@ class REOSCORE_EXPORT ReosTimeWindow
 
     bool isIncluded( const QDateTime &time ) const;
 
-    bool operator==( const ReosTimeWindow &other );
+    bool operator==( const ReosTimeWindow &other ) const;
 
   private:
     QDateTime mStart;
@@ -80,6 +81,7 @@ class REOSCORE_EXPORT ReosDuration
     ReosDuration operator*( double k ) const;
 #ifndef SIP_RUN
     ReosDuration operator*( int i ) const;
+    ReosDuration operator*( qsizetype s ) const;
 #endif // no SIP_RUN
     ReosDuration operator/( double k ) const;
     double operator/( const ReosDuration & ) const;

@@ -15,7 +15,7 @@ SET(REOS_PYTHON_TEST_HEADERS
 ADD_EXECUTABLE(test_python ${REOS_PYTHON_TEST_HEADERS} ${REOS_PYTHON_TEST_SOURCES} reos_test_python.cpp)
 
 TARGET_LINK_LIBRARIES(test_python
-                      ${Qt5Test_LIBRARIES}
+                      ${QT_VERSION_BASE}::Test
                       reosPython
                       reosCore
 )

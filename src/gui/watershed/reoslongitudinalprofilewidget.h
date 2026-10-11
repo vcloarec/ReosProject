@@ -59,7 +59,7 @@ class ReosLongitudinalProfileWidget : public ReosActionWidget
   private slots:
     void updateProfile();
     void onProfileCursorMove( const QPointF &point );
-    void onStreamLineChanged( const QPolygonF &streamLine );
+    void onStreamLineChanged( const QPolygonF &streamLine, const QString &crs );
     void onStreamLineEdited();
     void askForUpdateDEMProfile();
     void zoomOnDEMProfileExtent();

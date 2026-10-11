@@ -132,6 +132,16 @@ QPolygonF ReosHecRasStructureImporter::domain() const
   return QPolygonF();
 }
 
+QVector<QVector<int> > ReosHecRasStructureImporter::boundarySegmentVertices() const
+{
+  return QVector<QVector<int> >();
+}
+
+QVector<QVector<QVector<int> > > ReosHecRasStructureImporter::holeSegmentVertices() const
+{
+  return QVector<QVector<QVector<int> > >();
+}
+
 ReosMesh *ReosHecRasStructureImporter::mesh( const QString &destinationCrs ) const
 {
   if ( mIsValid )

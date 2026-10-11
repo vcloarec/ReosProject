@@ -74,7 +74,7 @@ param(
     [string]$IntelOneApiRoot      = 'C:\Program Files (x86)\Intel\oneAPI',
     [string]$IntelCompilerVersion = '',
     [string]$NsisPath             = 'C:\Program Files (x86)\NSIS',
-    [string]$QgisRef              = 'final-3_44_11',
+    [string]$QgisRef              = 'final-4_2_1',
     [switch]$SkipCygwin,
     [switch]$SkipOsgeo,
 
@@ -124,6 +124,7 @@ if ( -not $env:WINDIR ) { $env:WINDIR = 'C:\Windows' }
 $env:CMAKE_PATH      = $CMakePath
 
 $env:CYGWIN_ROOT     = Join-Path $BuildRoot 'cygwin64'
+$env:WINFLEXBISON_ROOT = Join-Path $BuildRoot 'winflexbison'
 $env:OSGEO4W_ROOT    = Join-Path $BuildRoot 'OSGEO4W'
 $env:GDAL_ROOT       = $env:OSGEO4W_ROOT
 $env:ECCODES_ROOT    = Join-Path $BuildRoot 'ECCODES_Install'
@@ -195,26 +196,24 @@ function Invoke-Step
 }
 
 # ---------------------------------------------------------------------------
-# 2. "load CYGWIN" step
+# 2. "load winflexbison" step
 # ---------------------------------------------------------------------------
-$cygwinMarker = Join-Path $env:CYGWIN_ROOT 'bin\flex.exe'
-if ($SkipCygwin -or (Test-StepComplete $cygwinMarker))
+$flexMarker = Join-Path $env:WINFLEXBISON_ROOT 'win_flex.exe'
+if ($SkipCygwin -or (Test-StepComplete $flexMarker))
 {
-    Write-Host "[SKIP] Cygwin already present at $env:CYGWIN_ROOT"
+    Write-Host "[SKIP] winflexbison already present at $env:WINFLEXBISON_ROOT"
 }
 else
 {
-    Invoke-Step 'load Cygwin' {
-        Push-Location $BuildRoot
-        try     { & "$PSScriptRoot\load_cygwin.ps1" }
-        finally { Pop-Location }
+    Invoke-Step 'load winflexbison' {
+        & "$PSScriptRoot\load_winflexbison.ps1"
     }
 }
 
 # ---------------------------------------------------------------------------
 # 3. "load OSGEO dependencies" step
 # ---------------------------------------------------------------------------
-$osgeoMarker = Join-Path $env:OSGEO4W_ROOT 'etc\ini'
+$osgeoMarker = Join-Path $env:OSGEO4W_ROOT 'apps\Qt6\bin\qmake.exe'
 if ($SkipOsgeo -or (Test-StepComplete $osgeoMarker))
 {
     Write-Host "[SKIP] OSGeo4W already present at $env:OSGEO4W_ROOT"

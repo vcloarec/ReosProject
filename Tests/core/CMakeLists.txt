@@ -38,7 +38,7 @@ MACRO (ADD_REOS_TEST TESTSRC)
   ADD_EXECUTABLE(${TESTNAME} ${TESTSRC} $<TARGET_OBJECTS:reostestutils>)
   TARGET_LINK_LIBRARIES(${TESTNAME}
                         ${Qt5Core_LIBRARIES}
-                        ${Qt5Test_LIBRARIES}
+                        ${QT_VERSION_BASE}::Test
                         ${CMAKE_THREAD_LIBS_INIT}
                         ${GTEST_TARGET}
                         ${GMOCK_TARGET}
@@ -72,6 +72,7 @@ SET(TESTS
     reos_hydrograph_transfer_test.cpp
     reos_hydraulic_structure_2D_test.cpp
     reos_hydraulic_network_test.cpp
+    reos_gis_test.cpp
     )
 
 
@@ -84,6 +85,7 @@ ENDIF(WITH_HYDRAULIC_MODEL_SUPPORT)
 
 FOREACH(TESTSRC ${TESTS})
     ADD_REOS_TEST(${TESTSRC})
+
 ENDFOREACH(TESTSRC)
 
 

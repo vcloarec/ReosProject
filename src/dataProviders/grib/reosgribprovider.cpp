@@ -200,7 +200,7 @@ int ReosGribGriddedDataProvider::count() const
     case ValueType::Cumulative:
     case ValueType::CumulativeOnDay:
       if ( mFrames.at( 0 ).timeRange == ReosDuration() )
-        return std::max( 0, mFrames.count() - 1 );
+        return std::max( 0, static_cast<int>( mFrames.count() ) - 1 );
       else
         return mFrames.count();
       break;
@@ -833,9 +833,9 @@ void ReosGribGriddedDataProvider::giveName( FileDetails &details )
         common = c1 == c2;
         if ( !common )
         {
-          if ( c2 == fileName2.count() )
+          if ( cp2 == fileName2.count() )
           {
-            if ( c1 == fileName1.count() )
+            if ( cp1 == fileName1.count() )
               break;
             else
               cp2 = 0;
