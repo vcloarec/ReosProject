@@ -489,7 +489,7 @@ void ReosWatershedDelineatingProcess::start()
   mIsSuccessful = false;
 
   bool needNewDirection = !mDirections.isValid();
-  ReosRasterDistanceArea distanceArea( mPredefinedRasterExtent, 10 );
+  ReosRasterDistanceArea distanceArea;
   if ( needNewDirection )
   {
     if ( !mEntryDem )
@@ -544,6 +544,10 @@ void ReosWatershedDelineatingProcess::start()
 
     fillDemProcess.reset();
     directionProcess.reset();
+  }
+  else
+  {
+    distanceArea = ReosRasterDistanceArea( mPredefinedRasterExtent, 10 );
   }
 
   //--------------------------

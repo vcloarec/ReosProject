@@ -926,13 +926,14 @@ void ReosWatershed::updateResidual()
   //Calculate the residual delineating
   QList<QPolygonF> upstreamDelineatings;
   for ( size_t i = 1; i < mUpstreamWatersheds.size(); ++i )
-    upstreamDelineatings.append( mUpstreamWatersheds[i]->delineating() );
-
-  QPolygonF residualDelineating = ReosGeometryUtils::polygonCutByPolygons( delineating(), upstreamDelineatings );
+    upstreamDelineatings.append( mUpstreamWatersheds[i]->delineating( crs() ) );
+  QPolygonF residualDelineating = ReosGeometryUtils::polygonCutByPolygons( delineating( crs() ), upstreamDelineatings );
 
 
   mUpstreamWatersheds[0]->setDelineating( residualDelineating );
   mUpstreamWatersheds[0]->mExtent = ReosMapExtent( residualDelineating );
+  mUpstreamWatersheds[0]->mExtent.setCrs( crs() );
+  mUpstreamWatersheds[0]->mWktCrs = crs();
   mUpstreamWatersheds[0]->mName->setValue( mName->value() + QObject::tr( " residual" ) );
   mUpstreamWatersheds[0]->mDownstreamWatershed = this;
   mUpstreamWatersheds[0]->mDownstreamLine = mDownstreamLine;

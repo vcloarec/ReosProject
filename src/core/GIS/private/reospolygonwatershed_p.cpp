@@ -95,11 +95,16 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
   {
     try
     {
-      layerGeom.transform( transform );
+      Qgis::GeometryOperationResult res = layerGeom.transform( transform );
+      if ( res != Qgis::GeometryOperationResult::Success )
+      {
+        qDebug() << "Fail to transform the geometry of the watershed " << name << " from " << crs << " to " << mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
+        return;
+      }
     }
     catch ( QgsCsException & )
     {
-      layerGeom = geom;
+      return;
     }
   }
 
@@ -112,6 +117,7 @@ void ReosPolygonWatershed_p::addWatershed( const QPolygonF &watershed, const QSt
   feat.setAttribute( QStringLiteral( "name" ), name );
   mVectorLayer->addFeature( feat );
 
+  mVectorLayer->commitChanges( false );
   emit geometryChanged();
 }
 

@@ -46,6 +46,8 @@ class ReosWatersehdTest : public QObject
     void concentrationTime();
     void runoffConstantCoefficient();
 
+    void subIslandeWatershed();
+
     void runoffhydrograph();
 
     void delineate_watershed();
@@ -1681,6 +1683,90 @@ void ReosWatersehdTest::runoffConstantCoefficient()
     QCOMPARE( values.at( i ).first, int( hydrograph->relativeTimeAt( i ).valueMilliSecond() ) );
     QCOMPARE( values.at( i ).second, hydrograph->valueAt( i ) );
   }
+}
+
+void ReosWatersehdTest::subIslandeWatershed()
+{
+  //gisEngine.setCrs( ReosGisEngine::crsFromEPSG( 4326 ) );
+  ReosWatershedTree watershedStore( &gisEngine );
+  ReosWatershedDelineating watershedDelineating( &rootModule, &watershedStore, &gisEngine );
+  ReosWatershedItemModel itemModel( &watershedStore );
+  std::unique_ptr<ModuleProcessControler> controler;
+
+  QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::NoDigitalElevationModel );
+
+  QVERIFY( !watershedDelineating.hasValidDigitalElevationModel() );
+
+  // add raster layer and register it as DEM;
+  QString layerId = gisEngine.addRasterLayer( test_file( "DEM_LAM93.tif" ).c_str(), QStringLiteral( "raster_DEM" ) );
+  QCOMPARE( gisEngine.layerType( layerId ), ReosGisEngine::RasterLayer );
+  // attempt to add it to the wateshed delineating but fail because the DEM is not registered
+  QVERIFY( !watershedDelineating.setDigitalElevationModelDEM( layerId ) );
+  QVERIFY( !watershedDelineating.hasValidDigitalElevationModel() );
+
+  // register the DEM
+  QVERIFY( gisEngine.registerLayerAsDigitalElevationModel( layerId ) );
+  QMap<QString, QString> demList = gisEngine.digitalElevationModelRasterList();
+  QCOMPARE( demList[layerId], QStringLiteral( "raster_DEM" ) );
+
+  const ReosRasterExtent demExtent = gisEngine.layerRasterExtent( layerId );
+  const QString layerCrs = demExtent.crs();
+
+  QVERIFY( watershedDelineating.setDigitalElevationModelDEM( layerId ) );
+  QVERIFY( watershedDelineating.hasValidDigitalElevationModel() );
+
+  QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForDownstream );
+
+  // Delineate the little watershed
+  QPolygonF downstreamLine( { QPointF( 704180.8, 6546841.0 ), QPointF( 704261.8, 6547756.3 ) } );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, layerCrs ) );
+
+  ReosMapExtent extent( 685998, 6533399, 711584, 6558297 );
+  extent.setCrs( layerCrs );
+  QVERIFY( watershedDelineating.setPreDefinedExtent( extent ) );
+  QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingforProceed );
+
+  QVERIFY( watershedDelineating.prepareDelineating() );
+  controler.reset( new ModuleProcessControler( watershedDelineating.delineatingProcess() ) );
+  controler->waitForFinished();
+
+  QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingForValidate );
+  QPolygonF polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
+  QCOMPARE( polygonWatershed.count(), 582 );
+
+  bool needAdjusting;
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  ReosWatershed *watershed1 = watershedDelineating.storeWatershed( true );
+  ReosMapExtent treeExtent = watershedStore.polygonWatershed()->extent( layerCrs );
+
+  // Delineate the big watershed
+  downstreamLine = QPolygonF( { QPointF( 723882.8, 6591198.0 ), QPointF( 726923.4, 6590739.0 ) } );
+  QVERIFY( watershedDelineating.setDownstreamLine( downstreamLine, layerCrs ) );
+
+  extent = ReosMapExtent( 636418, 6374317, 819652, 6604450 );
+  extent.setCrs( layerCrs );
+  QVERIFY( watershedDelineating.setPreDefinedExtent( extent ) );
+  QCOMPARE( watershedDelineating.currentState(), ReosWatershedDelineating::WaitingforProceed );
+
+  QVERIFY( watershedDelineating.prepareDelineating() );
+  controler.reset( new ModuleProcessControler( watershedDelineating.delineatingProcess() ) );
+  controler->waitForFinished();
+
+  polygonWatershed = watershedDelineating.lastWatershedDelineated( extent.crs() );
+  QCOMPARE( polygonWatershed.count(), 8040 );
+
+  QVERIFY( watershedDelineating.validateWatershed( needAdjusting ) );
+  QVERIFY( !needAdjusting );
+  ReosWatershed *watershed2 = watershedDelineating.storeWatershed( true );
+
+  QCOMPARE( watershedStore.watershedCount(), 3 );
+  treeExtent = watershedStore.polygonWatershed()->extent( layerCrs );
+
+  QVERIFY( equal( treeExtent.xMapMin(), 653025.0452307789, 0.0001 ) );
+  QVERIFY( equal( treeExtent.xMapMax(), 783478.176131115, 0.0001 ) );
+  QVERIFY( equal( treeExtent.yMapMin(), 6383262.880995015, 0.0001 ) );
+  QVERIFY( equal( treeExtent.yMapMax(), 6594714.022189561, 0.0001 ) );
 }
 
 void ReosWatersehdTest::runoffhydrograph()
