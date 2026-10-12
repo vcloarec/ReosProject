@@ -1,0 +1,89 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reoslandusedata.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+class ReosLandUseDataProvider : ReosDataProvider
+{
+  public:
+%Docstring(signature="appended")
+*************************************************************************
+reoslandusedata.h - ReosLandUseData
+
+---------------------
+  begin                : 9.2.2021
+  copyright            : (C) 2021 by Vincent Cloarec
+  email                : vcloarec at gmail dot com
+  **************************************************************************
+
+This program is free software; you can redistribute it and/or modify  *
+it under the terms of the GNU General Public License as published by  *
+the Free Software Foundation; either version 2 of the License, or     *
+(at your option) any later version.                                   *
+
+**************************************************************************
+%End
+
+%TypeHeaderCode
+#include "reoslandusedata.h"
+%End
+  public:
+    explicit ReosLandUseDataProvider();
+    ~ReosLandUseDataProvider();
+
+    QString dataSource() const;
+    void setDataSource( const QString &uri );
+
+    virtual const QVector<int> data() const = 0;
+    virtual ReosRasterExtent extent() const = 0;
+    virtual const QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const = 0;
+
+};
+
+
+class ReosLandUseData : ReosDataObject
+{
+  public:
+
+%TypeHeaderCode
+#include "reoslandusedata.h"
+%End
+  public:
+    explicit ReosLandUseData( const QString &dataSource, const QString &providerKey, QObject *parent = 0 );
+    static QString staticType();
+
+    QVector<int> data() const;
+
+    QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+    ReosRasterMemory<int> rasterData( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+
+    ReosRasterExtent extent() const;
+
+};
+
+class ReosLandUseDataOnWatershed
+{
+  public:
+
+%TypeHeaderCode
+#include "reoslandusedata.h"
+%End
+  public:
+    ReosLandUseDataOnWatershed( ReosLandUseData *landUseData, ReosWatershed *watershed );
+    QMap<int, double> landUseDistribution() const;
+
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/data/reoslandusedata.h                                      *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/

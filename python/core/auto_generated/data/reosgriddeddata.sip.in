@@ -194,6 +194,22 @@ Calculates all values directly.
 };
 
 
+class ReosDistributedArea
+{
+  public:
+
+%TypeHeaderCode
+#include "reosgriddeddata.h"
+%End
+  public:
+    ReosDistributedArea( const QString &filePath );
+    bool isValid() const;
+
+    ReosRasterMemory<unsigned char> areaDistributionGrid( const ReosRasterExtent &extent, int areaCount ) const;
+
+};
+
+
 /************************************************************************
  * This file has been generated automatically from                      *
  *                                                                      *

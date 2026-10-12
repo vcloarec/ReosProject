@@ -11,6 +11,7 @@
 %Include auto_generated/GIS/reosrenderedobject.sip
 %Include auto_generated/process/reosprocess.sip
 %Include auto_generated/raster/reosrastercompressed.sip
+%Include auto_generated/raster/reosrasterdistancearea.sip
 %Include auto_generated/watershed/reoswatershed.sip
 %Include auto_generated/watershed/reoswatersheddelineating.sip
 %Include auto_generated/watershed/reoswatershedtree.sip
@@ -24,6 +25,7 @@
 %Include auto_generated/data/reosdataprovider.sip
 %Include auto_generated/data/reosgriddeddata.sip
 %Include auto_generated/data/reosdataupdater.sip
+%Include auto_generated/data/reoslandusedata.sip
 %Include auto_generated/hydrograph/reoshydrograph.sip
 %Include auto_generated/hydrograph/reoshydrographsource.sip
 %Include auto_generated/hydraulicNetwork/reoshydraulicscheme.sip
