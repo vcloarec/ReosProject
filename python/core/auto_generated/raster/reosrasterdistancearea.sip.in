@@ -1,0 +1,54 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/raster/reosrasterdistancearea.h                             *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
+
+
+
+class ReosRasterDistanceArea
+{
+  public:
+%Docstring(signature="appended")
+Class use to adjust the distance or the area depending on the position of the cell in the raster and on the CRS of the raster.
+%End
+
+%TypeHeaderCode
+#include "reosrasterdistancearea.h"
+%End
+  public:
+    ReosRasterDistanceArea();
+%Docstring
+Constructs an invalid ReosRasterDistanceArea instance.
+%End
+    ReosRasterDistanceArea( const ReosRasterExtent &extent, int reductionFactor = 10 );
+%Docstring
+Constructs a ReosRasterDistanceArea object with the given ``extent`` and reduction factor ``reductionFactor``
+%End
+
+    void adjustDistance( float &xDistance, float &yDistance, int row, int col ) const;
+%Docstring
+Adjusts the distance values ``xDistance`` and ``yDistance`` based on the position of the cell at ``row`` and ``col`` in the raster.
+%End
+
+    float areaFactor( int row, int col ) const;
+%Docstring
+Returns the area factor for the cell at ``row`` and ``col`` in the raster.
+%End
+
+    bool isValid() const;
+%Docstring
+Returns whether the ReosRasterDistanceArea instance is valid.
+%End
+
+};
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/raster/reosrasterdistancearea.h                             *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.pl again   *
+ ************************************************************************/
