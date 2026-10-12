@@ -16,9 +16,11 @@
 
 #include "reoscdslccprovider.h"
 
+#include "reosduration.h"
 #include "reosnetcdfutils.h"
 #include "reosgisengine.h"
 #include "reosgeometryutils.h"
+#include <QTimeZone>
 
 REOSEXTERN ReosDataProviderFactory *providerFactory()
 {
@@ -67,6 +69,11 @@ const QVector<int> ReosCdslccProvider::data( const ReosMapExtent &requestedExent
 ReosRasterExtent ReosCdslccProvider::extent() const
 {
   return mExtent;
+}
+
+ReosTimeWindow ReosCdslccProvider::timeWindow() const
+{
+  return ReosTimeWindow(mStart, mEnd);
 }
 
 bool ReosCdslccProvider::canReadUri( const QString &uri ) const
@@ -123,6 +130,15 @@ void ReosCdslccProvider::load()
 
   QString wktCrs = mFile->stringAttributeValue( QStringLiteral( "crs" ), QStringLiteral( "wkt" ) );
   mExtent.setCrs( wktCrs );
+
+  QString startStr = mFile->globalStringAttributeValue( QStringLiteral( "time_coverage_start" ) );
+  // format date is "yyyyMMdd", for example "20220101"
+  mStart = QDateTime::fromString( startStr, QStringLiteral("yyyyMMdd") );
+  mStart.setTimeZone(QTimeZone::utc());
+  QString endStr = mFile->globalStringAttributeValue( QStringLiteral( "time_coverage_end" ) );
+  mEnd = QDateTime::fromString( endStr, QStringLiteral("yyyyMMdd") );
+  mEnd.setTime(QTime(23,59,59));
+  mEnd.setTimeZone(QTimeZone::utc());
 }
 
 ReosCdslccProvider *ReosCdslccProviderFactory::createProvider( const QString &dataType ) const

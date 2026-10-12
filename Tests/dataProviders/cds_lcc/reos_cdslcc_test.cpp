@@ -53,6 +53,9 @@ void ReosCdslccTest::createLandUseData()
   QVERIFY( equal( extent.xCellSize(), 0.002777777777, 0.00001 ) );
   QVERIFY( equal( extent.yCellSize(), -0.002777777777, 0.00001 ) );
 
+  QCOMPARE( landUseData.timeWindow().start(), QDateTime::fromString( "2022-01-01T00:00:00", Qt::ISODate ) );
+  QCOMPARE( landUseData.timeWindow().end(), QDateTime::fromString( "2022-12-31T23:59:59", Qt::ISODate ) );
+
   QVERIFY( !extent.crs().isEmpty() );
   QVector<int> data = landUseData.data();
 

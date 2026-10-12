@@ -17,8 +17,11 @@
 #ifndef REOSCDSLCCPROVIDER_H
 #define REOSCDSLCCPROVIDER_H
 
+#include <QDateTime>
 #include "reoslandusedata.h"
 #include "reosdataprovider.h"
+
+
 
 class ReosNetCdfFile;
 
@@ -35,6 +38,7 @@ class ReosCdslccProvider : public ReosLandUseDataProvider
     const QVector<int> data() const override;
     const QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const override;
     ReosRasterExtent extent() const override;
+    ReosTimeWindow timeWindow() const override;
     bool canReadUri( const QString &uri ) const override;
 
     static QString dataType() { return ReosLandUseData::staticType(); }
@@ -46,6 +50,8 @@ class ReosCdslccProvider : public ReosLandUseDataProvider
   private:
     std::unique_ptr<ReosNetCdfFile> mFile;
     ReosRasterExtent mExtent;
+    QDateTime mStart;
+    QDateTime mEnd;
 };
 
 

@@ -101,6 +101,7 @@ done:
 %Feature VECTOR_MAPPED_TYPE
 
 %Include std.sip
+%Include conversions.sip
 
 
 %Include core_auto.sip

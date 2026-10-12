@@ -18,10 +18,12 @@
 
 #include "reosdataprovider.h"
 #include "reosmemoryraster.h"
+#include "reosduration.h"
 #include "reosdataobject.h"
 
 class ReosWatershed;
 
+#ifndef SIP_RUN
 class REOSCORE_EXPORT ReosLandUseDataProvider : public ReosDataProvider
 {
     Q_OBJECT
@@ -36,9 +38,12 @@ class REOSCORE_EXPORT ReosLandUseDataProvider : public ReosDataProvider
     virtual ReosRasterExtent extent() const = 0;
     virtual const QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const = 0;
 
+    virtual ReosTimeWindow timeWindow() const = 0;
+
   private:
     QString mDataSource;
 };
+#endif // SIP_RUN
 
 
 class REOSCORE_EXPORT ReosLandUseData : public ReosDataObject
@@ -49,11 +54,12 @@ class REOSCORE_EXPORT ReosLandUseData : public ReosDataObject
     static QString staticType();
 
     QVector<int> data() const;
-
     QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
-    ReosRasterMemory<int> rasterData( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+
+    ReosRasterMemory<int> rasterData( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const SIP_SKIP; 
 
     ReosRasterExtent extent() const;
+    ReosTimeWindow timeWindow() const;
 
   private:
     std::unique_ptr<ReosLandUseDataProvider> mProvider;

@@ -89,6 +89,14 @@ ReosRasterExtent ReosLandUseData::extent() const
   return mProvider->extent();
 }
 
+ReosTimeWindow ReosLandUseData::timeWindow() const
+{
+  if ( !mProvider )
+    return ReosTimeWindow();
+
+  return mProvider->timeWindow();
+}
+
 ReosLandUseDataOnWatershed::ReosLandUseDataOnWatershed( ReosLandUseData *landUseData, ReosWatershed *watershed )
   : mLandUseData( landUseData )
   , mWatershed( watershed )

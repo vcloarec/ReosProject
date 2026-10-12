@@ -21,7 +21,6 @@
 #include "reosduration.h"
 #include "reostimeseries.h"
 #include "reos_sip.h"
-#include "reosgdalutils.h"
 
 
 class ReosWatershed;
@@ -246,16 +245,17 @@ class REOSCORE_EXPORT ReosSeriesFromGriddedDataOnWatershed : public ReosTimeSeri
 };
 
 
+
 class REOSCORE_EXPORT ReosDistributedArea
 {
   public:
     ReosDistributedArea( const QString &filePath );
     bool isValid() const;
 
-    ReosRasterMemory<unsigned char> areaDistributionGrid( const ReosRasterExtent &extent, int areaCount ) const;
+    ReosRasterMemory<unsigned char> areaDistributionGrid( const ReosRasterExtent &extent, int areaCount ) const SIP_SKIP;
 
   private:
-    const QString mFilePath;
+    QString mFilePath;
 };
 
 
