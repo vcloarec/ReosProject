@@ -22,7 +22,7 @@ class ReosLandUseData : ReosDataObject
     static QString staticType();
 
     QVector<int> data() const;
-    QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+    QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent /Out/ ) const;
 
 
     ReosRasterExtent extent() const;

@@ -16,6 +16,7 @@
 #ifndef REOSLANDUSEDATA_H
 #define REOSLANDUSEDATA_H
 
+#include "reos_sip.h"
 #include "reosdataprovider.h"
 #include "reosmemoryraster.h"
 #include "reosduration.h"
@@ -54,7 +55,7 @@ class REOSCORE_EXPORT ReosLandUseData : public ReosDataObject
     static QString staticType();
 
     QVector<int> data() const;
-    QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const;
+    QVector<int> data( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent SIP_OUT ) const;
 
     ReosRasterMemory<int> rasterData( const ReosMapExtent &requestedExent, ReosRasterExtent &outputExent ) const SIP_SKIP; 
 
