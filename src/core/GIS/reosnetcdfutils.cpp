@@ -16,6 +16,8 @@
 #include "reosnetcdfutils.h"
 
 #include <limits>
+#include <algorithm>
+#include <vector>
 #include <netcdf.h>
 #include <QVector>
 #include <iostream>
@@ -54,6 +56,37 @@ static std::string utf8ToWin32Recode( const std::string &utf8String )
 }
 #endif
 
+static QString readStringAttribute( int ncId, int varId, const char *attName )
+{
+  nc_type type;
+  size_t size = 0;
+  if ( nc_inq_att( ncId, varId, attName, &type, &size ) != NC_NOERR || size == 0 )
+    return QString();
+
+  if ( type == NC_CHAR )
+  {
+    // NC_CHAR attributes are not guaranteed to be null terminated
+    std::vector<char> buffer( size );
+    if ( nc_get_att_text( ncId, varId, attName, buffer.data() ) != NC_NOERR )
+      return QString();
+    const std::vector<char>::const_iterator end = std::find( buffer.begin(), buffer.end(), '\0' );
+    return QString::fromUtf8( buffer.data(), static_cast<int>( end - buffer.begin() ) );
+  }
+
+  if ( type == NC_STRING )
+  {
+    // for NC_STRING, size is the number of strings
+    std::vector<char *> strings( size, nullptr );
+    if ( nc_get_att_string( ncId, varId, attName, strings.data() ) != NC_NOERR )
+      return QString();
+    QString ret = QString::fromUtf8( strings.at( 0 ) );
+    nc_free_string( size, strings.data() );
+    return ret;
+  }
+
+  return QString();
+}
+
 static std::string systemFileName( const QString &utf8FileName )
 {
   std::string ret;
@@ -91,14 +124,9 @@ ReosNetCdfFile::ReosNetCdfFile( const QString &fileName, bool write )
 
   for ( int varId : std::as_const( varIds ) )
   {
-    size_t attlen = 0;
-    if ( nc_inq_attlen( mNcId, varId, "long_name", &attlen ) )
-      continue;
-    std::string lg;
-    lg.resize( attlen );
-    res = nc_get_att_text( mNcId, varId, "long_name", lg.data() );
-    if ( res == NC_NOERR )
-      mVarLongNameToVarId.insert( QString::fromStdString( lg ), varId );
+    const QString longName = readStringAttribute( mNcId, varId, "long_name" );
+    if ( !longName.isEmpty() )
+      mVarLongNameToVarId.insert( longName, varId );
   }
 }
 
@@ -191,17 +219,7 @@ double ReosNetCdfFile::globalDoubleAttributeValue( const QString &attribureName 
 
 QString ReosNetCdfFile::globalStringAttributeValue( const QString &attribureName ) const
 {
-  size_t len = 0;
-  int res = nc_inq_attlen( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), &len );
-  if ( res != NC_NOERR )
-    return QString();
-  std::vector<char> retStr( len + 1 );
-  res = nc_get_att_text( mNcId, NC_GLOBAL, attribureName.toUtf8().constData(), retStr.data() );
-  retStr[len] = '\0';
-  if ( res != NC_NOERR )
-    return QString();
-
-  return QString( reinterpret_cast<char *>( retStr.data() ) );
+  return readStringAttribute( mNcId, NC_GLOBAL, attribureName.toUtf8().constData() );
 }
 
 double ReosNetCdfFile::doubleAttributeValue( const QString &variableName, const QString &attributeName ) const
@@ -229,37 +247,7 @@ QString ReosNetCdfFile::stringAttributeValue( const QString &variableName, const
   auto it = mVarNameToVarId.constFind( variableName );
   if ( it == mVarNameToVarId.constEnd() )
     return QString();
-  int varId = it.value();
-
-  const QByteArray attName = attributeName.toUtf8();
-
-  nc_type type;
-  size_t size = 0;
-  if ( nc_inq_att( mNcId, varId, attName.constData(), &type, &size ) != NC_NOERR || size == 0 )
-    return QString();
-
-  if ( type == NC_CHAR )
-  {
-    // NC_CHAR attributes are not guaranteed to be null terminated
-    std::vector<char> buffer( size );
-    if ( nc_get_att_text( mNcId, varId, attName.constData(), buffer.data() ) != NC_NOERR )
-      return QString();
-    const std::vector<char>::const_iterator end = std::find( buffer.begin(), buffer.end(), '\0' );
-    return QString::fromUtf8( buffer.data(), static_cast<int>( end - buffer.begin() ) );
-  }
-
-  if ( type == NC_STRING )
-  {
-    // for NC_STRING, size is the number of strings
-    std::vector<char *> strings( size, nullptr );
-    if ( nc_get_att_string( mNcId, varId, attName.constData(), strings.data() ) != NC_NOERR )
-      return QString();
-    QString ret = QString::fromUtf8( strings.at( 0 ) );
-    nc_free_string( size, strings.data() );
-    return ret;
-  }
-
-  return QString();
+  return readStringAttribute( mNcId, it.value(), attributeName.toUtf8().constData() );
 }
 
 QVector<qint64> ReosNetCdfFile::getInt64Array( const QString &variableName, int size )
