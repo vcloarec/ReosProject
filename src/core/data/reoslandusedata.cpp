@@ -15,6 +15,9 @@
  ***************************************************************************/
 
  #include <QVector>
+#include <qdebug.h>
+#include <qglobal.h>
+#include <qstringliteral.h>
 
 #include "reoslandusedata.h"
 
@@ -177,12 +180,17 @@ QVector<QMap<int, double>> ReosLandUseDataOnWatershed::landUseDistributionByArea
   QVector<double> cellAreas = rasterizedWatershed.values();
   QVector<unsigned char> areaClassValues = areaClassGrid.values();
 
+  qDebug()<<"Checking raster sizes...";
+  qDebug()<< "Land use raster size: " << landUseRaster.rowCount() << "x" << landUseRaster.columnCount();
+  qDebug()<< "Area class raster size: " << areaClassGrid.rowCount() << "x" << areaClassGrid.columnCount();
+  qDebug()<< "Rasterized watershed size: " << rasterizedWatershed.rowCount() << "x" << rasterizedWatershed.columnCount();
+
   QVector<double> totalArea( classCount, 0 );
   for ( qsizetype i = 0; i < landUseValues.size(); ++i )
   {
     int landUseValue = landUseValues.at( i );
     double cellArea = cellAreas.at( i );
-    if ( cellArea > 0 )
+    if ( cellArea > 0 && areaClassValues.at(i) < classCount )
     {
       distributions[areaClassValues.at(i)][landUseValue] += cellArea;
       totalArea[areaClassValues.at(i)] += cellArea;
