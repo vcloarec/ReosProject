@@ -149,6 +149,7 @@ QMap<int, double> ReosLandUseDataOnWatershed::landUseDistribution() const
 
 QVector<QMap<int, double>> ReosLandUseDataOnWatershed::landUseDistributionByArea(const QString &areaClassRasterFile , int classCount) const
 {
+  QVector<QMap<int, double>> distributions;
   ReosMapExtent watershedExtent( mWatershed->delineating(), mWatershed->crs() );
 
   ReosRasterExtent landUseExtent;
@@ -158,18 +159,19 @@ QVector<QMap<int, double>> ReosLandUseDataOnWatershed::landUseDistributionByArea
   int yOri = -1;
   ReosRasterExtent rasterizedExtent;
   ReosRasterMemory<double> rasterizedWatershed = ReosGeometryUtils::rasterizePolygon( mWatershed->delineating(), landUseExtent, rasterizedExtent, xOri, yOri, true );
+  qDebug() << "Watershed rasterized.";  
 
   Q_ASSERT( landUseRaster.rowCount() == rasterizedWatershed.rowCount() && landUseRaster.columnCount() == rasterizedWatershed.columnCount() );
 
+  qDebug() << "Use area distribution by area class using raster file: " << areaClassRasterFile;
   ReosDistributedArea areaClass(areaClassRasterFile);
   if (areaClass.isValid() == false)
-    return QVector<QMap<int, double>>();
+    return distributions;
 
+  qDebug() << QStringLiteral("Simplify area grid to get %1 classes.").arg( classCount ) << areaClassRasterFile;
   ReosRasterMemory<unsigned char> areaClassGrid = areaClass.areaDistributionGrid(rasterizedExtent,classCount);
 
-  QVector<QMap<int, double>> distributions;
   distributions.resize( classCount );
-
 
   QVector<int> landUseValues = landUseRaster.values();
   QVector<double> cellAreas = rasterizedWatershed.values();
