@@ -73,6 +73,7 @@ class REOSCORE_EXPORT ReosLandUseDataOnWatershed
   public:
     ReosLandUseDataOnWatershed( ReosLandUseData *landUseData, ReosWatershed *watershed );
     QMap<int, double> landUseDistribution() const;
+    QVector<QMap<int, double>> landUseDistributionByArea(const QString &areaClassRasterFile , int extraClassCount) const;
 
   private:
     ReosLandUseData *mLandUseData;

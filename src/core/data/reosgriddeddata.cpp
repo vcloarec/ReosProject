@@ -705,12 +705,13 @@ ReosRasterMemory<unsigned char> ReosDistributedArea::areaDistributionGrid( const
   QVector<unsigned char> distrValues = ret.values();
 
   int div = static_cast<int>( std::round( 256 / areaCount ) );
-
   for ( int i = 0; i < distrValues.count(); ++i )
+  {
     if ( distrValues.at( i ) == 0 )
       distrValues[i] = areaCount; //we don't want values when area is classified as 0 (no data value)
     else
       distrValues[i] = static_cast<unsigned char>( std::floor( distrValues.at( i ) / div ) );
+}
 
   ret.setValues( distrValues );
 

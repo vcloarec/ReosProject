@@ -14,9 +14,11 @@
  *                                                                         *
  ***************************************************************************/
 
+ #include <QVector>
 
 #include "reoslandusedata.h"
 
+#include "reosgdalutils.h"
 #include "reosgeometryutils.h"
 #include "reoswatershed.h"
 
@@ -143,4 +145,59 @@ QMap<int, double> ReosLandUseDataOnWatershed::landUseDistribution() const
   }
 
   return distribution;
+}
+
+QVector<QMap<int, double>> ReosLandUseDataOnWatershed::landUseDistributionByArea(const QString &areaClassRasterFile , int classCount) const
+{
+  ReosMapExtent watershedExtent( mWatershed->delineating(), mWatershed->crs() );
+
+  ReosRasterExtent landUseExtent;
+  ReosRasterMemory<int> landUseRaster = mLandUseData->rasterData( watershedExtent, landUseExtent );
+
+  int xOri = -1;
+  int yOri = -1;
+  ReosRasterExtent rasterizedExtent;
+  ReosRasterMemory<double> rasterizedWatershed = ReosGeometryUtils::rasterizePolygon( mWatershed->delineating(), landUseExtent, rasterizedExtent, xOri, yOri, true );
+
+  Q_ASSERT( landUseRaster.rowCount() == rasterizedWatershed.rowCount() && landUseRaster.columnCount() == rasterizedWatershed.columnCount() );
+
+  ReosDistributedArea areaClass(areaClassRasterFile);
+  if (areaClass.isValid() == false)
+    return QVector<QMap<int, double>>();
+
+  ReosRasterMemory<unsigned char> areaClassGrid = areaClass.areaDistributionGrid(rasterizedExtent,classCount);
+
+  QVector<QMap<int, double>> distributions;
+  distributions.resize( classCount );
+
+
+  QVector<int> landUseValues = landUseRaster.values();
+  QVector<double> cellAreas = rasterizedWatershed.values();
+  QVector<unsigned char> areaClassValues = areaClassGrid.values();
+
+  QVector<double> totalArea( classCount, 0 );
+  for ( qsizetype i = 0; i < landUseValues.size(); ++i )
+  {
+    int landUseValue = landUseValues.at( i );
+    double cellArea = cellAreas.at( i );
+    if ( cellArea > 0 )
+    {
+      distributions[areaClassValues.at(i)][landUseValue] += cellArea;
+      totalArea[areaClassValues.at(i)] += cellArea;
+    }
+  }
+
+  for ( int i = 0; i < distributions.size(); ++i )
+  {
+    QMap<int, double> &distribution = distributions[i];
+    for ( int j = 0; j < distribution.size(); ++j )
+    {
+      int landUseValue = distribution.keys().at( j );
+      double area = distribution.value( landUseValue );
+
+      distribution[landUseValue] = area / totalArea[i];
+    }
+  }
+
+  return distributions;
 }

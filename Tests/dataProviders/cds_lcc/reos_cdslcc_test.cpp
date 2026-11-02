@@ -31,6 +31,8 @@ class ReosCdslccTest : public QObject
     void createProvider();
     void createLandUseData();
 
+    void landUsedClassified();
+
   private:
     ReosModule mRootModule;
     ReosGisEngine *mGisEngine = nullptr;

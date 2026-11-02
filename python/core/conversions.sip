@@ -69,3 +69,74 @@
   return sipGetState( sipTransferObj );
 %End
 };
+
+%MappedType QVector<QMap<int, double>>
+{
+%TypeHeaderCode
+#include <QVector>
+#include <QMap>
+%End
+
+%ConvertFromTypeCode
+  const sipTypeDef *mapType = sipFindType( "QMap<int, double>" );
+
+  PyObject *l = PyList_New( sipCpp->size() );
+  if ( !l )
+    return NULL;
+
+  for ( int i = 0; i < sipCpp->size(); ++i )
+  {
+    QMap<int, double> *m = new QMap<int, double>( sipCpp->at( i ) );
+    PyObject *pm = sipConvertFromNewType( m, mapType, sipTransferObj );
+    if ( !pm )
+    {
+      delete m;
+      Py_DECREF( l );
+      return NULL;
+    }
+    PyList_SET_ITEM( l, i, pm );
+  }
+
+  return l;
+%End
+
+%ConvertToTypeCode
+  const sipTypeDef *mapType = sipFindType( "QMap<int, double>" );
+
+  if ( sipIsErr == NULL )
+  {
+    if ( !PyList_Check( sipPy ) )
+      return 0;
+
+    for ( Py_ssize_t i = 0; i < PyList_GET_SIZE( sipPy ); ++i )
+    {
+      if ( !sipCanConvertToType( PyList_GET_ITEM( sipPy, i ), mapType, SIP_NOT_NONE ) )
+        return 0;
+    }
+    return 1;
+  }
+
+  QVector<QMap<int, double>> *qv = new QVector<QMap<int, double>>;
+  qv->reserve( static_cast<int>( PyList_GET_SIZE( sipPy ) ) );
+
+  for ( Py_ssize_t i = 0; i < PyList_GET_SIZE( sipPy ); ++i )
+  {
+    int state;
+    QMap<int, double> *m = reinterpret_cast<QMap<int, double> *>(
+                             sipConvertToType( PyList_GET_ITEM( sipPy, i ), mapType, sipTransferObj, SIP_NOT_NONE, &state, sipIsErr ) );
+
+    if ( *sipIsErr )
+    {
+      sipReleaseType( m, mapType, state );
+      delete qv;
+      return 0;
+    }
+
+    qv->append( *m );
+    sipReleaseType( m, mapType, state );
+  }
+
+  *sipCppPtr = qv;
+  return sipGetState( sipTransferObj );
+%End
+};
