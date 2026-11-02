@@ -123,6 +123,36 @@ void ReosCdslccTest::createLandUseData()
     sum += it.value();
   QVERIFY( equal( sum, 1.0, 0.001 ) );
 }
+void ReosCdslccTest::landUsedClassified()
+{
+  ReosLandUseData landUseData( testFile( "/cdslcc/finistere.nc" ), "cdslcc" );
+
+QPolygonF poly_4326(
+    { QPointF( -3.84144997523527909, 48.55008770843649302 ),
+      QPointF( -3.84361688954929814, 48.4746790903087188 ),
+      QPointF( -3.69843363051016993, 48.49548146772330171 ),
+      QPointF( -3.70666790490343834, 48.55875536569259765 ) }
+  );
+  ReosWatershed watershed( poly_4326, QPointF(), ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  ReosLandUseDataOnWatershed landUseOnWatershed( &landUseData, &watershed );
+
+  QVector<QMap<int, double>> distribution = landUseOnWatershed.landUseDistributionByArea(testFile( "/cdslcc/morlaix_area_distr.tiff" ),6);
+
+  //check the sum of all the value of distribution
+  QCOMPARE( distribution.size(), 6 );
+
+  for ( auto it = distribution.begin(); it != distribution.end(); ++it )
+  {
+    double sum = 0;
+    if (it->isEmpty())
+      continue;
+    for ( auto innerIt = it->begin(); innerIt != it->end(); ++innerIt )
+      sum += innerIt.value();
+    QVERIFY( equal( sum, 1.0, 0.001 ) );
+  } 
+  
+}
 
 
 QTEST_MAIN( ReosCdslccTest )
