@@ -12,9 +12,10 @@ email                : vcloarec at gmail dot com
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <QtTest/QtTest>
+#include <QtTest>
 #include <QObject>
 #include <QPolygonF>
+#include <QPointF>
 
 #include "reos_testutils.h"
 #include "reosgisengine.h"
@@ -32,6 +33,8 @@ class ReosCdslccTest : public QObject
     void createLandUseData();
 
     void landUsedClassified();
+
+    void landUseClassifiedDataOnOverlappingPolygon();
 
   private:
     ReosModule mRootModule;
@@ -153,6 +156,41 @@ QPolygonF poly_4326(
   } 
   
 }
+
+void ReosCdslccTest::landUseClassifiedDataOnOverlappingPolygon()
+{
+  ReosLandUseData landUseData( testFile( "/cdslcc/finistere.nc" ), "cdslcc" );
+
+  QPolygonF overlappingPoly(
+    { QPointF(-3.8872053941118816, 48.52095596478442019),
+      QPointF(-3.82564508173136897, 48.52698284851398114),
+      QPointF(-3.81186934749237327, 48.50158383851083244),
+      QPointF(-3.80885590562759324, 48.46068712748881069),
+      QPointF(-3.8734296598728859, 48.45035532680956436),
+      QPointF(-3.88935785258672473, 48.4537992603693155),
+      QPointF(-3.8872053941118816, 48.52095596478442019) }
+  );
+
+  ReosWatershed watershed( overlappingPoly, QPointF(), ReosGisEngine::crsFromEPSG( 4326 ) );
+
+  ReosLandUseDataOnWatershed landUseOnWatershed( &landUseData, &watershed );
+
+  QVector<QMap<int, double>> distribution = landUseOnWatershed.landUseDistributionByArea(testFile( "/cdslcc/morlaix_area_distr.tiff" ),6);
+
+  //check the sum of all the values of distribution
+  QCOMPARE( distribution.size(), 6 );
+
+  for ( auto it = distribution.begin(); it != distribution.end(); ++it )
+  {
+    double sum = 0;
+    if (it->isEmpty())
+      continue;
+    for ( auto innerIt = it->begin(); innerIt != it->end(); ++innerIt )
+      sum += innerIt.value();
+    QVERIFY( equal( sum, 1.0, 0.001 ) );
+  } 
+}
+
 
 
 QTEST_MAIN( ReosCdslccTest )
