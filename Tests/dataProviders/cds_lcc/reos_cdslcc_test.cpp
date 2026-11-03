@@ -142,7 +142,7 @@ QPolygonF poly_4326(
 
   QVector<QMap<int, double>> distribution = landUseOnWatershed.landUseDistributionByArea(testFile( "/cdslcc/morlaix_area_distr.tiff" ),6);
 
-  //check the sum of all the value of distribution
+  //check the sum of all the values of distribution
   QCOMPARE( distribution.size(), 6 );
 
   for ( auto it = distribution.begin(); it != distribution.end(); ++it )
