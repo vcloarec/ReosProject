@@ -66,8 +66,8 @@ TEST_F( ReosRasterWatershedTest, RasterFilling )
   ReosRasterMemory<float> returnDem;
   returnDem = rasterFilling->filledDEM();
   EXPECT_TRUE( testFilledDem == returnDem );
-
-  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionCal = std::make_unique<ReosRasterWatershedDirectionCalculation>( rasterFilling->filledDEM() );
+  ReosRasterDistanceArea distanceArea;
+  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionCal = std::make_unique<ReosRasterWatershedDirectionCalculation>( rasterFilling->filledDEM(), distanceArea );
   directionCal->start();
 
   ReosRasterMemory<unsigned char> testFilledDemDir;
@@ -93,7 +93,8 @@ TEST_F( ReosRasterWatershedTest, PlanDEM_1 )
   rasterFilling->start();
   EXPECT_TRUE( rasterFilling->isSuccessful() );
 
-  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionCalculation = std::make_unique<ReosRasterWatershedDirectionCalculation>( rasterFilling->filledDEM() );
+  ReosRasterDistanceArea distanceArea;
+  std::unique_ptr<ReosRasterWatershedDirectionCalculation> directionCalculation = std::make_unique<ReosRasterWatershedDirectionCalculation>( rasterFilling->filledDEM(), distanceArea );
   directionCalculation->start();
   ReosRasterMemory<unsigned char> direction = directionCalculation->directions();
 
@@ -114,7 +115,8 @@ TEST_F( ReosRasterWatershedTest, Delineate )
   downStreamLine.addPoint( 2, 4 );
   downStreamLine.addPoint( 2, 9 );
 
-  ReosRasterWatershedFromDirectionAndDownStreamLine watershedDelineate( directions, downStreamLine );
+  ReosRasterDistanceArea distanceArea;
+  ReosRasterWatershedFromDirectionAndDownStreamLine watershedDelineate( directions, downStreamLine, distanceArea );
 
   watershedDelineate.start();
 

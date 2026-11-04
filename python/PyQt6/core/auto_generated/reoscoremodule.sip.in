@@ -1,0 +1,65 @@
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reoscoremodule.h                                            *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/
+
+
+
+
+class ReosCoreModule : ReosModule
+{
+%Docstring(signature="appended")
+Main module that owns the core project modules.
+%End
+
+%TypeHeaderCode
+#include "reoscoremodule.h"
+%End
+  public:
+    ReosCoreModule( QObject *parent = 0 );
+%Docstring
+Constructor
+%End
+
+    ReosGisEngine *gisEngine() const;
+%Docstring
+Returns a pointer to the GIS engine
+%End
+
+    bool openProject( const QString &filePath );
+%Docstring
+Opens a project with file path ``filePath``
+%End
+
+    bool saveProject( const QString &filePath );
+%Docstring
+Saves project with a file path ``filePath``
+%End
+
+    void clearProject();
+%Docstring
+Clears all data on the current project
+%End
+
+    ReosHydraulicNetwork *hydraulicNetwork() const;
+%Docstring
+Returns a pointer to the hydraulic network module
+%End
+
+    ReosWatershedModule *watershedModule() const;
+%Docstring
+Returns a pointer to the watersehd module
+%End
+};
+
+
+/************************************************************************
+ * This file has been generated automatically from                      *
+ *                                                                      *
+ * src/core/reoscoremodule.h                                            *
+ *                                                                      *
+ * Do not edit manually ! Edit header and run scripts/sipify.py again   *
+ ************************************************************************/

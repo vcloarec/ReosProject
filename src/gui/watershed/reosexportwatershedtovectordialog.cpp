@@ -88,7 +88,7 @@ void ReosExportWatershedToVectorDialog::accept()
       attributes[tr( "Length" )] = ws->longestPathParameter()->value();
       attributes[tr( "Slope" )] = ws->slopeParameter()->value();
       attributes[tr( "Drop" )] = ws->dropParameter()->value();
-      exportToFile.addPolyline( ws->streamPath(), attributes );
+      exportToFile.addPolyline( ws->streamPath( mCrs ), attributes );
     }
   }
 

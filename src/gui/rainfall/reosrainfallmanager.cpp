@@ -63,6 +63,7 @@ class ReosStationMapMarker : public ReosMapMarkerSvg
       setDescription( staticDescritpion() );
     }
 
+
     ReosStationItem *item = nullptr;
 
     static QString staticDescritpion() { return QStringLiteral( "rainfall-station" ); }
@@ -717,7 +718,7 @@ ReosSpatialStationWidgetToolbar::ReosSpatialStationWidgetToolbar( ReosMap *map, 
   mMovePositionTool->setCurrentMapItem( marker );
 
   connect( mMovePositionTool, &ReosMapToolMoveMapItem::itemMoved, this, [map, this]( ReosMapItem *item ) {
-    ReosSpatialPosition position( static_cast<ReosMapMarker *>( item )->mapPoint(), map->engine()->crs() );
+    ReosSpatialPosition position( static_cast<ReosMapMarker *>( item )->position() );
     emit movePosition( position );
   } );
 

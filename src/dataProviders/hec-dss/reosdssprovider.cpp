@@ -200,7 +200,7 @@ void ReosDssProviderTimeSerieConstantTimeStep::setValue( int index, double value
 void ReosDssProviderTimeSerieConstantTimeStep::removeValues( int from, int count )
 {
   mDirty = true;
-  int maxCount = std::min( count, mValues.count() - from );
+  int maxCount = std::min( count, static_cast<int>( mValues.count() ) - from );
   QVector<double>::iterator itStart = mValues.begin() + from;
   QVector<double>::iterator itEnd = itStart + maxCount;
   mValues.erase( itStart, itEnd );

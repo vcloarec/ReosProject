@@ -1,5 +1,5 @@
 /***************************************************************************
-  reospolygonstructure_p.cpp - ReosPolygonStructure_p
+  reospolygonstructure_p.cpp - ReosPolygonsClassified_p
 
  ---------------------
  begin                : 5.2.2022
@@ -27,14 +27,14 @@
 
 #include "reosstyleregistery.h"
 
-ReosPolygonStructure_p::ReosPolygonStructure_p( const QString &wktCrs )
-  : ReosGeometryStructure_p( QStringLiteral( "Polygon" ), wktCrs )
+ReosPolygonsClassified_p::ReosPolygonsClassified_p( const QString &wktCrs )
+  : ReosGeometryComplex_p( QStringLiteral( "Polygon" ), wktCrs )
 {
   init();
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosPolygonStructure_p::ReosPolygonStructure_p( const ReosEncodedElement &element )
+ReosPolygonsClassified_p::ReosPolygonsClassified_p( const ReosEncodedElement &element )
 {
   if ( element.description() != QStringLiteral( "polygon-structure" ) )
     return;
@@ -72,7 +72,7 @@ ReosPolygonStructure_p::ReosPolygonStructure_p( const ReosEncodedElement &elemen
 }
 
 
-void ReosPolygonStructure_p::init()
+void ReosPolygonsClassified_p::init()
 {
   mVectorLayer->startEditing();
   mVectorLayer->extent();
@@ -91,7 +91,12 @@ void ReosPolygonStructure_p::init()
   connect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosEncodedElement ReosPolygonStructure_p::encode() const
+VertexS ReosPolygonsClassified_p::searchForVertexPrivate( QgsFeatureIterator &it, const QgsRectangle &rect ) const
+{
+  return nullptr;
+}
+
+ReosEncodedElement ReosPolygonsClassified_p::encode() const
 {
   ReosEncodedElement element( QStringLiteral( "polygon-structure" ) );
 
@@ -124,19 +129,24 @@ ReosEncodedElement ReosPolygonStructure_p::encode() const
   return element;
 }
 
-QString ReosPolygonStructure_p::crs() const
+QString ReosPolygonsClassified_p::crs() const
 {
   return mVectorLayer->crs().toWkt( Qgis::CrsWktVariant::PreferredSimplified );
 }
 
-ReosPolygonStructure_p::~ReosPolygonStructure_p()
+void ReosPolygonsClassified_p::render( void *mapSettings, QPainter *painter, bool highlight, const QPointF &highlightPosition ) const
+{
+  renderGeometry( *static_cast<QgsMapSettings *>( mapSettings ), painter );
+}
+
+ReosPolygonsClassified_p::~ReosPolygonsClassified_p()
 {
   disconnect( mVectorLayer->undoStack(), &QUndoStack::indexChanged, this, &ReosDataObject::dataChanged );
 }
 
-ReosPolygonStructure *ReosPolygonStructure_p::clone() const
+ReosPolygonsClassified *ReosPolygonsClassified_p::clone() const
 {
-  std::unique_ptr<ReosPolygonStructure_p> other = std::make_unique<ReosPolygonStructure_p>();
+  std::unique_ptr<ReosPolygonsClassified_p> other = std::make_unique<ReosPolygonsClassified_p>();
   other->mVectorLayer.reset( mVectorLayer->clone() );
   other->mRenderer = static_cast<QgsCategorizedSymbolRenderer *>( other->mVectorLayer->renderer() );
   other->mClasses = mClasses;
@@ -154,12 +164,12 @@ ReosPolygonStructure *ReosPolygonStructure_p::clone() const
   return other.release();
 }
 
-QObject *ReosPolygonStructure_p::data()
+QObject *ReosPolygonsClassified_p::data()
 {
   return mVectorLayer.get();
 }
 
-void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs )
+void ReosPolygonsClassified_p::addPolygon( const QPolygonF &polygon, const QString &classId, const QString &sourceCrs )
 {
   const QgsCoordinateTransform transform = toLayerTransform( sourceCrs );
 
@@ -227,17 +237,17 @@ void ReosPolygonStructure_p::addPolygon( const QPolygonF &polygon, const QString
   mDirty = true;
 }
 
-QStringList ReosPolygonStructure_p::classes() const
+QStringList ReosPolygonsClassified_p::classes() const
 {
   return mClasses.keys();
 }
 
-ReosMapExtent ReosPolygonStructure_p::extent( const QString &crs ) const
+ReosMapExtent ReosPolygonsClassified_p::extent( const QString &crs ) const
 {
-  return ReosGeometryStructure_p::extent( crs );
+  return ReosGeometryComplex_p::extent( crs );
 }
 
-QColor ReosPolygonStructure_p::color( const QString &classId ) const
+QColor ReosPolygonsClassified_p::color( const QString &classId ) const
 {
   int ind = mRenderer->categoryIndexForValue( classId );
   const QgsCategoryList &list = mRenderer->categories();
@@ -247,7 +257,7 @@ QColor ReosPolygonStructure_p::color( const QString &classId ) const
   return symbolColor( list.at( ind ).symbol() );
 }
 
-double ReosPolygonStructure_p::value( const QString &classId ) const
+double ReosPolygonsClassified_p::value( const QString &classId ) const
 {
   QVariant var = mClasses.value( classId );
   if ( var.isValid() )
@@ -261,7 +271,7 @@ double ReosPolygonStructure_p::value( const QString &classId ) const
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-int ReosPolygonStructure_p::polygonsCount() const
+int ReosPolygonsClassified_p::polygonsCount() const
 {
   long long count = mVectorLayer->featureCount();
 
@@ -271,9 +281,17 @@ int ReosPolygonStructure_p::polygonsCount() const
   return int( count );
 }
 
-ReosPolygonStructureValues *ReosPolygonStructure_p::values( const QString &destinationCrs ) const
+ReosGeometryStructureVertex *ReosPolygonsClassified_p::searchForVertex( const ReosMapExtent &zone ) const
 {
-  std::unique_ptr<ReosPolygonStructureValues_p> ret( new ReosPolygonStructureValues_p );
+  QgsRectangle rect;
+  QgsFeatureIterator it = closeFeatures( zone, rect );
+
+  return searchForVertexPrivate( it, rect ).get();
+}
+
+ReosPolygonsClassifiedValues *ReosPolygonsClassified_p::values( const QString &destinationCrs ) const
+{
+  std::unique_ptr<ReosPolygonsClassifiedValues_p> ret( new ReosPolygonsClassifiedValues_p );
 
   ret->mCacheGeom = nullptr;
   ret->mCacheValue = std::numeric_limits<double>::quiet_NaN();
@@ -302,12 +320,12 @@ ReosPolygonStructureValues *ReosPolygonStructure_p::values( const QString &desti
   return ret.release();
 }
 
-QUndoStack *ReosPolygonStructure_p::undoStack() const
+QUndoStack *ReosPolygonsClassified_p::undoStack() const
 {
   return mVectorLayer->undoStack();
 }
 
-QColor ReosPolygonStructure_p::symbolColor( QgsSymbol *sym ) const
+QColor ReosPolygonsClassified_p::symbolColor( QgsSymbol *sym ) const
 {
   const QgsSymbolLayer *lay = sym->symbolLayer( 0 );
   if ( lay->layerType() != QStringLiteral( "SimpleFill" ) )
@@ -316,7 +334,7 @@ QColor ReosPolygonStructure_p::symbolColor( QgsSymbol *sym ) const
   return static_cast<const QgsFillSymbolLayer *>( lay )->fillColor();
 }
 
-void ReosPolygonStructure_p::addClassColor( const QString &classId, const QColor &color )
+void ReosPolygonsClassified_p::addClassColor( const QString &classId, const QColor &color )
 {
   std::unique_ptr<QgsFillSymbol> fillSymbol = std::make_unique<QgsFillSymbol>();
   QgsSymbolLayer *symbLayer = fillSymbol->symbolLayers().at( 0 );
@@ -332,13 +350,13 @@ void ReosPolygonStructure_p::addClassColor( const QString &classId, const QColor
   mRenderer->addCategory( category );
 }
 
-void ReosPolygonStructure_p::removeClassColor( const QString &classId )
+void ReosPolygonsClassified_p::removeClassColor( const QString &classId )
 {
   int ind = mRenderer->categoryIndexForValue( classId );
   mRenderer->deleteCategory( ind );
 }
 
-void ReosPolygonStructure_p::addClass( const QString &classId, double value )
+void ReosPolygonsClassified_p::addClass( const QString &classId, double value )
 {
   if ( mClasses.contains( classId ) )
     return;
@@ -352,7 +370,7 @@ void ReosPolygonStructure_p::addClass( const QString &classId, double value )
   mDirty = true;
 }
 
-void ReosPolygonStructure_p::removeClass( const QString &classId )
+void ReosPolygonsClassified_p::removeClass( const QString &classId )
 {
   if ( !mClasses.contains( classId ) )
     return;
@@ -373,7 +391,7 @@ void ReosPolygonStructure_p::removeClass( const QString &classId )
   mDirty = true;
 }
 
-QString ReosPolygonStructure_p::valueToClass( double value ) const
+QString ReosPolygonsClassified_p::valueToClass( double value ) const
 {
   for ( auto it = mClasses.begin(); it != mClasses.end(); ++it )
   {
@@ -384,7 +402,7 @@ QString ReosPolygonStructure_p::valueToClass( double value ) const
   return QString();
 }
 
-ReosPolygonStructureUndoCommandAddClass::ReosPolygonStructureUndoCommandAddClass( ReosPolygonStructure_p *structure, const QString &classId, double value, const QColor &color )
+ReosPolygonStructureUndoCommandAddClass::ReosPolygonStructureUndoCommandAddClass( ReosPolygonsClassified_p *structure, const QString &classId, double value, const QColor &color )
   : mStructure( structure )
   , mClassId( classId )
   , mValue( value )
@@ -405,7 +423,7 @@ void ReosPolygonStructureUndoCommandAddClass::undo()
   emit mStructure->classesChanged();
 }
 
-ReosPolygonStructureUndoCommandRemoveClass::ReosPolygonStructureUndoCommandRemoveClass( ReosPolygonStructure_p *structure, const QString &classId )
+ReosPolygonStructureUndoCommandRemoveClass::ReosPolygonStructureUndoCommandRemoveClass( ReosPolygonsClassified_p *structure, const QString &classId )
   : mStructure( structure )
   , mClassId( classId )
 {}
@@ -428,7 +446,7 @@ void ReosPolygonStructureUndoCommandRemoveClass::undo()
   emit mStructure->classesChanged();
 }
 
-double ReosPolygonStructureValues_p::value( double x, double y, bool acceptClose ) const
+double ReosPolygonsClassifiedValues_p::value( double x, double y, bool acceptClose ) const
 {
   QgsPointXY pt;
   try
@@ -484,12 +502,12 @@ double ReosPolygonStructureValues_p::value( double x, double y, bool acceptClose
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-double ReosPolygonStructureValues_p::defaultValue() const
+double ReosPolygonsClassifiedValues_p::defaultValue() const
 {
   return mDefaultValue;
 }
 
-void ReosPolygonStructureValues_p::setDefaultValue( double defVal )
+void ReosPolygonsClassifiedValues_p::setDefaultValue( double defVal )
 {
   mDefaultValue = defVal;
 }

@@ -16,6 +16,8 @@ email                : vcloarec at gmail dot com
 #ifndef REOSMAPPOLYGON_P_H
 #define REOSMAPPOLYGON_P_H
 
+#include "reosmapextent.h"
+
 #include <QSvgRenderer>
 
 #include <qgsmapcanvasitem.h>
@@ -34,7 +36,6 @@ class ReosMapItem_p : public QgsMapCanvasItem
     virtual void setEditing( bool ) {}
     virtual void translate( const QPointF &translation ) = 0;
     virtual QPointF mapPos() const = 0;
-    virtual void setMapPosition( const QgsPointXY & ) {};
 
     QString crs() const;
 
@@ -46,9 +47,17 @@ class ReosMapItem_p : public QgsMapCanvasItem
     Qt::BrushStyle brushStyle = Qt::NoBrush;
     QColor fillColor;
 
-    bool isHovered = false;
-
     ReosMapItem *base;
+    void updateMap();
+
+    virtual void clearHover();
+    virtual void setHovered( const QgsPointXY &position );
+
+  protected:
+
+    bool mIsHovered = false;
+
+
 };
 
 class ReosMapMarker_p : public ReosMapItem_p
@@ -59,10 +68,7 @@ class ReosMapMarker_p : public ReosMapItem_p
     void translate( const QPointF &translation ) override;
     QPointF mapPos() const override;
     QRectF boundingRect() const override;
-    void setMapPosition( const QgsPointXY &pos ) override;
-    ;
-
-    QPointF mapPoint;
+    mutable ReosSpatialPosition position;
     bool isEmpty = true;
 
   protected:
@@ -152,6 +158,7 @@ class ReosMapPolygonBase_p : public ReosMapItem_p
     bool mIsEditing = false;
     bool mIsMarkerActive = false;
     int mSegmentMarker = -1;
+    QVector2D mMarkerDirectionVector;
     bool mMarkerArrow = false;
     QPointF mMarkerposition;
     QPointF mMarkerPositionOnView;
@@ -176,6 +183,8 @@ class ReosMapPolygon_p : public ReosMapPolygonBase_p
 
   protected:
     QPolygonF mMapPolygon;
+
+    virtual bool isClosed() const {return true;}
 
   private:
     ReosMapPolygon_p( ReosMapPolygon_p *other );
@@ -214,6 +223,8 @@ class ReosMapPolyline_p : public ReosMapPolygon_p
   private:
     void draw( QPainter *painter ) override;
     double mExtremityDistance = 0;
+
+    bool isClosed() const override {return false;}
 };
 
 #endif // REOSMAPPOLYGON_P_H

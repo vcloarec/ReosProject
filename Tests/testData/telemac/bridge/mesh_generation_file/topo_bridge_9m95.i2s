@@ -1,0 +1,26 @@
+############################################################################
+:FileType i2s  ASCII  EnSim 1.0
+# File structure National Research Council Canada © 1998-2020
+############################################################################
+# DataType    2D Line Set
+#
+:Application  BlueKenue
+:Version      3.12.0
+:WrittenBy    christophe.coulet  # potential owner of the data
+:CreationTime 2020/11/16 11:04:10.000
+#---------------------------------------------------------------------------
+:Name  995
+#
+:AttributeCount 1
+:AttributeName 1 Value
+:AttributeUnits 1 m
+:AttributeType 1 double 
+:AttributeCapacityHint 1 1 # AJB: experimental
+#
+:EndHeader
+5 9.95
+486.046512 258.720930
+486.046512 -8.139535
+515.116279 -10.465116
+514.534884 260.465116
+486.046512 258.720930

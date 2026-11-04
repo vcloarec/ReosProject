@@ -66,7 +66,7 @@ class ReosHydraulicNetworkUtils
 };
 #endif //No SIP_RUN
 
-//! Abstract class that represent a node for hydrograph transfer
+//! Abstract node for hydrograph transfer.
 class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode SIP_ABSTRACT
 {
     Q_OBJECT
@@ -92,7 +92,7 @@ class REOSCORE_EXPORT ReosHydrographNode : public ReosHydraulicNode SIP_ABSTRACT
 #endif // No SIP_RUN
 };
 
-//! Abstract class that represent a hydrograph source, that is a node that has a hydrograph as output
+//! Abstract hydrograph node that has a hydrograph as output.
 class REOSCORE_EXPORT ReosHydrographSource : public ReosHydrographNode SIP_ABSTRACT
 {
     Q_OBJECT
@@ -160,7 +160,7 @@ class REOSCORE_EXPORT ReosHydrographSourceFixed : public ReosHydrographSource
 #endif //No SIP_RUN
 
 /**
- * Class that represents an node that can collect and sum hydrograph
+ * Represents a node that can collect and sum hydrographs.
  */
 class REOSCORE_EXPORT ReosHydrographJunction : public ReosHydrographSource
 {

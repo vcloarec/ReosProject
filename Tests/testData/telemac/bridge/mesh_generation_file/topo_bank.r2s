@@ -1,0 +1,30 @@
+############################################################################
+:FileType r2s  ASCII  EnSim 1.0
+# File structure National Research Council Canada © 1998-2020
+############################################################################
+# DataType    2D Rect Scalar
+#
+:Application  BlueKenue
+:Version      3.12.0
+:WrittenBy    christophe.coulet  # potential owner of the data
+:CreationTime 2020/11/13 15:43:22.000
+#---------------------------------------------------------------------------
+#
+:AttributeName 1 Anonymous Attribute
+:AttributeType 1 double 
+:AttributeCapacityHint 1 4 # AJB: experimental
+#
+:DoublePrecision   False
+:xCount 2
+:yCount 6
+:xDelta            1000
+:yDelta              50
+:Angle 0.000000
+#
+:EndHeader
+10 9 
+7.5 6.5
+5 4 
+5 4 
+7.5 6.5
+10 9 

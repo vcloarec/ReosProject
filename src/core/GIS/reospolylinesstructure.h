@@ -25,13 +25,18 @@
 
 #include "reoscore.h"
 
-#include "reosgeometrystructure.h"
+#include "reosgeometrycomplex.h"
 
 class ReosSpatialPosition;
 class QUndoStack;
 
+class ReosGeometryStructureVertex
+{
+  public:
+    virtual ~ReosGeometryStructureVertex() = default;
+};
 
-class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
+class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryComplex
 {
     Q_OBJECT
   public:
@@ -74,10 +79,13 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
     //! Returns the boundary of the structure in \a destinationCrs cordinate system
     virtual QPolygonF boundary( const QString &destinationCrs = QString() ) const = 0;
 
+    //! Returns the boundary vertices of the structure.
+    virtual QList<ReosGeometryStructureVertex *> boundaryVertices() const = 0;
+
     //! Returns lines on boundary from the vertex \a vertexFrom to vertex \a vertexTo
     virtual QPolygonF linesOnBoundaryFromTo( ReosGeometryStructureVertex *vertexFrom, ReosGeometryStructureVertex *vertexTo, const QString &destinationCrs = QString() ) const = 0;
 
-    //! Return the class id of the ith segment returned by boundary()
+    //! Returns the class id of the ith segment returned by boundary()
     virtual QString boundaryClassId( int i ) const = 0;
 
     //! Resets (clear all vertices and lines) and replace them with the \a data
@@ -94,6 +102,9 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Moves \a vertex to the new positon \a newPosition
     virtual void moveVertex( ReosGeometryStructureVertex *vertex, const ReosSpatialPosition &newPosition ) = 0;
+
+    //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
+    virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
 
     //! Inserts a vertex in the line with \a lineId at position \a point
     virtual ReosGeometryStructureVertex *insertVertex( const ReosSpatialPosition &point, qint64 lineId ) = 0;
@@ -112,9 +123,6 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
 
     //! Returns the proper tolerance of the structure in \a wktCrs units. If crs is not provided, returns the raw proper tolerance
     virtual double tolerance( const QString &wktCrs = QString() ) const = 0;
-
-    //! Search the closest vertex of the center of \a zone and in this zone, returns a pointer to the vertex
-    virtual ReosGeometryStructureVertex *searchForVertex( const ReosMapExtent &zone ) const = 0;
 
     //! Search and returns the closest line with \a id of the center of \a zone and in this zone, returns false if nothing found
     virtual bool searchForLine( const ReosMapExtent &zone, qint64 &id ) const = 0;
@@ -193,7 +201,6 @@ class REOSCORE_EXPORT ReosPolylinesStructure : public ReosGeometryStructure
     void classesChanged();
     void boundaryConditionAdded( const QString &classId );
     void boundaryConditionRemoved( const QString &classId );
-    void geometryChanged();
 
   private:
     QString mSelectedClass;

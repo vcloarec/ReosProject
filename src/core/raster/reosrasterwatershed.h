@@ -29,6 +29,7 @@ email                : vcloarec@gmail.com
 #include "reosmemoryraster.h"
 #include "reosrasterline.h"
 #include "reosrastertrace.h"
+#include "reosrasterdistancearea.h"
 
 
 namespace ReosRasterWatershed
@@ -59,7 +60,7 @@ class ReosRasterWatershedFromDirectionAndDownStreamLine;
 class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation : public ReosProcess
 {
   public:
-    ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem );
+    ReosRasterWatershedDirectionCalculation( const ReosRasterWatershed::Dem &dem, const ReosRasterDistanceArea &distanceArea );
 
     void stop( bool b ) override;
 
@@ -74,6 +75,7 @@ class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation : public ReosProce
         int endRow;
         ReosRasterWatershed::Dem *dem;
         ReosRasterWatershed::Directions *directions;
+        const ReosRasterDistanceArea &distanceArea;
     };
 
     static void calculateDirection( Job job );
@@ -84,6 +86,7 @@ class REOSCORE_EXPORT ReosRasterWatershedDirectionCalculation : public ReosProce
     ReosRasterWatershed::Dem mDem;
     ReosRasterWatershed::Directions mDirections;
     std::vector<std::thread> mThreads;
+    const ReosRasterDistanceArea &mDistanceArea;
 
     QFuture<void> mFuture;
 };
@@ -109,7 +112,8 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection : public ReosProces
       const ReosRasterWatershed::Directions &directions,
       ReosRasterWatershed::Watershed &watershed,
       ReosRasterWatershed::DistanceFromOutlet &distanceFromOutlet,
-      const ReosRasterLine &excludedCell
+      const ReosRasterLine &excludedCell,
+      const ReosRasterDistanceArea &distanceArea
     );
 
     //! Set a dem for
@@ -124,6 +128,7 @@ class REOSCORE_EXPORT ReosRasterWatershedMarkerFromDirection : public ReosProces
     ReosRasterLine mExcludedPixel;
     std::queue<ReosRasterWatershed::Climber> mClimberToTreat;
     size_t mMaxClimberStored = 100;
+    const ReosRasterDistanceArea &mDistanceArea;
 };
 
 /**
@@ -133,9 +138,11 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine : public
 {
   public:
     //! Constructor with \a rasterDirection and downstream \a line
-    ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection, const ReosRasterLine &line );
+    ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection, const ReosRasterLine &line, const ReosRasterDistanceArea &distanceArea );
 
-    ReosRasterWatershedFromDirectionAndDownStreamLine( const ReosRasterWatershed::Directions &rasterDirection, const ReosRasterLine &line, ReosRasterTestingCell *testingCell );
+    ReosRasterWatershedFromDirectionAndDownStreamLine(
+      const ReosRasterWatershed::Directions &rasterDirection, const ReosRasterLine &line, const ReosRasterDistanceArea &distanceArea, ReosRasterTestingCell *testingCell
+    );
 
     void start() override;
     void stop( bool b ) override;
@@ -162,6 +169,7 @@ class REOSCORE_EXPORT ReosRasterWatershedFromDirectionAndDownStreamLine : public
     ReosRasterCellPos mFirstCell;
 
     ReosRasterWatershed::Climber mEndOfLongerPath;
+    const ReosRasterDistanceArea &mDistanceArea;
 
     mutable QMutex mMutexClimber;
     mutable QMutex mMutexEndOfPath;

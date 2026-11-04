@@ -15,6 +15,8 @@
  ***************************************************************************/
 #include "reosplotpicker_p.h"
 
+#include <QCursor>
+
 
 ReosPlotPicker_p::ReosPlotPicker_p( ReosPlot_p *plot )
   : QwtPlotPicker( plot->canvas() )
@@ -227,7 +229,7 @@ bool ReosPlotPickerEditPoint_p::end( bool ok )
 
 void ReosPlotPickerEditPoint_p::setCursor()
 {
-  plot()->canvas()->setCursor( QPixmap( ":/cursors/moveElement.png" ) );
+  plot()->canvas()->setCursor( QCursor( QPixmap( ":/cursors/moveElement.png" ) ) );
 }
 
 void ReosPlotPickerEditPoint_p::beginMove( const QPointF &pos )

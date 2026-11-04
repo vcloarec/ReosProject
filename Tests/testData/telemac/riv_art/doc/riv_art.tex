@@ -1,0 +1,94 @@
+\chapter{Oil spill artificial river experiments (riv\_art)}
+
+\section{Purpose}
+
+An artificial river test campaign was conducted by Veolia Environnement
+Recherche et Innovation in order to observe the capacity of oil spill pollutant
+to dissolve PAHs (Polycyclic Aromatic Hydrocarbons).
+The UBA (Umweltbundesamt German Federal Agency for the Environment) has on its
+site 16 identical systems of artificial rivers with each 100 m in circumference.
+Among these rivers called FSA (acronym for Fliess und
+StillgewässersimulationsAnlage: simulator rivers and lakes), eight are located
+outdoors.
+A water flow is generated in these rivers with a screw pump.
+A system for continuous measurement of physical parameters river is installed
+for each river, and there is one weather station.
+For the purpose of the experiment set up, two rivers were linked together to
+increase the installation length and sinuosity (Figure \ref{fig:riv_art}).
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphicsmaybe{[width=0.95\textwidth,height=0.15\textheight]}{./riv_art_sketch.png}
+  \end{center}
+  \caption{Artificial river sketch.}
+  \label{fig:riv_art}
+\end{figure}
+
+The release of the hydrocarbon is achieved through a ring on water surface,
+the pollutant is injected inside it.
+Then, the ring is removed to allow the pollutant transport
+(Figure \ref{fig:obs_oil_spill_in_riv_art}).
+To observe the evolution of the concentration of dissolved PAHs, a fluorescence
+probe is used.
+Every morning a sample called "white" is made to know the initial concentration
+of PAHs already present in the channel.
+When the signal (\%) is approximately on the peak, a water sample is taken
+during 30 seconds using an automatic device located with the probe.
+The samples are then sent to the CEDRE for the analysis of dissolved
+concentrations of PAHs in samples.
+For each sample, there is therefore a concentration of total PAHs (ng/L) and a
+probe signal (\%).
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphicsmaybe{[width=0.45\textwidth,height=0.21\textheight]}{./image_ra.png}
+    \includegraphicsmaybe{[width=0.4\textwidth,height=0.21\textheight]}{./obs_riv_art.png} \\
+\begin{flushleft} \hspace{4.1cm} (a) \hspace{6cm} (b) \end{flushleft} 
+  \end{center}
+  \caption{Oil spill in artificial river without and with obstacles respectively (a) and (b).}
+  \label{fig:obs_oil_spill_in_riv_art}
+\end{figure}
+
+\section{Description}
+
+The finite element mesh consists of 23,234 nodes and about 43,000 triangles of
+average size 0.08~m (Figure \ref{fig:riv_art_mesh}).
+The flow velocity and surface elevation are imposed respectively on inflow and
+outflow boundary conditions.
+For shoreline nodes, solid wall conditions are considered.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphicsmaybe{[width=1\textwidth]}{../img/Mesh.pdf}
+\end{center}
+\caption{Mesh.}
+\label{fig:riv_art_mesh}
+\end{figure}
+
+In the simulation, a kerosene spill which occurs in the first artificial river
+curve is considered.
+A volume of $2\times 10^{-5}$ m$^3$ has been spilled into the channel.
+The flow velocity is imposed to 0.1~m/s on inflow boundary and obstacles are in
+the channel (Figure \ref{fig:obs_oil_spill_in_riv_art} b).
+
+\section{Result}
+
+In the simulation result, the particles represent the oil surface slick whereas
+the eulerian tracer represents the dissolved petroleum in the water column.
+The numerical and experiment concentrations are shown in Figure
+\ref{fig:riv_art_simu}.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphicsmaybe{[width=1\textwidth]}{../img/conc_over_time.pdf}
+\end{center}
+\caption{Kerosene concentration in the water column.}
+\label{fig:riv_art_simu}
+\end{figure}
+
+The dissolved hydrocarbons concentration in the water column has the same order
+of magnitude and compares well with experiments.
+However, there is a delay (about 160~s) between the model results and the
+experimental expected values.
+This lag can be explained by the outdoor conditions which cannot be modelled,
+such as gusts of wind.

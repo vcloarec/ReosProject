@@ -21,7 +21,7 @@
 #include <QMessageBox>
 
 #include "reosmeshgeneratorgui.h"
-#include "reosmaptooleditgeometrystructure.h"
+#include "reosmaptooleditpolylinestructure.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosstyleregistery.h"
 #include "reosgmshresolutioncontrollerwidget.h"

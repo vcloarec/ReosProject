@@ -201,7 +201,7 @@ void ReosHydraulicStructureProfilesWidget::hideEvent( QHideEvent *e )
   QWidget::hideEvent( e );
 }
 
-void ReosHydraulicStructureProfilesWidget::onNewProfileAdded( const QPolygonF &profile )
+void ReosHydraulicStructureProfilesWidget::onNewProfileAdded( const QPolygonF &profile, const QString &crs )
 {
   ReosParameterString name( tr( "Profile name" ), false );
 
@@ -212,7 +212,7 @@ void ReosHydraulicStructureProfilesWidget::onNewProfileAdded( const QPolygonF &p
   dial->addParameter( &name );
   dial->exec();
 
-  int profileIndex = mStructure->createProfile( name.value(), profile, mMapToolAddProfile->crs() );
+  int profileIndex = mStructure->createProfile( name.value(), profile, crs );
 
   createMapProfile( profileIndex, profile );
 

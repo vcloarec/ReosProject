@@ -1,0 +1,25 @@
+############################################################################
+:FileType t3c  ASCII  EnSim 1.0
+# File structure National Research Council Canada © 1998-2020
+############################################################################
+# DataType    T3 Channel Mesh Generator
+#
+:Application  BlueKenue
+:Version      3.12.0
+:WrittenBy    christophe.coulet  # potential owner of the data
+:CreationTime 2020/11/13 15:24:13.000
+#---------------------------------------------------------------------------
+#
+:DoublePrecision   False
+:LongChannelInterval   10.000000
+:CrossChannelNodeCount 6
+#
+:EndHeader
+:LeftBank 2
+0.000000 150.000000
+1000.000000 150.000000
+:EndLeftBank
+:RightBank 2
+0.000000 100.000000
+1000.000000 100.000000
+:EndRightBank

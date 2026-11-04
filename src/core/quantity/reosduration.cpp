@@ -155,12 +155,17 @@ ReosDuration ReosDuration::operator-( const ReosDuration &other ) const
   return ret;
 }
 
-ReosDuration ReosDuration::operator*( const double k ) const
+ReosDuration ReosDuration::operator*( double k ) const
 {
   ReosDuration ret( 0, this->mUnit );
   ret.mValue = k * this->mValue;
 
   return ret;
+}
+
+ReosDuration ReosDuration::operator*( qsizetype s ) const
+{
+  return operator*( static_cast<int>( s ) );
 }
 
 ReosDuration ReosDuration::operator*( const int i ) const
@@ -443,7 +448,7 @@ bool ReosTimeWindow::isIncluded( const QDateTime &time ) const
   return isValid() && time >= mStart && time <= mEnd;
 }
 
-bool ReosTimeWindow::operator==( const ReosTimeWindow &other )
+bool ReosTimeWindow::operator==( const ReosTimeWindow &other ) const
 {
   return mStart == other.mStart && mEnd == other.mEnd;
 }

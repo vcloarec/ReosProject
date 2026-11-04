@@ -37,12 +37,12 @@ ReosVersion::ReosVersion( const QByteArray &bytes, QDataStream::Version v )
   stream >> mSub;
 }
 
-bool ReosVersion::operator==( const ReosVersion &other )
+bool ReosVersion::operator==( const ReosVersion &other ) const
 {
   return ( mSoftName == other.mSoftName && mMajor == other.mMajor && mMinor == other.mMinor && mSub == other.mSub );
 }
 
-bool ReosVersion::operator>( const ReosVersion &other )
+bool ReosVersion::operator>( const ReosVersion &other ) const
 {
   if ( mSoftName != other.mSoftName )
     return false;
@@ -59,7 +59,7 @@ bool ReosVersion::operator>( const ReosVersion &other )
   return false;
 }
 
-bool ReosVersion::operator<( const ReosVersion &other )
+bool ReosVersion::operator<( const ReosVersion &other ) const
 {
   if ( mSoftName != other.mSoftName )
     return false;
