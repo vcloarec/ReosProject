@@ -17,6 +17,8 @@
 #ifndef REOSTELEMACSTEERINGFILE_H
 #define REOSTELEMACSTEERINGFILE_H
 
+#pragma once
+
 #include <QDateTime>
 #include <QString>
 #include <QMap>
@@ -24,18 +26,24 @@
 #include <memory.h>
 
 #include "reosduration.h"
-#include "reostelemac2dsimulation.h"
+#include "reostelemac.h"
+#include "reostelemac2dinitialcondition.h"
 
 class ReosTelemacSteeringFile
 {
   public:
+    ReosTelemacSteeringFile() = default;
     ReosTelemacSteeringFile( const QString &path );
     void open();
     void save( const QString &path = QString() );
 
+    const QString &path() const;
+
     void setKey( const QString &key, const QString &value );
     QString value( const QString &key ) const;
     void addComment( const QString &comment );
+
+    bool hasKey( const QString &key ) const;
 
     int keyCount() const;
     int lineCount() const;
@@ -43,6 +51,8 @@ class ReosTelemacSteeringFile
     bool isValid() const;
 
     QString geomFileName() const;
+    QString geomFilePath() const;
+
     QString resultFileName() const;
     QString boundaryFileName() const;
     QString boundaryLiquidFileName() const;
@@ -54,7 +64,7 @@ class ReosTelemacSteeringFile
     const QList<double> prescribedFlowRate() const;
     const QList<double> prescibedElevation() const;
 
-    ReosTelemac2DSimulation::Equation equation() const;
+    ReosTelemac::Equation equation() const;
 
     double courantNumber() const;
 
@@ -84,6 +94,8 @@ class ReosTelemacSteeringFile
     std::vector<std::unique_ptr<SteeringLine>> mLines;
     QMap<QString, SteeringLine *> mLinesMap;
 };
+
+
 
 
 #endif // REOSTELEMACSTEERINGFILE_H

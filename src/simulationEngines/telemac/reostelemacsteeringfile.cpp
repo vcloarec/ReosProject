@@ -17,6 +17,7 @@
 #include "reostelemacsteeringfile.h"
 #include <QFile>
 #include <QTextStream>
+#include <QRegularExpression>
 
 
 static QString unquote( const QString &str )
@@ -55,6 +56,161 @@ ReosTelemacSteeringFile::ReosTelemacSteeringFile( const QString &path )
   : mPath( path )
 {}
 
+//! function below is used to extract line that can be on several text line in the file.
+static QPair<QString, QString> extractLine( QTextStream &stream, bool &endOfFile )
+{
+  QString key;
+  QString var;
+  bool inKey = false;
+  bool inQuote = false;
+  bool inVariable = false;
+  bool varSeparator = false;
+
+  while ( !stream.atEnd() )
+  {
+    QChar ch;
+
+    do
+    {
+      stream >> ch;
+    } while ( !stream.atEnd() && ( ch.isSpace() || ch == '\n' ) );
+
+    if ( ch == '/' )
+    {
+      QString comment;
+      while ( !stream.atEnd() )
+      {
+        stream >> ch;
+        if ( ch == '\n' )
+          break;
+        comment += ch;
+      }
+      return QPair<QString, QString>( "COMMENT", comment );
+    }
+
+    inKey = true;
+    key += ch;
+    while ( inKey )
+    {
+      stream >> ch;
+      if ( ch == '=' || ch == ':' )
+      {
+        inKey = false;
+        break;
+      }
+      else if ( ch == '\'' )
+      {
+        inQuote = !inQuote;
+      }
+
+      if ( inKey )
+        key += ch;
+    }
+
+    while ( !inKey && !stream.atEnd() )
+    {
+      stream >> ch;
+      if ( ch == '\'' )
+      {
+        inQuote = !inQuote;
+        varSeparator = false;
+        var += ch;
+      }
+      else if ( ch == ';' )
+      {
+        varSeparator = true;
+        var += ch;
+      }
+      else if ( ch == '\n' )
+      {
+        if ( !inQuote && !stream.atEnd() )
+        {
+          stream >> ch;
+          if ( ch != '\'' && ch != ';' )
+          {
+            stream.seek( stream.pos() - 1 );
+            return QPair<QString, QString>( key.trimmed(), var.trimmed() );
+          }
+          if ( ch == '\'' )
+          {
+            inQuote = !inQuote;
+            varSeparator = false;
+          }
+          var += ch;
+        }
+      }
+      else
+      {
+        var += ch;
+      }
+    }
+
+    return QPair<QString, QString>( key.trimmed(), var.trimmed() );
+
+    // if ( readLine.isEmpty() )
+    //   continue;
+
+    // if ( readLine.startsWith( '/' ) ) // comment line
+
+
+    // inKey = !inQuote && inKey;
+
+    // int charPos = 0;
+    // while ( inKey && charPos < readLine.size() )
+    // {
+    //   const QChar currentChar = readLine.at( charPos );
+    //   if ( currentChar == '=' )
+    //   {
+    //     inKey = false;
+    //     charPos++;
+    //     break;
+    //   }
+    //   else if ( currentChar == ':' )
+    //   {
+    //     inKey = false;
+    //     charPos++;
+    //     break;
+    //   }
+    //   else if ( currentChar == '\'' )
+    //   {
+    //     inQuote = !inQuote;
+    //   }
+
+    //   if ( inKey )
+    //     key += currentChar;
+
+    //   charPos++;
+    // }
+
+    // while ( !inKey && charPos < readLine.size() )
+    // {
+    //   const QChar &currentChar = readLine.at( charPos );
+    //   if ( currentChar == '\'' )
+    //   {
+    //     inQuote = !inQuote;
+    //     varSeparator = false;
+    //   }
+    //   else if ( currentChar == ';' )
+    //   {
+    //     varSeparator = true;
+    //   }
+
+    //   if ( ( charPos == readLine.size() - 1 ) && currentChar != ';' && !inQuote )
+    //   {
+    //     var += currentChar;
+    //     break;
+    //   }
+
+    //   if ( !inKey )
+    //     var += currentChar;
+    //   charPos++;
+    // }
+  }
+
+  endOfFile = true;
+  return QPair<QString, QString>( QString(), QString() );
+}
+
 void ReosTelemacSteeringFile::open()
 {
   QFile file( mPath );
@@ -62,13 +218,12 @@ void ReosTelemacSteeringFile::open()
     return;
 
   QTextStream in( &file );
+  bool endOfFile = false;
+
   while ( !in.atEnd() )
   {
-    const QString line = in.readLine().trimmed();
-    if ( line.isEmpty() )
-      continue;
-
-    std::unique_ptr<SteeringLine> steeringLine = std::make_unique<SteeringLine>( line );
+    QPair<QString, QString> out = extractLine( in, endOfFile );
+    std::unique_ptr<SteeringLine> steeringLine = std::make_unique<SteeringLine>( out.first, out.second );
     if ( steeringLine->key() != QStringLiteral( "COMMENT" ) )
       mLinesMap.insert( steeringLine->key(), steeringLine.get() );
     mLines.push_back( std::move( steeringLine ) );
@@ -112,7 +267,7 @@ QString ReosTelemacSteeringFile::geomFileName() const
 
 QString ReosTelemacSteeringFile::resultFileName() const
 {
-  return unquote( value( QStringLiteral( "RESULT FILE" ) ) );
+  return unquote( value( QStringLiteral( "RESULTS FILE" ) ) );
 }
 
 QString ReosTelemacSteeringFile::boundaryFileName() const
@@ -196,10 +351,20 @@ ReosTelemacSteeringFile::SteeringLine::SteeringLine( const QString &line )
     mKey = "COMMENT";
     mValue = line.mid( 1 ).trimmed();
   }
-  else
+  else if ( line.contains( '=' ) )
   {
     mKey = line.section( '=', 0, 0 ).trimmed();
     mValue = line.section( '=', 1 ).trimmed();
+  }
+  else if ( line.contains( ':' ) )
+  {
+    mKey = line.section( ':', 0, 0 ).trimmed();
+    mValue = line.section( ':', 1 ).trimmed();
+  }
+  else
+  {
+    mKey = line.trimmed();
+    mValue = QString();
   }
 }
 
@@ -226,8 +391,18 @@ void ReosTelemacSteeringFile::save( const QString &path )
     if ( line->key() == QStringLiteral( "COMMENT" ) )
       file.write( QString( "/ %1\n" ).arg( line->value() ).toUtf8() );
     else
-      file.write( QString( "%1 = %2\n" ).arg( line->key(), line->value() ).toUtf8() );
+    {
+      if ( line->value().isEmpty() )
+        file.write( QString( "%1\n" ).arg( line->key() ).toUtf8() );
+      else
+        file.write( QString( "%1 = %2\n" ).arg( line->key(), line->value() ).toUtf8() );
+    }
   }
+}
+
+const QString &ReosTelemacSteeringFile::path() const
+{
+  return mPath;
 }
 
 QString ReosTelemacSteeringFile::value( const QString &key ) const
@@ -250,16 +425,16 @@ QString ReosTelemacSteeringFile::SteeringLine::value() const
   return mValue;
 }
 
-ReosTelemac2DSimulation::Equation ReosTelemacSteeringFile::equation() const
+ReosTelemac::Equation ReosTelemacSteeringFile::equation() const
 {
   QString equationString = value( QStringLiteral( "EQUATION" ) );
 
   if ( equationString.toUpper() == "'SAINT-VENANT FV'" )
-    return ReosTelemac2DSimulation::Equation::FiniteVolume;
+    return ReosTelemac::Equation::FiniteVolume;
   else if ( equationString.toUpper() == "'SAINT-VENANT FE'" )
-    return ReosTelemac2DSimulation::Equation::FiniteElement;
+    return ReosTelemac::Equation::FiniteElement;
   else
-    return ReosTelemac2DSimulation::Equation::SteeringFileDefined;
+    return ReosTelemac::Equation::SteeringFileDefined;
 }
 
 int ReosTelemacSteeringFile::outputPeriodResult2D() const
@@ -285,4 +460,17 @@ ReosTelemac2DInitialCondition::Type ReosTelemacSteeringFile::initialConditionTyp
 double ReosTelemacSteeringFile::courantNumber() const
 {
   return toDouble( value( QStringLiteral( "DESIRED COURANT NUMBER" ) ) );
+}
+
+bool ReosTelemacSteeringFile::hasKey( const QString &key ) const
+{
+  return mLinesMap.contains( key );
+}
+
+QString ReosTelemacSteeringFile::geomFilePath() const
+{
+  if ( mPath.isEmpty() )
+    return QString();
+
+  return QFileInfo( mPath ).absoluteDir().absoluteFilePath( geomFileName() );
 }
