@@ -19,6 +19,7 @@
 #include "reoshydrographrouting.h"
 #include "reostimeseriesgroup.h"
 #include "reoshydraulicscheme.h"
+#include "reostimeseriesgroup.h"
 
 ReosHydraulicStructureBoundaryCondition::ReosHydraulicStructureBoundaryCondition( ReosHydraulicStructure2D *hydStructure, const QString &boundaryConditionId, const ReosHydraulicNetworkContext &context )
   : ReosHydrographJunction( ReosSpatialPosition(), context.network() )

@@ -41,12 +41,14 @@ class ReosDigitalElevationModelRaster : public ReosDigitalElevationModel
     QPolygonF elevationOnPolyline( const QPolygonF &polyline, const QString &polylineCrs = QString(), ReosProcess *process = nullptr ) const override;
     double averageElevationInPolygon( const QPolygonF &polygon, const QString &polygonCrs, ReosProcess *process ) const override;
     double averageElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const override;
+    QList<QList<float>> classifyElevationOnGrid( const ReosRasterMemory<unsigned char> &grid, const ReosRasterExtent &gridExtent, ReosProcess *process = nullptr ) const override;
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision(
       const ReosMapExtent &destinationExtent, ReosRasterExtent &outputRasterExtent, float &maxValue, const QString &destinationCrs = QString(), ReosProcess *process = nullptr
     ) const override;
     ReosRasterMemory<float> extractMemoryRasterSimplePrecision( const ReosRasterExtent &destinationRasterExtent, ReosProcess *process = nullptr ) const override;
     QString source() const override;
     double noDataValue() const override;
+    QString crs() const override;
 
   private:
     std::unique_ptr<QgsRasterDataProvider> mDataProvider;

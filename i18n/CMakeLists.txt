@@ -1,5 +1,5 @@
-find_package(Qt5 COMPONENTS LinguistTools REQUIRED)
-set(QT_LRELEASE_EXECUTABLE Qt5::lrelease)
+find_package(Qt6 COMPONENTS LinguistTools REQUIRED)
+set(QT_LRELEASE_EXECUTABLE Qt6::lrelease)
 
 macro(ADD_TRANSLATION_FILES _sources )
     foreach (_current_FILE ${ARGN})

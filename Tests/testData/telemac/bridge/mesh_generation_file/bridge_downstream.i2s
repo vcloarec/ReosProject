@@ -1,0 +1,26 @@
+############################################################################
+:FileType i2s  ASCII  EnSim 1.0
+# File structure National Research Council Canada © 1998-2020
+############################################################################
+# DataType    2D Line Set
+#
+:Application  BlueKenue
+:Version      3.12.0
+:WrittenBy    christophe.coulet  # potential owner of the data
+:CreationTime 2020/11/13 15:17:42.000
+#---------------------------------------------------------------------------
+:Name  bridge_downstream
+#
+:AttributeCount 1
+:AttributeName 1 Value
+:AttributeUnits 1 m
+:AttributeType 1 double 
+:AttributeCapacityHint 1 1 # AJB: experimental
+#
+:EndHeader
+2 0
+520.000000 0.000000
+520.000000 100.000000
+2 0
+520.000000 150.000000
+520.000000 250.000000

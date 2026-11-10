@@ -55,6 +55,7 @@ ReosTelemacSimulationEditWidget::ReosTelemacSimulationEditWidget( ReosHydraulicS
 
   ui->mEquationCombo->addItem( tr( "Finite Element" ), int( ReosTelemac2DSimulation::Equation::FiniteElement ) );
   ui->mEquationCombo->addItem( tr( "Finite Volume" ), int( ReosTelemac2DSimulation::Equation::FiniteVolume ) );
+  ui->mEquationCombo->addItem( tr( "Steering File" ), int( ReosTelemac2DSimulation::Equation::SteeringFileDefined ) );
 
   ui->mEquationCombo->setCurrentIndex( ui->mEquationCombo->findData( static_cast<int>( simulation->equation() ) ) );
 

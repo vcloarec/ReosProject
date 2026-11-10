@@ -192,9 +192,8 @@ void ReosMapToolEditPolylineStructure_p::canvasMoveEvent( QgsMapMouseEvent *e )
         mCurrentVertex = mStructure->searchForVertex( sr );
         if ( mCurrentVertex )
         {
-          mSnappingIndicator->setMatch( QgsPointLocator::Match() );
+          mSnappingIndicator->setMatch( QgsPointLocator::Match() ); //TODO check if this line is necessary
           const QPointF &position = mStructure->vertexPosition( mCurrentVertex, mapCrs() );
-          qDebug() << mCurrentPosition << position;
           if ( mCurrentState == AddingLines )
             moveAddingLineRubberBand( position );
           mVertexMarker->setCenter( position );

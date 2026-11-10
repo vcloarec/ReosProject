@@ -27,7 +27,7 @@
 #include "reosmodule.h"
 #include "reosmeshgenerator.h"
 #include "reospolylinesstructure.h"
-#include "reospolygonstructure.h"
+#include "reospolygonsclassified.h"
 
 
 class REOSCORE_EXPORT ReosGmshGenerator : public ReosMeshGenerator
@@ -74,7 +74,7 @@ class ReosGmshEngine : public ReosModule
   public:
     static ReosGmshEngine *instance();
 
-    ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data, ReosPolygonStructureValues *resolutionValues, ReosGmshGenerator::Algorithm alg );
+    ReosMeshFrameData generateMesh( const ReosPolylinesStructure::Data &data, ReosPolygonsClassifiedValues *resolutionValues, ReosGmshGenerator::Algorithm alg );
 
     static void instantiate( QObject *parent );
 
@@ -105,7 +105,7 @@ class ReosMeshGeneratorGmshProcess : public ReosMeshGeneratorProcess
     ReosPolylinesStructure::Data mData;
     ReosGmshGenerator::Algorithm mAlgorithm = ReosGmshGenerator::FrontalDelaunay;
     QString mDestinationCrs;
-    std::unique_ptr<ReosPolygonStructureValues> mResolutionValues;
+    std::unique_ptr<ReosPolygonsClassifiedValues> mResolutionValues;
 };
 
 

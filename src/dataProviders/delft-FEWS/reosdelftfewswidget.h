@@ -41,7 +41,7 @@ namespace Ui
 class ReosDelftFewsStationMarker : public ReosMapMarkerFilledCircle
 {
   public:
-    ReosDelftFewsStationMarker( ReosMap *map, const QPointF &point );
+    ReosDelftFewsStationMarker( ReosMap *map, const ReosSpatialPosition &position );
     int stationIndex;
 };
 

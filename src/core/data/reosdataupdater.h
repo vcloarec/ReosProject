@@ -13,7 +13,7 @@ class ReosDataObject;
 class ReosTimeSeries;
 
 /**
- * The ReosDataUpdater class is an abstract class used to update regulary data object
+ * Abstract class used to update data objects regularly.
  */
 class REOSCORE_EXPORT ReosDataUpdater : public QObject SIP_ABSTRACT
 {

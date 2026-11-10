@@ -17,6 +17,7 @@
 #define REOSTELEMAC2DSIMULATION_H
 
 #include <QRegularExpression>
+#include <QVersionNumber>
 
 #include "reoshydraulicsimulation.h"
 #include "reoshydraulicstructureboundarycondition.h"
@@ -34,7 +35,8 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     enum class Equation
     {
       FiniteVolume,
-      FiniteElement
+      FiniteElement,
+      SteeringFileDefined
     };
 
     enum class VolumeFiniteScheme
@@ -105,6 +107,16 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     QString engineName() const override;
 
+    QVersionNumber telemacVersion() const;
+
+    void setGeomFileName( const QString &newGeomFileName );
+
+    void setResultFileName( const QString &newResultFileName );
+
+    void setBoundaryFileName( const QString &newBoundaryFileName );
+
+    void setBoundaryLiquidFileName( const QString &newBoundaryConditionFileName );
+
   protected:
     QString directoryName() const override { return QStringLiteral( "TELEMAC" ); }
 
@@ -131,6 +143,10 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
 
     Capabilities mCapabilities;
 
+    bool mMeshFilesUpdated = false;
+    bool mBoundaryFilesUpdated = false;
+    bool mSteeringFileUpdated = false;
+
     ReosDuration timeStepValueFromScheme( ReosHydraulicScheme *scheme ) const;
 
     QList<ReosHydraulicStructureBoundaryCondition *> createBoundaryFiles( const ReosSimulationData &simulationData, QVector<int> &verticesPosInBoundary, const QDir &directory );
@@ -155,7 +171,10 @@ class ReosTelemac2DSimulation : public ReosHydraulicSimulation
     void initInitialCondition();
 
     void setVolumeFiniteEquationForScheme( VolumeFiniteScheme VFscheme, ReosHydraulicScheme *hydraulicScheme ) const;
+
+    static QMap<QString, QVariant> systemConfig();
 };
+
 
 typedef ReosTelemac2DSimulation::TelemacBoundaryCondition BoundaryCondition;
 
@@ -184,6 +203,7 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
     QString mSimulationFilePath;
     QProcess *mProcess = nullptr;
     QString mStandartOutputBuffer;
+    QString mStandardErrorBuffer;
     QRegularExpression mTimeRegEx;
     QRegularExpression mBlockRegEx;
     QRegularExpression mBoundaryFlowRegEx;
@@ -195,6 +215,7 @@ class ReosTelemac2DSimulationProcess : public ReosSimulationProcess
     const QMap<int, BoundaryCondition> mBoundaries;
 
     void addToOutput( const QString &txt );
+    QString sortieFileContent() const;
     void extractInformation( const QRegularExpressionMatch &blockMatch );
 };
 
@@ -208,7 +229,7 @@ class ReosTelemac2DSimulationEngineFactory : public ReosSimulationEngineFactory
 
     virtual QString key() const override { return ReosTelemac2DSimulation::staticKey(); }
     QString displayName() const override { return QObject::tr( "TELEMAC 2D Simulation" ); }
-    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override { return nullptr; }
+    ReosStructureImporterSource *createImporterSource( const ReosEncodedElement &, const ReosHydraulicNetworkContext & ) const override;
 
     void initializeSettings() override;
 

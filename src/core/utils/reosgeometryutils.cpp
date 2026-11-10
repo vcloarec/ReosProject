@@ -20,8 +20,10 @@ email                : vcloarec at gmail dot com
 #include <qgsdistancearea.h>
 #include <qgsgeometryutils.h>
 #include <qgsgeometryengine.h>
+
 #include "reosgeometryutils.h"
 #include "reosprocess.h"
+#include "reosrasterdistancearea.h"
 
 
 static QgsPolygon *createQgsPolygon( const QPolygonF &polygon )
@@ -351,9 +353,7 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
   QPoint maxXmaxY = rasterExtent.mapToCell( QPointF( bbox.xMaximum(), bbox.yMaximum() ) );
 
   xOri = std::clamp( rasterExtent.xCellSize() > 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );
-  ;
   yOri = std::clamp( rasterExtent.yCellSize() > 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );
-  ;
 
   int xEnd = std::clamp( rasterExtent.xCellSize() < 0 ? minXminY.x() : maxXmaxY.x(), 0, rasterExtent.xCellCount() - 1 );
   int yEnd = std::clamp( rasterExtent.yCellSize() < 0 ? minXminY.y() : maxXmaxY.y(), 0, rasterExtent.yCellCount() - 1 );
@@ -372,6 +372,7 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
   ret.fill( 0 );
 
   double cellArea = std::fabs( rasterExtent.xCellSize() * rasterExtent.yCellSize() );
+  ReosRasterDistanceArea areaCalculation( finalRasterExtent );
 
   QgsGeometry pixelRectGeometry;
   for ( int xi = 0; xi < colCount; ++xi )
@@ -388,18 +389,21 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
           cellRect( cellCenter.x() - rasterExtent.xCellSize() * 0.5, cellCenter.y() - rasterExtent.yCellSize() * 0.5, cellCenter.x() + rasterExtent.xCellSize() * 0.5, cellCenter.y() + rasterExtent.yCellSize() * 0.5 );
         cellRect.normalize();
         pixelRectGeometry = QgsGeometry::fromRect( cellRect );
-        QPolygonF polyTest = polygeom.asQPolygonF();
-        QPolygonF rectTest = pixelRectGeometry.asQPolygonF();
-        if ( !pixelRectGeometry.isNull() && polyEngine->intersects( pixelRectGeometry.constGet() ) )
+
+        if ( pixelRectGeometry.isNull() )
+          continue;
+
+        if ( polyEngine->contains( pixelRectGeometry.constGet() ) )
+          ret.setValue( yi, xi, areaCalculation.areaFactor( yi, xi ) );
+        else if ( polyEngine->intersects( pixelRectGeometry.constGet() ) )
         {
-          //intersection
           const QgsGeometry intersectGeometry = pixelRectGeometry.intersection( polygeom );
           if ( !intersectGeometry.isEmpty() )
           {
             const double intersectionArea = intersectGeometry.area();
             if ( intersectionArea > 0.0 )
             {
-              ret.setValue( yi, xi, intersectionArea / cellArea );
+              ret.setValue( yi, xi, areaCalculation.areaFactor( yi, xi ) * intersectionArea / cellArea );
             }
           }
         }
@@ -408,7 +412,7 @@ ReosRasterMemory<double> ReosGeometryUtils::rasterizePolygon(
       {
         if ( polyEngine->contains( &cellCenter ) )
         {
-          ret.setValue( yi, xi, 1 );
+          ret.setValue( yi, xi, areaCalculation.areaFactor( yi, xi ) );
         }
       }
     }

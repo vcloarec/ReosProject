@@ -1,0 +1,103 @@
+/
+/  ARTIFICIAL RIVER : TESTING OIL SPILL IN A FLUME
+/
+/  Version 6.2
+/
+/  HP Linux Calibre 7 compilateur Nag 8 processeurs : 28 min 7 s  22/05/2012
+/
+/----------------------------------------------------------------------
+/                      FILE DEFINITION
+/----------------------------------------------------------------------
+/
+BOUNDARY CONDITIONS FILE                    : geo_t2d_riv_art.cli
+GEOMETRY FILE                               : geo_t2d_riv_art.slf
+FORTRAN FILE                                : 'user_fortran'
+RESULTS FILE                                : r2d_riv_art.slf
+/
+/----------------------------------------------------------------------
+/                        GENERAL OPTIONS
+/----------------------------------------------------------------------
+/
+TITLE : 'OIL SPILL IN ARTIFICIAL RIVER'
+/
+VARIABLES FOR GRAPHIC PRINTOUTS             : 'U,V,S,H,B,T*,N'
+/
+TIME STEP                                   : 0.02
+NUMBER OF TIME STEPS                        : 35000
+GRAPHIC PRINTOUT PERIOD                     : 100
+LISTING PRINTOUT PERIOD                     : 1000
+/
+PREVIOUS COMPUTATION FILE                   : t2d_riv_art.prec
+INITIAL TIME SET TO ZERO                    : YES
+/
+/----------------------------------------------------------------------
+/                    BOUNDARY CONDITIONS
+/----------------------------------------------------------------------
+/
+PRESCRIBED ELEVATIONS                       : 0.45 ; 0.
+PRESCRIBED FLOWRATES                        : 0. ; 0.0306
+/
+/----------------------------------------------------------------------
+/                      INITIAL CONDITIONS
+/----------------------------------------------------------------------
+/
+INITIAL CONDITIONS                          : 'CONSTANT ELEVATION'
+INITIAL ELEVATION                           : 0.45D0
+/
+/----------------------------------------------------------------------
+/                       NUMERICAL OPTIONS
+/----------------------------------------------------------------------
+/
+MASS-BALANCE                                : YES
+SOLVER					    : 1
+SOLVER ACCURACY                             : 1.E-18
+MAXIMUM NUMBER OF ITERATIONS FOR SOLVER     : 70
+TYPE OF ADVECTION                           : 13;5;14
+SUPG OPTION                                 : 2;0;2;2
+IMPLICITATION FOR DEPTH                     : 0.6
+VELOCITY PROFILES                           : 4;4;4;4
+MASS-LUMPING ON H                           : 1.
+MASS-LUMPING ON VELOCITY                    : 1.
+MASS-LUMPING ON TRACERS                     : 1.
+TREATMENT OF THE LINEAR SYSTEM              : 2
+CONTINUITY CORRECTION                       : YES
+TREATMENT OF NEGATIVE DEPTHS                : 2
+/
+/----------------------------------------------------------------------
+/                       TURBULENCE MODEL
+/----------------------------------------------------------------------
+/
+TURBULENCE MODEL                            : 3
+VELOCITY DIFFUSIVITY                        : 1.E-6
+/
+TURBULENCE REGIME FOR SOLID BOUNDARIES      : 2
+LAW OF FRICTION ON LATERAL BOUNDARIES       : 3
+ROUGHNESS COEFFICIENT OF BOUNDARIES         : 10.
+/
+/--------------------------------------------------------/
+/   FRICTION PARAMETERS                                  /
+/--------------------------------------------------------/
+LAW OF BOTTOM FRICTION                      : 3
+FRICTION COEFFICIENT                        : 94.
+/----------------------------------------------------------------------
+/                            OIL SPILL
+/----------------------------------------------------------------------
+OIL SPILL STEERING FILE                     : oilspill.txt
+MAXIMUM NUMBER OF DROGUES                   : 1156
+PRINTOUT PERIOD FOR DROGUES                 : 100
+ASCII DROGUES FILE                          : oil_displacement.dat
+/----------------------------------------------------------------------
+/                             TRACEUR
+/----------------------------------------------------------------------
+NUMBER OF TRACERS : 4
+NAMES OF TRACERS :
+'TRACER 1        NO UNIT         ';
+'TRACER 2        NO UNIT         ';
+'TRACER 3        NO UNIT         ';
+'TRACER 4        NO UNIT         '
+INITIAL VALUES OF TRACERS            : 0.;0.;0.;0.
+COEFFICIENT FOR DIFFUSION OF TRACERS : 1.E-6
+SOLVER FOR DIFFUSION OF TRACERS      : 4
+ACCURACY FOR DIFFUSION OF TRACERS    : 1.E-20
+IMPLICITATION COEFFICIENT OF TRACERS : 1
+OPTION FOR THE DIFFUSION OF TRACERS  : 2

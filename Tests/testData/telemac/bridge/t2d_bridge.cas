@@ -1,0 +1,107 @@
+/
+/---------------------------------------------------------------------
+/ TELEMAC2D Version v8p2
+/ TELEMAC 2D : Bridge example
+/---------------------------------------------------------------------
+/
+BOUNDARY CONDITIONS FILE = 'geo_bridge.cli'
+GEOMETRY FILE            = 'geo_bridge.slf'
+RESULTS FILE             = 'r2d_bridge.slf'
+LIQUID BOUNDARIES FILE   = 't2d_bridge.liq'
+/
+/ BUSES
+/
+CULVERTS DATA FILE       = 'fo1_bridge.txt'
+NUMBER OF CULVERTS       =  2
+TYPE OF SOURCES : 1
+/
+/-------------------------------------------------------------------
+/                     OPTIONS GENERALES
+/-------------------------------------------------------------------
+/
+TITLE = 'TELEMAC 2D : BRIDGE EXAMPLE'
+/
+/---------------------------------------------------------------------
+/ ENTREES-SORTIES, GRAPHIQUES ET LISTING
+/---------------------------------------------------------------------
+/
+TIME STEP                       = 1
+DURATION                        = 45000
+VARIABLES FOR GRAPHIC PRINTOUTS = U,V,S,B,T1
+GRAPHIC PRINTOUT PERIOD         = 300
+LISTING PRINTOUT PERIOD         = 3000
+MASS-BALANCE                    = YES
+/
+/---------------------------------------------------------------------
+/ EQUATIONS
+/---------------------------------------------------------------------
+/
+COEFFICIENT FOR DIFFUSION OF TRACERS = 0.
+VELOCITY DIFFUSIVITY                 = 1.0
+LAW OF BOTTOM FRICTION               = 3
+FRICTION COEFFICIENT                 = 20.
+/
+/---------------------------------------------------------------------
+/ EQUATIONS, CONDITIONS INITIALES
+/---------------------------------------------------------------------
+/
+INITIAL CONDITIONS        = 'CONSTANT ELEVATION'
+INITIAL ELEVATION         = 3.
+INITIAL VALUES OF TRACERS = 0.
+/
+/---------------------------------------------------------------------
+/ EQUATIONS, CONDITIONS LIMITES
+/---------------------------------------------------------------------
+/
+PRESCRIBED FLOWRATES         = 0.;0.
+VELOCITY PROFILES            = 1;4
+PRESCRIBED ELEVATIONS        = 3.;0.
+OPTION FOR LIQUID BOUNDARIES = 1;1
+PRESCRIBED TRACERS VALUES    = 0.0;100.0
+/
+/---------------------------------------------------------------------
+/ EQUATIONS, TRACEUR
+/---------------------------------------------------------------------
+/
+NUMBER OF TRACERS = 1
+NAMES OF TRACERS  = 'TRACER1         G/L             '
+/
+/---------------------------------------------------------------------
+/ PARAMETRES NUMERIQUES
+/---------------------------------------------------------------------
+/
+TREATMENT OF NEGATIVE DEPTHS = 2
+/
+CONTINUITY CORRECTION                 = YES
+TREATMENT OF FLUXES AT THE BOUNDARIES = 2;2
+/
+TYPE OF ADVECTION = 14;5;14;1
+SUPG OPTION       = 2;0; 2;2
+/
+TIDAL FLATS                             = YES
+OPTION FOR THE TREATMENT OF TIDAL FLATS = 1
+/
+THRESHOLD DEPTH FOR RECEDING PROCEDURE  = 0.05
+
+/
+/---------------------------------------------------------------------
+/ PARAMETRES NUMERIQUES, SOLVEUR
+/---------------------------------------------------------------------
+/
+SOLVER FOR DIFFUSION OF TRACERS   = 1
+TREATMENT OF THE LINEAR SYSTEM    = 2
+SOLVER                            = 1
+SOLVER ACCURACY                   = 1.E-8
+ACCURACY FOR DIFFUSION OF TRACERS = 1.E-10
+/
+MAXIMUM NUMBER OF ITERATIONS FOR ADVECTION SCHEMES = 200
+FREE SURFACE GRADIENT COMPATIBILITY = 0.5
+/
+/---------------------------------------------------------------------
+/ PARAMETRES NUMERIQUES, VITESSE-CELERITE-HAUTEUR
+/---------------------------------------------------------------------
+/
+IMPLICITATION FOR DEPTH              = 1.
+MASS-LUMPING ON H                    = 1.
+IMPLICITATION FOR VELOCITY           = 1.
+IMPLICITATION COEFFICIENT OF TRACERS = 1.

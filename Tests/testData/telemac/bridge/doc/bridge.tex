@@ -1,0 +1,165 @@
+\chapter{Bridge}
+\section{Purpose}
+
+This case is not properly saying a validation test case but more an example to
+demonstrate a possible solution for user to manage bridge in \telemac{2D}.
+
+\section{Description}
+
+In this case, the choice is done to represent the bridge as an obstacle to
+the flow (like a dike in the river bed) where \telemac{2D} will compute the
+overflowing discharge. Nevertheless, as the part of the discharge passing under
+the bridge is not neglictible and also to allow the computation of the full
+hydrograph, the flow which passes under the bridge is taken in account by an
+internal singularity, under the form of a couple of source and sink nodes.
+
+\subsection{Geometry and mesh}
+
+A river reach with its major bed of 1,000~m long is crossed by a road in the
+middle.
+At the location of the main channel and under the road, there are 2 rectangular
+tubes of 2.5~m width and 1.5~m height.
+
+The mesh of the main channel and the road is regular (10 $\times$ 10~m).
+The rest of the mesh is computed without any constraint by Blue Kenue.
+
+\begin{itemize}
+\item 5,000 triangular elements,
+\item 2,626 nodes,
+\item Maximum size range: 16.36~m.
+\end{itemize}
+
+Figure~\ref{fig:bridge:mesh} shows the mesh of the study.
+\begin{figure}
+\centering
+\includegraphicsmaybe{[width=.8\textwidth]}{../img/Mesh.png}
+\caption{Mesh of the study.}\label{fig:bridge:mesh}
+\end{figure}
+
+\subsection{Boundaries}
+
+Lateral:
+
+\begin{itemize}
+\item Solid walls with slip condition on both lateral parts of the major bed,
+\item Imposed discharge upstream (left).
+The discharge varies in time: from 0~m$^3$/s at the beginning,
+it increases to 20~m$^3$/s and stays at this value between 100~s and 6,100~s.
+Then the discharge increases linearly to 120~m$^{3}$/s at 6,600~s and stays at
+this value between 6,600~s and 17,600~s.
+After that, the discharge decreases to 20~m$^3$/s and stays at this level
+for the rest of the simulation,
+\item Imposed water level downstream (right). The value of 3~m is imposed.
+\end{itemize}
+
+Bottom:
+
+\begin{itemize}
+\item Strickler formula with friction coefficient = 20~m$^{1/3}$/s,
+\item Regular slope of 1~m along the model (between 1 and 0 for the main channel),
+\item The bank level is 5~m upstream and the major bed grow regularly from 5 to
+  10~m.
+\end{itemize}
+
+Figure~\ref{fig:bridge:bathy} shows the bottom elevation.
+\begin{figure}
+\centering
+\includegraphicsmaybe{[width=.8\textwidth]}{../img/Bathy.png}
+\caption{Topography of the model.}\label{fig:bridge:bathy}
+\end{figure}
+
+\subsection{Physical Parameters}
+
+Turbulence: Model of constant viscosity with velocity diffusivity = 1~m$^2$/s.
+
+\subsection{Numerical Parameters}
+
+Type of advection:
+\begin{itemize}
+\item edge-based N-scheme on velocities (scheme \#14,)
+\item conservative + modified SUPG on depth (mandatory),
+\item edge-based N-scheme on tracer (scheme \#14).
+\end{itemize}
+
+Type of element:
+\begin{itemize}
+\item  Linear triangle P1 for $h$ and velocities.
+\end{itemize}
+
+Solver information:
+\begin{itemize}
+\item Conjugate gradient solver,
+\item Accuracy = 10$^{-8}$.
+\end{itemize}
+
+Tracer:
+
+\begin{itemize}
+\item Initial concentrations : no tracer in the domain,
+\item Conjugate gradient solver (default value),
+\item Accuracy = $10^{-10}$.
+\end{itemize}
+
+Time data:
+
+\begin{itemize}
+\item Time step = 1~s.
+\item Simulation duration = 45,000~s.
+\end{itemize}
+
+\section{Results}
+
+Figure~\ref{fig:bridge:profile} illustrates the results on a longitudinal
+profile located in the middle of the main channel at 3 significant time-steps
+\begin{figure}
+\centering
+\includegraphicsmaybe{[width=.8\textwidth]}{../img/FreeSurface_long_profile.png}
+\caption{Free Surface profile along the channel.}\label{fig:bridge:profile}
+\end{figure}
+
+During the first part of the simulation (before 6,100~s), the flow stays in the
+minor bed as the culverts have sufficient capacities.
+Velocities are regular except locally at the location of culvert extremities.
+The tracer tends to an equilibrium in all the minor bed
+(see Figure \ref{fig:bridge:surf0}).
+
+With the increase of the discharge, the culverts reach a saturation and then the
+level upstream increases until the overflow appears and a new equilibrium exists.
+This is illustrated by results at 17,400~s (see Figure \ref{fig:bridge:surf1}).
+ 
+When the discharge decreases, there is a progressive diminution of the water
+lever upstream the dike.
+The simulation recover an equilibrium similar to the first one observed
+(see Figure \ref{fig:bridge:surf2}).
+
+\section{Conclusions}
+
+Bridge in \telemac{2D} could be taken in account by the combination of a local
+dike (which allows to represent the overflowing part) and some hydraulic
+structures which link the upstream and downstream of the dike.
+
+\section{Figures}
+
+\begin{figure}
+\centering
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/FreeSurface_0.png}
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/Velo_0.png}
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/Tracer_0.png}
+ \caption{Map of the free surface elevation, the velocity and the tracer at $t$ = 6,000~s.}\label{fig:bridge:surf0}
+\end{figure}
+
+\begin{figure}
+\centering
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/FreeSurface_1.png}
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/Velo_1.png}
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/Tracer_1.png}
+ \caption{Map of the free surface elevation, the velocity and the tracer at $t$ = 17,400~s.}\label{fig:bridge:surf1}
+\end{figure}
+
+\begin{figure}
+\centering
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/FreeSurface_2.png}
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/Velo_2.png}
+ \includegraphicsmaybe{[width=1.\textwidth]}{../img/Tracer_2.png}
+ \caption{Map of the free surface elevation, the velocity and the tracer at $t$ = 45,000~s.}\label{fig:bridge:surf2}
+\end{figure}

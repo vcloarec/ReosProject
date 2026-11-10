@@ -32,7 +32,7 @@
 class ReosPolylinesStructure;
 class ReosParameterBoolean;
 class ReosParameterDouble;
-class ReosPolygonStructure;
+class ReosPolygonsClassified;
 class ReosTopographyCollection;
 
 //! Structure that contains mesh frame data
@@ -67,7 +67,7 @@ class REOSCORE_EXPORT ReosMeshResolutionController : public ReosDataObject
 
     ReosMeshResolutionController *clone() const;
 
-    ReosPolygonStructure *resolutionPolygons() const;
+    ReosPolygonsClassified *resolutionPolygons() const;
 
     ReosParameterDouble *defaultSize() const;
 
@@ -76,7 +76,7 @@ class REOSCORE_EXPORT ReosMeshResolutionController : public ReosDataObject
   private:
     ReosMeshResolutionController( const ReosMeshResolutionController *other );
     ReosParameterDouble *mDefaultSize = nullptr;
-    std::unique_ptr<ReosPolygonStructure> mPolygonStructure;
+    std::unique_ptr<ReosPolygonsClassified> mPolygonStructure;
 };
 
 /**

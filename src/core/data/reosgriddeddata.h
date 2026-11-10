@@ -176,6 +176,7 @@ class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
   protected:
     virtual void onCalculationFinished() = 0;
     virtual void onDataChanged() const = 0;
+
     virtual QDateTime timeAtIndex( int i ) const = 0;
     virtual void setDataActualized() const = 0;
 

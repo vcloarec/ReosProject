@@ -97,7 +97,7 @@ class ReosMapToolNewStructure2D : public ReosMapToolDrawPolygon, public ReosMapT
     ReosMapToolNewStructure2D( ReosHydraulicNetwork *network, ReosMap *map );
 
   private slots:
-    void onDomainDrawn( const QPolygonF &polygon );
+    void onDomainDrawn( const QPolygonF &polygon, const QString &crs );
 };
 
 

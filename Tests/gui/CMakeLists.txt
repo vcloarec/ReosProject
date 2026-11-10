@@ -14,8 +14,7 @@ MACRO (ADD_REOS_TEST TESTSRC)
   STRING(REPLACE ".cpp" "" TESTNAME ${TESTNAME})
   ADD_EXECUTABLE(${TESTNAME} ${TESTSRC} $<TARGET_OBJECTS:reostestutils>)
   TARGET_LINK_LIBRARIES(${TESTNAME}
-                        ${Qt5Core_LIBRARIES}
-                        ${Qt5Test_LIBRARIES}
+                        ${QT_VERSION_BASE}::Test
                         reosCore
                         reosGui)
 

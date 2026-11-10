@@ -21,7 +21,7 @@
 
 #include "reosguicontext.h"
 #include "reosmap.h"
-#include "reosmaptooleditgeometrystructure.h"
+#include "reosmaptooleditpolygonsclassified.h"
 #include "reoshydraulicstructure2d.h"
 #include "reosstyleregistery.h"
 #include "reosformwidget.h"
@@ -41,7 +41,7 @@ ReosGmshResolutionControllerWidget::ReosGmshResolutionControllerWidget( ReosHydr
   ui->mToolBarWidget->layout()->addWidget( mToolBar );
 
   ui->mDefaultSizeParameterWidget->setDouble( mController->defaultSize() );
-  mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonStructure( mController->resolutionPolygons(), this, guiContext.map() );
+  mMapToolEditResolutionPolygon = new ReosMapToolEditPolygonsClassified( mController->resolutionPolygons(), this, guiContext.map() );
   mMapToolEditResolutionPolygon->addHelperStructure( structure2D->geometryStructure() );
   mMapToolEditResolutionPolygon->setAction( mActionEditResolutionPolygons );
   mActionEditResolutionPolygons->setCheckable( true );

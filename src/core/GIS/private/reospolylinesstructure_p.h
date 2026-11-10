@@ -22,8 +22,10 @@
 
 #include <qgsvectorlayer.h>
 #include <qgscoordinatetransform.h>
+#include <qgsmapsettings.h>
 
 #include "reospolylinesstructure.h"
+#include "reosgeometrycomplex_p.h"
 
 class ReosPolylineStructureVectorLayerUndoCommandRemoveLine;
 class ReosPolylineStructureVectorLayerUndoCommandAddLine;
@@ -31,7 +33,6 @@ class ReosPolylineStructureVectorLayerUndoCommandAddLine;
 typedef QgsFeatureId SegmentId;
 
 #define InvalidSegment std::numeric_limits<SegmentId>::max()
-
 
 class ReosStructureVertexHandler_p : public ReosGeometryStructureVertex
 {
@@ -91,26 +92,7 @@ typedef std::shared_ptr<ReosStructureVertexHandler_p> VertexS;
 typedef std::weak_ptr<ReosStructureVertexHandler_p> VertexW;
 typedef std::array<VertexS, 2> Segment;
 
-class ReosGeometryStructure_p
-{
-  protected:
-    std::unique_ptr<QgsVectorLayer> mVectorLayer;
-
-    ReosGeometryStructure_p() = default;
-    ReosGeometryStructure_p( const QString &type, const QString &wktCrs );
-
-    QgsPointXY toLayerCoordinates( const ReosSpatialPosition &position ) const;
-    QgsPointXY transformCoordinates( const QPointF &position, const QgsCoordinateTransform &transform ) const;
-    QgsPointXY transformCoordinates( const QgsPointXY &position, const QgsCoordinateTransform &transform ) const;
-    const QgsCoordinateTransform toLayerTransform( const QString &crs ) const;
-    const QgsCoordinateTransform toDestinationTransform( const QString &destinationCrs ) const;
-    ReosMapExtent extent( const QString &destinationCrs ) const;
-    QgsRectangle layerZone( const ReosMapExtent &zone ) const;
-    QString crs() const;
-};
-
-
-class ReosPolylineStructureVectorLayer : public ReosPolylinesStructure, private ReosGeometryStructure_p
+class ReosPolylineStructureVectorLayer : public ReosPolylinesStructure, private ReosGeometryComplex_p
 {
     Q_OBJECT
   public:
@@ -126,6 +108,7 @@ class ReosPolylineStructureVectorLayer : public ReosPolylinesStructure, private 
     QLineF line( qint64 lineId, const QString &destinationCrs = QString() ) const override;
 
     QPolygonF boundary( const QString &destinationCrs = QString() ) const override;
+    QList<ReosGeometryStructureVertex *> boundaryVertices() const override;
     QString boundaryClassId( int i ) const override;
 
     void reset( const Data &data, const QString &crs ) override;
@@ -184,6 +167,8 @@ class ReosPolylineStructureVectorLayer : public ReosPolylinesStructure, private 
     bool isOnBoundary( const Segment &seg ) const;
     void setTolerance( double tolerance, const QString &wktCrs = QString() );
 
+    void render( void *mapSetting, QPainter *painter, bool highlight, const QPointF &highlightPosition ) const override;
+
   private:
     ReosPolylineStructureVectorLayer() = default;
 
@@ -204,9 +189,6 @@ class ReosPolylineStructureVectorLayer : public ReosPolylinesStructure, private 
     VertexS purposeVertex( const QgsPointXY &point, double toleranceInLayerSystem );
     VertexS createVertex( QgsFeatureId id, int positionInFeature );
     VertexS insertVertexPrivate( const QgsPointXY &point, qint64 lineId );
-
-    QgsFeatureIterator closeLines( const ReosMapExtent &zone, QgsRectangle &rect ) const;
-    QgsFeatureIterator closeLinesInLayerCoordinate( const QgsRectangle &rectLayer ) const;
 
     //! Search for the closest line pointed by \a it and in the extent \a rect and return the distance \a dist
     bool closestLine( QgsFeatureIterator &it, const QgsRectangle &rect, SegmentId &lineId, double *distance = nullptr ) const;

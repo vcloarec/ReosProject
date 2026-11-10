@@ -53,13 +53,13 @@ HEADERS += src/core/reosapplication.h \
            src/core/GIS/reosdigitalelevationmodel.h \
            src/core/GIS/reosexporttovectorfile.h \
            src/core/GIS/reosgdalutils.h \
-           src/core/GIS/reosgeometrystructure.h \
+           src/core/GIS/reosgeometrycomplex.h \
            src/core/GIS/reosgisengine.h \
            src/core/GIS/reoshdf5.h \
            src/core/GIS/reosmapextent.h \
            src/core/GIS/reosmesh.h \
            src/core/GIS/reosnetcdfutils.h \
-           src/core/GIS/reospolygonstructure.h \
+           src/core/GIS/reospolygonsclassified.h \
            src/core/GIS/reospolylinesstructure.h \
            src/core/GIS/reosrenderedobject.h \
            src/core/GIS/reosrenderersettings.h \
@@ -148,7 +148,9 @@ HEADERS += src/core/reosapplication.h \
            src/gui/GIS/reosmapitem.h \
            src/gui/GIS/reosmaplegenditem.h \
            src/gui/GIS/reosmaptool.h \
-           src/gui/GIS/reosmaptooleditgeometrystructure.h \
+           src/gui/GIS/reosmaptooleditpolylinestructure.h \
+           src/gui/GIS/reosmaptoolpolygonwatershed.h \
+           src/gui/GIS/reosmaptooleditpolygonsclassified.h \
            src/gui/GIS/reosmaptooleditmeshframe.h \
            src/gui/GIS/reosmeshscalarrenderingwidget.h \
            src/gui/GIS/reosmeshvectorrenderingwidget.h \
@@ -218,11 +220,11 @@ HEADERS += src/core/reosapplication.h \
            src/gui/GIS/private/reoslayertreecontextmenuprovider_p.h \
            src/gui/GIS/private/reoslayertreeviewdemindicator.h \
            src/gui/GIS/private/reosmappolygon_p.h \
-           src/gui/GIS/private/reosmappolygonstructure_p.h \
+           src/gui/GIS/private/reosmappolygoncomplex_p.h \
            src/gui/GIS/private/reosmappolylinesstructure_p.h \
            src/gui/GIS/private/reosmaptool_p.h \
            src/gui/GIS/private/reosmaptooleditmeshframe_p.h \
-           src/gui/GIS/private/reosmaptooleditpolygonstructure_p.h \
+           src/gui/GIS/private/reosmaptooleditpolygonsclassified_p.h \
            src/gui/GIS/private/reosmaptooleditpolylinestructure_p.h \
            src/gui/GIS/private/reostemporalcontroller_p.h \
            src/gui/hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.h \
@@ -345,13 +347,13 @@ SOURCES += src/core/reosapplication.cpp \
            src/core/GIS/reosdigitalelevationmodel.cpp \
            src/core/GIS/reosexporttovectorfile.cpp \
            src/core/GIS/reosgdalutils.cpp \
-           src/core/GIS/reosgeometrystructure.cpp \
+           src/core/GIS/reosgeometrycomplex.cpp \
            src/core/GIS/reosgisengine.cpp \
            src/core/GIS/reoshdf5.cpp \
            src/core/GIS/reosmapextent.cpp \
            src/core/GIS/reosmesh.cpp \
            src/core/GIS/reosnetcdfutils.cpp \
-           src/core/GIS/reospolygonstructure.cpp \
+           src/core/GIS/reospolygonsclassified.cpp \
            src/core/GIS/reospolylinesstructure.cpp \
            src/core/GIS/reosrenderedobject.cpp \
            src/core/GIS/reosrenderersettings.cpp \
@@ -441,7 +443,9 @@ SOURCES += src/core/reosapplication.cpp \
            src/gui/GIS/reosmapitem.cpp \
            src/gui/GIS/reosmaplegenditem.cpp \
            src/gui/GIS/reosmaptool.cpp \
-           src/gui/GIS/reosmaptooleditgeometrystructure.cpp \
+           src/gui/GIS/reosmaptooleditpolylinestructure.cpp \
+           src/gui/GIS/reosmaptoolpolygonwatershed.cpp \
+           src/gui/GIS/reosmaptooleditpolygonsclassified.cpp \
            src/gui/GIS/reosmaptooleditmeshframe.cpp \
            src/gui/GIS/reosmeshscalarrenderingwidget.cpp \
            src/gui/GIS/reosmeshvectorrenderingwidget.cpp \
@@ -510,11 +514,11 @@ SOURCES += src/core/reosapplication.cpp \
            src/gui/GIS/private/reoslayertreecontextmenuprovider_p.cpp \
            src/gui/GIS/private/reoslayertreeviewdemindicator.cpp \
            src/gui/GIS/private/reosmappolygon_p.cpp \
-           src/gui/GIS/private/reosmappolygonstructure_p.cpp \
+           src/gui/GIS/private/reosmappolygoncomplex_p.cpp \
            src/gui/GIS/private/reosmappolylinesstructure_p.cpp \
            src/gui/GIS/private/reosmaptool_p.cpp \
            src/gui/GIS/private/reosmaptooleditmeshframe_p.cpp \
-           src/gui/GIS/private/reosmaptooleditpolygonstructure_p.cpp \
+           src/gui/GIS/private/reosmaptooleditpolygonsclassified_p.cpp \
            src/gui/GIS/private/reosmaptooleditpolylinestructure_p.cpp \
            src/gui/GIS/private/reostemporalcontroller_p.cpp \
            src/gui/hydraulicNetwork/private/reosmaptoolhydraulicnetwork_p.cpp \

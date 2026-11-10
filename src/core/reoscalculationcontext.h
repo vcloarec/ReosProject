@@ -21,6 +21,7 @@
 #include "reoscore.h"
 #include "reosmeteorologicmodel.h"
 
+//! Stores the context used for hydraulic calculations.
 class REOSCORE_EXPORT ReosCalculationContext
 {
   public:

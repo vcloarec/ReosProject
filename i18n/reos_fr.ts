@@ -486,12 +486,12 @@
         <translation>Le type de données n&apos;est pas supportée par le fournisseur DSS.</translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/private/reosmaptooleditpolygonstructure_p.cpp" line="198"/>
+        <location filename="../src/gui/GIS/private/reosmaptooleditpolygonsclassified_p.cpp" line="198"/>
         <source>default</source>
         <translation>défaut</translation>
     </message>
     <message>
-        <location filename="../src/gui/GIS/private/reosmaptooleditpolygonstructure_p.cpp" line="202"/>
+        <location filename="../src/gui/GIS/private/reosmaptooleditpolygonsclassified_p.cpp" line="202"/>
         <source>Apply %1 to this polygon</source>
         <translation>Applique %1 à ce polygone</translation>
     </message>
@@ -4970,13 +4970,13 @@ choisir un nouveau nom :</translation>
 <context>
     <name>ReosPolygonStructureClassModelList</name>
     <message>
-        <location filename="../src/gui/GIS/reosmaptooleditgeometrystructure.cpp" line="138"/>
+        <location filename="../src/gui/GIS/reosmaptooleditpolylinestructure.cpp" line="138"/>
         <source>Default</source>
         <translation>Défaut</translation>
     </message>
 </context>
 <context>
-    <name>ReosPolygonStructure_p</name>
+    <name>ReosPolygonsClassified_p</name>
     <message>
         <location filename="../src/core/GIS/private/reospolygonstructure_p.cpp" line="169"/>
         <source>Add resolution polygon</source>
