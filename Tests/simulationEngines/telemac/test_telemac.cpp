@@ -76,13 +76,37 @@ void ReosTelemacTesting::initTestCase()
 void ReosTelemacTesting::cleanupTestCase()
 {}
 
-void ReosTelemacTesting::reoSelafin()
+void ReosTelemacTesting::reosSelafin()
 {
-  ReosSelafin selafinFile( testFile( "/telemac/bridge/geo_bridge.slf" ) );
+  QString filePath( testFile( "/telemac/bridge/geo_bridge.slf" ) );
   QList<int> ipobo;
-  std::unique_ptr<ReosMesh> mesh( selafinFile.loadMeshFrame( ipobo ) );
+  bool ok;
+  ReosMeshFrameData mesh = ReosSelafin::loadMeshFrame( filePath, ipobo, ok );
+  QVERIFY( ok );
+  QVERIFY( mesh.hasZ );
+  int verticesCount = mesh.vertexCoordinates.size() / 3;
 
-  int verticesCount = mesh->vertexCount();
+  QCOMPARE( verticesCount, 2626 );
+  for ( int i = 0; i < verticesCount; ++i )
+  {
+    mesh.vertexCoordinates[2 + i * 3] = 12.0;
+  }
+  mesh.hasZ = true;
+  std::unique_ptr<ReosMesh> newMesh( ReosMesh::createMeshFrame( QString() ) );
+  newMesh->generateMesh( mesh );
+
+  QString writeFilePath( tempFile( QStringLiteral( "write_geo_bridge.slf" ) ) );
+  QVERIFY( ReosSelafin::writeMeshFrame( writeFilePath, newMesh.get(), ipobo ) );
+
+  QList<int> ipobo_2;
+  ReosMeshFrameData newMeshData = ReosSelafin::loadMeshFrame( writeFilePath, ipobo_2, ok );
+  QVERIFY( ok );
+
+  QCOMPARE( mesh.facesIndexes, newMeshData.facesIndexes );
+  QCOMPARE( mesh.boundaryVertices, newMeshData.boundaryVertices );
+  QCOMPARE( mesh.holesVertices, newMeshData.holesVertices );
+  QCOMPARE( mesh.vertexCoordinates, newMeshData.vertexCoordinates );
+  QVERIFY( newMeshData.hasZ );
 }
 
 

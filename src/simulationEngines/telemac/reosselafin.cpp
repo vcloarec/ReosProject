@@ -132,13 +132,225 @@ static void setCounterClockwise( QVector<int> &triangle, const QPointF &v0, cons
 }
 
 
-ReosSelafin::ReosSelafin( const QString &filePath )
-  : mFilePath( filePath )
-{}
-
-bool ReosSelafin::createMeshFrame( const ReosMesh *mesh, const QList<int> verticesPosInBoundary ) const
+bool ReosSelafin::writeMeshFrame( const QString &filePath, const ReosMesh *mesh, const QList<int> verticalPosInBoundary, bool writeZvalues )
 {
-  QFile file( mFilePath );
+  QMap<QString, QVector<double> > variables;
+
+  if ( writeZvalues )
+  {
+    QVector<double> bottomZValues( mesh->vertexCount() );
+    for ( int i = 0; i < mesh->vertexCount(); ++i )
+      bottomZValues[i] = mesh->vertexElevation( i );
+    variables["BOTTOM"] = bottomZValues;
+  }
+
+  return writeStaticMesh( filePath, mesh, verticalPosInBoundary, variables );
+}
+
+ReosMeshFrameData ReosSelafin::loadMeshFrame( const QString &filePath, QList<int> &verticesPosInBoundary, bool &ok )
+{
+  verticesPosInBoundary.clear();
+  ok = false;
+  QFile file( filePath );
+  if ( !file.open( QIODevice::ReadOnly ) )
+    return ReosMeshFrameData();
+  QDataStream stream( &file );
+
+  //title
+  QByteArray title;
+  if ( !readRawRecord( stream, title ) )
+    return ReosMeshFrameData();
+
+  // NBV(1) NBV(2)
+  QVector<int> nbv;
+  if ( !readValueArrayRecord( stream, nbv ) || nbv.size() < 2 )
+    return ReosMeshFrameData();
+
+  //variable names, not used
+  QByteArray variablesArray;
+  for ( int i = 0; i < nbv.at( 0 ) + nbv.at( 1 ); ++i )
+    if ( !readRawRecord( stream, variablesArray ) )
+      return ReosMeshFrameData();
+  QList<QString> variableNames;
+  for ( int i = 0; i < variablesArray.size() / 32; ++i )
+  {
+    QByteArray varName = variablesArray.mid( i * 32, 32 );
+    variableNames.append( QString::fromUtf8( varName ).trimmed() );
+  }
+
+  //parameter table
+  QVector<int> param;
+  if ( !readValueArrayRecord( stream, param ) || param.size() < 10 )
+    return ReosMeshFrameData();
+  const double xOrigin = param.at( 2 );
+  const double yOrigin = param.at( 3 );
+
+  //date record
+  QByteArray refTime;
+  if ( param.at( 9 ) == 1 )
+    if ( !readRawRecord( stream, refTime ) )
+      return ReosMeshFrameData();
+
+  //NELEM,NPOIN,NDP,1
+  QVector<int> elem;
+  if ( !readValueArrayRecord( stream, elem ) || elem.size() < 3 )
+    return ReosMeshFrameData();
+  const int facesCount = elem.at( 0 );
+  const int verticesCount = elem.at( 1 );
+  const int verticesPerFace = elem.at( 2 );
+  if ( facesCount < 0 || verticesCount < 0 || verticesPerFace <= 0 )
+    return ReosMeshFrameData();
+
+  //connectivity table
+  QVector<int> connectivity;
+  if ( !readValueArrayRecord( stream, connectivity ) || connectivity.size() != facesCount * verticesPerFace )
+    return ReosMeshFrameData();
+
+  //boundary positions
+  QVector<int> ipobo;
+  if ( !readValueArrayRecord( stream, ipobo ) || ipobo.size() != verticesCount )
+    return ReosMeshFrameData();
+
+  //vertices coordinates, single or double precision
+  QByteArray rawX;
+  QByteArray rawY;
+  if ( !readRawRecord( stream, rawX ) || !readRawRecord( stream, rawY ) )
+    return ReosMeshFrameData();
+
+  QByteArray rawZ;
+  for ( int i = 0; i < variableNames.size(); ++i )
+  {
+    QString varName = variableNames.at( i );
+    if ( varName.contains( QStringLiteral( "BOTTOM" ) ) )
+    {
+      QByteArray rawTime;
+      readRawRecord( stream, rawTime );
+      readRawRecord( stream, rawZ );
+      break;
+    }
+  }
+
+  file.close();
+
+  QVector<double> xValues;
+  QVector<double> yValues;
+  if ( verticesCount > 0 && rawX.size() == verticesCount * int( sizeof( double ) ) )
+  {
+    xValues = valuesFromRawData<double>( rawX );
+    yValues = valuesFromRawData<double>( rawY );
+  }
+  else if ( verticesCount == 0 || rawX.size() == verticesCount * int( sizeof( float ) ) )
+  {
+    const QVector<float> xf = valuesFromRawData<float>( rawX );
+    const QVector<float> yf = valuesFromRawData<float>( rawY );
+    xValues = QVector<double>( xf.begin(), xf.end() );
+    yValues = QVector<double>( yf.begin(), yf.end() );
+  }
+
+  if ( xValues.size() != verticesCount || yValues.size() != verticesCount )
+    return ReosMeshFrameData();
+
+  ReosMeshFrameData data;
+  data.hasZ = false;
+  data.vertexCoordinates.resize( verticesCount * 3 );
+  double xMin = std::numeric_limits<double>::max();
+  double xMax = -std::numeric_limits<double>::max();
+  double yMin = std::numeric_limits<double>::max();
+  double yMax = -std::numeric_limits<double>::max();
+  for ( int i = 0; i < verticesCount; ++i )
+  {
+    const double x = xValues.at( i ) + xOrigin;
+    const double y = yValues.at( i ) + yOrigin;
+    data.vertexCoordinates[i * 3] = x;
+    data.vertexCoordinates[i * 3 + 1] = y;
+    data.vertexCoordinates[i * 3 + 2] = std::numeric_limits<double>::quiet_NaN();
+    xMin = std::min( xMin, x );
+    xMax = std::max( xMax, x );
+    yMin = std::min( yMin, y );
+    yMax = std::max( yMax, y );
+  }
+  if ( verticesCount > 0 )
+    data.extent = QRectF( QPointF( xMin, yMin ), QPointF( xMax, yMax ) );
+
+  if ( !rawZ.isEmpty() )
+  {
+    QVector<double> zValues;
+    if ( rawZ.size() == verticesCount * int( sizeof( double ) ) )
+      zValues = valuesFromRawData<double>( rawZ );
+    else if ( rawZ.size() == verticesCount * int( sizeof( float ) ) )
+    {
+      const QVector<float> zf = valuesFromRawData<float>( rawZ );
+      zValues = QVector<double>( zf.begin(), zf.end() );
+    }
+
+    if ( zValues.size() == verticesCount )
+    {
+      data.hasZ = true;
+      for ( int i = 0; i < verticesCount; ++i )
+        data.vertexCoordinates[i * 3 + 2] = zValues.at( i );
+    }
+  }
+
+  data.facesIndexes.resize( facesCount );
+  for ( int i = 0; i < facesCount; ++i )
+  {
+    QVector<int> &face = data.facesIndexes[i];
+    face.resize( verticesPerFace );
+    for ( int j = 0; j < verticesPerFace; ++j )
+    {
+      const int index = connectivity.at( i * verticesPerFace + j ) - 1;
+      if ( index < 0 || index >= verticesCount )
+        return ReosMeshFrameData();
+      face[j] = index;
+    }
+  }
+
+  verticesPosInBoundary = QList<int>( ipobo.begin(), ipobo.end() );
+  ok = true;
+  return data;
+}
+
+
+bool ReosSelafin::writeStaticMesh( const QString &filePath, const ReosMesh *mesh, const QVector<int> &verticesPosInBoundary, QMap<QString, QVector<double> > variables )
+{
+  /**
+   * Serafin format (also called Selafin)
+   *
+   * Binary format for triangular mesh with datasets defined on vertices
+   * Source of this doc come from :
+   * http://www.opentelemac.org/downloads/MANUALS/TELEMAC-2D/telemac-2d_user_manual_en_v7p0.pdf Appendix 3
+   * https://www.gdal.org/drv_selafin.html
+   *
+   * The Selafin file records are listed below:
+   * - 1 record containing the title of the study (72 characters) and a 8 characters string indicating the type
+   *    of format (SERAFIN or SERAFIND)
+   * - record containing the two integers NBV(1)and NBV(2)(number of linear and quadratic variables, NBV(2)with the value of 0 for Telemac,
+   * cas quadratic values are not saved so far),
+   * - NBV(1)records containing the names and units of each variable (over 32 characters),
+   * - 1 record containing the integers table IPARAM(10 integers, of which only the 6are currently being used),
+   *        - if IPARAM (3)!=0: the value corresponds to the x-coordinate of the origin of the mesh,
+   *        - if IPARAM (4)!=0: the value corresponds to the y-coordinate of the origin of the mesh,
+   *        - if IPARAM (7): the value corresponds to the number of  planes on the vertical (3D computation),
+   *        - if IPARAM (8)!=0: the value corresponds to the number of boundary points (in parallel),
+   *        - if IPARAM (9)!=0: the value corresponds to the number of interface points (in parallel),
+   *        - if IPARAM(8 ) or IPARAM(9) !=0: the array IPOBO below is replaced by the array KNOLG(total initial number of points).
+   *            All the other numbers are local to the sub-domain, including IKLE.
+   *
+   * - if IPARAM(10)= 1: a record containing the computation starting date,
+   * - 1 record containing the integers NELEM,NPOIN,NDP,1(number of elements, number of points, number of points per element and the value 1),
+   * - 1 record containing table IKLE(integer array of dimension (NDP,NELEM) which is the connectivity table.
+   *    N.B.: in TELEMAC-2D, the dimensions of this array are (NELEM,NDP)),
+   * - 1 record containing table IPOBO(integer array of dimension NPOIN);
+   *    the value of one element is 0 for an internal point, and gives the numbering of boundary points for the others,
+   * - 1 record containing table X(real array of dimension NPOINcontaining the abscissae of the points),
+   * - 1 record containing table Y(real array of dimension NPOINcontaining the ordinates of the points),
+   *
+   * Next, for each time step, the following are found:
+   * - 1 record containing time T(real),
+   * - NBV(1)+NBV(2)records containing the results tables for each variable at time T.
+   */
+
+  QFile file( filePath );
   if ( !file.open( QIODevice::WriteOnly ) )
     return false;
   QDataStream stream( &file );
@@ -154,13 +366,20 @@ bool ReosSelafin::createMeshFrame( const ReosMesh *mesh, const QList<int> vertic
 
   // NBV(1) NBV(2) size
   QVector<int> nbvSize( 2 );
-  nbvSize[0] = 0;
+  nbvSize[0] = variables.size();
   nbvSize[1] = 0;
   writeValueArrayRecord( stream, nbvSize );
 
-  //don't write variable name
+  // write pre-existing dataset name
+  const QList<QString> variableNames = variables.keys();
+  for ( size_t i = 0; i < variableNames.count(); ++i )
+  {
+    QString variableName = variableNames.at( i );
+    variableName.resize( 32, ' ' );
+    writeStringRecord( stream, variableName );
+  }
 
-  //parameter table, all values are 0
+  //parameter table
   QVector<int> param( 10, 0 );
   writeValueArrayRecord( stream, param );
 
@@ -205,134 +424,16 @@ bool ReosSelafin::createMeshFrame( const ReosMesh *mesh, const QList<int> vertic
   writeValueArrayRecord( stream, xValues );
   writeValueArrayRecord( stream, yValues );
 
+  for ( auto it = variables.constBegin(); it != variables.constEnd(); ++it )
+  {
+    const QVector<double> &values = it.value();
+    if ( values.size() != verticesCount )
+      return false;
+    writeValueArrayRecord( stream, QVector<double>( { 0.0 } ) ); // write time record, here 0.0 for static mesh
+    writeValueArrayRecord( stream, values );
+  }
+
   file.close();
 
   return true;
-}
-
-ReosMesh *ReosSelafin::loadMeshFrame( QList<int> &verticesPosInBoundary ) const
-{
-  verticesPosInBoundary.clear();
-
-  QFile file( mFilePath );
-  if ( !file.open( QIODevice::ReadOnly ) )
-    return nullptr;
-  QDataStream stream( &file );
-
-  //title
-  QByteArray title;
-  if ( !readRawRecord( stream, title ) )
-    return nullptr;
-
-  // NBV(1) NBV(2)
-  QVector<int> nbv;
-  if ( !readValueArrayRecord( stream, nbv ) || nbv.size() < 2 )
-    return nullptr;
-
-  //variable names, not used
-  QByteArray dummy;
-  for ( int i = 0; i < nbv.at( 0 ) + nbv.at( 1 ); ++i )
-    if ( !readRawRecord( stream, dummy ) )
-      return nullptr;
-
-  //parameter table
-  QVector<int> param;
-  if ( !readValueArrayRecord( stream, param ) || param.size() < 10 )
-    return nullptr;
-  const double xOrigin = param.at( 2 );
-  const double yOrigin = param.at( 3 );
-
-  //date record
-  if ( param.at( 9 ) == 1 )
-    if ( !readRawRecord( stream, dummy ) )
-      return nullptr;
-
-  //NELEM,NPOIN,NDP,1
-  QVector<int> elem;
-  if ( !readValueArrayRecord( stream, elem ) || elem.size() < 3 )
-    return nullptr;
-  const int facesCount = elem.at( 0 );
-  const int verticesCount = elem.at( 1 );
-  const int verticesPerFace = elem.at( 2 );
-  if ( facesCount < 0 || verticesCount < 0 || verticesPerFace <= 0 )
-    return nullptr;
-
-  //connectivity table
-  QVector<int> connectivity;
-  if ( !readValueArrayRecord( stream, connectivity ) || connectivity.size() != facesCount * verticesPerFace )
-    return nullptr;
-
-  //boundary positions
-  QVector<int> ipobo;
-  if ( !readValueArrayRecord( stream, ipobo ) || ipobo.size() != verticesCount )
-    return nullptr;
-
-  //vertices coordinates, single or double precision
-  QByteArray rawX;
-  QByteArray rawY;
-  if ( !readRawRecord( stream, rawX ) || !readRawRecord( stream, rawY ) )
-    return nullptr;
-
-  file.close();
-
-  QVector<double> xValues;
-  QVector<double> yValues;
-  if ( verticesCount > 0 && rawX.size() == verticesCount * int( sizeof( double ) ) )
-  {
-    xValues = valuesFromRawData<double>( rawX );
-    yValues = valuesFromRawData<double>( rawY );
-  }
-  else if ( verticesCount == 0 || rawX.size() == verticesCount * int( sizeof( float ) ) )
-  {
-    const QVector<float> xf = valuesFromRawData<float>( rawX );
-    const QVector<float> yf = valuesFromRawData<float>( rawY );
-    xValues = QVector<double>( xf.begin(), xf.end() );
-    yValues = QVector<double>( yf.begin(), yf.end() );
-  }
-
-  if ( xValues.size() != verticesCount || yValues.size() != verticesCount )
-    return nullptr;
-
-  ReosMeshFrameData data;
-  data.hasZ = false;
-  data.vertexCoordinates.resize( verticesCount * 3 );
-  double xMin = std::numeric_limits<double>::max();
-  double xMax = -std::numeric_limits<double>::max();
-  double yMin = std::numeric_limits<double>::max();
-  double yMax = -std::numeric_limits<double>::max();
-  for ( int i = 0; i < verticesCount; ++i )
-  {
-    const double x = xValues.at( i ) + xOrigin;
-    const double y = yValues.at( i ) + yOrigin;
-    data.vertexCoordinates[i * 3] = x;
-    data.vertexCoordinates[i * 3 + 1] = y;
-    data.vertexCoordinates[i * 3 + 2] = std::numeric_limits<double>::quiet_NaN();
-    xMin = std::min( xMin, x );
-    xMax = std::max( xMax, x );
-    yMin = std::min( yMin, y );
-    yMax = std::max( yMax, y );
-  }
-  if ( verticesCount > 0 )
-    data.extent = QRectF( QPointF( xMin, yMin ), QPointF( xMax, yMax ) );
-
-  data.facesIndexes.resize( facesCount );
-  for ( int i = 0; i < facesCount; ++i )
-  {
-    QVector<int> &face = data.facesIndexes[i];
-    face.resize( verticesPerFace );
-    for ( int j = 0; j < verticesPerFace; ++j )
-    {
-      const int index = connectivity.at( i * verticesPerFace + j ) - 1;
-      if ( index < 0 || index >= verticesCount )
-        return nullptr;
-      face[j] = index;
-    }
-  }
-
-  verticesPosInBoundary = QList<int>( ipobo.begin(), ipobo.end() );
-
-  std::unique_ptr<ReosMesh> mesh( ReosMesh::createMeshFrame() );
-  mesh->generateMesh( data );
-
-  return mesh.release();
 }

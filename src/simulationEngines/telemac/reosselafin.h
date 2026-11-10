@@ -20,18 +20,20 @@
 
 #include <QString>
 
-class ReosMesh;
+#include "reosmesh.h"
 
 class ReosSelafin
 {
   public:
-    ReosSelafin( const QString &filePath );
+    static bool writeMeshFrame( const QString &filePath, const ReosMesh *mesh, QList<int> verticalPosInBoundary, bool writeZvalues = true );
+    static ReosMeshFrameData loadMeshFrame( const QString &filePath, QList<int> &vertivalPosInBoundary, bool &ok );
 
-    bool createMeshFrame( const ReosMesh *mesh, QList<int> vertivalPosInBoundary ) const;
-    ReosMesh *loadMeshFrame( QList<int> &vertivalPosInBoundary ) const;
-
-  private:
-    QString mFilePath;
+    static bool writeStaticMesh(
+      const QString &fileName,
+      const ReosMesh *mesh,
+      const QVector<int> &verticesPosInBoundary,
+      QMap<QString, QVector<double> > datasetGroups );
 };
+
 
 #endif // REOSSELAFIN_H
