@@ -23,6 +23,7 @@ email                : vcloarec at gmail dot com
 #include "reosgisengine.h"
 #include "reoswatershed.h"
 #include "reosgriddeddata.h"
+#include "reosgdalutils.h"
 
 class ReosEra5Test : public QObject
 {
@@ -39,6 +40,7 @@ class ReosEra5Test : public QObject
     void griddedDataOnWatersedAccuUnchunkedFile();
 
     void griddedDataOnWatersedDistArea();
+    void distributedAreaFractions();
 
   private:
     ReosModule mRootModule;
@@ -281,6 +283,33 @@ void ReosEra5Test::griddedDataOnWatersedDistArea()
   QVector<double> val4 = gridOnWs->valuesForArea( 3 );
 
   QCOMPARE( val1.count(), 744 );
+}
+
+void ReosEra5Test::distributedAreaFractions()
+{
+  const QString file = testFile( "area_distribution_clermont.tiff" );
+  const ReosRasterExtent fileExtent = ReosGdalDataset( file ).extent();
+  ReosDistributedArea distributedArea( file );
+
+  // A single coarse cell covering the whole raster: the 4 areas are equal (each one a quarter of the surface)
+  QVector<ReosRasterMemory<double>> fractions = distributedArea.areaFractionGrids( ReosRasterExtent( fileExtent, 1, 1 ), 4 );
+  QCOMPARE( fractions.count(), 4 );
+  for ( const ReosRasterMemory<double> &f : std::as_const( fractions ) )
+    QVERIFY( equal( f.value( 0, 0 ), 0.25, 0.01 ) );
+
+  // With coarse cells, each cell can be shared between several areas and fractions of a cell sum to 1
+  fractions = distributedArea.areaFractionGrids( ReosRasterExtent( fileExtent, 3, 3 ), 4 );
+  QCOMPARE( fractions.count(), 4 );
+  for ( int row = 0; row < 3; ++row )
+  {
+    for ( int col = 0; col < 3; ++col )
+    {
+      double sum = 0;
+      for ( const ReosRasterMemory<double> &f : std::as_const( fractions ) )
+        sum += f.value( row, col );
+      QVERIFY( equal( sum, 1.0, 0.001 ) );
+    }
+  }
 }
 
 void ReosEra5Test::griddedDataOnWatersedInstantFile()

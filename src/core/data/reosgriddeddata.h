@@ -190,7 +190,7 @@ class REOSCORE_EXPORT ReosDataGriddedOnWatershed SIP_ABSTRACT
     QPointer<ReosGriddedData> mGriddedData;
     ReosDuration mOutputTimeStep;
     QString mAreaDistributionFilePath;
-    ReosRasterMemory<unsigned char> mAreaDistributionGrid;
+    QVector<ReosRasterMemory<double>> mAreaFractionGrids;
     int mAreaCount;
     bool mDistributePerArea = false;
 
@@ -253,6 +253,13 @@ class REOSCORE_EXPORT ReosDistributedArea
     bool isValid() const;
 
     ReosRasterMemory<unsigned char> areaDistributionGrid( const ReosRasterExtent &extent, int areaCount ) const SIP_SKIP;
+
+    /**
+     * Returns, for each of the \a areaCount areas, a grid on \a extent with the fraction of each cell belonging to the area.
+     * For each cell, the fractions sum to 1 (equal fractions if the cell is not covered by the distribution raster).
+     * The returned list is empty in case of failure.
+     */
+    QVector<ReosRasterMemory<double>> areaFractionGrids( const ReosRasterExtent &extent, int areaCount ) const SIP_SKIP;
 
   private:
     QString mFilePath;

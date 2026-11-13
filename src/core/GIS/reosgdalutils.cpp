@@ -19,6 +19,8 @@
 #include "gdalwarper.h"
 #include "gdal_utils.h"
 #include <iostream>
+#include <algorithm>
+#include <limits>
 
 #include <QStringList>
 #include <QMap>
@@ -252,6 +254,118 @@ void ReosGdalDataset::resample( const ReosRasterExtent &newExtent, const QString
 
   GDALWarpAppOptionsFree( psWarpOptions );
   CSLDestroy( papszOptions );
+}
+
+QVector<ReosRasterMemory<double>> ReosGdalDataset::classFractions( int band, int classCount, const ReosRasterExtent &newExtent ) const
+{
+  QVector<ReosRasterMemory<double>> ret;
+
+  if ( !mHDataset || classCount <= 0 )
+    return ret;
+
+  GDALRasterBandH hBand = GDALGetRasterBand( mHDataset, band );
+  if ( !hBand )
+    return ret;
+
+  int xCount = GDALGetRasterXSize( mHDataset );
+  int yCount = GDALGetRasterYSize( mHDataset );
+
+  QVector<unsigned char> values( static_cast<qsizetype>( xCount ) * yCount );
+  if ( GDALRasterIO( hBand, GF_Read, 0, 0, xCount, yCount, values.data(), xCount, yCount, GDT_Byte, 0, 0 ) != CE_None )
+    return ret;
+
+  float noData = -1.0f;
+  GDALDriverH hMemDriver = GDALGetDriverByName( "MEM" );
+
+  // One binary mask per class, the average of a mask over a cell is the fraction of the cell belonging to the class
+  GDALDatasetH hSrcDS = GDALCreate( hMemDriver, "", xCount, yCount, classCount, GDT_Float32, nullptr );
+  if ( !hSrcDS )
+    return ret;
+
+  double srcGeoTransform[6];
+  GDALGetGeoTransform( mHDataset, srcGeoTransform );
+  GDALSetGeoTransform( hSrcDS, srcGeoTransform );
+  GDALSetProjection( hSrcDS, GDALGetProjectionRef( mHDataset ) );
+
+  QVector<float> mask( values.size() );
+  for ( int k = 0; k < classCount; ++k )
+  {
+    for ( qsizetype i = 0; i < values.size(); ++i )
+    {
+      int v = values.at( i );
+      if ( v == 0 )
+        mask[i] = noData;
+      else
+        mask[i] = std::min( classCount - 1, v * classCount / 256 ) == k ? 1.0f : 0.0f;
+    }
+
+    GDALRasterBandH hSrcBand = GDALGetRasterBand( hSrcDS, k + 1 );
+    GDALSetRasterNoDataValue( hSrcBand, noData );
+    GDALRasterIO( hSrcBand, GF_Write, 0, 0, xCount, yCount, mask.data(), xCount, yCount, GDT_Float32, 0, 0 );
+  }
+
+  int outWidth = newExtent.xCellCount();
+  int outHeight = newExtent.yCellCount();
+
+  GDALDatasetH hDstDS = GDALCreate( hMemDriver, "", outWidth, outHeight, classCount, GDT_Float32, nullptr );
+  if ( !hDstDS )
+  {
+    GDALClose( hSrcDS );
+    return ret;
+  }
+
+  double dstGeoTransform[6] = { newExtent.xMapMin(), newExtent.xCellSize(), 0, newExtent.yMapMax(), 0, newExtent.yCellSize() };
+  GDALSetGeoTransform( hDstDS, dstGeoTransform );
+  GDALSetProjection( hDstDS, newExtent.crs().toUtf8() );
+  for ( int k = 0; k < classCount; ++k )
+  {
+    GDALRasterBandH hDstBand = GDALGetRasterBand( hDstDS, k + 1 );
+    GDALSetRasterNoDataValue( hDstBand, noData );
+    GDALFillRaster( hDstBand, noData, 0 );
+  }
+
+  char **papszOptions = nullptr;
+  papszOptions = CSLAddString( papszOptions, "-r" );
+  papszOptions = CSLAddString( papszOptions, "average" );
+
+  int usageError = 0;
+  GDALWarpAppOptions *psWarpOptions = GDALWarpAppOptionsNew( papszOptions, nullptr );
+  GDALDatasetH ahSrcDS[1] = { hSrcDS };
+  GDALDatasetH hWarped = GDALWarp( nullptr, hDstDS, 1, ahSrcDS, psWarpOptions, &usageError );
+  GDALWarpAppOptionsFree( psWarpOptions );
+  CSLDestroy( papszOptions );
+
+  if ( hWarped )
+  {
+    for ( int k = 0; k < classCount; ++k )
+    {
+      ReosRasterMemory<double> fractions( outHeight, outWidth );
+      if ( !fractions.reserveMemory() )
+        break;
+
+      GDALRasterBandH hDstBand = GDALGetRasterBand( hDstDS, k + 1 );
+      if ( GDALRasterIO( hDstBand, GF_Read, 0, 0, outWidth, outHeight, fractions.data(), outWidth, outHeight, GDT_Float64, 0, 0 ) != CE_None )
+        break;
+
+      for ( int row = 0; row < outHeight; ++row )
+      {
+        for ( int col = 0; col < outWidth; ++col )
+        {
+          if ( fractions.value( row, col ) < 0 )
+            fractions.setValue( row, col, std::numeric_limits<double>::quiet_NaN() );
+        }
+      }
+      ret.append( fractions );
+    }
+
+    if ( ret.count() != classCount )
+      ret.clear();
+  }
+
+  GDALClose( hDstDS );
+  GDALClose( hSrcDS );
+
+  return ret;
 }
 
 bool ReosGdalDataset::writeDoubleToFile( int bandNo, const QString &fileName ) const

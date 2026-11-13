@@ -56,6 +56,13 @@ class REOSCORE_EXPORT ReosGdalDataset : public ReosGriddedDataSource
 
     void resample( const ReosRasterExtent &newExtent, const QString &alg = "near" );
 
+    /**
+     * Splits the byte values of \a band in \a classCount equal classes (value 0 is considered as no data) and returns,
+     * for each class, the fraction of the area of each cell of \a newExtent that belongs to this class.
+     * Cells without any data have a NaN fraction.
+     */
+    QVector<ReosRasterMemory<double>> classFractions( int band, int classCount, const ReosRasterExtent &newExtent ) const;
+
     bool writeDoubleToFile( int bandNo, const QString &fileName ) const;
 
     static bool writeByteRasterToFile( const QString &fileName, ReosRasterMemory<unsigned char> raster, const ReosRasterExtent &extent );
