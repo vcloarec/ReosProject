@@ -267,103 +267,94 @@ QVector<ReosRasterMemory<double>> ReosGdalDataset::classFractions( int band, int
   if ( !hBand )
     return ret;
 
-  int xCount = GDALGetRasterXSize( mHDataset );
-  int yCount = GDALGetRasterYSize( mHDataset );
+  const int xCount = GDALGetRasterXSize( mHDataset );
+  const int yCount = GDALGetRasterYSize( mHDataset );
 
   QVector<unsigned char> values( static_cast<qsizetype>( xCount ) * yCount );
   if ( GDALRasterIO( hBand, GF_Read, 0, 0, xCount, yCount, values.data(), xCount, yCount, GDT_Byte, 0, 0 ) != CE_None )
     return ret;
 
-  float noData = -1.0f;
-  GDALDriverH hMemDriver = GDALGetDriverByName( "MEM" );
-
-  // One binary mask per class, the average of a mask over a cell is the fraction of the cell belonging to the class
-  GDALDatasetH hSrcDS = GDALCreate( hMemDriver, "", xCount, yCount, classCount, GDT_Float32, nullptr );
-  if ( !hSrcDS )
-    return ret;
-
   double srcGeoTransform[6];
   GDALGetGeoTransform( mHDataset, srcGeoTransform );
-  GDALSetGeoTransform( hSrcDS, srcGeoTransform );
-  GDALSetProjection( hSrcDS, GDALGetProjectionRef( mHDataset ) );
+  const char *srcProjection = GDALGetProjectionRef( mHDataset );
 
+  const int outWidth = newExtent.xCellCount();
+  const int outHeight = newExtent.yCellCount();
+  double dstGeoTransform[6] = { newExtent.xMapMin(), newExtent.xCellSize(), 0, newExtent.yMapMax(), 0, newExtent.yCellSize() };
+  const QByteArray dstProjection = newExtent.crs().toUtf8();
+
+  constexpr float noData = -1.0f;
+  GDALDriverH hMemDriver = GDALGetDriverByName( "MEM" );
   QVector<float> mask( values.size() );
+
+  // One class at a time to limit memory usage, as the source raster can be much finer than the new extent.
+  // The average of a binary mask over a cell is the fraction of the cell belonging to the class, whatever
+  // the relative size of source pixels and cells.
   for ( int k = 0; k < classCount; ++k )
   {
     for ( qsizetype i = 0; i < values.size(); ++i )
     {
-      int v = values.at( i );
+      const int v = values.at( i );
       if ( v == 0 )
         mask[i] = noData;
       else
         mask[i] = std::min( classCount - 1, v * classCount / 256 ) == k ? 1.0f : 0.0f;
     }
 
-    GDALRasterBandH hSrcBand = GDALGetRasterBand( hSrcDS, k + 1 );
-    GDALSetRasterNoDataValue( hSrcBand, noData );
-    GDALRasterIO( hSrcBand, GF_Write, 0, 0, xCount, yCount, mask.data(), xCount, yCount, GDT_Float32, 0, 0 );
-  }
-
-  int outWidth = newExtent.xCellCount();
-  int outHeight = newExtent.yCellCount();
-
-  GDALDatasetH hDstDS = GDALCreate( hMemDriver, "", outWidth, outHeight, classCount, GDT_Float32, nullptr );
-  if ( !hDstDS )
-  {
-    GDALClose( hSrcDS );
-    return ret;
-  }
-
-  double dstGeoTransform[6] = { newExtent.xMapMin(), newExtent.xCellSize(), 0, newExtent.yMapMax(), 0, newExtent.yCellSize() };
-  GDALSetGeoTransform( hDstDS, dstGeoTransform );
-  GDALSetProjection( hDstDS, newExtent.crs().toUtf8() );
-  for ( int k = 0; k < classCount; ++k )
-  {
-    GDALRasterBandH hDstBand = GDALGetRasterBand( hDstDS, k + 1 );
-    GDALSetRasterNoDataValue( hDstBand, noData );
-    GDALFillRaster( hDstBand, noData, 0 );
-  }
-
-  char **papszOptions = nullptr;
-  papszOptions = CSLAddString( papszOptions, "-r" );
-  papszOptions = CSLAddString( papszOptions, "average" );
-
-  int usageError = 0;
-  GDALWarpAppOptions *psWarpOptions = GDALWarpAppOptionsNew( papszOptions, nullptr );
-  GDALDatasetH ahSrcDS[1] = { hSrcDS };
-  GDALDatasetH hWarped = GDALWarp( nullptr, hDstDS, 1, ahSrcDS, psWarpOptions, &usageError );
-  GDALWarpAppOptionsFree( psWarpOptions );
-  CSLDestroy( papszOptions );
-
-  if ( hWarped )
-  {
-    for ( int k = 0; k < classCount; ++k )
+    GDALDatasetH hSrcDS = GDALCreate( hMemDriver, "", xCount, yCount, 1, GDT_Float32, nullptr );
+    GDALDatasetH hDstDS = GDALCreate( hMemDriver, "", outWidth, outHeight, 1, GDT_Float32, nullptr );
+    if ( !hSrcDS || !hDstDS )
     {
-      ReosRasterMemory<double> fractions( outHeight, outWidth );
-      if ( !fractions.reserveMemory() )
-        break;
-
-      GDALRasterBandH hDstBand = GDALGetRasterBand( hDstDS, k + 1 );
-      if ( GDALRasterIO( hDstBand, GF_Read, 0, 0, outWidth, outHeight, fractions.data(), outWidth, outHeight, GDT_Float64, 0, 0 ) != CE_None )
-        break;
-
-      for ( int row = 0; row < outHeight; ++row )
-      {
-        for ( int col = 0; col < outWidth; ++col )
-        {
-          if ( fractions.value( row, col ) < 0 )
-            fractions.setValue( row, col, std::numeric_limits<double>::quiet_NaN() );
-        }
-      }
-      ret.append( fractions );
+      if ( hSrcDS )
+        GDALClose( hSrcDS );
+      if ( hDstDS )
+        GDALClose( hDstDS );
+      return QVector<ReosRasterMemory<double>>();
     }
 
-    if ( ret.count() != classCount )
-      ret.clear();
-  }
+    GDALSetGeoTransform( hSrcDS, srcGeoTransform );
+    GDALSetProjection( hSrcDS, srcProjection );
+    GDALRasterBandH hSrcBand = GDALGetRasterBand( hSrcDS, 1 );
+    GDALSetRasterNoDataValue( hSrcBand, noData );
+    GDALRasterIO( hSrcBand, GF_Write, 0, 0, xCount, yCount, mask.data(), xCount, yCount, GDT_Float32, 0, 0 );
 
-  GDALClose( hDstDS );
-  GDALClose( hSrcDS );
+    GDALSetGeoTransform( hDstDS, dstGeoTransform );
+    GDALSetProjection( hDstDS, dstProjection.constData() );
+    GDALRasterBandH hDstBand = GDALGetRasterBand( hDstDS, 1 );
+    GDALSetRasterNoDataValue( hDstBand, noData );
+    GDALFillRaster( hDstBand, noData, 0 );
+
+    char **papszOptions = nullptr;
+    papszOptions = CSLAddString( papszOptions, "-r" );
+    papszOptions = CSLAddString( papszOptions, "average" );
+
+    int usageError = 0;
+    GDALWarpAppOptions *psWarpOptions = GDALWarpAppOptionsNew( papszOptions, nullptr );
+    GDALDatasetH ahSrcDS[1] = { hSrcDS };
+    GDALDatasetH hWarped = GDALWarp( nullptr, hDstDS, 1, ahSrcDS, psWarpOptions, &usageError );
+    GDALWarpAppOptionsFree( psWarpOptions );
+    CSLDestroy( papszOptions );
+
+    ReosRasterMemory<double> fractions( outHeight, outWidth );
+    const bool ok = hWarped && fractions.reserveMemory()
+                    && GDALRasterIO( hDstBand, GF_Read, 0, 0, outWidth, outHeight, fractions.data(), outWidth, outHeight, GDT_Float64, 0, 0 ) == CE_None;
+
+    GDALClose( hDstDS );
+    GDALClose( hSrcDS );
+
+    if ( !ok )
+      return QVector<ReosRasterMemory<double>>();
+
+    for ( int row = 0; row < outHeight; ++row )
+    {
+      for ( int col = 0; col < outWidth; ++col )
+      {
+        if ( fractions.value( row, col ) < 0 )
+          fractions.setValue( row, col, std::numeric_limits<double>::quiet_NaN() );
+      }
+    }
+    ret.append( fractions );
+  }
 
   return ret;
 }

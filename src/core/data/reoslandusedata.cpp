@@ -171,29 +171,39 @@ QVector<QMap<int, double>> ReosLandUseDataOnWatershed::landUseDistributionByArea
   if (areaClass.isValid() == false)
     return distributions;
 
-  qDebug() << QStringLiteral("Simplify area grid to get %1 classes.").arg( classCount ) << areaClassRasterFile;
-  ReosRasterMemory<unsigned char> areaClassGrid = areaClass.areaDistributionGrid(rasterizedExtent,classCount);
+  qDebug() << QStringLiteral("Compute area fractions to get %1 classes.").arg( classCount ) << areaClassRasterFile;
+  const QVector<ReosRasterMemory<double>> areaFractions = areaClass.areaFractionGrids( rasterizedExtent, classCount );
+  if ( areaFractions.count() != classCount )
+    return distributions;
 
   distributions.resize( classCount );
 
   QVector<int> landUseValues = landUseRaster.values();
   QVector<double> cellAreas = rasterizedWatershed.values();
-  QVector<unsigned char> areaClassValues = areaClassGrid.values();
 
   qDebug()<<"Checking raster sizes...";
   qDebug()<< "Land use raster size: " << landUseRaster.rowCount() << "x" << landUseRaster.columnCount();
-  qDebug()<< "Area class raster size: " << areaClassGrid.rowCount() << "x" << areaClassGrid.columnCount();
   qDebug()<< "Rasterized watershed size: " << rasterizedWatershed.rowCount() << "x" << rasterizedWatershed.columnCount();
 
+  int columnCount = landUseRaster.columnCount();
   QVector<double> totalArea( classCount, 0 );
   for ( qsizetype i = 0; i < landUseValues.size(); ++i )
   {
     int landUseValue = landUseValues.at( i );
     double cellArea = cellAreas.at( i );
-    if ( cellArea > 0 && areaClassValues.at(i) < classCount )
+    if ( cellArea <= 0 )
+      continue;
+
+    int row = static_cast<int>( i / columnCount );
+    int col = static_cast<int>( i % columnCount );
+    for ( int k = 0; k < classCount; ++k )
     {
-      distributions[areaClassValues.at(i)][landUseValue] += cellArea;
-      totalArea[areaClassValues.at(i)] += cellArea;
+      double area = cellArea * areaFractions.at( k ).value( row, col );
+      if ( area > 0 )
+      {
+        distributions[k][landUseValue] += area;
+        totalArea[k] += area;
+      }
     }
   }
 
