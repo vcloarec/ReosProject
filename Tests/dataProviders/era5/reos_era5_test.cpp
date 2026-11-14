@@ -40,6 +40,7 @@ class ReosEra5Test : public QObject
     void griddedDataOnWatersedAccuUnchunkedFile();
 
     void griddedDataOnWatersedDistArea();
+    void griddedDataOnWatersedDistArea_2();
     void distributedAreaFractions();
 
   private:
@@ -254,7 +255,7 @@ void ReosEra5Test::griddedDataOnWatersedAccuUnchunkedFile()
 void ReosEra5Test::griddedDataOnWatersedDistArea()
 {
   QVariantMap uriParam;
-  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/vincent/1995-08-accum.nc" );
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/cloarec/1995-08-accum.nc" );
   uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "tp" );
 
   bool ok = false;
@@ -281,6 +282,67 @@ void ReosEra5Test::griddedDataOnWatersedDistArea()
   QVector<double> val2 = gridOnWs->valuesForArea( 1 );
   QVector<double> val3 = gridOnWs->valuesForArea( 2 );
   QVector<double> val4 = gridOnWs->valuesForArea( 3 );
+
+  QVector<double> valMean( val1.count(), 0 );
+  double max = -std::numeric_limits<double>::max();
+  double max_mean = -std::numeric_limits<double>::max();
+  for ( int i = 0; i < val1.count(); ++i )
+  {
+    valMean[i] = ( val1[i] + val2[i] + val3[i] + val4[i] ) / 4.0;
+    if ( values[i] > max )
+      max = values[i];
+    if ( valMean[i] > max_mean )
+      max_mean = valMean[i];
+  }
+
+  QCOMPARE( val1.count(), 744 );
+}
+
+void ReosEra5Test::griddedDataOnWatersedDistArea_2()
+{
+  QVariantMap uriParam;
+  uriParam[QStringLiteral( "file-or-dir-path" )] = QStringLiteral( "/home/cloarec/1995-08-accum.nc" );
+  uriParam[QStringLiteral( "var-short-name" )] = QStringLiteral( "ssr" );
+
+  bool ok = false;
+  const QString &uri = ReosDataProviderRegistery::instance()->buildUri( QStringLiteral( "era5" ), ReosGriddedData::staticType(), uriParam, ok );
+  QVERIFY( ok );
+
+  std::unique_ptr<ReosGriddedData> griddedData = std::make_unique<ReosGriddedData>( uri, QStringLiteral( "era5" ) );
+
+  QString watershedCrs;
+  const QPolygonF watershed_poly = ReosGisEngine::openPolygonVectorLayerSource( testFile( "distArea/A116003002.gpkg" ), watershedCrs ).at( 0 );
+
+  ReosWatershed watershed( watershed_poly, QPointF(), watershedCrs );
+
+  std::unique_ptr<ReosSeriesFromGriddedDataOnWatershed> gridOnWs(
+    ReosSeriesFromGriddedDataOnWatershed::createWithTimeStep( &watershed, griddedData.get(), ReosDuration( 1.0, ReosDuration::hour ), testFile( "distArea/area_distribution.tiff" ), 4 )
+  );
+
+  gridOnWs->preCalculate();
+
+  QVector<double> values = gridOnWs->constData();
+  QCOMPARE( values.count(), 744 );
+
+  QVector<double> val1 = gridOnWs->valuesForArea( 0 );
+  QVector<double> val2 = gridOnWs->valuesForArea( 1 );
+  QVector<double> val3 = gridOnWs->valuesForArea( 2 );
+  QVector<double> val4 = gridOnWs->valuesForArea( 3 );
+
+  QVector<double> valMean( val1.count(), 0 );
+  double max = -std::numeric_limits<double>::max();
+  double max_mean = -std::numeric_limits<double>::max();
+  QVector<double> diff( val1.count(), 0 );
+  double diffMax = -std::numeric_limits<double>::max();
+  for ( int i = 0; i < val1.count(); ++i )
+  {
+    valMean[i] = ( val1[i] + val2[i] + val3[i] + val4[i] ) / 4.0;
+    if ( values[i] != 0.0 )
+      diff[i] = std::abs( values[i] - valMean[i] ) / values[i];
+
+    if ( diff[i] > diffMax )
+      diffMax = diff[i];
+  }
 
   QCOMPARE( val1.count(), 744 );
 }
