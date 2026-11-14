@@ -11,6 +11,12 @@ RUN mkdir /qgis_built
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Ubuntu 24.04 ships GDAL 3.8.4: use UbuntuGIS to get GDAL >= 3.9.3
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common gpg gpg-agent ca-certificates && \
+    add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget bison build-essential ca-certificates ccache cmake cmake-curses-gui \
     dh-python doxygen expect flex flip gdal-bin git graphviz \
@@ -39,7 +45,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xfonts-100dpi xfonts-75dpi xfonts-base xfonts-scalable xvfb libaec-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
+RUN gdal-config --version | awk -F. '{ if ($1<3 || ($1==3 && $2<9) || ($1==3 && $2==9 && $3<3)) exit 1 }' \
+    || (echo "GDAL >= 3.9.3 required" && exit 1)
 
 # Clone and build QGIS
 RUN git clone --branch fix_without_EPT_COPC --single-branch --depth 1 https://github.com/vcloarec/QGIS.git /qgis_src && \
@@ -76,6 +83,12 @@ WORKDIR /app
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Same GDAL source as the builder stage (GDAL >= 3.9.3)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common gpg gpg-agent ca-certificates && \
+    add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Install only runtime dependencies (not compilers, cmake, etc.)
 RUN apt update && apt-get install -y --no-install-recommends \
     gdal-bin libgeos-c1v5 proj-bin \
@@ -96,6 +109,10 @@ RUN apt-get install -y python3-gdal python3-lxml python3-owslib python3-psycopg2
     python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-sip python3-yaml \
     lighttpd && \
     apt clean && rm -rf /var/lib/apt/lists/*
+
+RUN gdalinfo --version | sed -E 's/GDAL ([0-9]+)\.([0-9]+)\.([0-9]+).*/\1 \2 \3/' | \
+    awk '{ if ($1<3 || ($1==3 && $2<9) || ($1==3 && $2==9 && $3<3)) exit 1 }' \
+    || (echo "GDAL >= 3.9.3 required" && exit 1)
 
 RUN  apt clean && rm -rf /var/lib/apt/lists/*
 
