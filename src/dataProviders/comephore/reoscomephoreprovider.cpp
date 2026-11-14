@@ -179,7 +179,7 @@ const QVector<double> ReosComephoreProvider::data( int index ) const
         int rawIndex = readLine ? retIndex : yi + xi * yCount;
 
         int rawValue = rawValues.at( rawIndex );
-        if ( rawValue == 65535 || rawValues.at( rawIndex ) == 0 )
+        if ( rawValue == 65535 )
           ( *values )[retIndex] = std::numeric_limits<double>::quiet_NaN();
         else
           ( *values )[retIndex] = rawValue / 10.0;
@@ -221,7 +221,7 @@ const QVector<double> ReosComephoreProvider::dataInGridExtent( int index, int ro
         int rawIndex = readLine ? retIndex : yi + xi * yCount;
 
         int rawValue = rawValues.at( rawIndex );
-        if ( rawValue == 65535 || rawValues.at( rawIndex ) == 0 )
+        if ( rawValue == 65535 )
           ( *values )[retIndex] = std::numeric_limits<double>::quiet_NaN();
         else
           ( *values )[retIndex] = rawValue / 10.0;
