@@ -68,12 +68,12 @@ void ReosComephoreTest::createProvider()
   QVERIFY( provider->isValid() );
 
   QCOMPARE( provider->count(), 73 );
-  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->startTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2018, 02, 17 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 1 ), QDateTime( QDate( 2018, 02, 18 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 50 ), QDateTime( QDate( 2018, 02, 20 ), QTime( 2, 0, 0 ), Qt::UTC ) );
 
   ReosRasterExtent extent = provider->extent();
 
@@ -90,7 +90,7 @@ void ReosComephoreTest::createProvider()
   double min = 0, max = 0;
   QVERIFY( !provider->getDirectMinMax( min, max ) );
   provider->calculateMinMax( min, max );
-  QCOMPARE( min, 0.1 );
+  QCOMPARE( min, 0.0 );
   QCOMPARE( max, 12.4 );
 }
 
@@ -121,7 +121,7 @@ void ReosComephoreTest::createRainfallFromTif()
   double min, max;
   QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
   rainfall->calculateMinMaxValue( min, max );
-  QCOMPARE( min, 0.2 );
+  QCOMPARE( min, 0.0 );
   QCOMPARE( max, 1.9 );
 }
 
@@ -152,7 +152,7 @@ void ReosComephoreTest::createRainfallFromTifMissingFrame()
   double min, max;
   QVERIFY( !rainfall->getDirectMinMaxValue( min, max ) );
   rainfall->calculateMinMaxValue( min, max );
-  QCOMPARE( min, 0.2 );
+  QCOMPARE( min, 0.0 );
   QCOMPARE( max, 1.9 );
 
   QPolygonF watershed_poly;
@@ -200,7 +200,7 @@ void ReosComephoreTest::netcdfFile()
   );
   QVERIFY( compatibleProvider );
 
-  QCOMPARE( compatibleProvider->key(), QStringLiteral( "comephore::gridded-precipitation" ) );
+  QCOMPARE( compatibleProvider->key(), QStringLiteral( "comephore::gridded-data" ) );
 
   ReosGriddedDataProvider *provider = qobject_cast<ReosGriddedDataProvider *>( compatibleProvider.get() );
   provider->setDataSource( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_XXXX.nc" ) );
@@ -210,10 +210,10 @@ void ReosComephoreTest::netcdfFile()
   QVERIFY( provider->isValid() );
 
   QCOMPARE( provider->count(), 744 );
-  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->startTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2019, 12, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
 
   QVector<double> vals = provider->data( 0 );
   QCOMPARE( vals.count(), 1536 * 1536 );
@@ -246,14 +246,14 @@ void ReosComephoreTest::dupplicateFrames()
   std::unique_ptr<ReosGriddedRainfall> rainfall = std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202008.nc" ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 744 );
-  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 3, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 743 ), QDateTime( QDate( 2020, 8, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 743 ), QDateTime( QDate( 2020, 9, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2020, 7, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2020, 8, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2020, 8, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 743 ), QDateTime( QDate( 2020, 8, 31 ), QTime( 22, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 743 ), QDateTime( QDate( 2020, 8, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
 
   QVERIFY( rainfall->minimumTimeStep().valueMilliSecond() == 3600000 );
 }
@@ -263,12 +263,12 @@ void ReosComephoreTest::createRainfallFromNetCdf()
   std::unique_ptr<ReosGriddedRainfall> rainfall = std::make_unique<ReosGriddedRainfall>( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc/comephore_1km-1h_202001.nc" ), QStringLiteral( "comephore" ) );
 
   QCOMPARE( rainfall->gridCount(), 744 );
-  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 3, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 0 ), QDateTime( QDate( 2019, 12, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 0 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 1 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 1 ), QDateTime( QDate( 2020, 01, 01 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->startTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( rainfall->endTime( 50 ), QDateTime( QDate( 2020, 01, 03 ), QTime( 2, 0, 0 ), Qt::UTC ) );
 
   ReosRasterExtent extent = rainfall->rasterExtent();
 
@@ -298,7 +298,7 @@ void ReosComephoreTest::netCdfFolder()
   );
   QVERIFY( compatibleProvider );
 
-  ReosGriddedRainfallProvider *provider = qobject_cast<ReosGriddedRainfallProvider *>( compatibleProvider.get() );
+  ReosGriddedDataProvider *provider = qobject_cast<ReosGriddedDataProvider *>( compatibleProvider.get() );
 
   QString comephoresPath( COMEPHORE_FILES_PATH + QStringLiteral( "/comephore_nc" ) );
   provider->setDataSource( comephoresPath );
@@ -306,12 +306,12 @@ void ReosComephoreTest::netCdfFolder()
   QVERIFY( provider->isValid() );
 
   QCOMPARE( provider->count(), 8784 );
-  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->startTime( 8000 ), QDateTime( QDate( 2020, 11, 29 ), QTime( 8, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( provider->endTime( 8000 ), QDateTime( QDate( 2020, 11, 29 ), QTime( 9, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 0 ), QDateTime( QDate( 2019, 12, 31 ), QTime( 23, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 0 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 0, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 1 ), QDateTime( QDate( 2020, 1, 1 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->startTime( 8000 ), QDateTime( QDate( 2020, 11, 29 ), QTime( 7, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( provider->endTime( 8000 ), QDateTime( QDate( 2020, 11, 29 ), QTime( 8, 0, 0 ), Qt::UTC ) );
 
   ReosRasterExtent extent = provider->extent();
 
@@ -329,8 +329,8 @@ void ReosComephoreTest::netCdfFolder()
   for ( int i = 0; i < provider->count(); ++i )
     QVERIFY( provider->startTime( i ).isValid() );
 
-  QVERIFY( provider->hasCapability( ReosGriddedRainfallProvider::SubGridExtract ) );
-  QVERIFY( provider->hasCapability( ReosGriddedRainfallProvider::QualificationValue ) );
+  QVERIFY( provider->hasCapability( ReosGriddedDataProvider::SubGridExtract ) );
+  QVERIFY( provider->hasCapability( ReosGriddedDataProvider::QualificationValue ) );
 
   values = provider->dataInGridExtent( 700, 560, 570, 340, 360 );
   QCOMPARE( values.count(), 231 );
@@ -356,8 +356,8 @@ void ReosComephoreTest::timeWindow()
 
   QCOMPARE( 2242, rainfall->gridCount() );
   QPair<QDateTime, QDateTime> timeExtent = rainfall->timeExtent();
-  QCOMPARE( timeExtent.first, QDateTime( QDate( 2020, 2, 3 ), QTime( 2, 0, 0 ), Qt::UTC ) );
-  QCOMPARE( timeExtent.second, QDateTime( QDate( 2020, 5, 6 ), QTime( 12, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( timeExtent.first, QDateTime( QDate( 2020, 2, 3 ), QTime( 1, 0, 0 ), Qt::UTC ) );
+  QCOMPARE( timeExtent.second, QDateTime( QDate( 2020, 5, 6 ), QTime( 11, 0, 0 ), Qt::UTC ) );
 }
 
 void ReosComephoreTest::missingIndex()

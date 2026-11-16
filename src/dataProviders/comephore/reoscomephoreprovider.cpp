@@ -447,7 +447,7 @@ ReosComephoreTiffFilesReader::ReosComephoreTiffFilesReader( const QString &uri )
     ReosDuration duration( firstTime, lastTime );
     mFrameCount = duration.numberOfFullyContainedIntervals( ReosDuration( 1, ReosDuration::hour ) ) + 1;
 
-    mFirstStartTime = firstTime.addSecs( -3600 );
+    mFirstTime = firstTime;
   }
 }
 
@@ -456,7 +456,7 @@ ReosComephoreFilesReader *ReosComephoreTiffFilesReader::clone() const
   std::unique_ptr<ReosComephoreTiffFilesReader> other( new ReosComephoreTiffFilesReader );
 
   other->mFrameCount = mFrameCount;
-  other->mFirstStartTime = mFirstStartTime;
+  other->mFirstTime = mFirstTime;
   other->mFilesNames = mFilesNames;
   return other.release();
 }
@@ -468,7 +468,7 @@ int ReosComephoreTiffFilesReader::frameCount() const
 
 QDateTime ReosComephoreTiffFilesReader::time( int i ) const
 {
-  return mFirstStartTime.addSecs( 3600 * i );
+  return mFirstTime.addSecs( 3600 * i );
 }
 
 QVector<int> ReosComephoreTiffFilesReader::data( int index, bool &readLine ) const
@@ -651,7 +651,11 @@ QDateTime ReosComephoreProvider::startFromUri( const QString &uri )
 {
   QStringList parts = uri.split( QStringLiteral( "::" ) );
   if ( parts.count() > 1 )
-    return QDateTime::fromString( parts[1], Qt::ISODate );
+  {
+    QDateTime ret = QDateTime::fromString( parts[1], Qt::ISODate );
+    ret.setTimeSpec( Qt::UTC );
+    return ret;
+  }
 
   return QDateTime();
 }
@@ -660,7 +664,11 @@ QDateTime ReosComephoreProvider::endFromUri( const QString &uri )
 {
   QStringList parts = uri.split( QStringLiteral( "::" ) );
   if ( parts.count() > 2 )
-    return QDateTime::fromString( parts[2], Qt::ISODate );
+  {
+    QDateTime ret = QDateTime::fromString( parts[2], Qt::ISODate );
+    ret.setTimeSpec( Qt::UTC );
+    return ret;
+  }
 
   return QDateTime();
 }
